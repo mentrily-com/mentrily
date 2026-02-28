@@ -209,10 +209,10 @@ function TheFounders() {
 
     const leaders = [
         {
-            name: "Pawan Jung Bista",
+            name: "---",
             image: "/professional-nepali-male-ceo-portrait.jpg",
             description:
-                "Pawan experienced modern, hands-on education while studying in India and returned to Nepal determined to bring the same transformative learning approach to his homeland.",
+                "--- experienced modern, hands-on education while studying in India and returned to Nepal determined to bring the same transformative learning approach to his homeland.",
             highlights: [
                 "Passionate about practical education that creates real jobs",
                 "Driving the shift from theory to hands-on learning",
@@ -220,10 +220,10 @@ function TheFounders() {
             ],
         },
         {
-            name: "Suman Yadav",
+            name: "---",
             image: "/professional-nepali-male-founder-portrait-tech.jpg",
             description:
-                "Suman founded Blockscode with a clear mission: to give Nepalese students the practical skills and opportunities they need to compete globally.",
+                "--- founded Blockscode with a clear mission: to give Nepalese students the practical skills and opportunities they need to compete globally.",
             highlights: [
                 "Pioneering practical tech education in Nepal",
                 "Creating pathways from learning to employment",
@@ -317,7 +317,7 @@ function HowItStarted() {
             title: "A Spark of Inspiration",
             location: "India",
             description:
-                "Two ambitious students, Pawan Jung Bista and Suman Yadav, crossed paths while studying in India. There, they experienced something that would change their lives forever — hands-on, practical education that didn't just teach concepts, but transformed how people think, build, and create.",
+                "Two ambitious students, --- and ---, crossed paths while studying in India. There, they experienced something that would change their lives forever — hands-on, practical education that didn't just teach concepts, but transformed how people think, build, and create.",
             emotion: "The excitement of discovery",
             icon: Sparkles,
             color: "from-amber-500 to-orange-500",
@@ -341,7 +341,7 @@ function HowItStarted() {
             title: "Building the Bridge",
             location: "Kathmandu",
             description:
-                "That frustration became fuel. Pawan and Suman founded Blockscode with a radical idea: what if education could be different? They built a platform focused on real projects, practical skills, and secure assessments — shifting the entire paradigm from memorizing answers to solving problems.",
+                "That frustration became fuel. --- and --- founded Blockscode with a radical idea: what if education could be different? They built a platform focused on real projects, practical skills, and secure assessments — shifting the entire paradigm from memorizing answers to solving problems.",
             emotion: "The courage to start something new",
             icon: Wrench,
             color: "from-blue-600 to-sky-500",
