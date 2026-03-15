@@ -47,8 +47,29 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     }
 
     async onModuleInit() {
+        const eagerConnect = String(process.env.PRISMA_EAGER_CONNECT || 'false').toLowerCase() === 'true';
+        if (!eagerConnect) {
+            console.log('[PrismaService] Skipping eager DB connect on startup (PRISMA_EAGER_CONNECT=false).');
+            return;
+        }
+
         const maxAttempts = Number(process.env.PRISMA_CONNECT_MAX_ATTEMPTS || 10);
         const baseDelayMs = Number(process.env.PRISMA_CONNECT_RETRY_DELAY_MS || 2000);
+
+        const isRetryableConnectError = (error: unknown): boolean => {
+            const message = String((error as any)?.message || '').toLowerCase();
+
+            const nonRetryableHints = [
+                'no such database',
+                'database does not exist',
+                'password authentication failed',
+                'authentication failed',
+                'invalid connection string',
+                'unknown database',
+            ];
+
+            return !nonRetryableHints.some((hint) => message.includes(hint));
+        };
 
         let lastError: unknown;
 
@@ -58,6 +79,11 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
                 return;
             } catch (error) {
                 lastError = error;
+                if (!isRetryableConnectError(error)) {
+                    console.error('[PrismaService] Non-retryable DB connection error detected. Failing fast.');
+                    throw error;
+                }
+
                 const delayMs = baseDelayMs * attempt;
                 console.error(`[PrismaService] Connect attempt ${attempt}/${maxAttempts} failed. Retrying in ${delayMs}ms...`);
 
