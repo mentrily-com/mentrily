@@ -9,6 +9,8 @@ export class TestCodeRotationService implements OnModuleInit, OnModuleDestroy {
     private timer: NodeJS.Timeout | null = null;
     private readonly tickMs = 30 * 1000;
     private readonly lockTtlMs = 20 * 1000;
+    private readonly enabled = String(process.env.ENABLE_TEST_CODE_ROTATION || 'false').toLowerCase() === 'true';
+    private dbRetryAfter = 0;
 
     constructor(
         private readonly prisma: PrismaService,
@@ -16,13 +18,28 @@ export class TestCodeRotationService implements OnModuleInit, OnModuleDestroy {
     ) { }
 
     onModuleInit() {
+        if (!this.enabled) {
+            this.logger.log('Test code rotation worker disabled (ENABLE_TEST_CODE_ROTATION=false)');
+            return;
+        }
+
         this.timer = setInterval(() => {
             this.rotateDueExamCodes().catch((error) => {
+                if (this.isDbSaturationError(error)) {
+                    this.dbRetryAfter = Date.now() + 60 * 1000;
+                    this.logger.warn('Rotation tick skipped: database connection slots exhausted. Cooling down for 60s.');
+                    return;
+                }
                 this.logger.error(`Rotation tick failed: ${error?.message || error}`);
             });
         }, this.tickMs);
 
         this.rotateDueExamCodes().catch((error) => {
+            if (this.isDbSaturationError(error)) {
+                this.dbRetryAfter = Date.now() + 60 * 1000;
+                this.logger.warn('Initial rotation tick skipped: database connection slots exhausted.');
+                return;
+            }
             this.logger.error(`Initial rotation tick failed: ${error?.message || error}`);
         });
 
@@ -53,6 +70,10 @@ export class TestCodeRotationService implements OnModuleInit, OnModuleDestroy {
     }
 
     private async rotateDueExamCodes() {
+        if (Date.now() < this.dbRetryAfter) {
+            return;
+        }
+
         const gotLock = await this.tryAcquireLock();
         if (!gotLock) return;
 
@@ -93,5 +114,14 @@ export class TestCodeRotationService implements OnModuleInit, OnModuleDestroy {
 
             this.logger.log(`Rotated test code for exam ${exam.slug}`);
         }
+    }
+
+    private isDbSaturationError(error: unknown): boolean {
+        const message = String((error as any)?.message || '').toLowerCase();
+        return (
+            message.includes('too many database connections') ||
+            message.includes('remaining connection slots') ||
+            message.includes('p2037')
+        );
     }
 }
