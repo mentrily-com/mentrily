@@ -1522,27 +1522,16 @@ export class TeacherService {
             this.prisma.examSession.count({ where })
         ]);
 
-        // Map sessions to frontend format
-        const mappedSessions = sessions.map((session: any) => {
-            const answers = typeof session.answers === 'string'
-                ? JSON.parse(session.answers)
-                : (session.answers || {});
-
-            const metadata = answers._internal_metadata || {};
-
-            // Calculate marks if not already explicitly set or to ensure freshness
-            const calculatedScore = this.examService.calculateScore(answers, exam.questions);
-            const score = session.score !== null ? session.score : calculatedScore;
-
-            // Calculate total possible marks dynamically from questions
+        const computeTotalMarks = (questionsInput: any): number => {
             let dynamicTotalMarks = 0;
-            let questionsData = exam.questions as any;
+            let questionsData = questionsInput;
 
             if (typeof questionsData === 'string') {
                 try {
                     questionsData = JSON.parse(questionsData);
                 } catch (e) {
                     console.error('Failed to parse exam questions JSON', e);
+                    questionsData = null;
                 }
             }
 
@@ -1559,27 +1548,22 @@ export class TeacherService {
                         }
                     });
                 } else if (Array.isArray(questionsData)) {
-                    // Check if it's an array of sections or questions
                     const firstItem = questionsData[0];
                     if (firstItem && (firstItem.questions || firstItem.id?.startsWith('sec-'))) {
-                        // It's likely an array of sections
                         questionsData.forEach((sec: any) => {
                             if (sec.questions && Array.isArray(sec.questions)) {
                                 sec.questions.forEach(processQuestion);
                             }
                         });
                     } else {
-                        // It's an array of questions
                         questionsData.forEach(processQuestion);
                     }
                 } else if (typeof questionsData === 'object') {
-                    // Handle object map structure
                     Object.values(questionsData).forEach((sec: any) => {
                         if (sec && typeof sec === 'object') {
                             if (sec.questions && Array.isArray(sec.questions)) {
                                 sec.questions.forEach(processQuestion);
                             } else if (sec.id && sec.type) {
-                                // Direct question in map (rare but possible)
                                 processQuestion(sec);
                             }
                         }
@@ -1587,8 +1571,23 @@ export class TeacherService {
                 }
             }
 
-            // Fallback to exam.totalMarks if dynamic calculation yields 0 (e.g. empty exam)
-            const totalMarks = dynamicTotalMarks > 0 ? dynamicTotalMarks : (Number(exam.totalMarks) || 0);
+            return dynamicTotalMarks > 0 ? dynamicTotalMarks : (Number(exam.totalMarks) || 0);
+        };
+
+        const totalMarks = computeTotalMarks(exam.questions);
+        const marksDenominator = totalMarks || Number(exam.totalMarks) || 100;
+
+        // Map sessions to frontend format
+        const mappedSessions = sessions.map((session: any) => {
+            const answers = typeof session.answers === 'string'
+                ? JSON.parse(session.answers)
+                : (session.answers || {});
+
+            const metadata = answers._internal_metadata || {};
+
+            const score = session.score !== null
+                ? session.score
+                : this.examService.calculateScore(answers, exam.questions);
 
             const status = totalMarks > 0
                 ? (score / totalMarks >= 0.4 ? 'Passed' : 'Failed')
@@ -1627,10 +1626,10 @@ export class TeacherService {
                 totalCount: allStatsData.length,
                 highScore: Math.max(...allStatsData.map((s: any) => Number(s.score) || 0), 0),
                 distribution: [
-                    { score: '0-25%', count: allStatsData.filter((r: any) => (Number(r.score) / (Number(exam.totalMarks) || 100)) < 0.25).length },
-                    { score: '25-50%', count: allStatsData.filter((r: any) => { const p = Number(r.score) / (Number(exam.totalMarks) || 100); return p >= 0.25 && p < 0.5; }).length },
-                    { score: '50-75%', count: allStatsData.filter((r: any) => { const p = Number(r.score) / (Number(exam.totalMarks) || 100); return p >= 0.5 && p < 0.75; }).length },
-                    { score: '75-100%', count: allStatsData.filter((r: any) => (Number(r.score) / (Number(exam.totalMarks) || 100)) >= 0.75).length },
+                    { score: '0-25%', count: allStatsData.filter((r: any) => (Number(r.score) / marksDenominator) < 0.25).length },
+                    { score: '25-50%', count: allStatsData.filter((r: any) => { const p = Number(r.score) / marksDenominator; return p >= 0.25 && p < 0.5; }).length },
+                    { score: '50-75%', count: allStatsData.filter((r: any) => { const p = Number(r.score) / marksDenominator; return p >= 0.5 && p < 0.75; }).length },
+                    { score: '75-100%', count: allStatsData.filter((r: any) => (Number(r.score) / marksDenominator) >= 0.75).length },
                 ]
             }
         };
