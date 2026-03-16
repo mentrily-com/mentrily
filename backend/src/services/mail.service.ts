@@ -6,9 +6,9 @@ export class MailService {
   private readonly logger = new Logger(MailService.name);
   private readonly apiKey = process.env.MAILJET_API_KEY;
   private readonly apiSecret = process.env.MAILJET_API_SECRET;
-  private readonly senderEmail = process.env.MAILJET_SENDER_EMAIL || 'no-reply@blockscodex.com';
+  private readonly senderEmail = process.env.MAILJET_SENDER_EMAIL || 'no-reply@blockscodex.me';
   private readonly senderName = process.env.MAILJET_SENDER_NAME || 'blockscodeX';
-  private readonly appUrl = process.env.FRONTEND_URL || 'https://blockscodex.com';
+  private readonly appUrl = process.env.FRONTEND_URL || 'https://blockscode.me';
   private readonly appName = process.env.APP_NAME || 'blockscodeX';
 
   async sendWelcomeEmail(user: { email: string; name: string; password: string }, organization: { name: string; primaryColor?: string; logo?: string; domain?: string }) {
