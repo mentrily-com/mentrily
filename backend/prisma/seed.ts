@@ -1,11 +1,12 @@
 import { PrismaClient, Role } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { randomBytes } from 'crypto';
 
 const prisma = new PrismaClient();
 
 async function main() {
   const email = 'xisense@gmail.com';
-  const password = 'admin123'; // This is the password you will use to login
+  const password = process.env.SEED_SUPERADMIN_PASSWORD || randomBytes(12).toString('base64url').slice(0, 12);
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const superAdmin = await prisma.user.upsert({
@@ -22,6 +23,9 @@ async function main() {
   });
 
   console.log({ superAdmin });
+  if (!process.env.SEED_SUPERADMIN_PASSWORD) {
+    console.warn(`[seed] SEED_SUPERADMIN_PASSWORD not set. Generated temporary password for ${email}: ${password}`);
+  }
 }
 
 main()

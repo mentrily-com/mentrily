@@ -1,0 +1,85 @@
+import { siteConfig } from '@/app/config/site';
+
+const RESERVED_SUBDOMAINS = new Set(['www', 'app', 'api', 'admin']);
+
+function normalizeHost(value?: string | null): string {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/^https?:\/\//, '')
+    .replace(/:\d+$/, '');
+}
+
+export function getRootDomain(): string {
+  return normalizeHost(siteConfig.domain);
+}
+
+export function getCookieDomain(hostOrUrl?: string | null): string | undefined {
+  const host = normalizeHost(hostOrUrl);
+  const rootDomain = getRootDomain();
+
+  if (!rootDomain || rootDomain === 'localhost' || /^\d+\.\d+\.\d+\.\d+$/.test(rootDomain)) {
+    return undefined;
+  }
+
+  if (!host) {
+    return `.${rootDomain}`;
+  }
+
+  if (host === 'localhost' || host.endsWith('.localhost') || /^\d+\.\d+\.\d+\.\d+$/.test(host)) {
+    return undefined;
+  }
+
+  if (host !== rootDomain && !host.endsWith(`.${rootDomain}`)) {
+    return undefined;
+  }
+
+  return `.${rootDomain}`;
+}
+
+export function parseSubdomain(hostOrUrl?: string | null): string | null {
+  const host = normalizeHost(hostOrUrl);
+  if (!host) return null;
+
+  if (host === 'localhost' || host.endsWith('.localhost')) {
+    const localParts = host.split('.');
+    if (localParts.length > 1) {
+      const localSub = localParts[0];
+      if (!RESERVED_SUBDOMAINS.has(localSub)) return localSub;
+    }
+    return null;
+  }
+
+  const rootDomain = getRootDomain();
+  if (!rootDomain) return null;
+
+  if (!host.endsWith(`.${rootDomain}`)) {
+    return null;
+  }
+
+  const prefix = host.slice(0, -(`.${rootDomain}`.length));
+  if (!prefix) return null;
+
+  const firstSegment = prefix.split('.')[0];
+  if (!firstSegment || RESERVED_SUBDOMAINS.has(firstSegment)) {
+    return null;
+  }
+
+  return firstSegment;
+}
+
+export function buildOrgUrl(subdomain: string, pathname = '/'): string | null {
+  const normalizedSubdomain = String(subdomain || '').trim().toLowerCase();
+  if (!normalizedSubdomain) return null;
+
+  const rootDomain = getRootDomain();
+  if (!rootDomain) return null;
+
+  const normalizedPath = pathname.startsWith('/') ? pathname : `/${pathname}`;
+
+  if (rootDomain === 'localhost') {
+    return `http://${normalizedSubdomain}.localhost:3000${normalizedPath}`;
+  }
+
+  return `https://${normalizedSubdomain}.${rootDomain}${normalizedPath}`;
+}

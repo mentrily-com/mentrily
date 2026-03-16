@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Post, Delete, Body, UseGuards, Request, Param } from '@nestjs/common';
+import { Controller, Get, Put, Post, Delete, Body, UseGuards, Request, Param, Query } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -29,8 +29,12 @@ export class StudentController {
     }
 
     @Get('attempts')
-    async getAttempts(@User() user: any) {
-        return this.studentService.getExamAttempts(user.id);
+    async getAttempts(
+        @User() user: any,
+        @Query('limit') limit?: string,
+        @Query('offset') offset?: string
+    ) {
+        return this.studentService.getExamAttempts(user.id, { limit, offset });
     }
 
     @Get('exam/:sessionId/result')
@@ -94,8 +98,12 @@ export class StudentController {
     // ─── ANNOUNCEMENTS ─────────────────────────────────────────────────────────
 
     @Get('announcements')
-    async getAnnouncements(@User() user: any) {
-        return this.studentService.getAnnouncements(user.id);
+    async getAnnouncements(
+        @User() user: any,
+        @Query('limit') limit?: string,
+        @Query('offset') offset?: string
+    ) {
+        return this.studentService.getAnnouncements(user.id, { limit, offset });
     }
 
     @Get('announcements/unread-count')

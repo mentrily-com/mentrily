@@ -6,6 +6,7 @@ import { Building2, Users, ShieldAlert, ArrowUpRight, Plus, Activity, Zap, Trash
 import { SuperAdminService } from "@/services/api/SuperAdminService";
 import { requireAuthClient } from "@/hooks/requireAuthClient";
 import DashboardSkeleton from "@/app/components/Skeletons/DashboardSkeleton";
+import DOMPurify from "isomorphic-dompurify";
 
 export default function SuperAdminDashboardPage() {
     const [statsData, setStatsData] = useState<any>(null);
@@ -284,7 +285,7 @@ export default function SuperAdminDashboardPage() {
 
                         <div
                             className="prose prose-slate max-w-none text-sm font-medium text-slate-700"
-                            dangerouslySetInnerHTML={{ __html: selectedBug.description }}
+                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(String(selectedBug.description || "")) }}
                         />
 
                         {Array.isArray(selectedBug.attachments) && selectedBug.attachments.length > 0 && (

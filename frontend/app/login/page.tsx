@@ -7,6 +7,7 @@ import Link from "next/link";
 import { AuthService } from "@/services/api/AuthService";
 import { useOrganization } from "../context/OrganizationContext";
 import { loginAction } from "@/actions/auth";
+import { buildOrgUrl } from "@/lib/domain";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -41,11 +42,8 @@ export default function LoginPage() {
             }
 
             const user = result.user;
-
-            // Store token for client-side API calls that bypass the proxy (e.g. large file uploads)
-            if (result.access_token) {
-                localStorage.setItem('auth_token', result.access_token);
-            }
+            const postLoginUrl = result.postLoginUrl as string | undefined;
+            const orgSlug = result.primaryOrganization?.slug as string | undefined;
 
             // Store user details for UI context
             localStorage.setItem('user', JSON.stringify(user));
@@ -55,6 +53,22 @@ export default function LoginPage() {
             if (user.mustChangePassword) {
                 router.push(`/dashboard/${rolePath}/profile`);
             } else {
+                const targetUrl = postLoginUrl || (orgSlug ? buildOrgUrl(orgSlug, `/dashboard/${rolePath}`) : null);
+                const isLocalHost = window.location.hostname.includes('localhost');
+
+                if (targetUrl && !isLocalHost) {
+                    if (orgSlug) {
+                        localStorage.setItem('local_org_simulation', orgSlug);
+                    }
+                    window.location.assign(targetUrl);
+                    return;
+                }
+
+                if (isLocalHost && orgSlug) {
+                    localStorage.setItem('local_org_simulation', orgSlug);
+                    document.cookie = `org_subdomain=${encodeURIComponent(orgSlug)}; path=/; max-age=${7 * 24 * 60 * 60}`;
+                }
+
                 router.push(`/dashboard/${rolePath}`);
             }
         } catch (err: any) {

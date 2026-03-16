@@ -10,11 +10,15 @@ interface DashboardSkeletonProps {
 
 export default function DashboardSkeleton({ type = 'main', userRole, noNavbar = false }: DashboardSkeletonProps) {
     return (
-        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans">
+        <div className="h-screen overflow-hidden bg-[#F8FAFC] text-slate-900 font-sans">
             {/* The Navbar remains visible and interactive (loading doesn't affect it) */}
             {!noNavbar && <Navbar userRole={userRole} />}
 
-            <main className="max-w-[1440px] mx-auto px-6 lg:px-12 py-10">
+            <main
+                className={`max-w-[1440px] mx-auto px-6 lg:px-12 py-10 overflow-hidden ${
+                    noNavbar ? 'h-screen' : 'h-[calc(100vh-73px)]'
+                }`}
+            >
                 {/* Header Skeleton */}
                 <div className="flex items-center justify-between mb-10">
                     <div className="w-48 h-8 bg-slate-200 rounded-lg animate-pulse"></div>

@@ -5,7 +5,7 @@ import { PrismaClient } from '@prisma/client';
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
     constructor() {
         const databaseUrl = process.env.DATABASE_URL;
-        const connectionLimit = process.env.PRISMA_CONNECTION_LIMIT || '3';
+        const connectionLimit = process.env.PRISMA_CONNECTION_LIMIT || '12';
         const poolTimeout = process.env.PRISMA_POOL_TIMEOUT || '20';
         const connectTimeout = process.env.PRISMA_CONNECT_TIMEOUT || '20';
         const usePgBouncer = process.env.PRISMA_PGBOUNCER === 'true';

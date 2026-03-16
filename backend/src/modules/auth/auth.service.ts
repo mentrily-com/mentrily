@@ -18,15 +18,65 @@ export class AuthService {
         private storageService: StorageService
     ) { }
 
+    private getRootDomain(): string {
+        return String(
+            process.env.APP_DOMAIN ||
+            process.env.NEXT_PUBLIC_APP_DOMAIN ||
+            ''
+        )
+            .trim()
+            .toLowerCase()
+            .replace(/^https?:\/\//, '')
+            .replace(/:\d+$/, '');
+    }
+
+    private getOrgSlug(orgDomain?: string | null): string | null {
+        const rawOrgDomain = String(orgDomain || '').trim().toLowerCase();
+        if (!rawOrgDomain) return null;
+
+        const cleanedDomain = rawOrgDomain
+            .replace(/^https?:\/\//, '')
+            .replace(/:\d+$/, '');
+
+        const rootDomain = this.getRootDomain();
+        if (rootDomain && cleanedDomain.endsWith(`.${rootDomain}`)) {
+            const prefix = cleanedDomain.slice(0, -(`.${rootDomain}`.length));
+            const slug = prefix.split('.')[0];
+            return slug || null;
+        }
+
+        if (!cleanedDomain.includes('.')) {
+            return cleanedDomain;
+        }
+
+        return cleanedDomain.split('.')[0] || null;
+    }
+
+    private buildOrgUrl(orgSlug?: string | null): string | null {
+        const slug = String(orgSlug || '').trim().toLowerCase();
+        if (!slug) return null;
+
+        const rootDomain = this.getRootDomain();
+        if (!rootDomain) return null;
+
+        if (rootDomain === 'localhost') {
+            return `http://${slug}.localhost:3000`;
+        }
+
+        return `https://${slug}.${rootDomain}`;
+    }
+
     async validateUser(email: string, pass: string): Promise<any> {
         const user = await this.prisma.user.findUnique({
             where: { email },
             include: {
                 organization: {
                     select: {
+                        id: true,
                         features: true,
                         status: true,
-                        name: true
+                        name: true,
+                        domain: true
                     }
                 }
             }
@@ -77,11 +127,24 @@ export class AuthService {
         // Enforce fresh check of mustChangePassword status
         const freshUser = await this.prisma.user.findUnique({
             where: { id: user.id },
-            select: { mustChangePassword: true, organization: { select: { features: true } } }
+            select: {
+                mustChangePassword: true,
+                organization: {
+                    select: {
+                        id: true,
+                        name: true,
+                        domain: true,
+                        features: true
+                    }
+                }
+            }
         });
 
         const mustChangePassword = freshUser?.mustChangePassword ?? user.mustChangePassword;
         const features = freshUser?.organization?.features || user.organization?.features || {};
+        const organization = freshUser?.organization || user.organization;
+        const orgSlug = this.getOrgSlug(organization?.domain);
+        const postLoginUrl = this.buildOrgUrl(orgSlug);
 
         const payload = {
             email: user.email,
@@ -103,7 +166,14 @@ export class AuthService {
                 features: features,
                 mustChangePassword: mustChangePassword,
                 otp_enabled: false
-            }
+            },
+            primaryOrganization: organization ? {
+                id: organization.id,
+                name: organization.name,
+                domain: organization.domain,
+                slug: orgSlug
+            } : null,
+            postLoginUrl
         };
     }
 
@@ -156,8 +226,11 @@ export class AuthService {
             include: {
                 organization: {
                     select: {
+                        id: true,
                         status: true,
-                        name: true
+                        name: true,
+                        domain: true,
+                        features: true
                     }
                 }
             }

@@ -9,9 +9,6 @@ const sessionCache = new LRUCache<string, any>({
 export const AuthService = {
     // Legacy: getToken is deprecated as we use HttpOnly cookies
     getToken() {
-        if (typeof window !== 'undefined') {
-            return localStorage.getItem('auth_token');
-        }
         return null;
     },
 
@@ -92,7 +89,6 @@ export const AuthService = {
     async examLogin(email: string, testCode: string, password?: string): Promise<any> {
         try {
             // Clear previous session
-            localStorage.removeItem('auth_token');
             localStorage.removeItem('user');
             localStorage.removeItem('currentExamSessionId');
 
@@ -108,8 +104,7 @@ export const AuthService = {
             }
 
             const data = await res.json();
-            if (data.access_token) {
-                localStorage.setItem('auth_token', data.access_token);
+            if (data.user) {
                 localStorage.setItem('user', JSON.stringify(data.user));
             }
             return data;
@@ -269,7 +264,6 @@ export const AuthService = {
     },
 
     logout(reason?: string) {
-        localStorage.removeItem('auth_token');
         localStorage.removeItem('user');
         if (reason === 'suspended') {
             window.location.href = '/login?error=suspended';

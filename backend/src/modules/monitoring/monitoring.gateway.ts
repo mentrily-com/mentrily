@@ -48,6 +48,18 @@ export class MonitoringGateway
     @WebSocketServer()
     server: Server;
 
+    private readonly violationCounterTtlSec = 6 * 60 * 60;
+
+    private getTimeMeta() {
+        const now = new Date();
+        return {
+            serverTimeMs: now.getTime(),
+            serverTimeIso: now.toISOString(),
+            timeZone: 'Asia/Kathmandu',
+            utcOffsetMinutes: 345
+        };
+    }
+
     private extractToken(client: Socket): string | null {
         // 1. Try auth handshake
         if (client.handshake.auth && client.handshake.auth.token) {
@@ -78,6 +90,55 @@ export class MonitoringGateway
         return null;
     }
     private activeConnections = new Map<string, { userId: string; examId: string }>(); // socketId -> Metadata
+
+    private async getViolationCounts(sessionId: string): Promise<{ inCount: number; outCount: number }> {
+        const keyIn = `violation:count:in:${sessionId}`;
+        const keyOut = `violation:count:out:${sessionId}`;
+
+        const [cachedIn, cachedOut] = await this.redis.mget(keyIn, keyOut);
+
+        let inCount = cachedIn ? Number(cachedIn) : NaN;
+        let outCount = cachedOut ? Number(cachedOut) : NaN;
+
+        const needIn = !Number.isFinite(inCount);
+        const needOut = !Number.isFinite(outCount);
+
+        if (needIn || needOut) {
+            const [dbIn, dbOut] = await Promise.all([
+                needIn
+                    ? this.prisma.violation.count({ where: { sessionId, type: 'TAB_SWITCH_IN' } })
+                    : Promise.resolve(inCount),
+                needOut
+                    ? this.prisma.violation.count({ where: { sessionId, type: { in: ['TAB_SWITCH', 'TAB_SWITCH_OUT'] } } })
+                    : Promise.resolve(outCount)
+            ]);
+
+            inCount = Number(dbIn);
+            outCount = Number(dbOut);
+
+            await this.redis
+                .multi()
+                .set(keyIn, String(inCount), 'EX', this.violationCounterTtlSec)
+                .set(keyOut, String(outCount), 'EX', this.violationCounterTtlSec)
+                .exec();
+        }
+
+        return { inCount, outCount };
+    }
+
+    private async incrementViolationCounter(sessionId: string, direction: 'in' | 'out'): Promise<number> {
+        const key = direction === 'in'
+            ? `violation:count:in:${sessionId}`
+            : `violation:count:out:${sessionId}`;
+
+        const next = await this.redis.incr(key);
+        const ttl = await this.redis.ttl(key);
+        if (ttl < 0) {
+            await this.redis.expire(key, this.violationCounterTtlSec);
+        }
+
+        return next;
+    }
 
     afterInit(server: Server) {
         console.log('Proctoring Gateway initialized');
@@ -208,7 +269,10 @@ export class MonitoringGateway
         // await this.redis.set(`session:last_seen:${data.sessionId}`, Date.now(), 'EX', 60);
         
         // Emit explicit acknowledgement for client-side heartbeat tracking
-        client.emit('heartbeat_ack', { timestamp: Date.now() });
+        client.emit('heartbeat_ack', {
+            timestamp: Date.now(),
+            ...this.getTimeMeta()
+        });
         
         return { status: 'alive' };
     }
@@ -274,70 +338,12 @@ export class MonitoringGateway
         const keyIn = `violation:count:in:${data.sessionId}`;
         const keyOut = `violation:count:out:${data.sessionId}`;
 
-        let tabSwitchInCount = 0;
-        let tabSwitchOutCount = 0;
+        let { inCount: tabSwitchInCount, outCount: tabSwitchOutCount } = await this.getViolationCounts(data.sessionId);
 
         if (data.type === 'TAB_SWITCH_IN') {
-            // Increment IN counter
-            // If key missing, we might need to init it. But INCR starts at 1 so it's safer to just rely on Redis if we assume consistency.
-            // However, upon restart Redis is empty. We need lazy loading.
-
-            if (await this.redis.exists(keyIn)) {
-                tabSwitchInCount = await this.redis.incr(keyIn);
-            } else {
-                // Fetch initial count from DB
-                const dbCount = await this.prisma.violation.count({
-                    where: { sessionId: data.sessionId, type: 'TAB_SWITCH_IN' }
-                });
-                // dbCount includes the one we just created above? Yes, because we awaited create.
-                await this.redis.set(keyIn, dbCount);
-                tabSwitchInCount = dbCount;
-            }
-
-            // Get OUT count without incrementing
-            const cachedOut = await this.redis.get(keyOut);
-            if (cachedOut) {
-                tabSwitchOutCount = parseInt(cachedOut);
-            } else {
-                tabSwitchOutCount = await this.prisma.violation.count({
-                    where: { sessionId: data.sessionId, type: { in: ['TAB_SWITCH', 'TAB_SWITCH_OUT'] } }
-                });
-                await this.redis.set(keyOut, tabSwitchOutCount);
-            }
-
+            tabSwitchInCount = await this.incrementViolationCounter(data.sessionId, 'in');
         } else if (data.type === 'TAB_SWITCH' || data.type === 'TAB_SWITCH_OUT') {
-            // Increment OUT counter
-            if (await this.redis.exists(keyOut)) {
-                tabSwitchOutCount = await this.redis.incr(keyOut);
-            } else {
-                const dbCount = await this.prisma.violation.count({
-                    where: { sessionId: data.sessionId, type: { in: ['TAB_SWITCH', 'TAB_SWITCH_OUT'] } }
-                });
-                await this.redis.set(keyOut, dbCount);
-                tabSwitchOutCount = dbCount;
-            }
-
-            // Get IN count without incrementing
-            const cachedIn = await this.redis.get(keyIn);
-            if (cachedIn) {
-                tabSwitchInCount = parseInt(cachedIn);
-            } else {
-                tabSwitchInCount = await this.prisma.violation.count({
-                    where: { sessionId: data.sessionId, type: 'TAB_SWITCH_IN' }
-                });
-                await this.redis.set(keyIn, tabSwitchInCount);
-            }
-        } else {
-            // For other violations, just fetch current counts if needed or return 0
-            // Or fallback to checking DB if we really need them for the event
-            // But usually we only send updated counts on tab switches.
-
-            // Just read cache or DB
-            const cachedIn = await this.redis.get(keyIn);
-            tabSwitchInCount = cachedIn ? parseInt(cachedIn) : await this.prisma.violation.count({ where: { sessionId: data.sessionId, type: 'TAB_SWITCH_IN' } });
-
-            const cachedOut = await this.redis.get(keyOut);
-            tabSwitchOutCount = cachedOut ? parseInt(cachedOut) : await this.prisma.violation.count({ where: { sessionId: data.sessionId, type: { in: ['TAB_SWITCH', 'TAB_SWITCH_OUT'] } } });
+            tabSwitchOutCount = await this.incrementViolationCounter(data.sessionId, 'out');
         }
 
         // 2. CHECK TAB SWITCH LIMIT (Auto-termination)
@@ -349,6 +355,11 @@ export class MonitoringGateway
                 where: { id: data.sessionId },
                 data: { status: 'TERMINATED', endTime: new Date() }
             });
+
+            await this.redis.set(cacheKey, JSON.stringify({
+                status: 'TERMINATED',
+                tabSwitchLimit: sessionData.tabSwitchLimit
+            }), 'EX', 60);
 
             // Force kick student
             await this.forceTerminate(data.examId, data.userId);
@@ -376,8 +387,11 @@ export class MonitoringGateway
                 timestamp: new Date()
             });
 
-        console.log(`[Proctoring] Emitting live_violation to exam_${data.examId}_monitor:`, data.type);
-
+        await this.redis
+            .multi()
+            .expire(keyIn, this.violationCounterTtlSec)
+            .expire(keyOut, this.violationCounterTtlSec)
+            .exec();
 
         return { status: 'recorded' };
     }

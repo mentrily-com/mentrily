@@ -9,6 +9,8 @@ export class TestCodeRotationService implements OnModuleInit, OnModuleDestroy {
     private timer: NodeJS.Timeout | null = null;
     private readonly tickMs = 30 * 1000;
     private readonly lockTtlMs = 20 * 1000;
+    private readonly rotatingExamCatalogKey = 'exam:test-code-rotation:catalog';
+    private readonly rotatingExamCatalogTtlSec = 300;
     private readonly enabled = String(process.env.ENABLE_TEST_CODE_ROTATION || 'false').toLowerCase() === 'true';
     private dbRetryAfter = 0;
 
@@ -79,21 +81,7 @@ export class TestCodeRotationService implements OnModuleInit, OnModuleDestroy {
 
         const now = Date.now();
 
-        const rotatingExams = await this.prisma.exam.findMany({
-            where: {
-                isActive: true,
-                testCodeType: 'Rotating',
-                rotationInterval: { gt: 0 },
-                testCode: { not: null }
-            },
-            select: {
-                id: true,
-                slug: true,
-                testCode: true,
-                rotationInterval: true,
-                updatedAt: true
-            }
-        });
+        const rotatingExams = await this.getRotatingExamCatalog();
 
         for (const exam of rotatingExams) {
             const intervalMinutes = Number(exam.rotationInterval || 0);
@@ -112,8 +100,48 @@ export class TestCodeRotationService implements OnModuleInit, OnModuleDestroy {
                 data: { testCode: nextCode }
             });
 
+            await this.redis.del(this.rotatingExamCatalogKey);
+
             this.logger.log(`Rotated test code for exam ${exam.slug}`);
         }
+    }
+
+    private async getRotatingExamCatalog(): Promise<Array<{
+        id: string;
+        slug: string;
+        testCode: string | null;
+        rotationInterval: number | null;
+        updatedAt: string | Date;
+    }>> {
+        const cached = await this.redis.get(this.rotatingExamCatalogKey);
+        if (cached) {
+            return JSON.parse(cached);
+        }
+
+        const rotatingExams = await this.prisma.exam.findMany({
+            where: {
+                isActive: true,
+                testCodeType: 'Rotating',
+                rotationInterval: { gt: 0 },
+                testCode: { not: null }
+            },
+            select: {
+                id: true,
+                slug: true,
+                testCode: true,
+                rotationInterval: true,
+                updatedAt: true
+            }
+        });
+
+        await this.redis.set(
+            this.rotatingExamCatalogKey,
+            JSON.stringify(rotatingExams),
+            'EX',
+            this.rotatingExamCatalogTtlSec
+        );
+
+        return rotatingExams;
     }
 
     private isDbSaturationError(error: unknown): boolean {

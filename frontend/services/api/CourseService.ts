@@ -1,5 +1,3 @@
-import { AuthService } from "./AuthService";
-
 const BASE_URL = typeof window !== 'undefined' ? '/api/proxy' : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api');
 
 // Helper for authorized fetch
@@ -271,12 +269,6 @@ export const CourseService = {
             const uploadUrl = `${directBackendUrl}/course/upload-video`;
 
             xhr.open('POST', uploadUrl);
-
-            // Add Authorization header if token exists in localStorage (proxy bypass)
-            const token = AuthService.getToken();
-            if (token) {
-                xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-            }
 
             // Add File Size header to help backend handle stream length (fixes 500 error with dd-trace)
             xhr.setRequestHeader('X-File-Size', file.size.toString());

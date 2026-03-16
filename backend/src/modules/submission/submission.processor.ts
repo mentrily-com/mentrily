@@ -44,17 +44,20 @@ export class SubmissionProcessor extends WorkerHost {
 
             let examQuestions = null;
             let sessionStatus = null;
+            let sessionUserId: string | null = null;
 
             if (cachedSession) {
                 const meta = JSON.parse(cachedSession);
                 examQuestions = meta.questions;
                 sessionStatus = meta.status;
+                sessionUserId = meta.userId || null;
             } else {
                 // Fetch from DB
                 const session = await this.prisma.examSession.findUnique({
                     where: { id: sessionId },
                     select: {
                         id: true,
+                        userId: true,
                         status: true,
                         exam: {
                             select: { questions: true }
@@ -65,11 +68,13 @@ export class SubmissionProcessor extends WorkerHost {
                 if (session) {
                     examQuestions = session.exam?.questions;
                     sessionStatus = session.status;
+                    sessionUserId = session.userId;
 
                     if (examQuestions) {
                         // Cache for the duration of the exam session (e.g., 3 hours)
                         await this.redis.set(sessionCacheKey, JSON.stringify({
-                            examId: session.id, // Not really needed but structure
+                            examId: session.id,
+                            userId: session.userId,
                             questions: examQuestions,
                             status: session.status
                         }), 'EX', 10800);
@@ -181,14 +186,12 @@ export class SubmissionProcessor extends WorkerHost {
             // Step A: Save the actual answers (merge with existing JSONB)
             // This is critical, otherwise the frontend will get empty answers on reload
             if (Object.keys(answer).length > 0) {
-                await this.prisma.$executeRawUnsafe(
-                    `UPDATE "ExamSession" 
-                     SET "answers" = COALESCE("answers", '{}'::jsonb) || $1::jsonb,
-                         "updatedAt" = NOW()
-                     WHERE "id" = $2`,
-                    JSON.stringify(answer),
-                    sessionId
-                );
+                await this.prisma.$executeRaw`
+                    UPDATE "ExamSession"
+                    SET "answers" = COALESCE("answers", '{}'::jsonb) || ${JSON.stringify(answer)}::jsonb,
+                        "updatedAt" = NOW()
+                    WHERE "id" = ${sessionId}
+                `;
             }
 
             // 2. Merge marks with existing marks (Fetch-Modify-Save pattern)
@@ -216,38 +219,43 @@ export class SubmissionProcessor extends WorkerHost {
                 const totalScore = Object.values(newMarks).reduce((a: any, b: any) => a + b, 0);
 
                 // We only update _internal_marks key in the jsonb
-                await this.prisma.$executeRawUnsafe(
-                    `UPDATE "ExamSession" 
-                     SET "answers" = jsonb_set("answers", '{_internal_marks}', $1::jsonb),
-                         "score" = $3,
-                         "updatedAt" = NOW()
-                     WHERE "id" = $2`,
-                    JSON.stringify(newMarks),
-                    sessionId,
-                    totalScore
-                );
+                await this.prisma.$executeRaw`
+                    UPDATE "ExamSession"
+                    SET "answers" = jsonb_set("answers", '{_internal_marks}', ${JSON.stringify(newMarks)}::jsonb),
+                        "score" = ${totalScore},
+                        "updatedAt" = NOW()
+                    WHERE "id" = ${sessionId}
+                `;
             }
 
             // Trigger question attempts for analytics
-            const sessionUser = await this.prisma.examSession.findUnique({
-                where: { id: sessionId }, select: { userId: true }
-            });
-            const userId = sessionUser?.userId;
-
-            for (const [qId, ans] of Object.entries(answer)) {
-                if (qId.startsWith('_')) continue;
-
-                const isCorrect = (internalMarks[qId] || 0) > 0;
-
-                await this.studentAnalyticsQueue.add('save-question-attempt', {
-                    userId,
-                    itemId: qId,
-                    sessionId: sessionId,
-                    type: 'EXAM',
-                    content: ans,
-                    isCorrect: isCorrect,
-                    score: internalMarks[qId]
+            let userId = sessionUserId;
+            if (!userId) {
+                const sessionUser = await this.prisma.examSession.findUnique({
+                    where: { id: sessionId }, select: { userId: true }
                 });
+                userId = sessionUser?.userId || null;
+            }
+
+            if (userId) {
+                const jobs = Object.entries(answer)
+                    .filter(([qId]) => !qId.startsWith('_'))
+                    .map(([qId, ans]) => ({
+                        name: 'save-question-attempt',
+                        data: {
+                            userId,
+                            itemId: qId,
+                            sessionId: sessionId,
+                            type: 'EXAM',
+                            content: ans,
+                            isCorrect: (internalMarks[qId] || 0) > 0,
+                            score: internalMarks[qId]
+                        }
+                    }));
+
+                if (jobs.length > 0) {
+                    await this.studentAnalyticsQueue.addBulk(jobs as any);
+                }
             }
 
             // console.log(`[SubmissionProcessor] Atomic update completed for ${sessionId}`);
