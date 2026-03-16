@@ -59,6 +59,16 @@ export async function examLoginAction(email: string, testCode: string, password?
                 ...(cookieDomain ? { domain: cookieDomain } : {})
             });
 
+            await (await cookies()).set('ws_auth_token', data.access_token, {
+                httpOnly: false,
+                secure: USE_SECURE_COOKIE,
+                sameSite: 'lax',
+                path: '/',
+                maxAge: 24 * 60 * 60,
+                priority: 'high',
+                ...(cookieDomain ? { domain: cookieDomain } : {})
+            });
+
             if (orgSlug) {
                 await (await cookies()).set('org_subdomain', orgSlug, {
                     httpOnly: false,

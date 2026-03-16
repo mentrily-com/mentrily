@@ -135,11 +135,25 @@ export default function ExamLoginPage() {
                 localStorage.setItem(`exam_${targetSlug}_auth`, 'true');
 
                 const host = window.location.hostname.toLowerCase();
-                const rootDomain = getRootDomain();
                 const isLocalHost =
                     host === 'localhost' ||
                     host.endsWith('.localhost') ||
                     /^\d+\.\d+\.\d+\.\d+$/.test(host);
+
+                const configuredRootDomain = getRootDomain();
+                const hostParts = host.split('.');
+                const derivedRootDomain =
+                    hostParts.length >= 2
+                        ? `${hostParts[hostParts.length - 2]}.${hostParts[hostParts.length - 1]}`
+                        : configuredRootDomain;
+
+                const rootDomain =
+                    !isLocalHost &&
+                    configuredRootDomain &&
+                    (host === configuredRootDomain || host.endsWith(`.${configuredRootDomain}`))
+                        ? configuredRootDomain
+                        : derivedRootDomain;
+
                 const canSetCrossSubdomainCookie =
                     !isLocalHost &&
                     Boolean(rootDomain) &&

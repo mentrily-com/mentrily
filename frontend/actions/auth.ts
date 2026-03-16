@@ -52,6 +52,16 @@ export async function loginAction(email: string, password: string) {
                 ...(cookieDomain ? { domain: cookieDomain } : {})
             });
 
+            await (await cookies()).set('ws_auth_token', data.access_token, {
+                httpOnly: false,
+                secure: USE_SECURE_COOKIE,
+                sameSite: 'lax',
+                path: '/',
+                maxAge: 7 * 24 * 60 * 60,
+                priority: 'high',
+                ...(cookieDomain ? { domain: cookieDomain } : {})
+            });
+
             if (orgSlug) {
                 await (await cookies()).set('org_subdomain', orgSlug, {
                     httpOnly: false,
@@ -83,7 +93,7 @@ export async function logoutAction() {
 
     const cookieStore = await cookies();
 
-    for (const key of ['auth_token', 'csrf_token', 'org_subdomain']) {
+    for (const key of ['auth_token', 'csrf_token', 'org_subdomain', 'ws_auth_token']) {
         cookieStore.delete(key);
         if (cookieDomain) {
             cookieStore.set(key, '', {
