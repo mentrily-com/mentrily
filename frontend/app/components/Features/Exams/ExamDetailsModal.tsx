@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Share2, Globe, Target, Clock, Shield, Copy, Layout, X } from "lucide-react";
 import { siteConfig } from "@/app/config/site";
 import AlertModal from "@/app/components/Common/AlertModal";
+import { useOrganization } from "@/app/context/OrganizationContext";
 
 interface ExamDetailsModalProps {
     exam: any;
@@ -12,8 +13,50 @@ interface ExamDetailsModalProps {
 
 export default function ExamDetailsModal({ exam, onClose, userRole = 'teacher' }: ExamDetailsModalProps) {
     const [alertConfig, setAlertConfig] = useState<{ isOpen: boolean, title: string, message: string, type?: 'danger' | 'warning' | 'info' }>({ isOpen: false, title: '', message: '' });
+    const { organization: orgContext } = useOrganization();
 
     if (!exam) return null;
+
+    const normalizeHost = (value?: string | null): string => {
+        return String(value || '')
+            .trim()
+            .toLowerCase()
+            .replace(/^https?:\/\//, '')
+            .replace(/:\d+$/, '')
+            .replace(/\/$/, '');
+    };
+
+    const rootDomain = normalizeHost(
+        process.env.NEXT_PUBLIC_APP_DOMAIN || siteConfig.domain,
+    );
+    const orgDomainCandidate =
+        exam?.organization?.domain ||
+        exam?.orgDomain ||
+        exam?.domain ||
+        orgContext?.domain ||
+        '';
+
+    const orgDomainNormalized = normalizeHost(orgDomainCandidate);
+
+    const tenantHost = (() => {
+        if (!orgDomainNormalized) return rootDomain;
+
+        if (!rootDomain || rootDomain === 'localhost') {
+            if (orgDomainNormalized.includes('.')) return orgDomainNormalized;
+            return `${orgDomainNormalized}.localhost`;
+        }
+
+        const orgSubdomain = orgDomainNormalized.split('.')[0];
+        if (!orgSubdomain) return rootDomain;
+
+        return `${orgSubdomain}.${rootDomain}`;
+    })();
+
+    const protocol = tenantHost.includes('localhost') ? 'http' : 'https';
+    const baseUrl = `${protocol}://${tenantHost}`;
+
+    const publicExamUrl = `${baseUrl}/exam/${exam.slug}`;
+    const inviteUrl = exam.inviteToken ? `${baseUrl}/invite/${exam.inviteToken}` : 'Invite token not generated';
 
     const brandColor = '#fc751b';
     const brandLightClass = 'bg-[var(--brand-light)] text-[var(--brand)] border-[var(--brand-light)]';
@@ -58,7 +101,7 @@ export default function ExamDetailsModal({ exam, onClose, userRole = 'teacher' }
                         <DetailCard
                             icon={<Globe size={18} />}
                             label="Public Exam URL"
-                            value={`${siteConfig.domain}/exam/${exam.slug}`}
+                            value={publicExamUrl}
                             type="link"
                             onAlert={setAlertConfig}
                             brandTextClass={brandTextClass}
@@ -66,10 +109,11 @@ export default function ExamDetailsModal({ exam, onClose, userRole = 'teacher' }
                         <DetailCard
                             icon={<Share2 size={18} />}
                             label="Invite Link"
-                            value={`${siteConfig.domain}/invite/${exam.inviteToken}`}
+                            value={inviteUrl}
                             type="link"
                             onAlert={setAlertConfig}
                             brandTextClass={brandTextClass}
+                            canCopy={Boolean(exam.inviteToken)}
                         />
                     </div>
 
@@ -196,8 +240,9 @@ export default function ExamDetailsModal({ exam, onClose, userRole = 'teacher' }
     );
 }
 
-function DetailCard({ icon, label, value, type, onAlert, brandTextClass }: any) {
+function DetailCard({ icon, label, value, type, onAlert, brandTextClass, canCopy = true }: any) {
     const handleCopy = () => {
+        if (!canCopy || !value) return;
         navigator.clipboard.writeText(value);
         onAlert({
             isOpen: true,
@@ -218,7 +263,8 @@ function DetailCard({ icon, label, value, type, onAlert, brandTextClass }: any) 
                 </div>
                 <button
                     onClick={handleCopy}
-                    className={`p-1.5 text-slate-300 hover:${brandTextClass} transition-colors`}
+                    disabled={!canCopy}
+                    className={`p-1.5 text-slate-300 transition-colors ${canCopy ? `hover:${brandTextClass}` : 'opacity-40 cursor-not-allowed'}`}
                 >
                     <Copy size={14} />
                 </button>

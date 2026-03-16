@@ -11,7 +11,7 @@ function normalizeHost(value?: string | null): string {
 }
 
 export function getRootDomain(): string {
-  return normalizeHost(siteConfig.domain);
+  return normalizeHost(process.env.NEXT_PUBLIC_APP_DOMAIN || siteConfig.domain);
 }
 
 export function getCookieDomain(hostOrUrl?: string | null): string | undefined {

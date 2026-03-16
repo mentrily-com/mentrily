@@ -8,6 +8,7 @@ import { useOrganization } from '@/app/context/OrganizationContext';
 import Loading from '@/app/loading';
 import { examLoginAction } from '@/actions/examAuth';
 import { ExamService } from '@/services/api/ExamService';
+import { buildOrgUrl, getRootDomain } from '@/lib/domain';
 
 export default function ExamLoginPage() {
     const router = useRouter();
@@ -111,10 +112,17 @@ export default function ExamLoginPage() {
             }
 
             const data = result; // maintain structure
+            const postLoginUrl = data.postLoginUrl as string | undefined;
+            const orgSlug = data.primaryOrganization?.slug as string | undefined;
 
             // Store user + token for client-side context (ExamPage + WebSocket auth)
             if (data.user) {
                 localStorage.setItem('user', JSON.stringify(data.user));
+            }
+
+            if (orgSlug && window.location.hostname.includes('localhost')) {
+                localStorage.setItem('local_org_simulation', orgSlug);
+                document.cookie = `org_subdomain=${encodeURIComponent(orgSlug)}; path=/; max-age=${7 * 24 * 60 * 60}`;
             }
 
             const targetSlug = data.exam?.slug || slugFromQuery;
@@ -125,6 +133,30 @@ export default function ExamLoginPage() {
 
                 // Set mandatory auth marker (just a UI flag, real auth is cookie)
                 localStorage.setItem(`exam_${targetSlug}_auth`, 'true');
+
+                const host = window.location.hostname.toLowerCase();
+                const rootDomain = getRootDomain();
+                const isLocalHost =
+                    host === 'localhost' ||
+                    host.endsWith('.localhost') ||
+                    /^\d+\.\d+\.\d+\.\d+$/.test(host);
+                const canSetCrossSubdomainCookie =
+                    !isLocalHost &&
+                    Boolean(rootDomain) &&
+                    (host === rootDomain || host.endsWith(`.${rootDomain}`));
+                const domainAttr = canSetCrossSubdomainCookie ? `; domain=.${rootDomain}` : '';
+                const cookieMaxAge = 4 * 60 * 60;
+
+                document.cookie = `exam_${targetSlug}_auth=true; path=/; max-age=${cookieMaxAge}; samesite=lax${domainAttr}`;
+                document.cookie = `exam_${targetSlug}_metadata=${encodeURIComponent(JSON.stringify(metadata))}; path=/; max-age=${cookieMaxAge}; samesite=lax${domainAttr}`;
+
+                const targetOrgBase = postLoginUrl || (orgSlug ? buildOrgUrl(orgSlug, '/') : null);
+
+                if (targetOrgBase && !isLocalHost) {
+                    const normalizedBase = targetOrgBase.endsWith('/') ? targetOrgBase.slice(0, -1) : targetOrgBase;
+                    window.location.assign(`${normalizedBase}/exam/${targetSlug}`);
+                    return;
+                }
 
                 // Use replace to prevent going back to login page
                 router.replace(`/exam/${targetSlug}`);

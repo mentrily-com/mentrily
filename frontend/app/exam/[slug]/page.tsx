@@ -11,6 +11,7 @@ import ExamSubmitView from "../../components/ExamSubmitView";
 import ExamFeedbackView from "../../components/ExamFeedbackView";
 import ExamSuccessView from "../../components/ExamSuccessView";
 import { ExamService } from "@/services/api/ExamService";
+import { AuthService } from "@/services/api/AuthService";
 import { useElectronMonitoring } from "@/hooks/useElectronMonitoring";
 import { useExamSocket } from "@/hooks/useExamSocket";
 import Loading from "@/app/loading";
@@ -305,8 +306,39 @@ export default function PublicExamPage() {
                 // The exam page MUST require exam login, regardless of dashboard login status.
                 // This prevents students who are logged into the dashboard from bypassing exam login.
                 if (typeof window !== 'undefined') {
-                    const isExamAuthorized = localStorage.getItem(`exam_${slug}_auth`);
-                    const examMetadata = localStorage.getItem(`exam_${slug}_metadata`);
+                    const authKey = `exam_${slug}_auth`;
+                    const metadataKey = `exam_${slug}_metadata`;
+                    let isExamAuthorized = localStorage.getItem(authKey);
+                    let examMetadata = localStorage.getItem(metadataKey);
+
+                    const getCookieValue = (name: string): string | null => {
+                        const cookieName = `${name}=`;
+                        const cookieList = document.cookie ? document.cookie.split('; ') : [];
+                        const hit = cookieList.find((cookie) => cookie.startsWith(cookieName));
+                        if (!hit) return null;
+                        const rawValue = hit.slice(cookieName.length);
+                        try {
+                            return decodeURIComponent(rawValue);
+                        } catch {
+                            return rawValue;
+                        }
+                    };
+
+                    if (!isExamAuthorized) {
+                        const authFromCookie = getCookieValue(authKey);
+                        if (authFromCookie) {
+                            isExamAuthorized = authFromCookie;
+                            localStorage.setItem(authKey, authFromCookie);
+                        }
+                    }
+
+                    if (!examMetadata) {
+                        const metadataFromCookie = getCookieValue(metadataKey);
+                        if (metadataFromCookie) {
+                            examMetadata = metadataFromCookie;
+                            localStorage.setItem(metadataKey, metadataFromCookie);
+                        }
+                    }
 
                     // STRICT CHECK: Both exam auth marker AND exam metadata must exist
                     // This ensures the user went through the exam login flow
@@ -318,7 +350,14 @@ export default function PublicExamPage() {
                 }
 
                 // 0.2 Check User Object (Required for socket/UI)
-                const storedUserRaw = localStorage.getItem('user');
+                let storedUserRaw = localStorage.getItem('user');
+                if (!storedUserRaw) {
+                    const sessionUser = await AuthService.checkSession(true);
+                    if (sessionUser) {
+                        storedUserRaw = JSON.stringify(sessionUser);
+                        localStorage.setItem('user', storedUserRaw);
+                    }
+                }
                 if (!storedUserRaw) {
                     // User object missing - this shouldn't happen if exam login was successful
                     // but handle it gracefully
