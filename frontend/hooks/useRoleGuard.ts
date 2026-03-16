@@ -11,11 +11,8 @@ function hasAllowedRole(user: any, allowedRoles: string[]): boolean {
 
 export function useRoleGuard(allowedRoles: string[]) {
     const router = useRouter();
-    const [isAuthorized, setIsAuthorized] = useState(() => {
-        if (typeof window === 'undefined') return false;
-        const user = AuthService.getUser();
-        return hasAllowedRole(user, allowedRoles);
-    });
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [isReady, setIsReady] = useState(false);
 
     useEffect(() => {
         // Soft check only - strict check matches happen via API cookies
@@ -24,12 +21,14 @@ export function useRoleGuard(allowedRoles: string[]) {
 
         if (!user) {
             setIsAuthorized(false);
+            setIsReady(true);
             router.push("/login");
             return;
         }
 
         if (allowedRoles.length > 0 && !allowedRoles.includes(role)) {
             setIsAuthorized(false);
+            setIsReady(true);
             // Redirect to their own dashboard if they try to access another one
             if (role === 'STUDENT') router.push("/dashboard/student");
             else if (role === 'TEACHER') router.push("/dashboard/teacher");
@@ -40,7 +39,8 @@ export function useRoleGuard(allowedRoles: string[]) {
         }
 
         setIsAuthorized(true);
+        setIsReady(true);
     }, [allowedRoles, router]);
 
-    return { isAuthorized };
+    return { isAuthorized, isReady };
 }

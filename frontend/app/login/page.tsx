@@ -53,13 +53,52 @@ export default function LoginPage() {
             if (user.mustChangePassword) {
                 router.push(`/dashboard/${rolePath}/profile`);
             } else {
-                const targetUrl = postLoginUrl || (orgSlug ? buildOrgUrl(orgSlug, `/dashboard/${rolePath}`) : null);
-                const isLocalHost = window.location.hostname.includes('localhost');
+                const currentHost = window.location.hostname.toLowerCase();
+                const isLocalHost = currentHost.includes('localhost');
+
+                const envBasedDashboardUrl = orgSlug ? buildOrgUrl(orgSlug, `/dashboard/${rolePath}`) : null;
+                const runtimeRootDomain = (() => {
+                    if (isLocalHost) return 'localhost';
+                    const parts = currentHost.split('.').filter(Boolean);
+                    if (parts.length >= 2) {
+                        return parts.slice(-2).join('.');
+                    }
+                    return currentHost;
+                })();
+                const runtimeDashboardUrl = orgSlug && !isLocalHost
+                    ? `${window.location.protocol}//${orgSlug}.${runtimeRootDomain}/dashboard/${rolePath}`
+                    : null;
+                const backendBaseUrl = postLoginUrl
+                    ? postLoginUrl.replace(/\/$/, '')
+                    : null;
+                const backendDashboardUrl = backendBaseUrl
+                    ? `${backendBaseUrl}/dashboard/${rolePath}`
+                    : null;
+
+                const envUrlHost = (() => {
+                    if (!envBasedDashboardUrl) return null;
+                    try {
+                        return new URL(envBasedDashboardUrl).hostname.toLowerCase();
+                    } catch {
+                        return null;
+                    }
+                })();
+
+                const isEnvHostOnRuntimeRoot = typeof envUrlHost === 'string' && (
+                    envUrlHost === runtimeRootDomain ||
+                    envUrlHost.endsWith(`.${runtimeRootDomain}`)
+                );
+
+                const shouldPreferRuntimeDomain =
+                    Boolean(runtimeDashboardUrl) &&
+                    Boolean(envUrlHost) &&
+                    !isEnvHostOnRuntimeRoot;
+
+                const targetUrl = shouldPreferRuntimeDomain
+                    ? runtimeDashboardUrl
+                    : (envBasedDashboardUrl || runtimeDashboardUrl || backendDashboardUrl);
 
                 if (targetUrl && !isLocalHost) {
-                    if (orgSlug) {
-                        localStorage.setItem('local_org_simulation', orgSlug);
-                    }
                     window.location.assign(targetUrl);
                     return;
                 }
