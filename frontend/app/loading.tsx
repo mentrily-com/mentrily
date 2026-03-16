@@ -69,7 +69,7 @@ export default function Loading() {
 
     // Unit/course player routes → course player skeleton
     if (pathname.includes("/unit/") || pathname.includes("/test/")) {
-        return <CoursePlayerSkeleton hasSidebar={true} isExamMode={false} />;
+        return <CoursePlayerSkeleton hasSidebar={false} isExamMode={false} />;
     }
 
     // Detect role from path for dashboard skeletons

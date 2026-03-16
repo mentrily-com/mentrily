@@ -9,11 +9,13 @@ import {
     OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { PrismaService } from '../../services/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 
 @WebSocketGateway({
     namespace: 'notifications',
+    pingInterval: 20000,
+    pingTimeout: 40000,
+    transports: ['websocket', 'polling'],
     cors: {
         origin: [
             'http://localhost:3000',
@@ -29,7 +31,6 @@ import { JwtService } from '@nestjs/jwt';
 export class NotificationGateway
     implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
     constructor(
-        private readonly prisma: PrismaService,
         private readonly jwtService: JwtService
     ) { }
 
@@ -106,10 +107,18 @@ export class NotificationGateway
         groupNames: string[];
         createdAt: Date;
     }, studentIds: string[]) {
-        for (const studentId of studentIds) {
-            this.server.to(`user_${studentId}`).emit('new_announcement', announcement);
+        const roomIds = [...new Set(studentIds)].map((studentId) => `user_${studentId}`);
+        if (roomIds.length === 0) {
+            return;
         }
-        console.log(`[NotificationGateway] Broadcast announcement "${announcement.title}" to ${studentIds.length} students`);
+
+        let emitter: any = this.server;
+        for (const room of roomIds) {
+            emitter = emitter.to(room);
+        }
+        emitter.emit('new_announcement', announcement);
+
+        console.log(`[NotificationGateway] Broadcast announcement "${announcement.title}" to ${roomIds.length} students`);
     }
 
     /**

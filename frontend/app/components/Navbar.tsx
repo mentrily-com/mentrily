@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
@@ -10,6 +10,7 @@ import { AuthService } from "@/services/api/AuthService";
 import { useOrganization } from "../context/OrganizationContext";
 import { Lock, Megaphone, X, FileText, ImageIcon, File as FileIcon, Download } from "lucide-react";
 import { StudentService } from "@/services/api/StudentService";
+import DOMPurify from "isomorphic-dompurify";
 
 export interface ExamConfig {
   rollNumber?: string;
@@ -422,6 +423,7 @@ function ProfileMenu({ isTeacher, isAdmin, isSuperAdmin, examConfig }: { isTeach
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
   const [userData, setUserData] = useState<any>(null);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     function close(e: any) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
@@ -429,9 +431,10 @@ function ProfileMenu({ isTeacher, isAdmin, isSuperAdmin, examConfig }: { isTeach
     return () => document.removeEventListener("mousedown", close);
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const user = AuthService.getUser();
     setUserData(user);
+    setHydrated(true);
   }, []);
 
   const getLabel = () => {
@@ -446,7 +449,7 @@ function ProfileMenu({ isTeacher, isAdmin, isSuperAdmin, examConfig }: { isTeach
   return (
     <div ref={ref} className="relative flex items-center gap-3 ml-2">
       <div className="hidden sm:block text-right">
-        <p className="text-sm font-black text-slate-800 leading-none">{examConfig?.userName || userData?.name || 'User'}</p>
+        <p className="text-sm font-black text-slate-800 leading-none">{examConfig?.userName || (hydrated ? (userData?.name || 'User') : '')}</p>
         <p className="text-[9px] font-black text-[var(--brand)] uppercase tracking-widest mt-1">
           {examConfig?.rollNumber ? `Roll: ${examConfig.rollNumber}` : getLabel()}
         </p>
@@ -456,10 +459,10 @@ function ProfileMenu({ isTeacher, isAdmin, isSuperAdmin, examConfig }: { isTeach
         onClick={() => setOpen(!open)}
         className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white font-black text-sm overflow-hidden relative"
       >
-        {userData?.profilePicture ? (
+        {hydrated && userData?.profilePicture ? (
           <Image src={userData.profilePicture} alt="Profile" fill sizes="40px" className="object-cover" />
         ) : (
-          isSuperAdmin ? 'SA' : isAdmin ? 'A' : 'P'
+          hydrated ? (isSuperAdmin ? 'SA' : isAdmin ? 'A' : 'P') : ''
         )}
       </button>
 
@@ -652,7 +655,7 @@ function AnnouncementBell() {
 
             <div
               className="prose prose-sm max-w-none text-slate-700 mb-8 [&_p]:mb-3 [&_h1]:text-xl [&_h1]:font-black [&_h2]:text-lg [&_h2]:font-black [&_ul]:list-disc [&_ol]:list-decimal [&_li]:ml-4 [&_a]:text-[var(--brand)] [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-[var(--brand-light)] [&_blockquote]:pl-4 [&_blockquote]:italic [&_img]:rounded-2xl [&_img]:max-w-full"
-              dangerouslySetInnerHTML={{ __html: selectedAnn.content }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(String(selectedAnn.content || "")) }}
             />
 
             {Array.isArray(selectedAnn.attachments) && selectedAnn.attachments.length > 0 && (

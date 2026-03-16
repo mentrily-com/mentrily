@@ -149,8 +149,6 @@ export const useExamSocket = (
             reconnectTimerRef.current = null;
         }
 
-        const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : '';
-
         const socket = io(`${SOCKET_URL}/proctoring`, {
             // Allow polling as fallback so we can upgrade; prevents hard failure
             // when websocket is briefly blocked by a proxy during initial handshake.
@@ -160,7 +158,6 @@ export const useExamSocket = (
             // 'io server disconnect' which permanently sets skipReconnect).
             reconnection: false,
             withCredentials: true,
-            auth: { token },
         });
 
         socketRef.current = socket;

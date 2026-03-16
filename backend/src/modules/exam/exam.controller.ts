@@ -10,6 +10,16 @@ import { toExamEnterResponseDto, toStudentExamResponseDto } from './dto/exam-res
 export class ExamController {
     constructor(private examService: ExamService) { }
 
+    private getTimeMeta() {
+        const now = new Date();
+        return {
+            serverTimeMs: now.getTime(),
+            serverTimeIso: now.toISOString(),
+            timeZone: 'Asia/Kathmandu',
+            utcOffsetMinutes: 345
+        };
+    }
+
     private isAppClient(req: any): boolean {
         const userAgent = String(req?.headers?.['user-agent'] || '').toLowerCase();
         const clientPlatform = String(req?.headers?.['x-client-platform'] || '').toLowerCase();
@@ -59,7 +69,11 @@ export class ExamController {
     async getPublicStatus(@Param('slug') slug: string, @Req() req: any) {
         // console.log('[ExamController] getPublicStatus slug:', slug);
         const clientIp = this.getClientIp(req);
-        return this.examService.getPublicStatus(slug, clientIp);
+        const result = await this.examService.getPublicStatus(slug, clientIp);
+        return {
+            ...result,
+            ...this.getTimeMeta()
+        };
     }
 
     @Get(':slug/check')
@@ -68,7 +82,11 @@ export class ExamController {
         if (!json) {
             return { error: 'json=1 parameter required' };
         }
-        return this.examService.checkExamStatus(slug);
+        const result = await this.examService.checkExamStatus(slug);
+        return {
+            ...result,
+            ...this.getTimeMeta()
+        };
     }
 
     // Protected Routes
@@ -118,7 +136,10 @@ export class ExamController {
 
         const session = await this.examService.startSession(user.id, lookup.id, ip, body.deviceId, body.tabId, body.metadata);
 
-        return toExamEnterResponseDto(session);
+        return {
+            ...toExamEnterResponseDto(session),
+            ...this.getTimeMeta()
+        };
     }
 
     @Post()

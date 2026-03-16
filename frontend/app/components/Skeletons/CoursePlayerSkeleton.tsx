@@ -55,7 +55,7 @@ export default function CoursePlayerSkeleton({ isExamMode = false, hasSidebar = 
                     {/* Problem Statement & Editor Split Skeleton */}
                     <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
                         {/* Left/Top Area (Problem Description) */}
-                        <div className="flex-1 lg:max-w-[50%] p-8 lg:p-12 overflow-y-auto custom-scrollbar border-b lg:border-b-0 lg:border-r border-slate-100">
+                        <div className="flex-1 lg:max-w-[50%] p-8 lg:p-12 overflow-hidden border-b lg:border-b-0 lg:border-r border-slate-100">
                             <div className="space-y-6 max-w-2xl mx-auto lg:mx-0">
                                 <div className="flex gap-2 mb-8">
                                     <div className="w-16 h-6 bg-emerald-100 rounded-full animate-pulse"></div>

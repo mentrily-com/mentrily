@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { BRAND } from "../constants/brand";
+import { parseSubdomain } from "@/lib/domain";
 
 interface OrganizationBranding {
     name: string;
@@ -15,6 +16,64 @@ interface OrganizationContextType {
     loading: boolean;
 }
 
+function getLocalCookie(name: string): string {
+    if (typeof document === 'undefined') return '';
+    const raw = document.cookie
+        .split('; ')
+        .find((row) => row.startsWith(`${name}=`))
+        ?.split('=')[1] || '';
+    try {
+        return decodeURIComponent(raw);
+    } catch {
+        return raw;
+    }
+}
+
+function resolveLocalSubdomain(): string {
+    if (typeof window === 'undefined') return '';
+
+    const hostname = window.location.hostname;
+    let subdomain = '';
+
+    const params = new URLSearchParams(window.location.search);
+    const orgParam = params.get('org');
+
+    if (orgParam) {
+        subdomain = orgParam;
+        if (hostname.includes('localhost')) {
+            localStorage.setItem('local_org_simulation', orgParam);
+            document.cookie = `org_subdomain=${encodeURIComponent(orgParam)}; path=/; max-age=${7 * 24 * 60 * 60}`;
+        }
+        return subdomain;
+    }
+
+    subdomain = parseSubdomain(hostname) || '';
+    if (!subdomain && hostname.includes('localhost')) {
+        subdomain = localStorage.getItem('local_org_simulation') || getLocalCookie('org_subdomain') || '';
+    }
+
+    return subdomain;
+}
+
+function getCachedOrganization(subdomain: string): OrganizationBranding | null {
+    if (!subdomain || typeof window === 'undefined') return null;
+
+    const localCache = localStorage.getItem(`org_cache_${subdomain}`);
+    if (!localCache) return null;
+
+    try {
+        const { data, timestamp } = JSON.parse(localCache);
+        if (Date.now() - timestamp < 3600 * 1000) {
+            return data as OrganizationBranding;
+        }
+        localStorage.removeItem(`org_cache_${subdomain}`);
+        return null;
+    } catch {
+        localStorage.removeItem(`org_cache_${subdomain}`);
+        return null;
+    }
+}
+
 const OrganizationContext = createContext<OrganizationContextType>({
     organization: null,
     loading: true
@@ -22,90 +81,72 @@ const OrganizationContext = createContext<OrganizationContextType>({
 
 export const useOrganization = () => useContext(OrganizationContext);
 
-export function OrganizationProvider({ children }: { children: React.ReactNode }) {
-    const [organization, setOrganization] = useState<OrganizationBranding | null>(null);
-    const [loading, setLoading] = useState(true);
+export function OrganizationProvider({
+    children,
+    initialOrganization = null,
+}: {
+    children: React.ReactNode;
+    initialOrganization?: OrganizationBranding | null;
+}) {
+    const initialSubdomain = typeof window !== 'undefined' ? resolveLocalSubdomain() : '';
+    const clientCachedOrganization = initialSubdomain ? getCachedOrganization(initialSubdomain) : null;
+    const resolvedInitialOrganization = initialOrganization || clientCachedOrganization;
+
+    const [organization, setOrganization] = useState<OrganizationBranding | null>(resolvedInitialOrganization);
+    const [loading, setLoading] = useState(Boolean(initialSubdomain && !resolvedInitialOrganization));
     const pathname = usePathname();
 
     useEffect(() => {
+        if (organization) {
+            injectBrandColors(organization);
+        }
+    }, []);
+
+    useEffect(() => {
         const fetchOrgBranding = async () => {
-            let hostname = window.location.hostname;
-            let subdomain = '';
+            const subdomain = resolveLocalSubdomain();
 
-            // 1. Check for explicit simulation via query param (e.g. ?org=acme)
-            const params = new URLSearchParams(window.location.search);
-            const orgParam = params.get('org');
-
-            if (orgParam) {
-                subdomain = orgParam;
-                if (hostname.includes('localhost')) {
-                    localStorage.setItem('local_org_simulation', orgParam);
-                }
-            } else {
-                // 2. Subdomain logic (for production)
-                const parts = hostname.split('.');
-                if (parts.length > 2) {
-                    if (hostname.endsWith('blockscode.me')) {
-                        subdomain = parts[0];
-                    } else if (!hostname.includes('localhost')) {
-                        subdomain = parts[0];
-                    }
-                }
-
-                // 3. Simulation fallback for localhost
-                if (!subdomain && hostname.includes('localhost')) {
-                    subdomain = localStorage.getItem('local_org_simulation') || '';
-                }
+            if (!subdomain || ['www', 'app', 'api', 'admin'].includes(subdomain)) {
+                setLoading(false);
+                return;
             }
 
-            if (subdomain && !['www', 'app', 'api', 'admin'].includes(subdomain)) {
-                // CACHE: Check localStorage first
-                const localCache = localStorage.getItem(`org_cache_${subdomain}`);
-                if (localCache) {
-                    try {
-                        const { data, timestamp } = JSON.parse(localCache);
-                        // Valid for 1 hour
-                        if (Date.now() - timestamp < 3600 * 1000) {
-                            setOrganization(data);
-                            setLoading(false);
-                            // Background refresh logic could go here if needed, but returning early for speed
-                            injectBrandColors(data);
-                            return;
-                        }
-                    } catch (e) {
-                        localStorage.removeItem(`org_cache_${subdomain}`);
-                    }
-                }
+            const cachedOrg = getCachedOrganization(subdomain);
+            if (cachedOrg) {
+                setOrganization(cachedOrg);
+                setLoading(false);
+                injectBrandColors(cachedOrg);
+            } else {
+                setLoading(true);
+            }
 
-                try {
-                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/organization/public?domain=${subdomain}`);
-                    if (res.ok) {
-                        const data = await res.json();
-                        const orgData = {
-                            name: data.name,
-                            logo: data.logo,
-                            primaryColor: data.primaryColor || '#fc751b',
-                            domain: data.domain
-                        };
-                        setOrganization(orgData);
-                        
-                        // Save to cache
-                        localStorage.setItem(`org_cache_${subdomain}`, JSON.stringify({
-                            data: orgData,
-                            timestamp: Date.now()
-                        }));
+            try {
+                const res = await fetch(`/api/proxy/organization/public?domain=${encodeURIComponent(subdomain)}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    const orgData = {
+                        name: data.name,
+                        logo: data.logo,
+                        primaryColor: data.primaryColor || '#fc751b',
+                        domain: data.domain
+                    };
+                    setOrganization(orgData);
 
-                        injectBrandColors(orgData);
-                    }
-                } catch (error) {
-                    console.error("Failed to load organization branding", error);
+                    localStorage.setItem(`org_cache_${subdomain}`, JSON.stringify({
+                        data: orgData,
+                        timestamp: Date.now()
+                    }));
+
+                    injectBrandColors(orgData);
                 }
+            } catch (error) {
+                console.error("Failed to load organization branding", error);
             }
             setLoading(false);
         };
 
         fetchOrgBranding();
-    }, []);
+    }, [pathname]);
 
     const injectBrandColors = (data: OrganizationBranding) => {
         if (data.primaryColor) {

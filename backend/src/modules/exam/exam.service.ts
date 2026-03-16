@@ -12,6 +12,29 @@ export class ExamService {
         @InjectRedis() private readonly redis: Redis
     ) { }
 
+    private countQuestions(questions: any): { totalQuestions: number; totalSections: number } {
+        const rawQuestions: any = questions || {};
+        let totalQuestions = 0;
+        let totalSections = 0;
+
+        if (rawQuestions.sections && Array.isArray(rawQuestions.sections)) {
+            totalSections = rawQuestions.sections.length;
+            rawQuestions.sections.forEach((s: any) => {
+                if (Array.isArray(s.questions)) {
+                    totalQuestions += s.questions.length;
+                }
+            });
+        } else if (Array.isArray(rawQuestions)) {
+            totalSections = 1;
+            totalQuestions = rawQuestions.length;
+        } else if (Object.keys(rawQuestions).length > 0) {
+            totalSections = 1;
+            totalQuestions = Object.keys(rawQuestions).length;
+        }
+
+        return { totalQuestions, totalSections };
+    }
+
     async createExam(data: any) {
         try {
             return await this.prisma.exam.create({
@@ -175,101 +198,82 @@ export class ExamService {
     }
 
     async getPublicStatus(slug: string, ip?: string) {
-        console.log(`[ExamService] Checking public status for slug: ${slug}, ip: ${ip}`);
+        const cacheKey = `exam:public-status:${slug}`;
+        const cached = await this.redis.get(cacheKey);
 
-        const exam = await this.prisma.exam.findUnique({
-            where: { slug, isActive: true },
-            select: { title: true, startTime: true, duration: true, id: true, questions: true, totalMarks: true, allowedIPs: true, examMode: true }
-        });
+        let payload: any = cached ? JSON.parse(cached) : null;
 
-        if (exam) {
-            console.log(`[ExamService] Found Exam: ${exam.title}`);
+        if (!payload) {
+            const exam = await this.prisma.exam.findUnique({
+                where: { slug, isActive: true },
+                select: { title: true, startTime: true, duration: true, id: true, questions: true, totalMarks: true, allowedIPs: true, examMode: true }
+            });
 
-            if (exam.allowedIPs && exam.allowedIPs.trim().length > 0 && ip) {
-                const allowedList = exam.allowedIPs.split(',').map((i: string) => i.trim());
-                const cleanIp = ip.replace(/^::ffff:/, '');
-                const isAllowed = allowedList.some((allowedIp: string) =>
-                    allowedIp === cleanIp || allowedIp === ip
-                );
+            if (exam) {
+                const { totalQuestions, totalSections } = this.countQuestions(exam.questions);
+                payload = {
+                    type: 'exam',
+                    allowedIPs: exam.allowedIPs || null,
+                    response: {
+                        title: exam.title,
+                        startTime: exam.startTime,
+                        duration: exam.duration,
+                        examMode: exam.examMode || 'Browser',
+                        totalSections,
+                        totalQuestions,
+                        totalMarks: exam.totalMarks || totalQuestions,
+                        id: exam.id
+                    }
+                };
+            } else {
+                const courseTest = await this.prisma.courseTest.findUnique({
+                    where: { slug },
+                    select: { title: true, startDate: true, endDate: true, id: true, questions: true }
+                });
 
-                if (!isAllowed) {
-                    throw new UnauthorizedException('Access denied: Your IP address is not whitelisted for this exam');
+                if (courseTest) {
+                    let duration = 60;
+                    if (courseTest.startDate && courseTest.endDate) {
+                        const diffMs = courseTest.endDate.getTime() - courseTest.startDate.getTime();
+                        duration = Math.floor(diffMs / 60000);
+                    }
+
+                    const { totalQuestions, totalSections } = this.countQuestions(courseTest.questions);
+                    payload = {
+                        type: 'course-test',
+                        allowedIPs: null,
+                        response: {
+                            title: courseTest.title,
+                            startTime: courseTest.startDate,
+                            duration,
+                            totalSections,
+                            totalQuestions,
+                            totalMarks: totalQuestions,
+                            id: courseTest.id
+                        }
+                    };
                 }
             }
 
-            const rawQuestions: any = exam.questions || {};
-            let totalQuestions = 0;
-            let totalSections = 0;
-
-            if (rawQuestions.sections && Array.isArray(rawQuestions.sections)) {
-                totalSections = rawQuestions.sections.length;
-                rawQuestions.sections.forEach((s: any) => {
-                    if (Array.isArray(s.questions)) {
-                        totalQuestions += s.questions.length;
-                    }
-                });
-            } else if (Array.isArray(rawQuestions)) {
-                totalSections = 1;
-                totalQuestions = rawQuestions.length;
-            } else if (Object.keys(rawQuestions).length > 0) { // Handle flat object of questions
-                totalSections = 1;
-                totalQuestions = Object.keys(rawQuestions).length;
+            if (payload) {
+                await this.redis.set(cacheKey, JSON.stringify(payload), 'EX', 30);
             }
-
-
-            return {
-                title: exam.title,
-                startTime: exam.startTime,
-                duration: exam.duration,
-                examMode: exam.examMode || 'Browser',
-                totalSections: totalSections,
-                totalQuestions: totalQuestions,
-                totalMarks: exam.totalMarks || (totalQuestions * 1),
-                id: exam.id
-            };
         }
 
-        // Check Course Test
-        const courseTest = await this.prisma.courseTest.findUnique({
-            where: { slug },
-            select: { title: true, startDate: true, endDate: true, id: true, questions: true }
-        });
-
-        if (courseTest) {
-            console.log(`[ExamService] Found CourseTest: ${courseTest.title}`);
-            let duration = 60;
-            if (courseTest.startDate && courseTest.endDate) {
-                const diffMs = courseTest.endDate.getTime() - courseTest.startDate.getTime();
-                duration = Math.floor(diffMs / 60000);
-            }
-
-            const rawQuestions: any = courseTest.questions || {};
-            let totalQuestions = 0;
-            let totalSections = 1;
-
-            if (rawQuestions.sections && Array.isArray(rawQuestions.sections)) {
-                totalSections = rawQuestions.sections.length;
-                rawQuestions.sections.forEach((s: any) => {
-                    if (Array.isArray(s.questions)) {
-                        totalQuestions += s.questions.length;
-                    }
-                });
-            } else if (Array.isArray(rawQuestions)) {
-                totalQuestions = rawQuestions.length;
-            }
-
-            return {
-                title: courseTest.title,
-                startTime: courseTest.startDate,
-                duration: duration,
-                totalSections: totalSections,
-                totalQuestions: totalQuestions,
-                totalMarks: totalQuestions * 1,
-                id: courseTest.id
-            };
+        if (!payload) {
+            throw new NotFoundException(`Exam not found for slug: ${slug}`);
         }
 
-        throw new NotFoundException(`Exam not found for slug: ${slug}`);
+        if (payload.type === 'exam' && payload.allowedIPs && ip) {
+            const allowedList = String(payload.allowedIPs).split(',').map((i: string) => i.trim());
+            const cleanIp = ip.replace(/^::ffff:/, '');
+            const isAllowed = allowedList.some((allowedIp: string) => allowedIp === cleanIp || allowedIp === ip);
+            if (!isAllowed) {
+                throw new UnauthorizedException('Access denied: Your IP address is not whitelisted for this exam');
+            }
+        }
+
+        return payload.response;
     }
 
 
@@ -582,86 +586,92 @@ export class ExamService {
     }
 
     async checkExamStatus(slug: string) {
-        // 1. Try Exam
+        const cacheKey = `exam:check-status:${slug}`;
+        const cached = await this.redis.get(cacheKey);
+        if (cached) {
+            return JSON.parse(cached);
+        }
+
         const exam = await this.prisma.exam.findUnique({
             where: { slug },
             select: { id: true, title: true, slug: true, isActive: true, duration: true, questions: true }
         });
 
         if (exam) {
+            let response: any;
             if (!exam.isActive) {
-                return { quiz: null, error: 'Exam is not active' };
+                response = { quiz: null, error: 'Exam is not active' };
+            } else {
+                const { totalQuestions } = this.countQuestions(exam.questions);
+                response = {
+                    quiz: {
+                        id: exam.id,
+                        title: exam.title,
+                        slug: exam.slug,
+                        isActive: exam.isActive,
+                        duration: exam.duration * 60,
+                        totalQuestions
+                    },
+                    error: null
+                };
             }
 
-            // Calculate total questions lightweight
-            let totalQuestions = 0;
-            const rawQuestions: any = exam.questions || {};
-            if (rawQuestions.sections && Array.isArray(rawQuestions.sections)) {
-                rawQuestions.sections.forEach((s: any) => {
-                    if (Array.isArray(s.questions)) totalQuestions += s.questions.length;
-                });
-            } else if (Array.isArray(rawQuestions)) {
-                totalQuestions = rawQuestions.length;
-            } else if (Object.keys(rawQuestions).length > 0) {
-                totalQuestions = Object.keys(rawQuestions).length;
-            }
-
-            return {
-                quiz: {
-                    id: exam.id,
-                    title: exam.title,
-                    slug: exam.slug,
-                    isActive: exam.isActive,
-                    duration: exam.duration * 60, // Normalize to seconds if stored in mins? Usually stored in mins. User sample says 3600 (seconds?). 
-                    // Let's assume stored in minutes, user wants seconds? 
-                    // "duration": 3600 -> 60 mins.
-                    // If DB has 60, return 3600? Let's assume DB is minutes.
-                    totalQuestions
-                },
-                error: null
-            };
+            await this.redis.set(cacheKey, JSON.stringify(response), 'EX', 30);
+            return response;
         }
 
-        // 2. Try CourseTest
         const test = await this.prisma.courseTest.findUnique({
             where: { slug },
             select: { id: true, title: true, slug: true, questions: true }
         });
 
         if (test) {
-            // CourseTests don't have explicit 'isActive', assume date based or always active?
-            // Assuming active for now.
-
-            let totalQuestions = 0;
-            const rawQuestions: any = test.questions || {};
-            if (rawQuestions.sections && Array.isArray(rawQuestions.sections)) {
-                rawQuestions.sections.forEach((s: any) => {
-                    if (Array.isArray(s.questions)) totalQuestions += s.questions.length;
-                });
-            } else if (Array.isArray(rawQuestions)) {
-                totalQuestions = rawQuestions.length;
-            }
-
-            return {
+            const { totalQuestions } = this.countQuestions(test.questions);
+            const response = {
                 quiz: {
                     id: test.id,
                     title: test.title,
                     slug: test.slug,
                     isActive: true,
-                    duration: 3600, // Default or fetch start/end difference
+                    duration: 3600,
                     totalQuestions
                 },
                 error: null
             };
+
+            await this.redis.set(cacheKey, JSON.stringify(response), 'EX', 30);
+            return response;
         }
 
-        return { quiz: null, error: 'Exam not found' };
+        const response = { quiz: null, error: 'Exam not found' };
+        await this.redis.set(cacheKey, JSON.stringify(response), 'EX', 15);
+        return response;
     }
 
     async getMonitoredStudents(examId: string) {
         const sessions = await this.prisma.examSession.findMany({
             where: { examId },
-            include: { user: true, violations: true }
+            select: {
+                userId: true,
+                status: true,
+                ipAddress: true,
+                vmDetected: true,
+                startTime: true,
+                endTime: true,
+                user: {
+                    select: {
+                        name: true,
+                        rollNumber: true
+                    }
+                },
+                violations: {
+                    select: {
+                        type: true,
+                        message: true,
+                        timestamp: true
+                    }
+                }
+            }
         });
 
         return sessions.map((session: any) => ({

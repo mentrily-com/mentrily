@@ -9,7 +9,7 @@ import { Roles } from './roles.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { StorageService } from '../../services/storage/storage.service';
 
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const BUG_ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
@@ -40,6 +40,7 @@ export class AuthController {
     }
 
     @Post('exam-login')
+    @Throttle({ default: { limit: 10, ttl: 60000 } })
     async examLogin(
         @Body() data: { email: string; testCode: string; password?: string; slug?: string },
         @Req() req: any
@@ -80,7 +81,7 @@ export class AuthController {
                     throw new BadRequestException('File size must be less than 5MB');
                 }
                 if (!ALLOWED_IMAGE_TYPES.includes(part.mimetype)) {
-                    throw new BadRequestException('Only image files are allowed (JPEG, PNG, GIF, WebP, SVG)');
+                    throw new BadRequestException('Only image files are allowed (JPEG, PNG, GIF, WebP)');
                 }
 
                 const url = await this.storageService.uploadFile(

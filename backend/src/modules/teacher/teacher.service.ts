@@ -22,6 +22,12 @@ export class TeacherService {
         @InjectRedis() private readonly redis: Redis
     ) { }
 
+    private parseBoundedNumber(value: string | number | undefined, fallback: number, min: number, max: number): number {
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric)) return fallback;
+        return Math.min(max, Math.max(min, Math.floor(numeric)));
+    }
+
     private checkAccess(resource: any, user: any) {
         if (!resource) return;
         if (resource.creatorId === user.id) return true;
@@ -304,19 +310,22 @@ export class TeacherService {
         return `${hours}h ${minutes}m`;
     }
 
-    async getStudents(user: any) {
+    async getStudents(user: any, options?: { limit?: string | number; offset?: string | number }) {
+        const limit = this.parseBoundedNumber(options?.limit, 50, 1, 100);
+        const offset = this.parseBoundedNumber(options?.offset, 0, 0, 5000);
+        const cacheKey = `teacher:students:${user.id}:${user.role}:${user.orgId || 'none'}:limit:${limit}:offset:${offset}`;
+        const cached = await this.redis.get(cacheKey);
+        if (cached) return JSON.parse(cached);
+
         const whereClause: Prisma.UserWhereInput = { role: 'STUDENT' };
         const courseFilter: Prisma.CourseWhereInput = {};
-        const submissionFilter: Prisma.UnitSubmissionWhereInput = {};
 
         if (user.role === 'ADMIN') {
             whereClause.orgId = user.orgId;
             courseFilter.orgId = user.orgId;
-            submissionFilter.unit = { module: { course: { orgId: user.orgId } } };
         } else {
             whereClause.courses = { some: { creatorId: user.id } };
             courseFilter.creatorId = user.id;
-            submissionFilter.unit = { module: { course: { creatorId: user.id } } };
         }
 
         const students = await this.prisma.user.findMany({
@@ -326,43 +335,61 @@ export class TeacherService {
                 courses: {
                     where: courseFilter,
                     select: {
-                        id: true, title: true,
-                        modules: { select: { units: { select: { id: true } } } },
-                        tests: {
-                            select: { id: true, title: true, slug: true, questions: true }
-                        }
+                        id: true,
+                        title: true
                     }
-                },
-                unitSubmissions: {
-                    where: { ...submissionFilter, status: 'COMPLETED' },
-                    select: { unitId: true }
                 }
             },
             orderBy: { createdAt: 'desc' },
-            take: 50
+            skip: offset,
+            take: limit
         });
 
-        // Collect all question IDs across all tests for a batch QuestionAttempt query
         const allStudentIds = students.map((s: any) => s.id);
-        const questionAttempts = await this.prisma.questionAttempt.findMany({
-            where: { userId: { in: allStudentIds }, type: 'UNIT' },
-            select: { userId: true, itemId: true, isCorrect: true, score: true, createdAt: true }
-        });
+        const uniqueCourseIds = [...new Set(
+            students.flatMap((s: any) => (s.courses || []).map((c: any) => c.id))
+        )];
 
-        // Build a lookup: userId → Map<itemId, { isCorrect, score }>
-        const attemptsByUserAndItem: Map<string, Map<string, { isCorrect: boolean; score: number | null }>> = new Map();
-        for (const a of questionAttempts) {
-            if (!attemptsByUserAndItem.has(a.userId)) {
-                attemptsByUserAndItem.set(a.userId, new Map());
+        const courses = uniqueCourseIds.length > 0
+            ? await this.prisma.course.findMany({
+                where: { id: { in: uniqueCourseIds } },
+                select: {
+                    id: true,
+                    title: true,
+                    modules: { select: { units: { select: { id: true } } } },
+                    tests: { select: { id: true, title: true, slug: true, questions: true } }
+                }
+            })
+            : [];
+
+        const courseById = new Map(courses.map((c: any) => [c.id, c]));
+        const allUnitIds = [...new Set(
+            courses.flatMap((course: any) =>
+                (course.modules || []).flatMap((mod: any) => (mod.units || []).map((u: any) => u.id))
+            )
+        )];
+
+        const completedSubmissions = (allStudentIds.length > 0 && allUnitIds.length > 0)
+            ? await this.prisma.unitSubmission.findMany({
+                where: {
+                    userId: { in: allStudentIds },
+                    status: 'COMPLETED',
+                    unitId: { in: allUnitIds }
+                },
+                select: { userId: true, unitId: true },
+                distinct: ['userId', 'unitId']
+            })
+            : [];
+
+        const completedByUser = new Map<string, Set<string>>();
+        for (const row of completedSubmissions as any[]) {
+            if (!completedByUser.has(row.userId)) {
+                completedByUser.set(row.userId, new Set<string>());
             }
-            // Keep the best scored (or latest) attempt per question
-            const userMap = attemptsByUserAndItem.get(a.userId)!;
-            const existing = userMap.get(a.itemId);
-            if (!existing || (a.score ?? 0) > (existing.score ?? 0)) {
-                userMap.set(a.itemId, { isCorrect: a.isCorrect, score: a.score });
-            }
+            completedByUser.get(row.userId)!.add(row.unitId);
         }
 
+        // Collect all question IDs across all tests for a batch QuestionAttempt query
         const extractQuestionIds = (questions: any): string[] => {
             if (!questions) return [];
             let data = questions;
@@ -382,11 +409,57 @@ export class TeacherService {
             return [];
         };
 
-        return students.map((s: any) => {
-            const completedUnitIds = new Set(s.unitSubmissions.map((sub: any) => sub.unitId));
+        const questionIds = [...new Set(
+            courses.flatMap((course: any) =>
+                (course.tests || []).flatMap((test: any) => extractQuestionIds(test.questions))
+            )
+        )];
+
+        const questionAttempts = (allStudentIds.length > 0 && questionIds.length > 0)
+            ? await this.prisma.questionAttempt.findMany({
+                where: {
+                    userId: { in: allStudentIds },
+                    type: 'UNIT',
+                    itemId: { in: questionIds }
+                },
+                select: { userId: true, itemId: true, isCorrect: true, score: true, createdAt: true }
+            })
+            : [];
+
+        // Build a lookup: userId -> Map<itemId, { isCorrect, score, createdAt }>
+        const attemptsByUserAndItem: Map<string, Map<string, { isCorrect: boolean; score: number | null; createdAt: Date }>> = new Map();
+        for (const a of questionAttempts as any[]) {
+            if (!attemptsByUserAndItem.has(a.userId)) {
+                attemptsByUserAndItem.set(a.userId, new Map());
+            }
+
+            const userMap = attemptsByUserAndItem.get(a.userId)!;
+            const existing = userMap.get(a.itemId);
+            const existingScore = existing?.score ?? 0;
+            const nextScore = a.score ?? 0;
+
+            if (!existing || nextScore > existingScore || (nextScore === existingScore && new Date(a.createdAt) > new Date(existing.createdAt))) {
+                userMap.set(a.itemId, { isCorrect: a.isCorrect, score: a.score, createdAt: a.createdAt });
+            }
+        }
+
+        const response = students.map((s: any) => {
+            const completedUnitIds = completedByUser.get(s.id) || new Set<string>();
             const userAttemptMap = attemptsByUserAndItem.get(s.id);
 
-            const detailedCourses = s.courses.map((course: any) => {
+            const detailedCourses = s.courses.map((courseRef: any) => {
+                const course = courseById.get(courseRef.id);
+                if (!course) {
+                    return {
+                        id: courseRef.id,
+                        title: courseRef.title,
+                        progress: 0,
+                        totalUnits: 0,
+                        completedUnits: 0,
+                        tests: []
+                    };
+                }
+
                 const allCourseUnitIds = course.modules.flatMap((m: any) => m.units.map((u: any) => u.id));
                 const totalUnits = allCourseUnitIds.length;
 
@@ -444,13 +517,20 @@ export class TeacherService {
                 course: s.courses.length > 0 ? s.courses[0].title : 'Not Enrolled',
                 courses: detailedCourses,
                 progress: overallProgress,
-                submissions: s.unitSubmissions.length,
+                submissions: completedUnitIds.size,
                 lastActive: s.updatedAt.toLocaleDateString()
             };
         });
+
+        await this.redis.set(cacheKey, JSON.stringify(response), 'EX', 45);
+        return response;
     }
 
     async getStudentAnalytics(studentId: string, user: any) {
+        const cacheKey = `teacher:student_analytics:${user.id}:${studentId}`;
+        const cached = await this.redis.get(cacheKey);
+        if (cached) return JSON.parse(cached);
+
         // Verify teacher has access to this student
         if (user.role === 'ADMIN') {
             const student = await this.prisma.user.findUnique({ where: { id: studentId } });
@@ -465,8 +545,15 @@ export class TeacherService {
             if (!enrollment) throw new Error('Access denied: Student not enrolled in your courses');
         }
 
+        const submissionScope: any = { userId: studentId };
+        if (user.role === 'ADMIN') {
+            submissionScope.unit = { module: { course: { orgId: user.orgId } } };
+        } else {
+            submissionScope.unit = { module: { course: { creatorId: user.id } } };
+        }
+
         const submissions = await this.prisma.unitSubmission.findMany({
-            where: { userId: studentId },
+            where: submissionScope,
             include: {
                 unit: {
                     include: {
@@ -481,14 +568,6 @@ export class TeacherService {
             orderBy: { createdAt: 'desc' }
         });
 
-        // Filter submissions to only those from teacher's courses or org's courses
-        const filteredSubmissions = submissions.filter((s: any) => {
-            if (user.role === 'ADMIN') {
-                return s.unit.module.course.orgId === user.orgId;
-            }
-            return s.unit.module.course.creatorId === user.id;
-        });
-
         // Weekly activity via DB query optimization
         const weeklyActivity = [];
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -497,7 +576,7 @@ export class TeacherService {
         sevenDaysAgo.setDate(today.getDate() - 6);
         sevenDaysAgo.setHours(0, 0, 0, 0);
 
-        const recentSubmissions = filteredSubmissions.filter((s: any) => {
+        const recentSubmissions = submissions.filter((s: any) => {
             return new Date(s.createdAt) >= sevenDaysAgo;
         });
 
@@ -527,13 +606,17 @@ export class TeacherService {
 
         // Course mastery
         const courseStats: Record<string, { total: number; completed: number }> = {};
-        filteredSubmissions.forEach((sub: any) => {
+        const attemptedUnitIds = new Set<string>();
+        const completedUnitIds = new Set<string>();
+        submissions.forEach((sub: any) => {
             const courseName = sub.unit.module.course.title;
             if (!courseStats[courseName]) {
                 courseStats[courseName] = { total: 0, completed: 0 };
             }
+            attemptedUnitIds.add(sub.unitId);
             courseStats[courseName].total++;
             if (sub.status === 'COMPLETED') {
+                completedUnitIds.add(sub.unitId);
                 courseStats[courseName].completed++;
             }
         });
@@ -547,45 +630,43 @@ export class TeacherService {
 
         const streak = await this.calculateStudentStreak(studentId);
 
-        return {
+        const response = {
             weeklyActivity,
             courseMastery,
             stats: {
-                totalQuestions: filteredSubmissions.length,
-                totalAttempts: filteredSubmissions.length,
-                passedAttempts: filteredSubmissions.filter((s: any) => s.status === 'COMPLETED').length,
-                successRate: filteredSubmissions.length > 0
-                    ? Math.round((filteredSubmissions.filter((s: any) => s.status === 'COMPLETED').length / filteredSubmissions.length) * 100)
+                totalQuestions: attemptedUnitIds.size,
+                totalAttempts: submissions.length,
+                passedAttempts: submissions.filter((s: any) => s.status === 'COMPLETED').length,
+                successRate: submissions.length > 0
+                    ? Math.round((submissions.filter((s: any) => s.status === 'COMPLETED').length / submissions.length) * 100)
                     : 0,
                 streak
             }
         };
+
+        await this.redis.set(cacheKey, JSON.stringify(response), 'EX', 60);
+        return response;
     }
 
     private async calculateStudentStreak(userId: string) {
-        const [sessions, unitSubmissions] = await Promise.all([
-            this.prisma.examSession.findMany({
-                where: { userId },
-                select: { createdAt: true }
-            }),
-            this.prisma.unitSubmission.findMany({
-                where: { userId },
-                select: { createdAt: true }
-            })
-        ]);
+        const activities: { dayString: Date }[] = await this.prisma.$queryRaw`
+            SELECT DISTINCT DATE("createdAt") as "dayString"
+            FROM (
+                SELECT "createdAt" FROM "ExamSession" WHERE "userId" = ${userId} AND "status" = 'COMPLETED'
+                UNION ALL
+                SELECT "createdAt" FROM "UnitSubmission" WHERE "userId" = ${userId}
+            ) as activity
+            ORDER BY "dayString" DESC
+            LIMIT 365
+        `;
 
-        const allActivities = [
-            ...sessions.map((s: any) => s.createdAt),
-            ...unitSubmissions.map((u: any) => u.createdAt)
-        ].sort((a, b) => b.getTime() - a.getTime());
-
-        if (allActivities.length === 0) return 0;
+        if (activities.length === 0) return 0;
 
         let streak = 0;
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const lastActivityDate = new Date(allActivities[0]);
+        const lastActivityDate = new Date(activities[0].dayString);
         lastActivityDate.setHours(0, 0, 0, 0);
 
         const daysDiff = Math.floor((today.getTime() - lastActivityDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -593,10 +674,10 @@ export class TeacherService {
         if (daysDiff > 1) return 0;
 
         const activityDates = new Set(
-            allActivities.map((d: Date) => {
-                const date = new Date(d);
-                date.setHours(0, 0, 0, 0);
-                return date.getTime();
+            activities.map((a: any) => {
+                const d = new Date(a.dayString);
+                d.setHours(0, 0, 0, 0);
+                return d.getTime();
             })
         );
 
@@ -613,7 +694,13 @@ export class TeacherService {
         return streak;
     }
 
-    async getStudentAttempts(studentId: string, user: any) {
+    async getStudentAttempts(studentId: string, user: any, options?: { limit?: string | number; offset?: string | number }) {
+        const limit = this.parseBoundedNumber(options?.limit, 100, 1, 200);
+        const offset = this.parseBoundedNumber(options?.offset, 0, 0, 5000);
+        const cacheKey = `teacher:student_attempts:${user.id}:${studentId}:limit:${limit}:offset:${offset}`;
+        const cached = await this.redis.get(cacheKey);
+        if (cached) return JSON.parse(cached);
+
         // Verify teacher/admin has access to this student
         const teacherId = user.id;
         const orgId = user.orgId;
@@ -649,10 +736,12 @@ export class TeacherService {
                     }
                 }
             },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
+            skip: offset,
+            take: limit
         });
 
-        return sessions.map((session: any) => ({
+        const response = sessions.map((session: any) => ({
             id: session.id,
             examTitle: session.exam.title,
             examSlug: session.exam.slug,
@@ -662,9 +751,18 @@ export class TeacherService {
             startedAt: session.createdAt,
             submittedAt: session.endTime
         }));
+
+        await this.redis.set(cacheKey, JSON.stringify(response), 'EX', 45);
+        return response;
     }
 
-    async getStudentUnitSubmissions(studentId: string, user: any) {
+    async getStudentUnitSubmissions(studentId: string, user: any, options?: { limit?: string | number; offset?: string | number }) {
+        const limit = this.parseBoundedNumber(options?.limit, 100, 1, 200);
+        const offset = this.parseBoundedNumber(options?.offset, 0, 0, 5000);
+        const cacheKey = `teacher:student_unit_subs:${user.id}:${studentId}:limit:${limit}:offset:${offset}`;
+        const cached = await this.redis.get(cacheKey);
+        if (cached) return JSON.parse(cached);
+
         // Verify teacher/admin has access to this student
         const teacherId = user.id;
         const orgId = user.orgId;
@@ -703,10 +801,12 @@ export class TeacherService {
                     }
                 }
             },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
+            skip: offset,
+            take: limit
         });
 
-        return submissions.map((sub: any) => {
+        const response = submissions.map((sub: any) => {
             let testCases = '-';
             if (sub.content && typeof sub.content === 'object' && !Array.isArray(sub.content)) {
                 const contentObj = sub.content as any;
@@ -733,6 +833,9 @@ export class TeacherService {
                 updatedAt: sub.updatedAt
             };
         });
+
+        await this.redis.set(cacheKey, JSON.stringify(response), 'EX', 45);
+        return response;
     }
 
     async enrollStudent(courseId: string, studentId: string, user: any) {
@@ -774,13 +877,43 @@ export class TeacherService {
         if (!course) throw new Error('Course not found');
         this.checkAccess(course, user);
 
+        const normalizedEmails = [...new Set(
+            (emails || []).map((email) => String(email || '').trim().toLowerCase()).filter(Boolean)
+        )];
+
+        if (normalizedEmails.length === 0) {
+            return {
+                summary: {
+                    totalProcessed: 0,
+                    enrolled: 0,
+                    failed: 0
+                },
+                details: []
+            };
+        }
+
+        const [students, existingCourse] = await Promise.all([
+            this.prisma.user.findMany({
+                where: { email: { in: normalizedEmails } },
+                select: { id: true, email: true, name: true, role: true }
+            }),
+            this.prisma.course.findUnique({
+                where: { id: courseId },
+                select: { students: { select: { id: true } } }
+            })
+        ]);
+
+        const studentByEmail = new Map(students.map((s: any) => [String(s.email).toLowerCase(), s]));
+        const enrolledSet = new Set((existingCourse?.students || []).map((s: any) => s.id));
+
         const results = [];
         let enrolledCount = 0;
         let failedCount = 0;
+        const toConnect: Array<{ id: string }> = [];
 
-        for (const email of emails) {
+        for (const email of normalizedEmails) {
             try {
-                const student = await this.prisma.user.findUnique({ where: { email } });
+                const student = studentByEmail.get(email);
 
                 if (!student) {
                     results.push({ email, success: false, error: 'User not found' });
@@ -788,29 +921,20 @@ export class TeacherService {
                     continue;
                 }
 
-                // Check if already enrolled
-                const isEnrolled = await this.prisma.course.findFirst({
-                    where: {
-                        id: courseId,
-                        students: { some: { id: student.id } }
-                    }
-                });
+                if (student.role !== 'STUDENT') {
+                    results.push({ email, success: false, error: 'User is not a student' });
+                    failedCount++;
+                    continue;
+                }
 
-                if (isEnrolled) {
+                if (enrolledSet.has(student.id)) {
                     results.push({ email, success: false, error: 'Already enrolled' });
                     failedCount++;
                     continue;
                 }
 
-                await this.prisma.course.update({
-                    where: { id: courseId },
-                    data: {
-                        students: {
-                            connect: { id: student.id }
-                        }
-                    }
-                });
-
+                enrolledSet.add(student.id);
+                toConnect.push({ id: student.id });
                 results.push({ email, success: true, user: { id: student.id, name: student.name } });
                 enrolledCount++;
 
@@ -820,9 +944,20 @@ export class TeacherService {
             }
         }
 
+        if (toConnect.length > 0) {
+            await this.prisma.course.update({
+                where: { id: courseId },
+                data: {
+                    students: {
+                        connect: toConnect
+                    }
+                }
+            });
+        }
+
         return {
             summary: {
-                totalProcessed: emails.length,
+                totalProcessed: normalizedEmails.length,
                 enrolled: enrolledCount,
                 failed: failedCount
             },
@@ -919,16 +1054,23 @@ export class TeacherService {
     }
 
     async getExams(user: any) {
+        const cacheKey = `teacher:exams:${user.id}:${user.role}:${user.orgId || 'none'}`;
+        const cached = await this.redis.get(cacheKey);
+        if (cached) return JSON.parse(cached);
+
         const where: any = {};
         if (user.role === 'ADMIN') {
             where.orgId = user.orgId;
         } else {
             where.creatorId = user.id;
         }
-        return this.prisma.exam.findMany({
+        const response = await this.prisma.exam.findMany({
             where,
             orderBy: { updatedAt: 'desc' }
         });
+
+        await this.redis.set(cacheKey, JSON.stringify(response), 'EX', 30);
+        return response;
     }
 
     async deleteCourse(id: string, user: any) {
@@ -1287,32 +1429,24 @@ export class TeacherService {
 
     async deleteExam(id: string, user: any) {
         try {
-            // 0. Check if exists and ownership
             const exam = await this.prisma.exam.findUnique({ where: { id } });
             if (!exam) return { success: true, message: 'Exam already deleted' };
             this.checkAccess(exam, user);
 
-            // 1. Delete Feedbacks
-            await this.prisma.feedback.deleteMany({ where: { examId: id } });
+            await this.prisma.$transaction(async (tx) => {
+                await tx.feedback.deleteMany({ where: { examId: id } });
+                await tx.violation.deleteMany({ where: { session: { examId: id } } });
+                await tx.examSession.deleteMany({ where: { examId: id } });
+                await tx.exam.delete({ where: { id } });
+            });
 
-            // 2. Delete ExamSessions and Violations
-            const sessions = await this.prisma.examSession.findMany({ where: { examId: id } });
-            for (const session of sessions) {
-                await this.prisma.violation.deleteMany({ where: { sessionId: session.id } });
-                await this.prisma.examSession.delete({ where: { id: session.id } }).catch(() => { });
-            }
+            await this.redis.del(`exam:content:${exam.slug}`);
+            await this.redis.del(`exam:lookup:${exam.slug}`);
 
-            // 3. Delete the exam itself
-            const deleted = await this.prisma.exam.delete({ where: { id } });
-            return { success: true, deleted };
+            return { success: true, deleted: { id } };
         } catch (e) {
             console.error(`[TeacherService] Final delete failed for exam ${id}:`, e);
-            // Last resort: deletion without dependencies check
-            try {
-                return await this.prisma.exam.delete({ where: { id } });
-            } catch (inner) {
-                throw new Error(`Failed to delete exam: ${inner.message}`);
-            }
+            throw new Error(`Failed to delete exam: ${e.message}`);
         }
     }
 
@@ -1476,21 +1610,28 @@ export class TeacherService {
     }
 
     async getExamResults(examId: string, user: any, page: number = 1, limit: number = 50, search: string = '') {
+        const boundedLimit = this.parseBoundedNumber(limit, 50, 1, 100);
+        const boundedPage = this.parseBoundedNumber(page, 1, 1, 100000);
+        const normalizedSearch = String(search || '').trim();
+        const cacheKey = `teacher:exam_results:${user.id}:${examId}:p:${boundedPage}:l:${boundedLimit}:q:${normalizedSearch || '_'}`;
+        const cached = await this.redis.get(cacheKey);
+        if (cached) return JSON.parse(cached);
+
         // Verify ownership
         const exam = await this.prisma.exam.findUnique({ where: { id: examId } });
         if (!exam) throw new Error('Exam not found');
         this.checkAccess(exam, user);
 
-        const skip = (page - 1) * limit;
+        const skip = (boundedPage - 1) * boundedLimit;
 
         // Where Clause
         const where: any = { examId };
-        if (search) {
+        if (normalizedSearch) {
             where.user = {
                 OR: [
-                    { name: { contains: search, mode: 'insensitive' } },
-                    { email: { contains: search, mode: 'insensitive' } },
-                    { rollNumber: { contains: search, mode: 'insensitive' } }
+                    { name: { contains: normalizedSearch, mode: 'insensitive' } },
+                    { email: { contains: normalizedSearch, mode: 'insensitive' } },
+                    { rollNumber: { contains: normalizedSearch, mode: 'insensitive' } }
                 ]
             };
         }
@@ -1517,7 +1658,7 @@ export class TeacherService {
                 },
                 orderBy: { endTime: 'desc' },
                 skip,
-                take: limit
+                take: boundedLimit
             }),
             this.prisma.examSession.count({ where })
         ]);
@@ -1610,29 +1751,53 @@ export class TeacherService {
             };
         });
 
-        return {
+        let totalScore = 0;
+        let highScore = 0;
+        let passedCount = 0;
+        const distribution = [0, 0, 0, 0];
+
+        for (const row of allStatsData as any[]) {
+            const score = Number(row.score) || 0;
+            totalScore += score;
+            if (score > highScore) highScore = score;
+
+            const pct = marksDenominator > 0 ? (score / marksDenominator) : 0;
+            if (pct < 0.25) distribution[0] += 1;
+            else if (pct < 0.5) distribution[1] += 1;
+            else if (pct < 0.75) distribution[2] += 1;
+            else distribution[3] += 1;
+
+            if (pct >= 0.4) passedCount += 1;
+        }
+
+        const failedCount = allStatsData.length - passedCount;
+
+        const response = {
             results: mappedSessions,
             resultsPublished: (exam as any).resultsPublished || false,
             pagination: {
                 total: totalFiltered,
-                page,
-                limit,
-                totalPages: Math.ceil(totalFiltered / limit)
+                page: boundedPage,
+                limit: boundedLimit,
+                totalPages: Math.ceil(totalFiltered / boundedLimit)
             },
             stats: {
-                avgScore: allStatsData.reduce((acc: number, c: any) => acc + (Number(c.score) || 0), 0) / (allStatsData.length || 1),
-                passedCount: allStatsData.filter((s: any) => s.status === 'Passed').length,
-                failedCount: allStatsData.filter((s: any) => s.status === 'Failed').length,
+                avgScore: totalScore / (allStatsData.length || 1),
+                passedCount,
+                failedCount,
                 totalCount: allStatsData.length,
-                highScore: Math.max(...allStatsData.map((s: any) => Number(s.score) || 0), 0),
+                highScore,
                 distribution: [
-                    { score: '0-25%', count: allStatsData.filter((r: any) => (Number(r.score) / marksDenominator) < 0.25).length },
-                    { score: '25-50%', count: allStatsData.filter((r: any) => { const p = Number(r.score) / marksDenominator; return p >= 0.25 && p < 0.5; }).length },
-                    { score: '50-75%', count: allStatsData.filter((r: any) => { const p = Number(r.score) / marksDenominator; return p >= 0.5 && p < 0.75; }).length },
-                    { score: '75-100%', count: allStatsData.filter((r: any) => (Number(r.score) / marksDenominator) >= 0.75).length },
+                    { score: '0-25%', count: distribution[0] },
+                    { score: '25-50%', count: distribution[1] },
+                    { score: '50-75%', count: distribution[2] },
+                    { score: '75-100%', count: distribution[3] },
                 ]
             }
         };
+
+        await this.redis.set(cacheKey, JSON.stringify(response), 'EX', 15);
+        return response;
     }
 
     async updateSubmissionScore(sessionId: string, newScore: number, user: any, internalMarks?: Record<string, number>) {
@@ -1676,7 +1841,11 @@ export class TeacherService {
     // ─── GROUPS ────────────────────────────────────────────────────────────────
 
     async getGroups(user: any) {
-        return this.prisma.studentGroup.findMany({
+        const cacheKey = `teacher:groups:${user.id}`;
+        const cached = await this.redis.get(cacheKey);
+        if (cached) return JSON.parse(cached);
+
+        const response = await this.prisma.studentGroup.findMany({
             where: { teacherId: user.id },
             include: {
                 students: { select: { id: true, name: true, email: true, rollNumber: true } },
@@ -1684,6 +1853,9 @@ export class TeacherService {
             },
             orderBy: { createdAt: 'desc' }
         });
+
+        await this.redis.set(cacheKey, JSON.stringify(response), 'EX', 30);
+        return response;
     }
 
     async getGroup(groupId: string, user: any) {
@@ -1751,13 +1923,39 @@ export class TeacherService {
             throw new ForbiddenException('Access denied');
         }
 
+        const normalizedEmails = [...new Set(
+            (emails || []).map((email) => String(email || '').trim().toLowerCase()).filter(Boolean)
+        )];
+
+        if (normalizedEmails.length === 0) {
+            return {
+                summary: { totalProcessed: 0, added: 0, failed: 0 },
+                details: []
+            };
+        }
+
+        const [students, groupMembers] = await Promise.all([
+            this.prisma.user.findMany({
+                where: { email: { in: normalizedEmails } },
+                select: { id: true, email: true, name: true, role: true }
+            }),
+            this.prisma.studentGroup.findUnique({
+                where: { id: groupId },
+                select: { students: { select: { id: true } } }
+            })
+        ]);
+
+        const studentByEmail = new Map(students.map((s: any) => [String(s.email).toLowerCase(), s]));
+        const memberSet = new Set((groupMembers?.students || []).map((s: any) => s.id));
+
         const results = [];
         let addedCount = 0;
         let failedCount = 0;
+        const toConnect: Array<{ id: string }> = [];
 
-        for (const email of emails) {
+        for (const email of normalizedEmails) {
             try {
-                const student = await this.prisma.user.findUnique({ where: { email: email.trim().toLowerCase() } });
+                const student = studentByEmail.get(email);
                 if (!student) {
                     results.push({ email, success: false, error: 'User not found' });
                     failedCount++;
@@ -1769,21 +1967,14 @@ export class TeacherService {
                     continue;
                 }
 
-                // Check if already in group
-                const existing = await this.prisma.studentGroup.findFirst({
-                    where: { id: groupId, students: { some: { id: student.id } } }
-                });
-                if (existing) {
+                if (memberSet.has(student.id)) {
                     results.push({ email, success: false, error: 'Already in group' });
                     failedCount++;
                     continue;
                 }
 
-                await this.prisma.studentGroup.update({
-                    where: { id: groupId },
-                    data: { students: { connect: { id: student.id } } }
-                });
-
+                memberSet.add(student.id);
+                toConnect.push({ id: student.id });
                 results.push({ email, success: true, user: { id: student.id, name: student.name } });
                 addedCount++;
             } catch (error: any) {
@@ -1792,8 +1983,15 @@ export class TeacherService {
             }
         }
 
+        if (toConnect.length > 0) {
+            await this.prisma.studentGroup.update({
+                where: { id: groupId },
+                data: { students: { connect: toConnect } }
+            });
+        }
+
         return {
-            summary: { totalProcessed: emails.length, added: addedCount, failed: failedCount },
+            summary: { totalProcessed: normalizedEmails.length, added: addedCount, failed: failedCount },
             details: results
         };
     }
@@ -1825,29 +2023,35 @@ export class TeacherService {
             throw new ForbiddenException('Access denied');
         }
 
-        let enrolledCount = 0;
+        const existingCourse = await this.prisma.course.findUnique({
+            where: { id: courseId },
+            select: { students: { select: { id: true } } }
+        });
+
+        const enrolledSet = new Set((existingCourse?.students || []).map((s: any) => s.id));
+        const toConnect: Array<{ id: string }> = [];
         let alreadyEnrolled = 0;
 
         for (const student of group.students) {
-            const isEnrolled = await this.prisma.course.findFirst({
-                where: { id: courseId, students: { some: { id: student.id } } }
-            });
-            if (isEnrolled) {
+            if (enrolledSet.has(student.id)) {
                 alreadyEnrolled++;
-                continue;
+            } else {
+                enrolledSet.add(student.id);
+                toConnect.push({ id: student.id });
             }
+        }
 
+        if (toConnect.length > 0) {
             await this.prisma.course.update({
                 where: { id: courseId },
-                data: { students: { connect: { id: student.id } } }
+                data: { students: { connect: toConnect } }
             });
-            enrolledCount++;
         }
 
         return {
             groupName: group.name,
             totalStudents: group.students.length,
-            enrolled: enrolledCount,
+            enrolled: toConnect.length,
             alreadyEnrolled
         };
     }
@@ -1855,7 +2059,11 @@ export class TeacherService {
     // ─── ANNOUNCEMENTS ─────────────────────────────────────────────────────────
 
     async getAnnouncements(user: any) {
-        return this.prisma.announcement.findMany({
+        const cacheKey = `teacher:announcements:${user.id}`;
+        const cached = await this.redis.get(cacheKey);
+        if (cached) return JSON.parse(cached);
+
+        const response = await this.prisma.announcement.findMany({
             where: { teacherId: user.id },
             include: {
                 groups: { select: { id: true, name: true } },
@@ -1863,6 +2071,9 @@ export class TeacherService {
             },
             orderBy: { createdAt: 'desc' }
         });
+
+        await this.redis.set(cacheKey, JSON.stringify(response), 'EX', 30);
+        return response;
     }
 
     async createAnnouncement(user: any, data: {

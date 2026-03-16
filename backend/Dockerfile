@@ -24,6 +24,10 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Ensure consistent server timezone for all locale-based formatting
+RUN apk add --no-cache tzdata
+ENV TZ=Asia/Kathmandu
+
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist

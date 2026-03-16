@@ -4,6 +4,8 @@ import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
+process.env.TZ = process.env.TZ || 'Asia/Kathmandu';
+
 async function bootstrap() {
     const app = await NestFactory.create<NestFastifyApplication>(
         AppModule,
@@ -49,10 +51,18 @@ async function bootstrap() {
     app.enableCors({
         // Dynamic origin to support both localhost and production Vercel apps
         origin: (origin, callback) => {
+            const configuredDomain = String(
+                process.env.APP_DOMAIN || process.env.NEXT_PUBLIC_APP_DOMAIN || 'blockscode.me'
+            )
+                .trim()
+                .toLowerCase()
+                .replace(/^https?:\/\//, '')
+                .replace(/:\d+$/, '');
+
             const allowedOrigins = [
                 'https://blockscode-production.vercel.app',
-                'https://www.blockscode.me',
-                'https://blockscode.me'
+                `https://www.${configuredDomain}`,
+                `https://${configuredDomain}`
             ];
 
             // Allow requests with no origin (like mobile apps or curl requests)
@@ -63,8 +73,10 @@ async function bootstrap() {
                 return callback(null, true);
             }
 
-            // Support all subdomains of blockscode.me (bai.blockscode.me, sai.blockscode.me, custom.blockscode.me, etc.)
-            if (/^https?:\/\/[a-zA-Z0-9-]+\.blockscode\.me$/.test(origin)) {
+            // Support all subdomains of the configured domain.
+            const escapedDomain = configuredDomain.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const subdomainRegex = new RegExp(`^https?:\\/\\/[a-zA-Z0-9-]+\\.${escapedDomain}$`);
+            if (subdomainRegex.test(origin)) {
                 return callback(null, true);
             }
 

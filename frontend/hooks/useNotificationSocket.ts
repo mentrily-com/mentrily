@@ -28,16 +28,12 @@ export const useNotificationSocket = (onNewAnnouncement?: (announcement: Announc
     }, [onNewAnnouncement]);
 
     useEffect(() => {
-        const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : '';
-        if (!token) return;
-
         const socket = io(`${SOCKET_URL}/notifications`, {
             transports: ['websocket'],
             reconnection: true,
             reconnectionAttempts: 10,
             reconnectionDelay: 3000,
             withCredentials: true,
-            auth: { token }
         });
 
         socketRef.current = socket;

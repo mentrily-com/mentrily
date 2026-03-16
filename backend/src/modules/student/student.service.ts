@@ -15,6 +15,12 @@ export class StudentService {
         @InjectQueue('student-analytics') private studentAnalyticsQueue: Queue
     ) { }
 
+    private parseBoundedNumber(value: string | number | undefined, fallback: number, min: number, max: number): number {
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric)) return fallback;
+        return Math.min(max, Math.max(min, Math.floor(numeric)));
+    }
+
     async getStats(userId: string) {
         // PERFORMANCE: Check cache first
         const cacheKey = `student:stats:${userId}`;
@@ -249,25 +255,38 @@ export class StudentService {
         };
     }
 
-    async getExamAttempts(userId: string) {
+    async getExamAttempts(userId: string, options?: { limit?: string | number; offset?: string | number }) {
+        const limit = this.parseBoundedNumber(options?.limit, 50, 1, 100);
+        const offset = this.parseBoundedNumber(options?.offset, 0, 0, 10000);
+        const cacheKey = `student:attempts:${userId}:limit:${limit}:offset:${offset}`;
+        const cached = await this.redis.get(cacheKey);
+        if (cached) return JSON.parse(cached);
+
         const sessions = await this.prisma.examSession.findMany({
             where: {
                 userId,
                 exam: { resultsPublished: true }
             },
-            include: {
+            select: {
+                id: true,
+                score: true,
+                status: true,
+                startTime: true,
+                endTime: true,
+                createdAt: true,
                 exam: {
                     select: {
                         title: true,
-                        resultsPublished: true,
-                        duration: true
+                        resultsPublished: true
                     }
                 }
             },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
+            skip: offset,
+            take: limit
         });
 
-        return sessions.map((session: any) => {
+        const response = sessions.map((session: any) => {
             const isPublished = session.exam.resultsPublished;
             const startTime = new Date(session.startTime).getTime();
             const endTime = session.endTime ? new Date(session.endTime).getTime() : Date.now();
@@ -284,6 +303,9 @@ export class StudentService {
                 isPublished
             };
         });
+
+        await this.redis.set(cacheKey, JSON.stringify(response), 'EX', 60);
+        return response;
     }
 
     async getDetailedUnitSubmissions(userId: string) {
@@ -337,29 +359,10 @@ export class StudentService {
     }
 
     async getAnalytics(userId: string) {
-        // PERFORMANCE: Cache analytics for 5 minutes
         const cacheKey = `student:analytics:${userId}`;
         const cached = await this.redis.get(cacheKey);
         if (cached) return JSON.parse(cached);
 
-        // Get all unit submissions for analytics
-        const submissions = await this.prisma.unitSubmission.findMany({
-            where: { userId },
-            include: {
-                unit: {
-                    include: {
-                        module: {
-                            include: {
-                                course: true
-                            }
-                        }
-                    }
-                }
-            },
-            orderBy: { createdAt: 'desc' }
-        });
-
-        // Calculate weekly activity (last 7 days) via database queries instead of memory filtering
         const weeklyActivity = [];
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         const today = new Date();
@@ -367,14 +370,35 @@ export class StudentService {
         sevenDaysAgo.setDate(today.getDate() - 6);
         sevenDaysAgo.setHours(0, 0, 0, 0);
 
-        // Fetch ONLY submissions from the last 7 days for the activity graph
-        const recentSubmissions = await this.prisma.unitSubmission.findMany({
-            where: {
-                userId,
-                createdAt: { gte: sevenDaysAgo }
-            },
-            select: { createdAt: true, status: true }
-        });
+        const [
+            totalAttempts,
+            passedAttempts,
+            attemptedUnitRows,
+            completedUnitRows,
+            recentSubmissions,
+            streak
+        ] = await Promise.all([
+            this.prisma.unitSubmission.count({ where: { userId } }),
+            this.prisma.unitSubmission.count({ where: { userId, status: 'COMPLETED' } }),
+            this.prisma.unitSubmission.findMany({
+                where: { userId },
+                select: { unitId: true },
+                distinct: ['unitId']
+            }),
+            this.prisma.unitSubmission.findMany({
+                where: { userId, status: 'COMPLETED' },
+                select: { unitId: true },
+                distinct: ['unitId']
+            }),
+            this.prisma.unitSubmission.findMany({
+                where: {
+                    userId,
+                    createdAt: { gte: sevenDaysAgo }
+                },
+                select: { createdAt: true, status: true }
+            }),
+            this.calculateDailyStreak(userId)
+        ]);
 
         for (let i = 6; i >= 0; i--) {
             const date = new Date(today);
@@ -400,22 +424,36 @@ export class StudentService {
             });
         }
 
-        // Calculate course mastery (unique units)
+        const attemptedUnitIds = attemptedUnitRows.map((r: any) => r.unitId);
+        const completedUnitSet = new Set(completedUnitRows.map((r: any) => r.unitId));
+
+        const attemptedUnits = attemptedUnitIds.length > 0
+            ? await this.prisma.unit.findMany({
+                where: { id: { in: attemptedUnitIds } },
+                select: {
+                    id: true,
+                    module: {
+                        select: {
+                            course: {
+                                select: { title: true }
+                            }
+                        }
+                    }
+                }
+            })
+            : [];
+
         const courseStats: Record<string, { units: Set<string>; completedUnits: Set<string> }> = {};
-        submissions.forEach((sub: any) => {
-            const courseName = sub.unit.module.course.title;
+        for (const unit of attemptedUnits as any[]) {
+            const courseName = unit.module?.course?.title || 'Unknown';
             if (!courseStats[courseName]) {
                 courseStats[courseName] = { units: new Set(), completedUnits: new Set() };
             }
-            courseStats[courseName].units.add(sub.unitId);
-            if (sub.status === 'COMPLETED') {
-                courseStats[courseName].completedUnits.add(sub.unitId);
+            courseStats[courseName].units.add(unit.id);
+            if (completedUnitSet.has(unit.id)) {
+                courseStats[courseName].completedUnits.add(unit.id);
             }
-        });
-
-        const uniqueUnits = new Set(submissions.map((s: any) => s.unitId));
-
-        const streak = await this.calculateDailyStreak(userId);
+        }
 
         const courseMastery = Object.entries(courseStats).map(([subject, stats]) => ({
             subject: subject.substring(0, 15), // Truncate for display
@@ -428,11 +466,11 @@ export class StudentService {
             weeklyActivity,
             courseMastery,
             stats: {
-                totalQuestions: uniqueUnits.size,
-                totalAttempts: submissions.length,
-                passedAttempts: submissions.filter((s: any) => s.status === 'COMPLETED').length,
-                successRate: submissions.length > 0
-                    ? Math.round((submissions.filter((s: any) => s.status === 'COMPLETED').length / submissions.length) * 100)
+                totalQuestions: attemptedUnitIds.length,
+                totalAttempts,
+                passedAttempts,
+                successRate: totalAttempts > 0
+                    ? Math.round((passedAttempts / totalAttempts) * 100)
                     : 0,
                 streak
             }
@@ -755,21 +793,24 @@ export class StudentService {
 
     // ─── ANNOUNCEMENTS ─────────────────────────────────────────────────────────
 
-    async getAnnouncements(userId: string) {
-        // Find all groups this student belongs to
-        const studentGroups = await this.prisma.studentGroup.findMany({
-            where: { students: { some: { id: userId } } },
-            select: { id: true }
-        });
+    async getAnnouncements(userId: string, options?: { limit?: string | number; offset?: string | number }) {
+        const limit = this.parseBoundedNumber(options?.limit, 50, 1, 100);
+        const offset = this.parseBoundedNumber(options?.offset, 0, 0, 10000);
+        const versionKey = `student:announcements:ver:${userId}`;
+        const cacheVersion = (await this.redis.get(versionKey)) || '1';
+        const cacheKey = `student:announcements:${userId}:v:${cacheVersion}:limit:${limit}:offset:${offset}`;
+        const cached = await this.redis.get(cacheKey);
+        if (cached) return JSON.parse(cached);
 
-        if (studentGroups.length === 0) return [];
-
-        const groupIds = studentGroups.map(g => g.id);
-
-        // Get all announcements sent to these groups
         const announcements = await this.prisma.announcement.findMany({
             where: {
-                groups: { some: { id: { in: groupIds } } }
+                groups: {
+                    some: {
+                        students: {
+                            some: { id: userId }
+                        }
+                    }
+                }
             },
             include: {
                 teacher: { select: { name: true, profilePicture: true } },
@@ -780,10 +821,11 @@ export class StudentService {
                 }
             },
             orderBy: { createdAt: 'desc' },
-            take: 50
+            skip: offset,
+            take: limit
         });
 
-        return announcements.map(a => ({
+        const response = announcements.map(a => ({
             id: a.id,
             title: a.title,
             content: a.content,
@@ -795,40 +837,48 @@ export class StudentService {
             readAt: a.reads[0]?.readAt || null,
             createdAt: a.createdAt
         }));
+
+        await this.redis.set(cacheKey, JSON.stringify(response), 'EX', 60);
+        return response;
     }
 
     async getUnreadAnnouncementCount(userId: string) {
-        const studentGroups = await this.prisma.studentGroup.findMany({
-            where: { students: { some: { id: userId } } },
-            select: { id: true }
-        });
+        const cacheKey = `student:announcements:unread:${userId}`;
+        const cached = await this.redis.get(cacheKey);
+        if (cached) return JSON.parse(cached);
 
-        if (studentGroups.length === 0) return { count: 0 };
-
-        const groupIds = studentGroups.map(g => g.id);
-
-        const total = await this.prisma.announcement.count({
-            where: { groups: { some: { id: { in: groupIds } } } }
-        });
-
-        const read = await this.prisma.announcementRead.count({
+        const count = await this.prisma.announcement.count({
             where: {
-                userId,
-                announcement: { groups: { some: { id: { in: groupIds } } } }
+                groups: {
+                    some: {
+                        students: {
+                            some: { id: userId }
+                        }
+                    }
+                },
+                reads: {
+                    none: { userId }
+                }
             }
         });
 
-        return { count: total - read };
+        const response = { count };
+        await this.redis.set(cacheKey, JSON.stringify(response), 'EX', 30);
+        return response;
     }
 
     async markAnnouncementRead(userId: string, announcementId: string) {
-        // Upsert to avoid duplicate errors
-        return this.prisma.announcementRead.upsert({
+        const result = await this.prisma.announcementRead.upsert({
             where: {
                 userId_announcementId: { userId, announcementId }
             },
             create: { userId, announcementId },
-            update: {} // No update needed, just ensure it exists
+            update: {}
         });
+
+        await this.redis.del(`student:announcements:unread:${userId}`);
+        await this.redis.incr(`student:announcements:ver:${userId}`);
+
+        return result;
     }
 }

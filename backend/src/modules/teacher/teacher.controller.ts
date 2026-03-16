@@ -28,8 +28,12 @@ export class TeacherController {
     }
 
     @Get('students')
-    async getStudents(@User() user: any) {
-        return this.teacherService.getStudents(user);
+    async getStudents(
+        @User() user: any,
+        @Query('limit') limit?: string,
+        @Query('offset') offset?: string
+    ) {
+        return this.teacherService.getStudents(user, { limit, offset });
     }
 
     @Get('students/:studentId/analytics')
@@ -38,13 +42,23 @@ export class TeacherController {
     }
 
     @Get('students/:studentId/attempts')
-    async getStudentAttempts(@Param('studentId') studentId: string, @User() user: any) {
-        return this.teacherService.getStudentAttempts(studentId, user);
+    async getStudentAttempts(
+        @Param('studentId') studentId: string,
+        @User() user: any,
+        @Query('limit') limit?: string,
+        @Query('offset') offset?: string
+    ) {
+        return this.teacherService.getStudentAttempts(studentId, user, { limit, offset });
     }
 
     @Get('students/:studentId/unit-submissions')
-    async getStudentUnitSubmissions(@Param('studentId') studentId: string, @User() user: any) {
-        return this.teacherService.getStudentUnitSubmissions(studentId, user);
+    async getStudentUnitSubmissions(
+        @Param('studentId') studentId: string,
+        @User() user: any,
+        @Query('limit') limit?: string,
+        @Query('offset') offset?: string
+    ) {
+        return this.teacherService.getStudentUnitSubmissions(studentId, user, { limit, offset });
     }
 
     @Post('courses/:courseId/enroll/:studentId')

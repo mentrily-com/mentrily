@@ -27,7 +27,23 @@ export class CodeExecutionService {
         return this.queueEvents;
     }
 
+    private validateExecutionPayload(language: string, code: string, stdin: string) {
+        const normalizedLanguage = String(language || '').trim();
+        const normalizedCode = String(code || '');
+        const normalizedStdin = String(stdin || '');
+
+        if (!normalizedLanguage) {
+            throw new Error('Language is required');
+        }
+
+        if (!normalizedCode.trim()) {
+            throw new Error('Code is required');
+        }
+    }
+
     async runCode(language: string, code: string, stdin: string) {
+        this.validateExecutionPayload(language, code, stdin);
+
         // Add job to queue
         const job = await this.executionQueue.add('execute', {
             language,
@@ -45,6 +61,8 @@ export class CodeExecutionService {
     }
 
     async submitCode(unitId: string, language: string, code: string, examId?: string, testCasesBody?: any[]) {
+        this.validateExecutionPayload(language, code, '');
+
         let testCases: any[] = [];
 
         if (examId) {
