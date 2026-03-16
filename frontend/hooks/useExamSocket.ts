@@ -12,6 +12,19 @@ const MAX_RECONNECT_ATTEMPTS = 8;      // total retries before giving up
 const BASE_RECONNECT_DELAY = 2000;     // 2 s base, doubles each attempt (capped)
 const MAX_RECONNECT_DELAY = 30000;     // 30 s cap
 
+function getBrowserCookie(name: string): string {
+    if (typeof document === 'undefined') return '';
+    const raw = document.cookie
+        .split('; ')
+        .find((row) => row.startsWith(`${name}=`))
+        ?.split('=')[1] || '';
+    try {
+        return decodeURIComponent(raw);
+    } catch {
+        return raw;
+    }
+}
+
 export const useExamSocket = (
     examId: string,
     userId: string,
@@ -134,7 +147,17 @@ export const useExamSocket = (
 
         if (typeof window !== 'undefined') {
             const examAuthKey = `exam_${examIdRef.current}_auth`;
-            if (!localStorage.getItem(examAuthKey)) {
+            let examAuthMarker = localStorage.getItem(examAuthKey);
+
+            if (!examAuthMarker) {
+                const markerFromCookie = getBrowserCookie(examAuthKey);
+                if (markerFromCookie) {
+                    examAuthMarker = markerFromCookie;
+                    localStorage.setItem(examAuthKey, markerFromCookie);
+                }
+            }
+
+            if (!examAuthMarker) {
                 console.warn('[Socket] Exam auth marker missing. Redirecting to exam login.');
                 redirectToLogin('exam_auth_required');
                 return;
@@ -152,6 +175,8 @@ export const useExamSocket = (
             reconnectTimerRef.current = null;
         }
 
+        const wsAuthToken = getBrowserCookie('ws_auth_token') || getBrowserCookie('auth_token');
+
         const socket = io(`${SOCKET_URL}/proctoring`, {
             // Allow polling as fallback so we can upgrade; prevents hard failure
             // when websocket is briefly blocked by a proxy during initial handshake.
@@ -161,6 +186,7 @@ export const useExamSocket = (
             // 'io server disconnect' which permanently sets skipReconnect).
             reconnection: false,
             withCredentials: true,
+            auth: wsAuthToken ? { token: wsAuthToken } : undefined,
         });
 
         socketRef.current = socket;
