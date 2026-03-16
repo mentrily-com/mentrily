@@ -17,14 +17,33 @@ import { JwtService } from '@nestjs/jwt';
     pingTimeout: 40000,
     transports: ['websocket', 'polling'],
     cors: {
-        origin: [
-            'http://localhost:3000',
-            'https://blockscode-production.vercel.app',
-            'tauri://localhost',
-            'http://localhost:1420',
-            'https://www.blockscode.me',
-            'https://blockscode.me'
-        ],
+        origin: (origin, callback) => {
+            const configuredDomain = String(
+                process.env.APP_DOMAIN || process.env.NEXT_PUBLIC_APP_DOMAIN || 'blockscode.me',
+            )
+                .trim()
+                .toLowerCase()
+                .replace(/^https?:\/\//, '')
+                .replace(/:\d+$/, '');
+
+            const allowedOrigins = [
+                'http://localhost:3000',
+                'https://blockscode-production.vercel.app',
+                'tauri://localhost',
+                'http://localhost:1420',
+                `https://www.${configuredDomain}`,
+                `https://${configuredDomain}`,
+            ];
+
+            if (!origin) return callback(null, true);
+            if (allowedOrigins.includes(origin)) return callback(null, true);
+
+            const escapedDomain = configuredDomain.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const subdomainRegex = new RegExp(`^https?:\\/\\/[a-zA-Z0-9-]+\\.${escapedDomain}$`);
+            if (subdomainRegex.test(origin)) return callback(null, true);
+
+            return callback(new Error('Not allowed by CORS'));
+        },
         credentials: true
     },
 })

@@ -2,7 +2,10 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useToast } from '../app/components/Common/Toast';
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000';
+const SOCKET_URL =
+    process.env.NEXT_PUBLIC_WS_URL ||
+    process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') ||
+    'http://localhost:4000';
 const HEARTBEAT_INTERVAL = 30000;      // 30 s
 const MAX_MISSED_HEARTBEATS = 3;
 const MAX_RECONNECT_ATTEMPTS = 8;      // total retries before giving up
