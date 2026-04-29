@@ -10,6 +10,7 @@ const teaserTiers = [
         name: 'Free',
         price: '$0',
         period: '/mo',
+        description: 'For individual educators getting started.',
         features: ['2 courses', '50 students', '2 monthly exams', 'MCQ, Multi-select, Reading'],
         cta: 'Start Free',
         href: '/signup',
@@ -18,6 +19,7 @@ const teaserTiers = [
         name: 'Starter',
         price: '$39',
         period: '/mo',
+        description: 'For small teams running bootcamps.',
         features: ['15 courses', '200 students', '10 monthly exams', '2 admin + 3 teacher seats'],
         cta: 'Start Starter',
         href: '/signup?plan=starter',
@@ -26,6 +28,7 @@ const teaserTiers = [
         name: 'Pro',
         price: '$119',
         period: '/mo',
+        description: 'For growing schools and training programs.',
         features: ['30 courses', '1,000 students', '20 monthly exams', '5 admin + 10 teacher seats'],
         cta: 'Start Pro',
         href: '/signup?plan=pro',
@@ -39,10 +42,25 @@ export default function PricingTeaser() {
     return (
         <section
             ref={ref}
-            className="py-20 sm:py-28"
+            className="py-20 sm:py-28 relative overflow-hidden"
             style={{ backgroundColor: '#F8FAFC', borderTop: '1px solid #E2E8F0' }}
         >
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Background radial gradient */}
+            <div className="absolute inset-0 pointer-events-none">
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: '20%',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        width: '1000px',
+                        height: '600px',
+                        background: 'radial-gradient(ellipse at center, rgba(0,141,152,0.04) 0%, transparent 65%)',
+                    }}
+                />
+            </div>
+
+            <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, y: 28 }}
                     animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -68,8 +86,8 @@ export default function PricingTeaser() {
                     >
                         Clear limits, clean upgrade path
                     </h2>
-                    <p className="mt-3 text-sm" style={{ color: '#475569' }}>
-                        Free works personally. Starter and Pro add team seats. Enterprise unlocks domains and white-label branding.
+                    <p className="mt-3 text-sm max-w-lg mx-auto" style={{ color: '#64748B' }}>
+                        Free works personally. Starter and Pro add team seats. Enterprise unlocks custom domains and white-label branding.
                     </p>
                 </motion.div>
 
@@ -84,60 +102,81 @@ export default function PricingTeaser() {
                                 duration: 0.48,
                                 ease: [0.25, 0.1, 0.25, 1],
                             }}
-                            className={`relative p-6 rounded-2xl transition-all duration-200 cursor-pointer ${tier.highlighted ? 'animate-pro-pulse' : ''
-                                }`}
+                            className={`relative p-6 rounded-2xl transition-all duration-250 cursor-pointer ${
+                                tier.highlighted ? 'animate-glow-pulse' : ''
+                            }`}
                             style={{
-                                backgroundColor: tier.highlighted ? '#E6F7F8' : '#FFFFFF',
-                                border: tier.highlighted ? '2px solid #008D98' : '1px solid #E2E8F0',
+                                backgroundColor: tier.highlighted ? '#FFFFFF' : '#FFFFFF',
+                                border: tier.highlighted
+                                    ? '2px solid transparent'
+                                    : '1px solid #E2E8F0',
+                                backgroundImage: tier.highlighted
+                                    ? 'linear-gradient(#FFFFFF, #FFFFFF), linear-gradient(135deg, #008D98, #10B981)'
+                                    : 'none',
+                                backgroundOrigin: 'border-box',
+                                backgroundClip: tier.highlighted
+                                    ? 'padding-box, border-box'
+                                    : 'border-box',
                                 boxShadow: tier.highlighted
-                                    ? '0 4px 20px rgba(26,86,219,0.18)'
-                                    : '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)',
+                                    ? '0 8px 32px rgba(0,141,152,0.12), 0 2px 8px rgba(0,0,0,0.04)'
+                                    : '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.03)',
                             }}
                             onMouseEnter={(e) => {
                                 if (!tier.highlighted) {
-                                    e.currentTarget.style.transform = 'translateY(-2px)';
-                                    e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04)';
+                                    e.currentTarget.style.transform = 'translateY(-3px)';
+                                    e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04)';
                                 } else {
-                                    e.currentTarget.style.transform = 'scale(1.02)';
+                                    e.currentTarget.style.transform = 'translateY(-4px) scale(1.01)';
                                 }
                             }}
                             onMouseLeave={(e) => {
                                 if (!tier.highlighted) {
                                     e.currentTarget.style.transform = 'translateY(0)';
-                                    e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)';
+                                    e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.03)';
                                 } else {
-                                    e.currentTarget.style.transform = 'scale(1)';
+                                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
                                 }
                             }}
                         >
                             {tier.highlighted && (
                                 <span
-                                    className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-semibold text-white"
-                                    style={{ backgroundColor: '#F59E0B' }}
+                                    className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-bold text-white"
+                                    style={{
+                                        background: 'linear-gradient(135deg, #F59E0B, #F97316)',
+                                        boxShadow: '0 2px 8px rgba(245,158,11,0.3)',
+                                    }}
                                 >
-                                    Most Popular
+                                    RECOMMENDED
                                 </span>
                             )}
 
                             <h3 className="text-sm font-semibold mb-1" style={{ color: '#0F172A' }}>
                                 {tier.name}
                             </h3>
-                            <div className="flex items-baseline gap-1 mb-4">
+                            <p className="text-xs mb-3" style={{ color: '#94A3B8' }}>
+                                {tier.description}
+                            </p>
+                            <div className="flex items-baseline gap-1 mb-5">
                                 <span
-                                    className="text-3xl font-semibold"
+                                    className="text-4xl font-bold"
                                     style={{ color: '#0F172A', fontFamily: 'var(--font-body)' }}
                                 >
                                     {tier.price}
                                 </span>
-                                <span className="text-sm" style={{ color: '#94A3B8' }}>
+                                <span className="text-sm font-medium" style={{ color: '#94A3B8' }}>
                                     {tier.period}
                                 </span>
                             </div>
 
-                            <ul className="space-y-2 mb-6">
+                            <ul className="space-y-2.5 mb-6">
                                 {tier.features.map((f) => (
-                                    <li key={f} className="flex items-center gap-2 text-sm" style={{ color: '#475569' }}>
-                                        <Check size={15} style={{ color: '#10B981' }} className="shrink-0" />
+                                    <li key={f} className="flex items-center gap-2.5 text-sm" style={{ color: '#475569' }}>
+                                        <div
+                                            className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
+                                            style={{ backgroundColor: '#ECFDF5' }}
+                                        >
+                                            <Check size={12} style={{ color: '#10B981' }} strokeWidth={3} />
+                                        </div>
                                         {f}
                                     </li>
                                 ))}
@@ -145,11 +184,14 @@ export default function PricingTeaser() {
 
                             <Link
                                 href={tier.href}
-                                className="block w-full py-2.5 text-center text-sm font-semibold rounded-lg transition-colors duration-150 cursor-pointer"
+                                className="block w-full py-2.5 text-center text-sm font-semibold rounded-xl transition-all duration-200 cursor-pointer"
                                 style={{
-                                    backgroundColor: tier.highlighted ? '#008D98' : 'transparent',
+                                    background: tier.highlighted
+                                        ? 'linear-gradient(135deg, #008D98, #006F78)'
+                                        : 'transparent',
                                     color: tier.highlighted ? '#FFFFFF' : '#008D98',
                                     border: tier.highlighted ? 'none' : '1px solid #E2E8F0',
+                                    boxShadow: tier.highlighted ? '0 4px 12px rgba(0,141,152,0.2)' : 'none',
                                 }}
                             >
                                 {tier.cta}
@@ -166,10 +208,11 @@ export default function PricingTeaser() {
                 >
                     <Link
                         href="/pricing"
-                        className="inline-flex items-center gap-1.5 text-sm font-medium transition-colors duration-150 cursor-pointer"
+                        className="inline-flex items-center gap-1.5 text-sm font-medium transition-all duration-200 cursor-pointer group"
                         style={{ color: '#008D98' }}
                     >
-                        See full pricing <ArrowRight size={15} />
+                        See full pricing & Enterprise plan
+                        <ArrowRight size={15} className="transition-transform duration-200 group-hover:translate-x-0.5" />
                     </Link>
                 </motion.div>
             </div>

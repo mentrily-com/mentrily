@@ -2,7 +2,7 @@
 
 Mentrily is a full-stack learning, assessment, and coding-exam platform for organizations that need to create courses, run exams, manage learners, monitor submissions, and issue certificates from one product.
 
-Built and maintained by **Suman Yadab**.
+Built and maintained by **Suman Yadav**.
 
 ## What This Repository Contains
 

@@ -3,23 +3,26 @@
 import { motion } from 'motion/react';
 import { useInView } from 'react-intersection-observer';
 import { useEffect, useState, useRef } from 'react';
+import { BookOpen, Code2, FileCheck, Zap } from 'lucide-react';
 
 const stats = [
-    { label: 'Courses Launched', target: 500, suffix: '+' },
-    { label: 'Coding Languages', target: 33, suffix: '' },
-    { label: 'Exams Graded', target: 10_000, suffix: '+', format: true },
-    { label: 'Uptime', target: 98, suffix: '%' },
+    { label: 'Courses Launched', target: 500, suffix: '+', icon: BookOpen },
+    { label: 'Languages Supported', target: 33, suffix: '', icon: Code2 },
+    { label: 'Exams Graded', target: 10_000, suffix: '+', format: true, icon: FileCheck },
+    { label: 'Uptime', target: 99.8, suffix: '%', decimal: true, icon: Zap },
 ];
 
 function AnimatedCounter({
     target,
     suffix,
     format,
+    decimal,
     inView,
 }: {
     target: number;
     suffix: string;
     format?: boolean;
+    decimal?: boolean;
     inView: boolean;
 }) {
     const [count, setCount] = useState(0);
@@ -36,7 +39,12 @@ function AnimatedCounter({
             const progress = Math.min(elapsed / duration, 1);
             // Ease-out curve
             const eased = 1 - Math.pow(1 - progress, 3);
-            setCount(Math.floor(eased * target));
+
+            if (decimal) {
+                setCount(parseFloat((eased * target).toFixed(1)));
+            } else {
+                setCount(Math.floor(eased * target));
+            }
 
             if (progress < 1) {
                 rafRef.current = requestAnimationFrame(animate);
@@ -49,7 +57,7 @@ function AnimatedCounter({
         return () => {
             if (rafRef.current) cancelAnimationFrame(rafRef.current);
         };
-    }, [inView, target]);
+    }, [inView, target, decimal]);
 
     const display = format
         ? count >= 1_000_000
@@ -57,7 +65,9 @@ function AnimatedCounter({
             : count >= 1_000
               ? `${(count / 1_000).toFixed(0)}K`
               : count.toString()
-        : count.toLocaleString();
+        : decimal
+          ? count.toFixed(1)
+          : count.toLocaleString();
 
     return (
         <span>
@@ -79,41 +89,67 @@ export default function SocialProof() {
             initial={{ opacity: 0, y: 16 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.28, ease: [0.25, 0.1, 0.25, 1] }}
-            className="py-6"
-            style={{ borderTop: '1px solid #E2E8F0', borderBottom: '1px solid #E2E8F0' }}
+            className="py-8 relative"
+            style={{ backgroundColor: '#FFFFFF' }}
         >
+            {/* Gradient accent line at top */}
+            <div
+                className="absolute top-0 left-0 right-0 h-px"
+                style={{
+                    background: 'linear-gradient(90deg, transparent 0%, #008D98 30%, #10B981 70%, transparent 100%)',
+                }}
+            />
+            {/* Bottom border */}
+            <div className="absolute bottom-0 left-0 right-0 h-px" style={{ backgroundColor: '#E2E8F0' }} />
+
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div
-                    className="flex flex-wrap items-center justify-center gap-6 sm:gap-0 sm:divide-x"
-                    style={{ borderColor: '#E2E8F0' }}
-                >
-                    {stats.map((stat) => (
-                        <div
-                            key={stat.label}
-                            className="flex flex-col items-center px-8 sm:px-10 py-2"
-                            style={{
-                                borderColor: '#E2E8F0',
-                            }}
-                        >
-                            <span
-                                className="text-2xl sm:text-3xl font-semibold tabular-nums"
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-0">
+                    {stats.map((stat, i) => {
+                        const Icon = stat.icon;
+                        return (
+                            <motion.div
+                                key={stat.label}
+                                initial={{ opacity: 0, y: 12 }}
+                                animate={inView ? { opacity: 1, y: 0 } : {}}
+                                transition={{ delay: 0.1 + i * 0.08, duration: 0.4 }}
+                                className="flex flex-col items-center px-6 sm:px-8 py-3 group cursor-default"
                                 style={{
-                                    color: '#0F172A',
-                                    fontFamily: 'var(--font-body), system-ui, sans-serif',
+                                    borderRight: i < stats.length - 1 ? '1px solid transparent' : 'none',
                                 }}
                             >
-                                <AnimatedCounter
-                                    target={stat.target}
-                                    suffix={stat.suffix}
-                                    format={stat.format}
-                                    inView={inView}
-                                />
-                            </span>
-                            <span className="text-xs sm:text-sm mt-1" style={{ color: '#94A3B8' }}>
-                                {stat.label}
-                            </span>
-                        </div>
-                    ))}
+                                {/* Icon */}
+                                <div
+                                    className="w-9 h-9 rounded-lg flex items-center justify-center mb-2.5 transition-colors duration-200"
+                                    style={{ backgroundColor: '#E6F7F8' }}
+                                >
+                                    <Icon size={18} style={{ color: '#008D98' }} />
+                                </div>
+                                {/* Number */}
+                                <span
+                                    className="text-2xl sm:text-3xl font-bold tabular-nums"
+                                    style={{
+                                        color: '#0F172A',
+                                        fontFamily: 'var(--font-body), system-ui, sans-serif',
+                                    }}
+                                >
+                                    <AnimatedCounter
+                                        target={stat.target}
+                                        suffix={stat.suffix}
+                                        format={stat.format}
+                                        decimal={stat.decimal}
+                                        inView={inView}
+                                    />
+                                </span>
+                                {/* Label */}
+                                <span
+                                    className="text-xs sm:text-sm mt-1 font-medium"
+                                    style={{ color: '#64748B' }}
+                                >
+                                    {stat.label}
+                                </span>
+                            </motion.div>
+                        );
+                    })}
                 </div>
             </div>
         </motion.section>
