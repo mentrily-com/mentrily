@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API_BASE_URL } from '@/lib/api-base';
 
 export interface NetworkStatus {
     isOnline: boolean;
@@ -12,7 +13,7 @@ export function useNetworkMonitor() {
         isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
         downlink: 0,
         effectiveType: 'unknown',
-        rtt: 0
+        rtt: 0,
     });
 
     useEffect(() => {
@@ -23,7 +24,7 @@ export function useNetworkMonitor() {
 
             try {
                 const startedAt = performance.now();
-                const res = await fetch(`/api/proxy/exam/app-config?ts=${Date.now()}`, {
+                const res = await fetch(`${API_BASE_URL}/exam/app-config?ts=${Date.now()}`, {
                     method: 'GET',
                     cache: 'no-store',
                 });
@@ -35,10 +36,10 @@ export function useNetworkMonitor() {
                 const calculatedMbps = Number(((bytes * 8) / (durationSec * 1_000_000)).toFixed(2));
 
                 if (calculatedMbps > 0) {
-                    setStatus(prev => ({
+                    setStatus((prev) => ({
                         ...prev,
                         downlink: calculatedMbps,
-                        rtt: Math.round(durationSec * 1000)
+                        rtt: Math.round(durationSec * 1000),
                     }));
                 }
             } catch {
@@ -47,13 +48,16 @@ export function useNetworkMonitor() {
         };
 
         const updateStatus = () => {
-            const conn = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+            const conn =
+                (navigator as any).connection ||
+                (navigator as any).mozConnection ||
+                (navigator as any).webkitConnection;
             const connectionDownlink = conn && typeof conn.downlink === 'number' ? conn.downlink : 0;
             setStatus({
                 isOnline: navigator.onLine,
                 downlink: connectionDownlink,
                 effectiveType: conn ? conn.effectiveType : 'unknown',
-                rtt: conn ? conn.rtt : 0
+                rtt: conn ? conn.rtt : 0,
             });
 
             if (navigator.onLine && connectionDownlink <= 0) {
@@ -64,7 +68,8 @@ export function useNetworkMonitor() {
         window.addEventListener('online', updateStatus);
         window.addEventListener('offline', updateStatus);
 
-        const conn = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+        const conn =
+            (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
         if (conn) {
             conn.addEventListener('change', updateStatus);
         }
@@ -72,7 +77,10 @@ export function useNetworkMonitor() {
         updateStatus();
 
         intervalId = setInterval(() => {
-            const conn = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+            const conn =
+                (navigator as any).connection ||
+                (navigator as any).mozConnection ||
+                (navigator as any).webkitConnection;
             const hasNativeDownlink = conn && typeof conn.downlink === 'number' && conn.downlink > 0;
             if (navigator.onLine && !hasNativeDownlink) {
                 measureFallbackSpeed();

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import React from 'react';
 import { TerminalSquare, Clock, ShieldCheck } from 'lucide-react';
 import { Question } from '../../types';
@@ -11,10 +11,11 @@ interface NotebookEditorProps {
 
 export default function NotebookEditor({ question, onChange }: NotebookEditorProps) {
     const config = question.notebookConfig || {
-        initialCode: '# Write your Python code here\nimport numpy as np\nimport matplotlib.pyplot as plt\n\nprint("Hello from Python Notebook!")',
+        initialCode:
+            '# Write your Python code here\nimport numpy as np\nimport matplotlib.pyplot as plt\n\nprint("Hello from Python Notebook!")',
         language: 'python',
         maxExecutionTime: 10,
-        allowedLibraries: ['numpy', 'matplotlib']
+        allowedLibraries: ['numpy', 'matplotlib'],
     };
 
     const updateConfig = (updates: Partial<typeof config>) => {
@@ -31,7 +32,9 @@ export default function NotebookEditor({ question, onChange }: NotebookEditorPro
                             <Clock size={20} />
                         </div>
                         <div>
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-800">Execution Timeout</h4>
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-800">
+                                Execution Timeout
+                            </h4>
                             <p className="text-[9px] font-bold text-slate-400">Seconds before kernel kills process</p>
                         </div>
                     </div>
@@ -50,14 +53,23 @@ export default function NotebookEditor({ question, onChange }: NotebookEditorPro
                             <ShieldCheck size={20} />
                         </div>
                         <div>
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-800">Pre-loaded Libraries</h4>
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-800">
+                                Pre-loaded Libraries
+                            </h4>
                             <p className="text-[9px] font-bold text-slate-400">Comma separated Pip packages</p>
                         </div>
                     </div>
                     <input
                         type="text"
                         value={config.allowedLibraries?.join(', ')}
-                        onChange={(e) => updateConfig({ allowedLibraries: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
+                        onChange={(e) =>
+                            updateConfig({
+                                allowedLibraries: e.target.value
+                                    .split(',')
+                                    .map((s) => s.trim())
+                                    .filter(Boolean),
+                            })
+                        }
                         className="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-black text-emerald-600 outline-none focus:border-emerald-200 focus:ring-4 focus:ring-emerald-500/5 transition-all"
                         placeholder="numpy, pandas, matplotlib"
                     />

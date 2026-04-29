@@ -57,6 +57,72 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+Supabase migration verification suites are also available:
+
+- `src/services/supabase/supabase-rpc-verification.spec.ts` (9 RPC edge-case checks)
+- `src/services/supabase/supabase-rls-matrix.spec.ts` (11-scenario role access matrix)
+
+These integration suites are environment-gated and are skipped unless required variables are set:
+
+```bash
+DATABASE_URL=postgresql://postgres.<project-ref>:<password>@aws-0-<region>.pooler.supabase.com:6543/postgres?sslmode=require&pgbouncer=true
+SUPABASE_DIRECT_URL=postgresql://postgres:<password>@db.<project-ref>.supabase.co:5432/postgres?sslmode=require
+SUPABASE_URL=...
+SUPABASE_SERVICE_ROLE_KEY=...
+SUPABASE_ANON_KEY=...
+SUPABASE_TEST_JWT_SUPER_ADMIN=...
+SUPABASE_TEST_JWT_ADMIN=...
+SUPABASE_TEST_JWT_TEACHER=...
+SUPABASE_TEST_JWT_STUDENT=...
+```
+
+Use `DATABASE_URL` for application runtime traffic. On networks without IPv6, Supabase direct hosts such as `db.<project-ref>.supabase.co:5432` can fail with `Network is unreachable`; use the Supabase pooler connection string from Project Settings > Database instead. Keep `SUPABASE_DIRECT_URL` for migrations and one-off direct database scripts.
+
+Generate all four RLS test JWTs automatically (writes to `.env`):
+
+```bash
+npm run supabase:rls:tokens
+```
+
+To deploy project schema/RPC/RLS to Supabase directly:
+
+```bash
+SUPABASE_DIRECT_URL=postgresql://postgres:<password>@<project-ref>.supabase.co:5432/postgres
+npm run supabase:deploy
+```
+
+Notes:
+
+- The deploy script applies SQL files from `supabase/migrations` in order and tracks applied files in `public._schema_migrations`.
+- `SUPABASE_DIRECT_URL` can be replaced with `TARGET_DIRECT_URL` if you already use that variable name.
+- For RLS matrix tests, set all role JWT env vars:
+  - `SUPABASE_TEST_JWT_SUPER_ADMIN`
+  - `SUPABASE_TEST_JWT_ADMIN`
+  - `SUPABASE_TEST_JWT_TEACHER`
+  - `SUPABASE_TEST_JWT_STUDENT`
+
+## Clerk Invitation Setup
+
+The admin invite endpoint `POST /admin/users/invite` uses Clerk invitations and the `PendingInvite` table.
+
+1. In Clerk Dashboard, enable **Email invitations**.
+2. Set invitation redirect URL to your app dashboard (for example: `https://{org-domain}/dashboard`).
+3. Customize Clerk invitation email branding (name/logo/colors).
+4. Configure backend environment variables:
+
+```bash
+CLERK_SECRET_KEY=...
+CLERK_WEBHOOK_SECRET=...
+FRONTEND_URL=https://your-app-domain
+DEFAULT_ORG_ID=<uuid-from-prisma-seed-log>
+```
+
+5. Apply migrations before starting the app:
+
+```bash
+npm run migrate:deploy
+```
+
 ## Deployment
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.

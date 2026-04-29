@@ -1,8 +1,8 @@
-import { siteConfig } from "@/app/config/site";
+import { siteConfig } from '@/app/config/site';
 
 export const BRAND = {
     name: siteConfig.name,
-    suffix: "",
-    logoText: "BX",
+    suffix: '',
+    logoText: 'M',
     logoImage: siteConfig.logo,
 };

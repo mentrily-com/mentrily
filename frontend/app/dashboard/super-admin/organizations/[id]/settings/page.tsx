@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import React, { useState, useEffect, use } from 'react';
 import AdminSettingsView from '@/app/components/Features/Admin/AdminSettingsView';
 import { SuperAdminService } from '@/services/api/SuperAdminService';
@@ -35,7 +35,7 @@ export default function SuperAdminOrganizationSettings({ params }: { params: Pro
                         canCreateCourses: true,
                         allowCourseTests: true,
                         canManageUsers: true,
-                    }
+                    },
                 };
 
                 console.log('[SuperAdminOrganizationSettings] Mapped data:', mappedData);
@@ -60,15 +60,15 @@ export default function SuperAdminOrganizationSettings({ params }: { params: Pro
                 domain: updatedData.subdomain ? `${updatedData.subdomain}.${siteConfig.domain}` : orgData.domain,
                 status: updatedData.status,
                 maxUsers: Number(updatedData.maxUsers) || 100,
-                primaryColor: updatedData.primaryColor || '#fc751b',
+                primaryColor: updatedData.primaryColor || '#008D98',
                 logo: updatedData.logo || null,
                 features: updatedData.permissions,
                 contact: {
                     ...orgData.contact,
                     phone: updatedData.contact || null,
                     supportEmail: updatedData.email || null,
-                    adminEmail: updatedData.email || null
-                }
+                    adminEmail: updatedData.email || null,
+                },
             };
 
             console.log('[SuperAdminOrganizationSettings] Payload:', payload);
@@ -82,7 +82,7 @@ export default function SuperAdminOrganizationSettings({ params }: { params: Pro
                 subdomain: refreshedData.domain?.split('.')[0] || '',
                 contact: refreshedData.contact?.phone || '',
                 email: refreshedData.contact?.supportEmail || refreshedData.contact?.adminEmail || '',
-                permissions: refreshedData.features || updatedData.permissions
+                permissions: refreshedData.features || updatedData.permissions,
             });
         } catch (e: any) {
             console.error('[SuperAdminOrganizationSettings] Save error:', e);

@@ -2,68 +2,88 @@ import { Controller, Get, Query, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../services/prisma/prisma.service';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
+import { Plan } from '@prisma/client';
+import { getAppName } from '../../config/app-brand';
 
 @Controller('organization')
 export class OrganizationController {
-    constructor(
-        private prisma: PrismaService,
-        @InjectRedis() private readonly redis: Redis
-    ) { }
+  constructor(
+    private prisma: PrismaService,
+    @InjectRedis() private readonly redis: Redis,
+  ) {}
 
-    @Get('public')
-    async getPublicOrg(@Query('domain') domain: string) {
-        if (!domain) throw new NotFoundException('Domain required');
+  private getDefaultBranding(domain: string) {
+    return {
+      name: getAppName(),
+      logo: null,
+      primaryColor: '#008D98',
+      domain,
+    };
+  }
 
-        // CACHE
-        const cacheKey = `org:public:${domain.toLowerCase()}`;
-        const cached = await this.redis.get(cacheKey);
-        if (cached) return JSON.parse(cached);
+  @Get('public')
+  async getPublicOrg(@Query('domain') domain: string) {
+    if (!domain) throw new NotFoundException('Domain required');
 
-        const org = await this.prisma.organization.findFirst({
-            where: {
-                OR: [
-                    { domain: domain }, // Exact match
-                    { domain: { equals: domain, mode: 'insensitive' } } // Case insensitive
-                ]
-            },
-            select: {
-                name: true,
-                logo: true,
-                primaryColor: true,
-                domain: true
-            }
-        });
+    // CACHE
+    const cacheKey = `org:public:${domain.toLowerCase()}`;
+    const cached = await this.redis.get(cacheKey);
+    if (cached) return JSON.parse(cached);
 
-        if (!org) {
-            // Check if it matches "subdomain.blockscode.me" logic if stored differently
-            // But currently we store the full domain or subdomain? 
-            // CreateOrganizationView stores: `${formData.subdomain}.blockscode.me`
-            // So if input is 'acme', we search 'acme.blockscode.me'?
-            // The Frontend sends `parts[0]` which is 'acme'.
-            // So we should search for `domain` STARTS WITH or EQUALS `${domain}.blockscode.me`
+    const org = await this.prisma.organization.findFirst({
+      where: {
+        OR: [
+          { domain: domain }, // Exact match
+          { domain: { equals: domain, mode: 'insensitive' } }, // Case insensitive
+        ],
+      },
+      select: {
+        name: true,
+        logo: true,
+        primaryColor: true,
+        domain: true,
+        plan: true,
+      },
+    });
 
-            const orgBySub = await this.prisma.organization.findFirst({
-                where: {
-                    domain: {
-                        startsWith: domain + '.',
-                        mode: 'insensitive'
-                    }
-                },
-                select: {
-                    name: true,
-                    logo: true,
-                    primaryColor: true,
-                    domain: true
-                }
-            });
+    if (!org) {
+      // Check if it matches "subdomain.mentrily.com" logic if stored differently
+      // But currently we store the full domain or subdomain?
+      // CreateOrganizationView stores: `${formData.subdomain}.mentrily.com`
+      // So if input is 'acme', we search 'acme.mentrily.com'?
+      // The Frontend sends `parts[0]` which is 'acme'.
+      // So we should search for `domain` STARTS WITH or EQUALS `${domain}.mentrily.com`
 
-            if (!orgBySub) throw new NotFoundException('Organization not found');
-            
-            await this.redis.set(cacheKey, JSON.stringify(orgBySub), 'EX', 3600);
-            return orgBySub;
-        }
+      const orgBySub = await this.prisma.organization.findFirst({
+        where: {
+          domain: {
+            startsWith: domain + '.',
+            mode: 'insensitive',
+          },
+        },
+        select: {
+          name: true,
+          logo: true,
+          primaryColor: true,
+          domain: true,
+          plan: true,
+        },
+      });
 
-        await this.redis.set(cacheKey, JSON.stringify(org), 'EX', 3600);
-        return org;
+      if (!orgBySub) throw new NotFoundException('Organization not found');
+      const payload =
+        orgBySub.plan === Plan.ENTERPRISE
+          ? orgBySub
+          : this.getDefaultBranding(orgBySub.domain || domain);
+      await this.redis.set(cacheKey, JSON.stringify(payload), 'EX', 3600);
+      return payload;
     }
+
+    const payload =
+      org.plan === Plan.ENTERPRISE
+        ? org
+        : this.getDefaultBranding(org.domain || domain);
+    await this.redis.set(cacheKey, JSON.stringify(payload), 'EX', 3600);
+    return payload;
+  }
 }

@@ -1,20 +1,21 @@
-"use client";
+'use client';
 import React, { useState } from 'react';
 import { BRAND } from '../constants/brand';
 import { useOrganization } from '../context/OrganizationContext';
+import { BrandLockup } from '@/components/brand/BrandLockup';
 
 interface ExamFeedbackViewProps {
     onSubmitFeedback: (rating: number, comment: string) => void;
+    verdict?: { passed: boolean; score?: number | null; passingPercentage?: number };
 }
 
-export default function ExamFeedbackView({ onSubmitFeedback }: ExamFeedbackViewProps) {
+export default function ExamFeedbackView({ onSubmitFeedback, verdict }: ExamFeedbackViewProps) {
     const [rating, setRating] = useState<number>(0);
-    const [comment, setComment] = useState("");
+    const [comment, setComment] = useState('');
     const [hoveredRating, setHoveredRating] = useState<number>(0);
     const { organization: orgContext } = useOrganization();
 
     const displayName = orgContext?.name || BRAND.name;
-    const displayLogo = orgContext?.logo || BRAND.logoImage;
 
     const handleSubmit = () => {
         if (rating === 0) return;
@@ -22,11 +23,11 @@ export default function ExamFeedbackView({ onSubmitFeedback }: ExamFeedbackViewP
     };
 
     const ratingDescriptions: { [key: number]: string } = {
-        1: "Poor",
-        2: "Fair",
-        3: "Good",
-        4: "Very Good",
-        5: "Excellent"
+        1: 'Poor',
+        2: 'Fair',
+        3: 'Good',
+        4: 'Very Good',
+        5: 'Excellent',
     };
 
     return (
@@ -37,13 +38,13 @@ export default function ExamFeedbackView({ onSubmitFeedback }: ExamFeedbackViewP
             <div className="flex-1 flex flex-col items-center justify-center p-6 max-w-2xl mx-auto w-full">
                 {/* Logo Area */}
                 <div className="mb-12 flex flex-col items-center">
-                    {displayLogo ? (
-                        <img src={displayLogo} alt="Logo" className="w-12 h-12 object-contain mb-4" />
-                    ) : (
-                        <div className="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200 overflow-hidden mb-4">
-                            <span className="text-white font-black text-lg">{BRAND.logoText}</span>
-                        </div>
-                    )}
+                    <BrandLockup
+                        orgName={orgContext?.name}
+                        orgLogo={orgContext?.logo}
+                        defaultLogoClassName="mb-4 h-9 max-w-[180px]"
+                        iconClassName="mb-4 h-12 w-12"
+                        textClassName="mb-4 text-lg font-black"
+                    />
                     <div className="h-1 w-12 bg-indigo-500 rounded-full" />
                 </div>
 
@@ -51,7 +52,24 @@ export default function ExamFeedbackView({ onSubmitFeedback }: ExamFeedbackViewP
                     <div className="absolute top-0 left-0 w-full h-2 bg-indigo-500" />
 
                     <h1 className="text-3xl font-black text-slate-900 mb-2 tracking-tight">How was your experience?</h1>
-                    <p className="text-slate-500 font-medium mb-10 text-lg">Your feedback helps us make exams better for everyone.</p>
+                    <p className="text-slate-500 font-medium mb-10 text-lg">
+                        Your feedback helps us make exams better for everyone.
+                    </p>
+                    {verdict ? (
+                        <div
+                            className={`mb-6 rounded-2xl border px-4 py-3 text-left ${
+                                verdict.passed ? 'border-emerald-200 bg-emerald-50' : 'border-rose-200 bg-rose-50'
+                            }`}
+                        >
+                            <p className={`text-sm font-black ${verdict.passed ? 'text-emerald-700' : 'text-rose-700'}`}>
+                                {verdict.passed ? 'Passed' : 'Failed'}
+                                {typeof verdict.score === 'number' ? ` - ${Math.round(verdict.score)}%` : ''}
+                            </p>
+                            <p className="mt-1 text-xs font-semibold text-slate-600">
+                                Passing threshold: {verdict.passingPercentage ?? 70}%
+                            </p>
+                        </div>
+                    ) : null}
 
                     {/* Rating Section */}
                     <div className="mb-10">
@@ -64,9 +82,11 @@ export default function ExamFeedbackView({ onSubmitFeedback }: ExamFeedbackViewP
                                     onClick={() => setRating(star)}
                                     className={`
                                         w-16 h-16 rounded-2xl flex items-center justify-center text-3xl transition-all duration-300 transform
-                                        ${(hoveredRating || rating) >= star
-                                            ? 'bg-indigo-600 text-white scale-110 shadow-xl shadow-indigo-200 ring-4 ring-indigo-50'
-                                            : 'bg-slate-50 text-slate-300 hover:bg-slate-100 hover:text-slate-400'}
+                                        ${
+                                            (hoveredRating || rating) >= star
+                                                ? 'bg-indigo-600 text-white scale-110 shadow-xl shadow-indigo-200 ring-4 ring-indigo-50'
+                                                : 'bg-slate-50 text-slate-300 hover:bg-slate-100 hover:text-slate-400'
+                                        }
                                         active:scale-95
                                     `}
                                 >
@@ -98,9 +118,11 @@ export default function ExamFeedbackView({ onSubmitFeedback }: ExamFeedbackViewP
                         disabled={rating === 0}
                         className={`
                             w-full h-14 rounded-2xl font-black text-sm uppercase tracking-widest transition-all duration-300
-                            ${rating > 0
-                                ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200 active:scale-95'
-                                : 'bg-slate-100 text-slate-400 cursor-not-allowed'}
+                            ${
+                                rating > 0
+                                    ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200 active:scale-95'
+                                    : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                            }
                         `}
                     >
                         Submit Feedback

@@ -1,14 +1,16 @@
-export function requireAuthClient(redirectTo = "/login") {
-  if (typeof window !== "undefined") {
-    // Check for user profile as proof of session (soft check)
-    // The actual API security is handled by HttpOnly cookies which React can't see.
-    const user = localStorage.getItem("user");
-    
-    if (!user) {
-      window.location.href = redirectTo;
-      return false;
-    }
-    return true;
-  }
-  return false;
+'use client';
+
+import { useEffect } from 'react';
+import { useAuth } from '@clerk/nextjs';
+
+export function useRequireAuth(redirectTo = '/login') {
+    const { isSignedIn, isLoaded } = useAuth();
+
+    useEffect(() => {
+        if (isLoaded && !isSignedIn) {
+            window.location.href = redirectTo;
+        }
+    }, [isLoaded, isSignedIn, redirectTo]);
+
+    return Boolean(isSignedIn);
 }

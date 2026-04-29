@@ -1,25 +1,67 @@
-import { Controller, Post, Body, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  HttpException,
+  HttpStatus,
+  Get,
+  Query,
+  Res,
+} from '@nestjs/common';
 import { AiService } from './ai.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { PlanGuard } from '../auth/guards/plan.guard';
 import { Roles } from '../auth/roles.decorator';
+import { RequirePlan } from '../auth/plan.decorator';
 import { Role } from '@prisma/client';
+import { User } from '../auth/user.decorator';
+import type { FastifyReply } from 'fastify';
+import { GenerateCourseOutlineDto } from './dto/generate-course-outline.dto';
+import { GenerateCourseFullDto } from './dto/generate-course-full.dto';
+import { GenerateSectionDto } from './dto/generate-section.dto';
+import { GenerateExamOutlineDto } from './dto/generate-exam-outline.dto';
+import { GenerateExamFullDto } from './dto/generate-exam-full.dto';
 
 @Controller('ai')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, PlanGuard)
 @Roles(Role.TEACHER, Role.ADMIN, Role.SUPER_ADMIN)
+@RequirePlan('aiExams')
 export class AiController {
-    constructor(private readonly aiService: AiService) { }
+  constructor(private readonly aiService: AiService) {}
 
-    @Post('generate-course-outline')
-    async generateCourseOutline(@Body() body: any) {
-        const { title, description, difficulty, numSections, questionsPerSection, allowedTypes } = body;
+  private buildAiContext(
+    user: { id?: string; orgId?: string | null } | null | undefined,
+  ) {
+    return {
+      userId: user?.id || null,
+      orgId: user?.orgId || null,
+    };
+  }
 
-        if (!title || !description) {
-            throw new HttpException('Title and description are required', HttpStatus.BAD_REQUEST);
-        }
+  @Post('generate-course-outline')
+  async generateCourseOutline(
+    @Body() body: GenerateCourseOutlineDto,
+    @User() user: { id?: string; orgId?: string | null },
+  ) {
+    const {
+      title,
+      description,
+      difficulty,
+      numSections,
+      questionsPerSection,
+      allowedTypes,
+    } = body;
 
-        const systemPrompt = `You are an expert curriculum designer and educator. Your task is to generate a structured outline for a course.
+    if (!title || !description) {
+      throw new HttpException(
+        'Title and description are required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const systemPrompt = `You are an expert curriculum designer and educator. Your task is to generate a structured outline for a course.
 The course is titled "${title}".
 Description: "${description}".
 Difficulty Level: ${difficulty || 'Beginner'}.
@@ -28,20 +70,34 @@ Allowed question types: ${allowedTypes ? allowedTypes.join(', ') : 'Reading, MCQ
 
 Generate ONLY the structural outline: section titles, brief descriptions, and the list of question topics (with their types and teaching intent). Do not generate the full content of the questions yet.`;
 
-        const userPrompt = `Please generate the course outline following the exact JSON schema provided.`;
+    const userPrompt = `Please generate the course outline following the exact JSON schema provided.`;
 
-        return this.aiService.generateObject(systemPrompt, userPrompt, this.aiService.getCourseOutlineSchema());
+    return this.aiService.generateObject(
+      systemPrompt,
+      userPrompt,
+      this.aiService.getCourseOutlineSchema(),
+      {
+        ...this.buildAiContext(user),
+        operation: 'generate-course-outline',
+      },
+    );
+  }
+
+  @Post('generate-course-full')
+  async generateCourseFull(
+    @Body() body: GenerateCourseFullDto,
+    @User() user: { id?: string; orgId?: string | null },
+  ) {
+    const { title, description, outline } = body;
+
+    if (!outline || !outline.sections) {
+      throw new HttpException(
+        'A valid course outline is required',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
-    @Post('generate-course-full')
-    async generateCourseFull(@Body() body: any) {
-        const { title, description, outline } = body;
-
-        if (!outline || !outline.sections) {
-            throw new HttpException('A valid course outline is required', HttpStatus.BAD_REQUEST);
-        }
-
-        const systemPrompt = `You are an expert software engineering instructor and content creator. You must generate the full, detailed content for a complete course based on the provided structural outline.
+    const systemPrompt = `You are an expert software engineering instructor and content creator. You must generate the full, detailed content for a complete course based on the provided structural outline.
 Course Title: "${title}"
 Course Description/Topic: "${description}"
 
@@ -54,32 +110,155 @@ CRITICAL INSTRUCTIONS FOR HIGH-QUALITY OUTPUT:
 6. WEB PROJECT: For 'Web' types, provide sensible starter HTML/CSS/JS.
 YOUR OUTPUT MUST EXACTLY MATCH THE PROVIDED JSON SCHEMA. IF IT DOES NOT, THE SYSTEM WILL CRASH.`;
 
-        const userPrompt = `Here is the approved course outline:\n\n${JSON.stringify(outline, null, 2)}\n\nPlease generate the full course content and the summary cheat sheet based on this outline. Ensure \`problemStatement\` is always rich HTML.`;
+    const userPrompt = `Here is the approved course outline:\n\n${JSON.stringify(outline, null, 2)}\n\nPlease generate the full course content and the summary cheat sheet based on this outline. Ensure \`problemStatement\` is always rich HTML.`;
 
-        return this.aiService.generateObject(systemPrompt, userPrompt, this.aiService.getFullCourseSchema());
+    return this.aiService.generateObject(
+      systemPrompt,
+      userPrompt,
+      this.aiService.getFullCourseSchema(),
+      {
+        ...this.buildAiContext(user),
+        operation: 'generate-course-full',
+      },
+    );
+  }
+
+  @Post('generate-section')
+  async generateSection(
+    @Body() body: GenerateSectionDto,
+    @User() user: { id?: string; orgId?: string | null },
+  ) {
+    const { title, description, section } = body;
+
+    if (!title || !description || !section || !section.id || !section.title) {
+      throw new HttpException(
+        'title, description and a valid section are required',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
-    @Post('generate-exam-outline')
-    async generateExamOutline(@Body() body: any) {
-        const { title, description, numSections, sectionConfigs, courseSummary } = body;
+    return this.aiService.generateSection(title, description, section, {
+      ...this.buildAiContext(user),
+      operation: 'generate-course-section',
+    });
+  }
 
-        if (!title || !description) {
-            throw new HttpException('Title and description are required', HttpStatus.BAD_REQUEST);
-        }
+  @Get('generate-course-full/stream')
+  async generateCourseFullStream(
+    @Query('title') title: string,
+    @Query('description') description: string,
+    @Query('outline') outlineRaw: string,
+    @User() user: { id?: string; orgId?: string | null },
+    @Res() reply: FastifyReply,
+  ) {
+    if (!title || !description || !outlineRaw) {
+      throw new HttpException(
+        'title, description and outline query params are required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
-        let contextInjection = '';
-        if (courseSummary) {
-            contextInjection = `\nCRITICAL CONTEXT: This exam is based on an existing course. Here is the course summary:\n"""\n${courseSummary}\n"""\nYou MUST strictly generate an exam outline that aligns with concepts taught in this summary.`;
-        }
+    let outline: {
+      sections: Array<{
+        id: string;
+        title: string;
+        description?: string;
+        questions?: unknown[];
+      }>;
+    };
+    try {
+      outline = JSON.parse(outlineRaw) as {
+        sections: Array<{
+          id: string;
+          title: string;
+          description?: string;
+          questions?: unknown[];
+        }>;
+      };
+    } catch {
+      throw new HttpException(
+        'outline must be a valid JSON string',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
-        let sectionDemands = '';
-        if (sectionConfigs && Array.isArray(sectionConfigs)) {
-            sectionDemands = sectionConfigs.map((sec: any, idx: number) => {
-                return `Section ${String.fromCharCode(65 + idx)}: MUST have exactly ${sec.questionsCount} questions. Allowed types: ${sec.allowedTypes.join(', ')}. Target Difficulty: ${sec.difficulty || 'Intermediate'}.`;
-            }).join('\n');
-        }
+    reply.raw.setHeader('Content-Type', 'text/event-stream');
+    reply.raw.setHeader('Cache-Control', 'no-cache, no-transform');
+    reply.raw.setHeader('Connection', 'keep-alive');
 
-        const systemPrompt = `You are an expert examiner and assessment creator. Your task is to generate a structured outline for an exam.
+    const sendEvent = (event: string, data: unknown) => {
+      reply.raw.write(`event: ${event}\n`);
+      reply.raw.write(`data: ${JSON.stringify(data)}\n\n`);
+    };
+
+    try {
+      sendEvent('progress', {
+        stage: 'starting',
+        message: 'Starting full course generation...',
+      });
+
+      const result = await this.aiService.generateCourseFullBySections(
+        title,
+        description,
+        outline,
+        (progress) => {
+          sendEvent('progress', {
+            stage: 'section',
+            current: progress.index,
+            total: progress.total,
+            message: progress.message,
+          });
+        },
+        {
+          ...this.buildAiContext(user),
+          operation: 'generate-course-full-stream',
+        },
+      );
+
+      sendEvent('done', { result });
+      reply.raw.end();
+      return;
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Failed to generate course stream';
+      sendEvent('error', { message });
+      reply.raw.end();
+      return;
+    }
+  }
+
+  @Post('generate-exam-outline')
+  async generateExamOutline(
+    @Body() body: GenerateExamOutlineDto,
+    @User() user: { id?: string; orgId?: string | null },
+  ) {
+    const { title, description, numSections, sectionConfigs, courseSummary } =
+      body;
+
+    if (!title || !description) {
+      throw new HttpException(
+        'Title and description are required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    let contextInjection = '';
+    if (courseSummary) {
+      contextInjection = `\nCRITICAL CONTEXT: This exam is based on an existing course. Here is the course summary:\n"""\n${courseSummary}\n"""\nYou MUST strictly generate an exam outline that aligns with concepts taught in this summary.`;
+    }
+
+    let sectionDemands = '';
+    if (sectionConfigs && Array.isArray(sectionConfigs)) {
+      sectionDemands = sectionConfigs
+        .map((sec: any, idx: number) => {
+          return `Section ${String.fromCharCode(65 + idx)}: MUST have exactly ${sec.questionsCount} questions. Allowed types: ${sec.allowedTypes.join(', ')}. Target Difficulty: ${sec.difficulty || 'Intermediate'}.`;
+        })
+        .join('\n');
+    }
+
+    const systemPrompt = `You are an expert examiner and assessment creator. Your task is to generate a structured outline for an exam.
 The exam is titled "${title}".
 Description: "${description}".
 Target structure: exactly ${numSections || '1-3'} sections. 
@@ -90,25 +269,39 @@ ${contextInjection}
 
 Generate ONLY the structural outline: section titles and the list of question concepts/topics (with their types, intent, and allocated marks). You must strictly adhere to the per-section lengths and allowed types requested above.`;
 
-        const userPrompt = `Please generate the exam outline following the exact JSON schema provided.`;
+    const userPrompt = `Please generate the exam outline following the exact JSON schema provided.`;
 
-        return this.aiService.generateObject(systemPrompt, userPrompt, this.aiService.getExamOutlineSchema());
+    return this.aiService.generateObject(
+      systemPrompt,
+      userPrompt,
+      this.aiService.getExamOutlineSchema(),
+      {
+        ...this.buildAiContext(user),
+        operation: 'generate-exam-outline',
+      },
+    );
+  }
+
+  @Post('generate-exam-full')
+  async generateExamFull(
+    @Body() body: GenerateExamFullDto,
+    @User() user: { id?: string; orgId?: string | null },
+  ) {
+    const { title, description, outline, courseSummary } = body;
+
+    if (!outline || !outline.sections) {
+      throw new HttpException(
+        'A valid exam outline is required',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
-    @Post('generate-exam-full')
-    async generateExamFull(@Body() body: any) {
-        const { title, description, outline, courseSummary } = body;
+    let contextInjection = '';
+    if (courseSummary) {
+      contextInjection = `\nCRITICAL CONTEXT: This exam is based on a specific syllabus:\n"""\n${courseSummary}\n"""\nEnsure all generated questions strictly adhere to this context.`;
+    }
 
-        if (!outline || !outline.sections) {
-            throw new HttpException('A valid exam outline is required', HttpStatus.BAD_REQUEST);
-        }
-
-        let contextInjection = '';
-        if (courseSummary) {
-            contextInjection = `\nCRITICAL CONTEXT: This exam is based on a specific syllabus:\n"""\n${courseSummary}\n"""\nEnsure all generated questions strictly adhere to this context.`;
-        }
-
-        const systemPrompt = `You are an expert examiner creating the full content of an exam based on a structural outline.
+    const systemPrompt = `You are an expert examiner creating the full content of an exam based on a structural outline.
 Exam Title: "${title}"
 Exam Description/Topic: "${description}"${contextInjection}
 
@@ -120,8 +313,16 @@ CRITICAL INSTRUCTIONS FOR HIGH-QUALITY OUTPUT:
 5. NOTEBOOK: For 'Notebook' types, provide Python starter code in \`initialCode\` and specify \`allowedLibraries\` (e.g. numpy, pandas).
 YOUR OUTPUT MUST EXACTLY MATCH THE PROVIDED JSON SCHEMA. IF IT DOES NOT, THE SYSTEM WILL CRASH.`;
 
-        const userPrompt = `Here is the approved exam outline:\n\n${JSON.stringify(outline, null, 2)}\n\nPlease generate the full exam content based on this outline. Ensure \`problemStatement\` is always rich HTML.`;
+    const userPrompt = `Here is the approved exam outline:\n\n${JSON.stringify(outline, null, 2)}\n\nPlease generate the full exam content based on this outline. Ensure \`problemStatement\` is always rich HTML.`;
 
-        return this.aiService.generateObject(systemPrompt, userPrompt, this.aiService.getFullExamSchema());
-    }
+    return this.aiService.generateObject(
+      systemPrompt,
+      userPrompt,
+      this.aiService.getFullExamSchema(),
+      {
+        ...this.buildAiContext(user),
+        operation: 'generate-exam-full',
+      },
+    );
+  }
 }

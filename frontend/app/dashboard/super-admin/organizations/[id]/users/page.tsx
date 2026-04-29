@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import React from 'react';
 import AdminUsersView from '@/app/components/Features/Admin/AdminUsersView';
 

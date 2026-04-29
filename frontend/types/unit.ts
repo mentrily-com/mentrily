@@ -20,16 +20,19 @@ export interface UnitQuestion {
         tail?: string;
         testCases?: Array<any>;
         // Normalized templates per language (if teacher provided per-lang templates)
-        templates?: Record<string, {
-            header?: string;
-            initialCode?: string;
-            footer?: string;
-            // Teacher Dashboard names
-            head?: string;
-            body?: string;
-            tail?: string;
-            testCases?: Array<any>;
-        }>;
+        templates?: Record<
+            string,
+            {
+                header?: string;
+                initialCode?: string;
+                footer?: string;
+                // Teacher Dashboard names
+                head?: string;
+                body?: string;
+                tail?: string;
+                testCases?: Array<any>;
+            }
+        >;
         // Optional list of allowed languages (e.g. ['javascript','python'])
         allowedLanguages?: string[];
         showTestCases?: boolean;
@@ -43,7 +46,7 @@ export interface UnitQuestion {
         testCases?: Array<any>;
     };
     // MCQ specific
-    mcqOptions?: { id: string; text: string; isCorrect?: boolean; }[];
+    mcqOptions?: { id: string; text: string; isCorrect?: boolean }[];
     module?: any;
     moduleUnits?: any[];
     moduleTitle?: string;

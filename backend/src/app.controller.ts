@@ -38,4 +38,9 @@ export class AppController {
   getServerTime() {
     return this.getTimePayload();
   }
+
+  @Get('health')
+  async getHealth() {
+    return this.appService.getHealth();
+  }
 }

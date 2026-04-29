@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import React, { useState, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -10,11 +10,31 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
 import {
-    Bold, Italic, Underline as UnderlineIcon, Strikethrough, Code as CodeIcon,
-    List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify,
-    Link as LinkIcon, Image as ImageIcon, Quote, Undo, Redo,
-    Heading1, Heading2, Heading3, Subscript as SubIcon, Superscript as SupIcon,
-    Moon, Sun, Terminal, Code2, Youtube as YoutubeIcon
+    Bold,
+    Italic,
+    Underline as UnderlineIcon,
+    Strikethrough,
+    List,
+    ListOrdered,
+    AlignLeft,
+    AlignCenter,
+    AlignRight,
+    AlignJustify,
+    Link as LinkIcon,
+    Image as ImageIcon,
+    Quote,
+    Undo,
+    Redo,
+    Heading1,
+    Heading2,
+    Heading3,
+    Subscript as SubIcon,
+    Superscript as SupIcon,
+    Moon,
+    Sun,
+    Terminal,
+    Code2,
+    Youtube as YoutubeIcon,
 } from 'lucide-react';
 
 interface RichTextEditorProps {
@@ -88,10 +108,11 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
         },
         editorProps: {
             attributes: {
-                class: `prose max-w-none focus:outline-none min-h-[400px] p-8 transition-colors duration-300 ${isDarkMode
-                    ? 'prose-invert bg-slate-900 text-slate-100 placeholder:text-slate-600'
-                    : 'prose-slate bg-white text-slate-700 placeholder:text-slate-400'
-                    }`,
+                class: `prose max-w-none focus:outline-none min-h-[400px] p-8 transition-colors duration-300 ${
+                    isDarkMode
+                        ? 'prose-invert bg-slate-900 text-slate-100 placeholder:text-slate-600'
+                        : 'prose-slate bg-white text-slate-700 placeholder:text-slate-400'
+                }`,
             },
         },
     });
@@ -164,13 +185,26 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
     };
 
     return (
-        <div className={`border rounded-[32px] overflow-hidden transition-all duration-300 ${isDarkMode ? 'border-slate-700 shadow-2xl shadow-black/50' : 'border-slate-200 shadow-sm'}`}>
+        <div
+            className={`border rounded-[32px] overflow-hidden transition-all duration-300 ${isDarkMode ? 'border-slate-700 shadow-2xl shadow-black/50' : 'border-slate-200 shadow-sm'}`}
+        >
             {/* Toolbar */}
-            <div className={`flex flex-wrap items-center gap-1 p-3 border-b sticky top-0 z-10 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
-
+            <div
+                className={`flex flex-wrap items-center gap-1 p-3 border-b sticky top-0 z-10 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`}
+            >
                 <div className="flex bg-white/10 rounded-xl p-0.5 gap-0.5 shadow-inner">
-                    <ToolbarBtn onClick={() => editor.chain().undo().run()} icon={<Undo size={15} />} label="Undo" dark={isDarkMode} />
-                    <ToolbarBtn onClick={() => editor.chain().redo().run()} icon={<Redo size={15} />} label="Redo" dark={isDarkMode} />
+                    <ToolbarBtn
+                        onClick={() => editor.chain().undo().run()}
+                        icon={<Undo size={15} />}
+                        label="Undo"
+                        dark={isDarkMode}
+                    />
+                    <ToolbarBtn
+                        onClick={() => editor.chain().redo().run()}
+                        icon={<Redo size={15} />}
+                        label="Redo"
+                        dark={isDarkMode}
+                    />
                 </div>
                 <Divider dark={isDarkMode} />
 
@@ -325,9 +359,27 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
                 <Divider dark={isDarkMode} />
 
                 <div className="flex bg-white/10 rounded-xl p-0.5 gap-0.5 shadow-inner">
-                    <ToolbarBtn onClick={setLink} active={editor.isActive(linkName)} icon={<LinkIcon size={15} />} label="Link" dark={isDarkMode} />
-                    <ToolbarBtn onClick={addImage} active={editor.isActive('image')} icon={<ImageIcon size={15} />} label="Image" dark={isDarkMode} />
-                    <ToolbarBtn onClick={addYoutube} active={editor.isActive('youtube')} icon={<YoutubeIcon size={15} />} label="YouTube Video" dark={isDarkMode} />
+                    <ToolbarBtn
+                        onClick={setLink}
+                        active={editor.isActive(linkName)}
+                        icon={<LinkIcon size={15} />}
+                        label="Link"
+                        dark={isDarkMode}
+                    />
+                    <ToolbarBtn
+                        onClick={addImage}
+                        active={editor.isActive('image')}
+                        icon={<ImageIcon size={15} />}
+                        label="Image"
+                        dark={isDarkMode}
+                    />
+                    <ToolbarBtn
+                        onClick={addYoutube}
+                        active={editor.isActive('youtube')}
+                        icon={<YoutubeIcon size={15} />}
+                        label="YouTube Video"
+                        dark={isDarkMode}
+                    />
                 </div>
 
                 <div className="ml-auto flex items-center gap-2">
@@ -335,10 +387,11 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
                     <button
                         type="button"
                         onClick={() => setIsDarkMode(!isDarkMode)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${isDarkMode
-                            ? 'bg-[var(--brand)] text-white hover:brightness-110 shadow-lg shadow-[var(--brand)]/20'
-                            : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
-                            }`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                            isDarkMode
+                                ? 'bg-[var(--brand)] text-white hover:brightness-110 shadow-lg shadow-[var(--brand)]/20'
+                                : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                        }`}
                     >
                         {isDarkMode ? <Sun size={14} /> : <Moon size={14} />}
                         {isDarkMode ? 'Light' : 'Dark'}
@@ -350,7 +403,9 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
             <div className={`relative ${isDarkMode ? 'bg-slate-900' : 'bg-white'}`}>
                 <EditorContent editor={editor} />
                 {(content === '' || content === '<p></p>') && (
-                    <div className={`absolute top-8 left-8 pointer-events-none font-medium italic ${isDarkMode ? 'text-slate-600' : 'text-slate-300'}`}>
+                    <div
+                        className={`absolute top-8 left-8 pointer-events-none font-medium italic ${isDarkMode ? 'text-slate-600' : 'text-slate-300'}`}
+                    >
                         {placeholder || 'Start typing your content...'}
                     </div>
                 )}
@@ -391,16 +446,33 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
     );
 }
 
-function ToolbarBtn({ onClick, active, icon, label, dark }: { onClick: () => void; active?: boolean; icon: React.ReactNode; label: string; dark: boolean }) {
+function ToolbarBtn({
+    onClick,
+    active,
+    icon,
+    label,
+    dark,
+}: {
+    onClick: () => void;
+    active?: boolean;
+    icon: React.ReactNode;
+    label: string;
+    dark: boolean;
+}) {
     return (
         <button
             type="button"
             onClick={onClick}
             title={label}
-            className={`p-2.5 rounded-lg transition-all ${active
-                ? (dark ? 'bg-[var(--brand)] text-white shadow-lg shadow-[var(--brand)]/30' : 'bg-[var(--brand)] text-white shadow-lg')
-                : (dark ? 'text-slate-400 hover:text-slate-200 hover:bg-white/5' : 'text-slate-500 hover:text-slate-900 hover:bg-white')
-                }`}
+            className={`p-2.5 rounded-lg transition-all ${
+                active
+                    ? dark
+                        ? 'bg-[var(--brand)] text-white shadow-lg shadow-[var(--brand)]/30'
+                        : 'bg-[var(--brand)] text-white shadow-lg'
+                    : dark
+                      ? 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                      : 'text-slate-500 hover:text-slate-900 hover:bg-white'
+            }`}
         >
             {icon}
         </button>
@@ -408,5 +480,5 @@ function ToolbarBtn({ onClick, active, icon, label, dark }: { onClick: () => voi
 }
 
 function Divider({ dark }: { dark: boolean }) {
-    return <div className={`w-[1px] h-6 mx-1 ${dark ? 'bg-white/10' : 'bg-slate-200 font-thin'}`}></div>
+    return <div className={`w-[1px] h-6 mx-1 ${dark ? 'bg-white/10' : 'bg-slate-200 font-thin'}`}></div>;
 }

@@ -16,17 +16,20 @@ export interface Question {
     // Coding (Updated for Multi-Language)
     codingConfig?: {
         // Map of language slug (e.g., 'javascript', 'python') to templates
-        templates: Record<string, {
-            head: string;   // Code before student's code (hidden)
-            body: string;   // Starter code
-            tail: string;   // Code after student's code (hidden)
-            solution: string; // Model solution
-        }>;
+        templates: Record<
+            string,
+            {
+                head: string; // Code before student's code (hidden)
+                body: string; // Starter code
+                tail: string; // Code after student's code (hidden)
+                solution: string; // Model solution
+            }
+        >;
         testCases: {
             input: string;
             output: string;
             isPublic: boolean; // Replaces previous default "true"
-            points: number
+            points: number;
         }[];
         showTestCases?: boolean;
     };
@@ -103,7 +106,29 @@ export interface Course {
     endTime?: string;
     moduleId?: string;
     courseId?: string;
+    linkedCourseId?: string;
 
     // AI Generation Metadata
     aiTokensUsed?: number;
+    passingPercentage?: number;
+    maxAttempts?: number;
+    attemptBufferMins?: number;
+
+    // Course ↔ Exam ↔ Certificate integration
+    linkedExamId?: string;
+    examPassThreshold?: number;
+    examUnlockThreshold?: number;
+    completionThreshold?: number;
+    certificateTemplateId?: string;
+    linkedExam?: {
+        id: string;
+        title: string;
+        slug: string;
+        duration: number;
+        totalMarks: number;
+        questionCount?: number;
+        passingPercentage?: number;
+        maxAttempts?: number;
+        attemptBufferMins?: number;
+    } | null;
 }

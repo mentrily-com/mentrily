@@ -1,6 +1,5 @@
-"use client";
-import React from "react";
-import Navbar from "@/app/components/Navbar";
+'use client';
+import React from 'react';
 
 interface CoursePlayerSkeletonProps {
     isExamMode?: boolean;
@@ -11,7 +10,6 @@ export default function CoursePlayerSkeleton({ isExamMode = false, hasSidebar = 
     return (
         <div className="h-screen bg-white flex flex-col overflow-hidden font-sans">
             {/* Navbar (hidden in strict exam mode if needed, but typically there's some header) */}
-            {!isExamMode && <Navbar />}
 
             <div className="flex-1 flex overflow-hidden relative border-t border-slate-100">
                 {/* Left Sidebar Skeleton (e.g. UnitSidebar or ExamSidebar) */}
@@ -23,7 +21,10 @@ export default function CoursePlayerSkeleton({ isExamMode = false, hasSidebar = 
                         </div>
                         <div className="p-4 space-y-2 flex-1 overflow-hidden">
                             {[1, 2, 3, 4, 5, 6].map((i) => (
-                                <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-white border border-slate-100 shadow-sm animate-pulse">
+                                <div
+                                    key={i}
+                                    className="flex items-center gap-3 p-3 rounded-xl bg-white border border-slate-100 shadow-sm animate-pulse"
+                                >
                                     <div className="w-8 h-8 rounded-full bg-slate-200 shrink-0"></div>
                                     <div className="space-y-2 flex-1">
                                         <div className="w-full h-3 bg-slate-200 rounded"></div>

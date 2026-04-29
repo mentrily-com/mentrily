@@ -1,7 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+  HeadObjectCommand,
+} from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
+import { QuotaService } from '../../modules/billing/quota.service';
 
 @Injectable()
 export class StorageService {
@@ -10,11 +16,15 @@ export class StorageService {
   private cdnUrl: string;
   private readonly logger = new Logger(StorageService.name);
 
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    private quotaService: QuotaService,
+  ) {
     const region = this.configService.get<string>('S3_REGION') || 'sgp1';
     const endpoint = this.configService.get<string>('S3_ENDPOINT') || '';
     const accessKeyId = this.configService.get<string>('S3_ACCESS_KEY') || '';
-    const secretAccessKey = this.configService.get<string>('S3_SECRET_KEY') || '';
+    const secretAccessKey =
+      this.configService.get<string>('S3_SECRET_KEY') || '';
     this.bucketName = this.configService.get<string>('S3_BUCKET_NAME') || '';
     // Public CDN/origin URL for the bucket: https://<bucket>.<region>.digitaloceanspaces.com
     this.cdnUrl =
@@ -22,7 +32,9 @@ export class StorageService {
       `https://${this.bucketName}.${region}.digitaloceanspaces.com`;
 
     if (!endpoint || !accessKeyId || !secretAccessKey || !this.bucketName) {
-      this.logger.warn('Storage (DigitalOcean Spaces) configuration is missing. File uploads will fail.');
+      this.logger.warn(
+        'Storage (DigitalOcean Spaces) configuration is missing. File uploads will fail.',
+      );
     }
 
     this.s3Client = new S3Client({
@@ -51,7 +63,8 @@ export class StorageService {
     filename: string,
     mimetype: string,
     folder: string = 'uploads',
-    contentLength?: number
+    contentLength?: number,
+    orgId?: string,
   ): Promise<string> {
     if (!fileData) {
       throw new Error('File data is required');
@@ -59,6 +72,13 @@ export class StorageService {
 
     const fileExtension = filename.split('.').pop();
     const key = `${folder}/${uuidv4()}.${fileExtension}`;
+    const uploadSizeMb = contentLength
+      ? Number((contentLength / (1024 * 1024)).toFixed(4))
+      : 0;
+
+    if (orgId && uploadSizeMb > 0) {
+      await this.quotaService.checkStorageQuota(orgId, uploadSizeMb);
+    }
 
     const command = new PutObjectCommand({
       Bucket: this.bucketName,
@@ -70,13 +90,26 @@ export class StorageService {
     });
 
     try {
-      this.logger.log(`Uploading file ${filename} to DigitalOcean Spaces: ${this.bucketName}/${key}`);
+      this.logger.log(
+        `Uploading file ${filename} to DigitalOcean Spaces: ${this.bucketName}/${key}`,
+      );
       await this.s3Client.send(command);
       this.logger.log(`File uploaded successfully: ${key}`);
 
+      if (orgId && uploadSizeMb > 0) {
+        await this.quotaService.incrementCounter(
+          orgId,
+          'storageUsedMb',
+          uploadSizeMb,
+        );
+      }
+
       return `${this.cdnUrl}/${key}`;
     } catch (error) {
-      this.logger.error(`Failed to upload file ${filename}: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to upload file ${filename}: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -85,7 +118,11 @@ export class StorageService {
    * Delete a file from DigitalOcean Spaces by its public URL.
    * Non-throwing: logs errors but doesn't break the caller.
    */
-  async deleteFile(fileUrl: string): Promise<void> {
+  async deleteFile(
+    fileUrl: string,
+    orgId?: string,
+    contentLength?: number,
+  ): Promise<void> {
     if (!fileUrl) return;
 
     try {
@@ -96,14 +133,47 @@ export class StorageService {
         return;
       }
 
+      let effectiveContentLength = contentLength;
+      if (orgId && (!effectiveContentLength || effectiveContentLength <= 0)) {
+        try {
+          const head = await this.s3Client.send(
+            new HeadObjectCommand({
+              Bucket: this.bucketName,
+              Key: key,
+            }),
+          );
+          if (
+            typeof head.ContentLength === 'number' &&
+            Number.isFinite(head.ContentLength)
+          ) {
+            effectiveContentLength = head.ContentLength;
+          }
+        } catch {
+          effectiveContentLength = contentLength;
+        }
+      }
+
       const command = new DeleteObjectCommand({
         Bucket: this.bucketName,
         Key: key,
       });
 
-      this.logger.log(`Deleting file from DigitalOcean Spaces: ${this.bucketName}/${key}`);
+      this.logger.log(
+        `Deleting file from DigitalOcean Spaces: ${this.bucketName}/${key}`,
+      );
       await this.s3Client.send(command);
       this.logger.log(`File deleted successfully: ${key}`);
+
+      const deletionSizeMb = effectiveContentLength
+        ? Number((effectiveContentLength / (1024 * 1024)).toFixed(4))
+        : 0;
+      if (orgId && deletionSizeMb > 0) {
+        await this.quotaService.decrementCounter(
+          orgId,
+          'storageUsedMb',
+          deletionSizeMb,
+        );
+      }
     } catch (error) {
       this.logger.error(`Failed to delete file: ${error.message}`, error.stack);
       // Non-throwing: don't block the caller if cleanup fails
@@ -128,7 +198,9 @@ export class StorageService {
       }
 
       // Legacy Supabase fallback: /storage/v1/object/public/<bucket>/<key>
-      const supabaseMatch = url.match(/\/storage\/v1\/object\/public\/[^/]+\/(.+)$/);
+      const supabaseMatch = url.match(
+        /\/storage\/v1\/object\/public\/[^/]+\/(.+)$/,
+      );
       if (supabaseMatch) return supabaseMatch[1];
 
       // Generic fallback: skip first path segment (assumed to be bucket)

@@ -1,19 +1,21 @@
-"use client";
+'use client';
 import React, { useState, useMemo, useEffect } from 'react';
-import Navbar from '@/app/components/Navbar';
 import CoursePlayerSkeleton from '@/app/components/Skeletons/CoursePlayerSkeleton';
-import UnitRenderer, { UnitQuestion } from '@/app/components/UnitRenderer';
-import UnitNavHeader from '@/app/components/UnitNavHeader';
+import UnitRenderer from '@/app/components/UnitRenderer';
 import ExamSidebar from '@/app/components/ExamSidebar';
 
 // submission details and questions are now fetched from API
 
 import { TeacherService } from '@/services/api/TeacherService';
 
-export default function SuperAdminSubmissionPreviewPage({ params }: { params: Promise<{ id: string, examId: string, sessionId: string }> }) {
+export default function SuperAdminSubmissionPreviewPage({
+    params,
+}: {
+    params: Promise<{ id: string; examId: string; sessionId: string }>;
+}) {
     const { id, examId, sessionId } = React.use(params);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-    const [activeTab, setActiveTab] = useState<"question" | "attempts">("question");
+    const [activeTab, setActiveTab] = useState<'question' | 'attempts'>('question');
     const [selectedAttemptId, setSelectedAttemptId] = useState<string | undefined>(undefined);
     const [loading, setLoading] = useState(true);
     const [submissionData, setSubmissionData] = useState<any>(null);
@@ -26,9 +28,18 @@ export default function SuperAdminSubmissionPreviewPage({ params }: { params: Pr
     const [marks, setMarks] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
+        const syncSidebarForViewport = () => {
+            const isMobile = window.matchMedia('(max-width: 767px)').matches;
+            setIsSidebarHidden(isMobile);
+            setIsSidebarCollapsed(true);
+        };
+
+        syncSidebarForViewport();
+        window.addEventListener('resize', syncSidebarForViewport);
+
         async function loadSubmission() {
             try {
-                // For Super Admin, we can use the same API. 
+                // For Super Admin, we can use the same API.
                 // The backend checkAccess allows SUPER_ADMIN.
                 // We pass examId and sessionId (as identifier).
                 const data = await TeacherService.getSubmission(examId, sessionId);
@@ -39,12 +50,13 @@ export default function SuperAdminSubmissionPreviewPage({ params }: { params: Pr
                     setMarks(data.answers._internal_marks);
                 }
             } catch (error) {
-                console.error("Failed to load submission", error);
+                console.error('Failed to load submission', error);
             } finally {
                 setLoading(false);
             }
         }
         loadSubmission();
+        return () => window.removeEventListener('resize', syncSidebarForViewport);
     }, [examId, sessionId]);
 
     const currentQuestion = submissionData?.questions?.[currentQuestionIndex];
@@ -65,9 +77,9 @@ export default function SuperAdminSubmissionPreviewPage({ params }: { params: Pr
                 questions: (submissionData.questions || []).map((q: any, idx: number) => ({
                     id: q.id,
                     status: 'answered' as const,
-                    number: idx + 1
-                }))
-            }
+                    number: idx + 1,
+                })),
+            },
         ];
     }, [submissionData]);
 
@@ -85,16 +97,21 @@ export default function SuperAdminSubmissionPreviewPage({ params }: { params: Pr
                 internalMarks[k] = parseFloat(v as string) || 0;
             });
 
-            await TeacherService.updateSubmissionScore(examId, submissionData.details.sessionId, totalCalculated, internalMarks);
+            await TeacherService.updateSubmissionScore(
+                examId,
+                submissionData.details.sessionId,
+                totalCalculated,
+                internalMarks,
+            );
             // Update local state to reflect the new score
             setSubmissionData((prev: any) => ({
                 ...prev,
-                details: { ...prev.details, score: totalCalculated }
+                details: { ...prev.details, score: totalCalculated },
             }));
             alert(`Grades saved! Total Score: ${totalCalculated}`);
         } catch (error) {
-            console.error("Failed to save grades", error);
-            alert("Failed to save grades");
+            console.error('Failed to save grades', error);
+            alert('Failed to save grades');
         }
     };
 
@@ -115,13 +132,15 @@ export default function SuperAdminSubmissionPreviewPage({ params }: { params: Pr
 
     const handleNext = () => {
         if (!submissionData) return;
-        setCurrentQuestionIndex(prev => (prev + 1) % submissionData.questions.length);
+        setCurrentQuestionIndex((prev) => (prev + 1) % submissionData.questions.length);
         setSelectedAttemptId(undefined);
     };
 
     const handlePrevious = () => {
         if (!submissionData) return;
-        setCurrentQuestionIndex(prev => (prev - 1 + submissionData.questions.length) % submissionData.questions.length);
+        setCurrentQuestionIndex(
+            (prev) => (prev - 1 + submissionData.questions.length) % submissionData.questions.length,
+        );
         setSelectedAttemptId(undefined);
     };
 
@@ -132,36 +151,47 @@ export default function SuperAdminSubmissionPreviewPage({ params }: { params: Pr
         if (val !== '' && isNaN(Number(val))) return;
 
         // Check max marks
-        const max = Number(currentQuestion.marks) || Number(currentQuestion.points) || (currentQuestion.type === 'Coding' ? 10 : 1);
+        const max =
+            Number(currentQuestion.marks) ||
+            Number(currentQuestion.points) ||
+            (currentQuestion.type === 'Coding' ? 10 : 1);
         if (Number(val) > max) return;
 
-        setMarks(prev => ({ ...prev, [currentQuestion.id]: val }));
+        setMarks((prev) => ({ ...prev, [currentQuestion.id]: val }));
     };
 
     if (loading) return <CoursePlayerSkeleton hasSidebar={true} isExamMode={false} />;
 
     if (!submissionData) {
         return (
-            <div className="h-screen flex flex-col bg-white overflow-hidden">
-                <Navbar basePath={`/dashboard/super-admin/organizations/${id}`} userRole="admin" />
+            <div className="h-[calc(100dvh-var(--topbar-height)-20px)] min-h-0 overflow-hidden rounded-[18px] border border-slate-100 bg-white shadow-sm sm:h-[calc(100dvh-var(--topbar-height)-36px)]">
                 <div className="flex-1 flex items-center justify-center">
                     <div className="text-center">
-                        <p className="text-slate-500 font-bold uppercase tracking-widest text-[11px]">Submission not found</p>
-                        <button onClick={() => window.history.back()} className="mt-4 px-6 py-2 bg-slate-900 text-white rounded-xl text-xs font-black">Go Back</button>
+                        <p className="text-slate-500 font-bold uppercase tracking-widest text-[11px]">
+                            Submission not found
+                        </p>
+                        <button
+                            onClick={() => window.history.back()}
+                            className="mt-4 px-6 py-2 bg-slate-900 text-white rounded-xl text-xs font-black"
+                        >
+                            Go Back
+                        </button>
                     </div>
                 </div>
             </div>
         );
     }
 
-    const currentQuestionPoints = Number(currentQuestion?.marks) || Number(currentQuestion?.points) || (currentQuestion?.type === 'Coding' ? 10 : 1);
+    const currentQuestionPoints =
+        Number(currentQuestion?.marks) ||
+        Number(currentQuestion?.points) ||
+        (currentQuestion?.type === 'Coding' ? 10 : 1);
 
     return (
-        <div className="h-screen flex flex-col bg-white overflow-hidden">
-            <Navbar basePath={`/dashboard/super-admin/organizations/${id}`} userRole="admin" />
+        <div className="h-[calc(100dvh-var(--topbar-height)-20px)] min-h-0 overflow-hidden rounded-[18px] border border-slate-100 bg-white shadow-sm sm:h-[calc(100dvh-var(--topbar-height)-36px)]">
 
             {/* Main Workspace */}
-            <main className="flex-1 flex overflow-hidden">
+            <main className="flex h-full min-h-0 overflow-hidden">
                 {/* Reusable Exam Sidebar */}
                 <ExamSidebar
                     sections={examSections}
@@ -175,7 +205,7 @@ export default function SuperAdminSubmissionPreviewPage({ params }: { params: Pr
                     showCollapseToggle={true}
                 />
 
-                <section className="flex-1 flex flex-col min-w-0 bg-white relative">
+                <section className="relative flex min-w-0 flex-1 flex-col bg-white">
                     <UnitRenderer
                         key={`${currentQuestion.id}-${selectedAttemptId || 'current'}`}
                         question={currentQuestion}
@@ -212,21 +242,24 @@ export default function SuperAdminSubmissionPreviewPage({ params }: { params: Pr
     );
 }
 
-/** 
+/**
  * Consolidated Header - Professional Grading Strip
  */
 function ConsolidatedHeader({ studentName, rollNo, marks, maxMarks, totalScore, onMarkChange, onSave, onExit }: any) {
     return (
-        <div className="flex items-center justify-between px-6 h-16 bg-white border-b border-slate-100 shadow-sm relative z-50">
+        <div className="relative z-50 flex min-h-16 flex-col gap-3 border-b border-slate-100 bg-white px-3 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-5 lg:px-6">
             {/* Left: Student Identity */}
-            <div className="flex items-center gap-6">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[var(--brand-light)] flex items-center justify-center font-black text-sm text-[var(--brand)] uppercase border border-[var(--brand-light)] shadow-sm">
-                        {studentName[0]}
+            <div className="min-w-0 flex-1">
+                <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--brand-light)] bg-[var(--brand-light)] text-sm font-black uppercase text-[var(--brand)] shadow-sm">
+                        {String(studentName || '?')[0]}
                     </div>
-                    <div>
-                        <h4 className="text-sm font-black text-slate-800 leading-tight">
-                            {studentName} <span className="text-slate-300 font-bold ml-1">({rollNo})</span>
+                    <div className="min-w-0">
+                        <h4 className="truncate text-sm font-black leading-tight text-slate-800">
+                            {studentName}{' '}
+                            <span className="font-bold text-slate-300">
+                                ({rollNo})
+                            </span>
                         </h4>
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">
                             Total Score: <span className="text-[var(--brand)]">{totalScore || 0}</span>
@@ -236,16 +269,18 @@ function ConsolidatedHeader({ studentName, rollNo, marks, maxMarks, totalScore, 
             </div>
 
             {/* Right: Grading Actions */}
-            <div className="flex items-center gap-8">
-                <div className="flex items-center gap-6 pr-8 border-r border-slate-100">
-                    <div className="flex flex-col items-end">
-                        <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1 opacity-70">Question Score</span>
-                        <div className="flex items-center gap-2">
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-5">
+                <div className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/70 px-3 py-2 sm:justify-start sm:border-0 sm:border-r sm:border-slate-100 sm:bg-transparent sm:px-0 sm:py-0 sm:pr-5 lg:pr-8">
+                    <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:flex-col sm:items-end sm:gap-0">
+                        <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1 opacity-70">
+                            Question Score
+                        </span>
+                        <div className="flex shrink-0 items-center gap-2">
                             <input
                                 type="text"
                                 value={marks}
                                 onChange={(e) => onMarkChange(e.target.value)}
-                                className="w-14 text-center bg-slate-50 border border-slate-200 rounded-xl py-2 text-base font-black text-slate-800 outline-none focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand-light)] transition-all shadow-inner"
+                                className="w-14 rounded-xl border border-slate-200 bg-white py-2 text-center text-base font-black text-slate-800 shadow-inner outline-none transition-all focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand-light)] sm:bg-slate-50"
                                 placeholder="0"
                             />
                             <span className="text-sm font-bold text-slate-400">/ {maxMarks}</span>
@@ -253,18 +288,29 @@ function ConsolidatedHeader({ studentName, rollNo, marks, maxMarks, totalScore, 
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-3">
                     <button
                         onClick={onExit}
-                        className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-[11px] font-black uppercase tracking-widest px-6 py-3 rounded-xl transition-all active:scale-95"
+                        className="flex items-center justify-center gap-2 rounded-xl bg-slate-100 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-slate-600 transition-all hover:bg-slate-200 active:scale-95 sm:px-6"
                     >
                         Exit
                     </button>
                     <button
                         onClick={onSave}
-                        className="flex items-center gap-2.5 bg-slate-900 hover:bg-black text-white text-[11px] font-black uppercase tracking-widest px-8 py-3 rounded-xl shadow-lg shadow-slate-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all group"
+                        className="group flex items-center justify-center gap-2.5 rounded-xl bg-slate-900 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-slate-200 transition-all hover:-translate-y-0.5 hover:bg-black active:translate-y-0 active:scale-95 sm:px-8"
                     >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="group-hover:scale-110 transition-transform"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /></svg>
+                        <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            className="group-hover:scale-110 transition-transform"
+                        >
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                            <polyline points="17 21 17 13 7 13 7 21" />
+                        </svg>
                         Save Grades
                     </button>
                 </div>

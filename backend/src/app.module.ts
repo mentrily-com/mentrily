@@ -4,7 +4,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
-import { PrismaModule } from './services/prisma/prisma.module';
+import { SupabaseModule } from './services/supabase/supabase.module';
 import { ExamModule } from './modules/exam/exam.module';
 import { MonitoringModule } from './modules/monitoring/monitoring.module';
 import { SubmissionModule } from './modules/submission/submission.module';
@@ -21,14 +21,18 @@ import { CodeExecutionModule } from './modules/code-execution/code-execution.mod
 import { BullModule } from '@nestjs/bullmq';
 import { AiModule } from './modules/ai/ai.module';
 import { NotificationModule } from './modules/notification/notification.module';
+import { BillingModule } from './modules/billing/billing.module';
+import { WebhookModule } from './modules/webhook/webhook.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    ThrottlerModule.forRoot([{
-      ttl: Number(process.env.THROTTLE_TTL_MS || 60000),
-      limit: Number(process.env.THROTTLE_LIMIT || 300),
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: Number(process.env.THROTTLE_TTL_MS || 60000),
+        limit: Number(process.env.THROTTLE_LIMIT || 300),
+      },
+    ]),
     RedisModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => {
@@ -62,7 +66,10 @@ import { NotificationModule } from './modules/notification/notification.module';
             port: Number(url.port),
             username: url.username,
             password: url.password,
-            tls: url.protocol === 'rediss:' ? { rejectUnauthorized: false } : undefined,
+            tls:
+              url.protocol === 'rediss:'
+                ? { rejectUnauthorized: false }
+                : undefined,
             maxRetriesPerRequest: null, // Required for BullMQ
             enableReadyCheck: false,
             family: 4, // Force IPv4 to avoid dual-stack DNS lookups
@@ -77,14 +84,14 @@ import { NotificationModule } from './modules/notification/notification.module';
           connection,
           defaultJobOptions: {
             removeOnComplete: 10, // Keep only last 10 jobs to save storage
-            removeOnFail: 50,     // Keep last 50 failed jobs for debugging
+            removeOnFail: 50, // Keep last 50 failed jobs for debugging
           },
         };
       },
       inject: [ConfigService],
     }),
     AuthModule,
-    PrismaModule,
+    SupabaseModule,
     ExamModule,
     MonitoringModule,
     SubmissionModule,
@@ -94,9 +101,11 @@ import { NotificationModule } from './modules/notification/notification.module';
     CourseModule,
     StudentModule,
     OrganizationModule,
+    BillingModule,
+    WebhookModule,
     CodeExecutionModule,
     AiModule,
-    NotificationModule
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [
@@ -107,4 +116,4 @@ import { NotificationModule } from './modules/notification/notification.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

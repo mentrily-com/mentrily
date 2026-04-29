@@ -1,23 +1,22 @@
-"use client";
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { useParams, useRouter, notFound } from "next/navigation";
-import NotFoundPage from "../../not-found";
+'use client';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Navbar, { ExamConfig } from '@/app/components/Navbar';
 import CoursePlayerSkeleton from '@/app/components/Skeletons/CoursePlayerSkeleton';
-import ExamSidebar from "../../components/ExamSidebar";
+import ExamSidebar from '../../components/ExamSidebar';
 import UnitRenderer, { UnitQuestion } from '@/app/components/UnitRenderer';
-import { useToast } from "../../components/Common/Toast";
-import ExamSubmitView from "../../components/ExamSubmitView";
-import ExamFeedbackView from "../../components/ExamFeedbackView";
-import ExamSuccessView from "../../components/ExamSuccessView";
-import { ExamService } from "@/services/api/ExamService";
-import { AuthService } from "@/services/api/AuthService";
-import { useElectronMonitoring } from "@/hooks/useElectronMonitoring";
-import { useExamSocket } from "@/hooks/useExamSocket";
-import Loading from "@/app/loading";
-import { useNetworkMonitor } from "@/hooks/useNetworkMonitor";
-import { useProctoringAI } from "@/hooks/useProctoringAI";
-// PeerJS will be dynamically imported or we can try static if build allows. 
+import { useToast } from '../../components/Common/Toast';
+import ExamSubmitView from '../../components/ExamSubmitView';
+import ExamFeedbackView from '../../components/ExamFeedbackView';
+import ExamSuccessView from '../../components/ExamSuccessView';
+import { ExamService } from '@/services/api/ExamService';
+import { AuthService } from '@/services/api/AuthService';
+import { useElectronMonitoring } from '@/hooks/useElectronMonitoring';
+import { useExamSocket } from '@/hooks/useExamSocket';
+import { useNetworkMonitor } from '@/hooks/useNetworkMonitor';
+import { useProctoringAI } from '@/hooks/useProctoringAI';
+import posthog from 'posthog-js';
+// PeerJS will be dynamically imported or we can try static if build allows.
 // Using dynamic import in useEffect is safer for Next.js SSR.
 
 // --- Shuffle Helpers ---
@@ -25,7 +24,7 @@ const stringToSeed = (str: string) => {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
         const char = str.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
+        hash = (hash << 5) - hash + char;
         hash = hash & hash; // Convert to 32bit integer
     }
     return Math.abs(hash);
@@ -44,18 +43,26 @@ const seededRandom = (seed: number) => {
 
 const shuffleArray = (array: any[], seed: number) => {
     const rng = seededRandom(seed);
-    let currentIndex = array.length, randomIndex;
+    let currentIndex = array.length,
+        randomIndex;
     const newArray = [...array];
 
     while (currentIndex != 0) {
         randomIndex = Math.floor(rng() * currentIndex);
         currentIndex--;
-        [newArray[currentIndex], newArray[randomIndex]] = [
-            newArray[randomIndex], newArray[currentIndex]];
+        [newArray[currentIndex], newArray[randomIndex]] = [newArray[randomIndex], newArray[currentIndex]];
     }
     return newArray;
 };
 // -----------------------
+
+type ExamBlockState = {
+    title: string;
+    description: string;
+    tone: 'amber' | 'rose' | 'slate';
+    actionLabel?: string;
+    actionHref?: string;
+};
 
 export default function PublicExamPage() {
     const params = useParams();
@@ -64,8 +71,8 @@ export default function PublicExamPage() {
 
     const [sections, setSections] = useState<any[]>([]);
     const [questionsMap, setQuestionsMap] = useState<Record<string, UnitQuestion>>({});
-    const [currentSectionId, setCurrentSectionId] = useState("s1");
-    const [currentQuestionId, setCurrentQuestionId] = useState<string | number>("q1-1");
+    const [currentSectionId, setCurrentSectionId] = useState('s1');
+    const [currentQuestionId, setCurrentQuestionId] = useState<string | number>('q1-1');
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [sidebarHidden, setSidebarHidden] = useState(false);
     const [navbarVisible, setNavbarVisible] = useState(true);
@@ -76,6 +83,7 @@ export default function PublicExamPage() {
     const [isSidebarHovered, setIsSidebarHovered] = useState(false);
     const [shouldCollapseAfterHover, setShouldCollapseAfterHover] = useState(false);
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
+    const [isFinalSubmitting, setIsFinalSubmitting] = useState(false);
     const [isFeedbackMode, setIsFeedbackMode] = useState(false);
     const [isSuccessMode, setIsSuccessMode] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -84,10 +92,25 @@ export default function PublicExamPage() {
     const [canShowFullscreenWarning, setCanShowFullscreenWarning] = useState(false);
     const [isElectronRuntime, setIsElectronRuntime] = useState(false);
     const [isAiProctoringEnabled, setIsAiProctoringEnabled] = useState(false);
+    const [publicExamStatus, setPublicExamStatus] = useState<any>(null);
+    const [isCourseLinkedExam, setIsCourseLinkedExam] = useState(false);
+    const [examVerdict, setExamVerdict] = useState<{ passed: boolean; score?: number | null; passingPercentage?: number } | undefined>();
+    const [examBlock, setExamBlock] = useState<ExamBlockState | null>(null);
+    const [isCourseLinkResolved, setIsCourseLinkResolved] = useState(false);
+    const isCourseLinkedExamRef = useRef(false);
+
+    const getCourseReturnHref = useCallback(() => {
+        const fallback = '/dashboard/learner';
+        if (typeof window === 'undefined') return fallback;
+        const searchParams = new URLSearchParams(window.location.search);
+        const returnTo = searchParams.get('returnTo');
+        if (!returnTo || !returnTo.startsWith('/dashboard/learner')) return fallback;
+        return returnTo;
+    }, []);
 
     const [user, setUser] = useState<any>(null);
     const [sessionId, setSessionId] = useState<string | null>(null);
-    const [examTitle, setExamTitle] = useState("Examination");
+    const [examTitle, setExamTitle] = useState('Examination');
     const [finalSubmitTime, setFinalSubmitTime] = useState<string | null>(null);
     const [isNotFound, setIsNotFound] = useState(false);
 
@@ -98,33 +121,82 @@ export default function PublicExamPage() {
     const fiveMinWarningShownRef = useRef(false);
     const electronStrictModeRef = useRef<boolean | null>(null);
 
+    const getDraftKey = useCallback(
+        (activeSessionId?: string | null) => {
+            if (!slug || !activeSessionId) return null;
+            return `exam_${slug}_draft_${activeSessionId}`;
+        },
+        [slug],
+    );
+
+    const readLocalDraft = useCallback(
+        (activeSessionId?: string | null): Record<string, any> => {
+            if (typeof window === 'undefined') return {};
+            const draftKey = getDraftKey(activeSessionId);
+            if (!draftKey) return {};
+            try {
+                const rawDraft = localStorage.getItem(draftKey);
+                return rawDraft ? JSON.parse(rawDraft) : {};
+            } catch {
+                return {};
+            }
+        },
+        [getDraftKey],
+    );
+
+    const writeLocalDraft = useCallback(
+        (activeSessionId: string | null | undefined, nextAnswers: Record<string, any>) => {
+            if (typeof window === 'undefined') return;
+            const draftKey = getDraftKey(activeSessionId);
+            if (!draftKey) return;
+            try {
+                localStorage.setItem(draftKey, JSON.stringify(nextAnswers));
+            } catch (error) {
+                console.warn('[ExamPage] Failed to persist local exam draft', error);
+            }
+        },
+        [getDraftKey],
+    );
+
+    const clearLocalDraft = useCallback(
+        (activeSessionId?: string | null) => {
+            if (typeof window === 'undefined') return;
+            const draftKey = getDraftKey(activeSessionId);
+            if (draftKey) localStorage.removeItem(draftKey);
+        },
+        [getDraftKey],
+    );
+
     // Exam ID for socket and monitoring
     const examId = slug as string;
-    
-    // Compute userId from localStorage directly for stable reference
-    // This ensures socket has userId available immediately without waiting for user state
+
     const [socketUserId, setSocketUserId] = useState<string>('');
-    
+
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const storedUser = localStorage.getItem('user');
-            if (storedUser) {
-                const parsed = JSON.parse(storedUser);
-                setUser(parsed);
-                setSocketUserId(parsed.id || parsed.rollNumber || '');
-            }
-        }
+        AuthService.checkSession().then((sessionUser) => {
+            if (!sessionUser) return;
+            setUser(sessionUser);
+            setSocketUserId(sessionUser.id || sessionUser.rollNumber || '');
+        });
     }, []);
 
     // ===== ALL HOOKS MUST BE CALLED UNCONDITIONALLY BEFORE ANY EARLY RETURNS =====
 
     // Socket Integration (must be called before early return)
-    const { socket, saveAnswer, logViolation: socketLogViolation, saveReviewStatus, disconnect, retryConnection, isConnected, connectionStatus, missedHeartbeats } = useExamSocket(
-        examId,
-        socketUserId,
-        sessionId || '',
-        isNotFound
-    );
+    const {
+        socket,
+        saveAnswer,
+        logViolation: socketLogViolation,
+        saveReviewStatus,
+        disconnect,
+        retryConnection,
+        isConnected,
+        connectionStatus,
+        missedHeartbeats,
+    } = useExamSocket(examId, socketUserId, sessionId || '', isNotFound, {
+        requiresExamAuth: isCourseLinkResolved ? !isCourseLinkedExam : false,
+        authRedirectHref: isCourseLinkedExam ? `/login?redirect=${encodeURIComponent(`/exam/${slug}`)}` : undefined,
+    });
 
     useEffect(() => {
         if (isOnline) {
@@ -154,7 +226,7 @@ export default function PublicExamPage() {
         return () => clearTimeout(timer);
     }, [isElectronRuntime]);
 
-    const { logEvent } = useElectronMonitoring(slug || '', user?.rollNumber || "2211981482");
+    const { logEvent } = useElectronMonitoring(slug || '', user?.rollNumber || '2211981482');
 
     const setElectronStrictMode = useCallback((enabled: boolean, reason?: string) => {
         if (typeof window === 'undefined') return;
@@ -167,7 +239,9 @@ export default function PublicExamPage() {
         electronStrictModeRef.current = enabled;
         try {
             bridge.sendToMain('change-closeable-state', !enabled);
-            console.log(`[ExamPage] Electron strict mode ${enabled ? 'ENABLED' : 'DISABLED'}${reason ? ` (${reason})` : ''}`);
+            console.log(
+                `[ExamPage] Electron strict mode ${enabled ? 'ENABLED' : 'DISABLED'}${reason ? ` (${reason})` : ''}`,
+            );
         } catch (error) {
             console.warn('[ExamPage] Failed to toggle Electron strict mode:', error);
         }
@@ -178,7 +252,7 @@ export default function PublicExamPage() {
         onViolation: (type, msg, img) => {
             console.log(`[Proctoring] Violation: ${type} - ${msg}. SessionID state:`, sessionId);
             socketLogViolation(type, msg, img);
-        }
+        },
     });
 
     const peerInstance = useRef<any>(null);
@@ -260,6 +334,9 @@ export default function PublicExamPage() {
         // Load Exam Data on Mount
         async function loadExamData() {
             try {
+                setExamBlock(null);
+                setIsCourseLinkResolved(false);
+                let resolvedPublicStatus: any = null;
                 // 0. Use the robust check API first
                 const checkStatus = await ExamService.checkExamStatus(slug as string);
 
@@ -274,6 +351,8 @@ export default function PublicExamPage() {
                 // 0.1 Check Public Status First (Does not require auth)
                 try {
                     const publicStatus = await ExamService.getExamPublicStatus(slug as string);
+                    resolvedPublicStatus = publicStatus;
+                    setPublicExamStatus(publicStatus);
                     const startTime = new Date(publicStatus.startTime).getTime();
 
                     if (Date.now() < startTime) {
@@ -298,14 +377,32 @@ export default function PublicExamPage() {
                         console.error('[ExamPage] Exam public status 404. Aborting.');
                         setIsNotFound(true);
                         setIsLoading(false);
-                        return;     // Stop execution
+                        return; // Stop execution
                     }
                 }
 
                 // 0.1 MANDATORY EXAM-SPECIFIC LOGIN CHECK
                 // The exam page MUST require exam login, regardless of dashboard login status.
                 // This prevents students who are logged into the dashboard from bypassing exam login.
-                if (typeof window !== 'undefined') {
+                const linkedCourseId =
+                    checkStatus?.quiz?.linkedCourseId ||
+                    resolvedPublicStatus?.linkedCourseId ||
+                    resolvedPublicStatus?.response?.linkedCourseId ||
+                    resolvedPublicStatus?.response?.exam?.linkedCourseId ||
+                    null;
+                const courseLinked = Boolean(linkedCourseId);
+                setIsCourseLinkedExam(courseLinked);
+                setIsCourseLinkResolved(true);
+                isCourseLinkedExamRef.current = courseLinked;
+
+                const linkedPassingPercentage = Number(
+                    resolvedPublicStatus?.passingPercentage ??
+                        resolvedPublicStatus?.response?.passingPercentage ??
+                        checkStatus?.quiz?.passingPercentage ??
+                        70,
+                );
+
+                if (!courseLinked && typeof window !== 'undefined') {
                     const authKey = `exam_${slug}_auth`;
                     const metadataKey = `exam_${slug}_metadata`;
                     let isExamAuthorized = localStorage.getItem(authKey);
@@ -349,26 +446,35 @@ export default function PublicExamPage() {
                     }
                 }
 
-                // 0.2 Check User Object (Required for socket/UI)
-                let storedUserRaw = localStorage.getItem('user');
-                if (!storedUserRaw) {
-                    const sessionUser = await AuthService.checkSession(true);
-                    if (sessionUser) {
-                        storedUserRaw = JSON.stringify(sessionUser);
-                        localStorage.setItem('user', storedUserRaw);
+                // 0.2 Check User Object (Required for socket/UI). On hard refresh,
+                // Clerk can need a moment before getToken is available.
+                const resolveCurrentUser = async () => {
+                    const attempts = courseLinked ? 12 : 4;
+                    for (let attempt = 0; attempt < attempts; attempt += 1) {
+                        const sessionUser = await AuthService.checkSession(true, { bypassCache: true });
+                        if (sessionUser) return sessionUser;
+                        await new Promise((resolve) => setTimeout(resolve, 250));
                     }
-                }
-                if (!storedUserRaw) {
-                    // User object missing - this shouldn't happen if exam login was successful
-                    // but handle it gracefully
-                    console.log('[ExamPage] No user found in localStorage, redirecting to login');
-                    router.replace(`/exam/login?slug=${slug}`);
+                    return null;
+                };
+
+                const currentUserMeta = await resolveCurrentUser();
+                if (!currentUserMeta) {
+                    console.log('[ExamPage] No user session found, redirecting to login');
+                    router.replace(courseLinked ? `/login?redirect=${encodeURIComponent(`/exam/${slug}`)}` : `/exam/login?slug=${slug}`);
                     return;
                 }
-                const currentUserMeta = JSON.parse(storedUserRaw);
+
+                setUser(currentUserMeta);
+                setSocketUserId(currentUserMeta.id || currentUserMeta.rollNumber || '');
+
+                if (courseLinked && String(currentUserMeta?.role || '').toUpperCase() !== 'STUDENT') {
+                    router.replace('/login');
+                    return;
+                }
 
                 // 0.3 Get Metadata (Roll No, Name, Section)
-                const studentMetadataRaw = localStorage.getItem(`exam_${slug}_metadata`);
+                const studentMetadataRaw = typeof window !== 'undefined' ? localStorage.getItem(`exam_${slug}_metadata`) : null;
                 const studentMetadata = studentMetadataRaw ? JSON.parse(studentMetadataRaw) : null;
 
                 // 0.4 Standardize Identity (DeviceId & TabId)
@@ -386,7 +492,7 @@ export default function PublicExamPage() {
 
                 // 1. Get Exam Content (Metadata only first)
                 const data = await ExamService.getExamBySlug(slug as string);
-                setExamTitle(data.title || "Examination");
+                setExamTitle(data.title || 'Examination');
                 setTabSwitchLimit(data.tabSwitchLimit || null);
                 setIsAiProctoringEnabled(data.aiProctoring || false);
 
@@ -405,7 +511,7 @@ export default function PublicExamPage() {
                     deviceId,
                     currentUserMeta.id || currentUserMeta.rollNumber,
                     tabId,
-                    studentMetadata
+                    studentMetadata,
                 );
 
                 // Initialize user answers and sections if session has them
@@ -420,6 +526,14 @@ export default function PublicExamPage() {
                     if (session.status === 'COMPLETED') {
                         setElectronStrictMode(false, 'session already completed');
                         setIsLoading(false);
+                        if (courseLinked) {
+                            const score = typeof session.score === 'number' ? session.score : null;
+                            setExamVerdict({
+                                passed: score !== null ? score >= linkedPassingPercentage : false,
+                                score,
+                                passingPercentage: linkedPassingPercentage,
+                            });
+                        }
                         const isFeedbackDoneLocal = localStorage.getItem(`exam_${slug}_feedback_done`) === 'true';
                         const isFeedbackDone = isFeedbackDoneLocal || session.feedbackDone === true;
 
@@ -450,15 +564,18 @@ export default function PublicExamPage() {
                         const seed = stringToSeed(session.id);
                         sectionsToProcess = sectionsToProcess.map((section: any) => {
                             if (section.questions && Array.isArray(section.questions)) {
-                                const shuffledQuestions = shuffleArray(section.questions, seed + stringToSeed(section.id));
+                                const shuffledQuestions = shuffleArray(
+                                    section.questions,
+                                    seed + stringToSeed(section.id),
+                                );
                                 // Re-assign sequential numbers after shuffle
                                 const renumberedQuestions = shuffledQuestions.map((q: any, idx: number) => ({
                                     ...q,
-                                    number: idx + 1
+                                    number: idx + 1,
                                 }));
                                 return {
                                     ...section,
-                                    questions: renumberedQuestions
+                                    questions: renumberedQuestions,
                                 };
                             }
                             return section;
@@ -471,16 +588,16 @@ export default function PublicExamPage() {
                         const sessStart = new Date(session.startTime || Date.now()).getTime();
                         const now = Date.now();
                         const elapsedSeconds = Math.floor((now - sessStart) / 1000);
-                        const remaining = (data.duration * 60) - Math.max(0, elapsedSeconds);
+                        const remaining = data.duration * 60 - Math.max(0, elapsedSeconds);
                         setTimeLeft(remaining);
                     }
 
                     // Restore persistent tab switch counts
                     if (typeof session.tabSwitchOutCount === 'number') {
-                        setWindowFocus(prev => ({ ...prev, out: session.tabSwitchOutCount }));
+                        setWindowFocus((prev) => ({ ...prev, out: session.tabSwitchOutCount }));
                     }
                     if (typeof session.tabSwitchInCount === 'number') {
-                        setWindowFocus(prev => ({ ...prev, in: session.tabSwitchInCount }));
+                        setWindowFocus((prev) => ({ ...prev, in: session.tabSwitchInCount }));
                     }
                 }
 
@@ -492,7 +609,7 @@ export default function PublicExamPage() {
                             restoredAllAnswers = session.answers as Record<string, any>;
                         }
                     } catch (e) {
-                        console.error("Failed to parse session answers", e);
+                        console.error('Failed to parse session answers', e);
                     }
 
                     // Hybrid Persistence: Merge with local session storage as fallback
@@ -501,7 +618,7 @@ export default function PublicExamPage() {
                         try {
                             const localMarkers = JSON.parse(localMarkersRaw);
                             restoredAllAnswers = { ...restoredAllAnswers, ...localMarkers };
-                        } catch (e) { }
+                        } catch (e) {}
                     }
 
                     // Standardize internal markers (flatten if they came from _internal_position)
@@ -525,8 +642,14 @@ export default function PublicExamPage() {
 
                             const languageSubmissions = (ans as any).languageSubmissions;
                             if (languageSubmissions && typeof languageSubmissions === 'object') {
-                                for (const [langId, langAnswer] of Object.entries(languageSubmissions as Record<string, any>)) {
-                                    if (langAnswer && typeof langAnswer === 'object' && typeof (langAnswer as any).code === 'string') {
+                                for (const [langId, langAnswer] of Object.entries(
+                                    languageSubmissions as Record<string, any>,
+                                )) {
+                                    if (
+                                        langAnswer &&
+                                        typeof langAnswer === 'object' &&
+                                        typeof (langAnswer as any).code === 'string'
+                                    ) {
                                         languageEntries.push({ langId, code: (langAnswer as any).code });
                                     }
                                 }
@@ -542,6 +665,12 @@ export default function PublicExamPage() {
                         }
                     }
 
+                    setUserAnswers(restoredAllAnswers);
+                }
+
+                const localDraft = readLocalDraft(session?.id);
+                if (Object.keys(localDraft).length > 0) {
+                    restoredAllAnswers = { ...restoredAllAnswers, ...localDraft };
                     setUserAnswers(restoredAllAnswers);
                 }
 
@@ -584,7 +713,7 @@ export default function PublicExamPage() {
 
                         const sectionQuestions = s.questions.map((q: any) => ({
                             ...q,
-                            status: getQuestionStatus(q, restoredAllAnswers)
+                            status: getQuestionStatus(q, restoredAllAnswers),
                         }));
 
                         if (s.id === firstIncompleteSectionId && sectionQuestions.length > 0) {
@@ -594,7 +723,7 @@ export default function PublicExamPage() {
                         return {
                             ...s,
                             status: status,
-                            questions: sectionQuestions
+                            questions: sectionQuestions,
                         };
                     });
 
@@ -633,9 +762,9 @@ export default function PublicExamPage() {
                     }
                 }
                 setIsLoading(false);
-                console.log("[ExamPage] Exam data loaded successfully, isLoading set to false");
+                console.log('[ExamPage] Exam data loaded successfully, isLoading set to false');
             } catch (error: any) {
-                console.error("[ExamPage] Failed to load exam data", error);
+                console.error('[ExamPage] Failed to load exam data', error);
 
                 if (
                     error.status === 401 ||
@@ -648,13 +777,78 @@ export default function PublicExamPage() {
                 }
 
                 // Check for 404 specifically
-                if (error.message?.includes('API Error: 404') || error.message?.includes('Not Found') || error.status === 404 || error.message === 'Exam not found') {
+                if (
+                    error.message?.includes('API Error: 404') ||
+                    error.message?.includes('Not Found') ||
+                    error.status === 404 ||
+                    error.message === 'Exam not found'
+                ) {
                     setIsNotFound(true);
                     setIsLoading(false);
                     return;
                 }
 
+                if (error.message?.includes('ATTEMPT_COOLDOWN')) {
+                    const resumesAt = error.resumesAt ? ` Retake available at ${new Date(error.resumesAt).toLocaleString()}.` : '';
+                    setExamBlock({
+                        title: 'Retake Cooldown Active',
+                        description: `Your previous attempt is finished, but your instructor requires a waiting period before another attempt.${resumesAt}`,
+                        tone: 'amber',
+                        actionLabel: 'Back to Course',
+                        actionHref: getCourseReturnHref(),
+                    });
+                    toastError(`You must wait before retaking this exam.${resumesAt}`);
+                    setIsLoading(false);
+                    return;
+                }
+                if (error.message?.includes('NO_ATTEMPTS_LEFT')) {
+                    const maxAttempts = Number(error.maxAttempts || 1);
+                    const attemptsUsed = Number(error.attemptsUsed || maxAttempts);
+                    const wasTerminated = error.reason === 'ATTEMPT_TERMINATED';
+                    setExamBlock({
+                        title: wasTerminated ? 'Attempt Terminated' : 'No Attempts Left',
+                        description: wasTerminated
+                            ? `Your previous attempt was terminated because the exam security rules were violated. You have used ${attemptsUsed}/${maxAttempts} allowed attempt${maxAttempts === 1 ? '' : 's'}. Contact your instructor if you need another attempt.`
+                            : `You have used ${attemptsUsed}/${maxAttempts} allowed attempt${maxAttempts === 1 ? '' : 's'} for this course exam. Contact your instructor if you need another attempt.`,
+                        tone: 'rose',
+                        actionLabel: 'Back to Course',
+                        actionHref: getCourseReturnHref(),
+                    });
+                    toastError(wasTerminated ? 'This attempt was terminated and no attempts remain.' : 'No attempts left for this course exam.');
+                    setIsLoading(false);
+                    return;
+                }
+                if (error.message?.includes('ALREADY_PASSED')) {
+                    const score = typeof error.score === 'number' ? Math.round(error.score) : null;
+                    const passingPercentage = Number(error.passingPercentage || 70);
+                    setExamBlock({
+                        title: 'Exam Already Passed',
+                        description: `You already passed this course exam${score !== null ? ` with ${score}%` : ''}. Passing score is ${passingPercentage}%, so no more attempts are available.`,
+                        tone: 'slate',
+                        actionLabel: 'Back to Course',
+                        actionHref: getCourseReturnHref(),
+                    });
+                    setIsLoading(false);
+                    return;
+                }
+                if (error.message?.includes('EXAM_LOCKED')) {
+                    setExamBlock({
+                        title: 'Course Exam Locked',
+                        description: 'Complete the required course progress before starting this exam.',
+                        tone: 'amber',
+                        actionLabel: 'Back to Course',
+                        actionHref: getCourseReturnHref(),
+                    });
+                    toastError('This course exam is locked. Complete the required course progress first.');
+                    setIsLoading(false);
+                    return;
+                }
                 if (error.message?.includes('EXAM_TERMINATED')) {
+                    if (isCourseLinkedExamRef.current) {
+                        toastError('This exam attempt was terminated.');
+                        setIsLoading(false);
+                        return;
+                    }
                     window.location.href = `/exam/login?slug=${slug}&error=terminated`;
                     return; // Keep loading visible
                 }
@@ -663,6 +857,11 @@ export default function PublicExamPage() {
                     return;
                 }
                 if (error.message?.includes('EXAM_ALREADY_ACTIVE')) {
+                    if (isCourseLinkedExamRef.current) {
+                        toastError('This exam is already active in another tab or session.');
+                        setIsLoading(false);
+                        return;
+                    }
                     window.location.href = `/exam/login?slug=${slug}&error=active_session`;
                     return; // Keep loading visible
                 }
@@ -678,30 +877,69 @@ export default function PublicExamPage() {
                     window.location.href = `/exam/login?slug=${slug}&error=ip_blocked`;
                     return;
                 }
-                if (error.message?.includes('401') || error.message?.includes('Unauthorized') || error.message?.includes('Failed to start exam')) {
+                if (
+                    error.message?.includes('401') ||
+                    error.message?.includes('Unauthorized') ||
+                    error.message?.includes('Failed to start exam')
+                ) {
+                    if (isCourseLinkedExamRef.current) {
+                        router.replace(`/login?redirect=${encodeURIComponent(`/exam/${slug}`)}`);
+                        return;
+                    }
                     window.location.href = `/exam/login?slug=${slug}`;
                     return; // Keep loading visible
                 } else {
-                    toastError("Failed to load exam content. Please refresh or check login.");
+                    toastError('Failed to load exam content. Please refresh or check login.');
                     setIsLoading(false); // Only stop loading if we stay on page
                 }
             }
         }
         loadExamData();
-    }, [slug, setElectronStrictMode]);
+    }, [slug, setElectronStrictMode, router, getCourseReturnHref, readLocalDraft]);
 
     const submitFullExam = useCallback(async () => {
+        if (isFinalSubmitting) return;
         logEvent('exam_submission', 'User exam submitted (Manual or Auto)');
+        setIsFinalSubmitting(true);
         try {
-            const activeSessionId = (sessionId || localStorage.getItem('currentExamSessionId') || 'demo-session') as string;
+            const activeSessionId = (sessionId ||
+                localStorage.getItem('currentExamSessionId') ||
+                'demo-session') as string;
 
-            // Final Sync using ref to get latest answers without closure stale issues
-            saveAnswer('_final_sync', userAnswersRef.current);
+            const finalAnswers = userAnswersRef.current;
+            saveAnswer('_final_sync', finalAnswers);
 
-            await ExamService.submitExam(activeSessionId);
+            const submitResult = await ExamService.submitExam(activeSessionId, finalAnswers);
+            clearLocalDraft(activeSessionId);
+            if (isCourseLinkedExamRef.current && typeof submitResult?.score === 'number') {
+                const passingPercentage = examVerdict?.passingPercentage ?? 70;
+                setExamVerdict({
+                    passed: submitResult.score >= passingPercentage,
+                    score: submitResult.score,
+                    passingPercentage,
+                });
+            }
+            if (isCourseLinkedExamRef.current) {
+                for (let attempt = 0; attempt < 8; attempt += 1) {
+                    try {
+                        const verdict = await ExamService.getSessionVerdict(activeSessionId);
+                        if (verdict?.ready) {
+                            setExamVerdict({
+                                passed: Boolean(verdict.passed),
+                                score: typeof verdict.score === 'number' ? verdict.score : null,
+                                passingPercentage: Number(verdict.passingPercentage ?? 70),
+                            });
+                            break;
+                        }
+                    } catch {
+                        // Scoring is async; the final result page can still show it later.
+                    }
+                    await new Promise((resolve) => setTimeout(resolve, 500));
+                }
+            }
 
             // Capture static submission time
-            const submitTime = new Date().toLocaleTimeString() + ", " + new Date().toLocaleDateString();
+            const submitTime = new Date().toLocaleTimeString() + ', ' + new Date().toLocaleDateString();
             setFinalSubmitTime(submitTime);
             localStorage.setItem(`exam_${slug}_submit_time`, submitTime);
 
@@ -710,39 +948,72 @@ export default function PublicExamPage() {
             setElectronStrictMode(false, 'exam submitted');
 
             setIsFeedbackMode(true);
+            posthog.capture('exam_completed', {
+                slug,
+                submissionMode: 'success',
+            });
         } catch (e) {
-            console.error("Full submission failed", e);
-            warning("Network error. Finalizing session locally...");
-            const submitTime = new Date().toLocaleTimeString() + ", " + new Date().toLocaleDateString();
-            setFinalSubmitTime(submitTime);
-            localStorage.setItem(`exam_${slug}_submit_time`, submitTime);
-            disconnect();
-            setElectronStrictMode(false, 'exam submitted (fallback)');
-            setIsFeedbackMode(true);
+            console.error('Full submission failed', e);
+            warning('Final submission could not be confirmed. Your answers are still saved here; please check your connection and submit again.');
+            posthog.capture('exam_completed', {
+                slug,
+                submissionMode: 'failed',
+            });
+        } finally {
+            setIsFinalSubmitting(false);
         }
-    }, [sessionId, logEvent, saveAnswer, warning, disconnect, setElectronStrictMode]);
+    }, [sessionId, slug, logEvent, saveAnswer, warning, disconnect, setElectronStrictMode, clearLocalDraft, examVerdict, isFinalSubmitting]);
 
-    const handleFeedbackSubmit = useCallback(async (rating: number, comment: string) => {
-        try {
-            const userId = user?.id || user?.rollNumber || 'anonymous';
-            await ExamService.saveFeedback(slug as string, userId, rating, comment);
-            logEvent('feedback_submitted', 'User submitted feedback', { rating });
-            info("Thank you for your feedback!");
-            if (typeof window !== 'undefined') {
-                localStorage.setItem(`exam_${slug}_feedback_done`, 'true');
+    const handleFeedbackSubmit = useCallback(
+        async (rating: number, comment: string) => {
+            try {
+                const userId = user?.id || user?.rollNumber || 'anonymous';
+                await ExamService.saveFeedback(slug as string, userId, rating, comment);
+                logEvent('feedback_submitted', 'User submitted feedback', { rating });
+                info('Thank you for your feedback!');
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem(`exam_${slug}_feedback_done`, 'true');
+                }
+                if (isCourseLinkedExamRef.current && sessionId && !examVerdict) {
+                    for (let attempt = 0; attempt < 6; attempt += 1) {
+                        try {
+                            const verdict = await ExamService.getSessionVerdict(sessionId);
+                            if (verdict?.ready) {
+                                setExamVerdict({
+                                    passed: Boolean(verdict.passed),
+                                    score: typeof verdict.score === 'number' ? verdict.score : null,
+                                    passingPercentage: Number(verdict.passingPercentage ?? 70),
+                                });
+                                break;
+                            }
+                        } catch {
+                            // Keep the success transition responsive even if verdict polling is not ready.
+                        }
+                        await new Promise((resolve) => setTimeout(resolve, 500));
+                    }
+                }
+                setElectronStrictMode(false, 'feedback submitted');
+                if (isCourseLinkedExamRef.current) {
+                    router.replace(getCourseReturnHref());
+                    return;
+                }
+                setIsSuccessMode(true);
+            } catch (e) {
+                console.error('Feedback submission failed', e);
+                // Even if feedback fails, we show success page so they can finish
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem(`exam_${slug}_feedback_done`, 'true');
+                }
+                setElectronStrictMode(false, 'feedback fallback');
+                if (isCourseLinkedExamRef.current) {
+                    router.replace(getCourseReturnHref());
+                    return;
+                }
+                setIsSuccessMode(true);
             }
-            setElectronStrictMode(false, 'feedback submitted');
-            setIsSuccessMode(true);
-        } catch (e) {
-            console.error("Feedback submission failed", e);
-            // Even if feedback fails, we show success page so they can finish
-            if (typeof window !== 'undefined') {
-                localStorage.setItem(`exam_${slug}_feedback_done`, 'true');
-            }
-            setElectronStrictMode(false, 'feedback fallback');
-            setIsSuccessMode(true);
-        }
-    }, [user, slug, logEvent, info, setElectronStrictMode]);
+        },
+        [user, slug, logEvent, info, setElectronStrictMode, sessionId, examVerdict, router, getCourseReturnHref],
+    );
 
     // Timer Logic
     useEffect(() => {
@@ -750,7 +1021,7 @@ export default function PublicExamPage() {
 
         // AUTO-SUBMIT when time is up
         if (timeLeft <= 0) {
-            console.log("Time is up! Auto-submitting...");
+            console.log('Time is up! Auto-submitting...');
             submitFullExam();
             return;
         }
@@ -758,11 +1029,11 @@ export default function PublicExamPage() {
         // Show 5-minute warning (only once)
         if (timeLeft === 300 && !fiveMinWarningShownRef.current) {
             fiveMinWarningShownRef.current = true;
-            warning("Only 5 minutes remaining! Please review and submit your answers.", "Time Warning", 8000);
+            warning('Only 5 minutes remaining! Please review and submit your answers.', 'Time Warning', 8000);
         }
 
         const timer = setInterval(() => {
-            setTimeLeft(prev => {
+            setTimeLeft((prev) => {
                 if (prev === null || prev <= 0) {
                     clearInterval(timer);
                     return 0;
@@ -785,14 +1056,14 @@ export default function PublicExamPage() {
     const [userAnswers, setUserAnswers] = useState<Record<string, any>>({});
 
     const handleNext = () => {
-        const currentSection = sections.find(s => s.id === currentSectionId);
+        const currentSection = sections.find((s) => s.id === currentSectionId);
         if (!currentSection) return;
 
         const qIdx = currentSection.questions.findIndex((q: any) => q.id === currentQuestionId);
         if (qIdx < currentSection.questions.length - 1) {
             handleQuestionSelect(currentSectionId, currentSection.questions[qIdx + 1].id);
         } else {
-            const sIdx = sections.findIndex(s => s.id === currentSectionId);
+            const sIdx = sections.findIndex((s) => s.id === currentSectionId);
             if (sIdx < sections.length - 1) {
                 const nextSection = sections[sIdx + 1];
                 // Only go if active, unlocked
@@ -804,14 +1075,14 @@ export default function PublicExamPage() {
     };
 
     const handlePrevious = () => {
-        const currentSection = sections.find(s => s.id === currentSectionId);
+        const currentSection = sections.find((s) => s.id === currentSectionId);
         if (!currentSection) return;
 
         const qIdx = currentSection.questions.findIndex((q: any) => q.id === currentQuestionId);
         if (qIdx > 0) {
             handleQuestionSelect(currentSectionId, currentSection.questions[qIdx - 1].id);
         } else {
-            const sIdx = sections.findIndex(s => s.id === currentSectionId);
+            const sIdx = sections.findIndex((s) => s.id === currentSectionId);
             if (sIdx > 0) {
                 const prevSection = sections[sIdx - 1];
                 // ONLY allow going back if NOT submitted and NOT locked
@@ -826,26 +1097,27 @@ export default function PublicExamPage() {
         const nextAnswers = {
             ...userAnswersRef.current,
             [currentQuestionId as string]: answer,
-            [`_submitted_${currentQuestionId}`]: true
+            [`_submitted_${currentQuestionId}`]: true,
         };
 
         // 1. Save Answer
         userAnswersRef.current = nextAnswers;
         setUserAnswers(nextAnswers);
+        writeLocalDraft(sessionId || localStorage.getItem('currentExamSessionId'), nextAnswers);
         saveAnswer(currentQuestionId as string, answer);
         // Also save the submitted flag
         saveAnswer(`_submitted_${currentQuestionId}`, true);
 
         // 2. Mark as answered in local state
-        setSections(prev => prev.map(s => ({
-            ...s,
-            questions: s.questions.map((q: any) =>
-                q.id === currentQuestionId ? { ...q, status: 'answered' } : q
-            )
-        })));
+        setSections((prev) =>
+            prev.map((s) => ({
+                ...s,
+                questions: s.questions.map((q: any) => (q.id === currentQuestionId ? { ...q, status: 'answered' } : q)),
+            })),
+        );
 
         // 3. Check if last question of the section
-        const currentSection = sections.find(s => s.id === currentSectionId);
+        const currentSection = sections.find((s) => s.id === currentSectionId);
         if (currentSection) {
             const qIdx = currentSection.questions.findIndex((q: any) => q.id === currentQuestionId);
             if (qIdx === currentSection.questions.length - 1) {
@@ -864,23 +1136,27 @@ export default function PublicExamPage() {
         userAnswersRef.current = userAnswers;
     }, [userAnswers]);
 
-    const handleAnswerChange = useCallback((answer: any) => {
-        const currentAnswer = userAnswersRef.current[currentQuestionId];
-        // Skip update if strictly equal (handles primitives)
-        if (currentAnswer === answer) {
-            return;
-        }
+    const handleAnswerChange = useCallback(
+        (answer: any) => {
+            const currentAnswer = userAnswersRef.current[currentQuestionId];
+            // Skip update if strictly equal (handles primitives)
+            if (currentAnswer === answer) {
+                return;
+            }
 
-        const nextAnswers = { ...userAnswersRef.current, [currentQuestionId as string]: answer };
-        userAnswersRef.current = nextAnswers;
-        setUserAnswers(nextAnswers);
+            const nextAnswers = { ...userAnswersRef.current, [currentQuestionId as string]: answer };
+            userAnswersRef.current = nextAnswers;
+            setUserAnswers(nextAnswers);
+            writeLocalDraft(sessionId || localStorage.getItem('currentExamSessionId'), nextAnswers);
 
-        // Debounce Save (1s)
-        if (debouncedSaveRef.current) clearTimeout(debouncedSaveRef.current);
-        debouncedSaveRef.current = setTimeout(() => {
-            saveAnswer(currentQuestionId as string, answer);
-        }, 1000);
-    }, [currentQuestionId, saveAnswer]);
+            // Debounce Save (1s)
+            if (debouncedSaveRef.current) clearTimeout(debouncedSaveRef.current);
+            debouncedSaveRef.current = setTimeout(() => {
+                saveAnswer(currentQuestionId as string, answer);
+            }, 1000);
+        },
+        [currentQuestionId, saveAnswer, sessionId, writeLocalDraft],
+    );
 
     // ... (useEffect hooks for focus monitoring could remain here or be moved to useElectronMonitoring if refactored further)
     // Enhanced focus monitoring: detects both tab switches AND app switches (Alt+Tab, clicking outside browser)
@@ -890,21 +1166,25 @@ export default function PublicExamPage() {
         // Grace period: Ignore blur/focus events for the first few seconds after mount
         // to prevent false positives during page load/refresh
         let isGracePeriod = true;
-        const graceTimer = setTimeout(() => { isGracePeriod = false; }, 4000);
+        const graceTimer = setTimeout(() => {
+            isGracePeriod = false;
+        }, 4000);
 
         // Track if we're currently focused to prevent duplicate events
         let isFocused = document.hasFocus();
 
         // Track if user is navigating away (beforeunload) to prevent false tab switch on refresh
         let isUnloading = false;
-        const handleBeforeUnload = () => { isUnloading = true; };
+        const handleBeforeUnload = () => {
+            isUnloading = true;
+        };
 
         const handleFocusLoss = (source: string) => {
             if (isGracePeriod || isUnloading) return; // Ignore during grace period or page unload
             if (isFocused) {
                 isFocused = false;
                 socketLogViolation('TAB_SWITCH_OUT', `Student switched away from exam (${source})`);
-                setWindowFocus(prev => ({ ...prev, out: prev.out + 1 }));
+                setWindowFocus((prev) => ({ ...prev, out: prev.out + 1 }));
             }
         };
 
@@ -913,10 +1193,10 @@ export default function PublicExamPage() {
             if (!isFocused) {
                 isFocused = true;
                 socketLogViolation('TAB_SWITCH_IN', `Student returned to exam (${source})`);
-                setWindowFocus(prev => {
+                setWindowFocus((prev) => {
                     const newIn = prev.in + 1;
                     if (tabSwitchLimit && newIn >= tabSwitchLimit) {
-                        console.log("[Focus] Local limit reached. Auto-kick incoming...");
+                        console.log('[Focus] Local limit reached. Auto-kick incoming...');
                     }
                     return { ...prev, in: newIn };
                 });
@@ -942,17 +1222,17 @@ export default function PublicExamPage() {
             handleFocusGain('window focus');
         };
 
-        document.addEventListener("visibilitychange", handleVisibilityChange);
-        window.addEventListener("blur", handleWindowBlur);
-        window.addEventListener("focus", handleWindowFocus);
-        window.addEventListener("beforeunload", handleBeforeUnload);
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('blur', handleWindowBlur);
+        window.addEventListener('focus', handleWindowFocus);
+        window.addEventListener('beforeunload', handleBeforeUnload);
 
         return () => {
             clearTimeout(graceTimer);
-            document.removeEventListener("visibilitychange", handleVisibilityChange);
-            window.removeEventListener("blur", handleWindowBlur);
-            window.removeEventListener("focus", handleWindowFocus);
-            window.removeEventListener("beforeunload", handleBeforeUnload);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('blur', handleWindowBlur);
+            window.removeEventListener('focus', handleWindowFocus);
+            window.removeEventListener('beforeunload', handleBeforeUnload);
         };
     }, [socketLogViolation, isFeedbackMode, isSuccessMode, tabSwitchLimit]);
 
@@ -971,7 +1251,7 @@ export default function PublicExamPage() {
             // Let CodeMirror handle paste internally (it uses internal clipboard)
             if (isFromCodeEditor(e.target)) return;
             e.preventDefault();
-            warning("Pasting is not allowed during the exam.", "Paste Blocked", 4000);
+            warning('Pasting is not allowed during the exam.', 'Paste Blocked', 4000);
             socketLogViolation('PASTE_ATTEMPT', 'Student attempted to paste content');
         };
         const handleCopy = (e: ClipboardEvent) => {
@@ -1004,14 +1284,17 @@ export default function PublicExamPage() {
     }, [isFeedbackMode, isSuccessMode, warning, socketLogViolation]);
 
     // Cheat detection callback for editor components
-    const handleCheatDetected = useCallback((reason: string) => {
-        warning(reason, "Warning", 4000);
-        socketLogViolation('CHEAT_DETECTED', reason);
-    }, [warning, socketLogViolation]);
+    const handleCheatDetected = useCallback(
+        (reason: string) => {
+            warning(reason, 'Warning', 4000);
+            socketLogViolation('CHEAT_DETECTED', reason);
+        },
+        [warning, socketLogViolation],
+    );
 
     // Fullscreen Monitoring
     useEffect(() => {
-        console.log("[ExamPage] Fullscreen Monitoring Effect. Modes:", { isFeedbackMode, isSuccessMode, isLoading });
+        console.log('[ExamPage] Fullscreen Monitoring Effect. Modes:', { isFeedbackMode, isSuccessMode, isLoading });
 
         if (isElectronRuntime) {
             if (fullscreenToastIdRef.current) {
@@ -1023,7 +1306,7 @@ export default function PublicExamPage() {
 
         if (isFeedbackMode || isSuccessMode) {
             if (fullscreenToastIdRef.current) {
-                console.log("[ExamPage] Clearing fullscreen toast due to end-of-exam mode");
+                console.log('[ExamPage] Clearing fullscreen toast due to end-of-exam mode');
                 dismiss(fullscreenToastIdRef.current);
                 fullscreenToastIdRef.current = null;
             }
@@ -1032,8 +1315,13 @@ export default function PublicExamPage() {
 
         const checkFullscreen = () => {
             const doc = document as any;
-            const isFS = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement);
-            console.log("[ExamPage] checkFullscreen called. isFS:", isFS, "ToastId:", fullscreenToastIdRef.current);
+            const isFS = !!(
+                doc.fullscreenElement ||
+                doc.webkitFullscreenElement ||
+                doc.mozFullScreenElement ||
+                doc.msFullscreenElement
+            );
+            console.log('[ExamPage] checkFullscreen called. isFS:', isFS, 'ToastId:', fullscreenToastIdRef.current);
 
             // Don't enforce fullscreen if exam is not found
             if (isNotFound) {
@@ -1046,19 +1334,19 @@ export default function PublicExamPage() {
 
             if (!isFS) {
                 if (!fullscreenToastIdRef.current && canShowFullscreenWarning) {
-                    console.log("[ExamPage] Showing fullscreen warning toast...");
+                    console.log('[ExamPage] Showing fullscreen warning toast...');
                     const id = warning(
-                        "Please enter full screen mode to continue the exam.",
-                        "Full Screen Required",
+                        'Please enter full screen mode to continue the exam.',
+                        'Full Screen Required',
                         0, // Persistent
                         true, // Undismissible
-                        'top-center' // Position
+                        'top-center', // Position
                     );
                     fullscreenToastIdRef.current = id;
                 }
             } else {
                 if (fullscreenToastIdRef.current) {
-                    console.log("[ExamPage] Dismissing fullscreen toast:", fullscreenToastIdRef.current);
+                    console.log('[ExamPage] Dismissing fullscreen toast:', fullscreenToastIdRef.current);
                     dismiss(fullscreenToastIdRef.current);
                     fullscreenToastIdRef.current = null;
                 }
@@ -1069,20 +1357,20 @@ export default function PublicExamPage() {
         checkFullscreen();
 
         const handleFsChange = () => {
-            console.log("[ExamPage] fullscreenchange event triggered");
+            console.log('[ExamPage] fullscreenchange event triggered');
             checkFullscreen();
         };
 
-        document.addEventListener("fullscreenchange", handleFsChange);
-        document.addEventListener("webkitfullscreenchange", handleFsChange);
-        document.addEventListener("mozfullscreenchange", handleFsChange);
-        document.addEventListener("MSFullscreenChange", handleFsChange);
+        document.addEventListener('fullscreenchange', handleFsChange);
+        document.addEventListener('webkitfullscreenchange', handleFsChange);
+        document.addEventListener('mozfullscreenchange', handleFsChange);
+        document.addEventListener('MSFullscreenChange', handleFsChange);
 
         return () => {
-            document.removeEventListener("fullscreenchange", handleFsChange);
-            document.removeEventListener("webkitfullscreenchange", handleFsChange);
-            document.removeEventListener("mozfullscreenchange", handleFsChange);
-            document.removeEventListener("MSFullscreenChange", handleFsChange);
+            document.removeEventListener('fullscreenchange', handleFsChange);
+            document.removeEventListener('webkitfullscreenchange', handleFsChange);
+            document.removeEventListener('mozfullscreenchange', handleFsChange);
+            document.removeEventListener('MSFullscreenChange', handleFsChange);
             if (fullscreenToastIdRef.current) {
                 dismiss(fullscreenToastIdRef.current);
                 fullscreenToastIdRef.current = null;
@@ -1092,7 +1380,15 @@ export default function PublicExamPage() {
 
     // Auto-collapse sidebar if not hovered for 3s (initial load only)
     useEffect(() => {
-        if (isLoading || isFeedbackMode || isSuccessMode || sidebarCollapsed || isSidebarHovered || hasInteractedRef.current) return;
+        if (
+            isLoading ||
+            isFeedbackMode ||
+            isSuccessMode ||
+            sidebarCollapsed ||
+            isSidebarHovered ||
+            hasInteractedRef.current
+        )
+            return;
 
         const timer = setTimeout(() => {
             if (!hasInteractedRef.current) {
@@ -1106,7 +1402,7 @@ export default function PublicExamPage() {
     const handleQuestionSelect = (sectionId: string, questionId: string | number, force = false) => {
         // Prevent selecting questions from locked or submitted sections (unless forced)
         if (!force) {
-            const targetSection = sections.find(s => s.id === sectionId);
+            const targetSection = sections.find((s) => s.id === sectionId);
             if (targetSection?.status === 'locked' || targetSection?.status === 'submitted') return;
         }
 
@@ -1115,12 +1411,17 @@ export default function PublicExamPage() {
 
         // PERSISTENCE: Save last viewed position
         const positionMarkers = {
-            '_last_section_id': sectionId,
-            '_last_question_id': questionId
+            _last_section_id: sectionId,
+            _last_question_id: questionId,
         };
 
         // Use the same logic as handleAnswerChange to sync state & persist
-        setUserAnswers(prev => ({ ...prev, ...positionMarkers }));
+        setUserAnswers((prev) => {
+            const next = { ...prev, ...positionMarkers };
+            userAnswersRef.current = next;
+            writeLocalDraft(sessionId || localStorage.getItem('currentExamSessionId'), next);
+            return next;
+        });
 
         if (debouncedSaveRef.current) clearTimeout(debouncedSaveRef.current);
         debouncedSaveRef.current = setTimeout(() => {
@@ -1146,49 +1447,64 @@ export default function PublicExamPage() {
             return 'unanswered';
         };
 
-        setSections(prev => prev.map(s => ({
-            ...s,
-            questions: s.questions.map((q: any) => ({
-                ...q,
-                status: getDynamicStatus(q, userAnswers)
-            }))
-        })));
+        setSections((prev) =>
+            prev.map((s) => ({
+                ...s,
+                questions: s.questions.map((q: any) => ({
+                    ...q,
+                    status: getDynamicStatus(q, userAnswers),
+                })),
+            })),
+        );
     }, [userAnswers]); // We only care about userAnswers changes for status updates
 
     const submitSection = async (sectionId: string) => {
         // Logic to submit the current section and unlock the next one
-        const sectionIndex = sections.findIndex(s => s.id === sectionId);
+        const sectionIndex = sections.findIndex((s) => s.id === sectionId);
         if (sectionIndex === -1) return;
 
         // REAL API CALL
         try {
-            const activeSessionId = (sessionId || localStorage.getItem('currentExamSessionId') || 'demo-session') as string;
+            const activeSessionId = (sessionId ||
+                localStorage.getItem('currentExamSessionId') ||
+                'demo-session') as string;
 
             // Gather answers for this section
-            const sectionQuestions = sections.find(s => s.id === sectionId)?.questions.map((q: any) => q.id) || [];
+            const sectionQuestions = sections.find((s) => s.id === sectionId)?.questions.map((q: any) => q.id) || [];
             const latestAnswers = userAnswersRef.current;
             const sectionAnswers = Object.keys(latestAnswers)
-                .filter(key => sectionQuestions.includes(key))
+                .filter((key) => sectionQuestions.includes(key))
                 .reduce((obj, key) => {
                     obj[key] = latestAnswers[key];
                     return obj;
                 }, {} as any);
 
+            const submissionMarker = {
+                [`_section_${sectionId}_submitted`]: true,
+                [`_section_${sectionId}_submitted_at`]: new Date().toISOString(),
+            };
+            const nextAnswers = { ...latestAnswers, ...sectionAnswers, ...submissionMarker };
+            userAnswersRef.current = nextAnswers;
+            setUserAnswers(nextAnswers);
+            writeLocalDraft(activeSessionId, nextAnswers);
+
             await ExamService.submitSection(activeSessionId, sectionId, sectionAnswers);
 
-            info("Section submitted successfully");
+            info('Section submitted successfully');
         } catch (e) {
-            console.error("Submission failed", e);
-            warning("Failed to save section. Proceeding locally.");
+            console.error('Submission failed', e);
+            warning('Failed to save section. Proceeding locally.');
         }
 
         const nextSection = sections[sectionIndex + 1];
 
-        setSections(prev => prev.map((s, idx) => {
-            if (s.id === sectionId) return { ...s, status: 'submitted' };
-            if (nextSection && s.id === nextSection.id) return { ...s, status: 'active' };
-            return s;
-        }));
+        setSections((prev) =>
+            prev.map((s, idx) => {
+                if (s.id === sectionId) return { ...s, status: 'submitted' };
+                if (nextSection && s.id === nextSection.id) return { ...s, status: 'active' };
+                return s;
+            }),
+        );
 
         // Move to next section automatically if available
         if (nextSection) {
@@ -1196,31 +1512,38 @@ export default function PublicExamPage() {
             setIsSubmitModalOpen(false);
         } else {
             // All sections completed, stay in modal to show final submission option
-            info("All sections completed. You can now submit your final exam.");
+            info('All sections completed. You can now submit your final exam.');
         }
     };
 
     const toggleReview = () => {
         let isNowReviewed = false;
-        setSections(prev => prev.map(s => ({
-            ...s,
-            questions: s.questions.map((q: any) => {
-                if (q.id === currentQuestionId) {
-                    isNowReviewed = q.status !== 'review';
-                    return { ...q, status: isNowReviewed ? 'review' : 'current' };
-                }
-                return q;
-            })
-        })));
+        setSections((prev) =>
+            prev.map((s) => ({
+                ...s,
+                questions: s.questions.map((q: any) => {
+                    if (q.id === currentQuestionId) {
+                        isNowReviewed = q.status !== 'review';
+                        return { ...q, status: isNowReviewed ? 'review' : 'current' };
+                    }
+                    return q;
+                }),
+            })),
+        );
 
         // Persist change
-        setUserAnswers(prev => {
+        setUserAnswers((prev) => {
             const next = { ...prev, [`_rev_${currentQuestionId}`]: isNowReviewed };
+            userAnswersRef.current = next;
+            writeLocalDraft(sessionId || localStorage.getItem('currentExamSessionId'), next);
 
             // Local SessionStorage Backup (fast recovery on refresh)
             const markers = Object.keys(next)
-                .filter(k => k.startsWith('_rev_'))
-                .reduce((obj, k) => { obj[k] = next[k]; return obj; }, {} as any);
+                .filter((k) => k.startsWith('_rev_'))
+                .reduce((obj, k) => {
+                    obj[k] = next[k];
+                    return obj;
+                }, {} as any);
             sessionStorage.setItem(`exam_${slug}_review_markers`, JSON.stringify(markers));
 
             return next;
@@ -1228,12 +1551,13 @@ export default function PublicExamPage() {
         saveReviewStatus(currentQuestionId as string, isNowReviewed);
     };
 
-    const isMarkedForReview = sections.find(s => s.id === currentSectionId)
-        ?.questions.find((q: any) => q.id === currentQuestionId)?.status === 'review';
+    const isMarkedForReview =
+        sections.find((s) => s.id === currentSectionId)?.questions.find((q: any) => q.id === currentQuestionId)
+            ?.status === 'review';
 
     const toggleFullscreen = () => {
         if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(err => {
+            document.documentElement.requestFullscreen().catch((err) => {
                 console.error(`Error attempting to enable full-screen mode: ${err.message}`);
             });
         } else {
@@ -1244,42 +1568,83 @@ export default function PublicExamPage() {
     };
 
     const examConfig: ExamConfig = {
-        rollNumber: user?.rollNumber || "2211981482",
-        userName: user?.name || "Student",
+        rollNumber: user?.rollNumber || '2211981482',
+        userName: user?.name || 'Student',
         hideBrandSuffix: true,
         hideBrandName: true,
         onRefresh: () => window.location.reload(),
         leftContent: (
             <div className="flex items-center gap-4 ml-4">
-                <div className={`
+                <div
+                    className={`
                     bg-white border border-slate-100 rounded-xl px-3 py-1.5 flex items-center gap-3 transition-shadow duration-300
-                    ${(windowFocus.in === 0 && windowFocus.out === 0) ? 'shadow-none' : 'shadow-md shadow-slate-200/50'}
-                `}>
+                    ${windowFocus.in === 0 && windowFocus.out === 0 ? 'shadow-none' : 'shadow-md shadow-slate-200/50'}
+                `}
+                >
                     <div className="flex items-center gap-1.5" title="Switched In (Focused)">
                         <div className="w-5 h-5 rounded-md bg-emerald-50 flex items-center justify-center text-emerald-600">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><polyline points="10 17 15 12 10 7" /><line x1="15" y1="12" x2="3" y2="12" /></svg>
+                            <svg
+                                width="12"
+                                height="12"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="3"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                                <polyline points="10 17 15 12 10 7" />
+                                <line x1="15" y1="12" x2="3" y2="12" />
+                            </svg>
                         </div>
                         <span className="text-xs font-black text-emerald-700">{windowFocus.in}</span>
                     </div>
                     <div className="w-[1px] h-3 bg-slate-100" />
                     <div className="flex items-center gap-1.5" title="Switched Out (Blurred)">
                         <div className="w-5 h-5 rounded-md bg-rose-50 flex items-center justify-center text-rose-600">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+                            <svg
+                                width="12"
+                                height="12"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="3"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                <polyline points="16 17 21 12 16 7" />
+                                <line x1="21" y1="12" x2="9" y2="12" />
+                            </svg>
                         </div>
                         <span className="text-xs font-black text-rose-700">{windowFocus.out}</span>
                     </div>
                 </div>
             </div>
         ),
-        centerContent: (
-            (isSubmitModalOpen || sections.find(s => s.id === currentSectionId)?.status === 'submitted') ? (
+        centerContent:
+            isSubmitModalOpen || sections.find((s) => s.id === currentSectionId)?.status === 'submitted' ? (
                 // Only show back button if current section is NOT submitted AND not all are submitted
-                (!sections.every(s => s.status === 'submitted') && sections.find(s => s.id === currentSectionId)?.status !== 'submitted') ? (
+                !sections.every((s) => s.status === 'submitted') &&
+                sections.find((s) => s.id === currentSectionId)?.status !== 'submitted' ? (
                     <button
                         onClick={() => setIsSubmitModalOpen(false)}
                         className="flex items-center gap-2 px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-bold rounded-xl transition-all"
                     >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                        <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
                         Back to Questions
                     </button>
                 ) : null
@@ -1290,26 +1655,57 @@ export default function PublicExamPage() {
                 >
                     Submit Section
                 </button>
-            )
-        ),
+            ),
         rightContent: (
             <div className="flex items-center gap-4">
-                <div className={`
+                <div
+                    className={`
                     flex items-center gap-2 px-3 py-1.5 rounded-xl border font-black text-xs transition-all duration-500
-                    ${timeLeft !== null && timeLeft <= 300
-                        ? 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'
-                        : 'bg-sky-50 text-sky-700 border-sky-100'}
-                `}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                    ${
+                        timeLeft !== null && timeLeft <= 300
+                            ? 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'
+                            : 'bg-sky-50 text-sky-700 border-sky-100'
+                    }
+                `}
+                >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                    </svg>
                     {timeLeft !== null ? formatTime(timeLeft) : 'Loading...'}
                 </div>
 
                 <div className="flex items-center gap-1 bg-white border border-slate-100 rounded-xl p-1">
-                    <button onClick={() => setFontSize(prev => Math.max(12, prev - 1))} className="w-7 h-7 flex items-center justify-center hover:bg-slate-50 rounded-lg text-slate-500 hover:text-[var(--brand)] transition-colors">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                    <button
+                        onClick={() => setFontSize((prev) => Math.max(12, prev - 1))}
+                        className="w-7 h-7 flex items-center justify-center hover:bg-slate-50 rounded-lg text-slate-500 hover:text-[var(--brand)] transition-colors"
+                    >
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                        >
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
                     </button>
-                    <button onClick={() => setFontSize(prev => Math.min(30, prev + 1))} className="w-7 h-7 flex items-center justify-center hover:bg-slate-50 rounded-lg text-slate-500 hover:text-[var(--brand)] transition-colors">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                    <button
+                        onClick={() => setFontSize((prev) => Math.min(30, prev + 1))}
+                        className="w-7 h-7 flex items-center justify-center hover:bg-slate-50 rounded-lg text-slate-500 hover:text-[var(--brand)] transition-colors"
+                    >
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                        >
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
                     </button>
                 </div>
 
@@ -1344,7 +1740,9 @@ export default function PublicExamPage() {
                             {isOnline && (
                                 <div className="flex items-center justify-between gap-8 border-t border-slate-50 pt-2">
                                     <span className="text-slate-400 uppercase tracking-tighter">Sync Speed</span>
-                                    <span className="text-indigo-600 font-black">{downlink > 0 ? `${downlink} MB/s` : 'Detecting...'}</span>
+                                    <span className="text-indigo-600 font-black">
+                                        {downlink > 0 ? `${downlink} MB/s` : 'Detecting...'}
+                                    </span>
                                 </div>
                             )}
                         </div>
@@ -1354,25 +1752,41 @@ export default function PublicExamPage() {
                 </div>
 
                 {!isElectronRuntime && (
-                    <button onClick={toggleFullscreen} className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-500 rounded-xl border border-slate-100 transition-all">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 3h6v6" /><path d="M9 21H3v-6" /><path d="M21 3l-7 7" /><path d="M3 21l7-7" /></svg>
+                    <button
+                        onClick={toggleFullscreen}
+                        className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-500 rounded-xl border border-slate-100 transition-all"
+                    >
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                        >
+                            <path d="M15 3h6v6" />
+                            <path d="M9 21H3v-6" />
+                            <path d="M21 3l-7 7" />
+                            <path d="M3 21l7-7" />
+                        </svg>
                     </button>
                 )}
             </div>
-        )
+        ),
     };
 
-    const currentQuestion = questionsMap[currentQuestionId as string] || {
-        id: currentQuestionId as string,
-        type: 'Reading',
-        title: isLoading ? 'Loading...' : `Question ${currentQuestionId}`,
-        description: `<div class="flex items-center justify-center h-full text-slate-300 font-black text-2xl uppercase tracking-widest">${isLoading ? 'Loading Content...' : 'Content Not Available'}</div>`
-    } as UnitQuestion;
-
+    const currentQuestion =
+        questionsMap[currentQuestionId as string] ||
+        ({
+            id: currentQuestionId as string,
+            type: 'Reading',
+            title: isLoading ? 'Loading...' : `Question ${currentQuestionId}`,
+            description: `<div class="flex items-center justify-center h-full text-slate-300 font-black text-2xl uppercase tracking-widest">${isLoading ? 'Loading Content...' : 'Content Not Available'}</div>`,
+        } as UnitQuestion);
 
     const handleDoneSuccess = () => {
         setElectronStrictMode(false, 'exit after success');
-        window.location.href = "/dashboard/student";
+        window.location.href = isCourseLinkedExamRef.current ? getCourseReturnHref() : '/dashboard/learner';
     };
 
     // ===== EARLY RETURN AFTER ALL HOOKS =====
@@ -1398,10 +1812,55 @@ export default function PublicExamPage() {
         );
     }
 
+    if (examBlock) {
+        const toneClasses =
+            examBlock.tone === 'rose'
+                ? 'from-rose-950 via-slate-950 to-slate-900 border-rose-400/25 text-rose-100 bg-rose-500/10'
+                : examBlock.tone === 'amber'
+                  ? 'from-amber-950 via-slate-950 to-slate-900 border-amber-400/25 text-amber-100 bg-amber-500/10'
+                  : 'from-slate-950 via-slate-900 to-slate-800 border-slate-400/20 text-slate-100 bg-slate-500/10';
+
+        return (
+            <div className={`h-screen w-full bg-gradient-to-br ${toneClasses.split(' ').slice(0, 3).join(' ')} flex items-center justify-center p-5`}>
+                <div className="max-w-xl w-full rounded-[2rem] border border-white/10 bg-white/[0.06] p-8 text-center shadow-2xl backdrop-blur-xl">
+                    <div className={`mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border ${toneClasses.split(' ').slice(3).join(' ')}`}>
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+                            <path d="M12 9v4" />
+                            <path d="M12 17h.01" />
+                            <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
+                        </svg>
+                    </div>
+                    <p className="text-xs font-black uppercase tracking-[0.35em] text-white/45">Course Exam</p>
+                    <h1 className="mt-3 text-3xl font-black text-white">{examBlock.title}</h1>
+                    <p className="mx-auto mt-4 max-w-md text-sm font-semibold leading-6 text-slate-300">{examBlock.description}</p>
+                    <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="rounded-xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-black uppercase tracking-widest text-white transition hover:bg-white/15"
+                        >
+                            Retry
+                        </button>
+                        <button
+                            onClick={() => router.push(examBlock.actionHref || '/dashboard/learner')}
+                            className="rounded-xl bg-white px-5 py-3 text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-slate-200"
+                        >
+                            {examBlock.actionLabel || 'Back to Dashboard'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     // Block the exam UI if the socket has not yet connected.
     // Feedback / success routes don't need the live socket so they bypass this.
-    const socketPending = connectionStatus === 'connecting' && isOnline && !isFeedbackMode && !isSuccessMode;
-    const socketFailed  = connectionStatus === 'failed' && isOnline && !isFeedbackMode && !isSuccessMode;
+    const socketPending =
+        connectionStatus === 'connecting' &&
+        Boolean(sessionId && socketUserId) &&
+        isOnline &&
+        !isFeedbackMode &&
+        !isSuccessMode;
+    const socketFailed = connectionStatus === 'failed' && isOnline && !isFeedbackMode && !isSuccessMode;
 
     // Show error wall when all socket retries are exhausted before first connect
     if (socketFailed) {
@@ -1411,11 +1870,13 @@ export default function PublicExamPage() {
                     <div className="text-6xl mb-2">📡</div>
                     <h1 className="text-2xl font-bold text-white">Cannot Connect to Exam</h1>
                     <p className="text-slate-400 text-sm leading-relaxed">
-                        The exam requires a live connection to the server for answer saving and proctoring.
-                        We couldn&apos;t establish that connection — this is usually a network issue.
+                        The exam requires a live connection to the server for answer saving and proctoring. We
+                        couldn&apos;t establish that connection — this is usually a network issue.
                     </p>
                     <div className="bg-slate-700/50 rounded-lg p-4 text-left space-y-1">
-                        <p className="text-slate-300 text-xs font-semibold uppercase tracking-wider">Try the following</p>
+                        <p className="text-slate-300 text-xs font-semibold uppercase tracking-wider">
+                            Try the following
+                        </p>
                         <ul className="text-slate-400 text-sm space-y-1 list-disc list-inside">
                             <li>Check your internet connection</li>
                             <li>Disable a VPN if active</li>
@@ -1454,22 +1915,35 @@ export default function PublicExamPage() {
                 {isSuccessMode ? (
                     <ExamSuccessView
                         userDetails={{
-                            name: (typeof window !== 'undefined' ? JSON.parse(localStorage.getItem(`exam_${slug}_metadata`) || '{}').name : '') || user?.name || "Student",
-                            rollId: (typeof window !== 'undefined' ? JSON.parse(localStorage.getItem(`exam_${slug}_metadata`) || '{}').rollNumber : '') || user?.rollNumber || "N/A",
+                            name:
+                                (typeof window !== 'undefined'
+                                    ? JSON.parse(localStorage.getItem(`exam_${slug}_metadata`) || '{}').name
+                                    : '') ||
+                                user?.name ||
+                                'Student',
+                            rollId:
+                                (typeof window !== 'undefined'
+                                    ? JSON.parse(localStorage.getItem(`exam_${slug}_metadata`) || '{}').rollNumber
+                                    : '') ||
+                                user?.rollNumber ||
+                                'N/A',
                             examName: examTitle,
-                            submittedAt: finalSubmitTime || new Date().toLocaleTimeString()
+                            submittedAt: finalSubmitTime || new Date().toLocaleTimeString(),
                         }}
                         onDone={handleDoneSuccess}
+                        verdict={examVerdict}
                     />
                 ) : isFeedbackMode ? (
-                    <ExamFeedbackView onSubmitFeedback={handleFeedbackSubmit} />
-                ) : (isSubmitModalOpen || sections.find(s => s.id === (currentSectionId as any))?.status === 'submitted') ? (
+                    <ExamFeedbackView onSubmitFeedback={handleFeedbackSubmit} verdict={examVerdict} />
+                ) : isSubmitModalOpen ||
+                  sections.find((s) => s.id === (currentSectionId as any))?.status === 'submitted' ? (
                     <ExamSubmitView
                         sections={sections}
                         currentSectionId={currentSectionId}
                         onClose={() => setIsSubmitModalOpen(false)}
                         onSubmitSection={submitSection}
                         onSubmitExam={submitFullExam}
+                        isSubmitting={isFinalSubmitting}
                         onQuestionClick={(sid, qid) => {
                             handleQuestionSelect(sid, qid);
                             setIsSubmitModalOpen(false);
@@ -1527,13 +2001,22 @@ export default function PublicExamPage() {
                 )}
             </div>
 
-
             {/* AI Proctoring Webcam (Clean Preview) */}
             {!isFeedbackMode && !isSuccessMode && isAiProctoringEnabled && (
                 <div className="fixed bottom-24 right-6 z-[90] pointer-events-none">
                     <div className="w-40 h-28 bg-black rounded-2xl overflow-hidden relative">
-                        <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover transform scale-x-[-1]" />
-                        {!isModelLoaded && <div className="absolute inset-0 flex items-center justify-center text-[9px] text-white font-mono bg-black/80">Loading...</div>}
+                        <video
+                            ref={videoRef}
+                            autoPlay
+                            playsInline
+                            muted
+                            className="w-full h-full object-cover transform scale-x-[-1]"
+                        />
+                        {!isModelLoaded && (
+                            <div className="absolute inset-0 flex items-center justify-center text-[9px] text-white font-mono bg-black/80">
+                                Loading...
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
@@ -1543,11 +2026,25 @@ export default function PublicExamPage() {
                 <div className="fixed bottom-6 right-6 z-[100] animate-in slide-in-from-bottom-3 duration-300 max-w-[340px] w-[calc(100vw-2rem)] sm:w-auto">
                     <div className="bg-rose-600/95 text-white px-4 py-3 rounded-xl shadow-2xl flex items-start gap-3 border border-rose-400/50 backdrop-blur-md">
                         <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center animate-pulse shrink-0 mt-0.5">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M1 1l22 22M16.72 11.06A10.94 10.94 0 0 1 19 12.55" /><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39" /><path d="M10.71 5.05A16 16 0 0 1 22.58 9" /><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88" /></svg>
+                            <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="3"
+                            >
+                                <path d="M1 1l22 22M16.72 11.06A10.94 10.94 0 0 1 19 12.55" />
+                                <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39" />
+                                <path d="M10.71 5.05A16 16 0 0 1 22.58 9" />
+                                <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88" />
+                            </svg>
                         </div>
                         <div className="min-w-0">
                             <h4 className="font-black text-xs uppercase tracking-wider">Network Lost</h4>
-                            <p className="text-rose-100 text-xs font-semibold opacity-90 break-words">Please check your internet connection.</p>
+                            <p className="text-rose-100 text-xs font-semibold opacity-90 break-words">
+                                Please check your internet connection.
+                            </p>
                         </div>
                     </div>
                 </div>

@@ -1,8 +1,9 @@
-import { UnitQuestion } from '@/app/components/UnitRenderer';
-import { AuthService } from './AuthService';
 import { LRUCache } from 'lru-cache';
+import { API_BASE_URL } from '@/lib/api-base';
+import { withCsrfHeader } from '@/lib/csrf';
+import { withClerkAuthorization } from '@/lib/clerk-token';
 
-const BASE_URL = typeof window !== 'undefined' ? '/api/proxy' : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api');
+const BASE_URL = API_BASE_URL;
 
 // Cache exam definitions (static content) to prevent re-fetching on navigation
 // Cache: Max 10 exams, TTL 10 minutes
@@ -14,7 +15,7 @@ const examCache = new LRUCache<string, any>({
 const getHeaders = () => {
     // Auth token is handled by cookie in Proxy
     return {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
     };
 };
 
@@ -27,8 +28,10 @@ export const ExamService = {
         }
 
         try {
+            const authHeaders = await withClerkAuthorization(getHeaders());
             const res = await fetch(`${BASE_URL}/exam/${slug}?json=1`, {
-                headers: getHeaders()
+                headers: authHeaders,
+                credentials: 'include',
             });
             if (!res.ok) {
                 if (res.status === 404) throw new Error('API Error: 404'); // Explicitly match catch block
@@ -89,21 +92,42 @@ export const ExamService = {
 
     async startExam(slug: string, deviceId?: string, userId?: string, tabId?: string, metadata?: any): Promise<any> {
         try {
+            const authHeaders = await withClerkAuthorization(
+                withCsrfHeader('POST', getHeaders()),
+            );
             const res = await fetch(`${BASE_URL}/exam/${slug}/enter`, {
                 method: 'POST',
-                headers: getHeaders(),
-                body: JSON.stringify({ deviceId: deviceId || 'web-browser', userId, tabId, metadata })
+                headers: authHeaders,
+                credentials: 'include',
+                body: JSON.stringify({ deviceId: deviceId || 'web-browser', userId, tabId, metadata }),
             });
             if (!res.ok) {
                 const errorData = await res.json().catch(() => ({}));
+                const rawMessage = errorData?.message;
+                const message =
+                    typeof rawMessage === 'string'
+                        ? rawMessage
+                        : rawMessage?.message || errorData?.error || 'Failed to start exam';
+                const apiError: any = new Error(message);
+                apiError.status = res.status;
+                apiError.reason = rawMessage?.reason || errorData?.reason;
+                apiError.score = rawMessage?.score ?? errorData?.score;
+                apiError.passingPercentage = rawMessage?.passingPercentage ?? errorData?.passingPercentage;
+                apiError.attemptsUsed = rawMessage?.attemptsUsed ?? errorData?.attemptsUsed;
+                apiError.maxAttempts = rawMessage?.maxAttempts ?? errorData?.maxAttempts;
+                apiError.resumesAt = rawMessage?.resumesAt ?? errorData?.resumesAt;
+
                 if (res.status === 409) {
-                    if (errorData.message === 'EXAM_TERMINATED') {
+                    if (message === 'EXAM_TERMINATED') {
                         throw new Error('EXAM_TERMINATED');
+                    }
+                    if (message === 'ATTEMPT_COOLDOWN') {
+                        throw apiError;
                     }
                     throw new Error('EXAM_ALREADY_ACTIVE');
                 }
-                if (errorData.message) {
-                    throw new Error(errorData.message);
+                if (message) {
+                    throw apiError;
                 }
                 throw new Error('Failed to start exam');
             }
@@ -118,7 +142,7 @@ export const ExamService = {
     async getAppConfig(): Promise<any> {
         try {
             const res = await fetch(`${BASE_URL}/exam/app-config`, {
-                headers: getHeaders()
+                headers: getHeaders(),
             });
             if (!res.ok) throw new Error('Config API not available');
             return await res.json();
@@ -131,7 +155,7 @@ export const ExamService = {
     async getStrictness(examId: string): Promise<any> {
         try {
             const res = await fetch(`${BASE_URL}/exam/getCurrentTypeOfExecution?quizId=${examId}`, {
-                headers: getHeaders()
+                headers: getHeaders(),
             });
             if (!res.ok) throw new Error('Strictness API not available');
             return await res.json();
@@ -145,8 +169,9 @@ export const ExamService = {
         try {
             const res = await fetch(`${BASE_URL}/submission/section`, {
                 method: 'POST',
-                headers: getHeaders(),
-                body: JSON.stringify({ sessionId, sectionId, answers })
+                headers: withCsrfHeader('POST', getHeaders()),
+                credentials: 'include',
+                body: JSON.stringify({ sessionId, sectionId, answers }),
             });
             if (!res.ok) throw new Error('Failed to submit section');
             return await res.json();
@@ -156,12 +181,14 @@ export const ExamService = {
         }
     },
 
-    async submitExam(sessionId: string): Promise<any> {
+    async submitExam(sessionId: string, answers?: Record<string, any>): Promise<any> {
         try {
-            const res = await fetch(`${BASE_URL}/submission/submit`, { // Assuming endpoint
+            const res = await fetch(`${BASE_URL}/submission/submit`, {
+                // Assuming endpoint
                 method: 'POST',
-                headers: getHeaders(),
-                body: JSON.stringify({ sessionId })
+                headers: withCsrfHeader('POST', getHeaders()),
+                credentials: 'include',
+                body: JSON.stringify({ sessionId, answers }),
             });
             if (!res.ok) throw new Error('Failed to submit exam');
             return await res.json();
@@ -171,12 +198,23 @@ export const ExamService = {
         }
     },
 
+    async getSessionVerdict(sessionId: string): Promise<any> {
+        const authHeaders = await withClerkAuthorization(getHeaders());
+        const res = await fetch(`${BASE_URL}/exam/session/${sessionId}/verdict`, {
+            headers: authHeaders,
+            credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Failed to fetch exam verdict');
+        return await res.json();
+    },
+
     async saveFeedback(slug: string, userId: string, rating: number, comment: string): Promise<any> {
         try {
             const res = await fetch(`${BASE_URL}/exam/${slug}/feedback`, {
                 method: 'POST',
-                headers: getHeaders(),
-                body: JSON.stringify({ userId, rating, comment })
+                headers: withCsrfHeader('POST', getHeaders()),
+                credentials: 'include',
+                body: JSON.stringify({ userId, rating, comment }),
             });
             if (!res.ok) throw new Error('Failed to save feedback');
             return await res.json();
@@ -184,5 +222,5 @@ export const ExamService = {
             console.error('[ExamService] Failed to save feedback', error);
             throw error;
         }
-    }
+    },
 };

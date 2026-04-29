@@ -1,26 +1,15 @@
-"use client";
+'use client';
 
 import Link from 'next/link';
 import { BRAND } from './constants/brand';
+import { BrandLogo } from '@/components/brand/BrandLogo';
 
 export default function NotFound() {
     return (
         <div className="h-screen w-full bg-white overflow-hidden flex flex-col font-sans">
             {/* Header / Logo */}
             <div className="w-full px-6 py-6 md:px-12">
-                <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-lg bg-[var(--brand)] flex items-center justify-center overflow-hidden shrink-0">
-                        {BRAND.logoImage ? (
-                            <img src={BRAND.logoImage} alt="Logo" className="w-full h-full object-cover" />
-                        ) : (
-                            <span className="text-white font-black text-xs">{BRAND.logoText}</span>
-                        )}
-                    </div>
-                    <span className="text-2xl font-black text-slate-800 tracking-tighter">
-                        {BRAND.name}
-                        <span className="text-[var(--brand)]">{BRAND.suffix}</span>
-                    </span>
-                </div>
+                <BrandLogo className="h-9 max-w-[180px]" priority />
             </div>
 
             <div className="flex-1 w-full max-w-7xl mx-auto px-6 md:px-12 flex items-center">
@@ -36,7 +25,8 @@ export default function NotFound() {
                                 page not <br /> found.
                             </h1>
                             <p className="text-lg text-slate-500 font-medium max-w-md leading-relaxed">
-                                We can't find the page you're looking for. It might have been moved, renamed, or doesn't exist.
+                                We can&apos;t find the page you&apos;re looking for. It might have been moved, renamed, or doesn&apos;t
+                                exist.
                             </p>
                         </div>
 
@@ -60,7 +50,12 @@ export default function NotFound() {
                     <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
                         <div className="relative w-full max-w-md aspect-square">
                             {/* Premium Isometric Illustration */}
-                            <svg viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-2xl">
+                            <svg
+                                viewBox="0 0 500 500"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="w-full h-full drop-shadow-2xl"
+                            >
                                 <defs>
                                     <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
                                         <stop offset="0%" style={{ stopColor: '#4F46E5', stopOpacity: 1 }} />
@@ -106,11 +101,24 @@ export default function NotFound() {
                                         <path d="M0 20 L60 40 V100 L0 80 Z" fill="#EA580C" />
                                         <path d="M120 20 L60 40 V100 L120 80 Z" fill="#C2410C" />
                                         {/* Code Symbol on face */}
-                                        <path d="M30 50 L45 60 L30 70 M90 50 L75 60 L90 70" stroke="white" strokeWidth="4" strokeLinecap="round" fill="none" opacity="0.8" />
+                                        <path
+                                            d="M30 50 L45 60 L30 70 M90 50 L75 60 L90 70"
+                                            stroke="white"
+                                            strokeWidth="4"
+                                            strokeLinecap="round"
+                                            fill="none"
+                                            opacity="0.8"
+                                        />
                                     </g>
 
                                     {/* Disconnected Cable */}
-                                    <path d="M60 160 C 60 200, 120 200, 160 220" stroke="#CBD5E1" strokeWidth="4" strokeDasharray="8 8" fill="none" />
+                                    <path
+                                        d="M60 160 C 60 200, 120 200, 160 220"
+                                        stroke="#CBD5E1"
+                                        strokeWidth="4"
+                                        strokeDasharray="8 8"
+                                        fill="none"
+                                    />
                                 </g>
 
                                 {/* Isometric 4 (Right) */}
@@ -128,7 +136,9 @@ export default function NotFound() {
 
             {/* Footer / Copyright */}
             <div className="absolute bottom-6 w-full text-center">
-                <p className="text-slate-400 text-xs font-semibold uppercase tracking-widest opacity-60">{BRAND.name} {BRAND.suffix} © {new Date().getFullYear()}</p>
+                <p className="text-slate-400 text-xs font-semibold uppercase tracking-widest opacity-60">
+                    {BRAND.name} {BRAND.suffix} © {new Date().getFullYear()}
+                </p>
             </div>
         </div>
     );

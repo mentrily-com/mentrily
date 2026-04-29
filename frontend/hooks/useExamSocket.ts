@@ -3,21 +3,20 @@ import { io, Socket } from 'socket.io-client';
 import { useToast } from '../app/components/Common/Toast';
 
 const SOCKET_URL =
-    process.env.NEXT_PUBLIC_WS_URL ||
-    process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') ||
-    'http://localhost:4000';
-const HEARTBEAT_INTERVAL = 30000;      // 30 s
+    process.env.NEXT_PUBLIC_WS_URL || process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000';
+const HEARTBEAT_INTERVAL = 30000; // 30 s
 const MAX_MISSED_HEARTBEATS = 3;
-const MAX_RECONNECT_ATTEMPTS = 8;      // total retries before giving up
-const BASE_RECONNECT_DELAY = 2000;     // 2 s base, doubles each attempt (capped)
-const MAX_RECONNECT_DELAY = 30000;     // 30 s cap
+const MAX_RECONNECT_ATTEMPTS = 8; // total retries before giving up
+const BASE_RECONNECT_DELAY = 2000; // 2 s base, doubles each attempt (capped)
+const MAX_RECONNECT_DELAY = 30000; // 30 s cap
 
 function getBrowserCookie(name: string): string {
     if (typeof document === 'undefined') return '';
-    const raw = document.cookie
-        .split('; ')
-        .find((row) => row.startsWith(`${name}=`))
-        ?.split('=')[1] || '';
+    const raw =
+        document.cookie
+            .split('; ')
+            .find((row) => row.startsWith(`${name}=`))
+            ?.split('=')[1] || '';
     try {
         return decodeURIComponent(raw);
     } catch {
@@ -30,34 +29,50 @@ export const useExamSocket = (
     userId: string,
     sessionId: string,
     isNotFound: boolean = false,
+    options?: { requiresExamAuth?: boolean; authRedirectHref?: string },
 ) => {
     const socketRef = useRef<Socket | null>(null);
     const [activeSocket, setActiveSocket] = useState<Socket | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [missedHeartbeats, setMissedHeartbeats] = useState(0);
+    // 'idle'       = waiting for exam/user/session IDs before connecting
     // 'connecting' = waiting for first confirmed connect (or reconnecting)
     // 'connected'  = socket is live and joined the exam room
     // 'failed'     = all retry attempts exhausted before ever connecting
-    const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'failed'>('connecting');
+    const [connectionStatus, setConnectionStatus] = useState<'idle' | 'connecting' | 'connected' | 'failed'>('idle');
 
     const { error: toastError, warning } = useToast();
 
     // --- Persistent refs (never stale in callbacks) ---
-    const isKicked            = useRef(false);
-    const hasEverConnected    = useRef(false);  // tracks if socket confirmed connected at least once
-    const lastHeartbeatAck    = useRef<number>(Date.now());
+    const isKicked = useRef(false);
+    const hasEverConnected = useRef(false); // tracks if socket confirmed connected at least once
+    const lastHeartbeatAck = useRef<number>(Date.now());
     const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
-    const reconnectTimerRef   = useRef<NodeJS.Timeout | null>(null);
-    const reconnectAttempts   = useRef(0);
-    const missedHeartbeatsRef = useRef(0);      // ref mirror so callbacks read latest value
-    const examIdRef           = useRef(examId);
-    const userIdRef           = useRef(userId);
-    const sessionIdRef        = useRef(sessionId);
+    const reconnectTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const reconnectAttempts = useRef(0);
+    const missedHeartbeatsRef = useRef(0); // ref mirror so callbacks read latest value
+    const examIdRef = useRef(examId);
+    const userIdRef = useRef(userId);
+    const sessionIdRef = useRef(sessionId);
+    const requiresExamAuthRef = useRef(options?.requiresExamAuth ?? true);
+    const authRedirectHrefRef = useRef(options?.authRedirectHref || '');
 
     // Keep refs in sync with props
-    useEffect(() => { examIdRef.current   = examId;   }, [examId]);
-    useEffect(() => { userIdRef.current   = userId;   }, [userId]);
-    useEffect(() => { sessionIdRef.current = sessionId; }, [sessionId]);
+    useEffect(() => {
+        examIdRef.current = examId;
+    }, [examId]);
+    useEffect(() => {
+        userIdRef.current = userId;
+    }, [userId]);
+    useEffect(() => {
+        sessionIdRef.current = sessionId;
+    }, [sessionId]);
+    useEffect(() => {
+        requiresExamAuthRef.current = options?.requiresExamAuth ?? true;
+    }, [options?.requiresExamAuth]);
+    useEffect(() => {
+        authRedirectHrefRef.current = options?.authRedirectHref || '';
+    }, [options?.authRedirectHref]);
 
     // --- Stable identity per device/tab ---
     const [identity] = useState(() => {
@@ -82,6 +97,12 @@ export const useExamSocket = (
     // Redirect helpers
     // ─────────────────────────────────────────────────────────────────────────
     const redirectToLogin = useCallback((errorCode: string) => {
+        const configuredHref = authRedirectHrefRef.current;
+        if (configuredHref) {
+            const separator = configuredHref.includes('?') ? '&' : '?';
+            window.location.href = `${configuredHref}${separator}error=${encodeURIComponent(errorCode)}`;
+            return;
+        }
         window.location.href = `/exam/login?slug=${examIdRef.current}&error=${errorCode}`;
     }, []);
 
@@ -95,48 +116,51 @@ export const useExamSocket = (
         }
     }, []);
 
-    const startHeartbeat = useCallback((socket: Socket) => {
-        stopHeartbeat();
+    const startHeartbeat = useCallback(
+        (socket: Socket) => {
+            stopHeartbeat();
 
-        lastHeartbeatAck.current = Date.now();
-        missedHeartbeatsRef.current = 0;
-        setMissedHeartbeats(0);
+            lastHeartbeatAck.current = Date.now();
+            missedHeartbeatsRef.current = 0;
+            setMissedHeartbeats(0);
 
-        heartbeatIntervalRef.current = setInterval(() => {
-            const sid = sessionIdRef.current;
-            if (!sid || isKicked.current) return;
+            heartbeatIntervalRef.current = setInterval(() => {
+                const sid = sessionIdRef.current;
+                if (!sid || isKicked.current) return;
 
-            if (socket.connected) {
-                socket.emit('heartbeat', { sessionId: sid, timestamp: Date.now() });
+                if (socket.connected) {
+                    socket.emit('heartbeat', { sessionId: sid, timestamp: Date.now() });
 
-                const timeSinceAck = Date.now() - lastHeartbeatAck.current;
-                if (timeSinceAck > HEARTBEAT_INTERVAL + 5000) {
+                    const timeSinceAck = Date.now() - lastHeartbeatAck.current;
+                    if (timeSinceAck > HEARTBEAT_INTERVAL + 5000) {
+                        missedHeartbeatsRef.current += 1;
+                        setMissedHeartbeats(missedHeartbeatsRef.current);
+                        console.warn(`[Socket] Missed heartbeat #${missedHeartbeatsRef.current}`);
+
+                        if (missedHeartbeatsRef.current >= MAX_MISSED_HEARTBEATS) {
+                            console.error('[Socket] Max missed heartbeats. Redirecting to login.');
+                            stopHeartbeat();
+                            warning('Connection lost. Please log in again.', 'Connection Issue', 3000);
+                            setTimeout(() => redirectToLogin('connection_lost'), 1500);
+                        }
+                    }
+                } else {
+                    // Socket is disconnected — count against missed heartbeats
                     missedHeartbeatsRef.current += 1;
                     setMissedHeartbeats(missedHeartbeatsRef.current);
-                    console.warn(`[Socket] Missed heartbeat #${missedHeartbeatsRef.current}`);
+                    console.warn(`[Socket] Disconnected. Missed heartbeat #${missedHeartbeatsRef.current}`);
 
                     if (missedHeartbeatsRef.current >= MAX_MISSED_HEARTBEATS) {
-                        console.error('[Socket] Max missed heartbeats. Redirecting to login.');
+                        console.error('[Socket] Max missed heartbeats (disconnected). Redirecting to login.');
                         stopHeartbeat();
                         warning('Connection lost. Please log in again.', 'Connection Issue', 3000);
                         setTimeout(() => redirectToLogin('connection_lost'), 1500);
                     }
                 }
-            } else {
-                // Socket is disconnected — count against missed heartbeats
-                missedHeartbeatsRef.current += 1;
-                setMissedHeartbeats(missedHeartbeatsRef.current);
-                console.warn(`[Socket] Disconnected. Missed heartbeat #${missedHeartbeatsRef.current}`);
-
-                if (missedHeartbeatsRef.current >= MAX_MISSED_HEARTBEATS) {
-                    console.error('[Socket] Max missed heartbeats (disconnected). Redirecting to login.');
-                    stopHeartbeat();
-                    warning('Connection lost. Please log in again.', 'Connection Issue', 3000);
-                    setTimeout(() => redirectToLogin('connection_lost'), 1500);
-                }
-            }
-        }, HEARTBEAT_INTERVAL);
-    }, [stopHeartbeat, warning, redirectToLogin]);
+            }, HEARTBEAT_INTERVAL);
+        },
+        [stopHeartbeat, warning, redirectToLogin],
+    );
 
     // ─────────────────────────────────────────────────────────────────────────
     // Socket factory — creates a brand-new socket and wires all events
@@ -145,7 +169,7 @@ export const useExamSocket = (
         if (isKicked.current) return;
         if (!examIdRef.current || !userIdRef.current) return;
 
-        if (typeof window !== 'undefined') {
+        if (requiresExamAuthRef.current && typeof window !== 'undefined') {
             const examAuthKey = `exam_${examIdRef.current}_auth`;
             let examAuthMarker = localStorage.getItem(examAuthKey);
 
@@ -175,8 +199,6 @@ export const useExamSocket = (
             reconnectTimerRef.current = null;
         }
 
-        const wsAuthToken = getBrowserCookie('ws_auth_token') || getBrowserCookie('auth_token');
-
         const socket = io(`${SOCKET_URL}/proctoring`, {
             // Allow polling as fallback so we can upgrade; prevents hard failure
             // when websocket is briefly blocked by a proxy during initial handshake.
@@ -186,7 +208,6 @@ export const useExamSocket = (
             // 'io server disconnect' which permanently sets skipReconnect).
             reconnection: false,
             withCredentials: true,
-            auth: wsAuthToken ? { token: wsAuthToken } : undefined,
         });
 
         socketRef.current = socket;
@@ -195,8 +216,8 @@ export const useExamSocket = (
         // ── connect ─────────────────────────────────────────────────────────
         socket.on('connect', () => {
             console.log(`[Socket] Connected (${socket.id})`);
-            reconnectAttempts.current = 0;    // reset on successful connect
-            hasEverConnected.current  = true; // mark that we've confirmed a live connection
+            reconnectAttempts.current = 0; // reset on successful connect
+            hasEverConnected.current = true; // mark that we've confirmed a live connection
             setIsConnected(true);
             setConnectionStatus('connected');
             lastHeartbeatAck.current = Date.now();
@@ -249,19 +270,16 @@ export const useExamSocket = (
                 toastError(msg || 'This session has been terminated due to another login.');
                 socket.disconnect();
                 setTimeout(() => redirectToLogin('duplicate_login'), 100);
-
             } else if (msg.includes('ACCOUNT_SUSPENDED')) {
                 isKicked.current = true;
                 stopHeartbeat();
                 socket.disconnect();
                 redirectToLogin('suspended');
-
             } else if (msg.includes('EXAM_TERMINATED')) {
                 isKicked.current = true;
                 stopHeartbeat();
                 socket.disconnect();
                 redirectToLogin('terminated');
-
             } else {
                 toastError(msg || 'Connection Error');
             }
@@ -315,7 +333,7 @@ export const useExamSocket = (
             setConnectionStatus('connecting');
             scheduleReconnect();
         });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [identity, startHeartbeat, stopHeartbeat, toastError, redirectToLogin]);
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -342,10 +360,7 @@ export const useExamSocket = (
             return;
         }
 
-        const delay = Math.min(
-            BASE_RECONNECT_DELAY * Math.pow(2, reconnectAttempts.current - 1),
-            MAX_RECONNECT_DELAY,
-        );
+        const delay = Math.min(BASE_RECONNECT_DELAY * Math.pow(2, reconnectAttempts.current - 1), MAX_RECONNECT_DELAY);
 
         console.log(`[Socket] Reconnect attempt ${reconnectAttempts.current}/${MAX_RECONNECT_ATTEMPTS} in ${delay}ms`);
 
@@ -359,14 +374,15 @@ export const useExamSocket = (
     // Main effect — initialise socket when params are ready
     // ─────────────────────────────────────────────────────────────────────────
     useEffect(() => {
-        if (!examId || !userId || isKicked.current || isNotFound) {
+        if (!examId || !userId || !sessionId || isKicked.current || isNotFound) {
             setIsConnected(false);
+            setConnectionStatus('idle');
             return;
         }
 
         // Reset all counters on clean init (e.g. userId just arrived after page load)
-        reconnectAttempts.current  = 0;
-        hasEverConnected.current   = false;
+        reconnectAttempts.current = 0;
+        hasEverConnected.current = false;
         setConnectionStatus('connecting');
         initSocket();
 
@@ -380,10 +396,10 @@ export const useExamSocket = (
                 socketRef.current = null;
             }
         };
-    // Re-run only when the stable identity params change (examId, userId, isNotFound).
-    // scheduleReconnect/initSocket are stable callbacks.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [examId, userId, isNotFound]);
+        // Re-run only when the stable identity params change.
+        // scheduleReconnect/initSocket are stable callbacks.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [examId, userId, sessionId, isNotFound]);
 
     // ─────────────────────────────────────────────────────────────────────────
     // Start heartbeat as soon as we have a sessionId + active socket
@@ -431,7 +447,7 @@ export const useExamSocket = (
     }, []);
 
     const disconnect = useCallback(() => {
-        isKicked.current = true;   // prevent auto-reconnect on manual disconnect
+        isKicked.current = true; // prevent auto-reconnect on manual disconnect
         stopHeartbeat();
         if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
         if (socketRef.current) {
@@ -445,10 +461,10 @@ export const useExamSocket = (
     const retryConnection = useCallback(() => {
         if (isKicked.current) return;
         reconnectAttempts.current = 0;
-        hasEverConnected.current  = false;
+        hasEverConnected.current = false;
         setConnectionStatus('connecting');
         initSocket();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [initSocket]);
 
     return {
@@ -463,4 +479,3 @@ export const useExamSocket = (
         missedHeartbeats,
     };
 };
-

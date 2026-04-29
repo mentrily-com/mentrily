@@ -1,10 +1,14 @@
-"use client";
+'use client';
 import React, { useEffect, useState } from 'react';
 import ExamEditor from '@/app/components/Features/Exams/ExamEditor';
 import { TeacherService } from '@/services/api/TeacherService';
 import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
 
-export default function SuperAdminOrganizationExamEdit({ params }: { params: Promise<{ id: string, examId: string }> }) {
+export default function SuperAdminOrganizationExamEdit({
+    params,
+}: {
+    params: Promise<{ id: string; examId: string }>;
+}) {
     const { id, examId } = React.use(params);
     const [exam, setExam] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -17,7 +21,7 @@ export default function SuperAdminOrganizationExamEdit({ params }: { params: Pro
                 setExam(data);
             } catch (e: any) {
                 console.error(e);
-                setError(e.message || "Failed to load exam");
+                setError(e.message || 'Failed to load exam');
             } finally {
                 setLoading(false);
             }
@@ -28,5 +32,14 @@ export default function SuperAdminOrganizationExamEdit({ params }: { params: Pro
     if (loading) return <DashboardSkeleton type="form" userRole="super-admin" />;
     if (error) return <div className="p-8 text-center text-red-500 font-bold">{error}</div>;
 
-    return <ExamEditor initialData={exam} userRole="admin" basePath={`/dashboard/super-admin/organizations/${id}`} organizationId={id} />;
+    return (
+        <div className="h-[calc(100vh-var(--topbar-height)-36px)]">
+            <ExamEditor
+                initialData={exam}
+                userRole="admin"
+                basePath={`/dashboard/super-admin/organizations/${id}`}
+                organizationId={id}
+            />
+        </div>
+    );
 }

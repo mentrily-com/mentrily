@@ -1,68 +1,124 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { parseSubdomain } from '@/lib/domain';
 
-const API_BASE = (process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api').replace(/\/$/, '');
+const API_BASE = (process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api').replace(
+    /\/$/,
+    '',
+);
+
+const isProtectedRoute = createRouteMatcher(['/dashboard(.*)']);
+const isPublicRoute = createRouteMatcher([
+    '/',
+    '/about(.*)',
+    '/contact(.*)',
+    '/pricing(.*)',
+    '/login(.*)',
+    '/signup(.*)',
+    '/sign-in(.*)',
+    '/sign-up(.*)',
+    '/exam/login(.*)',
+    '/exam/waiting(.*)',
+    '/playground(.*)',
+    '/certificate(.*)',
+    '/api/webhooks/clerk(.*)',
+    '/_next(.*)',
+]);
 
 async function resolveOrganization(subdomain: string) {
-  try {
-    const response = await fetch(`${API_BASE}/organization/public?domain=${encodeURIComponent(subdomain)}`, {
-      cache: 'no-store',
-      headers: {
-        'x-middleware-org-lookup': '1'
-      }
-    });
+    try {
+        const response = await fetch(`${API_BASE}/organization/public?domain=${encodeURIComponent(subdomain)}`, {
+            cache: 'no-store',
+            headers: {
+                'x-middleware-org-lookup': '1',
+            },
+        });
 
-    if (!response.ok) {
-      return null;
+        if (!response.ok) {
+            return null;
+        }
+
+        const org = await response.json();
+        return org;
+    } catch {
+        return null;
     }
-
-    const org = await response.json();
-    return org;
-  } catch {
-    return null;
-  }
 }
 
-export async function middleware(request: NextRequest) {
-  const requestHeaders = new Headers(request.headers);
+function getStringValue(source: Record<string, unknown> | undefined, key: string): string {
+    const value = source?.[key];
+    return typeof value === 'string' ? value : '';
+}
 
-  const host = requestHeaders.get('x-forwarded-host') || requestHeaders.get('host') || '';
-  const hostWithoutPort = host.replace(/:\d+$/, '').toLowerCase();
-  const isPlainLocalhost = hostWithoutPort === 'localhost';
+export default clerkMiddleware(async (auth, request) => {
+    const requestHeaders = new Headers(request.headers);
+    const authState = await auth();
 
-  let subdomain = parseSubdomain(hostWithoutPort);
+    const host = requestHeaders.get('x-forwarded-host') || requestHeaders.get('host') || '';
+    const hostWithoutPort = host.replace(/:\d+$/, '').toLowerCase();
+    const isPlainLocalhost = hostWithoutPort === 'localhost';
 
-  if (!subdomain && hostWithoutPort.includes('localhost') && !isPlainLocalhost) {
-    const fromCookie = request.cookies.get('org_subdomain')?.value;
-    if (fromCookie) {
-      subdomain = fromCookie.toLowerCase();
+    let subdomain = parseSubdomain(hostWithoutPort);
+
+    if (!subdomain && hostWithoutPort.includes('localhost') && !isPlainLocalhost) {
+        const fromCookie = request.cookies.get('org_subdomain')?.value;
+        if (fromCookie) {
+            subdomain = fromCookie.toLowerCase();
+        }
     }
-  }
 
-  requestHeaders.set('x-tenant-host', hostWithoutPort);
+    requestHeaders.set('x-tenant-host', hostWithoutPort);
 
-  if (!subdomain) {
+    const authSnapshot = authState as {
+        userId?: string | null;
+        orgId?: string | null;
+        sessionClaims?: Record<string, unknown>;
+    };
+    const sessionClaims = authSnapshot.sessionClaims;
+    const metadata =
+        (sessionClaims?.metadata as Record<string, unknown> | undefined) ||
+        (sessionClaims?.public_metadata as Record<string, unknown> | undefined) ||
+        (sessionClaims?.unsafe_metadata as Record<string, unknown> | undefined);
+    const claimRole =
+        getStringValue(sessionClaims, 'role') || getStringValue(metadata, 'role');
+    const claimOrgId =
+        String(authSnapshot.orgId || '').trim() ||
+        getStringValue(sessionClaims, 'org_id') ||
+        getStringValue(sessionClaims, 'orgId') ||
+        getStringValue(metadata, 'orgId');
+
+    requestHeaders.set('x-session-user-id', String(authState?.userId || ''));
+    requestHeaders.set('x-session-org-id', String(claimOrgId || ''));
+    requestHeaders.set('x-session-role', String(claimRole || '').toUpperCase());
+
+    if (subdomain) {
+        requestHeaders.set('x-org-subdomain', subdomain);
+
+        const org = await resolveOrganization(subdomain);
+        if (org?.domain) {
+            requestHeaders.set('x-org-domain', String(org.domain).toLowerCase());
+            requestHeaders.set('x-org-name', String(org.name || ''));
+            requestHeaders.set('x-org-logo', String(org.logo || ''));
+            requestHeaders.set('x-org-primary-color', String(org.primaryColor || ''));
+        }
+    }
+
+    if (!isPublicRoute(request) && isProtectedRoute(request)) {
+        if (!authState?.userId) {
+            const loginUrl = new URL('/login', request.url);
+            return NextResponse.redirect(loginUrl);
+        }
+    }
+
     return NextResponse.next({
-      request: {
-        headers: requestHeaders,
-      },
+        request: {
+            headers: requestHeaders,
+        },
     });
-  }
-
-  requestHeaders.set('x-org-subdomain', subdomain);
-
-  const org = await resolveOrganization(subdomain);
-  if (org?.domain) {
-    requestHeaders.set('x-org-domain', String(org.domain).toLowerCase());
-  }
-
-  return NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
-}
+});
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+    matcher: [
+        '/((?!_next/static|_next/image|_next/webpack-hmr|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|map)$).*)',
+    ],
 };

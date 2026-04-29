@@ -1,0 +1,4 @@
+ALTER TABLE "PendingInvite"
+  ADD COLUMN IF NOT EXISTS "name" TEXT,
+  ADD COLUMN IF NOT EXISTS "department" TEXT,
+  ADD COLUMN IF NOT EXISTS "rollNumber" TEXT;

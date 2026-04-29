@@ -1,8 +1,8 @@
-import { LanguageConfig } from "./types";
+import { LanguageConfig } from './types';
 
 export const JavascriptConfig: LanguageConfig = {
-    id: "javascript",
-    label: "JavaScript",
+    id: 'javascript',
+    label: 'JavaScript',
     header: `/**
  * @param {number[]} nums
  * @return {number}
@@ -14,14 +14,14 @@ const solution = (nums) => {`,
 
 console.log(solution([1, 2, 3]));`,
     extension: async () => {
-        const { javascript } = await import("@codemirror/lang-javascript");
+        const { javascript } = await import('@codemirror/lang-javascript');
         return javascript();
     },
 };
 
 export const PythonConfig: LanguageConfig = {
-    id: "python",
-    label: "Python 3",
+    id: 'python',
+    label: 'Python 3',
     header: `import sys
 
 def solver(data):
@@ -32,14 +32,14 @@ def solver(data):
 if __name__ == "__main__":
     print(solver([1, 2, 3]))`,
     extension: async () => {
-        const { python } = await import("@codemirror/lang-python");
+        const { python } = await import('@codemirror/lang-python');
         return python();
     },
 };
 
 export const CppConfig: LanguageConfig = {
-    id: "cpp",
-    label: "C++",
+    id: 'cpp',
+    label: 'C++',
     header: `#include <iostream>
 #include <vector>
 #include <numeric>
@@ -58,14 +58,14 @@ int main() {
     return 0;
 }`,
     extension: async () => {
-        const { cpp } = await import("@codemirror/lang-cpp");
+        const { cpp } = await import('@codemirror/lang-cpp');
         return cpp();
     },
 };
 
 export const JAVA_BOILERPLATE: LanguageConfig = {
-    id: "java",
-    label: "Java 17",
+    id: 'java',
+    label: 'Java 17',
     header: `import java.util.*;
 
 public class Main {
@@ -83,7 +83,7 @@ class Solution {`,
     }`,
     footer: `}`,
     extension: async () => {
-        const { java } = await import("@codemirror/lang-java");
+        const { java } = await import('@codemirror/lang-java');
         return java();
     },
 };

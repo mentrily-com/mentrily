@@ -10,32 +10,38 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PrismaModule } from '../../services/prisma/prisma.module';
 
 @Module({
-    imports: [
-        HttpModule,
-        PrismaModule,
-        BullModule.registerQueue({
-            name: 'code-execution',
-        }),
-    ],
-    controllers: [CodeExecutionController],
-    providers: [
-        CodeExecutionService,
-        CodeExecutionProcessor,
-        PistonStrategy,
-        Judge0Strategy,
-        {
-            provide: 'IExecutionStrategy', // Use string token for interface injection
-            useFactory: (configService: ConfigService, pistonStrategy: PistonStrategy, judge0Strategy: Judge0Strategy) => {
-                const engine = configService.get<string>('CODE_EXECUTION_ENGINE', 'judge0');
-                if (engine === 'piston') {
-                    return pistonStrategy;
-                }
-                return judge0Strategy; // Default
-            },
-            inject: [ConfigService, PistonStrategy, Judge0Strategy],
-        },
-    ],
-    exports: [CodeExecutionService],
+  imports: [
+    HttpModule,
+    PrismaModule,
+    BullModule.registerQueue({
+      name: 'code-execution',
+    }),
+  ],
+  controllers: [CodeExecutionController],
+  providers: [
+    CodeExecutionService,
+    CodeExecutionProcessor,
+    PistonStrategy,
+    Judge0Strategy,
+    {
+      provide: 'IExecutionStrategy', // Use string token for interface injection
+      useFactory: (
+        configService: ConfigService,
+        pistonStrategy: PistonStrategy,
+        judge0Strategy: Judge0Strategy,
+      ) => {
+        const engine = configService.get<string>(
+          'CODE_EXECUTION_ENGINE',
+          'judge0',
+        );
+        if (engine === 'piston') {
+          return pistonStrategy;
+        }
+        return judge0Strategy; // Default
+      },
+      inject: [ConfigService, PistonStrategy, Judge0Strategy],
+    },
+  ],
+  exports: [CodeExecutionService],
 })
-export class CodeExecutionModule { }
-
+export class CodeExecutionModule {}

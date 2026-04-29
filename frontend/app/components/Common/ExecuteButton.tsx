@@ -1,5 +1,5 @@
-"use client";
-import React from "react";
+'use client';
+import React from 'react';
 
 interface ExecuteButtonProps {
     onClick: () => void;
@@ -11,10 +11,10 @@ interface ExecuteButtonProps {
 
 export default function ExecuteButton({
     onClick,
-    label = "Execute",
+    label = 'Execute',
     icon,
-    className = "",
-    disabled
+    className = '',
+    disabled,
 }: ExecuteButtonProps) {
     return (
         <button

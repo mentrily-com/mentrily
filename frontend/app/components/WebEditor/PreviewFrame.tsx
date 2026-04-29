@@ -1,5 +1,5 @@
-"use client";
-import React, { useEffect, useRef } from "react";
+'use client';
+import React, { useEffect, useRef } from 'react';
 
 interface PreviewFrameProps {
     src: string;
@@ -13,8 +13,8 @@ export default function PreviewFrame({ src, onMessage }: PreviewFrameProps) {
         const handleMessage = (event: MessageEvent) => {
             if (onMessage) onMessage(event.data);
         };
-        window.addEventListener("message", handleMessage);
-        return () => window.removeEventListener("message", handleMessage);
+        window.addEventListener('message', handleMessage);
+        return () => window.removeEventListener('message', handleMessage);
     }, [onMessage]);
 
     return (

@@ -1,21 +1,22 @@
-"use client";
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import dynamic from "next/dynamic";
-import { LanguageConfig } from "../Editor/types";
+'use client';
+import React, { useState, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
+import { LanguageConfig } from '../Editor/types';
+import CoursePlayerSkeleton from '../Skeletons/CoursePlayerSkeleton';
 
-const CodeEditor = dynamic(() => import("../Editor/CodeEditor"), {
-  loading: () => <div className="h-full bg-slate-50 animate-pulse" />,
-  ssr: false
+const CodeEditor = dynamic(() => import('../Editor/CodeEditor'), {
+    loading: () => <CoursePlayerSkeleton isExamMode hasSidebar={false} />,
+    ssr: false,
 });
-import { python } from "@codemirror/lang-python";
-import { TerminalSquare, Play, Plus, Trash2, RotateCcw, AlertCircle } from "lucide-react";
+import { python } from '@codemirror/lang-python';
+import { Play, Plus, Trash2 } from 'lucide-react';
 
 const NotebookConfig: LanguageConfig = {
-    id: "python-notebook",
-    label: "Python (Notebook)",
-    header: "",
-    initialBody: "",
-    footer: "",
+    id: 'python-notebook',
+    label: 'Python (Notebook)',
+    header: '',
+    initialBody: '',
+    footer: '',
     extension: async () => python(),
 };
 
@@ -38,23 +39,24 @@ export default function NotebookPlayground() {
             id: 'cell-1',
             code: `import numpy as np\nimport matplotlib.pyplot as plt\n\nx = np.linspace(0, 10, 100)\ny = np.sin(x)\nplt.plot(x, y)\nplt.title("Waveform")\nplt.show()`,
             outputs: [],
-            isExecuting: false
-        }
+            isExecuting: false,
+        },
     ]);
 
     const [isWorkerReady, setIsWorkerReady] = useState(false);
     const workerRef = useRef<Worker | null>(null);
     const activeCellIdRef = useRef<string | null>(null);
+    const nextCellIdRef = useRef(2);
 
     // Single robust useEffect for worker management
     useEffect(() => {
-        const worker = new Worker("/workers/pyodideWorker.js");
+        const worker = new Worker('/workers/pyodideWorker.js');
         workerRef.current = worker;
 
         worker.onmessage = (event) => {
             const { type, text, plots, error } = event.data;
 
-            if (type === "ready") {
+            if (type === 'ready') {
                 setIsWorkerReady(true);
                 return;
             }
@@ -67,34 +69,41 @@ export default function NotebookPlayground() {
                 activeCellIdRef.current = null;
             }
 
-            setCells(prev => prev.map(c => {
-                if (c.id !== targetCellId) return c;
+            setCells((prev) =>
+                prev.map((c) => {
+                    if (c.id !== targetCellId) return c;
 
-                if (type === 'done') {
-                    const newOutputs = [...c.outputs];
-                    if (plots && Array.isArray(plots)) {
-                        plots.forEach(p => newOutputs.push({ id: Math.random().toString(), type: 'image', content: p }));
+                    if (type === 'done') {
+                        const newOutputs = [...c.outputs];
+                        if (plots && Array.isArray(plots)) {
+                            plots.forEach((p) =>
+                                newOutputs.push({ id: Math.random().toString(), type: 'image', content: p }),
+                            );
+                        }
+                        return { ...c, outputs: newOutputs, isExecuting: false };
                     }
-                    return { ...c, outputs: newOutputs, isExecuting: false };
-                }
 
-                if (type === 'error') {
-                    return {
-                        ...c,
-                        outputs: [...c.outputs, { id: Math.random().toString(), type: 'stderr', content: error || "Unknown Error" }],
-                        isExecuting: false
-                    };
-                }
+                    if (type === 'error') {
+                        return {
+                            ...c,
+                            outputs: [
+                                ...c.outputs,
+                                { id: Math.random().toString(), type: 'stderr', content: error || 'Unknown Error' },
+                            ],
+                            isExecuting: false,
+                        };
+                    }
 
-                if (type === 'stdout' || type === 'stderr') {
-                    return { ...c, outputs: [...c.outputs, { id: Math.random().toString(), type, content: text }] };
-                }
+                    if (type === 'stdout' || type === 'stderr') {
+                        return { ...c, outputs: [...c.outputs, { id: Math.random().toString(), type, content: text }] };
+                    }
 
-                return c;
-            }));
+                    return c;
+                }),
+            );
         };
 
-        worker.postMessage({ action: "init", id: "init" });
+        worker.postMessage({ action: 'init', id: 'init' });
 
         return () => worker.terminate();
     }, []);
@@ -102,29 +111,29 @@ export default function NotebookPlayground() {
     const runCell = (cellId: string) => {
         if (!isWorkerReady || activeCellIdRef.current) return;
 
-        const cell = cells.find(c => c.id === cellId);
+        const cell = cells.find((c) => c.id === cellId);
         if (!cell || !cell.code.trim()) {
             // If empty, just stop executing state
-            setCells(prev => prev.map(c => c.id === cellId ? { ...c, isExecuting: false } : c));
+            setCells((prev) => prev.map((c) => (c.id === cellId ? { ...c, isExecuting: false } : c)));
             return;
         }
 
-        setCells(prev => prev.map(c => c.id === cellId ? { ...c, outputs: [], isExecuting: true } : c));
+        setCells((prev) => prev.map((c) => (c.id === cellId ? { ...c, outputs: [], isExecuting: true } : c)));
         activeCellIdRef.current = cellId;
 
         workerRef.current?.postMessage({
-            action: "run",
+            action: 'run',
             id: cellId,
-            code: cell.code
+            code: cell.code,
         });
     };
 
     const addCell = (index: number) => {
         const newCell: Cell = {
-            id: Math.random().toString(36).substr(2, 9),
-            code: "",
+            id: `cell-${nextCellIdRef.current++}`,
+            code: '',
             outputs: [],
-            isExecuting: false
+            isExecuting: false,
         };
         const newCells = [...cells];
         newCells.splice(index + 1, 0, newCell);
@@ -136,36 +145,26 @@ export default function NotebookPlayground() {
             setCells([{ id: 'cell-' + Date.now(), code: '', outputs: [], isExecuting: false }]);
             return;
         }
-        setCells(cells.filter(c => c.id !== id));
+        setCells(cells.filter((c) => c.id !== id));
     };
 
     const updateCellCode = (id: string, newCode: string) => {
-        setCells(prev => prev.map(c => c.id === id ? { ...c, code: newCode } : c));
+        setCells((prev) => prev.map((c) => (c.id === id ? { ...c, code: newCode } : c)));
     };
 
     return (
-        <div className="max-w-5xl mx-auto px-6 py-12 space-y-10 pb-60">
-            {/* Header / Banner */}
-            <div className="flex items-center justify-between bg-white px-8 py-6 rounded-3xl border border-slate-100 shadow-sm">
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-orange-100 flex items-center justify-center text-orange-600 shadow-sm border border-orange-50">
-                        <TerminalSquare size={24} />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-black text-slate-800 tracking-tight">Python Playground</h1>
-                        <p className="text-slate-400 text-sm font-bold tracking-tight">Interactive Notebook Environment</p>
-                    </div>
-                </div>
-                <div className="flex items-center gap-4">
-                    <div className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest border ${isWorkerReady ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100 animate-pulse'}`}>
-                        <div className={`w-2 h-2 rounded-full ${isWorkerReady ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-                        {isWorkerReady ? "Python 3.11 Ready" : "Initializing Kernel"}
-                    </div>
+        <div className="h-[calc(100%-56px)] overflow-y-auto px-4 py-5 md:px-6 md:py-6 bg-[var(--color-bg-subtle)]">
+            <div className="mb-5 flex items-center justify-end">
+                <div
+                    className={`flex items-center gap-2 rounded-xl border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${isWorkerReady ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100 animate-pulse'}`}
+                >
+                    <div className={`h-2 w-2 rounded-full ${isWorkerReady ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                    {isWorkerReady ? 'Python 3.11 Ready' : 'Initializing Kernel'}
                 </div>
             </div>
 
             {/* Cells Container */}
-            <div className="space-y-8">
+            <div className="space-y-7 pb-24">
                 {cells.map((cell, index) => (
                     <div key={cell.id} className="group flex flex-col gap-3">
                         <div className="flex gap-4">
@@ -175,8 +174,9 @@ export default function NotebookPlayground() {
                             </div>
 
                             <div className="flex-1">
-                                <div className={`relative bg-white border-2 rounded-2xl transition-all shadow-sm overflow-hidden ${cell.isExecuting ? 'border-amber-400 ring-4 ring-amber-50' : 'border-slate-100 group-hover:border-slate-200 focus-within:border-[var(--brand)] focus-within:ring-4 focus-within:ring-[var(--brand-lighter)]'}`}>
-
+                                <div
+                                    className={`relative bg-white border-2 rounded-2xl transition-all shadow-sm overflow-hidden ${cell.isExecuting ? 'border-amber-400 ring-4 ring-amber-50' : 'border-slate-100 group-hover:border-slate-200 focus-within:border-[var(--brand)] focus-within:ring-4 focus-within:ring-[var(--brand-lighter)]'}`}
+                                >
                                     {/* EXECUTE BUTTON - Top Right Floating */}
                                     <button
                                         onClick={() => runCell(cell.id)}
@@ -221,9 +221,13 @@ export default function NotebookPlayground() {
                                 {/* OUTPUT AREA */}
                                 {cell.outputs.length > 0 && (
                                     <div className="mt-4 p-8 bg-[#1e1e1e] rounded-2xl border border-slate-800 shadow-2xl space-y-3 animate-in fade-in slide-in-from-top-2">
-                                        {cell.outputs.map(out => (
+                                        {cell.outputs.map((out) => (
                                             <div key={out.id} className="font-mono text-[14px] leading-relaxed">
-                                                {out.type === 'stdout' && <div className="whitespace-pre-wrap text-emerald-400/90 tracking-tight">{out.content}</div>}
+                                                {out.type === 'stdout' && (
+                                                    <div className="whitespace-pre-wrap text-emerald-400/90 tracking-tight">
+                                                        {out.content}
+                                                    </div>
+                                                )}
                                                 {out.type === 'stderr' && (
                                                     <div className="whitespace-pre-wrap text-rose-400 bg-rose-500/10 p-5 rounded-2xl border border-rose-500/20 shadow-inner">
                                                         {out.content}
@@ -231,7 +235,11 @@ export default function NotebookPlayground() {
                                                 )}
                                                 {out.type === 'image' && (
                                                     <div className="bg-white p-4 rounded-2xl shadow-lg inline-block my-4">
-                                                        <img src={`data:image/png;base64,${out.content}`} className="max-w-full h-auto rounded-lg" alt="Matplotlib output" />
+                                                        <img
+                                                            src={`data:image/png;base64,${out.content}`}
+                                                            className="max-w-full h-auto rounded-lg"
+                                                            alt="Matplotlib output"
+                                                        />
                                                     </div>
                                                 )}
                                             </div>
@@ -259,11 +267,24 @@ export default function NotebookPlayground() {
     );
 }
 
-function CellEditorWrapper({ initialCode, onChange, onRun, isExecuting }: { initialCode: string, onChange: (v: string) => void, onRun: () => void, isExecuting: boolean }) {
-    const config = React.useMemo(() => ({
-        ...NotebookConfig,
-        initialBody: initialCode
-    }), []);
+function CellEditorWrapper({
+    initialCode,
+    onChange,
+    onRun,
+    isExecuting,
+}: {
+    initialCode: string;
+    onChange: (v: string) => void;
+    onRun: () => void;
+    isExecuting: boolean;
+}) {
+    const config = React.useMemo(
+        () => ({
+            ...NotebookConfig,
+            initialBody: initialCode,
+        }),
+        [initialCode],
+    );
 
     return (
         <CodeEditor
