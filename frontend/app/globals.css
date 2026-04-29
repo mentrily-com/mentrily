@@ -420,6 +420,117 @@ html.dark .glass-card {
     border-color: var(--brand, #008d98) !important;
 }
 
+/* ── HOMEPAGE REDESIGN UTILITIES ── */
+
+/* Gradient mesh background */
+@keyframes mesh-drift {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+    33% {
+        transform: translate(30px, -20px) scale(1.05);
+    }
+    66% {
+        transform: translate(-20px, 15px) scale(0.97);
+    }
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+}
+
+.animate-mesh-drift {
+    animation: mesh-drift 20s ease-in-out infinite;
+}
+
+/* Floating animation for decorative elements */
+@keyframes float {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-12px);
+    }
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+    animation: float 6s ease-in-out 2s infinite;
+}
+
+.animate-float-slow {
+    animation: float 8s ease-in-out 1s infinite;
+}
+
+/* Glow pulse for highlighted elements */
+@keyframes glow-pulse {
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgba(0, 141, 152, 0.15);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(0, 141, 152, 0.3);
+    }
+}
+
+.animate-glow-pulse {
+    animation: glow-pulse 3s ease-in-out infinite;
+}
+
+/* Shimmer effect for badges */
+@keyframes badge-shimmer {
+    0% {
+        background-position: -200% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}
+
+.animate-badge-shimmer {
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: badge-shimmer 3s ease-in-out infinite;
+}
+
+/* Gradient text utility */
+.text-gradient-teal {
+    background: linear-gradient(135deg, #008d98 0%, #10b981 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Gradient border utility */
+.gradient-border-teal {
+    background: linear-gradient(135deg, #008d98 0%, #10b981 50%, #008d98 100%);
+    background-size: 200% 200%;
+    animation: gradient-shift 4s ease infinite;
+}
+
+/* Browser chrome dots */
+.browser-dots::before {
+    content: '';
+    display: flex;
+    gap: 6px;
+    padding: 10px 14px;
+    background:
+        radial-gradient(circle at 14px 50%, #ff5f57 4px, transparent 4px),
+        radial-gradient(circle at 30px 50%, #febc2e 4px, transparent 4px),
+        radial-gradient(circle at 46px 50%, #28c840 4px, transparent 4px);
+    background-repeat: no-repeat;
+    height: 12px;
+    min-height: 12px;
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
     *,

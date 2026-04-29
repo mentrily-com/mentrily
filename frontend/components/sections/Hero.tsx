@@ -3,37 +3,63 @@
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
 import { heroWordStagger, heroWord } from '@/lib/animations';
 import { siteConfig } from '@/app/config/site';
+import { ArrowRight } from 'lucide-react';
+import ImagePreviewModal, { type PreviewImage } from '@/components/ui/ImagePreviewModal';
 
 export default function Hero() {
+    const [previewImage, setPreviewImage] = useState<PreviewImage | null>(null);
+    const heroImage = {
+        src: '/images/dashboard-learner-preview.jpg',
+        alt: `${siteConfig.name} learner dashboard with course modules, daily streak, and analytics`,
+    };
+
     return (
         <section
-            className="relative min-h-screen flex items-center overflow-hidden pt-16"
-            style={{ backgroundColor: '#FFFFFF' }}
+            className="relative min-h-screen flex items-center overflow-hidden pt-20 pb-16"
+            style={{ backgroundColor: '#FAFBFF' }}
         >
-            {/* Subtle radial gradient top-right */}
-            <div
-                className="absolute top-0 right-0 w-[800px] h-[800px] pointer-events-none"
-                style={{
-                    background: 'radial-gradient(circle at center, #E6F7F8 0%, transparent 65%)',
-                    opacity: 0.7,
-                }}
-            />
-
-            {/* Dot grid pattern */}
-            <div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                    backgroundImage: 'radial-gradient(#E2E8F0 1px, transparent 1px)',
-                    backgroundSize: '24px 24px',
-                    opacity: 0.04,
-                }}
-            />
+            {/* ── Gradient mesh background ── */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                {/* Primary teal orb */}
+                <div
+                    className="absolute animate-mesh-drift"
+                    style={{
+                        top: '-15%',
+                        right: '-10%',
+                        width: '900px',
+                        height: '900px',
+                        background: 'radial-gradient(circle at center, rgba(0,141,152,0.08) 0%, transparent 60%)',
+                    }}
+                />
+                {/* Secondary emerald orb */}
+                <div
+                    className="absolute animate-mesh-drift"
+                    style={{
+                        bottom: '-20%',
+                        left: '-15%',
+                        width: '700px',
+                        height: '700px',
+                        background: 'radial-gradient(circle at center, rgba(16,185,129,0.05) 0%, transparent 60%)',
+                        animationDelay: '-8s',
+                    }}
+                />
+                {/* Subtle dot pattern */}
+                <div
+                    className="absolute inset-0"
+                    style={{
+                        backgroundImage: 'radial-gradient(#CBD5E1 0.8px, transparent 0.8px)',
+                        backgroundSize: '28px 28px',
+                        opacity: 0.25,
+                    }}
+                />
+            </div>
 
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-                <div className="grid lg:grid-cols-[minmax(500px,0.88fr)_minmax(0,1.12fr)] gap-12 lg:gap-10 items-center">
-                    {/* Left: Copy */}
+                <div className="grid lg:grid-cols-[minmax(460px,0.85fr)_minmax(0,1.15fr)] gap-12 lg:gap-10 items-center">
+                    {/* ── Left: Copy ── */}
                     <div className="max-w-xl">
                         {/* Headline */}
                         <motion.h1 variants={heroWordStagger} initial="hidden" animate="visible" className="mb-6">
@@ -44,9 +70,9 @@ export default function Hero() {
                                     className="inline-block mr-3"
                                     style={{
                                         fontFamily: 'var(--font-display), Georgia, serif',
-                                        fontSize: 'clamp(40px, 5.5vw, 72px)',
+                                        fontSize: 'clamp(38px, 5.2vw, 68px)',
                                         fontWeight: 300,
-                                        lineHeight: 1.1,
+                                        lineHeight: 1.08,
                                         letterSpacing: '-0.03em',
                                         color: '#0F172A',
                                     }}
@@ -55,17 +81,17 @@ export default function Hero() {
                                 </motion.span>
                             ))}
                             <br />
-                            {['someone', "else's", 'classroom.'].map((word, i) => (
+                            {["someone", "else's"].map((word, i) => (
                                 <motion.span
-                                    key={`italic-${i}`}
+                                    key={`mid-${i}`}
                                     variants={heroWord}
                                     className="inline-block mr-3"
                                     style={{
                                         fontFamily: 'var(--font-display), Georgia, serif',
-                                        fontSize: 'clamp(40px, 5.5vw, 72px)',
+                                        fontSize: 'clamp(38px, 5.2vw, 68px)',
                                         fontWeight: 500,
                                         fontStyle: 'italic',
-                                        lineHeight: 1.1,
+                                        lineHeight: 1.08,
                                         letterSpacing: '-0.03em',
                                         color: '#0F172A',
                                     }}
@@ -73,6 +99,31 @@ export default function Hero() {
                                     {word}
                                 </motion.span>
                             ))}
+                            <motion.span
+                                variants={heroWord}
+                                className="inline-block mr-3 relative"
+                                style={{
+                                    fontFamily: 'var(--font-display), Georgia, serif',
+                                    fontSize: 'clamp(38px, 5.2vw, 68px)',
+                                    fontWeight: 500,
+                                    fontStyle: 'italic',
+                                    lineHeight: 1.08,
+                                    letterSpacing: '-0.03em',
+                                    color: '#0F172A',
+                                }}
+                            >
+                                classroom.
+                                {/* Accent underline */}
+                                <motion.div
+                                    initial={{ scaleX: 0 }}
+                                    animate={{ scaleX: 1 }}
+                                    transition={{ delay: 0.8, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                                    className="absolute -bottom-2 left-0 right-0 h-1.5 rounded-full origin-left"
+                                    style={{
+                                        background: 'linear-gradient(90deg, #008D98, #10B981)',
+                                    }}
+                                />
+                            </motion.span>
                         </motion.h1>
 
                         {/* Sub-headline */}
@@ -84,13 +135,13 @@ export default function Hero() {
                             style={{
                                 fontFamily: 'var(--font-body), system-ui, sans-serif',
                                 fontSize: '17px',
-                                lineHeight: 1.65,
+                                lineHeight: 1.7,
                                 color: '#475569',
                             }}
                         >
                             {siteConfig.name} gives educators a complete platform to create courses, lessons, quizzes,
-                            proctored exams, assignments, and certificates. Start free as a personal teacher account,
-                            upgrade to Starter or Pro for team usage, and unlock white-label branding on Enterprise.
+                            proctored exams, assignments, and certificates. Start free, upgrade as you grow, and unlock
+                            white-label branding on Enterprise.
                         </motion.p>
 
                         {/* CTAs */}
@@ -102,59 +153,105 @@ export default function Hero() {
                         >
                             <Link
                                 href="/signup"
-                                className="inline-flex items-center px-7 py-3.5 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer"
+                                className="group inline-flex items-center gap-2 px-7 py-3.5 text-sm font-semibold text-white rounded-xl transition-all duration-200 cursor-pointer"
                                 style={{
-                                    backgroundColor: '#008D98',
+                                    background: 'linear-gradient(135deg, #008D98 0%, #006F78 100%)',
+                                    boxShadow: '0 4px 16px rgba(0,141,152,0.25)',
                                 }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#006F78')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#008D98')}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,141,152,0.35)';
+                                    e.currentTarget.style.transform = 'translateY(-1px)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,141,152,0.25)';
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                }}
                             >
                                 Start for Free
+                                <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5" />
                             </Link>
                             <Link
                                 href="/pricing"
-                                className="inline-flex items-center px-7 py-3.5 text-sm font-semibold rounded-lg border transition-all duration-150 cursor-pointer"
+                                className="inline-flex items-center px-7 py-3.5 text-sm font-semibold rounded-xl border transition-all duration-200 cursor-pointer"
                                 style={{
                                     color: '#008D98',
                                     borderColor: '#E2E8F0',
-                                    backgroundColor: 'transparent',
+                                    backgroundColor: 'rgba(255,255,255,0.7)',
+                                    backdropFilter: 'blur(8px)',
                                 }}
                                 onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#F8FAFC';
+                                    e.currentTarget.style.backgroundColor = '#FFFFFF';
                                     e.currentTarget.style.borderColor = '#008D98';
+                                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,141,152,0.1)';
                                 }}
                                 onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor = 'transparent';
+                                    e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.7)';
                                     e.currentTarget.style.borderColor = '#E2E8F0';
+                                    e.currentTarget.style.boxShadow = 'none';
                                 }}
                             >
                                 See Pricing
                             </Link>
                         </motion.div>
+
+                        {/* Trust micro-text */}
+                        <motion.p
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.9, duration: 0.3 }}
+                            className="mt-5 text-xs flex items-center gap-4"
+                            style={{ color: '#94A3B8' }}
+                        >
+                            <span className="flex items-center gap-1.5">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                No credit card
+                            </span>
+                            <span className="flex items-center gap-1.5">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                Free forever plan
+                            </span>
+                            <span className="hidden sm:flex items-center gap-1.5">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                Setup in minutes
+                            </span>
+                        </motion.p>
                     </div>
 
-                    {/* Right: Dashboard preview */}
+                    {/* ── Right: Dashboard preview with 3D tilt ── */}
                     <motion.div
-                        initial={{ opacity: 0, x: 40 }}
-                        animate={{ opacity: 1, x: 0 }}
+                        initial={{ opacity: 0, x: 40, rotateY: -5 }}
+                        animate={{ opacity: 1, x: 0, rotateY: 0 }}
                         transition={{
                             delay: 0.9,
-                            duration: 0.5,
+                            duration: 0.6,
                             ease: [0.16, 1, 0.3, 1],
                         }}
                         className="hidden lg:flex justify-center"
+                        style={{ perspective: '1200px' }}
                     >
-                        <div
-                            className="relative w-[min(56vw,860px)] overflow-hidden rounded-2xl bg-white xl:w-[min(57vw,900px)]"
+                        <button
+                            type="button"
+                            className="relative w-[min(56vw,880px)] overflow-hidden rounded-2xl text-left transition-all duration-500 xl:w-[min(57vw,920px)]"
                             style={{
-                                border: '1px solid #E2E8F0',
-                                boxShadow: '0 24px 70px rgba(15,23,42,0.14), 0 8px 24px rgba(15,23,42,0.08)',
+                                border: '1px solid rgba(226,232,240,0.8)',
+                                boxShadow: '0 32px 80px rgba(15,23,42,0.12), 0 12px 32px rgba(15,23,42,0.08), 0 0 0 1px rgba(255,255,255,0.5) inset',
+                                transformStyle: 'preserve-3d',
+                            }}
+                            onClick={() => setPreviewImage(heroImage)}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'rotateY(-2deg) rotateX(1deg) translateY(-4px)';
+                                e.currentTarget.style.boxShadow = '0 40px 100px rgba(0,141,152,0.15), 0 16px 40px rgba(15,23,42,0.1), 0 0 0 1px rgba(0,141,152,0.1) inset';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'rotateY(0) rotateX(0) translateY(0)';
+                                e.currentTarget.style.boxShadow = '0 32px 80px rgba(15,23,42,0.12), 0 12px 32px rgba(15,23,42,0.08), 0 0 0 1px rgba(255,255,255,0.5) inset';
                             }}
                         >
+                            {/* Screenshot */}
                             <div className="relative aspect-[1919/938] overflow-hidden bg-[#F8FAFC]">
                                 <Image
-                                    src="/images/dashboard-learner-preview.jpg"
-                                    alt={`${siteConfig.name} learner dashboard preview`}
+                                    src={heroImage.src}
+                                    alt={heroImage.alt}
                                     fill
                                     priority
                                     sizes="(min-width: 1024px) 64vw, 100vw"
@@ -163,14 +260,15 @@ export default function Hero() {
                                 <div
                                     className="pointer-events-none absolute inset-0"
                                     style={{
-                                        boxShadow: 'inset 0 0 0 1px rgba(226,232,240,0.7)',
+                                        boxShadow: 'inset 0 0 0 1px rgba(226,232,240,0.5)',
                                     }}
                                 />
                             </div>
-                        </div>
+                        </button>
                     </motion.div>
                 </div>
             </div>
+            <ImagePreviewModal image={previewImage} onClose={() => setPreviewImage(null)} />
         </section>
     );
 }

@@ -12,8 +12,8 @@ export default function HomePage() {
         <>
             <Hero />
             <SocialProof />
-            <RoleSelector />
             <Features />
+            <RoleSelector />
             <HowItWorks />
             <Testimonials />
             <PricingTeaser />
