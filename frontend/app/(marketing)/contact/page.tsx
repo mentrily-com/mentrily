@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { siteConfig } from '../../config/site';
 import { Mail, MessageSquare, FileText, Handshake, Check, Loader2, ArrowRight } from 'lucide-react';
 
+
 const _contactSchema = z.object({
     name: z.string().min(1, 'Name is required'),
     email: z.string().email('Please enter a valid email'),
