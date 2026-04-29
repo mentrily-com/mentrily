@@ -1,0 +1,4 @@
+.codex
+.agent/skills/
+__pycache__/
+*.py[cod]
