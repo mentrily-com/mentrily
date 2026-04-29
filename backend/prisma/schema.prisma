@@ -4,8 +4,8 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  url       = env("SUPABASE_DIRECT_URL")
+  directUrl = env("SUPABASE_DIRECT_URL")
 }
 
 enum Role {
@@ -13,24 +13,49 @@ enum Role {
   TEACHER
   ADMIN
   SUPER_ADMIN
+
+  @@map("Role")
 }
 
 enum BugReportStatus {
   OPEN
   FIXED
+
+  @@map("bug_report_status")
+}
+
+enum Plan {
+  FREE
+  STARTER
+  PRO
+  ENTERPRISE
+
+  @@map("Plan")
+}
+
+enum PlanStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  TRIALING
+
+  @@map("PlanStatus")
 }
 
 model User {
-  id         String  @id @default(uuid())
-  email      String  @unique
-  password   String // Hashed password
-  name       String?
-  profilePicture String?
-  rollNumber String? @unique // Explicitly requested field
-  department String?
-  role       Role    @default(STUDENT)
-  isActive           Boolean @default(true)
-  mustChangePassword Boolean @default(true)
+  id                 String   @id @default(uuid())
+  email              String   @unique
+  password           String? // Hashed password
+  clerkId            String?  @unique
+  name               String?
+  profilePicture     String?
+  rollNumber         String?  @unique // Explicitly requested field
+  department         String?
+  role               Role     @default(STUDENT)
+  needsRoleSelection Boolean  @default(false)
+  hasCompletedOnboarding Boolean @default(false)
+  isActive           Boolean  @default(true)
+  mustChangePassword Boolean? @default(false)
 
   sessions  ExamSession[]
   auditLogs AuditLog[]
@@ -50,33 +75,39 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Persistence for Student Stats
-  dailyStreak       Int       @default(0)
-  lastActivityDate  DateTime?
-  totalXP           Int       @default(0)
+  dailyStreak      Int       @default(0)
+  lastActivityDate DateTime?
+  totalXP          Int       @default(0)
 
   // Course Progress Relation
-  progress CourseProgress[]
+  progress         CourseProgress[]
   questionAttempts QuestionAttempt[]
 
   // Groups & Announcements
-  teacherGroups        StudentGroup[]  @relation("TeacherGroups")
-  groupMemberships     StudentGroup[]  @relation("GroupStudents")
-  teacherAnnouncements Announcement[]  @relation("TeacherAnnouncements")
+  teacherGroups        StudentGroup[]     @relation("TeacherGroups")
+  groupMemberships     StudentGroup[]     @relation("GroupStudents")
+  teacherAnnouncements Announcement[]     @relation("TeacherAnnouncements")
   readAnnouncements    AnnouncementRead[]
-  bugReports           BugReport[]     @relation("UserBugReports")
-  fixedBugReports      BugReport[]     @relation("BugReportFixer")
+  bugReports           BugReport[]        @relation("UserBugReports")
+  fixedBugReports      BugReport[]        @relation("BugReportFixer")
+  aiUsages             AiUsage[]
+  certificates         Certificate[]
+  createdCertificateTemplates CertificateTemplate[] @relation("CertificateTemplateCreator")
+  assignedCourses     CourseAssignment[] @relation("CourseAssignmentTeacher")
+  madeAssignments     CourseAssignment[] @relation("CourseAssignmentAssigner")
 
   orgId        String?
   organization Organization? @relation(fields: [orgId], references: [id], onDelete: SetNull)
 
   @@index([email])
+  @@index([clerkId])
   @@index([role])
   @@index([orgId])
 }
 
 model Exam {
   id               String   @id @default(uuid())
-  slug             String   @unique
+  slug             String
   title            String
   shortDescription String?
   longDescription  String?
@@ -84,6 +115,9 @@ model Exam {
   tags             String[] @default([])
   duration         Int // Duration in minutes
   totalMarks       Int?
+  passingPercentage Int?
+  maxAttempts      Int?
+  attemptBufferMins Int?
 
   // Access & Auth
   testCode         String?
@@ -102,10 +136,10 @@ model Exam {
   startTime DateTime?
   endTime   DateTime?
 
-  questions Json // Stored as JSON: Assessment sections/questions
-  isActive  Boolean @default(true)
+  questions        Json // Stored as JSON: Assessment sections/questions
+  isActive         Boolean @default(true)
   resultsPublished Boolean @default(false)
-  aiTokensUsed Int? @default(0)
+  aiTokensUsed     Int?    @default(0)
 
   submissions ExamSession[]
   feedbacks   Feedback[]
@@ -113,6 +147,8 @@ model Exam {
   // Ownership
   creatorId String?
   creator   User?   @relation("ExamCreator", fields: [creatorId], references: [id], onDelete: SetNull)
+  linkedCourseId String? @unique
+  linkedCourse   Course? @relation("ExamLinkedCourse", fields: [linkedCourseId], references: [id], onDelete: SetNull)
 
   orgId        String?
   organization Organization? @relation(fields: [orgId], references: [id], onDelete: Cascade)
@@ -120,6 +156,7 @@ model Exam {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([slug, orgId])
   @@index([creatorId])
   @@index([orgId])
   @@index([slug])
@@ -130,10 +167,12 @@ model ExamSession {
   id     String @id @default(uuid())
   userId String
   examId String
+  attemptNumber Int @default(1)
 
   status    String    @default("IN_PROGRESS") // IN_PROGRESS, COMPLETED, TERMINATED
   startTime DateTime  @default(now())
   endTime   DateTime?
+  timeTakenSec Int?
 
   score   Float?
   answers Json? // Final snapshot of answers: { "q1": "answer" }
@@ -151,11 +190,11 @@ model ExamSession {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId, examId]) // One active session per exam rule
   @@index([userId])
   @@index([examId])
-  @@index([status])             // Used in active session filtering
-  @@index([userId, status])     // Compound for "active sessions by user"
+  @@index([status]) // Used in active session filtering
+  @@index([userId, status]) // Compound for "active sessions by user"
+  @@index([userId, examId, attemptNumber])
 }
 
 model Violation {
@@ -197,14 +236,14 @@ model Feedback {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   exam Exam @relation(fields: [examId], references: [id], onDelete: Cascade)
 
-  @@index([examId])
   @@unique([userId, examId]) // Ensure one feedback per user per exam
+  @@index([examId])
 }
 
 model Course {
   id               String   @id @default(uuid())
   title            String
-  slug             String   @unique
+  slug             String
   shortDescription String?
   longDescription  String?
   difficulty       String? // Beginner, Intermediate, Advanced
@@ -214,9 +253,15 @@ model Course {
   isVisible        Boolean  @default(false)
   status           String   @default("Draft") // Draft, Published, Archived
   aiTokensUsed     Int?     @default(0)
+  certificateTemplateId String?
+  completionThreshold   Int     @default(100)
+  linkedExamId          String? @unique
+  examPassThreshold     Int?
+  examUnlockThreshold   Int     @default(100)
 
   modules CourseModule[]
   tests   CourseTest[]
+  assignments CourseAssignment[]
 
   // Implicit many-to-many
   students User[] @relation("CourseStudents")
@@ -224,6 +269,8 @@ model Course {
   // Ownership
   creatorId String?
   creator   User?   @relation("CourseCreator", fields: [creatorId], references: [id], onDelete: SetNull)
+  linkedExam           Exam?                @relation("ExamLinkedCourse")
+  certificateTemplate  CertificateTemplate? @relation(fields: [certificateTemplateId], references: [id], onDelete: SetNull)
 
   orgId        String?
   organization Organization? @relation(fields: [orgId], references: [id], onDelete: Cascade)
@@ -231,11 +278,12 @@ model Course {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  progress CourseProgress[]
+
+  @@unique([slug, orgId])
   @@index([creatorId])
   @@index([orgId])
   @@index([slug])
-
-  progress CourseProgress[]
 }
 
 model CourseModule {
@@ -275,12 +323,15 @@ model Unit {
 
 model CourseTest {
   id        String @id @default(uuid())
-  slug      String @unique
+  slug      String
   title     String
   questions Json // Stored as JSON: Assessment sections/questions
 
   startDate DateTime?
   endDate   DateTime?
+
+  orgId        String?
+  organization Organization? @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   courseId String
   course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
@@ -288,6 +339,8 @@ model CourseTest {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([slug, orgId])
+  @@index([orgId])
   @@index([courseId])
 }
 
@@ -299,6 +352,8 @@ model UnitSubmission {
   status  String // IN_PROGRESS, COMPLETED
   content Json // User's code/answer
   score   Float?
+  startedAt DateTime?
+  timeTakenSec Int?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   unit Unit @relation(fields: [unitId], references: [id], onDelete: Cascade)
@@ -311,8 +366,8 @@ model UnitSubmission {
   @@index([userId])
   @@index([unitId])
   @@index([status])
-  @@index([userId, unitId, status])  // Compound for progress calculations
-  @@index([createdAt])               // Used in weekly activity analytics
+  @@index([userId, unitId, status]) // Compound for progress calculations
+  @@index([createdAt]) // Used in weekly activity analytics
 }
 
 model Organization {
@@ -330,30 +385,189 @@ model Organization {
   storageLimit  Int @default(1024) // in MB
   examsPerMonth Int @default(50)
 
-  // New Fields for Super Admin Dashboard
-  plan         String  @default("Enterprise")
+  // Plan, Billing & Overrides
+  plan                 Plan      @default(FREE)
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?
+  stripePriceId        String?
+  planExpiresAt        DateTime?
+  billingEmail         String?
+  provisionedFromUserId String?
+
+  // Denormalized counters for quota checks
+  studentCount     Int   @default(0)
+  courseCount      Int   @default(0)
+  storageUsedMb    Float @default(0)
+  teacherSeatCount Int   @default(0)
+  maxAdminSeats    Int?
+
   features     Json? // Stores enabled features { canCreateExams: true, etc. }
-  primaryColor String? @default("#fc751b")
+  primaryColor String? @default("#008D98")
   contact      Json? // Stores address, city, country, phone, supportEmail, adminEmail
 
-  users   User[]
-  courses Course[]
-  exams   Exam[]
+  users              User[]
+  courses            Course[]
+  exams              Exam[]
+  courseTests        CourseTest[]
+  aiUsages           AiUsage[]
+  pendingInvites     PendingInvite[]
+  subscriptionEvents SubscriptionEvent[]
+  usageLedger        UsageLedger[]
+  webhookEndpoints   WebhookEndpoint[]
+  certificates       Certificate[]
+  certificateTemplates CertificateTemplate[]
 
   // Groups & Announcements
   studentGroups StudentGroup[]
   announcements Announcement[]
   bugReports    BugReport[]
 
+  planStatus       PlanStatus @default(ACTIVE)
+  slug             String?    @unique
+  customDomain     String?    @unique
+  trialEndsAt      DateTime?
+  codeExecCount    Int        @default(0)
+  storageAlertSent Boolean    @default(false)
+  studentAlertSent Boolean    @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model CourseAssignment {
+  id           String   @id @default(cuid())
+  courseId      String
+  teacherId     String?
+  assignedById  String?
+  createdAt     DateTime @default(now())
+
+  course       Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  teacher      User?  @relation("CourseAssignmentTeacher", fields: [teacherId], references: [id], onDelete: SetNull)
+  assignedBy   User?  @relation("CourseAssignmentAssigner", fields: [assignedById], references: [id], onDelete: SetNull)
+
+  @@unique([courseId, teacherId])
+  @@index([teacherId])
+  @@index([courseId])
+}
+
+model Certificate {
+  id                String   @id
+  userId            String
+  orgId             String
+  type              String
+  resourceId        String
+  title             String
+  score             Float?
+  completionPercent Int?
+  fileUrl           String
+  templateId        String?
+  qrCode            String
+  verificationUrl   String
+  metadata          Json?
+  issuedAt          DateTime @default(now())
+  createdAt         DateTime @default(now())
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  template     CertificateTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, type, resourceId])
+  @@unique([qrCode])
+  @@index([userId, issuedAt])
+  @@index([orgId])
+  @@index([templateId])
+}
+
+model CertificateTemplate {
+  id            String   @id @default(uuid())
+  orgId         String
+  creatorId     String
+  name          String
+  layout        Json
+  backgroundUrl String?
+  signatureUrl  String?
+  logoPosition  Json?
+  isDefault     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  creator      User         @relation("CertificateTemplateCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  courses      Course[]
+  certificates Certificate[]
+
+  @@unique([orgId, name])
+  @@index([orgId, isDefault])
+  @@index([creatorId])
+}
+
+model UsageLedger {
+  id        String   @id @default(cuid())
+  orgId     String
+  eventType String
+  valueNum  Float    @default(0)
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, createdAt])
+  @@index([eventType])
+}
+
+model WebhookEndpoint {
+  id        String   @id @default(cuid())
+  orgId     String
+  url       String
+  secret    String
+  events    String[] @default([])
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+}
+
+model SubscriptionEvent {
+  id            String   @id @default(uuid())
+  orgId         String
+  stripeEventId String   @unique
+  eventType     String
+  previousPlan  Plan?
+  newPlan       Plan?
+  metadata      Json?
+  createdAt     DateTime @default(now())
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, createdAt])
+}
+
+model PendingInvite {
+  id                String   @id @default(uuid())
+  email             String   @unique
+  role              Role     @default(STUDENT)
+  orgId             String
+  clerkInvitationId String?
+  name              String?
+  department        String?
+  rollNumber        String?
+  createdAt         DateTime @default(now())
+  expiresAt         DateTime
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([expiresAt])
 }
 
 model Bookmark {
   id       String  @id @default(uuid())
   userId   String
   unitId   String? // Optional relation
-  customId String  // The actual ID from frontend (Unit ID or Question ID)
+  customId String // The actual ID from frontend (Unit ID or Question ID)
 
   // Metadata for virtual units (questions from tests)
   title       String?
@@ -379,7 +593,7 @@ model CourseProgress {
   totalUnits     Int
   completedCount Int
   percent        Int
-  status         String   // "Not Started", "In Progress", "Completed"
+  status         String // "Not Started", "In Progress", "Completed"
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
@@ -392,31 +606,31 @@ model CourseProgress {
 }
 
 model QuestionAttempt {
-  id         String   @id @default(uuid())
-  userId     String
-  itemId     String   // Unit ID or Exam Question ID
-  sessionId  String?  // Reference to ExamSession if applicable
-  type       String   // "UNIT" or "EXAM"
-  content    Json     // The answer provided
-  isCorrect  Boolean  @default(false)
-  score      Float?
-  createdAt  DateTime @default(now())
+  id        String   @id @default(uuid())
+  userId    String
+  itemId    String // Unit ID or Exam Question ID
+  sessionId String? // Reference to ExamSession if applicable
+  type      String // "UNIT" or "EXAM"
+  content   Json // The answer provided
+  isCorrect Boolean  @default(false)
+  score     Float?
+  createdAt DateTime @default(now())
 
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, itemId])
   @@index([type])
-  @@index([userId, createdAt])  // Used in analytics time-range queries
-  @@index([sessionId])          // Used in attempt rollups
+  @@index([userId, createdAt]) // Used in analytics time-range queries
+  @@index([sessionId]) // Used in attempt rollups
 }
 
 // ─── Groups & Announcements ────────────────────────────────────────────────────
 
 model StudentGroup {
-  id        String   @id @default(uuid())
+  id        String @id @default(uuid())
   name      String
   teacherId String
-  teacher   User     @relation("TeacherGroups", fields: [teacherId], references: [id], onDelete: Cascade)
+  teacher   User   @relation("TeacherGroups", fields: [teacherId], references: [id], onDelete: Cascade)
 
   orgId        String?
   organization Organization? @relation(fields: [orgId], references: [id], onDelete: Cascade)
@@ -443,7 +657,7 @@ model Announcement {
   orgId        String?
   organization Organization? @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
-  groups StudentGroup[] @relation("AnnouncementGroups")
+  groups StudentGroup[]     @relation("AnnouncementGroups")
   reads  AnnouncementRead[]
 
   createdAt DateTime @default(now())
@@ -469,12 +683,12 @@ model AnnouncementRead {
 }
 
 model BugReport {
-  id               String          @id @default(uuid())
-  title            String
-  description      String // HTML from Tiptap rich text editor
-  status           BugReportStatus @default(OPEN)
-  attachments      Json            @default("[]") // Array of { name, url, type, size }
-  reporterRole     Role
+  id           String          @id @default(uuid())
+  title        String
+  description  String // HTML from Tiptap rich text editor
+  status       BugReportStatus @default(OPEN)
+  attachments  Json            @default("[]") // Array of { name, url, type, size }
+  reporterRole Role
 
   reporterId String
   reporter   User   @relation("UserBugReports", fields: [reporterId], references: [id], onDelete: Cascade)
@@ -486,12 +700,35 @@ model BugReport {
   organization Organization? @relation(fields: [orgId], references: [id], onDelete: SetNull)
 
   fixedAt   DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@index([status])
   @@index([createdAt])
   @@index([orgId])
   @@index([reporterId])
   @@index([fixedById])
+}
+
+model AiUsage {
+  id               String   @id @default(uuid())
+  orgId            String
+  userId           String?
+  provider         String
+  model            String
+  operation        String
+  promptTokens     Int      @default(0)
+  completionTokens Int      @default(0)
+  totalTokens      Int      @default(0)
+  success          Boolean  @default(true)
+  errorMessage     String?
+  createdAt        DateTime @default(now())
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([orgId, createdAt])
+  @@index([userId, createdAt])
+  @@index([provider])
+  @@index([operation])
 }

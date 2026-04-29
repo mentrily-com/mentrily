@@ -1,15 +1,21 @@
-const BASE_URL = typeof window !== 'undefined' ? '/api/proxy' : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api');
+import { API_BASE_URL } from '@/lib/api-base';
+import { withCsrfHeader } from '@/lib/csrf';
+
+const BASE_URL = API_BASE_URL;
 
 // Helper for authorized fetch
 const authFetch = async (endpoint: string, options: RequestInit = {}) => {
     const url = `${BASE_URL}${endpoint}`;
+
+    const headers = withCsrfHeader(options.method, {
+        'Content-Type': 'application/json',
+        ...(options.headers || {}),
+    } as any);
+
     return fetch(url, {
         ...options,
         credentials: 'include',
-        headers: {
-            'Content-Type': 'application/json',
-            ...(options.headers || {})
-        } as any
+        headers,
     });
 };
 
@@ -22,11 +28,15 @@ export const CourseService = {
     async getCourse(slug: string) {
         try {
             console.log('[CourseService] GET course', slug);
-            const res = await authFetch(`/course/${slug}`);
+            const res = await authFetch(`/course/${slug}`, { cache: 'no-store' });
 
             if (!res.ok) {
                 let body: any = null;
-                try { body = await res.json(); } catch (e) { body = await res.text(); }
+                try {
+                    body = await res.json();
+                } catch (e) {
+                    body = await res.text();
+                }
                 const message = `Failed to fetch course (status: ${res.status}) - ${typeof body === 'string' ? body : JSON.stringify(body)}`;
                 throw new Error(message);
             }
@@ -40,11 +50,15 @@ export const CourseService = {
     async getUnit(id: string) {
         try {
             console.log('[CourseService] GET unit', id);
-            const res = await authFetch(`/course/unit/${id}`);
+            const res = await authFetch(`/course/unit/${id}`, { cache: 'no-store' });
 
             if (!res.ok) {
                 let body: any = null;
-                try { body = await res.json(); } catch (e) { body = await res.text(); }
+                try {
+                    body = await res.json();
+                } catch (e) {
+                    body = await res.text();
+                }
                 const message = `Failed to fetch unit (status: ${res.status}) - ${typeof body === 'string' ? body : JSON.stringify(body)}`;
                 throw new Error(message);
             }
@@ -56,9 +70,19 @@ export const CourseService = {
             const content = data.content || (data.type ? data : {});
             // Backend uses `problemStatement` and `options` for authored questions
             const description = content.problemStatement || content.description || '';
-            const mcqOptions = Array.isArray(content.options) ? content.options.map((o: any) => ({ id: o.id, text: o.text, isCorrect: o.isCorrect })) : (Array.isArray(content.mcqOptions) ? content.mcqOptions.map((o: any) => ({ id: o.id, text: o.text, isCorrect: o.isCorrect })) : []);
+            const mcqOptions = Array.isArray(content.options)
+                ? content.options.map((o: any) => ({ id: o.id, text: o.text, isCorrect: o.isCorrect }))
+                : Array.isArray(content.mcqOptions)
+                  ? content.mcqOptions.map((o: any) => ({ id: o.id, text: o.text, isCorrect: o.isCorrect }))
+                  : [];
             // Reading config may be under different keys (readingConfig.contentBlocks, readingContent, blocks, etc.)
-            const rawReading = content.readingConfig?.contentBlocks || content.readingContent || content.blocks || content.content?.blocks || content.contentBlocks || [];
+            const rawReading =
+                content.readingConfig?.contentBlocks ||
+                content.readingContent ||
+                content.blocks ||
+                content.content?.blocks ||
+                content.contentBlocks ||
+                [];
 
             // Helper: extract code blocks from HTML (<pre><code> or <pre>)
             const extractCodeBlocksFromHtml = (html: string) => {
@@ -72,16 +96,30 @@ export const CourseService = {
                     const code = m[1] || '';
                     // try to detect language from data-lang or class name like language-python
                     const preTag = m[0];
-                    let langMatch = /data-lang=["']?([a-z0-9-_]+)["']?/i.exec(preTag) || /class=["'][^"']*(language-|lang-)([a-z0-9-_]+)[^"']*["']/i.exec(preTag);
+                    const langMatch =
+                        /data-lang=["']?([a-z0-9-_]+)["']?/i.exec(preTag) ||
+                        /class=["'][^"']*(language-|lang-)([a-z0-9-_]+)[^"']*["']/i.exec(preTag);
                     const language = (langMatch && (langMatch[1] || langMatch[2])) || 'python';
-                    blocks.push({ id: `desc-code-${i++}`, type: 'code', codeConfig: { languageId: language.toLowerCase(), initialCode: decodeHtmlEntities(code.trim()) } });
+                    blocks.push({
+                        id: `desc-code-${i++}`,
+                        type: 'code',
+                        codeConfig: {
+                            languageId: language.toLowerCase(),
+                            initialCode: decodeHtmlEntities(code.trim()),
+                        },
+                    });
                 }
                 return blocks;
             };
 
             // Small utility to decode basic HTML entities in code blocks
             function decodeHtmlEntities(text: string) {
-                return text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+                return text
+                    .replace(/&lt;/g, '<')
+                    .replace(/&gt;/g, '>')
+                    .replace(/&amp;/g, '&')
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#39;/g, "'");
             }
 
             // Normalize reading content blocks to expected frontend shape:
@@ -95,27 +133,48 @@ export const CourseService = {
                         return {
                             id,
                             type: 'video',
-                            videoUrl: b.videoUrl || b.url || b.src || ''
+                            videoUrl: b.videoUrl || b.url || b.src || '',
                         };
                     }
-                    if (rawType === 'code' || rawType === 'codeblock' || rawType === 'code-runner' || b.code || b.codeConfig || b.language || b.runnerConfig) {
+                    if (
+                        rawType === 'code' ||
+                        rawType === 'codeblock' ||
+                        rawType === 'code-runner' ||
+                        b.code ||
+                        b.codeConfig ||
+                        b.language ||
+                        b.runnerConfig
+                    ) {
                         const codeConf = b.codeConfig || b.config || b.runnerConfig || {};
-                        const language = codeConf.languageId || codeConf.language || b.language || b.lang || (codeConf.runnerLanguage) || 'python';
-                        const initialCode = codeConf.initialCode || codeConf.code || codeConf.initial_code || codeConf.codeSnippet || b.code || b.content || '';
+                        const language =
+                            codeConf.languageId ||
+                            codeConf.language ||
+                            b.language ||
+                            b.lang ||
+                            codeConf.runnerLanguage ||
+                            'python';
+                        const initialCode =
+                            codeConf.initialCode ||
+                            codeConf.code ||
+                            codeConf.initial_code ||
+                            codeConf.codeSnippet ||
+                            b.code ||
+                            b.content ||
+                            '';
                         return {
                             id,
                             type: 'code',
                             codeConfig: {
                                 languageId: language,
-                                initialCode
-                            }
+                                initialCode,
+                            },
                         };
                     }
                     const contentHtml = b.content || b.html || b.contentHtml || b.text || '';
                     return {
                         id,
                         type: 'text',
-                        content: contentHtml
+                        content: contentHtml,
                     };
                 });
             }
@@ -141,7 +200,8 @@ export const CourseService = {
                 codingConfig: (function () {
                     if (!content.codingConfig) return undefined;
                     // raw templates object may be under `templates` or be the object itself
-                    const rawTemplates = content.codingConfig.templates || content.codingConfig.templatesMap || content.codingConfig;
+                    const rawTemplates =
+                        content.codingConfig.templates || content.codingConfig.templatesMap || content.codingConfig;
 
                     // Normalize templates into a map: { langId: { header, initialCode, footer, testCases? } }
                     const templatesMap: Record<string, any> = {};
@@ -152,13 +212,19 @@ export const CourseService = {
                             header: t.head || t.header || t.h || '',
                             initialCode: t.body || t.initialCode || t.boot || '',
                             footer: t.tail || t.footer || t.f || '',
-                            testCases: t.testCases || t.tests || undefined
+                            testCases: t.testCases || t.tests || undefined,
                         };
                     }
 
                     // allowed languages may be specified explicitly or inferred from templates
-                    const allowedLanguages = content.codingConfig.allowedLanguages || content.codingConfig.languages || (keys.length ? keys : undefined);
-                    const primary = content.codingConfig.language || (Array.isArray(allowedLanguages) ? allowedLanguages[0] : keys[0]) || 'javascript';
+                    const allowedLanguages =
+                        content.codingConfig.allowedLanguages ||
+                        content.codingConfig.languages ||
+                        (keys.length ? keys : undefined);
+                    const primary =
+                        content.codingConfig.language ||
+                        (Array.isArray(allowedLanguages) ? allowedLanguages[0] : keys[0]) ||
+                        'javascript';
                     const primaryTemplate = templatesMap[primary] || templatesMap[keys[0]] || {};
 
                     // Prefer template-level testcases if available, else top-level testcases
@@ -167,11 +233,11 @@ export const CourseService = {
                     return {
                         languageId: primary,
                         header: primaryTemplate.header || '',
-                        initialCode: primaryTemplate.initialCode || '',
+                        initialCode: primaryTemplate.initialCode || primaryTemplate.body || '',
                         footer: primaryTemplate.footer || '',
                         testCases,
                         templates: templatesMap,
-                        allowedLanguages
+                        allowedLanguages,
                     };
                 })(),
                 webConfig: (function () {
@@ -181,7 +247,7 @@ export const CourseService = {
                         initialCSS: content.webConfig.css || content.webConfig.initialCSS || '',
                         initialJS: content.webConfig.js || content.webConfig.initialJS || '',
                         showFiles: content.webConfig.showFiles || { html: true, css: true, js: true },
-                        testCases: content.webConfig.testCases || []
+                        testCases: content.webConfig.testCases || [],
                     };
                 })(),
                 mcqOptions,
@@ -192,22 +258,34 @@ export const CourseService = {
                     if (!content.notebookConfig) return undefined;
                     return {
                         initialCode: content.notebookConfig.initialCode || content.notebookConfig.initial_code || '',
-                        language: content.notebookConfig.language || 'python'
+                        language: content.notebookConfig.language || 'python',
                     };
                 })(),
                 // Preserve module object so pages can access module.id / module.course
                 module: data.module || undefined,
                 // Include module units for sidebar (if backend provided)
                 // For test questions, we also look into data.module.questions
-                moduleUnits: (data.moduleUnits && Array.isArray(data.moduleUnits)) ? data.moduleUnits :
-                    ((data.module && Array.isArray(data.module.units)) ? data.module.units :
-                        ((data.module && Array.isArray(data.module.questions)) ? data.module.questions : [])),
-                moduleTitle: (data.moduleTitle || data.module?.title || data.module?.course?.title) || undefined
+                moduleUnits:
+                    data.moduleUnits && Array.isArray(data.moduleUnits)
+                        ? data.moduleUnits
+                        : data.module && Array.isArray(data.module.units)
+                          ? data.module.units
+                          : data.module && Array.isArray(data.module.questions)
+                            ? data.module.questions
+                            : [],
+                moduleTitle: data.moduleTitle || data.module?.title || data.module?.course?.title || undefined,
             };
 
             console.log('[CourseService] mapped unit:', mapped);
             // DEBUG: expose raw backend module and moduleUnits for troubleshooting
-            if (mapped.module) console.log('[CourseService] module present:', mapped.module?.id, mapped.module?.title, 'courseSlug=', mapped.module?.course?.slug);
+            if (mapped.module)
+                console.log(
+                    '[CourseService] module present:',
+                    mapped.module?.id,
+                    mapped.module?.title,
+                    'courseSlug=',
+                    mapped.module?.course?.slug,
+                );
             if (mapped.moduleUnits) console.log('[CourseService] moduleUnits count=', mapped.moduleUnits.length);
             return mapped;
         } catch (error) {
@@ -219,8 +297,8 @@ export const CourseService = {
     async deleteCourseVideo(url: string): Promise<void> {
         const res = await fetch(`${BASE_URL}/course/video`, {
             method: 'DELETE',
+            headers: withCsrfHeader('DELETE', { 'Content-Type': 'application/json' }),
             credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url }),
         });
         if (!res.ok) {
@@ -265,15 +343,20 @@ export const CourseService = {
 
             // Bypass Proxy for large video uploads to avoid Vercel 4.5MB limit
             // Use direct backend URL if provided, otherwise fallback to proxy
-            const directBackendUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api').replace(/\/$/, "");
-            const uploadUrl = `${directBackendUrl}/course/upload-video`;
+            const uploadUrl = `${API_BASE_URL}/course/upload-video`;
 
             xhr.open('POST', uploadUrl);
+
+            const csrfHeaders = withCsrfHeader('POST');
+            const csrfToken = (csrfHeaders as Record<string, string>)['X-CSRF-Token'];
+            if (csrfToken) {
+                xhr.setRequestHeader('X-CSRF-Token', csrfToken);
+            }
 
             // Add File Size header to help backend handle stream length (fixes 500 error with dd-trace)
             xhr.setRequestHeader('X-File-Size', file.size.toString());
 
             xhr.send(formData);
         });
-    }
+    },
 };

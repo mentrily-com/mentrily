@@ -1,152 +1,194 @@
-const BASE_URL = typeof window !== 'undefined' ? '/api/proxy' : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api');
-import { LRUCache } from 'lru-cache';
+import { API_BASE_URL } from '@/lib/api-base';
+import { withCsrfHeader } from '@/lib/csrf';
+import { getClerkToken, withClerkAuthorization } from '@/lib/clerk-token';
 
-const sessionCache = new LRUCache<string, any>({
-    max: 1,
-    ttl: 1000 * 60 * 2, // 2 minutes cache for session check
-});
+const BASE_URL = API_BASE_URL;
+
+const hasCsrfCookie = () => {
+    if (typeof document === 'undefined') return false;
+    return document.cookie.split('; ').some((row) => row.startsWith('csrf_token='));
+};
+
+const ensureCsrfCookie = async () => {
+    if (hasCsrfCookie()) return;
+
+    try {
+        await fetch(`${BASE_URL}/exam/app-config`, {
+            method: 'GET',
+            credentials: 'include',
+        });
+    } catch {}
+};
+
+let inFlightSessionCheck: Promise<any> | null = null;
+let lastSessionSnapshot: any = null;
+let lastSessionAt = 0;
+let unauthorizedCooldownUntil = 0;
+
+const resetSessionCache = () => {
+    inFlightSessionCheck = null;
+    lastSessionSnapshot = null;
+    lastSessionAt = 0;
+    unauthorizedCooldownUntil = 0;
+};
 
 export const AuthService = {
-    // Legacy: getToken is deprecated as we use HttpOnly cookies
-    getToken() {
-        return null;
-    },
+    resetSessionCache,
 
-    // Legacy: user details might still be needed for UI context if not fetched from server
     getUser() {
-        if (typeof window !== 'undefined') {
-            const user = localStorage.getItem('user');
-            return user ? JSON.parse(user) : null;
-        }
-        return null;
+        return lastSessionSnapshot;
     },
 
-    async login(email: string, password: string): Promise<any> {
-        // This should technically not be used directly anymore in favor of Server Action
-        // But if used, it will route through proxy
-        try {
-            const res = await fetch(`${BASE_URL}/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-
-            if (!res.ok) {
-                const error = await res.json();
-                throw new Error(error.message || 'Login failed');
-            }
-
-            // We rely on the Proxy/Server Action to set the cookie.
-            // But this specific client-side call via Proxy might fail to set cookie 
-            // because Proxy forwards response. 
-            // IMPORTANT: Login SHOULD be done via Server Action (actions/auth.ts).
-
-            const data = await res.json();
-            return data;
-        } catch (error) {
-            console.error('[AuthService] Login error:', error);
-            throw error;
-        }
-    },
-
-    async checkSession(force = false): Promise<any> {
-        try {
-            if (!force && sessionCache.has('me')) {
-                return sessionCache.get('me');
-            }
-
-            const res = await fetch(`${BASE_URL}/auth/me`, {
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include' // Send cookies
-            });
-
-            if (!res.ok) {
-                const error = await res.json().catch(() => ({}));
-                if (error.message === 'ACCOUNT_SUSPENDED') {
-                    this.logout('suspended');
-                } else if (res.status === 401) {
-                    this.logout();
-                }
-                throw new Error(error.message || 'Session invalid');
-            }
-
-            const userData = await res.json();
-            // Sync local storage
-            localStorage.setItem('user', JSON.stringify({
-                ...this.getUser(),
-                ...userData
-            }));
-
-            sessionCache.set('me', userData);
-
-            return userData;
-        } catch (error) {
-            console.error('[AuthService] Session check skipped (offline or error)');
+    async checkSession(
+        strictExisting = false,
+        options?: {
+            flow?: 'signup' | 'registration';
+            allowProvisioning?: boolean;
+            bypassCache?: boolean;
+        },
+    ): Promise<any> {
+        const flow = options?.flow;
+        const allowProvisioning = options?.allowProvisioning === true;
+        const bypassCache = options?.bypassCache === true || Boolean(flow) || allowProvisioning;
+        const now = Date.now();
+        if (!strictExisting && !bypassCache && unauthorizedCooldownUntil > now) {
             return null;
         }
+
+        if (!strictExisting && !bypassCache && lastSessionSnapshot && now - lastSessionAt < 4000) {
+            return lastSessionSnapshot;
+        }
+
+        if (!strictExisting && !bypassCache && inFlightSessionCheck) {
+            return inFlightSessionCheck;
+        }
+
+        try {
+            inFlightSessionCheck = (async () => {
+                const token = await getClerkToken();
+                if (!token) {
+                    return null;
+                }
+
+                const authHeaders = await withClerkAuthorization({ 'Content-Type': 'application/json' });
+                const params = new URLSearchParams();
+                if (strictExisting) params.set('strict', '1');
+                if (flow) params.set('flow', flow);
+                if (allowProvisioning) params.set('allowProvisioning', '1');
+                const query = params.toString();
+
+                const res = await fetch(`${BASE_URL}/auth/me${query ? `?${query}` : ''}`, {
+                    headers: authHeaders,
+                    credentials: 'include',
+                });
+
+                if (!res.ok) {
+                    if (!strictExisting && !bypassCache && res.status === 401) {
+                        unauthorizedCooldownUntil = Date.now() + 10000;
+                    }
+                    return null;
+                }
+
+                const payload = await res.json();
+                lastSessionSnapshot = payload;
+                lastSessionAt = Date.now();
+                if (!strictExisting && !bypassCache) {
+                    unauthorizedCooldownUntil = 0;
+                }
+                return payload;
+            })();
+
+            return await inFlightSessionCheck;
+        } catch {
+            return null;
+        } finally {
+            inFlightSessionCheck = null;
+        }
     },
 
-    async examLogin(email: string, testCode: string, password?: string): Promise<any> {
+    async checkSessionForSignup(): Promise<any> {
+        return this.checkSession(false, {
+            flow: 'signup',
+            allowProvisioning: true,
+            bypassCache: true,
+        });
+    },
+
+    async examLogin(testCode: string, slug?: string): Promise<any> {
         try {
-            // Clear previous session
-            localStorage.removeItem('user');
             localStorage.removeItem('currentExamSessionId');
+            await ensureCsrfCookie();
+            const authHeaders = await withClerkAuthorization(
+                withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
+            );
 
             const res = await fetch(`${BASE_URL}/auth/exam-login`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, testCode, password })
+                headers: authHeaders,
+                credentials: 'include',
+                body: JSON.stringify({ testCode, slug }),
             });
+
+            if (res.status === 403) {
+                await ensureCsrfCookie();
+                const retryHeaders = await withClerkAuthorization(
+                    withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
+                );
+                const retryRes = await fetch(`${BASE_URL}/auth/exam-login`, {
+                    method: 'POST',
+                    headers: retryHeaders,
+                    credentials: 'include',
+                    body: JSON.stringify({ testCode, slug }),
+                });
+
+                if (!retryRes.ok) {
+                    const retryError = await retryRes.json().catch(() => ({}));
+                    throw new Error(retryError.message || 'Exam login failed');
+                }
+
+                return await retryRes.json();
+            }
 
             if (!res.ok) {
                 const error = await res.json();
                 throw new Error(error.message || 'Exam login failed');
             }
 
-            const data = await res.json();
-            if (data.user) {
-                localStorage.setItem('user', JSON.stringify(data.user));
-            }
-            return data;
+            return await res.json();
         } catch (error) {
             console.error('[AuthService] Exam login error:', error);
             throw error;
         }
     },
 
-    async register(data: any): Promise<any> {
-        const res = await fetch(`${BASE_URL}/auth/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-        return res.json();
-    },
+    async verifyExamTestCode(testCode: string, slug?: string): Promise<any> {
+        try {
+            const res = await fetch(`${BASE_URL}/auth/exam-login/verify-code`, {
+                method: 'POST',
+                headers: withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
+                credentials: 'include',
+                body: JSON.stringify({ testCode, slug }),
+            });
 
-    async uploadAvatar(file: File): Promise<any> {
-        const formData = new FormData();
-        formData.append('avatar', file);
+            if (!res.ok) {
+                const error = await res.json().catch(() => ({}));
+                throw new Error(error.message || 'Invalid test code');
+            }
 
-        const res = await fetch(`${BASE_URL}/auth/profile/avatar`, {
-            method: 'POST',
-            credentials: 'include',
-            body: formData,
-        });
-
-        if (!res.ok) {
-            const error = await res.json().catch(() => ({}));
-            throw new Error(error.message || 'Failed to upload avatar');
+            return await res.json();
+        } catch (error) {
+            console.error('[AuthService] verifyExamTestCode error:', error);
+            throw error;
         }
-
-        const updatedUser = await res.json();
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-        return updatedUser;
     },
 
     async updateProfile(data: { name?: string }): Promise<any> {
+        const authHeaders = await withClerkAuthorization(
+            withCsrfHeader('PATCH', { 'Content-Type': 'application/json' }),
+        );
         const res = await fetch(`${BASE_URL}/auth/profile`, {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
+            headers: authHeaders,
             credentials: 'include',
             body: JSON.stringify({ name: data.name }),
         });
@@ -157,51 +199,94 @@ export const AuthService = {
         }
 
         const updatedUser = await res.json();
-        // Update local session
-        localStorage.setItem('user', JSON.stringify(updatedUser));
+        resetSessionCache();
         return updatedUser;
+    },
+
+    async uploadAvatar(file: File): Promise<any> {
+        const formData = new FormData();
+        formData.append('avatar', file);
+
+        const authHeaders = await withClerkAuthorization(withCsrfHeader('POST'));
+        const res = await fetch(`${BASE_URL}/auth/profile/avatar`, {
+            method: 'POST',
+            headers: authHeaders,
+            credentials: 'include',
+            body: formData,
+        });
+
+        if (!res.ok) {
+            const error = await res.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to upload avatar');
+        }
+
+        await res.json().catch(() => null);
+        resetSessionCache();
+        return await this.checkSession(true);
     },
 
     async removeProfilePicture(): Promise<any> {
+        const authHeaders = await withClerkAuthorization(withCsrfHeader('DELETE'));
         const res = await fetch(`${BASE_URL}/auth/profile/picture`, {
             method: 'DELETE',
+            headers: authHeaders,
             credentials: 'include',
         });
 
         if (!res.ok) {
-            const error = await res.json();
+            const error = await res.json().catch(() => ({}));
             throw new Error(error.message || 'Failed to remove profile picture');
         }
 
-        const updatedUser = await res.json();
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-        return updatedUser;
+        await res.json().catch(() => null);
+        resetSessionCache();
+        return await this.checkSession(true);
     },
 
-    async changePassword(data: { currentPass: string; newPass: string }): Promise<any> {
-        const res = await fetch(`${BASE_URL}/auth/change-password`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include',
-            body: JSON.stringify(data)
-        });
-
-        if (!res.ok) {
-            const error = await res.json();
-            throw new Error(error.message || 'Failed to change password');
+    async changePassword(data: { currentPass: string; newPass: string }): Promise<void> {
+        if (typeof window === 'undefined') {
+            throw new Error('Password update is only available in the browser');
         }
 
-        return await res.json();
+        const clerk = (window as Window & {
+            Clerk?: {
+                user?: {
+                    updatePassword?: (params: {
+                        currentPassword?: string;
+                        newPassword: string;
+                        signOutOfOtherSessions?: boolean;
+                    }) => Promise<unknown>;
+                };
+            };
+        }).Clerk;
+
+        const updatePassword = clerk?.user?.updatePassword;
+        if (!updatePassword) {
+            throw new Error('Password update is currently unavailable');
+        }
+
+        await updatePassword({
+            currentPassword: data.currentPass,
+            newPassword: data.newPass,
+            signOutOfOtherSessions: true,
+        });
+    },
+
+    logout() {
+        resetSessionCache();
+        if (typeof window !== 'undefined') {
+            window.location.href = '/logout';
+        }
     },
 
     async uploadBugReportImage(file: File): Promise<{ url: string; name: string; type: string; size: number }> {
         const formData = new FormData();
         formData.append('file', file);
+        const authHeaders = await withClerkAuthorization(withCsrfHeader('POST'));
 
         const res = await fetch(`${BASE_URL}/auth/bug-reports/upload-image`, {
             method: 'POST',
+            headers: authHeaders,
             credentials: 'include',
             body: formData,
         });
@@ -219,11 +304,14 @@ export const AuthService = {
         description: string;
         attachments?: { name: string; url: string; type: string; size: number }[];
     }): Promise<any> {
+        const authHeaders = await withClerkAuthorization(
+            withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
+        );
         const res = await fetch(`${BASE_URL}/auth/bug-reports`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: authHeaders,
             credentials: 'include',
-            body: JSON.stringify(data)
+            body: JSON.stringify(data),
         });
 
         if (!res.ok) {
@@ -234,41 +322,66 @@ export const AuthService = {
         return await res.json();
     },
 
-    getRole(): string | null {
-        const user = this.getUser();
-        return user?.role || null;
+    async selectRole(role: 'STUDENT' | 'TEACHER'): Promise<any> {
+        const authHeaders = await withClerkAuthorization(
+            withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
+        );
+        const res = await fetch(`${BASE_URL}/auth/select-role`, {
+            method: 'POST',
+            headers: authHeaders,
+            credentials: 'include',
+            body: JSON.stringify({ role }),
+        });
+
+        if (!res.ok) {
+            const error = await res.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to select role');
+        }
+
+        const payload = await res.json();
+        resetSessionCache();
+        return payload;
     },
 
-    async forgotPassword(email: string): Promise<any> {
-        try {
-            const res = await fetch(`${BASE_URL}/auth/forgot-password`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            });
+    async selectRoleCreator(): Promise<unknown> {
+        const authHeaders = await withClerkAuthorization(
+            withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
+        );
+        const res = await fetch(`${BASE_URL}/auth/select-role-creator`, {
+            method: 'POST',
+            headers: authHeaders,
+            credentials: 'include',
+            body: JSON.stringify({}),
+        });
 
-            if (!res.ok) {
-                // Handle rate limiting specifically if needed, but generic error is fine for now
-                if (res.status === 429) {
-                    throw new Error('Too many requests. Please try again later.');
-                }
-                const error = await res.json();
-                throw new Error(error.message || 'Request failed');
-            }
-
-            return await res.json();
-        } catch (error) {
-            console.error('[AuthService] Forgot Password error:', error);
-            throw error;
+        if (!res.ok) {
+            const error = await res.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to create organization and select role');
         }
+
+        const payload = await res.json();
+        resetSessionCache();
+        return payload;
     },
 
-    logout(reason?: string) {
-        localStorage.removeItem('user');
-        if (reason === 'suspended') {
-            window.location.href = '/login?error=suspended';
-        } else {
-            window.location.href = '/login';
+    async completeOnboarding(): Promise<any> {
+        const authHeaders = await withClerkAuthorization(
+            withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
+        );
+        const res = await fetch(`${BASE_URL}/auth/onboarding/complete`, {
+            method: 'POST',
+            headers: authHeaders,
+            credentials: 'include',
+            body: JSON.stringify({}),
+        });
+
+        if (!res.ok) {
+            const error = await res.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to complete onboarding');
         }
-    }
+
+        const payload = await res.json();
+        resetSessionCache();
+        return payload;
+    },
 };

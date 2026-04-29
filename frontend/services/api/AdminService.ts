@@ -1,15 +1,18 @@
-import { AuthService } from "./AuthService";
+import { API_BASE_URL } from '@/lib/api-base';
+import { withCsrfHeader } from '@/lib/csrf';
 
-const BASE_URL = typeof window !== 'undefined' ? '/api/proxy' : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api');
+const BASE_URL = API_BASE_URL;
 
 const authFetch = (endpoint: string, options: RequestInit = {}) => {
+    const headers = withCsrfHeader(options.method, {
+        'Content-Type': 'application/json',
+        ...((options.headers || {}) as any),
+    });
+
     return fetch(`${BASE_URL}${endpoint}`, {
         ...options,
         credentials: 'include',
-        headers: {
-            'Content-Type': 'application/json',
-            ...(options.headers || {}) as any
-        }
+        headers,
     });
 };
 
@@ -43,7 +46,7 @@ export const AdminService = {
             const query = orgId ? `?orgId=${orgId}` : '';
             const res = await authFetch(`/admin/users${query}`, {
                 method: 'POST',
-                body: JSON.stringify(userData)
+                body: JSON.stringify(userData),
             });
             if (!res.ok) {
                 const error = await res.json();
@@ -61,7 +64,7 @@ export const AdminService = {
             const query = orgId ? `?orgId=${orgId}` : '';
             const res = await authFetch(`/admin/users/bulk${query}`, {
                 method: 'POST',
-                body: JSON.stringify({ users })
+                body: JSON.stringify({ users }),
             });
             if (!res.ok) {
                 const error = await res.json();
@@ -70,6 +73,24 @@ export const AdminService = {
             return await res.json();
         } catch (error) {
             console.error('[AdminService] Error importing users', error);
+            throw error;
+        }
+    },
+
+    async inviteUser(data: { email: string; name?: string; role?: string; dept?: string; id?: string }, orgId?: string) {
+        try {
+            const query = orgId ? `?orgId=${orgId}` : '';
+            const res = await authFetch(`/admin/users/invite${query}`, {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+            if (!res.ok) {
+                const error = await res.json();
+                throw new Error(error.message || 'Failed to send invitation');
+            }
+            return await res.json();
+        } catch (error) {
+            console.error('[AdminService] Error inviting user', error);
             throw error;
         }
     },
@@ -122,11 +143,55 @@ export const AdminService = {
         }
     },
 
+    async getSettings(orgId?: string) {
+        try {
+            const query = orgId ? `?orgId=${orgId}` : '';
+            const res = await authFetch(`/admin/settings${query}`);
+            if (!res.ok) throw new Error('Failed to fetch admin settings');
+            return await res.json();
+        } catch (error) {
+            console.error('[AdminService] Error fetching settings', error);
+            throw error;
+        }
+    },
+
+    async getOnboardingStatus(orgId?: string) {
+        try {
+            const query = orgId ? `?orgId=${orgId}` : '';
+            const res = await authFetch(`/admin/onboarding-status${query}`);
+            if (!res.ok) throw new Error('Failed to fetch onboarding status');
+            return await res.json();
+        } catch (error) {
+            console.error('[AdminService] Error fetching onboarding status', error);
+            throw error;
+        }
+    },
+
+    async updateSettings(data: { features?: Record<string, unknown> }, orgId?: string) {
+        try {
+            const query = orgId ? `?orgId=${orgId}` : '';
+            const res = await authFetch(`/admin/settings${query}`, {
+                method: 'PATCH',
+                body: JSON.stringify(data),
+            });
+
+            if (!res.ok) {
+                const error = await res.json().catch(() => ({}));
+                throw new Error(error.message || 'Failed to update admin settings');
+            }
+
+            return await res.json();
+        } catch (error) {
+            console.error('[AdminService] Error updating settings', error);
+            throw error;
+        }
+    },
+
     async toggleUserStatus(id: string) {
         try {
             const res = await authFetch(`/admin/users/${id}/status`, {
                 method: 'PATCH',
-                body: JSON.stringify({})
+                body: JSON.stringify({}),
             });
             if (!res.ok) {
                 const text = await res.text();
@@ -143,12 +208,16 @@ export const AdminService = {
         try {
             const res = await authFetch(`/admin/users/${id}`, {
                 method: 'DELETE',
-                body: JSON.stringify({}) // Fastify requires a body if Content-Type is application/json
+                body: JSON.stringify({}), // Fastify requires a body if Content-Type is application/json
             });
             if (!res.ok) {
                 const text = await res.text();
                 let errorData: any = {};
-                try { errorData = JSON.parse(text); } catch (e) { errorData = { message: text }; }
+                try {
+                    errorData = JSON.parse(text);
+                } catch (e) {
+                    errorData = { message: text };
+                }
                 console.error('[AdminService] Delete failed:', res.status, errorData);
                 throw new Error(errorData.message || 'Failed to delete user');
             }
@@ -157,5 +226,5 @@ export const AdminService = {
             console.error('[AdminService] Error deleting user', error);
             throw error;
         }
-    }
+    },
 };

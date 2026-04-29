@@ -1,23 +1,24 @@
-"use client";
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import dynamic from "next/dynamic";
-import SplitPane from "../../SplitPane";
+'use client';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import dynamic from 'next/dynamic';
+import SplitPane from '../../SplitPane';
+import CoursePlayerSkeleton from '../../Skeletons/CoursePlayerSkeleton';
 
 // Dynamic Import for Code Splitting
-const CodeEditor = dynamic(() => import("../../Editor/CodeEditor"), {
-  loading: () => <div className="h-full w-full bg-slate-50 animate-pulse min-h-[100px]" />,
-  ssr: false
+const CodeEditor = dynamic(() => import('../../Editor/CodeEditor'), {
+    loading: () => <CoursePlayerSkeleton isExamMode hasSidebar={false} />,
+    ssr: false,
 });
-import { LanguageConfig } from "../../Editor/types";
-import { python } from "@codemirror/lang-python";
-import { TerminalSquare, Play, RotateCcw, Image as ImageIcon, AlertCircle } from "lucide-react";
+import { LanguageConfig } from '../../Editor/types';
+import { python } from '@codemirror/lang-python';
+import { TerminalSquare, Play, RotateCcw } from 'lucide-react';
 
 // Special config for Notebook execution (Script mode, no function wrapping)
 const NotebookConfigBase: Omit<LanguageConfig, 'initialBody'> = {
-    id: "python-notebook",
-    label: "Python (Notebook)",
-    header: "", // No boilerplate
-    footer: "", // No boilerplate
+    id: 'python-notebook',
+    label: 'Python (Notebook)',
+    header: '', // No boilerplate
+    footer: '', // No boilerplate
     extension: async () => python(),
 };
 
@@ -37,8 +38,16 @@ interface PythonNotebookProps {
     isExamMode?: boolean;
 }
 
-export default function PythonNotebook({ initialCode = "", readOnly = false, fontSize, onChange, onSubmit, isExamMode = false }: PythonNotebookProps) {
+export default function PythonNotebook({
+    initialCode = '',
+    readOnly = false,
+    fontSize,
+    onChange,
+    onSubmit,
+    isExamMode = false,
+}: PythonNotebookProps) {
     const [code, setCode] = useState(initialCode);
+    const previousInitialCodeRef = useRef(initialCode);
 
     const handleCodeChange = (newCode: string) => {
         setCode(newCode);
@@ -46,18 +55,23 @@ export default function PythonNotebook({ initialCode = "", readOnly = false, fon
     };
 
     // Dynamic config to ensure initialCode is passed and refreshed
-    const notebookConfig = React.useMemo(() => ({
-        ...NotebookConfigBase,
-        initialBody: initialCode,
-        id: "python-notebook" as any
-    }), [initialCode]);
+    const notebookConfig = React.useMemo(
+        () => ({
+            ...NotebookConfigBase,
+            initialBody: initialCode,
+            id: 'python-notebook' as any,
+        }),
+        [initialCode],
+    );
 
-    // Sync code only when initialCode prop truly changes from outside (e.g. on question switch)
+    // Sync code only when initialCode prop truly changes from outside (e.g. on question switch).
+    // Do not include `code` in this effect; edits should not be reset back to the starter code.
     useEffect(() => {
-        if (initialCode !== undefined && initialCode !== code) {
+        if (initialCode !== previousInitialCodeRef.current) {
+            previousInitialCodeRef.current = initialCode;
             setCode(initialCode);
         }
-    }, [initialCode, code]);
+    }, [initialCode]);
 
     // Outputs state
     const [outputs, setOutputs] = useState<OutputItem[]>([]);
@@ -72,36 +86,38 @@ export default function PythonNotebook({ initialCode = "", readOnly = false, fon
 
     // Scroll to bottom of output
     useEffect(() => {
-        outputEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        outputEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [outputs]);
 
     // Initialize Worker
     useEffect(() => {
         try {
-            workerRef.current = new Worker("/workers/pyodideWorker.js");
+            workerRef.current = new Worker('/workers/pyodideWorker.js');
 
             workerRef.current.onmessage = (event) => {
                 const { id, type, text, plots, error } = event.data;
 
                 switch (type) {
-                    case "ready":
+                    case 'ready':
+                        setWorkerError(null);
                         setIsWorkerReady(true);
-                        addOutput('info', "Python Environment Ready (Pyodide v0.25.1)");
+                        addOutput('info', 'Python Environment Ready (Pyodide v0.25.1)');
                         break;
-                    case "stdout":
+                    case 'stdout':
                         addOutput('stdout', text);
                         break;
-                    case "stderr":
+                    case 'stderr':
                         addOutput('stderr', text);
                         break;
-                    case "done":
+                    case 'done':
                         if (plots && Array.isArray(plots)) {
-                            plots.forEach(plotBase64 => addOutput('image', plotBase64));
+                            plots.forEach((plotBase64) => addOutput('image', plotBase64));
                         }
                         setIsExecuting(false);
                         break;
-                    case "error":
-                        addOutput('stderr', error || "Unknown runtime error");
+                    case 'error':
+                        setWorkerError(error || 'Unknown runtime error');
+                        addOutput('stderr', error || 'Unknown runtime error');
                         setIsExecuting(false);
                         break;
                     default:
@@ -110,10 +126,9 @@ export default function PythonNotebook({ initialCode = "", readOnly = false, fon
             };
 
             // Start initialization
-            workerRef.current.postMessage({ action: "init", id: "init" });
-
+            workerRef.current.postMessage({ action: 'init', id: 'init' });
         } catch (err) {
-            setWorkerError("Failed to initialize Web Worker. This browser might not support it.");
+            setWorkerError('Failed to initialize Web Worker. This browser might not support it.');
         }
 
         return () => {
@@ -122,12 +137,15 @@ export default function PythonNotebook({ initialCode = "", readOnly = false, fon
     }, []);
 
     const addOutput = useCallback((type: OutputItem['type'], content: string) => {
-        setOutputs(prev => [...prev, {
-            id: Math.random().toString(36).substr(2, 9),
-            type,
-            content,
-            timestamp: Date.now()
-        }]);
+        setOutputs((prev) => [
+            ...prev,
+            {
+                id: Math.random().toString(36).substr(2, 9),
+                type,
+                content,
+                timestamp: Date.now(),
+            },
+        ]);
     }, []);
 
     const handleRun = useCallback(() => {
@@ -137,9 +155,9 @@ export default function PythonNotebook({ initialCode = "", readOnly = false, fon
         setIsExecuting(true);
 
         workerRef.current?.postMessage({
-            action: "run",
+            action: 'run',
             id: Date.now(),
-            code
+            code,
         });
     }, [code, isWorkerReady, isExecuting]);
 
@@ -155,10 +173,14 @@ export default function PythonNotebook({ initialCode = "", readOnly = false, fon
                         <div className="h-full flex flex-col border-r border-slate-200">
                             <CodeEditor
                                 language={notebookConfig}
-                                actions={!readOnly ? {
-                                    onChange: handleCodeChange,
-                                    onRun: handleRun
-                                } : {}}
+                                actions={
+                                    !readOnly
+                                        ? {
+                                              onChange: handleCodeChange,
+                                              onRun: handleRun,
+                                          }
+                                        : {}
+                                }
                                 options={{ readOnly }}
                                 isExecuting={isExecuting}
                                 fontSize={fontSize}
@@ -173,10 +195,16 @@ export default function PythonNotebook({ initialCode = "", readOnly = false, fon
                                                 <TerminalSquare size={14} />
                                             </div>
                                             <div>
-                                                <h3 className="text-xs font-black text-slate-800 tracking-tight">Python 3.11 Kernel</h3>
-                                                <span className={`text-[9px] font-bold uppercase tracking-wider flex items-center gap-1 ${isWorkerReady ? 'text-emerald-500' : 'text-amber-500'}`}>
-                                                    <span className={`w-1.5 h-1.5 rounded-full ${isWorkerReady ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`}></span>
-                                                    {isWorkerReady ? "Ready" : "Initializing..."}
+                                                <h3 className="text-xs font-black text-slate-800 tracking-tight">
+                                                    Python 3.11 Kernel
+                                                </h3>
+                                                <span
+                                                    className={`text-[9px] font-bold uppercase tracking-wider flex items-center gap-1 ${isWorkerReady ? 'text-emerald-500' : 'text-amber-500'}`}
+                                                >
+                                                    <span
+                                                        className={`w-1.5 h-1.5 rounded-full ${isWorkerReady ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`}
+                                                    ></span>
+                                                    {isWorkerReady ? 'Ready' : 'Initializing...'}
                                                 </span>
                                             </div>
                                         </div>
@@ -185,7 +213,7 @@ export default function PythonNotebook({ initialCode = "", readOnly = false, fon
                                             <button
                                                 onClick={() => {
                                                     setOutputs([]);
-                                                    workerRef.current?.postMessage({ action: "init", id: "re-init" });
+                                                    workerRef.current?.postMessage({ action: 'init', id: 're-init' });
                                                     addOutput('info', 'Kernel Restarting...');
                                                 }}
                                                 className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold text-slate-500 bg-slate-50 hover:bg-slate-100 rounded-lg transition-all"
@@ -205,11 +233,23 @@ export default function PythonNotebook({ initialCode = "", readOnly = false, fon
                             style={{ fontSize: fontSize ? `${fontSize}px` : '14px' }}
                         >
                             <div className="px-4 py-2 border-b border-white/10 flex items-center justify-between bg-[#252526]">
-                                <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">Console Output</span>
-                                {isExecuting && <span className="text-[10px] text-amber-500 flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" /> Executing...</span>}
+                                <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">
+                                    Console Output
+                                </span>
+                                {isExecuting && (
+                                    <span className="text-[10px] text-amber-500 flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" /> Executing...
+                                    </span>
+                                )}
                             </div>
 
                             <div className="flex-1 overflow-auto p-4 space-y-2 no-scrollbar">
+                                {workerError && (
+                                    <div className="whitespace-pre-wrap text-rose-300 bg-rose-500/10 p-3 rounded border-l-2 border-rose-500 text-xs">
+                                        {workerError}
+                                    </div>
+                                )}
+
                                 {outputs.length === 0 && !isExecuting && (
                                     <div className="h-full flex flex-col items-center justify-center text-white/20 gap-4">
                                         <Play size={40} strokeWidth={1} />
@@ -218,7 +258,10 @@ export default function PythonNotebook({ initialCode = "", readOnly = false, fon
                                 )}
 
                                 {outputs.map((out) => (
-                                    <div key={out.id} className="animate-in fade-in slide-in-from-bottom-1 duration-200">
+                                    <div
+                                        key={out.id}
+                                        className="animate-in fade-in slide-in-from-bottom-1 duration-200"
+                                    >
                                         {out.type === 'stdout' && (
                                             <div className="whitespace-pre-wrap">{out.content}</div>
                                         )}
@@ -234,7 +277,11 @@ export default function PythonNotebook({ initialCode = "", readOnly = false, fon
                                         )}
                                         {out.type === 'image' && (
                                             <div className="my-2 bg-white rounded-lg p-2 max-w-fit">
-                                                <img src={`data:image/png;base64,${out.content}`} alt="Plot" className="max-w-full h-auto" />
+                                                <img
+                                                    src={`data:image/png;base64,${out.content}`}
+                                                    alt="Plot"
+                                                    className="max-w-full h-auto"
+                                                />
                                             </div>
                                         )}
                                     </div>
@@ -282,7 +329,17 @@ export default function PythonNotebook({ initialCode = "", readOnly = false, fon
                             className={`px-10 py-3 bg-[var(--brand)] text-white font-black rounded-xl text-[12px] uppercase tracking-widest shadow-lg shadow-[var(--brand-light)] hover:bg-[var(--brand-dark)] hover:-translate-y-0.5 transition-all active:translate-y-0 active:scale-[0.98] flex items-center gap-2`}
                         >
                             Submit
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                            <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="3"
+                            >
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                                <polyline points="12 5 19 12 12 19" />
+                            </svg>
                         </button>
                     </div>
                 </div>

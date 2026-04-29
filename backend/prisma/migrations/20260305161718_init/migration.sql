@@ -202,7 +202,7 @@ CREATE TABLE "Organization" (
     "examsPerMonth" INTEGER NOT NULL DEFAULT 50,
     "plan" TEXT NOT NULL DEFAULT 'Enterprise',
     "features" JSONB,
-    "primaryColor" TEXT DEFAULT '#fc751b',
+    "primaryColor" TEXT DEFAULT '#008D98',
     "contact" JSONB,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,

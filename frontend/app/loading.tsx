@@ -1,17 +1,14 @@
-"use client";
-import React from "react";
-import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { BRAND } from "./constants/brand";
-import { useOrganization } from "./context/OrganizationContext";
-import DashboardSkeleton from "@/app/components/Skeletons/DashboardSkeleton";
-import PlaygroundSkeleton from "@/app/components/Skeletons/PlaygroundSkeleton";
-import CoursePlayerSkeleton from "@/app/components/Skeletons/CoursePlayerSkeleton";
+'use client';
+import React from 'react';
+import { usePathname } from 'next/navigation';
+import { useOrganization } from './context/OrganizationContext';
+import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import PlaygroundSkeleton from '@/app/components/Skeletons/PlaygroundSkeleton';
+import CoursePlayerSkeleton from '@/app/components/Skeletons/CoursePlayerSkeleton';
+import { BrandLockup } from '@/components/brand/BrandLockup';
 
 function BrandedSpinner() {
     const { organization } = useOrganization();
-    const displayLogo = organization?.logo || BRAND.logoImage;
-    const displayText = organization?.name ? organization.name[0] : BRAND.logoText;
 
     return (
         <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white">
@@ -19,13 +16,14 @@ function BrandedSpinner() {
                 <div className="w-20 h-20 border-4 border-slate-100 rounded-full"></div>
                 <div className="absolute w-20 h-20 border-4 border-t-[var(--brand)] border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
                 <div className="absolute flex items-center justify-center">
-                    <div className={`w-12 h-12 relative flex items-center justify-center overflow-hidden transition-all duration-500 ${!displayLogo ? 'bg-[var(--brand)] rounded-xl shadow-lg shadow-[var(--brand)]/30 p-1.5' : ''} animate-pulse`}>
-                        {displayLogo ? (
-                            <Image src={displayLogo} alt="Logo" fill sizes="48px" className="object-contain" priority />
-                        ) : (
-                            <span className="text-white font-black text-xs">{displayText}</span>
-                        )}
-                    </div>
+                    <BrandLockup
+                        orgName={organization?.name}
+                        orgLogo={organization?.logo}
+                        collapsed
+                        defaultLogoClassName="h-6 max-w-10 animate-pulse"
+                        iconClassName="h-12 w-12 animate-pulse"
+                        priority
+                    />
                 </div>
             </div>
             <div className="mt-8 text-center">
@@ -41,8 +39,12 @@ function BrandedSpinner() {
             </div>
             <style jsx>{`
                 @keyframes loading-bar {
-                  0% { transform: translateX(-100%); }
-                  100% { transform: translateX(100%); }
+                    0% {
+                        transform: translateX(-100%);
+                    }
+                    100% {
+                        transform: translateX(100%);
+                    }
                 }
             `}</style>
         </div>
@@ -51,33 +53,44 @@ function BrandedSpinner() {
 
 export default function Loading() {
     const pathname = usePathname();
+    const isAuthRoute =
+        !pathname ||
+        pathname === '/' ||
+        pathname === '/about' ||
+        pathname === '/contact' ||
+        pathname === '/login' ||
+        pathname === '/signup' ||
+        pathname === '/forgot-password' ||
+        pathname.startsWith('/sign-in') ||
+        pathname.startsWith('/sign-up');
 
-    // Public pages (homepage, about, contact, login, forgot-password) → branded spinner
-    if (!pathname || pathname === "/" || pathname === "/about" || pathname === "/contact" || pathname === "/login" || pathname === "/forgot-password") {
+    // Public and auth routes should never fall through to dashboard loaders.
+    if (isAuthRoute) {
         return <BrandedSpinner />;
     }
 
     // Playground routes → editor skeleton
-    if (pathname.startsWith("/playground")) {
+    if (pathname.startsWith('/playground')) {
         return <PlaygroundSkeleton />;
     }
 
     // Exam routes → branded spinner (no Navbar to avoid auth redirect)
-    if (pathname.startsWith("/exam/")) {
+    if (pathname.startsWith('/exam/')) {
         return <BrandedSpinner />;
     }
 
     // Unit/course player routes → course player skeleton
-    if (pathname.includes("/unit/") || pathname.includes("/test/")) {
+    if (pathname.includes('/unit/') || pathname.includes('/test/')) {
         return <CoursePlayerSkeleton hasSidebar={false} isExamMode={false} />;
     }
 
     // Detect role from path for dashboard skeletons
     let userRole: 'student' | 'teacher' | 'admin' | 'super-admin' | undefined;
-    if (pathname.startsWith("/dashboard/super-admin")) userRole = 'super-admin';
-    else if (pathname.startsWith("/dashboard/admin")) userRole = 'admin';
-    else if (pathname.startsWith("/dashboard/teacher")) userRole = 'teacher';
-    else if (pathname.startsWith("/dashboard/student")) userRole = 'student';
+    if (pathname.startsWith('/dashboard/super-admin')) userRole = 'super-admin';
+    else if (pathname.startsWith('/dashboard/creator')) userRole = 'teacher';
+    else if (pathname.startsWith('/dashboard/admin')) userRole = 'admin';
+    else if (pathname.startsWith('/dashboard/studio')) userRole = 'teacher';
+    else if (pathname.startsWith('/dashboard/learner')) userRole = 'student';
 
     // Default → dashboard skeleton
     return <DashboardSkeleton type="main" userRole={userRole} />;

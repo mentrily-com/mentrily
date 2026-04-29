@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 export function generatePreviewBlob(html: string, css: string, js: string): string {
     const source = `
@@ -36,12 +36,12 @@ export function generatePreviewBlob(html: string, css: string, js: string): stri
 </html>
     `;
 
-    const blob = new Blob([source], { type: "text/html" });
+    const blob = new Blob([source], { type: 'text/html' });
     return URL.createObjectURL(blob);
 }
 
 export function revokePreviewUrl(url: string) {
-    if (url && url.startsWith("blob:")) {
+    if (url && url.startsWith('blob:')) {
         URL.revokeObjectURL(url);
     }
 }

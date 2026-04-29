@@ -1,18 +1,19 @@
-import { AuthService } from "./AuthService";
 import { LRUCache } from 'lru-cache';
+import { API_BASE_URL } from '@/lib/api-base';
+import { withCsrfHeader } from '@/lib/csrf';
+import { withClerkAuthorization } from '@/lib/clerk-token';
 
-// Use Proxy for Client-Side execution to ensure cookies are passed automatically
-const BASE_URL = typeof window !== 'undefined' ? '/api/proxy' : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api');
+const BASE_URL = API_BASE_URL;
 
 // Cache configuration: Max 50 items, TTL 5 minutes
 const cache = new LRUCache<string, any>({
     max: 50,
-    ttl: 1000 * 60 * 5, 
+    ttl: 1000 * 60 * 5,
 });
 
 const getHeaders = () => {
     return {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
     };
 };
 
@@ -20,14 +21,17 @@ const getHeaders = () => {
 const authFetch = async (endpoint: string, options: RequestInit = {}) => {
     // endpoint should be relative like '/student/stats'
     const url = `${BASE_URL}${endpoint}`;
-    
+    const authHeaders = await withClerkAuthorization(
+        withCsrfHeader(options.method, {
+            ...options.headers,
+            ...getHeaders(),
+        }),
+    );
+
     return fetch(url, {
         ...options,
         credentials: 'include', // Ensure cookies are sent
-        headers: {
-            ...options.headers,
-            ...getHeaders()
-        }
+        headers: authHeaders,
     });
 };
 
@@ -42,8 +46,10 @@ export interface StudentModule {
     title: string;
     slug: string;
     sections: number;
+    totalUnits?: number;
     percent: number;
     status: string;
+    linkedExam?: any;
 }
 
 export const StudentService = {
@@ -76,18 +82,11 @@ export const StudentService = {
         }
     },
 
-    async getCourses(forceRefresh = false) {
-        const cacheKey = 'student_courses';
-        if (!forceRefresh && cache.has(cacheKey)) {
-            return cache.get(cacheKey);
-        }
-
+    async getCourses(_forceRefresh = false) {
         try {
-            const res = await authFetch('/student/courses');
+            const res = await authFetch('/student/courses', { cache: 'no-store' });
             if (!res.ok) throw new Error('Failed to fetch courses');
-            const data = await res.json();
-            cache.set(cacheKey, data);
-            return data;
+            return await res.json();
         } catch (error) {
             // console.error('[StudentService] Error', error);
             throw error;
@@ -151,7 +150,7 @@ export const StudentService = {
         try {
             const res = await authFetch('/student/profile', {
                 method: 'PUT',
-                body: JSON.stringify(data)
+                body: JSON.stringify(data),
             });
             if (!res.ok) throw new Error('Failed to update profile');
             return await res.json();
@@ -176,7 +175,7 @@ export const StudentService = {
         try {
             const res = await authFetch(`/student/bookmarks/${unitId}`, {
                 method: 'POST',
-                body: JSON.stringify(metadata || {})
+                body: JSON.stringify(metadata || {}),
             });
             if (!res.ok) throw new Error('Failed to add bookmark');
             return await res.json();
@@ -190,7 +189,7 @@ export const StudentService = {
         try {
             const res = await authFetch(`/student/bookmarks/${unitId}`, {
                 method: 'DELETE',
-                body: JSON.stringify({})
+                body: JSON.stringify({}),
             });
             if (!res.ok) throw new Error('Failed to remove bookmark');
             return await res.json();
@@ -215,7 +214,7 @@ export const StudentService = {
         try {
             const res = await authFetch(`/student/units/${unitId}/submit`, {
                 method: 'POST',
-                body: JSON.stringify(data)
+                body: JSON.stringify(data),
             });
             if (!res.ok) throw new Error('Failed to submit unit');
             return await res.json();
@@ -234,6 +233,48 @@ export const StudentService = {
             console.error('[StudentService] Error', error);
             throw error;
         }
+    },
+
+    async getExamStatus(slug: string) {
+        try {
+            const res = await authFetch(`/student/course/${slug}/exam-status`);
+            if (!res.ok) throw new Error('Failed to fetch exam status');
+            return await res.json();
+        } catch (error) {
+            console.error('[StudentService] Error', error);
+            throw error;
+        }
+    },
+
+    async getUpcomingExams() {
+        try {
+            const res = await authFetch('/student/upcoming-exams');
+            if (!res.ok) throw new Error('Failed to fetch upcoming exams');
+            return await res.json();
+        } catch (error) {
+            console.error('[StudentService] Error', error);
+            throw error;
+        }
+    },
+
+    async getCertificates() {
+        const res = await authFetch('/student/certificates');
+        if (!res.ok) {
+            const error = new Error('Failed to fetch certificates') as Error & { status?: number };
+            error.status = res.status;
+            throw error;
+        }
+        return await res.json();
+    },
+
+    async downloadCertificate(id: string) {
+        const res = await authFetch(`/student/certificates/${id}/download`);
+        if (!res.ok) {
+            const error = new Error('Failed to download certificate') as Error & { status?: number };
+            error.status = res.status;
+            throw error;
+        }
+        return await res.json();
     },
 
     // ─── ANNOUNCEMENTS ─────────────────────────────────────────────────────────
@@ -285,7 +326,7 @@ export const StudentService = {
 
             const res = await authFetch(`/student/announcements/${id}/read`, {
                 method: 'POST',
-                body: JSON.stringify({})
+                body: JSON.stringify({}),
             });
             if (!res.ok) throw new Error('Failed to mark announcement as read');
             return await res.json();
@@ -293,5 +334,5 @@ export const StudentService = {
             console.error('[StudentService] Error', error);
             throw error;
         }
-    }
+    },
 };

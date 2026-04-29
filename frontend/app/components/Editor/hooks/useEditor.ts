@@ -1,15 +1,32 @@
-"use client";
-import { useEffect, useRef, useState } from "react";
-import { EditorState, Extension, Compartment } from "@codemirror/state";
-import { EditorView, lineNumbers, highlightActiveLineGutter, highlightSpecialChars, drawSelection, dropCursor, rectangularSelection, crosshairCursor, highlightActiveLine, keymap } from "@codemirror/view";
-import { foldGutter, indentOnInput, syntaxHighlighting, defaultHighlightStyle, bracketMatching, foldKeymap } from "@codemirror/language";
-import { history, historyKeymap, defaultKeymap, indentWithTab } from "@codemirror/commands";
-import { searchKeymap, highlightSelectionMatches } from "@codemirror/search";
-import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } from "@codemirror/autocomplete";
-import { lintKeymap } from "@codemirror/lint";
+'use client';
+import { useEffect, useRef, useState } from 'react';
+import { EditorState, Compartment } from '@codemirror/state';
+import {
+    EditorView,
+    lineNumbers,
+    highlightActiveLineGutter,
+    highlightSpecialChars,
+    drawSelection,
+    dropCursor,
+    rectangularSelection,
+    crosshairCursor,
+    highlightActiveLine,
+    keymap,
+} from '@codemirror/view';
+import {
+    indentOnInput,
+    syntaxHighlighting,
+    defaultHighlightStyle,
+    bracketMatching,
+    foldKeymap,
+} from '@codemirror/language';
+import { history, historyKeymap, defaultKeymap, indentWithTab } from '@codemirror/commands';
+import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
+import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete';
+import { lintKeymap } from '@codemirror/lint';
 
-import { CodeEditorProps } from "../types";
-import { securityPlugin } from "../plugins/SecurityPlugin";
+import { CodeEditorProps } from '../types';
+import { securityPlugin } from '../plugins/SecurityPlugin';
 
 const languageConf = new Compartment();
 
@@ -80,11 +97,11 @@ export function useEditor(props: CodeEditorProps) {
                         }),
 
                         EditorView.theme({
-                            "&": { height: "100%", fontSize: "14px" },
-                            ".cm-scroller": { overflow: "auto" },
-                            ".cm-content": { fontFamily: "monospace" },
-                            ".cm-gutters": { backgroundColor: "transparent", borderRight: "none" },
-                        })
+                            '&': { height: '100%', fontSize: '14px' },
+                            '.cm-scroller': { overflow: 'auto' },
+                            '.cm-content': { fontFamily: 'monospace' },
+                            '.cm-gutters': { backgroundColor: 'transparent', borderRight: 'none' },
+                        }),
                     ],
                 });
 
@@ -102,18 +119,18 @@ export function useEditor(props: CodeEditorProps) {
                         if (viewRef.current && isMounted.current) {
                             v.dispatch({ effects: languageConf.reconfigure(langExt) });
                         }
-                    } catch (e) { }
+                    } catch (e) {}
                 };
                 loadInitialLang();
             }
         });
 
         const handleVisibility = () => {
-            if (document.visibilityState === "hidden") {
-                props.actions?.onCheatDetected?.("Window minimized or Tab switched");
+            if (document.visibilityState === 'hidden') {
+                props.actions?.onCheatDetected?.('Window minimized or Tab switched');
             }
         };
-        document.addEventListener("visibilitychange", handleVisibility);
+        document.addEventListener('visibilitychange', handleVisibility);
 
         const resizeObserver = new ResizeObserver(() => {
             if (viewRef.current && isMounted.current) {
@@ -126,7 +143,7 @@ export function useEditor(props: CodeEditorProps) {
             isMounted.current = false;
             cancelAnimationFrame(frameId);
             resizeObserver.disconnect();
-            document.removeEventListener("visibilitychange", handleVisibility);
+            document.removeEventListener('visibilitychange', handleVisibility);
             if (viewRef.current) {
                 viewRef.current.destroy();
                 viewRef.current = null;
@@ -150,14 +167,14 @@ export function useEditor(props: CodeEditorProps) {
                             changes: {
                                 from: 0,
                                 to: currentDoc.length,
-                                insert: props.language.initialBody
-                            }
+                                insert: props.language.initialBody,
+                            },
                         });
                     } else {
                         viewRef.current.dispatch({ effects });
                     }
                 }
-            } catch (e) { }
+            } catch (e) {}
         };
         updateLang();
         // Re-run when language id or initial body changes so components like EmbeddedCodeRunner

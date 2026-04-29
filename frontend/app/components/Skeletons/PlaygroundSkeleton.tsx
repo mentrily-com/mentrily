@@ -1,12 +1,9 @@
-"use client";
-import React from "react";
-import Navbar from "@/app/components/Navbar";
+'use client';
+import React from 'react';
 
 export default function PlaygroundSkeleton() {
     return (
         <div className="h-screen flex flex-col bg-white overflow-hidden font-sans">
-            <Navbar />
-
             <div className="flex-1 flex overflow-hidden">
                 <div className="flex-1 flex flex-col overflow-hidden relative">
                     {/* Tab Bar Skeleton */}

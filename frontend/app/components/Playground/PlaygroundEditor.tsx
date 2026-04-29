@@ -1,7 +1,7 @@
-"use client";
-import React from "react";
-import { useEditor } from "../Editor/hooks/useEditor";
-import { LanguageConfig } from "../Editor/types";
+'use client';
+import React from 'react';
+import { useEditor } from '../Editor/hooks/useEditor';
+import { LanguageConfig } from '../Editor/types';
 
 interface PlaygroundEditorProps {
     language: LanguageConfig;
@@ -13,8 +13,8 @@ export default function PlaygroundEditor({ language, code, onChange }: Playgroun
     const { editorRef } = useEditor({
         language: { ...language, initialBody: code },
         actions: {
-            onChange: (newCode) => onChange(newCode)
-        }
+            onChange: (newCode) => onChange(newCode),
+        },
     });
 
     return (
@@ -23,12 +23,14 @@ export default function PlaygroundEditor({ language, code, onChange }: Playgroun
             <div ref={editorRef} className="h-full w-full"></div>
 
             <style jsx global>{`
-                .cm-editor { 
-                    outline: none !important; 
-                    height: 100%; 
+                .cm-editor {
+                    outline: none !important;
+                    height: 100%;
                     background-color: white !important;
                 }
-                .cm-scroller { padding-top: 20px; }
+                .cm-scroller {
+                    padding-top: 20px;
+                }
                 .cm-content {
                     font-family: 'Geist Mono', 'JetBrains Mono', monospace !important;
                     font-size: 14px !important;
@@ -59,7 +61,9 @@ export default function PlaygroundEditor({ language, code, onChange }: Playgroun
                     opacity: 0.6 !important;
                     margin-left: 8px !important;
                 }
-                .cm-completionIcon { display: none !important; }
+                .cm-completionIcon {
+                    display: none !important;
+                }
 
                 .cm-gutters {
                     background-color: white !important;
@@ -69,16 +73,38 @@ export default function PlaygroundEditor({ language, code, onChange }: Playgroun
                     font-size: 12px !important;
                 }
                 /* Syntax Highlighting Visibility Fixes */
-                .cm-keyword { color: var(--brand) !important; font-weight: 600; }
-                .cm-string { color: #0891b2 !important; }
-                .cm-comment { color: #94a3b8 !important; font-style: italic; }
-                .cm-variable { color: #1e293b !important; }
-                .cm-number { color: #e11d48 !important; }
-                .cm-operator { color: #64748b !important; }
-                
-                .cm-activeLine { background-color: #f8fafc !important; }
-                .cm-activeLineGutter { background-color: #f8fafc !important; color: var(--brand) !important; font-weight: bold; }
-                .cm-selectionBackground { background-color: #ffedd5 !important; }
+                .cm-keyword {
+                    color: var(--brand) !important;
+                    font-weight: 600;
+                }
+                .cm-string {
+                    color: #0891b2 !important;
+                }
+                .cm-comment {
+                    color: #94a3b8 !important;
+                    font-style: italic;
+                }
+                .cm-variable {
+                    color: #1e293b !important;
+                }
+                .cm-number {
+                    color: #e11d48 !important;
+                }
+                .cm-operator {
+                    color: #64748b !important;
+                }
+
+                .cm-activeLine {
+                    background-color: #f8fafc !important;
+                }
+                .cm-activeLineGutter {
+                    background-color: #f8fafc !important;
+                    color: var(--brand) !important;
+                    font-weight: bold;
+                }
+                .cm-selectionBackground {
+                    background-color: #ffedd5 !important;
+                }
             `}</style>
         </div>
     );

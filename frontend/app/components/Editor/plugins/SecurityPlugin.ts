@@ -1,10 +1,10 @@
-import { EditorView, KeyBinding, keymap } from "@codemirror/view";
-import { Extension } from "@codemirror/state";
-import { SecurityOptions } from "../types";
+import { EditorView, KeyBinding, keymap } from '@codemirror/view';
+import { Extension } from '@codemirror/state';
+import { SecurityOptions } from '../types';
 
 // Module-level clipboard for internal copy/paste within editors
 // This allows copy/paste within the editor while blocking external clipboard
-let internalClipboard: string = "";
+let internalClipboard: string = '';
 let lastCopyTimestamp: number = 0;
 
 /**
@@ -23,7 +23,7 @@ export function securityPlugin(options: SecurityOptions, onCheat?: (reason: stri
                 if (allowInternal) {
                     // Block the browser paste
                     event.preventDefault();
-                    
+
                     // Check if we have internal clipboard content (copied within last 30 min)
                     const timeSinceCopy = Date.now() - lastCopyTimestamp;
                     if (internalClipboard && timeSinceCopy < 30 * 60 * 1000) {
@@ -31,17 +31,17 @@ export function securityPlugin(options: SecurityOptions, onCheat?: (reason: stri
                         const { from, to } = view.state.selection.main;
                         view.dispatch({
                             changes: { from, to, insert: internalClipboard },
-                            selection: { anchor: from + internalClipboard.length }
+                            selection: { anchor: from + internalClipboard.length },
                         });
                         return true;
                     }
-                    
+
                     // No internal content - this is an external paste attempt
-                    onCheat?.("External paste attempt blocked");
+                    onCheat?.('External paste attempt blocked');
                     return true;
                 }
                 event.preventDefault();
-                onCheat?.("Paste attempt blocked");
+                onCheat?.('Paste attempt blocked');
                 return true;
             }
         },
@@ -50,10 +50,7 @@ export function securityPlugin(options: SecurityOptions, onCheat?: (reason: stri
                 if (allowInternal) {
                     // Allow copy but store in internal clipboard instead of system clipboard
                     event.preventDefault();
-                    const selection = view.state.sliceDoc(
-                        view.state.selection.main.from,
-                        view.state.selection.main.to
-                    );
+                    const selection = view.state.sliceDoc(view.state.selection.main.from, view.state.selection.main.to);
                     if (selection) {
                         internalClipboard = selection;
                         lastCopyTimestamp = Date.now();
@@ -61,7 +58,7 @@ export function securityPlugin(options: SecurityOptions, onCheat?: (reason: stri
                     return true;
                 }
                 event.preventDefault();
-                onCheat?.("Copy attempt blocked");
+                onCheat?.('Copy attempt blocked');
                 return true;
             }
         },
@@ -77,20 +74,20 @@ export function securityPlugin(options: SecurityOptions, onCheat?: (reason: stri
                         lastCopyTimestamp = Date.now();
                         // Remove the selected text
                         view.dispatch({
-                            changes: { from, to, insert: "" }
+                            changes: { from, to, insert: '' },
                         });
                     }
                     return true;
                 }
                 event.preventDefault();
-                onCheat?.("Cut attempt blocked");
+                onCheat?.('Cut attempt blocked');
                 return true;
             }
         },
         drop(event, view) {
             if (options.disableDragDrop) {
                 event.preventDefault();
-                onCheat?.("Drag and drop attempt blocked");
+                onCheat?.('Drag and drop attempt blocked');
                 return true;
             }
         },
@@ -99,7 +96,7 @@ export function securityPlugin(options: SecurityOptions, onCheat?: (reason: stri
                 event.preventDefault();
                 return true;
             }
-        }
+        },
     });
 
     extensions.push(eventHandler);
@@ -110,9 +107,9 @@ export function securityPlugin(options: SecurityOptions, onCheat?: (reason: stri
     if (options.disableUndoRedo) {
         // Override common undo/redo combos
         customKeybindings.push(
-            { key: "Mod-z", run: () => true, preventDefault: true },
-            { key: "Mod-y", run: () => true, preventDefault: true },
-            { key: "Mod-Shift-z", run: () => true, preventDefault: true }
+            { key: 'Mod-z', run: () => true, preventDefault: true },
+            { key: 'Mod-y', run: () => true, preventDefault: true },
+            { key: 'Mod-Shift-z', run: () => true, preventDefault: true },
         );
     }
 
@@ -121,43 +118,40 @@ export function securityPlugin(options: SecurityOptions, onCheat?: (reason: stri
     if (allowInternal && (options.disableCopy || options.disablePaste || options.disableCut)) {
         if (options.disableCopy) {
             customKeybindings.push({
-                key: "Mod-c",
+                key: 'Mod-c',
                 run: (view) => {
-                    const selection = view.state.sliceDoc(
-                        view.state.selection.main.from,
-                        view.state.selection.main.to
-                    );
+                    const selection = view.state.sliceDoc(view.state.selection.main.from, view.state.selection.main.to);
                     if (selection) {
                         internalClipboard = selection;
                         lastCopyTimestamp = Date.now();
                     }
                     return true;
                 },
-                preventDefault: true
+                preventDefault: true,
             });
         }
         if (options.disablePaste) {
             customKeybindings.push({
-                key: "Mod-v",
+                key: 'Mod-v',
                 run: (view) => {
                     const timeSinceCopy = Date.now() - lastCopyTimestamp;
                     if (internalClipboard && timeSinceCopy < 30 * 60 * 1000) {
                         const { from, to } = view.state.selection.main;
                         view.dispatch({
                             changes: { from, to, insert: internalClipboard },
-                            selection: { anchor: from + internalClipboard.length }
+                            selection: { anchor: from + internalClipboard.length },
                         });
-                    } else if (internalClipboard === "" || timeSinceCopy >= 30 * 60 * 1000) {
-                        onCheat?.("External paste attempt blocked");
+                    } else if (internalClipboard === '' || timeSinceCopy >= 30 * 60 * 1000) {
+                        onCheat?.('External paste attempt blocked');
                     }
                     return true;
                 },
-                preventDefault: true
+                preventDefault: true,
             });
         }
         if (options.disableCut) {
             customKeybindings.push({
-                key: "Mod-x",
+                key: 'Mod-x',
                 run: (view) => {
                     const { from, to } = view.state.selection.main;
                     const selection = view.state.sliceDoc(from, to);
@@ -165,19 +159,19 @@ export function securityPlugin(options: SecurityOptions, onCheat?: (reason: stri
                         internalClipboard = selection;
                         lastCopyTimestamp = Date.now();
                         view.dispatch({
-                            changes: { from, to, insert: "" }
+                            changes: { from, to, insert: '' },
                         });
                     }
                     return true;
                 },
-                preventDefault: true
+                preventDefault: true,
             });
         }
     } else if (options.disableCopy || options.disablePaste || options.disableCut) {
         // Block all copy/paste/cut completely
-        if (options.disableCopy) customKeybindings.push({ key: "Mod-c", run: () => true, preventDefault: true });
-        if (options.disablePaste) customKeybindings.push({ key: "Mod-v", run: () => true, preventDefault: true });
-        if (options.disableCut) customKeybindings.push({ key: "Mod-x", run: () => true, preventDefault: true });
+        if (options.disableCopy) customKeybindings.push({ key: 'Mod-c', run: () => true, preventDefault: true });
+        if (options.disablePaste) customKeybindings.push({ key: 'Mod-v', run: () => true, preventDefault: true });
+        if (options.disableCut) customKeybindings.push({ key: 'Mod-x', run: () => true, preventDefault: true });
     }
 
     if (customKeybindings.length > 0) {

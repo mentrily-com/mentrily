@@ -1,0 +1,14 @@
+{
+  "name": "mentrily-workspace",
+  "private": true,
+  "scripts": {
+    "check": "npm run check --prefix frontend && npm run check --prefix backend",
+    "check:full": "npm run check:full --prefix frontend && npm run check:full --prefix backend",
+    "build": "npm run build --prefix frontend && npm run build --prefix backend",
+    "clean": "npm run clean --prefix frontend && npm run clean --prefix backend",
+    "deadcode": "npm run knip --prefix frontend && npm run knip --prefix backend",
+    "format": "npm run format --prefix frontend && npm run format --prefix backend",
+    "lint": "npm run lint --prefix frontend && npm run lint --prefix backend",
+    "typecheck": "npm run typecheck --prefix frontend && npm run typecheck --prefix backend"
+  }
+}

@@ -18,9 +18,16 @@ async function loadPyodideEnv() {
         await pyodide.runPythonAsync(`
 import sys
 import io
+import base64
+import warnings
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+warnings.filterwarnings(
+    "ignore",
+    message="Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.",
+    category=UserWarning,
+)
 
 def _get_plots_base64():
     plots = []
@@ -64,18 +71,32 @@ self.onmessage = async (event) => {
 
         try {
             // 1. Prepare Environment
-            await pyodide.runPythonAsync("import sys; import io; import base64; sys.stdout = io.StringIO(); sys.stderr = io.StringIO();");
+            await pyodide.runPythonAsync(`
+import sys
+import io
+import base64
+import warnings
+_mentrily_stdout = io.StringIO()
+_mentrily_stderr = io.StringIO()
+sys.stdout = _mentrily_stdout
+sys.stderr = _mentrily_stderr
+warnings.filterwarnings(
+    "ignore",
+    message="Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.",
+    category=UserWarning,
+)
+`);
 
-            // 2. Capture stdout callbacks
-            // We use a custom print handler if needed, but here we'll pull from sys.stdout after run
-            // Alternatively, setStdout works well for streaming
-            pyodide.setStdout({ batched: (msg) => self.postMessage({ id, type: "stdout", text: msg }) });
-            pyodide.setStderr({ batched: (msg) => self.postMessage({ id, type: "stderr", text: msg }) });
-
-            // 3. Execute User Code
+            // 2. Execute User Code
             await pyodide.runPythonAsync(code);
 
-            // 4. Capture Plots
+            // 3. Capture stdout/stderr
+            const stdout = await pyodide.runPythonAsync("_mentrily_stdout.getvalue()");
+            const stderr = await pyodide.runPythonAsync("_mentrily_stderr.getvalue()");
+            if (stdout) self.postMessage({ id, type: "stdout", text: stdout });
+            if (stderr) self.postMessage({ id, type: "stderr", text: stderr });
+
+            // 4. Capture plots
             // check available plots
             const plotsProxy = await pyodide.runPythonAsync("_get_plots_base64()");
             const plots = plotsProxy.toJs();

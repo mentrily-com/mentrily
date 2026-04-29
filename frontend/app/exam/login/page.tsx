@@ -1,36 +1,51 @@
-"use client";
-import React from 'react';
-import { BRAND } from '../../constants/brand';
-
+'use client';
+import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
 import { useOrganization } from '@/app/context/OrganizationContext';
 import Loading from '@/app/loading';
-import { examLoginAction } from '@/actions/examAuth';
+import { AuthService } from '@/services/api/AuthService';
 import { ExamService } from '@/services/api/ExamService';
 import { buildOrgUrl, getRootDomain } from '@/lib/domain';
+import { AuthenticateWithRedirectCallback, useClerk, useSignIn, useUser } from '@clerk/nextjs';
+import { ArrowLeft, ArrowRight, KeyRound, Loader2 } from 'lucide-react';
+import { BrandLockup } from '@/components/brand/BrandLockup';
 
 export default function ExamLoginPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { isLoaded: signInLoaded, signIn, setActive } = useSignIn();
+    const { signOut } = useClerk();
+    const { user, isSignedIn } = useUser();
 
     const [loading, setLoading] = useState(false);
-    const [isCheckingStatus, setIsCheckingStatus] = useState(true); // Start true to prevent flicker
-    const [password, setPassword] = useState('');
+    const [isCheckingStatus, setIsCheckingStatus] = useState(true);
     const [rollNo, setRollNo] = useState('');
     const [testCode, setTestCode] = useState('');
-    const [email, setEmail] = useState('');
     const [name, setName] = useState('');
     const [section, setSection] = useState('');
     const [error, setError] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [isSignInLoading, setIsSignInLoading] = useState(false);
+    const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+    const [isTestCodeVerified, setIsTestCodeVerified] = useState(false);
+    const [verificationCode, setVerificationCode] = useState('');
+    const [secondFactorReady, setSecondFactorReady] = useState(false);
+    const [secondFactorTarget, setSecondFactorTarget] = useState('');
 
     const { organization: orgContext } = useOrganization();
     const [examInfo, setExamInfo] = useState<any>(null);
     const slugFromQuery = searchParams?.get('slug');
+    const afterSignInUrl = `/exam/login${slugFromQuery ? `?slug=${encodeURIComponent(slugFromQuery)}` : ''}`;
+    const oauthMode = searchParams.get('oauth');
+    const isOauthCallback = oauthMode === 'callback';
+    const pendingCodeStorageKey = slugFromQuery
+        ? `exam_oauth_pending_code:${slugFromQuery}`
+        : 'exam_oauth_pending_code';
 
-    const displayName = orgContext?.name || BRAND.name;
-    const displayLogo = orgContext?.logo || BRAND.logoImage;
-    const APP_DOWNLOAD_URL = "https://github.com/Sumanydv/electron-app-download/releases/download/v0.0.1/blockscode-Setup-0.0.1.exe";
+    const APP_DOWNLOAD_URL =
+        'https://github.com/Sumanydv/electron-app-download/releases/download/v0.0.1/mentrily-Setup-0.0.1.exe';
 
     const isElectronClient = () => {
         if (typeof window === 'undefined') return false;
@@ -40,7 +55,15 @@ export default function ExamLoginPage() {
 
     const isAppRequired = error === 'APP_REQUIRED';
 
+    const signedInUserName = user?.fullName || user?.firstName || user?.username || 'Signed-in user';
+    const signedInUserEmail = user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || '';
+
+    const handleSignOut = async () => {
+        await signOut({ redirectUrl: afterSignInUrl });
+    };
+
     useEffect(() => {
+        if (isOauthCallback) return;
         if (slugFromQuery) {
             const fetchExam = async () => {
                 try {
@@ -53,12 +76,11 @@ export default function ExamLoginPage() {
                         return;
                     }
 
-                    // Check if exam hasn't started yet
                     if (data.startTime) {
                         const start = new Date(data.startTime).getTime();
                         if (Date.now() < start) {
                             router.push(`/exam/waiting?slug=${slugFromQuery}`);
-                            return; // Do NOT set isCheckingStatus to false, keep loading while redirecting
+                            return;
                         }
                     }
                     setIsCheckingStatus(false);
@@ -75,12 +97,14 @@ export default function ExamLoginPage() {
         } else {
             setIsCheckingStatus(false);
         }
-    }, [slugFromQuery]);
+    }, [slugFromQuery, router, isOauthCallback]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         const errorType = searchParams?.get('error');
         if (errorType === 'active_session') {
-            setError('This exam is already active in another tab or device. Please close other instances and wait 2 minutes to retry.');
+            setError(
+                'This exam is already active in another tab or device. Please close other instances and wait 2 minutes to retry.',
+            );
         } else if (errorType === 'duplicate_login') {
             setError('You have been logged out because a new session was started on another tab or device.');
         } else if (errorType === 'suspended') {
@@ -92,33 +116,70 @@ export default function ExamLoginPage() {
         } else if (errorType === 'app_required') {
             setError('APP_REQUIRED');
         } else if (errorType === 'not_student') {
-            setError('Access Denied: Only Student accounts can access exams. Please log in with a student account or use an incognito window.');
+            setError(
+                'Access Denied: Only Student accounts can access exams. Please log in with a student account or use an incognito window.',
+            );
+        } else if (errorType === 'account_not_found') {
+            setError('Account does not exist for exam access. Ask your teacher to add you first.');
         }
     }, [searchParams]);
 
-    const handleLogin = async () => {
-        if (!email || !testCode || !rollNo || !name) {
-            setError('Email, Test Code, Roll Number, and Full Name are required');
+    const syncExistingExamUserOrReject = async () => {
+        const existingUser = await AuthService.checkSession(true);
+        if (existingUser) {
+            return existingUser;
+        }
+
+        await signOut({ redirectUrl: `${afterSignInUrl}${afterSignInUrl.includes('?') ? '&' : '?'}error=account_not_found` });
+        return null;
+    };
+
+    const finalizeExamSignIn = async (createdSessionId?: string | null) => {
+        if (!createdSessionId) {
+            throw new Error('Exam sign-in session could not be created.');
+        }
+        if (!setActive) {
+            throw new Error('Session activation is unavailable.');
+        }
+
+        await setActive({
+            session: createdSessionId,
+            navigate: async () => {},
+        });
+
+        return await syncExistingExamUserOrReject();
+    };
+
+    const prepareExamSecondFactor = async (result: any) => {
+        const emailFactor = result?.supportedSecondFactors?.find(
+            (factor: any) => factor?.strategy === 'email_code',
+        );
+
+        if (!emailFactor) {
+            throw new Error('This account requires a second factor that is not supported here.');
+        }
+
+        await result.prepareSecondFactor({
+            strategy: 'email_code',
+            emailAddressId: emailFactor.emailAddressId,
+        });
+
+        setSecondFactorReady(true);
+        setSecondFactorTarget(emailFactor.safeIdentifier || email);
+    };
+
+    const handleLogin = async (codeOverride?: string) => {
+        const effectiveTestCode = (codeOverride ?? testCode).trim();
+        if (!effectiveTestCode) {
+            setError('Test Code is required');
             return;
         }
         setLoading(true);
         setError('');
         try {
-            // Secure Server Action - Sets HttpOnly Cookie
-            const result = await examLoginAction(email, testCode, password, slugFromQuery);
-
-            if (!result.success) {
-                throw new Error(result.error);
-            }
-
-            const data = result; // maintain structure
+            const data = await AuthService.examLogin(effectiveTestCode, slugFromQuery || undefined);
             const postLoginUrl = data.postLoginUrl as string | undefined;
             const orgSlug = data.primaryOrganization?.slug as string | undefined;
-
-            // Store user + token for client-side context (ExamPage + WebSocket auth)
-            if (data.user) {
-                localStorage.setItem('user', JSON.stringify(data.user));
-            }
 
             if (orgSlug && window.location.hostname.includes('localhost')) {
                 localStorage.setItem('local_org_simulation', orgSlug);
@@ -127,18 +188,17 @@ export default function ExamLoginPage() {
 
             const targetSlug = data.exam?.slug || slugFromQuery;
             if (targetSlug) {
-                // Store student metadata for session initialization (Non-sensitive display info)
-                const metadata = { rollNumber: rollNo, name, section };
+                const metadata = {
+                    rollNumber: rollNo || user?.unsafeMetadata?.rollNumber || user?.publicMetadata?.rollNumber || '',
+                    name: name || signedInUserName,
+                    section,
+                };
                 localStorage.setItem(`exam_${targetSlug}_metadata`, JSON.stringify(metadata));
-
-                // Set mandatory auth marker (just a UI flag, real auth is cookie)
                 localStorage.setItem(`exam_${targetSlug}_auth`, 'true');
 
                 const host = window.location.hostname.toLowerCase();
                 const isLocalHost =
-                    host === 'localhost' ||
-                    host.endsWith('.localhost') ||
-                    /^\d+\.\d+\.\d+\.\d+$/.test(host);
+                    host === 'localhost' || host.endsWith('.localhost') || /^\d+\.\d+\.\d+\.\d+$/.test(host);
 
                 const configuredRootDomain = getRootDomain();
                 const hostParts = host.split('.');
@@ -155,9 +215,7 @@ export default function ExamLoginPage() {
                         : derivedRootDomain;
 
                 const canSetCrossSubdomainCookie =
-                    !isLocalHost &&
-                    Boolean(rootDomain) &&
-                    (host === rootDomain || host.endsWith(`.${rootDomain}`));
+                    !isLocalHost && Boolean(rootDomain) && (host === rootDomain || host.endsWith(`.${rootDomain}`));
                 const domainAttr = canSetCrossSubdomainCookie ? `; domain=.${rootDomain}` : '';
                 const cookieMaxAge = 4 * 60 * 60;
 
@@ -172,7 +230,6 @@ export default function ExamLoginPage() {
                     return;
                 }
 
-                // Use replace to prevent going back to login page
                 router.replace(`/exam/${targetSlug}`);
             } else {
                 router.push('/exam');
@@ -180,9 +237,10 @@ export default function ExamLoginPage() {
         } catch (err: any) {
             if (err.message && err.message.includes('APP_REQUIRED')) {
                 setError('APP_REQUIRED');
-            } else 
-            if (err.message && (err.message.includes('EXAM_ALREADY_ACTIVE') || err.message.includes('409'))) {
-                setError('This exam is already active on another device or tab. Please close other instances and wait 2 minutes to retry.');
+            } else if (err.message && (err.message.includes('EXAM_ALREADY_ACTIVE') || err.message.includes('409'))) {
+                setError(
+                    'This exam is already active on another device or tab. Please close other instances and wait 2 minutes to retry.',
+                );
             } else if (err.message && err.message.includes('EXAM_ALREADY_SUBMITTED')) {
                 setError('You have already attempted and submitted this exam. Multiple attempts are not allowed.');
             } else if (err.message && err.message.includes('ACCOUNT_SUSPENDED')) {
@@ -195,7 +253,122 @@ export default function ExamLoginPage() {
         }
     };
 
+    const handleEmailPasswordSignIn = async () => {
+        if (!signInLoaded || !signIn) return;
+        if (!email || !password) {
+            setError('Email and Password are required');
+            return;
+        }
 
+        setIsSignInLoading(true);
+        setError('');
+
+        try {
+            const result = await signIn.create({ identifier: email, password });
+            if (result.status === 'complete') {
+                await finalizeExamSignIn(result.createdSessionId);
+            } else if (result.status === 'needs_second_factor') {
+                await prepareExamSecondFactor(result);
+            } else {
+                setError('Sign in incomplete. Please try again.');
+            }
+        } catch (err: any) {
+            setError(err?.errors?.[0]?.longMessage || err?.message || 'Sign in failed');
+        } finally {
+            setIsSignInLoading(false);
+        }
+    };
+
+    const handleSecondFactorSignIn = async () => {
+        if (!signInLoaded || !signIn) return;
+        if (!verificationCode.trim()) {
+            setError('Verification code is required');
+            return;
+        }
+
+        setIsSignInLoading(true);
+        setError('');
+
+        try {
+            const result = await signIn.attemptSecondFactor({
+                strategy: 'email_code',
+                code: verificationCode.trim(),
+            });
+
+            if (result.status === 'complete') {
+                await finalizeExamSignIn(result.createdSessionId);
+            } else {
+                setError('Verification incomplete. Please try again.');
+            }
+        } catch (err: any) {
+            setError(err?.errors?.[0]?.longMessage || err?.message || 'Verification failed');
+        } finally {
+            setIsSignInLoading(false);
+        }
+    };
+
+    const handleGoogleSignIn = async () => {
+        if (!signInLoaded || !signIn) return;
+        const code = testCode.trim();
+
+        if (!code) {
+            setError('Enter test code before using Google login');
+            return;
+        }
+
+        setIsGoogleLoading(true);
+        setError('');
+
+        try {
+            await AuthService.verifyExamTestCode(code, slugFromQuery || undefined);
+            setIsTestCodeVerified(true);
+            sessionStorage.setItem(pendingCodeStorageKey, code);
+
+            const origin = typeof window !== 'undefined' ? window.location.origin : '';
+            await signIn.authenticateWithRedirect({
+                strategy: 'oauth_google',
+                redirectUrl: `${origin}${afterSignInUrl}${afterSignInUrl.includes('?') ? '&' : '?'}oauth=callback`,
+                redirectUrlComplete: `${origin}${afterSignInUrl}`,
+            });
+        } catch (err: any) {
+            setIsTestCodeVerified(false);
+            setError(err?.message || 'Invalid test code');
+            setIsGoogleLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (!isSignedIn || !slugFromQuery || loading) return;
+
+        const pendingCode = sessionStorage.getItem(pendingCodeStorageKey);
+        if (!pendingCode) return;
+
+        let cancelled = false;
+
+        const resumeExamLogin = async () => {
+            const existingUser = await syncExistingExamUserOrReject();
+            if (!existingUser || cancelled) return;
+
+            setTestCode(pendingCode);
+            sessionStorage.removeItem(pendingCodeStorageKey);
+            handleLogin(pendingCode);
+        };
+
+        resumeExamLogin();
+        return () => {
+            cancelled = true;
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isSignedIn, slugFromQuery, pendingCodeStorageKey]);
+
+    if (isOauthCallback) {
+        return (
+            <AuthenticateWithRedirectCallback
+                transferable={false}
+                signInUrl={afterSignInUrl}
+            />
+        );
+    }
 
     if (isCheckingStatus) {
         return <Loading />;
@@ -204,23 +377,18 @@ export default function ExamLoginPage() {
     return (
         <div className="h-screen w-full bg-slate-50 flex items-center justify-center font-sans overflow-hidden">
             <div className="w-full h-full flex flex-col md:flex-row bg-white overflow-hidden shadow-2xl">
-                {/* Left Side: Login Form */}
                 <div className="w-full md:w-1/2 p-8 md:p-12 lg:p-16 flex flex-col justify-center bg-white relative z-10">
                     <div className="max-w-md mx-auto w-full">
                         <div className="mb-10">
-                            {/* Brand Logo - Same as Navbar */}
                             <div className="flex items-center gap-2.5 mb-8">
-                                {displayLogo ? (
-                                    <img src={displayLogo} alt="Logo" className="w-10 h-10 object-contain shrink-0" />
-                                ) : (
-                                    <div className="w-10 h-10 rounded-lg bg-[var(--brand)] flex items-center justify-center overflow-hidden shrink-0">
-                                        <span className="text-white font-black text-sm">{BRAND.logoText}</span>
-                                    </div>
-                                )}
-                                <span className="text-2xl font-black text-slate-800 tracking-tighter">
-                                    {displayName}
-                                    {!orgContext && <span className="text-[var(--brand)]">{BRAND.suffix}</span>}
-                                </span>
+                                <BrandLockup
+                                    orgName={orgContext?.name}
+                                    orgLogo={orgContext?.logo}
+                                    defaultLogoClassName="h-9 max-w-[180px]"
+                                    iconClassName="h-10 w-10 rounded-lg"
+                                    textClassName="text-2xl font-black tracking-tighter"
+                                    priority
+                                />
                             </div>
 
                             <h1 className="text-3xl font-black text-slate-900 mb-2">Student Login</h1>
@@ -230,17 +398,13 @@ export default function ExamLoginPage() {
                         {isAppRequired ? (
                             <div className="bg-white rounded-2xl border border-indigo-200 overflow-hidden shadow-sm">
                                 <div className="bg-indigo-50 p-6 flex flex-col items-center justify-center border-b border-indigo-100">
-                                    <div className="h-16 w-16 rounded-full bg-indigo-100 flex items-center justify-center mb-4">
-                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M12 17h.01" /></svg>
-                                    </div>
                                     <h2 className="text-xl font-bold text-indigo-700">App Required</h2>
                                 </div>
                                 <div className="p-6 bg-white text-center space-y-3">
                                     <p className="text-slate-600 text-sm leading-relaxed">
-                                        This exam is configured for <span className="font-bold text-slate-800">App (Secure)</span> mode and cannot be attempted in a web browser.
-                                    </p>
-                                    <p className="text-slate-500 text-xs leading-relaxed">
-                                        Download and open the desktop exam application, then login again with your exam credentials.
+                                        This exam is configured for{' '}
+                                        <span className="font-bold text-slate-800">App (Secure)</span> mode and cannot
+                                        be attempted in a web browser.
                                     </p>
                                     <a
                                         href={APP_DOWNLOAD_URL}
@@ -250,211 +414,253 @@ export default function ExamLoginPage() {
                                     </a>
                                 </div>
                             </div>
-                        ) : error === 'Network Not Allowed.' ? (
-                            <div className="bg-white rounded-2xl border border-rose-200 overflow-hidden shadow-sm">
-                                <div className="bg-rose-50 p-6 flex flex-col items-center justify-center border-b border-rose-100">
-                                    <div className="h-16 w-16 rounded-full bg-rose-100 flex items-center justify-center mb-4">
-                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-rose-600"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                                    </div>
-                                    <h2 className="text-xl font-bold text-rose-700">Access Restricted</h2>
-                                </div>
-                                <div className="p-6 bg-white text-center">
-                                    <p className="text-slate-600 mb-6 text-sm leading-relaxed">
-                                        Your current network is not authorized for this exam workspace. Please connect from an approved venue network and try again.
-                                    </p>
-                                    <button
-                                        onClick={() => window.location.reload()}
-                                        className="w-full flex items-center justify-center px-4 py-2.5 bg-slate-900 text-white font-medium rounded-xl hover:bg-slate-800 transition-colors text-sm"
-                                    >
-                                        Retry Connection
-                                    </button>
-                                </div>
-                            </div>
                         ) : (
                             <>
                                 {error && (
                                     <div className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-xl flex items-center gap-3 text-rose-600 text-sm font-bold animate-shake">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
                                         {error}
                                     </div>
                                 )}
 
                                 <form className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1.5">
-                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" ry="1" /></svg>
-                                        Roll Number
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={rollNo}
-                                        onChange={(e) => setRollNo(e.target.value)}
-                                        className="w-full h-10 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400 text-sm"
-                                        placeholder="e.g. 210056"
-                                    />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                                        Section
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={section}
-                                        onChange={(e) => setSection(e.target.value)}
-                                        className="w-full h-10 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400 text-sm"
-                                        placeholder="e.g. A"
-                                    />
-                                </div>
-                            </div>
+                                    {isSignedIn ? (
+                                        <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-emerald-200 bg-emerald-50">
+                                            <div className="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center uppercase">
+                                                {(signedInUserName || signedInUserEmail || 'U').slice(0, 2)}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-bold text-emerald-800 truncate">
+                                                    {signedInUserName}
+                                                </p>
+                                                {signedInUserEmail && (
+                                                    <p className="text-xs text-emerald-700 truncate">
+                                                        {signedInUserEmail}
+                                                    </p>
+                                                )}
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={handleSignOut}
+                                                className="text-xs font-semibold text-slate-500 underline hover:text-slate-700"
+                                            >
+                                                Not you? Sign out
+                                            </button>
+                                        </div>
+                                    ) : !secondFactorReady ? (
+                                        <>
+                                            <div className="space-y-1.5">
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                                    Email
+                                                </label>
+                                                <input
+                                                    type="email"
+                                                    value={email}
+                                                    onChange={(e) => setEmail(e.target.value)}
+                                                    className="w-full h-10 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 font-semibold"
+                                                    placeholder="name@company.com"
+                                                />
+                                            </div>
+                                            <div className="space-y-1.5">
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                                    Password
+                                                </label>
+                                                <div className="relative">
+                                                    <input
+                                                        type={showPassword ? 'text' : 'password'}
+                                                        value={password}
+                                                        onChange={(e) => setPassword(e.target.value)}
+                                                        className="w-full h-10 px-4 pr-12 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 font-semibold"
+                                                        placeholder="••••••••"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowPassword((prev) => !prev)}
+                                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500 font-bold"
+                                                    >
+                                                        {showPassword ? 'Hide' : 'Show'}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            <div className="rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3">
+                                                <p className="text-xs font-black uppercase tracking-widest text-indigo-500">
+                                                    Verify Sign-In
+                                                </p>
+                                                <p className="mt-1 text-sm font-semibold text-slate-800">
+                                                    Enter the code sent to {secondFactorTarget || email}.
+                                                </p>
+                                            </div>
+                                            <div className="space-y-1.5">
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                                    Verification Code
+                                                </label>
+                                                <div className="relative">
+                                                    <input
+                                                        type="text"
+                                                        value={verificationCode}
+                                                        onChange={(e) => setVerificationCode(e.target.value)}
+                                                        className="w-full h-10 px-4 pr-12 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 font-semibold"
+                                                        placeholder="123456"
+                                                        inputMode="numeric"
+                                                        autoComplete="one-time-code"
+                                                    />
+                                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                                        <KeyRound size={16} />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
 
-                            <div className="space-y-1.5">
-                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                                    Full Name
-                                </label>
-                                <input
-                                    type="text"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    className="w-full h-10 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400 text-sm"
-                                    placeholder="Type your full name"
-                                />
-                            </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1.5">
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                                Roll Number
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={rollNo}
+                                                onChange={(e) => setRollNo(e.target.value)}
+                                                className="w-full h-10 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 font-semibold"
+                                                placeholder="e.g. 210056"
+                                            />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                                Section
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={section}
+                                                onChange={(e) => setSection(e.target.value)}
+                                                className="w-full h-10 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 font-semibold"
+                                                placeholder="e.g. A"
+                                            />
+                                        </div>
+                                    </div>
 
-                            <div className="space-y-1.5">
-                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
-                                    Email Address
-                                </label>
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="Enter your registered email"
-                                    className="w-full h-10 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400 text-sm"
-                                />
-                            </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                            Full Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                            className="w-full h-10 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 font-semibold"
+                                            placeholder="Type your full name"
+                                        />
+                                    </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1.5">
-                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                                        Password
-                                    </label>
-                                    <input
-                                        type="password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        placeholder="••••••••"
-                                        className="w-full h-10 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400 tracking-widest text-sm"
-                                    />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" /></svg>
-                                        Test Code
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={testCode}
-                                        onChange={(e) => setTestCode(e.target.value)}
-                                        className="w-full h-10 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400 text-sm"
-                                        placeholder="e.g. JS-TEST-01"
-                                    />
-                                </div>
-                            </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                            Test Code
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={testCode}
+                                            onChange={(e) => {
+                                                setTestCode(e.target.value);
+                                                setIsTestCodeVerified(false);
+                                            }}
+                                            className="w-full h-10 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 font-semibold"
+                                            placeholder="e.g. JS-TEST-01"
+                                        />
+                                        {isTestCodeVerified && (
+                                            <p className="text-[11px] font-bold text-emerald-600 mt-1">
+                                                ✓ Test code verified
+                                            </p>
+                                        )}
+                                    </div>
 
-                            <button
-                                type="button"
-                                onClick={handleLogin}
-                                disabled={loading}
-                                className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-200 mt-4 flex items-center justify-center gap-2 disabled:opacity-70"
-                            >
-                                {loading ? (
-                                    <span>Verifying...</span>
-                                ) : (
-                                    <>
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" /></svg>
-                                        Start Exam
-                                    </>
-                                )}
-                            </button>
-                        </form>
+                                    {isSignedIn ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleLogin()}
+                                            disabled={loading}
+                                            className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-200 mt-4 flex items-center justify-center gap-2 disabled:opacity-70"
+                                        >
+                                            {loading ? <span>Verifying...</span> : <span>Start Exam</span>}
+                                        </button>
+                                    ) : !secondFactorReady ? (
+                                        <>
+                                            <button
+                                                type="button"
+                                                onClick={handleEmailPasswordSignIn}
+                                                disabled={isSignInLoading}
+                                                className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-200 mt-4 flex items-center justify-center gap-2 disabled:opacity-70"
+                                            >
+                                                {isSignInLoading ? (
+                                                    <span>Signing in...</span>
+                                                ) : (
+                                                    <span>Sign in with Email</span>
+                                                )}
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={handleGoogleSignIn}
+                                                disabled={isGoogleLoading || !testCode.trim()}
+                                                className="w-full h-11 bg-white border border-slate-200 hover:bg-slate-50 text-slate-800 font-bold rounded-xl transition-all mt-2 flex items-center justify-center gap-2 disabled:opacity-60"
+                                            >
+                                                {isGoogleLoading ? (
+                                                    <span>Verifying Code...</span>
+                                                ) : (
+                                                    <span>Continue with Google</span>
+                                                )}
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <button
+                                                type="button"
+                                                onClick={handleSecondFactorSignIn}
+                                                disabled={isSignInLoading}
+                                                className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-200 mt-4 flex items-center justify-center gap-2 disabled:opacity-70"
+                                            >
+                                                {isSignInLoading ? (
+                                                    <>
+                                                        <Loader2 size={16} className="animate-spin" />
+                                                        <span>Verifying...</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <span>Verify & Continue</span>
+                                                        <ArrowRight size={16} />
+                                                    </>
+                                                )}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setSecondFactorReady(false);
+                                                    setVerificationCode('');
+                                                    setSecondFactorTarget('');
+                                                    setError('');
+                                                }}
+                                                disabled={isSignInLoading}
+                                                className="w-full h-11 bg-white border border-slate-200 hover:bg-slate-50 text-slate-800 font-bold rounded-xl transition-all mt-2 flex items-center justify-center gap-2 disabled:opacity-60"
+                                            >
+                                                <ArrowLeft size={16} />
+                                                <span>Back to password</span>
+                                            </button>
+                                        </>
+                                    )}
+                                </form>
                             </>
                         )}
                     </div>
                 </div>
 
-                {/* Right Side: Info Panel & Illustration */}
                 <div className="w-full md:w-1/2 bg-[#4F46E5] p-8 md:p-12 lg:p-16 text-white flex flex-col justify-between relative overflow-hidden">
-                    {/* Background Pattern */}
-                    <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-                    <div className="absolute bottom-0 left-0 w-96 h-96 bg-black/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
-
                     <div className="relative z-10 w-full">
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-bold tracking-wide mb-6">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" /></svg>
-                            Secure Exam Portal
-                        </div>
                         <h2 className="text-5xl font-black tracking-tight mb-2 leading-tight">
-                            {examInfo?.title || "Secure Examination"}
+                            {examInfo?.title || 'Secure Examination'}
                         </h2>
-                        <p className="text-indigo-100 font-medium text-lg mb-10">Please authenticate to begin your examination</p>
-
-                        {/* Exam Stats Grid */}
-                        <div className="grid grid-cols-2 gap-4 relative z-10 max-w-sm">
-                            <div className="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-2xl">
-                                <p className="text-[10px] font-bold text-indigo-200 uppercase tracking-widest mb-1">Total Sections</p>
-                                <p className="text-xl font-black">{examInfo?.totalSections || "--"}</p>
-                            </div>
-                            <div className="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-2xl">
-                                <p className="text-[10px] font-bold text-indigo-200 uppercase tracking-widest mb-1">Questions</p>
-                                <p className="text-xl font-black">{examInfo?.totalQuestions || "--"}</p>
-                            </div>
-                            <div className="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-2xl">
-                                <p className="text-[10px] font-bold text-indigo-200 uppercase tracking-widest mb-1">Duration</p>
-                                <p className="text-xl font-black">{examInfo?.duration || "--"} <span className="text-xs font-bold">MIN</span></p>
-                            </div>
-                            <div className="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-2xl">
-                                <p className="text-[10px] font-bold text-indigo-200 uppercase tracking-widest mb-1">Total Marks</p>
-                                <p className="text-xl font-black">{examInfo?.totalMarks || "--"}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Illustration */}
-                    <div className="relative z-10 w-full flex justify-center mt-12">
-                        <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full max-w-sm drop-shadow-2xl opacity-90">
-                            {/* Browser Window */}
-                            <rect x="50" y="50" width="300" height="200" rx="8" fill="#EEF2FF" />
-                            <path d="M50 58C50 53.5817 53.5817 50 58 50H342C346.418 50 350 53.5817 350 58V70H50V58Z" fill="#E0E7FF" />
-                            <circle cx="70" cy="60" r="3" fill="#A5B4FC" />
-                            <circle cx="80" cy="60" r="3" fill="#A5B4FC" />
-                            <circle cx="90" cy="60" r="3" fill="#A5B4FC" />
-
-                            {/* Content Blocks */}
-                            <rect x="80" y="90" width="140" height="8" rx="2" fill="#C7D2FE" />
-                            <rect x="80" y="110" width="200" height="4" rx="2" fill="#E0E7FF" />
-                            <rect x="80" y="120" width="180" height="4" rx="2" fill="#E0E7FF" />
-                            <rect x="80" y="130" width="160" height="4" rx="2" fill="#E0E7FF" />
-
-                            {/* Verified Shield Floating */}
-                            <g transform="translate(260, 160)">
-                                <circle cx="0" cy="0" r="30" fill="#4F46E5" stroke="white" strokeWidth="3" />
-                                <path d="M-8 0 L-2 6 L 8 -6" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                            </g>
-
-                            {/* Decorative Elements */}
-                            <circle cx="320" cy="80" r="4" fill="#818CF8" />
-                            <path d="M300 220 L320 230 L310 240" stroke="#818CF8" strokeWidth="2" fill="none" />
-                        </svg>
-                    </div>
-
-                    <div className="pt-8 border-t border-white/10 relative z-10">
-                        <p className="text-xs text-indigo-300 leading-relaxed text-center opacity-70">
-                            Protected by secure proctoring standards.
+                        <p className="text-indigo-100 font-medium text-lg mb-10">
+                            Please authenticate to begin your examination
                         </p>
                     </div>
                 </div>

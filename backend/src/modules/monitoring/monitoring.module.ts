@@ -12,4 +12,4 @@ import { AuthModule } from '../auth/auth.module';
   providers: [MonitoringGateway],
   exports: [MonitoringGateway],
 })
-export class MonitoringModule { }
+export class MonitoringModule {}

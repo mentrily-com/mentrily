@@ -1,5 +1,5 @@
-"use client";
-import React, { useState } from "react";
+'use client';
+import React, { useState } from 'react';
 
 interface PlaygroundTerminalProps {
     output: string[];
@@ -8,7 +8,12 @@ interface PlaygroundTerminalProps {
     onCustomInputChange: (val: string) => void;
 }
 
-export default function PlaygroundTerminal({ output, onClear, customInput, onCustomInputChange }: PlaygroundTerminalProps) {
+export default function PlaygroundTerminal({
+    output,
+    onClear,
+    customInput,
+    onCustomInputChange,
+}: PlaygroundTerminalProps) {
     const [showCustomInput, setShowCustomInput] = useState(false);
 
     return (
@@ -18,7 +23,9 @@ export default function PlaygroundTerminal({ output, onClear, customInput, onCus
                 {showCustomInput ? (
                     <div className="p-6 h-full flex flex-col gap-4 animate-in slide-in-from-right duration-300 bg-[#0d1117]">
                         <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Provide Standard Input (stdin)</span>
+                            <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">
+                                Provide Standard Input (stdin)
+                            </span>
                             <button
                                 onClick={() => setShowCustomInput(false)}
                                 className="text-[10px] text-orange-500 font-bold hover:underline"
@@ -36,7 +43,9 @@ export default function PlaygroundTerminal({ output, onClear, customInput, onCus
                 ) : (
                     <div className="p-6">
                         {output.length === 0 ? (
-                            <div className="text-slate-600 italic">No output yet. Press Execute to run your code...</div>
+                            <div className="text-slate-600 italic">
+                                No output yet. Press Execute to run your code...
+                            </div>
                         ) : (
                             output.map((line, i) => (
                                 <div key={i} className="mb-1 leading-relaxed">
@@ -54,16 +63,16 @@ export default function PlaygroundTerminal({ output, onClear, customInput, onCus
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => setShowCustomInput(!showCustomInput)}
-                        className={`px-4 py-1.5 rounded text-[11px] font-bold transition-all ${showCustomInput
-                            ? 'bg-orange-500 text-white'
-                            : 'bg-[#21262d] border border-[#30363d] text-slate-400 hover:text-slate-200'
-                            }`}
+                        className={`px-4 py-1.5 rounded text-[11px] font-bold transition-all ${
+                            showCustomInput
+                                ? 'bg-orange-500 text-white'
+                                : 'bg-[#21262d] border border-[#30363d] text-slate-400 hover:text-slate-200'
+                        }`}
                     >
-                        {showCustomInput ? "Hide Input" : "Custom Input"}
+                        {showCustomInput ? 'Hide Input' : 'Custom Input'}
                     </button>
                 </div>
             </div>
-
         </div>
     );
 }

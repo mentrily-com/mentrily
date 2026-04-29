@@ -1,23 +1,33 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import Navbar from "@/app/components/Navbar";
-import { siteConfig } from "@/app/config/site";
-import { Search, Globe, Shield, Filter, Mail, Ban, CheckCircle2, MoreVertical, Building2, Users, UserCog, Trash2, Power, ChevronLeft, ChevronRight } from "lucide-react";
-import { SuperAdminService } from "@/services/api/SuperAdminService";
-import DashboardSkeleton from "@/app/components/Skeletons/DashboardSkeleton";
-import { useToast } from "@/app/components/Common/Toast";
-import AlertModal from "@/app/components/Common/AlertModal";
+'use client';
+import React, { useState, useEffect } from 'react';
+import { siteConfig } from '@/app/config/site';
+import {
+    Search,
+    Ban,
+    CheckCircle2,
+    Building2,
+    Users,
+    Trash2,
+    ChevronLeft,
+    ChevronRight,
+    ArrowRightLeft,
+    Shield,
+} from 'lucide-react';
+import { SuperAdminService } from '@/services/api/SuperAdminService';
+import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import { useToast } from '@/app/components/Common/Toast';
+import AlertModal from '@/app/components/Common/AlertModal';
 
 const ROLE_LABELS: Record<string, string> = {
-    'SUPER_ADMIN': 'Super Admin',
-    'ADMIN': 'Organization Admin',
-    'TEACHER': 'Instructor',
-    'STUDENT': 'Student'
+    SUPER_ADMIN: 'Super Admin',
+    ADMIN: 'Organization Admin',
+    TEACHER: 'Instructor',
+    STUDENT: 'Student',
 };
 
 export default function SuperAdminUsersPage() {
-    const [searchQuery, setSearchQuery] = useState("");
-    const [debouncedSearch, setDebouncedSearch] = useState("");
+    const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalUsers, setTotalUsers] = useState(0);
@@ -25,6 +35,10 @@ export default function SuperAdminUsersPage() {
     const [users, setUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
+    const [organizations, setOrganizations] = useState<any[]>([]);
+    const [transferUser, setTransferUser] = useState<any | null>(null);
+    const [selectedTargetOrgId, setSelectedTargetOrgId] = useState('');
+    const [transferLoading, setTransferLoading] = useState(false);
     const { success, error: toastError } = useToast();
 
     // Delete Modal State
@@ -53,8 +67,8 @@ export default function SuperAdminUsersPage() {
                 setUsers(response);
             }
         } catch (error) {
-            console.error("Failed to fetch users", error);
-            toastError("Unable to retrieve global user index.");
+            console.error('Failed to fetch users', error);
+            toastError('Unable to retrieve global user index.');
         } finally {
             setLoading(false);
         }
@@ -64,17 +78,31 @@ export default function SuperAdminUsersPage() {
         fetchUsers();
     }, [page, debouncedSearch]);
 
+    useEffect(() => {
+        async function fetchOrganizations() {
+            try {
+                const data = await SuperAdminService.getOrganizations();
+                setOrganizations(Array.isArray(data) ? data : []);
+            } catch (error) {
+                console.error('Failed to fetch organizations', error);
+            }
+        }
+
+        fetchOrganizations();
+    }, []);
+
+    const enterpriseOrganizations = organizations.filter(
+        (org) => String(org.plan || '').toUpperCase() === 'ENTERPRISE',
+    );
+
     const handleToggleStatus = async (user: any) => {
         setActionLoading(user.id);
         try {
             await SuperAdminService.updateUser(user.id, { isActive: !user.isActive });
-            setUsers(users.map(u => u.id === user.id ? { ...u, isActive: !u.isActive } : u));
-            success(
-                `User account ${!user.isActive ? 'activated' : 'suspended'} successfully.`,
-                "Permissions Updated"
-            );
+            setUsers(users.map((u) => (u.id === user.id ? { ...u, isActive: !u.isActive } : u)));
+            success(`User account ${!user.isActive ? 'activated' : 'suspended'} successfully.`, 'Permissions Updated');
         } catch (error: any) {
-            toastError(error.message || "Failed to update user status");
+            toastError(error.message || 'Failed to update user status');
         } finally {
             setActionLoading(null);
         }
@@ -85,13 +113,44 @@ export default function SuperAdminUsersPage() {
         setLoading(true);
         try {
             await SuperAdminService.deleteUser(userToDelete.id);
-            setUsers(users.filter(u => u.id !== userToDelete.id));
-            success("User account permanently deleted.", "Account Removed");
+            setUsers(users.filter((u) => u.id !== userToDelete.id));
+            success('User account permanently deleted.', 'Account Removed');
         } catch (error: any) {
-            toastError(error.message || "Failed to delete user");
+            toastError(error.message || 'Failed to delete user');
         } finally {
             setLoading(false);
             setUserToDelete(null);
+        }
+    };
+
+    const openTransferModal = (user: any) => {
+        setTransferUser(user);
+        const preferredTarget = enterpriseOrganizations.find((org) => org.id !== user.orgId);
+        setSelectedTargetOrgId(preferredTarget?.id || '');
+    };
+
+    const handleTransferConfirm = async () => {
+        if (!transferUser || !selectedTargetOrgId) {
+            toastError('Please select a target Enterprise organization.');
+            return;
+        }
+
+        setTransferLoading(true);
+        try {
+            const response = await SuperAdminService.transferUserToOrganization(transferUser.id, selectedTargetOrgId);
+
+            const movedUsers = Number(response?.moved?.users || 0);
+            success(
+                `Transferred ${transferUser.name} successfully. ${movedUsers} users moved to the target organization.`,
+                'Transfer Completed',
+            );
+            setTransferUser(null);
+            setSelectedTargetOrgId('');
+            await fetchUsers();
+        } catch (error: any) {
+            toastError(error.message || 'Failed to transfer user');
+        } finally {
+            setTransferLoading(false);
         }
     };
 
@@ -101,19 +160,21 @@ export default function SuperAdminUsersPage() {
     if (loading && users.length === 0) return <DashboardSkeleton type="list" userRole="super-admin" />;
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans">
-            <Navbar userRole="super-admin" />
-
-            <main className="max-w-[1440px] mx-auto px-6 lg:px-12 py-10 animate-fade-in">
+        <div className="max-w-[1440px] mx-auto animate-fade-in">
+            <div className="px-6 lg:px-12 py-10">
                 <div className="flex items-center justify-between mb-12">
                     <div>
                         <h1 className="text-3xl font-black text-slate-900 tracking-tight">Global User Index</h1>
-                        <p className="text-slate-400 font-bold text-sm mt-1">Universal user control across all platform tenants.</p>
+                        <p className="text-slate-400 font-bold text-sm mt-1">
+                            Universal user control across all platform tenants.
+                        </p>
                     </div>
                     <div className="flex items-center gap-4 bg-white px-6 py-3 rounded-2xl border border-slate-100 shadow-sm">
                         <Users size={20} className="text-[var(--brand)]" />
                         <div>
-                            <p className="text-[10px] font-black uppercase text-slate-300 leading-none mb-1">Total Users</p>
+                            <p className="text-[10px] font-black uppercase text-slate-300 leading-none mb-1">
+                                Total Users
+                            </p>
                             <p className="text-lg font-black text-slate-800 leading-none">{totalUsers}</p>
                         </div>
                     </div>
@@ -139,11 +200,21 @@ export default function SuperAdminUsersPage() {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-slate-50/50 border-b border-slate-100">
-                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">User Identity</th>
-                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Auth Role</th>
-                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Organization Tenant</th>
-                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Status</th>
-                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Actions</th>
+                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                        User Identity
+                                    </th>
+                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                        Auth Role
+                                    </th>
+                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                        Organization Tenant
+                                    </th>
+                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                        Status
+                                    </th>
+                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">
+                                        Actions
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
@@ -152,29 +223,47 @@ export default function SuperAdminUsersPage() {
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center font-black text-slate-400 text-sm overflow-hidden">
-                                                    {u.avatar ? <img src={u.avatar} alt="" className="w-full h-full object-cover" /> : u.name[0]}
+                                                    {u.avatar ? (
+                                                        <img
+                                                            src={u.avatar}
+                                                            alt=""
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        u.name[0]
+                                                    )}
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-black text-slate-800">{u.name}</p>
-                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-1">{u.email}</p>
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-1">
+                                                        {u.email}
+                                                    </p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">
-                                            <span className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${u.role === 'SUPER_ADMIN' ? 'bg-[var(--brand)] text-white border-[var(--brand)]' : 'bg-slate-50 text-slate-500 border-slate-100'}`}>
+                                            <span
+                                                className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${u.role === 'SUPER_ADMIN' ? 'bg-[var(--brand)] text-white border-[var(--brand)]' : 'bg-slate-50 text-slate-500 border-slate-100'}`}
+                                            >
                                                 {ROLE_LABELS[u.role] || u.role}
                                             </span>
                                         </td>
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-2 text-slate-600">
                                                 <Building2 size={14} className="text-slate-300" />
-                                                <span className="text-xs font-black uppercase tracking-wider">{u.organization?.name || siteConfig.adminUserOrgFallback}</span>
+                                                <span className="text-xs font-black uppercase tracking-wider">
+                                                    {u.organization?.name || siteConfig.adminUserOrgFallback}
+                                                </span>
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-2">
-                                                <div className={`w-1.5 h-1.5 rounded-full ${u.isActive ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
-                                                <span className={`text-[10px] font-black uppercase tracking-widest ${u.isActive ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                                <div
+                                                    className={`w-1.5 h-1.5 rounded-full ${u.isActive ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                                                ></div>
+                                                <span
+                                                    className={`text-[10px] font-black uppercase tracking-widest ${u.isActive ? 'text-emerald-600' : 'text-rose-600'}`}
+                                                >
                                                     {u.isActive ? 'Active' : 'Suspended'}
                                                 </span>
                                             </div>
@@ -182,12 +271,25 @@ export default function SuperAdminUsersPage() {
                                         <td className="px-8 py-6 text-right">
                                             <div className="flex items-center justify-end gap-2">
                                                 <button
+                                                    onClick={() => openTransferModal(u)}
+                                                    className="p-2 text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+                                                    title="Transfer to Enterprise Organization"
+                                                >
+                                                    <ArrowRightLeft size={18} />
+                                                </button>
+                                                <button
                                                     onClick={() => handleToggleStatus(u)}
                                                     disabled={actionLoading === u.id}
                                                     className={`p-2 rounded-xl transition-all flex items-center gap-2 ${u.isActive ? 'text-slate-300 hover:text-rose-600 hover:bg-rose-50' : 'text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50'}`}
-                                                    title={u.isActive ? "Suspend Account" : "Activate Account"}
+                                                    title={u.isActive ? 'Suspend Account' : 'Activate Account'}
                                                 >
-                                                    {actionLoading === u.id ? <div className="w-4.5 h-4.5 border-2 border-current border-t-transparent rounded-full animate-spin"></div> : (u.isActive ? <Ban size={18} /> : <CheckCircle2 size={18} />)}
+                                                    {actionLoading === u.id ? (
+                                                        <div className="w-4.5 h-4.5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : u.isActive ? (
+                                                        <Ban size={18} />
+                                                    ) : (
+                                                        <CheckCircle2 size={18} />
+                                                    )}
                                                 </button>
                                                 <button
                                                     onClick={() => setUserToDelete(u)}
@@ -212,7 +314,7 @@ export default function SuperAdminUsersPage() {
                         </div>
                         <h3 className="text-lg font-black text-slate-800">No users found</h3>
                         <p className="text-sm font-medium text-slate-400 mt-2 text-center max-w-xs">
-                            We couldn't find any users matching "{searchQuery}" in the global register.
+                            We couldn&apos;t find any users matching &quot;{searchQuery}&quot; in the global register.
                         </p>
                     </div>
                 )}
@@ -224,14 +326,14 @@ export default function SuperAdminUsersPage() {
                     </p>
                     <div className="flex gap-2">
                         <button
-                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                            onClick={() => setPage((p) => Math.max(1, p - 1))}
                             disabled={page === 1}
                             className="p-2 rounded-xl bg-white border border-slate-100 disabled:opacity-50 hover:bg-slate-50 transition-colors"
                         >
                             <ChevronLeft size={16} className="text-slate-600" />
                         </button>
                         <button
-                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                             disabled={page === totalPages}
                             className="p-2 rounded-xl bg-white border border-slate-100 disabled:opacity-50 hover:bg-slate-50 transition-colors"
                         >
@@ -239,7 +341,7 @@ export default function SuperAdminUsersPage() {
                         </button>
                     </div>
                 </div>
-            </main>
+            </div>
 
             <AlertModal
                 isOpen={!!userToDelete}
@@ -250,6 +352,115 @@ export default function SuperAdminUsersPage() {
                 type="danger"
                 confirmLabel="Delete Permanently"
             />
+
+            <TransferUserModal
+                user={transferUser}
+                organizations={enterpriseOrganizations}
+                selectedTargetOrgId={selectedTargetOrgId}
+                onChangeTarget={setSelectedTargetOrgId}
+                loading={transferLoading}
+                onClose={() => {
+                    setTransferUser(null);
+                    setSelectedTargetOrgId('');
+                }}
+                onConfirm={handleTransferConfirm}
+            />
+        </div>
+    );
+}
+
+function TransferUserModal({
+    user,
+    organizations,
+    selectedTargetOrgId,
+    onChangeTarget,
+    loading,
+    onClose,
+    onConfirm,
+}: {
+    user: any | null;
+    organizations: any[];
+    selectedTargetOrgId: string;
+    onChangeTarget: (value: string) => void;
+    loading: boolean;
+    onClose: () => void;
+    onConfirm: () => void;
+}) {
+    if (!user) return null;
+
+    const availableTargets = organizations.filter((org) => org.id !== user.orgId);
+
+    return (
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
+
+            <div className="relative bg-white w-full max-w-xl rounded-[32px] shadow-2xl border border-slate-100 p-8">
+                <div className="flex items-start justify-between gap-4 mb-6">
+                    <div>
+                        <h2 className="text-2xl font-black text-slate-900 tracking-tight">Transfer to Organization</h2>
+                        <p className="text-sm font-semibold text-slate-400 mt-1">
+                            Move this user and shadow-org data into an Enterprise organization.
+                        </p>
+                    </div>
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                        <Shield size={20} />
+                    </div>
+                </div>
+
+                <div className="space-y-5">
+                    <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                        <p className="text-xs font-black uppercase tracking-widest text-slate-400">User</p>
+                        <p className="text-sm font-black text-slate-800 mt-1">{user.name}</p>
+                        <p className="text-xs font-bold text-slate-500">{user.email}</p>
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">
+                            Target Enterprise Organization
+                        </label>
+                        <select
+                            value={selectedTargetOrgId}
+                            onChange={(e) => onChangeTarget(e.target.value)}
+                            className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm font-bold text-slate-800 bg-white outline-none focus:border-[var(--brand)]"
+                        >
+                            <option value="">Select target organization</option>
+                            {availableTargets.map((org) => (
+                                <option key={org.id} value={org.id}>
+                                    {org.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="rounded-2xl border border-indigo-100 bg-indigo-50/60 p-4">
+                        <p className="text-xs font-black uppercase tracking-widest text-indigo-500 mb-2">
+                            What will be transferred
+                        </p>
+                        <p className="text-sm font-semibold text-slate-700">
+                            Courses and exams created by this user, course tests, student groups, announcements, and
+                            users in the current shadow organization.
+                        </p>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-3 pt-2">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="px-5 py-3 rounded-2xl text-xs font-black uppercase tracking-widest bg-slate-100 text-slate-500 hover:bg-slate-200"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="button"
+                            disabled={!selectedTargetOrgId || loading || availableTargets.length === 0}
+                            onClick={onConfirm}
+                            className="px-5 py-3 rounded-2xl text-xs font-black uppercase tracking-widest bg-[var(--brand)] text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {loading ? 'Transferring...' : 'Confirm Transfer'}
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import React from 'react';
 import { Plus, Trash2, CheckCircle2, Circle } from 'lucide-react';
 import { Question } from '../../types';
@@ -12,12 +12,12 @@ export default function MCQEditor({ question, onChange }: MCQEditorProps) {
     const options = question.options || [];
 
     const addOption = () => {
-        const newOption = { id: `opt-${Date.now()}`, text: "", isCorrect: false };
+        const newOption = { id: `opt-${Date.now()}`, text: '', isCorrect: false };
         onChange({ options: [...options, newOption] });
     };
 
     const removeOption = (id: string) => {
-        onChange({ options: options.filter(o => o.id !== id) });
+        onChange({ options: options.filter((o) => o.id !== id) });
     };
 
     const toggleCorrect = (id: string) => {
@@ -27,13 +27,13 @@ export default function MCQEditor({ question, onChange }: MCQEditorProps) {
                 if (o.id === id) return { ...o, isCorrect: !o.isCorrect };
                 if (!isMultiSelect) return { ...o, isCorrect: false };
                 return o;
-            })
+            }),
         });
     };
 
     const updateOptionText = (id: string, text: string) => {
         onChange({
-            options: options.map((o: any) => o.id === id ? { ...o, text } : o)
+            options: options.map((o: any) => (o.id === id ? { ...o, text } : o)),
         });
     };
 
@@ -57,7 +57,11 @@ export default function MCQEditor({ question, onChange }: MCQEditorProps) {
                             onClick={() => toggleCorrect(option.id)}
                             className={`shrink-0 transition-all ${option.isCorrect ? 'text-emerald-500 scale-110' : 'text-slate-200 hover:text-slate-400'}`}
                         >
-                            {option.isCorrect ? <CheckCircle2 size={24} strokeWidth={2.5} /> : <Circle size={24} strokeWidth={2.5} />}
+                            {option.isCorrect ? (
+                                <CheckCircle2 size={24} strokeWidth={2.5} />
+                            ) : (
+                                <Circle size={24} strokeWidth={2.5} />
+                            )}
                         </button>
 
                         <div className="flex-1 relative">
@@ -81,7 +85,9 @@ export default function MCQEditor({ question, onChange }: MCQEditorProps) {
 
                 {options.length === 0 && (
                     <div className="text-center py-10 border-2 border-dashed border-slate-100 rounded-[32px]">
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">No options added yet</p>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                            No options added yet
+                        </p>
                     </div>
                 )}
             </div>

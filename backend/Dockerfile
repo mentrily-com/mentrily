@@ -5,16 +5,12 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-COPY prisma ./prisma/
 
 # Install app dependencies
 RUN npm ci --legacy-peer-deps
 
 # Copy app source
 COPY . .
-
-# Generate Prisma Client
-RUN npx prisma generate
 
 # Build the app
 RUN npm run build
@@ -31,7 +27,6 @@ ENV TZ=Asia/Kathmandu
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/prisma ./prisma
 
 # Copy and prepare the entrypoint script
 COPY docker-entrypoint.sh ./docker-entrypoint.sh

@@ -1,7 +1,7 @@
-// Use Proxy for Client-Side execution to ensure cookies are passed automatically
-const BASE_URL = typeof window !== 'undefined'
-    ? '/api/proxy'
-    : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api');
+import { API_BASE_URL } from '@/lib/api-base';
+import { withCsrfHeader } from '@/lib/csrf';
+
+const BASE_URL = API_BASE_URL;
 
 export interface ExecutionResult {
     stdout: string;
@@ -32,7 +32,7 @@ const authFetch = async (endpoint: string, options: RequestInit = {}) => {
     // Explicitly strip Content-Type if body is FormData (file upload)
     // otherwise default to application/json
     const headers: Record<string, string> = {
-        ...options.headers as Record<string, string>,
+        ...(options.headers as Record<string, string>),
     };
 
     if (!headers['Content-Type'] && !(options.body instanceof FormData)) {
@@ -42,13 +42,13 @@ const authFetch = async (endpoint: string, options: RequestInit = {}) => {
     const response = await fetch(url, {
         ...options,
         credentials: 'include', // Ensure cookies are sent
-        headers
+        headers: withCsrfHeader(options.method, headers),
     });
 
     if (!response.ok) {
         // Handle 401 specifically if needed, or throw generic error
         if (response.status === 401) {
-            throw new Error("Unauthorized: Please log in again.");
+            throw new Error('Unauthorized: Please log in again.');
         }
         const errorData = await response.text();
         throw new Error(`Execution error: ${response.status} ${errorData}`);
@@ -66,7 +66,7 @@ export const CodeExecutionService = {
                     language,
                     code,
                     input,
-                })
+                }),
             });
         } catch (error) {
             console.error('Run code error', error);
@@ -74,7 +74,13 @@ export const CodeExecutionService = {
         }
     },
 
-    submit: async (unitId: string, language: string, code: string, examId?: string, testCases?: any[]): Promise<SubmissionResult> => {
+    submit: async (
+        unitId: string,
+        language: string,
+        code: string,
+        examId?: string,
+        testCases?: any[],
+    ): Promise<SubmissionResult> => {
         try {
             return await authFetch('/code/submit', {
                 method: 'POST',
@@ -83,12 +89,12 @@ export const CodeExecutionService = {
                     language,
                     code,
                     examId,
-                    testCases
-                })
+                    testCases,
+                }),
             });
         } catch (error) {
             console.error('Submit code error', error);
             throw error;
         }
-    }
+    },
 };

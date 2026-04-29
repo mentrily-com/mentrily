@@ -1,13 +1,13 @@
-"use client";
-import React from "react";
-import UnitRenderer, { UnitQuestion } from "@/app/components/UnitRenderer";
-import Navbar from "@/app/components/Navbar";
+'use client';
+import React from 'react';
+import UnitRenderer, { UnitQuestion } from '@/app/components/UnitRenderer';
+import Navbar from '@/app/components/Navbar';
 
 export default function NotebookTestPage() {
     const notebookQuestion: UnitQuestion = {
-        id: "unit-6-notebook",
-        type: "Notebook",
-        title: "Unit 6: Data Visualization with Matplotlib",
+        id: 'unit-6-notebook',
+        type: 'Notebook',
+        title: 'Unit 6: Data Visualization with Matplotlib',
         description: `
             <h3>Working with Plots in Python</h3>  
             <p>In this unit, we will explore how to generate simple data visualizations using the <code>matplotlib</code> library.</p>
@@ -34,18 +34,15 @@ plt.title("My First Sine Wave")
 plt.legend()
 plt.grid(True)
 plt.show()`,
-            language: "python"
-        }
+            language: 'python',
+        },
     };
 
     return (
         <div className="h-screen flex flex-col bg-[#F8FAFC]">
             <Navbar />
             <div className="flex-1 overflow-hidden">
-                <UnitRenderer
-                    question={notebookQuestion}
-                    activeTab="question"
-                />
+                <UnitRenderer question={notebookQuestion} activeTab="question" />
             </div>
         </div>
     );

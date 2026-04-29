@@ -1,16 +1,20 @@
 import { MonitoringEvent, ViolationEvent } from '@/types/monitoring';
+import { API_BASE_URL } from '@/lib/api-base';
+import { withCsrfHeader } from '@/lib/csrf';
 
-const BASE_URL = typeof window !== 'undefined' ? '/api/proxy' : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api');
+const BASE_URL = API_BASE_URL;
 
 // Helper for auth fetch
 const authFetch = (endpoint: string, options: RequestInit = {}) => {
+    const headers = withCsrfHeader(options.method, {
+        'Content-Type': 'application/json',
+        ...((options.headers || {}) as any),
+    });
+
     return fetch(`${BASE_URL}${endpoint}`, {
         ...options,
         credentials: 'include',
-        headers: {
-            'Content-Type': 'application/json',
-            ...(options.headers || {}) as any
-        }
+        headers,
     });
 };
 
@@ -54,7 +58,7 @@ export const MonitoringService = {
         try {
             const response = await authFetch(`/exam/monitoring/heartbeat`, {
                 method: 'POST',
-                body: JSON.stringify({ deviceId: 'browser' })
+                body: JSON.stringify({ deviceId: 'browser' }),
             });
             if (!response.ok) throw new Error('Heartbeat failed');
         } catch (error) {
@@ -71,5 +75,5 @@ export const MonitoringService = {
             console.warn('[MonitoringService] Health check failed, assuming offline mode.');
             return true; // Assume up to prevent blocking user in dev
         }
-    }
+    },
 };

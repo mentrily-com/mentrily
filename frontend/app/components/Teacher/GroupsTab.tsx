@@ -1,11 +1,26 @@
-"use client";
-import React, { useState, useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
-import { TeacherService } from "@/services/api/TeacherService";
-import { useToast } from "@/app/components/Common/Toast";
-import { useDebounce } from "@/hooks/useDebounce";
-import { Users, Plus, X, Search, Trash2, Mail, UserPlus, ChevronRight, Edit3, FolderOpen, Upload, FileText, Download, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
-import BulkImportReportModal from "@/app/components/Common/BulkImportReportModal";
+'use client';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { TeacherService } from '@/services/api/TeacherService';
+import { useToast } from '@/app/components/Common/Toast';
+import { useDebounce } from '@/hooks/useDebounce';
+import {
+    Users,
+    Plus,
+    X,
+    Search,
+    Trash2,
+    Mail,
+    UserPlus,
+    Edit3,
+    FolderOpen,
+    Upload,
+    FileText,
+    Download,
+    Loader2,
+    AlertCircle,
+} from 'lucide-react';
+import BulkImportReportModal from '@/app/components/Common/BulkImportReportModal';
 
 interface GroupsTabProps {
     onEnrollGroupInCourse?: (groupId: string, groupName: string) => void;
@@ -23,30 +38,32 @@ export default function GroupsTab({ onEnrollGroupInCourse }: GroupsTabProps) {
             const data = await TeacherService.getGroups();
             setGroups(data);
         } catch (err) {
-            console.error("Failed to load groups", err);
-            toastError("Failed to load groups");
+            console.error('Failed to load groups', err);
+            toastError('Failed to load groups');
         } finally {
             setIsLoading(false);
         }
     };
 
-    useEffect(() => { loadGroups(); }, []);
+    useEffect(() => {
+        loadGroups();
+    }, []);
 
     const handleDeleteGroup = async (groupId: string) => {
         if (!confirm("Delete this group? Students won't be removed from enrolled courses.")) return;
         try {
             await TeacherService.deleteGroup(groupId);
-            success("Group deleted");
+            success('Group deleted');
             loadGroups();
         } catch (err) {
-            toastError("Failed to delete group");
+            toastError('Failed to delete group');
         }
     };
 
     if (isLoading) {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[1, 2, 3].map(i => (
+                {[1, 2, 3].map((i) => (
                     <div key={i} className="bg-white rounded-[32px] border border-slate-100 p-8 animate-pulse">
                         <div className="h-6 bg-slate-100 rounded-xl w-1/2 mb-4" />
                         <div className="h-4 bg-slate-50 rounded-lg w-1/3" />
@@ -63,7 +80,9 @@ export default function GroupsTab({ onEnrollGroupInCourse }: GroupsTabProps) {
                     <div className="bg-white border border-slate-200 rounded-2xl px-4 py-2 flex items-center gap-3 shadow-sm">
                         <FolderOpen size={18} className="text-slate-400" />
                         <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none">Total Groups</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none">
+                                Total Groups
+                            </p>
                             <p className="text-lg font-black text-slate-800 leading-none mt-1">{groups.length}</p>
                         </div>
                     </div>
@@ -82,7 +101,9 @@ export default function GroupsTab({ onEnrollGroupInCourse }: GroupsTabProps) {
                         <Users size={32} className="text-slate-300" />
                     </div>
                     <h3 className="text-xl font-black text-slate-800 mb-2">No Groups Yet</h3>
-                    <p className="text-sm font-bold text-slate-400 mb-6">Create your first student group to manage enrollments efficiently.</p>
+                    <p className="text-sm font-bold text-slate-400 mb-6">
+                        Create your first student group to manage enrollments efficiently.
+                    </p>
                     <button
                         onClick={() => setShowCreateModal(true)}
                         className="px-8 py-4 bg-[var(--brand)] text-white font-black text-xs rounded-2xl hover:bg-[var(--brand-dark)] transition-all active:scale-95 uppercase tracking-widest"
@@ -93,7 +114,10 @@ export default function GroupsTab({ onEnrollGroupInCourse }: GroupsTabProps) {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {groups.map((group) => (
-                        <div key={group.id} className="bg-white rounded-[32px] border border-slate-100 shadow-sm p-8 hover:border-[var(--brand-light)] hover:shadow-md transition-all group/card">
+                        <div
+                            key={group.id}
+                            className="bg-white rounded-[32px] border border-slate-100 shadow-sm p-8 hover:border-[var(--brand-light)] hover:shadow-md transition-all group/card"
+                        >
                             <div className="flex items-start justify-between mb-6">
                                 <div>
                                     <h3 className="text-lg font-black text-slate-800 tracking-tight">{group.name}</h3>
@@ -112,8 +136,11 @@ export default function GroupsTab({ onEnrollGroupInCourse }: GroupsTabProps) {
                             {/* Student avatars */}
                             <div className="flex -space-x-2 mb-6">
                                 {(group.students || []).slice(0, 5).map((st: any, idx: number) => (
-                                    <div key={st.id} className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 border-2 border-white flex items-center justify-center text-[10px] font-black text-slate-500 shadow-sm">
-                                        {st.name?.[0] || "?"}
+                                    <div
+                                        key={st.id}
+                                        className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 border-2 border-white flex items-center justify-center text-[10px] font-black text-slate-500 shadow-sm"
+                                    >
+                                        {st.name?.[0] || '?'}
                                     </div>
                                 ))}
                                 {(group.students?.length || 0) > 5 && (
@@ -137,23 +164,33 @@ export default function GroupsTab({ onEnrollGroupInCourse }: GroupsTabProps) {
             )}
 
             {/* CREATE GROUP MODAL */}
-            {showCreateModal && typeof document !== 'undefined' && createPortal(
-                <CreateGroupModal
-                    onClose={() => setShowCreateModal(false)}
-                    onCreated={() => { setShowCreateModal(false); loadGroups(); }}
-                />,
-                document.body
-            )}
+            {showCreateModal &&
+                typeof document !== 'undefined' &&
+                createPortal(
+                    <CreateGroupModal
+                        onClose={() => setShowCreateModal(false)}
+                        onCreated={() => {
+                            setShowCreateModal(false);
+                            loadGroups();
+                        }}
+                    />,
+                    document.body,
+                )}
 
             {/* MANAGE GROUP MODAL */}
-            {manageGroup && typeof document !== 'undefined' && createPortal(
-                <ManageGroupModal
-                    group={manageGroup}
-                    onClose={() => setManageGroup(null)}
-                    onUpdated={() => { setManageGroup(null); loadGroups(); }}
-                />,
-                document.body
-            )}
+            {manageGroup &&
+                typeof document !== 'undefined' &&
+                createPortal(
+                    <ManageGroupModal
+                        group={manageGroup}
+                        onClose={() => setManageGroup(null)}
+                        onUpdated={() => {
+                            setManageGroup(null);
+                            loadGroups();
+                        }}
+                    />,
+                    document.body,
+                )}
         </>
     );
 }
@@ -162,13 +199,13 @@ export default function GroupsTab({ onEnrollGroupInCourse }: GroupsTabProps) {
 
 function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
     const { success, error: toastError } = useToast();
-    const [name, setName] = useState("");
+    const [name, setName] = useState('');
     const [isCreating, setIsCreating] = useState(false);
     const [step, setStep] = useState<'name' | 'students'>('name');
     const [createdGroupId, setCreatedGroupId] = useState<string | null>(null);
 
     const handleCreateName = async () => {
-        if (!name.trim()) return toastError("Group name is required");
+        if (!name.trim()) return toastError('Group name is required');
         setIsCreating(true);
         try {
             const result = await TeacherService.createGroup({ name: name.trim() });
@@ -176,7 +213,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
             success(`Group "${name}" created`);
             setStep('students');
         } catch (err) {
-            toastError("Failed to create group");
+            toastError('Failed to create group');
         } finally {
             setIsCreating(false);
         }
@@ -184,9 +221,18 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
 
     return (
         <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={step === 'name' ? onClose : undefined} />
+            <div
+                className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+                onClick={step === 'name' ? onClose : undefined}
+            />
             <div className="bg-white w-full max-w-xl rounded-[48px] p-12 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[85vh] overflow-y-auto custom-scrollbar">
-                <button onClick={() => { if (step === 'students') onCreated(); else onClose(); }} className="absolute top-10 right-10 w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all hover:scale-110 active:scale-95">
+                <button
+                    onClick={() => {
+                        if (step === 'students') onCreated();
+                        else onClose();
+                    }}
+                    className="absolute top-10 right-10 w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all hover:scale-110 active:scale-95"
+                >
                     <X size={20} strokeWidth={3} />
                 </button>
 
@@ -194,18 +240,22 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                     <>
                         <div className="mb-8">
                             <h2 className="text-2xl font-black text-slate-900 tracking-tight">Create Group</h2>
-                            <p className="text-sm font-bold text-slate-400 mt-1">Organize students for easy management.</p>
+                            <p className="text-sm font-bold text-slate-400 mt-1">
+                                Organize students for easy management.
+                            </p>
                         </div>
 
                         <div>
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Group Name</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">
+                                Group Name
+                            </label>
                             <input
                                 type="text"
                                 value={name}
-                                onChange={e => setName(e.target.value)}
+                                onChange={(e) => setName(e.target.value)}
                                 placeholder="e.g., Section A - Data Structures"
                                 className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/5 transition-all"
-                                onKeyDown={e => e.key === 'Enter' && handleCreateName()}
+                                onKeyDown={(e) => e.key === 'Enter' && handleCreateName()}
                                 autoFocus
                             />
                         </div>
@@ -215,15 +265,17 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                             disabled={isCreating || !name.trim()}
                             className="w-full mt-8 py-5 bg-[var(--brand)] hover:bg-[var(--brand-dark)] disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-[24px] font-black text-xs uppercase tracking-[0.2em] transition-all shadow-xl shadow-[var(--brand)]/20 active:scale-95 flex items-center justify-center gap-2"
                         >
-                            {isCreating ? <><Loader2 size={16} className="animate-spin" /> Creating...</> : "Create & Add Students"}
+                            {isCreating ? (
+                                <>
+                                    <Loader2 size={16} className="animate-spin" /> Creating...
+                                </>
+                            ) : (
+                                'Create & Add Students'
+                            )}
                         </button>
                     </>
                 ) : (
-                    <AddStudentsPanel
-                        groupId={createdGroupId!}
-                        groupName={name}
-                        onDone={onCreated}
-                    />
+                    <AddStudentsPanel groupId={createdGroupId!} groupName={name} onDone={onCreated} />
                 )}
             </div>
         </div>
@@ -238,40 +290,51 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
     const [groupName, setGroupName] = useState(group.name);
     const [isEditingName, setIsEditingName] = useState(false);
     const [showAddStudents, setShowAddStudents] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
+    const [searchQuery, setSearchQuery] = useState('');
     const debouncedSearch = useDebounce(searchQuery, 300);
 
-    const filteredStudents = students.filter(st =>
-        st.name?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-        st.email?.toLowerCase().includes(debouncedSearch.toLowerCase())
+    const filteredStudents = students.filter(
+        (st) =>
+            st.name?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+            st.email?.toLowerCase().includes(debouncedSearch.toLowerCase()),
     );
 
     const handleRenameSave = async () => {
         if (!groupName.trim()) return;
         try {
             await TeacherService.updateGroup(group.id, { name: groupName.trim() });
-            success("Group renamed");
+            success('Group renamed');
             setIsEditingName(false);
         } catch (err) {
-            toastError("Failed to rename group");
+            toastError('Failed to rename group');
         }
     };
 
     const handleRemoveStudent = async (studentId: string) => {
         try {
             await TeacherService.removeGroupStudent(group.id, studentId);
-            setStudents(prev => prev.filter(s => s.id !== studentId));
-            success("Student removed from group");
+            setStudents((prev) => prev.filter((s) => s.id !== studentId));
+            success('Student removed from group');
         } catch (err) {
-            toastError("Failed to remove student");
+            toastError('Failed to remove student');
         }
     };
 
     return (
         <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => { onUpdated(); }} />
+            <div
+                className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+                onClick={() => {
+                    onUpdated();
+                }}
+            />
             <div className="bg-white w-full max-w-2xl rounded-[48px] p-12 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[85vh] overflow-hidden flex flex-col">
-                <button onClick={() => { onUpdated(); }} className="absolute top-10 right-10 w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all hover:scale-110 active:scale-95">
+                <button
+                    onClick={() => {
+                        onUpdated();
+                    }}
+                    className="absolute top-10 right-10 w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all hover:scale-110 active:scale-95"
+                >
                     <X size={20} strokeWidth={3} />
                 </button>
 
@@ -286,17 +349,25 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
                                 <input
                                     type="text"
                                     value={groupName}
-                                    onChange={e => setGroupName(e.target.value)}
+                                    onChange={(e) => setGroupName(e.target.value)}
                                     className="text-2xl font-black text-slate-900 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1 outline-none focus:border-[var(--brand)]"
                                     autoFocus
-                                    onKeyDown={e => e.key === 'Enter' && handleRenameSave()}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleRenameSave()}
                                 />
-                                <button onClick={handleRenameSave} className="text-[var(--brand)] font-black text-xs uppercase">Save</button>
+                                <button
+                                    onClick={handleRenameSave}
+                                    className="text-[var(--brand)] font-black text-xs uppercase"
+                                >
+                                    Save
+                                </button>
                             </div>
                         ) : (
                             <div className="flex items-center gap-2">
                                 <h2 className="text-2xl font-black text-slate-900 tracking-tight">{groupName}</h2>
-                                <button onClick={() => setIsEditingName(true)} className="p-1 text-slate-300 hover:text-[var(--brand)] transition-colors">
+                                <button
+                                    onClick={() => setIsEditingName(true)}
+                                    className="p-1 text-slate-300 hover:text-[var(--brand)] transition-colors"
+                                >
                                     <Edit3 size={14} />
                                 </button>
                             </div>
@@ -308,12 +379,16 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
                 {/* Actions bar */}
                 <div className="flex items-center justify-between mb-6 gap-3">
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} strokeWidth={3} />
+                        <Search
+                            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300"
+                            size={14}
+                            strokeWidth={3}
+                        />
                         <input
                             type="text"
                             placeholder="Search students..."
                             value={searchQuery}
-                            onChange={e => setSearchQuery(e.target.value)}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                             className="pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/5 transition-all w-full"
                         />
                     </div>
@@ -345,14 +420,17 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
                 <div className="flex-1 overflow-y-auto custom-scrollbar space-y-2">
                     {filteredStudents.length === 0 ? (
                         <div className="text-center py-12 text-slate-400 font-bold text-sm">
-                            {students.length === 0 ? "No students in this group yet." : "No matching students."}
+                            {students.length === 0 ? 'No students in this group yet.' : 'No matching students.'}
                         </div>
                     ) : (
-                        filteredStudents.map(st => (
-                            <div key={st.id} className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-colors group/student">
+                        filteredStudents.map((st) => (
+                            <div
+                                key={st.id}
+                                className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-colors group/student"
+                            >
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center font-black text-slate-500 text-sm shadow-inner border border-white">
-                                        {st.name?.[0] || "?"}
+                                        {st.name?.[0] || '?'}
                                     </div>
                                     <div>
                                         <p className="text-sm font-black text-slate-800">{st.name}</p>
@@ -399,14 +477,17 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
         return (
             <BulkImportReportModal
                 isOpen={!!importReport}
-                onClose={() => { setImportReport(null); onDone(); }}
+                onClose={() => {
+                    setImportReport(null);
+                    onDone();
+                }}
                 report={{
                     summary: {
                         totalProcessed: importReport.summary.totalProcessed,
                         created: importReport.summary.added,
                         failed: importReport.summary.failed,
                     },
-                    details: importReport.details
+                    details: importReport.details,
                 }}
             />
         );
@@ -428,9 +509,10 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
                 setError(msg);
                 toastError(msg);
             }
-        } catch (err) {
-            setError('Failed to add student');
-            toastError('Failed to add student');
+        } catch (err: any) {
+            const message = err?.message || 'Failed to add student';
+            setError(message);
+            toastError(message);
         } finally {
             setIsProcessing(false);
         }
@@ -439,7 +521,10 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        if (!file.name.endsWith('.csv')) { setError('Please upload a valid CSV file.'); return; }
+        if (!file.name.endsWith('.csv')) {
+            setError('Please upload a valid CSV file.');
+            return;
+        }
 
         setIsProcessing(true);
         setError(null);
@@ -448,13 +533,14 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
         reader.onload = async (event) => {
             const text = event.target?.result as string;
             const lines = text.split('\n');
-            const emails = lines.slice(1)
-                .map(line => {
+            const emails = lines
+                .slice(1)
+                .map((line) => {
                     const parts = line.split(',');
                     // Try column 3 first (Name,ID,Email), then column 1, then the whole line
                     return (parts[2] || parts[0] || '').trim();
                 })
-                .filter(e => e && e.includes('@'));
+                .filter((e) => e && e.includes('@'));
 
             if (emails.length === 0) {
                 setError('No valid email addresses found in CSV.');
@@ -470,9 +556,10 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
                         success(`${result.summary.added} student(s) added to ${groupName}`);
                     }
                 }
-            } catch (err) {
-                setError('Failed to process bulk import');
-                toastError('Error during bulk import');
+            } catch (err: any) {
+                const message = err?.message || 'Failed to process bulk import';
+                setError(message);
+                toastError(message);
             } finally {
                 setIsProcessing(false);
             }
@@ -481,7 +568,7 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
     };
 
     const downloadSampleCSV = () => {
-        const content = "Name,Student ID,Email\nJohn Doe,STU001,john@example.com\nJane Smith,STU002,jane@example.com";
+        const content = 'Name,Student ID,Email\nJohn Doe,STU001,john@example.com\nJane Smith,STU002,jane@example.com';
         const blob = new Blob([content], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -494,7 +581,7 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
     };
 
     return (
-        <div className={compact ? "p-6 bg-slate-50 rounded-2xl border border-slate-100" : ""}>
+        <div className={compact ? 'p-6 bg-slate-50 rounded-2xl border border-slate-100' : ''}>
             {!compact && (
                 <div className="mb-6">
                     <div className="flex items-center gap-3 mb-1">
@@ -503,7 +590,9 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
                         </div>
                         <div>
                             <h3 className="text-xl font-black text-slate-800 tracking-tight">Add Students</h3>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{groupName}</p>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                {groupName}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -512,13 +601,19 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
             {/* Tabs */}
             <div className="flex gap-2 p-1 bg-slate-50 rounded-2xl mb-6">
                 <button
-                    onClick={() => { setActiveTab('single'); setError(null); }}
+                    onClick={() => {
+                        setActiveTab('single');
+                        setError(null);
+                    }}
                     className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'single' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                 >
                     <FileText size={12} /> Custom Add
                 </button>
                 <button
-                    onClick={() => { setActiveTab('bulk'); setError(null); }}
+                    onClick={() => {
+                        setActiveTab('bulk');
+                        setError(null);
+                    }}
                     className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'bulk' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                 >
                     <Upload size={12} /> Bulk CSV
@@ -528,11 +623,13 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
             {activeTab === 'single' ? (
                 <form onSubmit={handleSingleAdd} className="space-y-4">
                     <div>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block">Student Email Address</label>
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block">
+                            Student Email Address
+                        </label>
                         <input
                             type="email"
                             value={email}
-                            onChange={e => setEmail(e.target.value)}
+                            onChange={(e) => setEmail(e.target.value)}
                             placeholder="e.g., student@university.edu"
                             className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/5 transition-all placeholder:text-slate-300"
                             required
@@ -549,7 +646,13 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
                         disabled={isProcessing || !email}
                         className="w-full py-3.5 bg-[var(--brand)] text-white font-black text-xs rounded-2xl shadow-lg shadow-[var(--brand)]/20 hover:bg-[var(--brand-dark)] active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:bg-[var(--brand)] uppercase tracking-widest flex items-center justify-center gap-2"
                     >
-                        {isProcessing ? <><Loader2 size={14} className="animate-spin" /> Adding...</> : "Add Student"}
+                        {isProcessing ? (
+                            <>
+                                <Loader2 size={14} className="animate-spin" /> Adding...
+                            </>
+                        ) : (
+                            'Add Student'
+                        )}
                     </button>
                 </form>
             ) : (
@@ -562,7 +665,9 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
                             <Upload size={20} />
                         </div>
                         <p className="text-sm font-black text-slate-700 mb-1">Upload CSV File</p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Click to select file</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            Click to select file
+                        </p>
                         <input
                             type="file"
                             ref={fileInputRef}
@@ -577,7 +682,10 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
                             <Download size={14} />
                             <span className="text-[10px] font-black uppercase tracking-widest">Sample CSV</span>
                         </div>
-                        <button onClick={downloadSampleCSV} className="px-3 py-1.5 bg-white text-[var(--brand)] text-[10px] font-black uppercase tracking-widest rounded-lg shadow-sm hover:shadow-md transition-all active:scale-95 border border-[var(--brand-light)]">
+                        <button
+                            onClick={downloadSampleCSV}
+                            className="px-3 py-1.5 bg-white text-[var(--brand)] text-[10px] font-black uppercase tracking-widest rounded-lg shadow-sm hover:shadow-md transition-all active:scale-95 border border-[var(--brand-light)]"
+                        >
                             Download
                         </button>
                     </div>
@@ -597,7 +705,10 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
             )}
 
             {compact && (
-                <button onClick={onDone} className="w-full mt-4 py-2 text-slate-400 font-black text-[10px] uppercase tracking-widest hover:text-slate-600 transition-colors">
+                <button
+                    onClick={onDone}
+                    className="w-full mt-4 py-2 text-slate-400 font-black text-[10px] uppercase tracking-widest hover:text-slate-600 transition-colors"
+                >
                     Done
                 </button>
             )}

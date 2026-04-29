@@ -1,6 +1,5 @@
-"use client";
-import React from "react";
-import Navbar from "@/app/components/Navbar";
+'use client';
+import React from 'react';
 
 interface DashboardSkeletonProps {
     type?: 'main' | 'list' | 'form';
@@ -11,13 +10,8 @@ interface DashboardSkeletonProps {
 export default function DashboardSkeleton({ type = 'main', userRole, noNavbar = false }: DashboardSkeletonProps) {
     return (
         <div className="h-screen overflow-hidden bg-[#F8FAFC] text-slate-900 font-sans">
-            {/* The Navbar remains visible and interactive (loading doesn't affect it) */}
-            {!noNavbar && <Navbar userRole={userRole} />}
-
             <main
-                className={`max-w-[1440px] mx-auto px-6 lg:px-12 py-10 overflow-hidden ${
-                    noNavbar ? 'h-screen' : 'h-[calc(100vh-73px)]'
-                }`}
+                className="max-w-[1440px] mx-auto px-6 lg:px-12 py-10 overflow-hidden h-screen"
             >
                 {/* Header Skeleton */}
                 <div className="flex items-center justify-between mb-10">
@@ -30,7 +24,10 @@ export default function DashboardSkeleton({ type = 'main', userRole, noNavbar = 
                         {/* LEFT: Main Content Area */}
                         <div className="flex-1 space-y-4">
                             {[1, 2, 3, 4].map((i) => (
-                                <div key={i} className="bg-white rounded-3xl border border-slate-100 p-6 flex flex-col gap-4 shadow-sm">
+                                <div
+                                    key={i}
+                                    className="bg-white rounded-3xl border border-slate-100 p-6 flex flex-col gap-4 shadow-sm"
+                                >
                                     <div className="flex justify-between items-start">
                                         <div className="space-y-3">
                                             <div className="w-56 h-6 bg-slate-200 rounded-lg animate-pulse"></div>
@@ -65,7 +62,6 @@ export default function DashboardSkeleton({ type = 'main', userRole, noNavbar = 
                 {type === 'list' && (
                     <div className="bg-white rounded-[40px] border border-slate-100 p-8 shadow-sm">
                         <div className="space-y-4">
-                            {/* Table Header Row Skeleton */}
                             <div className="flex justify-between items-center pb-4 border-b border-slate-100">
                                 <div className="w-32 h-4 bg-slate-200 rounded-md animate-pulse"></div>
                                 <div className="w-24 h-4 bg-slate-200 rounded-md animate-pulse"></div>
@@ -74,9 +70,11 @@ export default function DashboardSkeleton({ type = 'main', userRole, noNavbar = 
                                 </div>
                             </div>
 
-                            {/* Table List Items Skeletons */}
                             {[1, 2, 3, 4, 5, 6].map((i) => (
-                                <div key={i} className="flex justify-between items-center py-4 border-b border-slate-50 last:border-0">
+                                <div
+                                    key={i}
+                                    className="flex justify-between items-center py-4 border-b border-slate-50 last:border-0"
+                                >
                                     <div className="flex items-center gap-4">
                                         <div className="w-10 h-10 bg-slate-100 rounded-xl animate-pulse"></div>
                                         <div className="space-y-2">

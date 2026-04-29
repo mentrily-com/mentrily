@@ -1,8 +1,9 @@
-"use client";
+'use client';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { BRAND } from '../../constants/brand';
 import { useOrganization } from '../../context/OrganizationContext';
+import { BrandLockup } from '@/components/brand/BrandLockup';
 
 export default function ExamWaitingRoom() {
     const router = useRouter();
@@ -14,10 +15,7 @@ export default function ExamWaitingRoom() {
     const [examTitle, setExamTitle] = useState('Exam');
     const [loading, setLoading] = useState(true);
 
-    // Use organization branding if available, otherwise fallback to BRAND
     const displayName = orgContext?.name || BRAND.name;
-    const displayLogo = orgContext?.logo || BRAND.logoImage;
-    const showSuffix = !orgContext; // Hide suffix if custom branding
 
     useEffect(() => {
         if (!slug) {
@@ -30,7 +28,7 @@ export default function ExamWaitingRoom() {
                 // Determine API URL based on environment or import AuthService/ExamService
                 // Assuming ExamService is available in global scope or imported.
                 // We need to import ExamService.
-                // Since I cannot change imports in this chunk easily without context, 
+                // Since I cannot change imports in this chunk easily without context,
                 // I will assume I can add the import at the top or use fetch directly.
                 // using fetch directly for safety if imports are tricky in replace_block
 
@@ -82,7 +80,7 @@ export default function ExamWaitingRoom() {
     }, [timeLeft, router, slug]);
 
     const formatTime = (seconds: number) => {
-        if (seconds < 0) return "00:00:00";
+        if (seconds < 0) return '00:00:00';
         const h = Math.floor(seconds / 3600);
         const m = Math.floor((seconds % 3600) / 60);
         const s = seconds % 60;
@@ -91,22 +89,16 @@ export default function ExamWaitingRoom() {
 
     return (
         <div className="h-screen w-full bg-slate-50 flex items-center justify-center font-sans overflow-hidden relative">
-
             {/* Minimal Header with Logo */}
             <div className="absolute top-0 left-0 w-full p-8 z-20">
-                <div className="flex items-center gap-2.5">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden shrink-0 ${!displayLogo ? 'bg-[var(--brand)]' : ''}`}>
-                        {displayLogo ? (
-                            <img src={displayLogo} alt="Logo" className="w-full h-full object-contain p-0.5" />
-                        ) : (
-                            <span className="text-white font-black text-xs">{BRAND.logoText}</span>
-                        )}
-                    </div>
-                    <span className="text-2xl font-black text-slate-800 tracking-tighter">
-                        {displayName}
-                        {showSuffix && <span className="text-[var(--brand)]">{BRAND.suffix}</span>}
-                    </span>
-                </div>
+                <BrandLockup
+                    orgName={orgContext?.name}
+                    orgLogo={orgContext?.logo}
+                    defaultLogoClassName="h-9 max-w-[180px]"
+                    iconClassName="h-10 w-10 rounded-lg"
+                    textClassName="text-2xl font-black tracking-tighter"
+                    priority
+                />
             </div>
 
             <div className="max-w-4xl w-full flex flex-col items-center justify-center text-center px-6 relative z-10">
@@ -120,7 +112,9 @@ export default function ExamWaitingRoom() {
                             {examTitle} <br className="hidden md:block" /> starts in...
                         </h1>
                         <p className="text-lg text-slate-500 font-medium max-w-xl mx-auto leading-relaxed">
-                            {loading ? "Checking exam status..." : "Please stay on this page. You will be automatically redirected to the secure login portal when the timer hits zero."}
+                            {loading
+                                ? 'Checking exam status...'
+                                : 'Please stay on this page. You will be automatically redirected to the secure login portal when the timer hits zero.'}
                         </p>
                     </div>
 
@@ -128,7 +122,7 @@ export default function ExamWaitingRoom() {
                         <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Time Remaining</div>
                         <div className="inline-block relative">
                             <div className="text-8xl md:text-9xl font-black text-slate-900 font-mono tracking-tight tabular-nums">
-                                {timeLeft !== null ? formatTime(timeLeft) : "--:--:--"}
+                                {timeLeft !== null ? formatTime(timeLeft) : '--:--:--'}
                             </div>
                             {/* Static underline decoration */}
                             <div className="h-2 w-full bg-indigo-100 mt-4 rounded-full overflow-hidden mx-auto max-w-[50%]">
@@ -141,7 +135,7 @@ export default function ExamWaitingRoom() {
 
             <div className="absolute bottom-6 w-full text-center">
                 <p className="text-slate-400 text-xs font-semibold uppercase tracking-widest opacity-60">
-                    {displayName} {showSuffix && BRAND.suffix} © {new Date().getFullYear()}
+                    {displayName} © {new Date().getFullYear()}
                 </p>
             </div>
         </div>

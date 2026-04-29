@@ -1,17 +1,17 @@
-"use client";
-import { useState, useCallback, useEffect, useRef } from "react";
+'use client';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 export interface WebFiles {
-    "index.html": string;
-    "index.css": string;
-    "index.js": string;
+    'index.html': string;
+    'index.css': string;
+    'index.js': string;
 }
 
 export type WebFileName = keyof WebFiles;
 
 export function useWebFiles(initialFiles: WebFiles) {
     const [files, setFiles] = useState<WebFiles>(initialFiles);
-    const [activeFile, setActiveFile] = useState<WebFileName>("index.html");
+    const [activeFile, setActiveFile] = useState<WebFileName>('index.html');
 
     // Keep files state in sync if the `initialFiles` content actually changes (avoid infinite loop on new object refs)
     const initialFilesJsonRef = useRef<string>('');
@@ -30,9 +30,9 @@ export function useWebFiles(initialFiles: WebFiles) {
     }, [initialFiles]);
 
     const updateFile = useCallback((name: WebFileName, content: string) => {
-        setFiles(prev => ({
+        setFiles((prev) => ({
             ...prev,
-            [name]: content
+            [name]: content,
         }));
     }, []);
 
@@ -45,6 +45,6 @@ export function useWebFiles(initialFiles: WebFiles) {
         activeFile,
         setActiveFile,
         updateFile,
-        resetFiles
+        resetFiles,
     };
 }

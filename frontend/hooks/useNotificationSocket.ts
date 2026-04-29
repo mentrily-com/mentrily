@@ -2,9 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 const SOCKET_URL =
-    process.env.NEXT_PUBLIC_WS_URL ||
-    process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') ||
-    'http://localhost:4000';
+    process.env.NEXT_PUBLIC_WS_URL || process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000';
 
 export interface AnnouncementEvent {
     id: string;
@@ -14,19 +12,6 @@ export interface AnnouncementEvent {
     teacherName: string;
     groupNames: string[];
     createdAt: string;
-}
-
-function getBrowserCookie(name: string): string {
-    if (typeof document === 'undefined') return '';
-    const raw = document.cookie
-        .split('; ')
-        .find((row) => row.startsWith(`${name}=`))
-        ?.split('=')[1] || '';
-    try {
-        return decodeURIComponent(raw);
-    } catch {
-        return raw;
-    }
 }
 
 /**
@@ -44,15 +29,12 @@ export const useNotificationSocket = (onNewAnnouncement?: (announcement: Announc
     }, [onNewAnnouncement]);
 
     useEffect(() => {
-        const wsAuthToken = getBrowserCookie('ws_auth_token') || getBrowserCookie('auth_token');
-
         const socket = io(`${SOCKET_URL}/notifications`, {
             transports: ['websocket'],
             reconnection: true,
             reconnectionAttempts: 10,
             reconnectionDelay: 3000,
             withCredentials: true,
-            auth: wsAuthToken ? { token: wsAuthToken } : undefined,
         });
 
         socketRef.current = socket;

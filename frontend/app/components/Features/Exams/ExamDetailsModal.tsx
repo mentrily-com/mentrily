@@ -1,9 +1,9 @@
-"use client";
-import React, { useState } from "react";
-import { Share2, Globe, Target, Clock, Shield, Copy, Layout, X } from "lucide-react";
-import { siteConfig } from "@/app/config/site";
-import AlertModal from "@/app/components/Common/AlertModal";
-import { useOrganization } from "@/app/context/OrganizationContext";
+'use client';
+import React, { useState } from 'react';
+import { Share2, Globe, Target, Clock, Shield, Copy, Layout, X } from 'lucide-react';
+import { siteConfig } from '@/app/config/site';
+import AlertModal from '@/app/components/Common/AlertModal';
+import { useOrganization } from '@/app/context/OrganizationContext';
 
 interface ExamDetailsModalProps {
     exam: any;
@@ -11,8 +11,13 @@ interface ExamDetailsModalProps {
     userRole?: 'admin' | 'teacher';
 }
 
-export default function ExamDetailsModal({ exam, onClose, userRole = 'teacher' }: ExamDetailsModalProps) {
-    const [alertConfig, setAlertConfig] = useState<{ isOpen: boolean, title: string, message: string, type?: 'danger' | 'warning' | 'info' }>({ isOpen: false, title: '', message: '' });
+export default function ExamDetailsModal({ exam, onClose }: ExamDetailsModalProps) {
+    const [alertConfig, setAlertConfig] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        type?: 'danger' | 'warning' | 'info';
+    }>({ isOpen: false, title: '', message: '' });
     const { organization: orgContext } = useOrganization();
 
     if (!exam) return null;
@@ -26,15 +31,9 @@ export default function ExamDetailsModal({ exam, onClose, userRole = 'teacher' }
             .replace(/\/$/, '');
     };
 
-    const rootDomain = normalizeHost(
-        process.env.NEXT_PUBLIC_APP_DOMAIN || siteConfig.domain,
-    );
+    const rootDomain = normalizeHost(process.env.NEXT_PUBLIC_APP_DOMAIN || siteConfig.domain);
     const orgDomainCandidate =
-        exam?.organization?.domain ||
-        exam?.orgDomain ||
-        exam?.domain ||
-        orgContext?.domain ||
-        '';
+        exam?.organization?.domain || exam?.orgDomain || exam?.domain || orgContext?.domain || '';
 
     const orgDomainNormalized = normalizeHost(orgDomainCandidate);
 
@@ -58,51 +57,52 @@ export default function ExamDetailsModal({ exam, onClose, userRole = 'teacher' }
     const publicExamUrl = `${baseUrl}/exam/${exam.slug}`;
     const inviteUrl = exam.inviteToken ? `${baseUrl}/invite/${exam.inviteToken}` : 'Invite token not generated';
 
-    const brandColor = '#fc751b';
     const brandLightClass = 'bg-[var(--brand-light)] text-[var(--brand)] border-[var(--brand-light)]';
     const brandTextClass = 'text-[var(--brand)]';
 
     return (
-        <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center p-2 sm:p-4">
             {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
-                onClick={onClose}
-            />
+            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-fade-in" onClick={onClose} />
 
             {/* Modal Content */}
-            <div className="relative w-full max-w-3xl bg-white rounded-[40px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-zoom-in">
+            <div className="relative w-full max-w-3xl bg-white rounded-[26px] shadow-2xl overflow-hidden flex flex-col max-h-[calc(100dvh-1rem)] animate-zoom-in sm:max-h-[90vh] sm:rounded-[40px]">
                 {/* Modal Header */}
-                <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-white relative z-10">
-                    <div>
-                        <div className="flex items-center gap-3 mb-1">
-                            <div className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${brandLightClass}`}>
+                <div className="p-5 border-b border-slate-50 flex items-start justify-between gap-3 bg-white relative z-10 sm:p-8 sm:items-center">
+                    <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-1 sm:gap-3">
+                            <div
+                                className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${brandLightClass}`}
+                            >
                                 Exam Details
                             </div>
-                            <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${exam.status === 'Published' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : exam.status === 'Monitor' || exam.status === 'Live' ? brandLightClass : 'bg-slate-50 text-slate-400 border-slate-100'}`}>
+                            <span
+                                className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${exam.status === 'Published' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : exam.status === 'Monitor' || exam.status === 'Live' ? brandLightClass : 'bg-slate-50 text-slate-400 border-slate-100'}`}
+                            >
                                 {exam.status}
                             </span>
                         </div>
-                        <h2 className="text-2xl font-black text-slate-800 tracking-tight">{exam.title}</h2>
-                        <p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">{exam.module}</p>
+                        <h2 className="text-xl font-black text-slate-800 tracking-tight sm:text-2xl">{exam.title}</h2>
+                        <p className="truncate text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">
+                            {exam.module}
+                        </p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="w-12 h-12 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center hover:bg-slate-100 hover:text-slate-600 transition-all active:scale-95"
+                        className="w-10 h-10 shrink-0 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center hover:bg-slate-100 hover:text-slate-600 transition-all active:scale-95 sm:h-12 sm:w-12"
                     >
                         <X size={20} />
                     </button>
                 </div>
 
                 {/* Modal Content */}
-                <div className="flex-1 overflow-y-auto p-8 space-y-8 no-scrollbar">
+                <div className="flex-1 overflow-y-auto p-5 space-y-6 no-scrollbar sm:p-8 sm:space-y-8">
                     {/* Links Section */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <DetailCard
                             icon={<Globe size={18} />}
                             label="Public Exam URL"
                             value={publicExamUrl}
-                            type="link"
                             onAlert={setAlertConfig}
                             brandTextClass={brandTextClass}
                         />
@@ -110,7 +110,6 @@ export default function ExamDetailsModal({ exam, onClose, userRole = 'teacher' }
                             icon={<Share2 size={18} />}
                             label="Invite Link"
                             value={inviteUrl}
-                            type="link"
                             onAlert={setAlertConfig}
                             brandTextClass={brandTextClass}
                             canCopy={Boolean(exam.inviteToken)}
@@ -119,7 +118,9 @@ export default function ExamDetailsModal({ exam, onClose, userRole = 'teacher' }
 
                     {/* Security & Access */}
                     <div className="space-y-4">
-                        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">Security & Access Control</h3>
+                        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">
+                            Security & Access Control
+                        </h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <SecurityPill
                                 icon={<Shield size={16} />}
@@ -132,9 +133,11 @@ export default function ExamDetailsModal({ exam, onClose, userRole = 'teacher' }
                                 icon={<Target size={16} />}
                                 label="Test Code"
                                 value={exam.testCode}
-                                sub={exam.testCodeType === 'Rotating' && exam.rotationInterval
-                                    ? `Rotates every ${exam.rotationInterval} min`
-                                    : exam.testCodeType}
+                                sub={
+                                    exam.testCodeType === 'Rotating' && exam.rotationInterval
+                                        ? `Rotates every ${exam.rotationInterval} min`
+                                        : exam.testCodeType
+                                }
                                 brandTextClass={brandTextClass}
                             />
                             <SecurityPill
@@ -145,13 +148,15 @@ export default function ExamDetailsModal({ exam, onClose, userRole = 'teacher' }
                                 brandTextClass={brandTextClass}
                             />
                         </div>
-                        <div className="bg-slate-50 border border-slate-100 p-4 rounded-3xl flex items-center justify-between">
+                        <div className="bg-slate-50 border border-slate-100 p-4 rounded-3xl flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400">
                                     <Target size={14} />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Allowed IP Addresses</p>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                        Allowed IP Addresses
+                                    </p>
                                     <p className="text-xs font-bold text-slate-700">{exam.allowedIPs}</p>
                                 </div>
                             </div>
@@ -164,10 +169,14 @@ export default function ExamDetailsModal({ exam, onClose, userRole = 'teacher' }
                     {/* Assessment Metadata */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="bg-white border border-slate-100 p-6 rounded-[32px] space-y-4">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-300">Assessment Info</h4>
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-300">
+                                Assessment Info
+                            </h4>
                             <div className="flex items-center justify-between border-b border-slate-50 pb-3">
                                 <span className="text-xs font-bold text-slate-400">Total Questions</span>
-                                <span className="text-sm font-black text-slate-800">{Array.isArray(exam.questions) ? exam.questions.length : 0} Items</span>
+                                <span className="text-sm font-black text-slate-800">
+                                    {Array.isArray(exam.questions) ? exam.questions.length : 0} Items
+                                </span>
                             </div>
                             <div className="flex items-center justify-between border-b border-slate-50 pb-3">
                                 <span className="text-xs font-bold text-slate-400">Time Limit</span>
@@ -175,12 +184,16 @@ export default function ExamDetailsModal({ exam, onClose, userRole = 'teacher' }
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-xs font-bold text-slate-400">Total Marks</span>
-                                <span className={`text-sm font-black ${brandTextClass}`}>{exam.totalMarks || 100} Points</span>
+                                <span className={`text-sm font-black ${brandTextClass}`}>
+                                    {exam.totalMarks || 100} Points
+                                </span>
                             </div>
                         </div>
 
                         <div className="bg-white border border-slate-100 p-6 rounded-[32px] space-y-4">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-300">Schedule Window</h4>
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-300">
+                                Schedule Window
+                            </h4>
                             <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
                                     <Clock size={20} />
@@ -204,16 +217,18 @@ export default function ExamDetailsModal({ exam, onClose, userRole = 'teacher' }
                 </div>
 
                 {/* Modal Footer */}
-                <div className="p-8 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
+                <div className="p-5 bg-slate-50/50 border-t border-slate-100 flex flex-col gap-3 sm:p-8 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center">
                             <Shield size={18} className={brandTextClass} />
                         </div>
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">End-to-End Encrypted Session</span>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            End-to-End Encrypted Session
+                        </span>
                     </div>
                     <button
                         onClick={onClose}
-                        className="px-8 py-3 bg-white border border-slate-200 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all"
+                        className="w-full px-8 py-3 bg-white border border-slate-200 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all sm:w-auto"
                     >
                         Dismiss
                     </button>
@@ -221,42 +236,64 @@ export default function ExamDetailsModal({ exam, onClose, userRole = 'teacher' }
             </div>
 
             <style jsx>{`
-                @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-                @keyframes zoom-in { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-                .animate-fade-in { animation: fade-in 0.3s ease-out; }
-                .animate-zoom-in { animation: zoom-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+                @keyframes fade-in {
+                    from {
+                        opacity: 0;
+                    }
+                    to {
+                        opacity: 1;
+                    }
+                }
+                @keyframes zoom-in {
+                    from {
+                        opacity: 0;
+                        transform: scale(0.95);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: scale(1);
+                    }
+                }
+                .animate-fade-in {
+                    animation: fade-in 0.3s ease-out;
+                }
+                .animate-zoom-in {
+                    animation: zoom-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+                }
             `}</style>
 
             <AlertModal
                 isOpen={alertConfig.isOpen}
                 title={alertConfig.title}
                 message={alertConfig.message}
-                type={alertConfig.type || "info"}
+                type={alertConfig.type || 'info'}
                 confirmLabel="Close"
-                onConfirm={() => setAlertConfig(prev => ({ ...prev, isOpen: false }))}
-                onCancel={() => setAlertConfig(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={() => setAlertConfig((prev) => ({ ...prev, isOpen: false }))}
+                onCancel={() => setAlertConfig((prev) => ({ ...prev, isOpen: false }))}
             />
         </div>
     );
 }
 
-function DetailCard({ icon, label, value, type, onAlert, brandTextClass, canCopy = true }: any) {
+function DetailCard({ icon, label, value, onAlert, brandTextClass, canCopy = true }: any) {
     const handleCopy = () => {
         if (!canCopy || !value) return;
         navigator.clipboard.writeText(value);
         onAlert({
             isOpen: true,
-            title: "Copied!",
-            message: "Link has been copied to your clipboard.",
-            type: "info"
+            title: 'Copied!',
+            message: 'Link has been copied to your clipboard.',
+            type: 'info',
         });
-    }
+    };
 
     return (
         <div className="bg-white border border-slate-100 p-4 rounded-3xl group hover:border-[var(--brand-light)] transition-all flex flex-col gap-3">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <div className={`p-1.5 rounded-lg ${brandTextClass.replace('text-', 'bg-').replace('600', '50')} ${brandTextClass}`}>
+                    <div
+                        className={`p-1.5 rounded-lg ${brandTextClass.replace('text-', 'bg-').replace('600', '50')} ${brandTextClass}`}
+                    >
                         {React.cloneElement(icon, { size: 18 })}
                     </div>
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
@@ -271,20 +308,26 @@ function DetailCard({ icon, label, value, type, onAlert, brandTextClass, canCopy
             </div>
             <p className="text-xs font-black text-slate-700 break-all select-all">{value}</p>
         </div>
-    )
+    );
 }
 
 function SecurityPill({ icon, label, value, sub, brandTextClass }: any) {
     return (
         <div className="bg-white border border-slate-100 p-5 rounded-3xl flex flex-col gap-1 items-start shadow-sm group hover:border-[var(--brand-light)] transition-all">
             <div className="flex items-center gap-2 mb-2">
-                <div className={`w-6 h-6 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover:${brandTextClass} transition-colors`}>
+                <div
+                    className={`w-6 h-6 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover:${brandTextClass} transition-colors`}
+                >
                     {icon}
                 </div>
                 <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">{label}</span>
             </div>
             <p className="text-base font-black text-slate-800 leading-none">{value}</p>
-            <p className={`text-[8px] font-bold ${brandTextClass.replace('text-', 'text-').replace('600', '500')} uppercase tracking-tighter mt-1`}>{sub}</p>
+            <p
+                className={`text-[8px] font-bold ${brandTextClass.replace('text-', 'text-').replace('600', '500')} uppercase tracking-tighter mt-1`}
+            >
+                {sub}
+            </p>
         </div>
-    )
+    );
 }

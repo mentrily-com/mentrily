@@ -1,11 +1,12 @@
-"use client";
+'use client';
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { PLAYGROUND_LANGUAGES } from './Editor/playgroundLanguages';
+import CoursePlayerSkeleton from './Skeletons/CoursePlayerSkeleton';
 
 const CodeEditor = dynamic(() => import('./Editor/CodeEditor'), {
-    loading: () => <div className="h-[400px] bg-slate-50 animate-pulse rounded-2xl flex items-center justify-center text-slate-400 text-xs font-black uppercase tracking-widest">Loading Editor...</div>,
-    ssr: false
+    loading: () => <CoursePlayerSkeleton isExamMode hasSidebar={false} />,
+    ssr: false,
 });
 import { CodeExecutionService } from '@/services/api/CodeExecutionService';
 import { UnitQuestion } from '@/types/unit';
@@ -51,9 +52,8 @@ export default function CodingQuestionRenderer({
     examId,
     hideSubmit = false,
     isExamMode = false,
-    onCheatDetected
+    onCheatDetected,
 }: CodingQuestionRendererProps) {
-
     const normalizeLanguageId = (languageId?: string) => {
         if (!languageId) return '';
         const normalized = languageId.toLowerCase();
@@ -65,32 +65,41 @@ export default function CodingQuestionRenderer({
 
     // Templates & allowed languages may come from the question (teacher config)
     const rawTemplates = question.codingConfig?.templates || {};
-    const codingTemplates = Object.entries(rawTemplates).reduce((acc, [langId, template]: [string, any]) => {
-        const normalizedId = normalizeLanguageId(langId);
-        acc[normalizedId] = template;
-        return acc;
-    }, {} as Record<string, any>);
+    const codingTemplates = Object.entries(rawTemplates).reduce(
+        (acc, [langId, template]: [string, any]) => {
+            const normalizedId = normalizeLanguageId(langId);
+            acc[normalizedId] = template;
+            return acc;
+        },
+        {} as Record<string, any>,
+    );
 
     const templateLangs = Object.keys(codingTemplates);
     const configuredAllowed = Array.isArray(question.codingConfig?.allowedLanguages)
         ? question.codingConfig.allowedLanguages.map((lang: string) => normalizeLanguageId(lang)).filter(Boolean)
         : [];
 
-    const allowedLangs = configuredAllowed.length > 0
-        ? Array.from(new Set([
-            ...configuredAllowed.filter((langId: string) => templateLangs.includes(langId)),
-            ...templateLangs,
-        ]))
-        : (templateLangs.length > 0 ? templateLangs : PLAYGROUND_LANGUAGES.map(l => l.id));
+    const allowedLangs =
+        configuredAllowed.length > 0
+            ? Array.from(
+                  new Set([
+                      ...configuredAllowed.filter((langId: string) => templateLangs.includes(langId)),
+                      ...templateLangs,
+                  ]),
+              )
+            : templateLangs.length > 0
+              ? templateLangs
+              : PLAYGROUND_LANGUAGES.map((l) => l.id);
 
     // Determine selected language (state kept in selectedCodingLang)
-    const activeLangId = normalizeLanguageId(selectedCodingLang || undefined)
-        || normalizeLanguageId(question.codingConfig?.languageId)
-        || (allowedLangs.length ? allowedLangs[0] : PLAYGROUND_LANGUAGES[0].id);
+    const activeLangId =
+        normalizeLanguageId(selectedCodingLang || undefined) ||
+        normalizeLanguageId(question.codingConfig?.languageId) ||
+        (allowedLangs.length ? allowedLangs[0] : PLAYGROUND_LANGUAGES[0].id);
     const template = (codingTemplates as any)[activeLangId] || {};
 
     // Find base language config and overlay template head/body/footer
-    const baseLang = PLAYGROUND_LANGUAGES.find(l => l.id === activeLangId) || PLAYGROUND_LANGUAGES[0];
+    const baseLang = PLAYGROUND_LANGUAGES.find((l) => l.id === activeLangId) || PLAYGROUND_LANGUAGES[0];
 
     const parseAnswer = (ans: any) => {
         if (typeof ans === 'string') return ans;
@@ -101,7 +110,7 @@ export default function CodingQuestionRenderer({
     const getLanguageSubmissions = (ans: any): Record<string, any> => {
         if (!ans || typeof ans !== 'object') return {};
         const map = ans.languageSubmissions;
-        return (map && typeof map === 'object') ? map : {};
+        return map && typeof map === 'object' ? map : {};
     };
 
     const getLanguageAnswer = (ans: any, langId: string): any => {
@@ -127,7 +136,7 @@ export default function CodingQuestionRenderer({
 
     const buildMergedCodingAnswer = (baseAnswer: any, langId: string, nextLangAnswer: any) => {
         const normalizedLangId = normalizeLanguageId(langId);
-        const base = (baseAnswer && typeof baseAnswer === 'object') ? baseAnswer : {};
+        const base = baseAnswer && typeof baseAnswer === 'object' ? baseAnswer : {};
         const existingByLang = getLanguageSubmissions(baseAnswer);
 
         return {
@@ -142,8 +151,8 @@ export default function CodingQuestionRenderer({
                     ...(existingByLang[normalizedLangId] || {}),
                     ...nextLangAnswer,
                     languageId: normalizedLangId,
-                }
-            }
+                },
+            },
         };
     };
 
@@ -162,7 +171,7 @@ export default function CodingQuestionRenderer({
             if (legacyParsed && typeof legacyParsed === 'string') {
                 languageEntries.push({
                     langId: currentAnswer?.languageId || question.codingConfig?.languageId || activeLangId,
-                    code: legacyParsed
+                    code: legacyParsed,
                 });
             }
 
@@ -211,7 +220,7 @@ export default function CodingQuestionRenderer({
             const mergedAnswer = buildMergedCodingAnswer(currentAnswer, activeLangId, {
                 code: newCode,
                 languageId: activeLangId,
-                results: executionResults && executionResults.length > 0 ? executionResults : undefined
+                results: executionResults && executionResults.length > 0 ? executionResults : undefined,
             });
             onAnswerChange(mergedAnswer);
         }
@@ -223,12 +232,17 @@ export default function CodingQuestionRenderer({
             localStorage.removeItem(key);
         }
         // Force re-render to pick up default
-        setMounted(prev => !prev);
+        setMounted((prev) => !prev);
 
         const primaryLangId = question.codingConfig?.languageId;
         const isPrimary = activeLangId === primaryLangId;
 
-        return template.initialCode ?? template.body ?? (isPrimary ? (question.codingConfig?.initialCode ?? question.codingConfig?.body) : undefined) ?? baseLang.initialBody;
+        return (
+            template.initialCode ??
+            template.body ??
+            (isPrimary ? (question.codingConfig?.initialCode ?? question.codingConfig?.body) : undefined) ??
+            baseLang.initialBody
+        );
     };
 
     const primaryLangId = question.codingConfig?.languageId;
@@ -256,7 +270,11 @@ export default function CodingQuestionRenderer({
 
             const answerLangId = currentAnswer?.languageId;
             const parsedCurrent = parseAnswer(currentAnswer);
-            if (parsedCurrent && parsedCurrent.length > 0 && (answerLangId === activeLangId || (!answerLangId && isPrimary))) {
+            if (
+                parsedCurrent &&
+                parsedCurrent.length > 0 &&
+                (answerLangId === activeLangId || (!answerLangId && isPrimary))
+            ) {
                 return parsedCurrent;
             }
         }
@@ -278,12 +296,20 @@ export default function CodingQuestionRenderer({
     const codingLanguage = {
         ...baseLang,
         id: activeLangId as any,
-        header: template.header || template.head || (isPrimary ? (question.codingConfig?.header || question.codingConfig?.head) : "") || "",
-        footer: template.footer || template.tail || (isPrimary ? (question.codingConfig?.footer || question.codingConfig?.tail) : "") || "",
+        header:
+            template.header ||
+            template.head ||
+            (isPrimary ? question.codingConfig?.header || question.codingConfig?.head : '') ||
+            '',
+        footer:
+            template.footer ||
+            template.tail ||
+            (isPrimary ? question.codingConfig?.footer || question.codingConfig?.tail : '') ||
+            '',
         initialBody: resolveInitialBody(),
     };
 
-    const rawTestCases = (question.codingConfig?.testCases || []);
+    const rawTestCases = question.codingConfig?.testCases || [];
     const showTestCases = question.codingConfig?.showTestCases ?? true;
 
     let displayedTestCases: any[] = [];
@@ -293,7 +319,7 @@ export default function CodingQuestionRenderer({
         displayedTestCases = rawTestCases.map((tc: any) => ({
             ...tc,
             expectedOutput: tc.output || tc.expectedOutput,
-            isPublic: true
+            isPublic: true,
         }));
     } else {
         // Student view: Show ALL cases but mask non-public or if showTestCases is off
@@ -302,8 +328,8 @@ export default function CodingQuestionRenderer({
             return {
                 ...tc,
                 input: isActuallyPublic ? tc.input : null,
-                expectedOutput: isActuallyPublic ? (tc.output || tc.expectedOutput) : null,
-                isPublic: isActuallyPublic
+                expectedOutput: isActuallyPublic ? tc.output || tc.expectedOutput : null,
+                isPublic: isActuallyPublic,
             };
         });
     }
@@ -319,10 +345,10 @@ export default function CodingQuestionRenderer({
                 return {
                     ...res,
                     input: isActuallyPublic ? res.input : null,
-                    expectedOutput: isActuallyPublic ? (res.output || res.expectedOutput) : null,
-                    actualOutput: isActuallyPublic ? res.actualOutput : "[Hidden]",
-                    error: isActuallyPublic ? res.error : (res.error ? "Error occurred in hidden case" : null),
-                    isPublic: isActuallyPublic
+                    expectedOutput: isActuallyPublic ? res.output || res.expectedOutput : null,
+                    actualOutput: isActuallyPublic ? res.actualOutput : '[Hidden]',
+                    error: isActuallyPublic ? res.error : res.error ? 'Error occurred in hidden case' : null,
+                    isPublic: isActuallyPublic,
                 };
             });
         }
@@ -336,10 +362,16 @@ export default function CodingQuestionRenderer({
                 onChange={(e) => onLanguageChange(normalizeLanguageId(e.target.value))}
                 className="bg-[#f8f9fa] border border-slate-200 rounded px-2 py-1 text-[11px] font-bold text-slate-600 outline-none hover:border-slate-300 transition-colors"
             >
-                {((allowedLangs && allowedLangs.length > 0) ? allowedLangs : PLAYGROUND_LANGUAGES.map(l => l.id)).map((lid: string) => {
-                    const opt = PLAYGROUND_LANGUAGES.find(s => s.id === lid) || { id: lid, label: lid } as any;
-                    return <option key={lid} value={lid}>{opt.label || lid}</option>;
-                })}
+                {(allowedLangs && allowedLangs.length > 0 ? allowedLangs : PLAYGROUND_LANGUAGES.map((l) => l.id)).map(
+                    (lid: string) => {
+                        const opt = PLAYGROUND_LANGUAGES.find((s) => s.id === lid) || ({ id: lid, label: lid } as any);
+                        return (
+                            <option key={lid} value={lid}>
+                                {opt.label || lid}
+                            </option>
+                        );
+                    },
+                )}
             </select>
             <div className="text-sm text-slate-500 font-bold">Language</div>
         </div>
@@ -362,22 +394,22 @@ export default function CodingQuestionRenderer({
                     activeLangId,
                     fullCode,
                     examId,
-                    question.codingConfig?.testCases // Pass test cases for preview
+                    question.codingConfig?.testCases, // Pass test cases for preview
                 );
 
                 // Handle case where backend returns no results (e.g. mismatch in test cases)
                 if (!result.results || result.results.length === 0) {
-                    const rawTestCases = (question.codingConfig?.testCases || []);
+                    const rawTestCases = question.codingConfig?.testCases || [];
                     if (rawTestCases.length > 0) {
                         const fallbackResults = rawTestCases.map((tc: any) => ({
                             ...tc,
                             input: tc.isPublic ? tc.input : null,
-                            expectedOutput: tc.isPublic ? (tc.output || tc.expectedOutput) : null,
-                            actualOutput: "No output returned.",
+                            expectedOutput: tc.isPublic ? tc.output || tc.expectedOutput : null,
+                            actualOutput: 'No output returned.',
                             passed: false,
                             status: 'Failed',
                             error: 'Execution returned no results.',
-                            isPublic: tc.isPublic !== false
+                            isPublic: tc.isPublic !== false,
                         }));
                         setExecutionResults(fallbackResults);
                         setTerminalLogs('Execution completed but returned no results.');
@@ -389,7 +421,7 @@ export default function CodingQuestionRenderer({
 
                 // Show output for the selected test case in terminal
                 const selectedResult = result.results[testCaseIndex];
-                let output = selectedResult?.actualOutput || "";
+                let output = selectedResult?.actualOutput || '';
 
                 if (selectedResult?.error) {
                     output += `\n${selectedResult.error}`;
@@ -400,7 +432,7 @@ export default function CodingQuestionRenderer({
             } else {
                 // Custom Input: Run single execution
                 const result = await CodeExecutionService.run(activeLangId, fullCode, input || '');
-                let output = result.output || result.stdout || result.stderr || 'Execution finished with no output.';
+                const output = result.output || result.stdout || result.stderr || 'Execution finished with no output.';
 
                 setTerminalLogs(output);
                 return { passed: true, error: false };
@@ -410,25 +442,28 @@ export default function CodingQuestionRenderer({
 
             // If we were running a specific test case, update it to show error
             if (testCaseIndex !== undefined) {
-                const rawTestCases = (question.codingConfig?.testCases || []);
-                const base = (executionResults && executionResults.length > 0) ? executionResults : rawTestCases.map((tc: any) => ({
-                    ...tc,
-                    isPublic: tc.isPublic !== false,
-                    expectedOutput: tc.isPublic ? (tc.output || tc.expectedOutput) : null
-                }));
+                const rawTestCases = question.codingConfig?.testCases || [];
+                const base =
+                    executionResults && executionResults.length > 0
+                        ? executionResults
+                        : rawTestCases.map((tc: any) => ({
+                              ...tc,
+                              isPublic: tc.isPublic !== false,
+                              expectedOutput: tc.isPublic ? tc.output || tc.expectedOutput : null,
+                          }));
 
                 const newResults = [...base];
-                // Mark all as error or just the selected one? 
+                // Mark all as error or just the selected one?
                 // If submit failed, likely all failed or system error.
-                // Let's just mark the selected one for now to avoid clearing others if they had state, 
+                // Let's just mark the selected one for now to avoid clearing others if they had state,
                 // but actually we probably want to show error state.
                 if (newResults[testCaseIndex]) {
                     newResults[testCaseIndex] = {
                         ...newResults[testCaseIndex],
-                        actualOutput: "Error occurred during execution.",
+                        actualOutput: 'Error occurred during execution.',
                         passed: false,
                         status: 'Error',
-                        error: error.message || String(error)
+                        error: error.message || String(error),
                     };
                 }
                 setExecutionResults(newResults);
@@ -451,7 +486,7 @@ export default function CodingQuestionRenderer({
                 activeLangId,
                 fullCode,
                 examId,
-                question.codingConfig?.testCases // Pass test cases for preview
+                question.codingConfig?.testCases, // Pass test cases for preview
             );
             console.log('Submission Result:', result); // DEBUG
 
@@ -461,17 +496,17 @@ export default function CodingQuestionRenderer({
 
             // Handle empty results fallback
             if (!finalResults || finalResults.length === 0) {
-                const rawTestCases = (question.codingConfig?.testCases || []);
+                const rawTestCases = question.codingConfig?.testCases || [];
                 if (rawTestCases.length > 0) {
                     finalResults = rawTestCases.map((tc: any) => ({
                         ...tc,
                         input: tc.isPublic ? tc.input : null,
-                        expectedOutput: tc.isPublic ? (tc.output || tc.expectedOutput) : null,
-                        actualOutput: "No output returned.",
+                        expectedOutput: tc.isPublic ? tc.output || tc.expectedOutput : null,
+                        actualOutput: 'No output returned.',
                         passed: false,
                         status: 'Failed',
                         error: 'Execution returned no results.',
-                        isPublic: tc.isPublic !== false
+                        isPublic: tc.isPublic !== false,
                     }));
                     finalTotal = rawTestCases.length;
                     finalPassed = 0;
@@ -488,7 +523,7 @@ export default function CodingQuestionRenderer({
                 code: code, // Save only the user's code (body), not the full concatenated code
                 languageId: activeLangId,
                 score: score,
-                testCases: `${finalPassed} / ${finalTotal}`
+                testCases: `${finalPassed} / ${finalTotal}`,
             };
 
             const mergedSubmission = buildMergedCodingAnswer(currentAnswer, activeLangId, submissionData);
@@ -522,7 +557,7 @@ export default function CodingQuestionRenderer({
                 onChange: handleAnswerChangeWithSave,
                 onSubmit: handleSubmit,
                 onReset: handleReset,
-                ...(isExamMode && onCheatDetected ? { onCheatDetected } : {})
+                ...(isExamMode && onCheatDetected ? { onCheatDetected } : {}),
             }}
             isExecuting={isRunning}
             testCases={displayedTestCases}
@@ -531,14 +566,16 @@ export default function CodingQuestionRenderer({
             terminalOutput={terminalLogs}
             options={{
                 readOnly: hasAttemptSelected,
-                ...(isExamMode ? {
-                    disablePaste: true,
-                    disableCopy: true,
-                    disableCut: true,
-                    disableRightClick: true,
-                    disableDragDrop: true,
-                    allowInternalCopyPaste: true
-                } : {})
+                ...(isExamMode
+                    ? {
+                          disablePaste: true,
+                          disableCopy: true,
+                          disableCut: true,
+                          disableRightClick: true,
+                          disableDragDrop: true,
+                          allowInternalCopyPaste: true,
+                      }
+                    : {}),
             }}
             hideSubmit={hideSubmit}
             hideSnapshotButton={isExamMode}

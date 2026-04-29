@@ -1,46 +1,74 @@
-"use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { AuthService } from "@/services/api/AuthService";
+'use client';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@clerk/nextjs';
+import { useSession } from '@/hooks/useSession';
 
-function hasAllowedRole(user: any, allowedRoles: string[]): boolean {
-    if (!user) return false;
-    if (!allowedRoles.length) return true;
-    return allowedRoles.includes(user.role);
+function readPendingDashboardRole(): string {
+    if (typeof window === 'undefined') {
+        return '';
+    }
+
+    const raw = window.localStorage.getItem('pending-dashboard-role');
+    if (!raw) {
+        return '';
+    }
+
+    try {
+        const parsed = JSON.parse(raw) as { role?: string; expiresAt?: number };
+        const role = String(parsed?.role || '').trim().toUpperCase();
+        const expiresAt = Number(parsed?.expiresAt || 0);
+
+        if (!role || !Number.isFinite(expiresAt) || expiresAt <= Date.now()) {
+            window.localStorage.removeItem('pending-dashboard-role');
+            return '';
+        }
+
+        return role;
+    } catch {
+        window.localStorage.removeItem('pending-dashboard-role');
+        return '';
+    }
 }
 
 export function useRoleGuard(allowedRoles: string[]) {
     const router = useRouter();
-    const [isAuthorized, setIsAuthorized] = useState(false);
-    const [isReady, setIsReady] = useState(false);
+    const { isLoaded, isSignedIn } = useAuth();
+    const { data: user, isLoading: isSessionLoading, error: sessionError } = useSession();
+    const role = user?.role;
+    const pendingRole = readPendingDashboardRole();
+    const isPendingAuthorized =
+        Boolean(pendingRole) && (allowedRoles.length === 0 || allowedRoles.includes(String(pendingRole)));
+
+    const isSessionResolved = isLoaded && isSignedIn && !isSessionLoading && !sessionError && Boolean(user) && Boolean(role);
+    const isAuthorized =
+        isPendingAuthorized ||
+        (isSessionResolved && (allowedRoles.length === 0 || allowedRoles.includes(String(role))));
+    const isReady = !isLoaded ? false : !isSignedIn ? true : isSessionResolved || isPendingAuthorized;
 
     useEffect(() => {
-        // Soft check only - strict check matches happen via API cookies
-        const user = AuthService.getUser();
-        const role = user?.role;
-
-        if (!user) {
-            setIsAuthorized(false);
-            setIsReady(true);
-            router.push("/login");
+        if (!isLoaded) return;
+        if (!isSignedIn) {
+            router.push('/login');
             return;
         }
 
-        if (allowedRoles.length > 0 && !allowedRoles.includes(role)) {
-            setIsAuthorized(false);
-            setIsReady(true);
-            // Redirect to their own dashboard if they try to access another one
-            if (role === 'STUDENT') router.push("/dashboard/student");
-            else if (role === 'TEACHER') router.push("/dashboard/teacher");
-            else if (role === 'ADMIN') router.push("/dashboard/admin");
-            else if (role === 'SUPER_ADMIN') router.push("/dashboard/super-admin");
-            else router.push("/login"); // Fallback
+        if (isPendingAuthorized) {
             return;
         }
 
-        setIsAuthorized(true);
-        setIsReady(true);
-    }, [allowedRoles, router]);
+        if (!isSessionResolved) {
+            return;
+        }
 
-    return { isAuthorized, isReady };
+        if (allowedRoles.length > 0 && !allowedRoles.includes(String(role))) {
+            if (role === 'STUDENT') router.replace('/dashboard/learner');
+            else if (role === 'TEACHER' || role === 'ADMIN') router.replace('/dashboard/creator');
+            else if (role === 'SUPER_ADMIN') router.replace('/dashboard/super-admin');
+            return;
+        }
+
+    }, [allowedRoles, router, isLoaded, isSignedIn, isSessionResolved, role, isPendingAuthorized]);
+
+    return { isAuthorized, isReady, isPendingAuthorized };
 }
