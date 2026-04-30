@@ -44,13 +44,54 @@ import { siteConfig } from './config/site';
 import { cookies, headers } from 'next/headers';
 
 export const metadata: Metadata = {
-    title: siteConfig.name,
+    metadataBase: new URL(siteConfig.url),
+    title: {
+        default: `${siteConfig.name} | ${siteConfig.slogan}`,
+        template: `%s | ${siteConfig.name}`,
+    },
     description: siteConfig.description,
+    applicationName: siteConfig.name,
+    alternates: {
+        canonical: '/',
+    },
     manifest: '/manifest.json',
+    icons: {
+        icon: [
+            { url: '/favicon.ico', sizes: 'any' },
+            { url: '/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
+            { url: '/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
+        ],
+        shortcut: '/favicon.ico',
+        apple: [{ url: '/apple-touch-icon.png', type: 'image/png', sizes: '180x180' }],
+    },
     appleWebApp: {
         capable: true,
         statusBarStyle: 'default',
         title: siteConfig.name,
+    },
+    openGraph: {
+        type: 'website',
+        url: siteConfig.url,
+        siteName: siteConfig.name,
+        title: `${siteConfig.name} | ${siteConfig.slogan}`,
+        description: siteConfig.description,
+        images: [
+            {
+                url: '/brand/og-image.png',
+                width: 1200,
+                height: 630,
+                alt: `${siteConfig.name} brand preview`,
+            },
+        ],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: `${siteConfig.name} | ${siteConfig.slogan}`,
+        description: siteConfig.description,
+        images: ['/brand/og-image.png'],
+    },
+    verification: {
+        google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
     },
 };
 

@@ -1,21 +1,24 @@
 {
   "name": "Mentrily",
   "short_name": "Mentrily",
-  "start_url": "/dashboard/learner",
+  "description": "Teach smartly. Mentor easily.",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#F8FAFC",
+  "background_color": "#FAFBFF",
   "theme_color": "#008D98",
-  "description": "Mentrily learner experience",
+  "categories": ["education", "productivity"],
   "icons": [
     {
-      "src": "/logo.svg",
+      "src": "/android-chrome-192x192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml"
+      "type": "image/png"
     },
     {
-      "src": "/logo.svg",
+      "src": "/android-chrome-512x512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

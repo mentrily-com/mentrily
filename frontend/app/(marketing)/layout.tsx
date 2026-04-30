@@ -25,11 +25,10 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
     title: {
-        default: `${siteConfig.name} - The Course Platform for Educators`,
+        absolute: `${siteConfig.name} | ${siteConfig.slogan}`,
         template: `%s | ${siteConfig.name}`,
     },
-    description:
-        'Launch your own branded school with courses, quizzes, assignments, proctored exams, learner progress, and verifiable certificates. Start free, scale as you grow.',
+    description: siteConfig.description,
 };
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {

@@ -18,7 +18,10 @@ type BrandLockupProps = {
 export function isDefaultBrand(orgName?: string | null, orgLogo?: string | null) {
     return (
         (!orgName || orgName === siteConfig.name) &&
-        (!orgLogo || orgLogo === siteConfig.logo || orgLogo === '/logo.svg')
+        (!orgLogo ||
+            orgLogo === siteConfig.logo ||
+            orgLogo === '/brand/mentrily-logo.svg' ||
+            orgLogo === '/logo.svg')
     );
 }
 
@@ -33,6 +36,21 @@ export function BrandLockup({
     priority = false,
 }: BrandLockupProps) {
     if (isDefaultBrand(orgName, orgLogo)) {
+        if (collapsed) {
+            return (
+                <Image
+                    src={siteConfig.favicon}
+                    alt={`${siteConfig.name} icon`}
+                    width={192}
+                    height={192}
+                    className={cn('block h-8 w-8 rounded-lg object-contain', defaultLogoClassName)}
+                    priority={priority}
+                    unoptimized
+                    draggable={false}
+                />
+            );
+        }
+
         return (
             <BrandLogo
                 priority={priority}

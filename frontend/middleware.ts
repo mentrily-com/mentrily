@@ -52,7 +52,6 @@ function getStringValue(source: Record<string, unknown> | undefined, key: string
 
 export default clerkMiddleware(async (auth, request) => {
     const requestHeaders = new Headers(request.headers);
-    const authState = await auth();
 
     const host = requestHeaders.get('x-forwarded-host') || requestHeaders.get('host') || '';
     const hostWithoutPort = host.replace(/:\d+$/, '').toLowerCase();
@@ -68,6 +67,8 @@ export default clerkMiddleware(async (auth, request) => {
     }
 
     requestHeaders.set('x-tenant-host', hostWithoutPort);
+
+    const authState = await auth();
 
     const authSnapshot = authState as {
         userId?: string | null;
@@ -119,6 +120,6 @@ export default clerkMiddleware(async (auth, request) => {
 
 export const config = {
     matcher: [
-        '/((?!_next/static|_next/image|_next/webpack-hmr|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|map)$).*)',
+        '/((?!$|about(?:/.*)?|contact(?:/.*)?|pricing(?:/.*)?|_next/static|_next/image|_next/webpack-hmr|robots.txt|sitemap.xml|manifest.json|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|map)$).*)',
     ],
 };
