@@ -48,9 +48,7 @@ export default function Features() {
                 </div>
 
                 <div className="space-y-20 sm:space-y-28">
-                    {/* Feature 1: Course Builder */}
                     <FeatureRow
-                        badge="Course Builder"
                         badgeColor="#008D98"
                         title="Build courses for any subject."
                         description="Create structured modules with reading lessons, MCQs, multi-select questions, assignments, tests, guidelines, and certificates. Add coding, web, or notebook tasks when you need them."
@@ -63,9 +61,7 @@ export default function Features() {
                         direction="left"
                     />
 
-                    {/* Feature 2: Proctored Exams */}
                     <FeatureRow
-                        badge="Exam Engine"
                         badgeColor="#F59E0B"
                         title="Assessments for every subject."
                         description="Build quizzes, tests, and proctored exams with MCQ, multi-select, reading, web, notebook, and coding questions. Keep high-stakes exams controlled and fair."
@@ -78,9 +74,7 @@ export default function Features() {
                         direction="right"
                     />
 
-                    {/* Feature 3: Interactive Workspaces */}
                     <FeatureRow
-                        badge="Interactive Workspaces"
                         badgeColor="#10B981"
                         title="Go interactive when the course needs it."
                         description="For technical programs, students can run code, build web pages, and work in Python notebooks directly in the browser. For non-coding courses, keep things simple."
@@ -100,7 +94,6 @@ export default function Features() {
 }
 
 function FeatureRow({
-    badge,
     badgeColor,
     title,
     description,
@@ -108,7 +101,6 @@ function FeatureRow({
     mockup,
     direction,
 }: {
-    badge: string;
     badgeColor: string;
     title: string;
     description: string;
@@ -135,18 +127,6 @@ function FeatureRow({
                 transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
                 style={{ direction: 'ltr' }}
             >
-                {/* Feature badge */}
-                <div
-                    className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold mb-4"
-                    style={{
-                        backgroundColor: `${badgeColor}12`,
-                        color: badgeColor,
-                        border: `1px solid ${badgeColor}25`,
-                    }}
-                >
-                    {badge}
-                </div>
-
                 <h3
                     className="mb-4"
                     style={{

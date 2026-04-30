@@ -234,24 +234,6 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
 
                 {/* ── Right: Actions ── */}
                 <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-                    {collapsed && (
-                        <div
-                            className="hidden lg:flex items-center rounded-lg border px-2.5 py-1.5"
-                            style={{
-                                borderColor: 'var(--color-border-subtle)',
-                                backgroundColor: 'var(--color-bg-subtle)',
-                            }}
-                        >
-                            <BrandLockup
-                                orgName={orgContext?.name}
-                                orgLogo={orgContext?.logo}
-                                defaultLogoClassName="h-5 max-w-[96px]"
-                                iconClassName="h-6 w-6 rounded-md"
-                                textClassName="text-[11px] font-semibold uppercase"
-                            />
-                        </div>
-                    )}
-
                     {/* Super admin exit button */}
                     {isSuperAdmin && pathname?.includes('/organizations/') && (
                         <button

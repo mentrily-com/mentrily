@@ -63,7 +63,7 @@ export default function Hero() {
                     <div className="max-w-xl">
                         {/* Headline */}
                         <motion.h1 variants={heroWordStagger} initial="hidden" animate="visible" className="mb-6">
-                            {['Stop', 'renting'].map((word, i) => (
+                            {['Teach', 'smartly.'].map((word, i) => (
                                 <motion.span
                                     key={i}
                                     variants={heroWord}
@@ -81,9 +81,8 @@ export default function Hero() {
                                 </motion.span>
                             ))}
                             <br />
-                            {["someone", "else's"].map((word, i) => (
+                            <span className="relative inline-block pb-3">
                                 <motion.span
-                                    key={`mid-${i}`}
                                     variants={heroWord}
                                     className="inline-block mr-3"
                                     style={{
@@ -96,34 +95,35 @@ export default function Hero() {
                                         color: '#0F172A',
                                     }}
                                 >
-                                    {word}
+                                    Mentor
                                 </motion.span>
-                            ))}
-                            <motion.span
-                                variants={heroWord}
-                                className="inline-block mr-3 relative"
-                                style={{
-                                    fontFamily: 'var(--font-display), Georgia, serif',
-                                    fontSize: 'clamp(38px, 5.2vw, 68px)',
-                                    fontWeight: 500,
-                                    fontStyle: 'italic',
-                                    lineHeight: 1.08,
-                                    letterSpacing: '-0.03em',
-                                    color: '#0F172A',
-                                }}
-                            >
-                                classroom.
-                                {/* Accent underline */}
+                                <motion.span
+                                    variants={heroWord}
+                                    className="mr-3 inline-block"
+                                    style={{
+                                        fontFamily: 'var(--font-display), Georgia, serif',
+                                        fontSize: 'clamp(38px, 5.2vw, 68px)',
+                                        fontWeight: 500,
+                                        fontStyle: 'italic',
+                                        lineHeight: 1.08,
+                                        letterSpacing: '-0.03em',
+                                        color: '#0F172A',
+                                    }}
+                                >
+                                    easily.
+                                </motion.span>
                                 <motion.div
+                                    aria-hidden="true"
                                     initial={{ scaleX: 0 }}
                                     animate={{ scaleX: 1 }}
                                     transition={{ delay: 0.8, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                                    className="absolute -bottom-2 left-0 right-0 h-1.5 rounded-full origin-left"
+                                    className="absolute bottom-0 left-0 h-1.5 origin-left rounded-full"
                                     style={{
+                                        width: '100%',
                                         background: 'linear-gradient(90deg, #008D98, #10B981)',
                                     }}
                                 />
-                            </motion.span>
+                            </span>
                         </motion.h1>
 
                         {/* Sub-headline */}
@@ -140,8 +140,8 @@ export default function Hero() {
                             }}
                         >
                             {siteConfig.name} gives educators a complete platform to create courses, lessons, quizzes,
-                            proctored exams, assignments, and certificates. Start free, upgrade as you grow, and unlock
-                            white-label branding on Enterprise.
+                            proctored exams, assignments, and certificates, with mentoring workflows that keep every
+                            learner moving.
                         </motion.p>
 
                         {/* CTAs */}

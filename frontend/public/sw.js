@@ -1,5 +1,5 @@
 const CACHE_NAME = 'mentrily-pwa-v1';
-const STATIC_ASSETS = ['/', '/manifest.json', '/logo.svg'];
+const STATIC_ASSETS = ['/', '/manifest.json', '/brand/mentrily-logo.svg', '/logo.svg'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

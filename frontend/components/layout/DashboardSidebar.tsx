@@ -608,7 +608,7 @@ export default function DashboardSidebar({
                             orgName={orgContext?.name}
                             orgLogo={orgContext?.logo}
                             collapsed={collapsed}
-                            defaultLogoClassName={collapsed ? 'h-7 max-w-10' : 'h-8 max-w-[158px]'}
+                            defaultLogoClassName={collapsed ? 'h-9 w-9 max-w-none rounded-xl' : 'h-8 max-w-[158px]'}
                             textClassName="text-[13px]"
                             priority
                         />

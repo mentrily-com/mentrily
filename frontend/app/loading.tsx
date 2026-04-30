@@ -20,7 +20,7 @@ function BrandedSpinner() {
                         orgName={organization?.name}
                         orgLogo={organization?.logo}
                         collapsed
-                        defaultLogoClassName="h-6 max-w-10 animate-pulse"
+                        defaultLogoClassName="h-12 w-12 max-w-none rounded-2xl animate-pulse"
                         iconClassName="h-12 w-12 animate-pulse"
                         priority
                     />

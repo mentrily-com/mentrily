@@ -9,7 +9,6 @@ import { AuthenticateWithRedirectCallback, useSignUp, useUser } from '@clerk/nex
 import { AuthService } from '@/services/api/AuthService';
 import { BrandLockup } from '@/components/brand/BrandLockup';
 import BrandedPageLoader from '@/app/components/Common/BrandedPageLoader';
-import AuthPanelBrand from '@/app/components/Common/AuthPanelBrand';
 
 export default function SignupPage() {
     const router = useRouter();
@@ -255,10 +254,6 @@ export default function SignupPage() {
                 <div className="absolute bottom-10 right-10 h-40 w-40 border border-white/10" />
 
                 <div className="relative z-10 max-w-md px-12 text-white">
-                    <div className="mb-10">
-                        <AuthPanelBrand orgName={orgContext?.name} orgLogo={orgContext?.logo} priority />
-                    </div>
-
                     <h2 className="text-3xl xl:text-4xl font-bold tracking-tight mb-4 leading-tight">
                         Launch your school in minutes.
                     </h2>
@@ -308,116 +303,187 @@ export default function SignupPage() {
 
             {/* ── Right Panel: Form ── */}
             <div className="flex-1 flex items-center justify-center p-4 sm:p-8 lg:p-12">
-                <div className="w-full max-w-[460px] rounded-3xl border border-white/70 bg-white/90 p-6 shadow-2xl shadow-slate-200/80 backdrop-blur sm:p-8">
-                    {/* Mobile logo */}
-                    <div className="lg:hidden flex flex-col items-center mb-8">
+                <div className="flex w-full max-w-[460px] flex-col items-center">
+                    <div className="mb-6 flex w-full justify-center sm:mb-7">
                         <BrandLockup
                             orgName={orgContext?.name}
                             orgLogo={orgContext?.logo}
-                            defaultLogoClassName="h-10 max-w-[210px]"
+                            defaultLogoClassName="h-12 max-w-[250px] sm:h-14 sm:max-w-[290px]"
                             iconClassName="h-12 w-12"
                             textClassName="text-2xl font-bold"
                             priority
                         />
                     </div>
 
-                    {/* Heading */}
-                    <div className="mb-8">
-                        <h1 className="text-2xl font-bold tracking-tight mb-1.5" style={{ color: '#0F172A' }}>
-                            {pendingVerification ? 'Verify your email' : 'Create your account'}
-                        </h1>
-                        <p className="text-sm" style={{ color: '#94A3B8' }}>
-                            {pendingVerification
-                                ? `We sent a verification code to ${email}`
-                                : 'Get started with your own school platform.'}
-                        </p>
-                    </div>
-
-                    {/* Error */}
-                    {error && (
-                        <div
-                            className="mb-5 px-4 py-3 rounded-xl text-sm font-medium text-center"
-                            style={{ backgroundColor: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}
-                        >
-                            {error}
+                    <div className="w-full rounded-3xl border border-white/70 bg-white/90 p-6 shadow-2xl shadow-slate-200/80 backdrop-blur sm:p-8">
+                        {/* Heading */}
+                        <div className="mb-8">
+                            <h1 className="text-2xl font-bold tracking-tight mb-1.5" style={{ color: '#0F172A' }}>
+                                {pendingVerification ? 'Verify your email' : 'Create your account'}
+                            </h1>
+                            <p className="text-sm" style={{ color: '#94A3B8' }}>
+                                {pendingVerification
+                                    ? `We sent a verification code to ${email}`
+                                    : 'Get started with your own school platform.'}
+                            </p>
                         </div>
-                    )}
 
-                    {!pendingVerification ? (
-                        <>
-                            {/* Google SSO */}
-                            <button
-                                type="button"
-                                onClick={signUpWithGoogle}
-                                className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl text-sm font-medium border transition-all duration-150 cursor-pointer mb-6"
-                                style={{
-                                    backgroundColor: '#FFFFFF',
-                                    borderColor: '#E2E8F0',
-                                    color: '#334155',
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#F8FAFC';
-                                    e.currentTarget.style.borderColor = '#CBD5E1';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#FFFFFF';
-                                    e.currentTarget.style.borderColor = '#E2E8F0';
-                                }}
+                        {/* Error */}
+                        {error && (
+                            <div
+                                className="mb-5 px-4 py-3 rounded-xl text-sm font-medium text-center"
+                                style={{ backgroundColor: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}
                             >
-                                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                                    <path
-                                        fill="#4285F4"
-                                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                                    />
-                                    <path
-                                        fill="#34A853"
-                                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                                    />
-                                    <path
-                                        fill="#FBBC05"
-                                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                                    />
-                                    <path
-                                        fill="#EA4335"
-                                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                                    />
-                                </svg>
-                                Continue with Google
-                            </button>
-
-                            {/* Divider */}
-                            <div className="flex items-center gap-3 mb-6">
-                                <div className="h-px flex-1" style={{ backgroundColor: '#E2E8F0' }} />
-                                <span className="text-xs font-medium" style={{ color: '#94A3B8' }}>
-                                    or
-                                </span>
-                                <div className="h-px flex-1" style={{ backgroundColor: '#E2E8F0' }} />
+                                {error}
                             </div>
+                        )}
 
-                            {/* Form */}
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                {/* Name row */}
-                                <div className="grid grid-cols-2 gap-3">
+                        {!pendingVerification ? (
+                            <>
+                                {/* Google SSO */}
+                                <button
+                                    type="button"
+                                    onClick={signUpWithGoogle}
+                                    className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl text-sm font-medium border transition-all duration-150 cursor-pointer mb-6"
+                                    style={{
+                                        backgroundColor: '#FFFFFF',
+                                        borderColor: '#E2E8F0',
+                                        color: '#334155',
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor = '#F8FAFC';
+                                        e.currentTarget.style.borderColor = '#CBD5E1';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor = '#FFFFFF';
+                                        e.currentTarget.style.borderColor = '#E2E8F0';
+                                    }}
+                                >
+                                    <svg className="w-5 h-5" viewBox="0 0 24 24">
+                                        <path
+                                            fill="#4285F4"
+                                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                                        />
+                                        <path
+                                            fill="#34A853"
+                                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                        />
+                                        <path
+                                            fill="#FBBC05"
+                                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                                        />
+                                        <path
+                                            fill="#EA4335"
+                                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                                        />
+                                    </svg>
+                                    Continue with Google
+                                </button>
+
+                                {/* Divider */}
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="h-px flex-1" style={{ backgroundColor: '#E2E8F0' }} />
+                                    <span className="text-xs font-medium" style={{ color: '#94A3B8' }}>
+                                        or
+                                    </span>
+                                    <div className="h-px flex-1" style={{ backgroundColor: '#E2E8F0' }} />
+                                </div>
+
+                                {/* Form */}
+                                <form onSubmit={handleSubmit} className="space-y-4">
+                                    {/* Name row */}
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label
+                                                className="block text-sm font-medium mb-1.5"
+                                                style={{ color: '#0F172A' }}
+                                            >
+                                                First name
+                                            </label>
+                                            <div className="relative">
+                                                <div
+                                                    className="absolute left-3.5 top-1/2 -translate-y-1/2"
+                                                    style={{ color: '#94A3B8' }}
+                                                >
+                                                    <User size={18} />
+                                                </div>
+                                                <input
+                                                    type="text"
+                                                    required
+                                                    value={firstName}
+                                                    onChange={(e) => setFirstName(e.target.value)}
+                                                    placeholder="John"
+                                                    className="w-full py-3 pl-11 pr-4 text-sm rounded-xl border outline-none transition-all duration-150"
+                                                    style={{
+                                                        backgroundColor: '#FFFFFF',
+                                                        borderColor: '#E2E8F0',
+                                                        color: '#0F172A',
+                                                    }}
+                                                    onFocus={(e) => {
+                                                        e.currentTarget.style.borderColor = 'var(--brand, #008D98)';
+                                                        e.currentTarget.style.boxShadow =
+                                                            '0 0 0 3px color-mix(in srgb, var(--brand, #008D98) 12%, transparent)';
+                                                    }}
+                                                    onBlur={(e) => {
+                                                        e.currentTarget.style.borderColor = '#E2E8F0';
+                                                        e.currentTarget.style.boxShadow = 'none';
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label
+                                                className="block text-sm font-medium mb-1.5"
+                                                style={{ color: '#0F172A' }}
+                                            >
+                                                Last name
+                                            </label>
+                                            <input
+                                                type="text"
+                                                required
+                                                value={lastName}
+                                                onChange={(e) => setLastName(e.target.value)}
+                                                placeholder="Doe"
+                                                className="w-full py-3 px-4 text-sm rounded-xl border outline-none transition-all duration-150"
+                                                style={{
+                                                    backgroundColor: '#FFFFFF',
+                                                    borderColor: '#E2E8F0',
+                                                    color: '#0F172A',
+                                                }}
+                                                onFocus={(e) => {
+                                                    e.currentTarget.style.borderColor = 'var(--brand, #008D98)';
+                                                    e.currentTarget.style.boxShadow =
+                                                        '0 0 0 3px color-mix(in srgb, var(--brand, #008D98) 12%, transparent)';
+                                                }}
+                                                onBlur={(e) => {
+                                                    e.currentTarget.style.borderColor = '#E2E8F0';
+                                                    e.currentTarget.style.boxShadow = 'none';
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Email */}
                                     <div>
                                         <label
                                             className="block text-sm font-medium mb-1.5"
                                             style={{ color: '#0F172A' }}
                                         >
-                                            First name
+                                            Email
                                         </label>
                                         <div className="relative">
                                             <div
                                                 className="absolute left-3.5 top-1/2 -translate-y-1/2"
                                                 style={{ color: '#94A3B8' }}
                                             >
-                                                <User size={18} />
+                                                <Mail size={18} />
                                             </div>
                                             <input
-                                                type="text"
+                                                type="email"
                                                 required
-                                                value={firstName}
-                                                onChange={(e) => setFirstName(e.target.value)}
-                                                placeholder="John"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                placeholder="name@company.com"
                                                 className="w-full py-3 pl-11 pr-4 text-sm rounded-xl border outline-none transition-all duration-150"
                                                 style={{
                                                     backgroundColor: '#FFFFFF',
@@ -436,20 +502,119 @@ export default function SignupPage() {
                                             />
                                         </div>
                                     </div>
+
+                                    {/* Password */}
                                     <div>
                                         <label
                                             className="block text-sm font-medium mb-1.5"
                                             style={{ color: '#0F172A' }}
                                         >
-                                            Last name
+                                            Password
                                         </label>
+                                        <div className="relative">
+                                            <div
+                                                className="absolute left-3.5 top-1/2 -translate-y-1/2"
+                                                style={{ color: '#94A3B8' }}
+                                            >
+                                                <Lock size={18} />
+                                            </div>
+                                            <input
+                                                type={showPassword ? 'text' : 'password'}
+                                                required
+                                                value={password}
+                                                onChange={(e) => setPassword(e.target.value)}
+                                                placeholder="••••••••"
+                                                className="w-full py-3 pl-11 pr-11 text-sm rounded-xl border outline-none transition-all duration-150"
+                                                style={{
+                                                    backgroundColor: '#FFFFFF',
+                                                    borderColor: '#E2E8F0',
+                                                    color: '#0F172A',
+                                                }}
+                                                onFocus={(e) => {
+                                                    e.currentTarget.style.borderColor = 'var(--brand, #008D98)';
+                                                    e.currentTarget.style.boxShadow =
+                                                        '0 0 0 3px color-mix(in srgb, var(--brand, #008D98) 12%, transparent)';
+                                                }}
+                                                onBlur={(e) => {
+                                                    e.currentTarget.style.borderColor = '#E2E8F0';
+                                                    e.currentTarget.style.boxShadow = 'none';
+                                                }}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors duration-150 cursor-pointer"
+                                                style={{ color: '#CBD5E1' }}
+                                                onMouseEnter={(e) => (e.currentTarget.style.color = '#64748B')}
+                                                onMouseLeave={(e) => (e.currentTarget.style.color = '#CBD5E1')}
+                                            >
+                                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Submit */}
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading}
+                                        className="w-full py-3 text-sm font-semibold text-white rounded-xl transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed mt-1"
+                                        style={{ backgroundColor: 'var(--brand, #008D98)' }}
+                                        onMouseEnter={(e) => {
+                                            if (!isLoading) e.currentTarget.style.opacity = '0.9';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.opacity = '1';
+                                        }}
+                                    >
+                                        {isLoading ? (
+                                            <Loader2 size={18} className="animate-spin" />
+                                        ) : (
+                                            <>
+                                                Create Account
+                                                <ArrowRight
+                                                    size={16}
+                                                    className="group-hover:translate-x-0.5 transition-transform duration-150"
+                                                />
+                                            </>
+                                        )}
+                                    </button>
+                                </form>
+                            </>
+                        ) : (
+                            /* ── Verification step ── */
+                            <form onSubmit={handleVerify} className="space-y-5">
+                                {/* Info banner */}
+                                <div
+                                    className="px-4 py-3 rounded-xl text-sm text-center"
+                                    style={{
+                                        backgroundColor: '#E6F7F8',
+                                        border: '1px solid #E6F7F8',
+                                        color: '#1E40AF',
+                                    }}
+                                >
+                                    We sent a verification code to <br />
+                                    <span className="font-semibold">{email}</span>
+                                </div>
+
+                                {/* Code input */}
+                                <div>
+                                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#0F172A' }}>
+                                        Verification code
+                                    </label>
+                                    <div className="relative">
+                                        <div
+                                            className="absolute left-3.5 top-1/2 -translate-y-1/2"
+                                            style={{ color: '#94A3B8' }}
+                                        >
+                                            <KeyRound size={18} />
+                                        </div>
                                         <input
                                             type="text"
                                             required
-                                            value={lastName}
-                                            onChange={(e) => setLastName(e.target.value)}
-                                            placeholder="Doe"
-                                            className="w-full py-3 px-4 text-sm rounded-xl border outline-none transition-all duration-150"
+                                            value={code}
+                                            onChange={(e) => setCode(e.target.value)}
+                                            placeholder="123456"
+                                            className="w-full py-3 pl-11 pr-4 text-sm rounded-xl border outline-none transition-all duration-150 tracking-widest"
                                             style={{
                                                 backgroundColor: '#FFFFFF',
                                                 borderColor: '#E2E8F0',
@@ -465,90 +630,6 @@ export default function SignupPage() {
                                                 e.currentTarget.style.boxShadow = 'none';
                                             }}
                                         />
-                                    </div>
-                                </div>
-
-                                {/* Email */}
-                                <div>
-                                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#0F172A' }}>
-                                        Email
-                                    </label>
-                                    <div className="relative">
-                                        <div
-                                            className="absolute left-3.5 top-1/2 -translate-y-1/2"
-                                            style={{ color: '#94A3B8' }}
-                                        >
-                                            <Mail size={18} />
-                                        </div>
-                                        <input
-                                            type="email"
-                                            required
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            placeholder="name@company.com"
-                                            className="w-full py-3 pl-11 pr-4 text-sm rounded-xl border outline-none transition-all duration-150"
-                                            style={{
-                                                backgroundColor: '#FFFFFF',
-                                                borderColor: '#E2E8F0',
-                                                color: '#0F172A',
-                                            }}
-                                            onFocus={(e) => {
-                                                e.currentTarget.style.borderColor = 'var(--brand, #008D98)';
-                                                e.currentTarget.style.boxShadow =
-                                                    '0 0 0 3px color-mix(in srgb, var(--brand, #008D98) 12%, transparent)';
-                                            }}
-                                            onBlur={(e) => {
-                                                e.currentTarget.style.borderColor = '#E2E8F0';
-                                                e.currentTarget.style.boxShadow = 'none';
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Password */}
-                                <div>
-                                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#0F172A' }}>
-                                        Password
-                                    </label>
-                                    <div className="relative">
-                                        <div
-                                            className="absolute left-3.5 top-1/2 -translate-y-1/2"
-                                            style={{ color: '#94A3B8' }}
-                                        >
-                                            <Lock size={18} />
-                                        </div>
-                                        <input
-                                            type={showPassword ? 'text' : 'password'}
-                                            required
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                            placeholder="••••••••"
-                                            className="w-full py-3 pl-11 pr-11 text-sm rounded-xl border outline-none transition-all duration-150"
-                                            style={{
-                                                backgroundColor: '#FFFFFF',
-                                                borderColor: '#E2E8F0',
-                                                color: '#0F172A',
-                                            }}
-                                            onFocus={(e) => {
-                                                e.currentTarget.style.borderColor = 'var(--brand, #008D98)';
-                                                e.currentTarget.style.boxShadow =
-                                                    '0 0 0 3px color-mix(in srgb, var(--brand, #008D98) 12%, transparent)';
-                                            }}
-                                            onBlur={(e) => {
-                                                e.currentTarget.style.borderColor = '#E2E8F0';
-                                                e.currentTarget.style.boxShadow = 'none';
-                                            }}
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors duration-150 cursor-pointer"
-                                            style={{ color: '#CBD5E1' }}
-                                            onMouseEnter={(e) => (e.currentTarget.style.color = '#64748B')}
-                                            onMouseLeave={(e) => (e.currentTarget.style.color = '#CBD5E1')}
-                                        >
-                                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                        </button>
                                     </div>
                                 </div>
 
@@ -556,7 +637,7 @@ export default function SignupPage() {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full py-3 text-sm font-semibold text-white rounded-xl transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed mt-1"
+                                    className="w-full py-3 text-sm font-semibold text-white rounded-xl transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed"
                                     style={{ backgroundColor: 'var(--brand, #008D98)' }}
                                     onMouseEnter={(e) => {
                                         if (!isLoading) e.currentTarget.style.opacity = '0.9';
@@ -569,7 +650,7 @@ export default function SignupPage() {
                                         <Loader2 size={18} className="animate-spin" />
                                     ) : (
                                         <>
-                                            Create Account
+                                            Verify & Complete
                                             <ArrowRight
                                                 size={16}
                                                 className="group-hover:translate-x-0.5 transition-transform duration-150"
@@ -578,95 +659,20 @@ export default function SignupPage() {
                                     )}
                                 </button>
                             </form>
-                        </>
-                    ) : (
-                        /* ── Verification step ── */
-                        <form onSubmit={handleVerify} className="space-y-5">
-                            {/* Info banner */}
-                            <div
-                                className="px-4 py-3 rounded-xl text-sm text-center"
-                                style={{ backgroundColor: '#E6F7F8', border: '1px solid #E6F7F8', color: '#1E40AF' }}
+                        )}
+
+                        {/* Footer */}
+                        <p className="text-center mt-8 text-sm" style={{ color: '#94A3B8' }}>
+                            Already have an account?{' '}
+                            <Link
+                                href="/login"
+                                className="font-medium transition-colors duration-150 cursor-pointer"
+                                style={{ color: 'var(--brand, #008D98)' }}
                             >
-                                We sent a verification code to <br />
-                                <span className="font-semibold">{email}</span>
-                            </div>
-
-                            {/* Code input */}
-                            <div>
-                                <label className="block text-sm font-medium mb-1.5" style={{ color: '#0F172A' }}>
-                                    Verification code
-                                </label>
-                                <div className="relative">
-                                    <div
-                                        className="absolute left-3.5 top-1/2 -translate-y-1/2"
-                                        style={{ color: '#94A3B8' }}
-                                    >
-                                        <KeyRound size={18} />
-                                    </div>
-                                    <input
-                                        type="text"
-                                        required
-                                        value={code}
-                                        onChange={(e) => setCode(e.target.value)}
-                                        placeholder="123456"
-                                        className="w-full py-3 pl-11 pr-4 text-sm rounded-xl border outline-none transition-all duration-150 tracking-widest"
-                                        style={{
-                                            backgroundColor: '#FFFFFF',
-                                            borderColor: '#E2E8F0',
-                                            color: '#0F172A',
-                                        }}
-                                        onFocus={(e) => {
-                                            e.currentTarget.style.borderColor = 'var(--brand, #008D98)';
-                                            e.currentTarget.style.boxShadow =
-                                                '0 0 0 3px color-mix(in srgb, var(--brand, #008D98) 12%, transparent)';
-                                        }}
-                                        onBlur={(e) => {
-                                            e.currentTarget.style.borderColor = '#E2E8F0';
-                                            e.currentTarget.style.boxShadow = 'none';
-                                        }}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Submit */}
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className="w-full py-3 text-sm font-semibold text-white rounded-xl transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed"
-                                style={{ backgroundColor: 'var(--brand, #008D98)' }}
-                                onMouseEnter={(e) => {
-                                    if (!isLoading) e.currentTarget.style.opacity = '0.9';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.opacity = '1';
-                                }}
-                            >
-                                {isLoading ? (
-                                    <Loader2 size={18} className="animate-spin" />
-                                ) : (
-                                    <>
-                                        Verify & Complete
-                                        <ArrowRight
-                                            size={16}
-                                            className="group-hover:translate-x-0.5 transition-transform duration-150"
-                                        />
-                                    </>
-                                )}
-                            </button>
-                        </form>
-                    )}
-
-                    {/* Footer */}
-                    <p className="text-center mt-8 text-sm" style={{ color: '#94A3B8' }}>
-                        Already have an account?{' '}
-                        <Link
-                            href="/login"
-                            className="font-medium transition-colors duration-150 cursor-pointer"
-                            style={{ color: 'var(--brand, #008D98)' }}
-                        >
-                            Sign in
-                        </Link>
-                    </p>
+                                Sign in
+                            </Link>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
