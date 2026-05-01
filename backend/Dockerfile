@@ -1,39 +1,48 @@
-FROM node:20-alpine AS builder
+FROM node:20-bookworm-slim AS deps
 
-# Create app directory
 WORKDIR /app
 
-# Copy package files
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ca-certificates openssl \
+  && rm -rf /var/lib/apt/lists/*
+
 COPY package*.json ./
+COPY prisma ./prisma
 
-# Install app dependencies
 RUN npm ci --legacy-peer-deps
+RUN npx prisma generate
 
-# Copy app source
+FROM node:20-bookworm-slim AS builder
+
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY package*.json ./
+COPY tsconfig*.json nest-cli.json ./
+COPY prisma ./prisma
 COPY . .
 
-# Build the app
 RUN npm run build
 
-# --- Production Image ---
-FROM node:20-alpine
+FROM node:20-bookworm-slim AS production
 
 WORKDIR /app
 
-# Ensure consistent server timezone for all locale-based formatting
-RUN apk add --no-cache tzdata
-ENV TZ=Asia/Kathmandu
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ca-certificates openssl redis-server tzdata \
+  && rm -rf /var/lib/apt/lists/*
+ENV NODE_ENV=production \
+    PORT=3000 \
+    TZ=Asia/Kathmandu
 
-COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
-
-# Copy and prepare the entrypoint script
+COPY --from=builder /app/prisma ./prisma
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
+
 RUN chmod +x ./docker-entrypoint.sh
 
-# Expose the API port
 EXPOSE 3000
 
-# Start command with migration handling
 ENTRYPOINT ["./docker-entrypoint.sh"]

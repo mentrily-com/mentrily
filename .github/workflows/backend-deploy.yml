@@ -1,0 +1,132 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  AWS_REGION: ap-south-1
+  EB_APPLICATION_NAME: blockscode-backend
+  EB_ENVIRONMENT_NAME: blockscode-backend-prod
+  EB_CNAME_PREFIX: blockscode-backend
+  EB_SOLUTION_STACK: 64bit Amazon Linux 2023 v4.12.1 running Docker
+  ECR_REPOSITORY: blockscode-backend
+
+jobs:
+  deploy:
+    name: Build and deploy backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Ensure ECR repository exists
+        run: |
+          aws ecr describe-repositories --repository-names "$ECR_REPOSITORY" >/dev/null 2>&1 \
+            || aws ecr create-repository --repository-name "$ECR_REPOSITORY" >/dev/null
+          echo "AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)" >> "$GITHUB_ENV"
+
+      - name: Login to ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image
+        id: image
+        working-directory: backend
+        env:
+          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          IMAGE_URI="$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          docker build -t "$IMAGE_URI" .
+          docker push "$IMAGE_URI"
+          echo "uri=$IMAGE_URI" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare Elastic Beanstalk bundle
+        working-directory: backend
+        env:
+          BACKEND_ENV_FILE_B64: ${{ secrets.BACKEND_ENV_FILE_B64 }}
+          IMAGE_URI: ${{ steps.image.outputs.uri }}
+          EB_ENV_SKIP_KEYS: SUPABASE_TEST_JWT_SUPER_ADMIN,SUPABASE_TEST_JWT_ADMIN,SUPABASE_TEST_JWT_TEACHER,SUPABASE_TEST_JWT_STUDENT,SENTRY_ORG,SENTRY_PROJECT
+        run: |
+          test -n "$BACKEND_ENV_FILE_B64"
+          printf '%s' "$BACKEND_ENV_FILE_B64" | base64 --decode > /tmp/backend.env
+          node scripts/env-to-eb-options.mjs /tmp/backend.env /tmp/backend-eb-options.json
+          node scripts/create-dockerrun.mjs "$IMAGE_URI" /tmp/eb-bundle/Dockerrun.aws.json
+          cd /tmp/eb-bundle
+          zip -r /tmp/backend-eb-bundle.zip Dockerrun.aws.json
+
+      - name: Ensure Elastic Beanstalk application exists
+        run: |
+          aws elasticbeanstalk describe-applications --application-names "$EB_APPLICATION_NAME" \
+            --query 'Applications[0].ApplicationName' --output text | grep -qx "$EB_APPLICATION_NAME" \
+            || aws elasticbeanstalk create-application --application-name "$EB_APPLICATION_NAME" >/dev/null
+
+      - name: Upload application version
+        id: version
+        env:
+          VERSION_LABEL: backend-${{ github.sha }}
+        run: |
+          EB_BUCKET="elasticbeanstalk-$AWS_REGION-$AWS_ACCOUNT_ID"
+          aws s3 cp /tmp/backend-eb-bundle.zip "s3://$EB_BUCKET/$VERSION_LABEL.zip"
+          aws elasticbeanstalk create-application-version \
+            --application-name "$EB_APPLICATION_NAME" \
+            --version-label "$VERSION_LABEL" \
+            --source-bundle "S3Bucket=$EB_BUCKET,S3Key=$VERSION_LABEL.zip"
+          echo "label=$VERSION_LABEL" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update Elastic Beanstalk environment
+        env:
+          VERSION_LABEL: ${{ steps.version.outputs.label }}
+        run: |
+          STATUS="$(aws elasticbeanstalk describe-environments \
+            --application-name "$EB_APPLICATION_NAME" \
+            --environment-names "$EB_ENVIRONMENT_NAME" \
+            --query 'Environments[0].Status' --output text 2>/dev/null || true)"
+
+          if [ "$STATUS" = "None" ] || [ -z "$STATUS" ] || [ "$STATUS" = "Terminated" ]; then
+            aws elasticbeanstalk create-environment \
+              --application-name "$EB_APPLICATION_NAME" \
+              --environment-name "$EB_ENVIRONMENT_NAME" \
+              --cname-prefix "$EB_CNAME_PREFIX" \
+              --version-label "$VERSION_LABEL" \
+              --solution-stack-name "$EB_SOLUTION_STACK" \
+              --option-settings file:///tmp/backend-eb-options.json
+          else
+            aws elasticbeanstalk update-environment \
+              --application-name "$EB_APPLICATION_NAME" \
+              --environment-name "$EB_ENVIRONMENT_NAME" \
+              --version-label "$VERSION_LABEL" \
+              --option-settings file:///tmp/backend-eb-options.json
+          fi
+
+      - name: Wait for environment
+        run: |
+          aws elasticbeanstalk wait environment-updated \
+            --application-name "$EB_APPLICATION_NAME" \
+            --environment-names "$EB_ENVIRONMENT_NAME"
+
+      - name: Verify health endpoint
+        run: |
+          CNAME="$(aws elasticbeanstalk describe-environments \
+            --application-name "$EB_APPLICATION_NAME" \
+            --environment-names "$EB_ENVIRONMENT_NAME" \
+            --query 'Environments[0].CNAME' --output text)"
+          curl --fail --retry 12 --retry-delay 10 --retry-all-errors "http://$CNAME/api/health"
