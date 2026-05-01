@@ -14,7 +14,15 @@ export class AppService {
     return 'Hello World!';
   }
 
-  async getHealth() {
+  getHealth() {
+    return {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptimeSeconds: Math.floor(process.uptime()),
+    };
+  }
+
+  async getReady() {
     const startedAt = Date.now();
     let databaseLatencyMs: number | null = null;
     let redisLatencyMs: number | null = null;

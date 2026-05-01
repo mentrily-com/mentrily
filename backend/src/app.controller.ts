@@ -40,7 +40,12 @@ export class AppController {
   }
 
   @Get('health')
-  async getHealth() {
+  getHealth() {
     return this.appService.getHealth();
+  }
+
+  @Get('ready')
+  async getReady() {
+    return this.appService.getReady();
   }
 }
