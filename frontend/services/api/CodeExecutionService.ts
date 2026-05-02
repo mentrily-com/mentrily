@@ -1,5 +1,6 @@
 import { API_BASE_URL } from '@/lib/api-base';
 import { withCsrfHeader } from '@/lib/csrf';
+import { withClerkAuthorization } from '@/lib/clerk-token';
 
 const BASE_URL = API_BASE_URL;
 
@@ -39,10 +40,12 @@ const authFetch = async (endpoint: string, options: RequestInit = {}) => {
         headers['Content-Type'] = 'application/json';
     }
 
+    const authHeaders = await withClerkAuthorization(withCsrfHeader(options.method, headers));
+
     const response = await fetch(url, {
         ...options,
         credentials: 'include', // Ensure cookies are sent
-        headers: withCsrfHeader(options.method, headers),
+        headers: authHeaders,
     });
 
     if (!response.ok) {
