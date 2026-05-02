@@ -36,7 +36,7 @@ export default function PlaygroundPage() {
         setTerminalOutput([]); // Clear previous output
 
         try {
-            // Execute via Piston Service
+            // Execute via backend code execution service
             const result = await CodeExecutionService.run(currentLang.id, activeTab.code, customInput);
 
             // Show ONLY the output (or error if failed, or generic message if empty)

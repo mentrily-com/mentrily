@@ -47,6 +47,43 @@ describe('testcase-visibility util', () => {
     expect(privileged.options[0].isCorrect).toBe(true);
   });
 
+  it('redacts hidden coding test cases from student payloads', () => {
+    const question = {
+      id: 'Q3',
+      type: 'Coding',
+      codingConfig: {
+        testCases: [
+          { input: '1 2', output: '3', isPublic: true },
+          { input: '999 1', output: '1000', isPublic: false },
+        ],
+      },
+    };
+
+    const sanitized = sanitizeQuestionForClient(question, false);
+
+    expect(sanitized.codingConfig.testCases[0].input).toBe('1 2');
+    expect(sanitized.codingConfig.testCases[0].output).toBe('3');
+    expect(sanitized.codingConfig.testCases[1].input).toBeNull();
+    expect(sanitized.codingConfig.testCases[1].output).toBeNull();
+    expect(sanitized.codingConfig.testCases[1].expectedOutput).toBeNull();
+  });
+
+  it('redacts all coding test cases when showTestCases is disabled', () => {
+    const question = {
+      id: 'Q4',
+      type: 'Coding',
+      codingConfig: {
+        showTestCases: false,
+        testCases: [{ input: '1 2', output: '3', isPublic: true }],
+      },
+    };
+
+    const sanitized = sanitizeQuestionForClient(question, false);
+
+    expect(sanitized.codingConfig.testCases[0].input).toBeNull();
+    expect(sanitized.codingConfig.testCases[0].output).toBeNull();
+  });
+
   it('sanitizes object-map question payloads', () => {
     const payload = {
       Q1: {
