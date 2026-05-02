@@ -39,6 +39,17 @@ The workflow skips test JWTs and Sentry project metadata by default:
 - `/api/health` is a lightweight liveness check for the load balancer.
 - `/api/ready` checks database and Redis connectivity.
 
+## Public HTTPS Endpoint
+
+The Elastic Beanstalk default hostname only serves HTTP. Use the AWS HTTP API
+proxy for HTTPS traffic:
+
+- Backend API: `https://c8zqmqr1hb.execute-api.ap-south-1.amazonaws.com`
+- Clerk webhook: `https://c8zqmqr1hb.execute-api.ap-south-1.amazonaws.com/api/auth/webhooks/clerk`
+
+The API Gateway resource is `blockscode-backend-https-proxy` in `ap-south-1`
+and forwards requests to the Beanstalk environment.
+
 ## Required AWS Resources
 
 The workflow creates the ECR repository and Beanstalk application if missing. The standard Beanstalk roles must exist:
