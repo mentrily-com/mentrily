@@ -51,7 +51,10 @@ function parseEnv(content) {
 const envValues = parseEnv(readFileSync(inputPath, 'utf8'));
 
 add('aws:elasticbeanstalk:environment', 'ServiceRole', process.env.EB_SERVICE_ROLE || 'aws-elasticbeanstalk-service-role');
+add('aws:elasticbeanstalk:environment', 'EnvironmentType', process.env.EB_ENVIRONMENT_TYPE || 'SingleInstance');
 add('aws:autoscaling:launchconfiguration', 'IamInstanceProfile', process.env.EB_INSTANCE_PROFILE || 'aws-elasticbeanstalk-ec2-role');
+add('aws:autoscaling:asg', 'MinSize', process.env.EB_MIN_SIZE || '1');
+add('aws:autoscaling:asg', 'MaxSize', process.env.EB_MAX_SIZE || '1');
 add('aws:elasticbeanstalk:environment:process:default', 'HealthCheckPath', process.env.EB_HEALTH_CHECK_PATH || '/api/health');
 add('aws:elasticbeanstalk:application:environment', 'NODE_ENV', 'production');
 
