@@ -39,6 +39,18 @@ The workflow skips test JWTs and Sentry project metadata by default:
 - `/api/health` is a lightweight liveness check for the load balancer.
 - `/api/ready` checks database and Redis connectivity.
 
+## Environment Shape
+
+The backend currently runs as a single-instance Elastic Beanstalk environment to
+avoid the fixed monthly load balancer cost. The deployment script defaults to:
+
+- `EnvironmentType=SingleInstance`
+- `MinSize=1`
+- `MaxSize=1`
+
+Set `EB_ENVIRONMENT_TYPE`, `EB_MIN_SIZE`, and `EB_MAX_SIZE` in the deploy
+workflow environment if you need to move back to a load-balanced setup.
+
 ## Public HTTPS Endpoint
 
 The Elastic Beanstalk default hostname only serves HTTP. Use the AWS HTTP API
