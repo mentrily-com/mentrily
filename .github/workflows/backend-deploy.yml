@@ -82,7 +82,7 @@ jobs:
       - name: Upload application version
         id: version
         env:
-          VERSION_LABEL: backend-${{ github.sha }}
+          VERSION_LABEL: backend-${{ github.sha }}-${{ github.run_number }}
         run: |
           EB_BUCKET="elasticbeanstalk-$AWS_REGION-$AWS_ACCOUNT_ID"
           aws s3 cp /tmp/backend-eb-bundle.zip "s3://$EB_BUCKET/$VERSION_LABEL.zip"
