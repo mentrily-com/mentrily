@@ -26,7 +26,7 @@ export class PistonStrategy implements IExecutionStrategy {
   ) {
     this.pistonUrl =
       this.configService.get<string>('PISTON_API_URL') ||
-      'https://auntly-oxygenic-otis.ngrok-free.dev/api/v2';
+      'https://emkc.org/api/v2/piston';
   }
 
   private generateCacheKey(
@@ -70,9 +70,7 @@ export class PistonStrategy implements IExecutionStrategy {
             stdin: stdin,
           },
           {
-            // THIS IS THE CRITICAL ADDITION FOR NGROK
             headers: {
-              'ngrok-skip-browser-warning': 'true',
               'Content-Type': 'application/json',
             },
           },

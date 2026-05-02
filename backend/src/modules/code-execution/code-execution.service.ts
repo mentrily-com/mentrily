@@ -238,7 +238,11 @@ export class CodeExecutionService {
             error: isPublic ? errorOutput || null : null,
           };
         } catch (err: any) {
-          console.error(`Test case execution failed: ${err.message}`);
+          console.error(
+            isPublic
+              ? `Test case execution failed: ${err.message}`
+              : 'Hidden test case execution failed',
+          );
           return {
             input: isPublic ? input : null,
             expectedOutput: isPublic ? expectedOutput : null,
@@ -246,7 +250,9 @@ export class CodeExecutionService {
             passed: false,
             status: 'Error',
             isPublic: isPublic,
-            error: 'Execution failed: ' + (err.message || 'Unknown error'),
+            error: isPublic
+              ? 'Execution failed: ' + (err.message || 'Unknown error')
+              : null,
           };
         }
       }),

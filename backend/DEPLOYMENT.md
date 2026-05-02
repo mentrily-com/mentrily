@@ -51,6 +51,15 @@ avoid the fixed monthly load balancer cost. The deployment script defaults to:
 Set `EB_ENVIRONMENT_TYPE`, `EB_MIN_SIZE`, and `EB_MAX_SIZE` in the deploy
 workflow environment if you need to move back to a load-balanced setup.
 
+For local and production execution routing:
+
+- `CODE_EXECUTION_ENGINE=judge0`
+- `JUDGE0_API_URL=<your Judge0 CE base URL>`
+- `PISTON_API_URL=<fallback Piston API URL>`
+
+Judge0 is used first. If a language is not available on the configured Judge0
+instance, the backend falls back to Piston for that execution request.
+
 ## Public HTTPS Endpoint
 
 The Elastic Beanstalk default hostname only serves HTTP. Use the AWS HTTP API
@@ -61,6 +70,10 @@ proxy for HTTPS traffic:
 
 The API Gateway resource is `blockscode-backend-https-proxy` in `ap-south-1`
 and forwards requests to the Beanstalk environment.
+
+If the frontend is deployed on Vercel, set `FRONTEND_URL` to that exact origin
+in the Beanstalk environment so browser requests from the live app are allowed
+by CORS and absolute links point back to the deployed site.
 
 ## Required AWS Resources
 

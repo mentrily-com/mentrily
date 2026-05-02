@@ -10,57 +10,78 @@ import {
   IExecutionStrategy,
   ExecutionResult,
 } from './execution-strategy.interface';
+import { PistonStrategy } from './piston.strategy';
 
 @Injectable()
 export class Judge0Strategy implements IExecutionStrategy {
   private readonly judge0Url: string;
   private readonly logger = new Logger(Judge0Strategy.name);
 
-  // Mappings from frontend language strings to Judge0 CE language IDs
-  // References popular languages. See full Judge0 CE language map at their docs.
+  // Mappings from frontend language strings to this deployment's Judge0 CE IDs.
+  // Keep these aligned with GET /languages on the configured Judge0 instance.
   private readonly languageMap: Record<string, number> = {
-    javascript: 93, // Node.js 18.15.0
-    typescript: 94, // TypeScript 5.0.3
-    python: 71, // Python 3.11.2
-    java: 91, // Java (JDK 17.0.6)
+    assembly: 45, // Assembly (NASM 2.14.02)
+    bash: 46, // Bash (5.0.0)
+    basic: 47, // Basic (FBC 1.07.1)
     c: 50, // C (GCC 9.2.0)
+    clang: 75, // C (Clang 7.0.1)
     cpp: 54, // C++ (GCC 9.2.0)
+    'c++': 54,
+    cpp_clang: 76, // C++ (Clang 7.0.1)
     csharp: 51, // C# (Mono 6.6.0.161)
-    go: 95, // Go 1.18.5
-    rust: 73, // Rust 1.68.2
-    php: 68, // PHP 7.4.1
-    ruby: 72, // Ruby 2.7.0
-    perl: 85, // Perl 5.36.0
-    swift: 83, // Swift 5.2.3
-    kotlin: 78, // Kotlin 1.3.70
-    scala: 81, // Scala 2.13.2
-    dart: 90, // Dart 2.19.6
-    bash: 46, // Bash 5.0.0
-    powershell: 86, // PowerShell 7.1.4
-    r: 80, // R 4.0.0
-    lua: 64, // Lua 5.3.5
-    haskell: 61, // Haskell (GHC 8.8.1)
-    erlang: 58, // Erlang (OTP 22.2)
-    clojure: 86, // Clojure 1.10.1 (Using 86 as proxy, may need adjustment based on specific Judge0 server)
-    cobol: 77, // COBOL (GnuCOBOL 2.2.0)
+    'c#': 51,
+    clojure: 86, // Clojure (1.10.1)
+    cobol: 77, // COBOL (GnuCOBOL 2.2)
+    commonlisp: 55, // Common Lisp (SBCL 2.0.0)
+    lisp: 55,
     d: 56, // D (DMD 2.089.1)
+    elixir: 57, // Elixir (1.9.4)
+    erlang: 58, // Erlang (OTP 22.2)
+    fsharp: 87, // F# (.NET Core SDK 3.1.202)
+    'f#': 87,
     fortran: 59, // Fortran (GFortran 9.2.0)
-    groovy: 88, // Groovy 3.0.3
-    ocaml: 65, // OCaml 4.09.0
+    go: 60, // Go (1.13.5)
+    golang: 60,
+    groovy: 88, // Groovy (3.0.3)
+    haskell: 61, // Haskell (GHC 8.8.1)
+    java: 62, // Java (OpenJDK 13.0.1)
+    javascript: 63, // JavaScript (Node.js 12.14.0)
+    js: 63,
+    kotlin: 78, // Kotlin (1.3.70)
+    lua: 64, // Lua (5.3.5)
+    objectivec: 79, // Objective-C (Clang 7.0.1)
+    ocaml: 65, // OCaml (4.09.0)
+    octave: 66, // Octave (5.1.0)
     pascal: 67, // Pascal (FPC 3.0.4)
-    nim: 96, // Nim 1.6.14 (CE equivalent if available, fallback might be needed)
-    julia: 101, // Julia 1.8.5
-    crystal: 100, // Crystal (If supported by server)
-    sqlite3: 82, // SQLite 3.31.1
+    perl: 85, // Perl (5.28.1)
+    php: 68, // PHP 7.4.1
+    prolog: 69, // Prolog (GNU Prolog 1.4.5)
+    python: 71, // Python (3.8.1)
+    python2: 70, // Python (2.7.17)
+    python3: 71,
+    py: 71,
+    r: 80, // R (4.0.0)
+    ruby: 72, // Ruby 2.7.0
+    rust: 73, // Rust (1.40.0)
+    scala: 81, // Scala (2.13.2)
+    sql: 82, // SQL (SQLite 3.27.2)
+    sqlite: 82,
+    sqlite3: 82,
+    swift: 83, // Swift 5.2.3
+    typescript: 74, // TypeScript (3.7.4)
+    ts: 74,
+    vbnet: 84, // Visual Basic.Net (vbnc 0.0.0.5943)
+    visualbasic: 84,
   };
 
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private readonly pistonStrategy: PistonStrategy,
   ) {
     this.judge0Url =
       this.configService.get<string>('JUDGE0_API_URL') ||
-      'http://localhost:2358';
+      'http://127.0.0.1:2358';
   }
 
   async execute(
@@ -68,15 +89,14 @@ export class Judge0Strategy implements IExecutionStrategy {
     code: string,
     stdin: string = '',
   ): Promise<ExecutionResult> {
-    const languageId = this.languageMap[language.toLowerCase()];
+    const normalizedLanguage = String(language || '').trim().toLowerCase();
+    const languageId = this.languageMap[normalizedLanguage];
 
     if (!languageId) {
-      this.logger.error(
-        `Language format not supported by Judge0 mapping: ${language}`,
+      this.logger.warn(
+        `Language format not supported by Judge0 mapping, falling back to Piston: ${language}`,
       );
-      throw new InternalServerErrorException(
-        `Language '${language}' is not currently supported for execution.`,
-      );
+      return this.pistonStrategy.execute(language, code, stdin);
     }
 
     try {
