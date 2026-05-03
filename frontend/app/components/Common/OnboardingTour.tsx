@@ -23,7 +23,7 @@ export default function OnboardingTour({
     steps: OnboardingTourStep[];
     delayMs?: number;
 }) {
-    const { data: session, refetch } = useSession();
+    const { data: session, isLoading, isPlaceholderData, refetch } = useSession();
     const storageKey = useMemo(() => `tour_${tourId}_completed`, [tourId]);
     const activeKey = 'mentrily_active_tour';
     const startedRef = useRef(false);
@@ -92,7 +92,20 @@ export default function OnboardingTour({
             }
             .driver-overlay {
                 background: rgba(2, 6, 23, 0.46) !important;
-                backdrop-filter: blur(2px);
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+            .driver-popover,
+            .driver-popover * {
+                filter: none !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+            .driver-active-element,
+            .driver-active-element * {
+                filter: none !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
             }
             @media (max-width: 640px) {
                 .driver-popover {
@@ -116,7 +129,13 @@ export default function OnboardingTour({
     }, []);
 
     useEffect(() => {
-        if (typeof window === 'undefined' || !steps.length || hasCompletedOnboarding) {
+        if (
+            typeof window === 'undefined' ||
+            !steps.length ||
+            isLoading ||
+            isPlaceholderData ||
+            hasCompletedOnboarding
+        ) {
             return;
         }
 
@@ -141,6 +160,8 @@ export default function OnboardingTour({
             }
 
             startedRef.current = true;
+            window.localStorage.setItem(storageKey, 'true');
+
             const driveSteps: DriveStep[] = availableSteps.map((step) => ({
                 element: step.element,
                 popover: {
@@ -161,7 +182,6 @@ export default function OnboardingTour({
                     if (window.sessionStorage.getItem(activeKey) === tourId) {
                         window.sessionStorage.removeItem(activeKey);
                     }
-                    window.localStorage.setItem(storageKey, 'true');
                     if (completionInFlightRef.current || hasCompletedOnboarding) {
                         return;
                     }
@@ -187,7 +207,7 @@ export default function OnboardingTour({
                 window.sessionStorage.removeItem(activeKey);
             }
         };
-    }, [activeKey, delayMs, hasCompletedOnboarding, refetch, steps, storageKey, tourId]);
+    }, [activeKey, delayMs, hasCompletedOnboarding, isLoading, isPlaceholderData, refetch, steps, storageKey, tourId]);
 
     return null;
 }
