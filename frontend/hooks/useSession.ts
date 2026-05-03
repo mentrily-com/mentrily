@@ -199,7 +199,7 @@ export function useSession() {
               }
             : undefined;
 
-    const { data, isLoading, error, refetch } = useQuery({
+    const { data, isLoading, isPlaceholderData, error, refetch } = useQuery({
         queryKey: ['session', sessionId || userId || hintedUserId || 'anonymous'],
         enabled: isLoaded,
         placeholderData: placeholderSession,
@@ -263,6 +263,7 @@ export function useSession() {
         data: session,
         session,
         isLoading,
+        isPlaceholderData,
         error,
         refetch,
     };
