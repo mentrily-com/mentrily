@@ -15,8 +15,8 @@ permissions:
 env:
   AWS_REGION: ap-south-1
   EB_APPLICATION_NAME: blockscode-backend
-  EB_ENVIRONMENT_NAME: blockscode-backend-prod
-  EB_CNAME_PREFIX: blockscode-backend
+  EB_ENVIRONMENT_NAME: blockscode-backend-prod-v2
+  EB_CNAME_PREFIX: blockscode-backend-prod-v2
   EB_SOLUTION_STACK: 64bit Amazon Linux 2023 v4.12.1 running Docker
   ECR_REPOSITORY: blockscode-backend
 
