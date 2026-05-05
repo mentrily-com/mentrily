@@ -2,11 +2,10 @@ import { of } from 'rxjs';
 import { Judge0Strategy } from './judge0.strategy';
 
 describe('Judge0Strategy', () => {
-  const makeStrategy = (post = jest.fn(), pistonExecute = jest.fn()) =>
+  const makeStrategy = (post = jest.fn()) =>
     new Judge0Strategy(
       { post } as any,
       { get: jest.fn().mockReturnValue('http://judge0.test') } as any,
-      { execute: pistonExecute } as any,
     );
 
   it('uses language ids from the configured Judge0 CE deployment', async () => {
@@ -53,21 +52,13 @@ describe('Judge0Strategy', () => {
     expect(result.signal).toBe('Compilation Error');
   });
 
-  it('falls back to Piston when Judge0 does not support a language', async () => {
-    const pistonExecute = jest.fn().mockResolvedValue({
-      stdout: 'fallback\n',
-      stderr: '',
-      output: 'fallback\n',
-      code: 0,
-      signal: '',
-    });
+  it('rejects languages not supported by Judge0 mapping', async () => {
     const post = jest.fn();
-    const strategy = makeStrategy(post, pistonExecute);
+    const strategy = makeStrategy(post);
 
-    const result = await strategy.execute('dart', 'void main() {}', '');
-
+    await expect(strategy.execute('dart', 'void main() {}', '')).rejects.toThrow(
+      "Language 'dart' is not supported by Judge0 on this deployment.",
+    );
     expect(post).not.toHaveBeenCalled();
-    expect(pistonExecute).toHaveBeenCalledWith('dart', 'void main() {}', '');
-    expect(result.stdout).toBe('fallback\n');
   });
 });

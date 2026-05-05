@@ -1,6 +1,6 @@
 import { LanguageConfig } from './types';
 
-export const PLAYGROUND_LANGUAGES: LanguageConfig[] = [
+const RAW_PLAYGROUND_LANGUAGES: LanguageConfig[] = [
     {
         id: 'javascript',
         label: 'JavaScript',
@@ -387,3 +387,39 @@ export const PLAYGROUND_LANGUAGES: LanguageConfig[] = [
         },
     },
 ];
+
+// Keep this aligned with backend Judge0Strategy.languageMap support.
+const JUDGE0_SUPPORTED_PLAYGROUND_IDS = new Set([
+    'javascript',
+    'typescript',
+    'python',
+    'java',
+    'c',
+    'cpp',
+    'csharp',
+    'go',
+    'rust',
+    'php',
+    'ruby',
+    'perl',
+    'swift',
+    'kotlin',
+    'scala',
+    'bash',
+    'r',
+    'lua',
+    'haskell',
+    'pascal',
+    'clojure',
+    'cobol',
+    'd',
+    'erlang',
+    'fortran',
+    'groovy',
+    'ocaml',
+    'sqlite3',
+]);
+
+export const PLAYGROUND_LANGUAGES: LanguageConfig[] = RAW_PLAYGROUND_LANGUAGES.filter((lang) =>
+    JUDGE0_SUPPORTED_PLAYGROUND_IDS.has(lang.id),
+);

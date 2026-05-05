@@ -18,8 +18,11 @@ import { CodeExecutionService } from '@/services/api/CodeExecutionService';
 // ... existing imports ...
 
 export default function PlaygroundPage() {
+    const javascriptDefault =
+        PLAYGROUND_LANGUAGES.find((l) => l.id === 'javascript') || PLAYGROUND_LANGUAGES[0];
+
     const [tabs, setTabs] = useState<Tab[]>([
-        { id: 1, name: 'playground', langId: 'javascript', code: PLAYGROUND_LANGUAGES[1].initialBody },
+        { id: 1, name: 'playground', langId: javascriptDefault.id, code: javascriptDefault.initialBody },
     ]);
     const [activeTabId, setActiveTabId] = useState(1);
     const [terminalOutput, setTerminalOutput] = useState<string[]>([]);
@@ -65,8 +68,8 @@ export default function PlaygroundPage() {
             {
                 id: newId,
                 name: `page-${newId}`,
-                langId: 'javascript',
-                code: PLAYGROUND_LANGUAGES[1].initialBody,
+                langId: javascriptDefault.id,
+                code: javascriptDefault.initialBody,
             },
         ]);
         setActiveTabId(newId);
