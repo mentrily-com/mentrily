@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -10,7 +11,6 @@ import {
   IExecutionStrategy,
   ExecutionResult,
 } from './execution-strategy.interface';
-import { PistonStrategy } from './piston.strategy';
 
 @Injectable()
 export class Judge0Strategy implements IExecutionStrategy {
@@ -77,7 +77,6 @@ export class Judge0Strategy implements IExecutionStrategy {
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
-    private readonly pistonStrategy: PistonStrategy,
   ) {
     this.judge0Url =
       this.configService.get<string>('JUDGE0_API_URL') ||
@@ -93,10 +92,10 @@ export class Judge0Strategy implements IExecutionStrategy {
     const languageId = this.languageMap[normalizedLanguage];
 
     if (!languageId) {
-      this.logger.warn(
-        `Language format not supported by Judge0 mapping, falling back to Piston: ${language}`,
+      this.logger.warn(`Language not supported by Judge0 mapping: ${language}`);
+      throw new BadRequestException(
+        `Language '${language}' is not supported by Judge0 on this deployment.`,
       );
-      return this.pistonStrategy.execute(language, code, stdin);
     }
 
     try {
@@ -108,6 +107,9 @@ export class Judge0Strategy implements IExecutionStrategy {
             source_code: code,
             language_id: languageId,
             stdin: stdin,
+            cpu_time_limit: 5,
+            wall_time_limit: 20,
+            memory_limit: 256000,
           },
           {
             headers: {
