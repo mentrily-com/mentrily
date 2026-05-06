@@ -118,6 +118,7 @@ export default function UnifiedProfilePage() {
             >
                 <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white text-3xl font-bold shadow-lg overflow-hidden shrink-0">
                     {avatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
                         <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
                     ) : (
                         initial
@@ -181,53 +182,74 @@ export default function UnifiedProfilePage() {
                 className="bg-white rounded-xl border p-4 md:p-6 shadow-sm mb-6"
                 style={{ borderColor: 'var(--color-border-subtle)' }}
             >
-                <UserProfile
-                    routing="hash"
-                    appearance={{
-                        variables: {
-                            colorPrimary: 'var(--brand)',
-                            colorBackground: '#ffffff',
-                            colorText: '#0f172a',
-                            colorInputBackground: '#f8fafc',
-                            colorInputText: '#0f172a',
-                            borderRadius: '0.75rem',
-                            fontFamily: 'inherit',
-                        },
-                        elements: {
-                            rootBox: { width: '100%' },
-                            cardBox: { width: '100%', boxShadow: 'none' },
-                            card: {
-                                width: '100%',
-                                boxShadow: 'none',
-                                border: '1px solid var(--color-border-subtle)',
+                <div className="clerk-profile-clean">
+                    <UserProfile
+                        routing="hash"
+                        appearance={{
+                            variables: {
+                                colorPrimary: 'var(--brand)',
+                                colorBackground: '#ffffff',
+                                colorText: '#0f172a',
+                                colorInputBackground: '#f8fafc',
+                                colorInputText: '#0f172a',
                                 borderRadius: '0.75rem',
+                                fontFamily: 'inherit',
                             },
-                            navbar: {
-                                backgroundColor: 'var(--color-bg-subtle)',
-                                borderBottom: '1px solid var(--color-border-subtle)',
+                            elements: {
+                                rootBox: { width: '100%' },
+                                cardBox: { width: '100%', boxShadow: 'none' },
+                                card: {
+                                    width: '100%',
+                                    boxShadow: 'none',
+                                    border: '1px solid var(--color-border-subtle)',
+                                    borderRadius: '0.75rem',
+                                },
+                                navbar: {
+                                    backgroundColor: 'var(--color-bg-subtle)',
+                                    borderBottom: '1px solid var(--color-border-subtle)',
+                                },
+                                navbarButton: { fontWeight: '600', borderRadius: '0.5rem' },
+                                pageScrollBox: { padding: '1rem' },
+                                formButtonPrimary: { fontWeight: '600', borderRadius: '0.5rem' },
+                                formFieldInput: { borderRadius: '0.5rem', borderColor: 'var(--color-border-subtle)' },
+                                formFieldLabel: { fontWeight: '600', color: 'var(--color-text-secondary)' },
+                                profileSectionTitleText: { fontWeight: '700', color: 'var(--color-text-primary)' },
+                                profileSectionPrimaryButton: { borderRadius: '0.5rem', fontWeight: '600' },
+                                badge: {
+                                    backgroundColor: 'var(--color-bg-blue-tint)',
+                                    color: 'var(--brand)',
+                                    border: '1px solid var(--color-border-brand)',
+                                    fontWeight: '600',
+                                },
+                                footer: { display: 'none' },
+                                footerItem: { display: 'none' },
+                                footerAction: { display: 'none' },
+                                footerActionText: { display: 'none' },
+                                footerActionLink: { display: 'none' },
+                                footerPages: { display: 'none' },
+                                footerPagesLink: { display: 'none' },
+                                internal: { display: 'none' },
                             },
-                            navbarButton: { fontWeight: '600', borderRadius: '0.5rem' },
-                            pageScrollBox: { padding: '1rem' },
-                            formButtonPrimary: { fontWeight: '600', borderRadius: '0.5rem' },
-                            formFieldInput: { borderRadius: '0.5rem', borderColor: 'var(--color-border-subtle)' },
-                            formFieldLabel: { fontWeight: '600', color: 'var(--color-text-secondary)' },
-                            profileSectionTitleText: { fontWeight: '700', color: 'var(--color-text-primary)' },
-                            profileSectionPrimaryButton: { borderRadius: '0.5rem', fontWeight: '600' },
-                            badge: {
-                                backgroundColor: 'var(--color-bg-blue-tint)',
-                                color: 'var(--brand)',
-                                border: '1px solid var(--color-border-brand)',
-                                fontWeight: '600',
-                            },
-                            footer: { display: 'none' },
-                            footerAction: { display: 'none' },
-                            internal: { display: 'none' },
-                        },
-                    }}
-                />
+                        }}
+                    />
+                </div>
             </div>
 
             <ReportProblemModal isOpen={showReportModal} onClose={() => setShowReportModal(false)} />
+
+            <style jsx global>{`
+                .clerk-profile-clean .cl-footer,
+                .clerk-profile-clean .cl-footerItem,
+                .clerk-profile-clean .cl-footerAction,
+                .clerk-profile-clean .cl-footerActionText,
+                .clerk-profile-clean .cl-footerActionLink,
+                .clerk-profile-clean .cl-footerPages,
+                .clerk-profile-clean .cl-footerPagesLink,
+                .clerk-profile-clean [class*='footer'],
+                .clerk-profile-clean [class*='Footer'] {
+                    display: none !important;
+                }
+            `}</style>
         </div>
     );
 }
