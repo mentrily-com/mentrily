@@ -6,6 +6,7 @@ import posthog from 'posthog-js';
 import { motion } from 'framer-motion';
 import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
 import OnboardingTour from '@/app/components/Common/OnboardingTour';
+import AppModal from '@/app/components/Common/AppModal';
 import StudioRecentActivity from './_components/StudioRecentActivity';
 import { useStudioDashboard } from './_components/useStudioDashboard';
 import { usePlan } from '@/hooks/usePlan';
@@ -499,13 +500,17 @@ export default function TeacherDashboardPage() {
 
             {/* ═══════════════ HARD LIMIT MODAL ═══════════════ */}
             {hasHardLimitBreach && (
-                <div className="fixed inset-0 z-[2100] flex items-center justify-center bg-slate-950/60 p-3 backdrop-blur-md sm:p-6">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.3 }}
-                        className="glass-card max-h-[calc(100dvh-1.5rem)] w-full max-w-[520px] overflow-y-auto rounded-2xl border-rose-200/60 p-5 shadow-[0_24px_64px_rgba(15,23,42,0.2)] sm:rounded-3xl sm:p-6"
-                    >
+                <AppModal
+                    isOpen={hasHardLimitBreach}
+                    onClose={() => setShowUpgradeBanner(false)}
+                    size="sm"
+                    zIndexClass="z-[2100]"
+                    showCloseButton={false}
+                    bodyClassName="p-5 sm:p-6"
+                    closeOnBackdrop={false}
+                    ariaLabel="Plan limit reached"
+                >
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
                         <div className="flex items-start gap-4">
                             <div className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-600">
                                 <AlertTriangle size={20} />
@@ -549,7 +554,7 @@ export default function TeacherDashboardPage() {
                             </Link>
                         </div>
                     </motion.div>
-                </div>
+                </AppModal>
             )}
         </div>
     );

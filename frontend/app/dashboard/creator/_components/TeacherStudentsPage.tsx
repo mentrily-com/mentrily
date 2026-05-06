@@ -4,20 +4,10 @@ import { TeacherService } from '@/services/api/TeacherService';
 import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
 import { useToast } from '@/app/components/Common/Toast';
 import { useDebounce } from '@/hooks/useDebounce';
-import {
-    Users,
-    GraduationCap,
-    X,
-    Search,
-    Filter,
-    Mail,
-    Calendar,
-    Trash2,
-    ClipboardList,
-    Megaphone,
-} from 'lucide-react';
+import { Users, GraduationCap, Search, Filter, Mail, Calendar, Trash2, ClipboardList, Megaphone } from 'lucide-react';
 import GroupsTab from '@/app/components/Teacher/GroupsTab';
 import AnnouncementsTab from '@/app/components/Teacher/AnnouncementsTab';
+import AppModal from '@/app/components/Common/AppModal';
 
 type Tab = 'roster' | 'groups' | 'announcements';
 
@@ -412,144 +402,119 @@ export default function TeacherStudentsPage() {
 
             {/* PREVIEW POPUP */}
             {selectedStudent && (
-                <div className="fixed inset-0 z-[1100] grid place-items-center p-4 sm:p-6">
-                    <div
-                        className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
-                        onClick={() => setSelectedStudent(null)}
-                    />
-                    <div className="relative z-10 flex max-h-[min(760px,calc(100dvh-48px))] w-full max-w-[860px] animate-in zoom-in-95 duration-200 flex-col overflow-hidden rounded-[20px] bg-[#f4f6f9] shadow-[0_28px_90px_rgba(15,23,42,0.36)]">
-                        <button
-                            onClick={() => setSelectedStudent(null)}
-                            className="absolute right-5 top-5 z-20 flex h-9 w-9 items-center justify-center rounded-lg bg-[#e9edf4] text-slate-500 transition-all hover:bg-white hover:text-slate-900"
-                        >
-                            <X size={18} strokeWidth={3} />
-                        </button>
-
-                        <div className="px-6 pb-4 pt-6 pr-16 sm:px-8 sm:pt-7">
-                            <div className="flex items-center gap-4">
-                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[var(--brand)] text-xl font-black text-white shadow-sm">
-                                    {selectedStudent.name?.[0] || '?'}
-                                </div>
-                                <div className="min-w-0">
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none">
-                                        Student Progress
-                                    </p>
-                                    <h2 className="mt-1 truncate text-lg font-black tracking-tight text-slate-900 sm:text-xl">
-                                        {selectedStudent.name}
-                                    </h2>
-                                    <p className="mt-0.5 truncate text-xs font-semibold text-slate-500">
-                                        {selectedStudent.course}
-                                    </p>
-                                </div>
-                            </div>
+                <AppModal
+                    isOpen={!!selectedStudent}
+                    onClose={() => setSelectedStudent(null)}
+                    title={selectedStudent.name}
+                    subtitle={selectedStudent.course}
+                    eyebrow="Student Progress"
+                    icon={<span className="text-xl font-black">{selectedStudent.name?.[0] || '?'}</span>}
+                    size="xl"
+                    zIndexClass="z-[1100]"
+                    panelClassName="max-w-[860px]"
+                >
+                    <div className="mb-6 rounded-xl bg-white/70 p-4 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.12)]">
+                        <div className="mb-3 flex items-center justify-between gap-4">
+                            <p className="text-xs font-black uppercase tracking-widest text-slate-500">
+                                Overall Progress
+                            </p>
+                            <p className="text-sm font-black text-slate-900">{selectedStudent.progress}%</p>
                         </div>
-
-                        <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-6 sm:px-8 sm:pb-8">
-                            <div className="mb-6 rounded-xl bg-white/70 p-4 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.12)]">
-                                <div className="mb-3 flex items-center justify-between gap-4">
-                                    <p className="text-xs font-black uppercase tracking-widest text-slate-500">
-                                        Overall Progress
-                                    </p>
-                                    <p className="text-sm font-black text-slate-900">{selectedStudent.progress}%</p>
-                                </div>
-                                <div className="h-2.5 overflow-hidden rounded-full bg-slate-200/80">
-                                    <div
-                                        className="h-full rounded-full bg-[var(--brand)] transition-all duration-700"
-                                        style={{ width: `${selectedStudent.progress}%` }}
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <h4 className="mb-3 text-xs font-black uppercase tracking-widest text-slate-800">
-                                    Course Progress
-                                </h4>
-                                <div className="space-y-3">
-                                    {selectedStudent.courses && selectedStudent.courses.length > 0 ? (
-                                        selectedStudent.courses.map((course: any) => (
-                                            <div
-                                                key={course.id}
-                                                className="rounded-xl bg-white/90 p-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)] group/course"
-                                            >
-                                                <div className="mb-4 flex items-start justify-between gap-3">
-                                                    <div className="flex min-w-0 items-center gap-3">
-                                                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-[var(--brand)]">
-                                                            <BookOpen size={22} />
-                                                        </div>
-                                                        <div className="min-w-0">
-                                                            <h4 className="truncate text-sm font-black leading-tight text-slate-800">
-                                                                {course.title}
-                                                            </h4>
-                                                            <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                                                                {course.completedUnits}/{course.totalUnits} Units
-                                                                Completed
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                    <button
-                                                        onClick={() => handleUnenroll(course.id, selectedStudent.id)}
-                                                        className="rounded-xl p-2 text-slate-300 transition-all hover:bg-rose-50 hover:text-rose-500 sm:opacity-0 sm:group-hover/course:opacity-100"
-                                                        title="Unenroll Student"
-                                                    >
-                                                        <Trash2 size={18} />
-                                                    </button>
-                                                </div>
-                                                <div className="flex items-center gap-3">
-                                                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-200">
-                                                        <div
-                                                            className="h-full rounded-full bg-[var(--brand)] transition-all duration-1000"
-                                                            style={{ width: `${course.progress}%` }}
-                                                        />
-                                                    </div>
-                                                    <span className="w-10 text-right text-xs font-black text-slate-600">
-                                                        {course.progress}%
-                                                    </span>
-                                                </div>
-                                                {course.tests && course.tests.length > 0 && (
-                                                    <div className="mt-4 border-t border-slate-200 pt-4">
-                                                        <p className="mb-2 flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                                                            <ClipboardList size={10} /> Test Scores
-                                                        </p>
-                                                        <div className="space-y-1.5">
-                                                            {course.tests.map((test: any) => (
-                                                                <div
-                                                                    key={test.id}
-                                                                    className="flex items-center justify-between"
-                                                                >
-                                                                    <span className="max-w-[60%] truncate text-[11px] font-bold text-slate-500">
-                                                                        {test.title}
-                                                                    </span>
-                                                                    {test.attempted ? (
-                                                                        <span
-                                                                            className={`text-[11px] font-black px-2 py-0.5 rounded-lg ${test.score >= 70 ? 'bg-emerald-50 text-emerald-600' : test.score >= 40 ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-500'}`}
-                                                                        >
-                                                                            {test.correctAnswers}/{test.totalQuestions}{' '}
-                                                                            &nbsp;({test.score}%)
-                                                                        </span>
-                                                                    ) : (
-                                                                        <span className="text-[11px] font-bold text-slate-300 px-2 py-0.5 rounded-lg bg-slate-50">
-                                                                            Not attempted
-                                                                        </span>
-                                                                    )}
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className="rounded-xl bg-white p-6 text-center shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
-                                            <p className="text-sm font-bold text-slate-500">
-                                                No courses enrolled under your management.
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
+                        <div className="h-2.5 overflow-hidden rounded-full bg-slate-200/80">
+                            <div
+                                className="h-full rounded-full bg-[var(--brand)] transition-all duration-700"
+                                style={{ width: `${selectedStudent.progress}%` }}
+                            />
                         </div>
                     </div>
-                </div>
+
+                    <div>
+                        <h4 className="mb-3 text-xs font-black uppercase tracking-widest text-slate-800">
+                            Course Progress
+                        </h4>
+                        <div className="space-y-3">
+                            {selectedStudent.courses && selectedStudent.courses.length > 0 ? (
+                                selectedStudent.courses.map((course: any) => (
+                                    <div
+                                        key={course.id}
+                                        className="rounded-xl bg-white/90 p-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)] group/course"
+                                    >
+                                        <div className="mb-4 flex items-start justify-between gap-3">
+                                            <div className="flex min-w-0 items-center gap-3">
+                                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-[var(--brand)]">
+                                                    <BookOpen size={22} />
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <h4 className="truncate text-sm font-black leading-tight text-slate-800">
+                                                        {course.title}
+                                                    </h4>
+                                                    <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                                                        {course.completedUnits}/{course.totalUnits} Units Completed
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={() => handleUnenroll(course.id, selectedStudent.id)}
+                                                className="rounded-xl p-2 text-slate-300 transition-all hover:bg-rose-50 hover:text-rose-500 sm:opacity-0 sm:group-hover/course:opacity-100"
+                                                title="Unenroll Student"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-200">
+                                                <div
+                                                    className="h-full rounded-full bg-[var(--brand)] transition-all duration-1000"
+                                                    style={{ width: `${course.progress}%` }}
+                                                />
+                                            </div>
+                                            <span className="w-10 text-right text-xs font-black text-slate-600">
+                                                {course.progress}%
+                                            </span>
+                                        </div>
+                                        {course.tests && course.tests.length > 0 && (
+                                            <div className="mt-4 border-t border-slate-200 pt-4">
+                                                <p className="mb-2 flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                                    <ClipboardList size={10} /> Test Scores
+                                                </p>
+                                                <div className="space-y-1.5">
+                                                    {course.tests.map((test: any) => (
+                                                        <div
+                                                            key={test.id}
+                                                            className="flex items-center justify-between"
+                                                        >
+                                                            <span className="max-w-[60%] truncate text-[11px] font-bold text-slate-500">
+                                                                {test.title}
+                                                            </span>
+                                                            {test.attempted ? (
+                                                                <span
+                                                                    className={`text-[11px] font-black px-2 py-0.5 rounded-lg ${test.score >= 70 ? 'bg-emerald-50 text-emerald-600' : test.score >= 40 ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-500'}`}
+                                                                >
+                                                                    {test.correctAnswers}/{test.totalQuestions} &nbsp;(
+                                                                    {test.score}%)
+                                                                </span>
+                                                            ) : (
+                                                                <span className="text-[11px] font-bold text-slate-300 px-2 py-0.5 rounded-lg bg-slate-50">
+                                                                    Not attempted
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="rounded-xl bg-white p-6 text-center shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
+                                    <p className="text-sm font-bold text-slate-500">
+                                        No courses enrolled under your management.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </AppModal>
             )}
         </div>
     );
