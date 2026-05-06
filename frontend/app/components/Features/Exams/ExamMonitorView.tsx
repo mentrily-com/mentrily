@@ -653,7 +653,6 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                     subtitle={`${selectedStudent.id} • ${selectedStudent.appVersion}`}
                     icon={<span className="text-xl font-black">{selectedStudent.name[0]}</span>}
                     size="xl"
-                    zIndexClass="z-50"
                     panelClassName="max-w-5xl sm:max-h-[calc(100vh-80px)]"
                     bodyClassName="space-y-6 sm:space-y-10"
                     footer={

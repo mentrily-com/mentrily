@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -43,7 +44,7 @@ export default function AppModal({
     children,
     footer,
     size = 'md',
-    zIndexClass = 'z-[2000]',
+    zIndexClass = 'z-[9998]',
     panelClassName,
     headerClassName,
     bodyClassName,
@@ -52,11 +53,18 @@ export default function AppModal({
     closeOnBackdrop = true,
     ariaLabel,
 }: AppModalProps) {
+    const [mounted, setMounted] = React.useState(false);
+
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
+
     if (!isOpen) return null;
+    if (!mounted) return null;
 
     const hasHeader = title || subtitle || eyebrow || icon || showCloseButton;
 
-    return (
+    return createPortal(
         <div className={cn('fixed inset-0 grid place-items-center p-3 sm:p-6', zIndexClass)}>
             <div
                 className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200"
@@ -124,6 +132,7 @@ export default function AppModal({
                     </footer>
                 )}
             </section>
-        </div>
+        </div>,
+        document.body,
     );
 }
