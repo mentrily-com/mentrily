@@ -52,6 +52,10 @@ function getStringValue(source: Record<string, unknown> | undefined, key: string
 
 export default clerkMiddleware(async (auth, request) => {
     const requestHeaders = new Headers(request.headers);
+    const invitationStatus = String(request.nextUrl.searchParams.get('__clerk_status') || '')
+        .trim()
+        .toLowerCase();
+    const invitationTicket = String(request.nextUrl.searchParams.get('__clerk_ticket') || '').trim();
 
     const host = requestHeaders.get('x-forwarded-host') || requestHeaders.get('host') || '';
     const hostWithoutPort = host.replace(/:\d+$/, '').toLowerCase();
@@ -106,6 +110,11 @@ export default clerkMiddleware(async (auth, request) => {
 
     if (!isPublicRoute(request) && isProtectedRoute(request)) {
         if (!authState?.userId) {
+            if (invitationTicket && invitationStatus === 'sign_up') {
+                const signUpUrl = new URL('/signup', request.url);
+                signUpUrl.search = request.nextUrl.search;
+                return NextResponse.redirect(signUpUrl);
+            }
             const loginUrl = new URL('/login', request.url);
             return NextResponse.redirect(loginUrl);
         }
