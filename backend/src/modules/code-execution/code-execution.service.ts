@@ -1,4 +1,13 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { randomBytes } from 'crypto';
+import {
+  BadRequestException,
+  GoneException,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import type { IExecutionStrategy } from './strategies/execution-strategy.interface';
 import { PrismaService } from '../../services/prisma/prisma.service';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -9,6 +18,10 @@ import Redis from 'ioredis';
 @Injectable()
 export class CodeExecutionService {
   private queueEvents: QueueEvents | null = null;
+  private readonly publicRunLimit = 25;
+  private readonly maxPublicCodeLength = 20_000;
+  private readonly maxPublicInputLength = 5_000;
+  private readonly maxPublicTestCases = 20;
 
   constructor(
     @Inject('IExecutionStrategy')
@@ -45,6 +58,78 @@ export class CodeExecutionService {
     }
   }
 
+  private validatePublicExecutionPayload(
+    language: string,
+    code: string,
+    stdin = '',
+  ) {
+    this.validateExecutionPayload(language, code, stdin);
+
+    if (String(code || '').length > this.maxPublicCodeLength) {
+      throw new BadRequestException('Code is too large for public execution');
+    }
+
+    if (String(stdin || '').length > this.maxPublicInputLength) {
+      throw new BadRequestException('Input is too large for public execution');
+    }
+  }
+
+  getClientIp(req: any): string {
+    const headers = req?.headers || {};
+    const candidates = [
+      headers['cf-connecting-ip'],
+      headers['true-client-ip'],
+      headers['x-real-ip'],
+      headers['x-forwarded-for'],
+      req?.ip,
+      req?.socket?.remoteAddress,
+    ];
+
+    for (const candidate of candidates) {
+      const value = Array.isArray(candidate) ? candidate[0] : candidate;
+      const ip = String(value || '')
+        .split(',')[0]
+        .trim();
+      if (ip) return ip;
+    }
+
+    return 'unknown';
+  }
+
+  private async consumePublicRun(ip: string) {
+    const now = Date.now();
+    const hourMs = 60 * 60 * 1000;
+    const hourBucket = Math.floor(now / hourMs);
+    const resetAtMs = (hourBucket + 1) * hourMs;
+    const resetInSeconds = Math.max(1, Math.ceil((resetAtMs - now) / 1000));
+    const key = `public-code-run:${ip}:${hourBucket}`;
+    const count = await this.redis.incr(key);
+
+    if (count === 1) {
+      await this.redis.expire(key, resetInSeconds + 60);
+    }
+
+    const remaining = Math.max(0, this.publicRunLimit - count);
+
+    if (count > this.publicRunLimit) {
+      throw new HttpException(
+        {
+          message: 'Public execution limit reached. Sign in to continue.',
+          limit: this.publicRunLimit,
+          remaining: 0,
+          resetInSeconds,
+        },
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    return {
+      limit: this.publicRunLimit,
+      remaining,
+      resetInSeconds,
+    };
+  }
+
   async runCode(language: string, code: string, stdin: string) {
     this.validateExecutionPayload(language, code, stdin);
 
@@ -62,6 +147,191 @@ export class CodeExecutionService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async publicRunCode(
+    language: string,
+    code: string,
+    stdin: string,
+    req: any,
+  ) {
+    this.validatePublicExecutionPayload(language, code, stdin);
+    const rateLimit = await this.consumePublicRun(this.getClientIp(req));
+    const result = await this.runCode(language, code, stdin || '');
+
+    return {
+      ...result,
+      rateLimit,
+    };
+  }
+
+  private normalizePublicQuestionPayload(body: any) {
+    const rawQuestion = body?.question && typeof body.question === 'object'
+      ? body.question
+      : body;
+    const title = String(rawQuestion?.title || body?.title || 'Shared coding challenge')
+      .trim()
+      .slice(0, 160);
+    const description = String(
+      rawQuestion?.description ||
+        body?.problemStatement ||
+        body?.description ||
+        '',
+    ).trim();
+    const codingConfig =
+      rawQuestion?.codingConfig && typeof rawQuestion.codingConfig === 'object'
+        ? rawQuestion.codingConfig
+        : body?.codingConfig;
+    const testCases = Array.isArray(codingConfig?.testCases)
+      ? codingConfig.testCases
+      : [];
+
+    if (!description) {
+      throw new BadRequestException('Problem statement is required');
+    }
+
+    if (!codingConfig || typeof codingConfig !== 'object') {
+      throw new BadRequestException('Coding configuration is required');
+    }
+
+    if (testCases.length > this.maxPublicTestCases) {
+      throw new BadRequestException(
+        `Public questions can include at most ${this.maxPublicTestCases} test cases`,
+      );
+    }
+
+    return {
+      id: `public-${randomBytes(8).toString('hex')}`,
+      type: 'Coding',
+      title: title || 'Shared coding challenge',
+      description,
+      difficulty: rawQuestion?.difficulty || 'Practice',
+      codingConfig: {
+        ...codingConfig,
+        testCases,
+        showTestCases: codingConfig.showTestCases ?? true,
+      },
+    };
+  }
+
+  private async generatePublicQuestionSlug() {
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const slug = randomBytes(24).toString('base64url');
+      const existing = await this.prisma.publicCodingQuestion.findUnique({
+        where: { slug },
+        select: { id: true },
+      });
+      if (!existing) return slug;
+    }
+
+    throw new Error('Unable to generate public question slug');
+  }
+
+  async createPublicQuestion(body: any, user?: any, req?: any) {
+    const question = this.normalizePublicQuestionPayload(body);
+    const slug = await this.generatePublicQuestionSlug();
+    const days = user?.id ? 30 : 3;
+    const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+    const creatorIp = this.getClientIp(req);
+
+    const existingForIp = await this.prisma.publicCodingQuestion.findFirst({
+      where: {
+        creatorIp,
+        expiresAt: {
+          gt: new Date(),
+        },
+      },
+      select: { slug: true, expiresAt: true },
+    });
+
+    if (existingForIp) {
+      throw new HttpException(
+        {
+          message:
+            'Only one active shared question can be created per IP.',
+          slug: existingForIp.slug,
+          expiresAt: existingForIp.expiresAt,
+        },
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    const record = await this.prisma.publicCodingQuestion.create({
+      data: {
+        slug,
+        question,
+        creatorUserId: user?.id || null,
+        creatorIp,
+        expiresAt,
+      },
+      select: {
+        slug: true,
+        question: true,
+        expiresAt: true,
+        createdAt: true,
+      },
+    });
+
+    return {
+      ...record,
+      validityDays: days,
+      path: `/playground/q/${record.slug}`,
+    };
+  }
+
+  async getPublicQuestion(slug: string) {
+    const normalizedSlug = String(slug || '').trim();
+    if (!normalizedSlug) {
+      throw new NotFoundException('Question not found');
+    }
+
+    const record = await this.prisma.publicCodingQuestion.findUnique({
+      where: { slug: normalizedSlug },
+      select: {
+        slug: true,
+        question: true,
+        expiresAt: true,
+        createdAt: true,
+      },
+    });
+
+    if (!record) {
+      throw new NotFoundException('Question not found');
+    }
+
+    if (record.expiresAt.getTime() <= Date.now()) {
+      throw new GoneException('This shared question link has expired');
+    }
+
+    return record;
+  }
+
+  async publicSubmitCode(
+    questionSlug: string,
+    language: string,
+    code: string,
+    req: any,
+  ) {
+    this.validatePublicExecutionPayload(language, code, '');
+    const rateLimit = await this.consumePublicRun(this.getClientIp(req));
+    const publicQuestion = await this.getPublicQuestion(questionSlug);
+    const question: any = publicQuestion.question;
+    const testCases = Array.isArray(question?.codingConfig?.testCases)
+      ? question.codingConfig.testCases
+      : [];
+
+    const result = await this.submitCode(
+      String(question?.id || questionSlug),
+      language,
+      code,
+      undefined,
+      testCases,
+    );
+
+    return {
+      ...result,
+      rateLimit,
+    };
   }
 
   async submitCode(

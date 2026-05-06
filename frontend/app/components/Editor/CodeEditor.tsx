@@ -91,6 +91,16 @@ export default function CodeEditor(props: CodeEditorProps) {
     const getFirstLine = (text: string) => text.split('\n')[0].trim();
 
     const [customInput, setCustomInput] = useState('');
+    const hasTestCases = Boolean(props.testCases && props.testCases.length > 0);
+    const terminalTabs: Array<'testcases' | 'terminal' | 'input'> = hasTestCases
+        ? ['testcases', 'terminal', 'input']
+        : ['terminal', 'input'];
+
+    useEffect(() => {
+        if (!hasTestCases && activeTab === 'testcases') {
+            setActiveTab('terminal');
+        }
+    }, [activeTab, hasTestCases]);
 
     const handleRun = async () => {
         if (view) {
@@ -99,7 +109,7 @@ export default function CodeEditor(props: CodeEditorProps) {
             let expectedOutput: string | undefined = undefined;
             let indexToPass: number | undefined = undefined;
 
-            if (activeTab === 'testcases' && props.testCases && props.testCases.length > 0) {
+            if (activeTab === 'testcases' && hasTestCases && props.testCases && props.testCases.length > 0) {
                 // Robustly determine index: if selectedTestCase is out of bounds, use 0
                 const validIndex =
                     selectedTestCase >= 0 && selectedTestCase < props.testCases.length ? selectedTestCase : 0;
@@ -131,7 +141,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                 if (result && typeof result === 'object') {
                     if (result.error) {
                         setActiveTab('terminal');
-                    } else if (indexToPass !== undefined) {
+                    } else if (indexToPass !== undefined && hasTestCases) {
                         // If running a test case and no error (even if failed), show test cases
                         setActiveTab('testcases');
                     } else {
@@ -140,7 +150,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                     }
                 } else {
                     // Fallback if no result returned (legacy behavior)
-                    if (indexToPass !== undefined) {
+                    if (indexToPass !== undefined && hasTestCases) {
                         setActiveTab('testcases');
                     } else {
                         setActiveTab('terminal');
@@ -149,6 +159,9 @@ export default function CodeEditor(props: CodeEditorProps) {
             }
 
             setIsTerminalOpen(true);
+            if (!hasTestCases && activeTab === 'testcases') {
+                setActiveTab('terminal');
+            }
         }
     };
 
@@ -338,7 +351,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                 <div onMouseDown={startTerminalResize} className="h-2 w-full cursor-ns-resize" title="Drag to resize" />
                 <div className="flex items-center justify-between bg-[#fff4ee] px-4 h-11 select-none">
                     <div className="flex items-center h-full gap-4 pl-2">
-                        {['testcases', 'terminal', 'input'].map((t) => (
+                        {terminalTabs.map((t) => (
                             <button
                                 key={t}
                                 onClick={() => setActiveTab(t as any)}

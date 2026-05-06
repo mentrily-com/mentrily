@@ -82,6 +82,7 @@ model User {
   // Course Progress Relation
   progress         CourseProgress[]
   questionAttempts QuestionAttempt[]
+  publicCodingQuestions PublicCodingQuestion[] @relation("PublicCodingQuestionCreator")
 
   // Groups & Announcements
   teacherGroups        StudentGroup[]     @relation("TeacherGroups")
@@ -368,6 +369,22 @@ model UnitSubmission {
   @@index([status])
   @@index([userId, unitId, status]) // Compound for progress calculations
   @@index([createdAt]) // Used in weekly activity analytics
+}
+
+model PublicCodingQuestion {
+  id            String   @id @default(uuid())
+  slug          String   @unique
+  question      Json
+  creatorUserId String?
+  creator       User?    @relation("PublicCodingQuestionCreator", fields: [creatorUserId], references: [id], onDelete: SetNull)
+  creatorIp     String?
+  expiresAt     DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([creatorUserId])
+  @@index([creatorIp])
+  @@index([expiresAt])
 }
 
 model Organization {

@@ -31,6 +31,9 @@ interface CodingQuestionRendererProps {
     hideSubmit?: boolean;
     isExamMode?: boolean;
     onCheatDetected?: (reason: string) => void;
+    publicMode?: boolean;
+    publicQuestionSlug?: string;
+    onPublicRateLimitChange?: (rateLimit: any) => void;
 }
 
 export default function CodingQuestionRenderer({
@@ -53,6 +56,9 @@ export default function CodingQuestionRenderer({
     hideSubmit = false,
     isExamMode = false,
     onCheatDetected,
+    publicMode = false,
+    publicQuestionSlug,
+    onPublicRateLimitChange,
 }: CodingQuestionRendererProps) {
     const normalizeLanguageId = (languageId?: string) => {
         if (!languageId) return '';
@@ -389,13 +395,20 @@ export default function CodingQuestionRenderer({
             // If running a test case (not custom input), run ALL test cases via submit
             // If running a test case (not custom input), run ALL test cases via submit
             if (testCaseIndex !== undefined) {
-                const result = await CodeExecutionService.submit(
-                    question.id,
-                    activeLangId,
-                    fullCode,
-                    examId,
-                    question.codingConfig?.testCases, // Pass test cases for preview
-                );
+                const result =
+                    publicMode && publicQuestionSlug
+                        ? await CodeExecutionService.publicSubmit(publicQuestionSlug, activeLangId, fullCode)
+                        : await CodeExecutionService.submit(
+                              question.id,
+                              activeLangId,
+                              fullCode,
+                              examId,
+                              question.codingConfig?.testCases, // Pass test cases for preview
+                          );
+
+                if ('rateLimit' in result) {
+                    onPublicRateLimitChange?.((result as any).rateLimit);
+                }
 
                 // Handle case where backend returns no results (e.g. mismatch in test cases)
                 if (!result.results || result.results.length === 0) {
@@ -431,7 +444,12 @@ export default function CodingQuestionRenderer({
                 return { passed: selectedResult?.passed, error: false };
             } else {
                 // Custom Input: Run single execution
-                const result = await CodeExecutionService.run(activeLangId, fullCode, input || '');
+                const result = publicMode
+                    ? await CodeExecutionService.publicRun(activeLangId, fullCode, input || '')
+                    : await CodeExecutionService.run(activeLangId, fullCode, input || '');
+                if ('rateLimit' in result) {
+                    onPublicRateLimitChange?.((result as any).rateLimit);
+                }
                 const output = result.output || result.stdout || result.stderr || 'Execution finished with no output.';
 
                 setTerminalLogs(output);
@@ -481,13 +499,19 @@ export default function CodingQuestionRenderer({
         const fullCode = `${codingLanguage.header}\n${code}\n${codingLanguage.footer}`;
 
         try {
-            const result = await CodeExecutionService.submit(
-                question.id,
-                activeLangId,
-                fullCode,
-                examId,
-                question.codingConfig?.testCases, // Pass test cases for preview
-            );
+            const result =
+                publicMode && publicQuestionSlug
+                    ? await CodeExecutionService.publicSubmit(publicQuestionSlug, activeLangId, fullCode)
+                    : await CodeExecutionService.submit(
+                          question.id,
+                          activeLangId,
+                          fullCode,
+                          examId,
+                          question.codingConfig?.testCases, // Pass test cases for preview
+                      );
+            if ('rateLimit' in result) {
+                onPublicRateLimitChange?.((result as any).rateLimit);
+            }
             console.log('Submission Result:', result); // DEBUG
 
             let finalResults = result.results;

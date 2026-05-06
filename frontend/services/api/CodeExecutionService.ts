@@ -26,6 +26,20 @@ export interface SubmissionResult {
     }[];
 }
 
+export interface RateLimitInfo {
+    limit: number;
+    remaining: number;
+    resetInSeconds: number;
+}
+
+export interface PublicExecutionResult extends ExecutionResult {
+    rateLimit?: RateLimitInfo;
+}
+
+export interface PublicSubmissionResult extends SubmissionResult {
+    rateLimit?: RateLimitInfo;
+}
+
 const authFetch = async (endpoint: string, options: RequestInit = {}) => {
     // endpoint should be relative like '/code/run'
     const url = `${BASE_URL}${endpoint}`;
@@ -99,5 +113,87 @@ export const CodeExecutionService = {
             console.error('Submit code error', error);
             throw error;
         }
+    },
+
+    publicRun: async (language: string, code: string, input?: string): Promise<PublicExecutionResult> => {
+        const response = await fetch(`${BASE_URL}/code/public-run`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: withCsrfHeader('POST', {
+                'Content-Type': 'application/json',
+            }),
+            body: JSON.stringify({
+                language,
+                code,
+                input,
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.text();
+            throw new Error(`Execution error: ${response.status} ${errorData}`);
+        }
+
+        return response.json();
+    },
+
+    publicSubmit: async (
+        questionSlug: string,
+        language: string,
+        code: string,
+    ): Promise<PublicSubmissionResult> => {
+        const response = await fetch(`${BASE_URL}/code/public-submit`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: withCsrfHeader('POST', {
+                'Content-Type': 'application/json',
+            }),
+            body: JSON.stringify({
+                questionSlug,
+                language,
+                code,
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.text();
+            throw new Error(`Execution error: ${response.status} ${errorData}`);
+        }
+
+        return response.json();
+    },
+
+    createPublicQuestion: async (question: any): Promise<any> => {
+        const headers = await withClerkAuthorization(
+            withCsrfHeader('POST', {
+                'Content-Type': 'application/json',
+            }),
+        );
+        const response = await fetch(`${BASE_URL}/playground/questions`, {
+            method: 'POST',
+            credentials: 'include',
+            headers,
+            body: JSON.stringify({ question }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.text();
+            throw new Error(`Question save error: ${response.status} ${errorData}`);
+        }
+
+        return response.json();
+    },
+
+    getPublicQuestion: async (slug: string): Promise<any> => {
+        const response = await fetch(`${BASE_URL}/playground/questions/${encodeURIComponent(slug)}`, {
+            cache: 'no-store',
+        });
+
+        if (!response.ok) {
+            const errorData = await response.text();
+            throw new Error(`Question load error: ${response.status} ${errorData}`);
+        }
+
+        return response.json();
     },
 };
