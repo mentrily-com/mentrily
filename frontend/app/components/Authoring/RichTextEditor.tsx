@@ -46,6 +46,7 @@ interface RichTextEditorProps {
 
 export default function RichTextEditor({ content, onChange, placeholder, compact = false }: RichTextEditorProps) {
     const [isDarkMode, setIsDarkMode] = useState(false);
+    const lastEditorHtmlRef = React.useRef(content);
 
     // Removed unique instance ID as it breaks Tiptap HTML serialization and standard commands.
     const linkName = 'link';
@@ -105,7 +106,9 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
         content: content,
         immediatelyRender: false,
         onUpdate: ({ editor }) => {
-            onChange(editor.getHTML());
+            const html = editor.getHTML();
+            lastEditorHtmlRef.current = html;
+            onChange(html);
         },
         editorProps: {
             attributes: {
@@ -120,7 +123,8 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
 
     // Sync content if it changes externally
     useEffect(() => {
-        if (editor && content !== editor.getHTML()) {
+        if (editor && content !== editor.getHTML() && content !== lastEditorHtmlRef.current) {
+            lastEditorHtmlRef.current = content;
             editor.commands.setContent(content);
         }
     }, [content, editor]);
