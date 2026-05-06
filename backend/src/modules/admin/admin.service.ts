@@ -17,6 +17,7 @@ import {
   getEffectivePlanLimits,
   type PlanKey,
 } from '../../config/plan-limits';
+import { getPublicAppUrl } from '../../config/app-brand';
 
 type InviteInput = {
   email?: string;
@@ -62,13 +63,7 @@ export class AdminService {
   }
 
   private getOrganizationDashboardUrl(orgDomain?: string | null): string {
-    const fallbackBase = String(
-      process.env.FRONTEND_URL ||
-        process.env.APP_URL ||
-        'http://localhost:3000',
-    )
-      .trim()
-      .replace(/\/+$/, '');
+    const fallbackBase = getPublicAppUrl().replace(/\/+$/, '');
 
     const rawOrgDomain = String(orgDomain || '')
       .trim()

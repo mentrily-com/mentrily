@@ -17,6 +17,7 @@ import { randomUUID } from 'crypto';
 import { UpdateOrganizationPlanDto } from './dto/update-organization-plan.dto';
 import { UpdateOrganizationLimitsDto } from './dto/update-organization-limits.dto';
 import { createClerkClient, type ClerkClient } from '@clerk/backend';
+import { getPublicAppUrl } from '../../config/app-brand';
 
 @Injectable()
 export class SuperAdminService {
@@ -41,13 +42,7 @@ export class SuperAdminService {
   }
 
   private getOrganizationDashboardUrl(orgDomain?: string | null): string {
-    const fallbackBase = String(
-      process.env.FRONTEND_URL ||
-        process.env.APP_URL ||
-        'http://localhost:3000',
-    )
-      .trim()
-      .replace(/\/+$/, '');
+    const fallbackBase = getPublicAppUrl().replace(/\/+$/, '');
 
     const rawOrgDomain = String(orgDomain || '')
       .trim()
