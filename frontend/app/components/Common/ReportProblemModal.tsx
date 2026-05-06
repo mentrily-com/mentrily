@@ -128,7 +128,6 @@ export default function ReportProblemModal({ isOpen, onClose, onSubmitted }: Rep
             subtitle="Help us improve by reporting bugs you face."
             icon={<AlertTriangle size={22} />}
             size="lg"
-            zIndexClass="z-[1100]"
             bodyClassName="space-y-6"
         >
             <div className="mb-6 p-4 rounded-2xl border border-amber-200 bg-amber-50/70 flex items-start gap-3">

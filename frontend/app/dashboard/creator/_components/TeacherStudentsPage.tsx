@@ -410,7 +410,6 @@ export default function TeacherStudentsPage() {
                     eyebrow="Student Progress"
                     icon={<span className="text-xl font-black">{selectedStudent.name?.[0] || '?'}</span>}
                     size="xl"
-                    zIndexClass="z-[1100]"
                     panelClassName="max-w-[860px]"
                 >
                     <div className="mb-6 rounded-xl bg-white/70 p-4 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.12)]">
