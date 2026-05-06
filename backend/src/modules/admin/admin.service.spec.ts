@@ -19,6 +19,8 @@ describe('AdminService invite flow', () => {
 
   beforeEach(async () => {
     process.env.CLERK_SECRET_KEY = 'sk_test_mock';
+    process.env.FRONTEND_URL = 'http://localhost:3000';
+    process.env.APP_URL = 'https://mentrily.com';
     clerkInvite.mockReset().mockResolvedValue({ id: 'inv_123' });
     clerkRevoke.mockReset().mockResolvedValue({ id: 'inv_old' });
     (createClerkClient as jest.Mock).mockReturnValue({
@@ -120,6 +122,7 @@ describe('AdminService invite flow', () => {
     expect(clerkInvite).toHaveBeenCalledWith(
       expect.objectContaining({
         emailAddress: 'newuser@example.com',
+        redirectUrl: 'https://school.example.com/dashboard',
         notify: true,
         expiresInDays: 7,
         publicMetadata: expect.objectContaining({
@@ -206,5 +209,29 @@ describe('AdminService invite flow', () => {
       failed: 2,
       emailsSent: 1,
     });
+  });
+
+  it('falls back to the public app URL when FRONTEND_URL points to localhost', async () => {
+    prisma.organization.findUnique.mockResolvedValueOnce({
+      id: 'org_1',
+      plan: 'ENTERPRISE',
+      features: {},
+      domain: null,
+      maxUsers: 100,
+      maxAdminSeats: null,
+      _count: { users: 0 },
+    });
+
+    await service.inviteUser(
+      { email: 'public-fallback@example.com', role: 'STUDENT' },
+      { id: 'admin_1', role: 'ADMIN', orgId: 'org_1' },
+    );
+
+    expect(clerkInvite).toHaveBeenCalledWith(
+      expect.objectContaining({
+        emailAddress: 'public-fallback@example.com',
+        redirectUrl: 'https://mentrily.com/dashboard',
+      }),
+    );
   });
 });

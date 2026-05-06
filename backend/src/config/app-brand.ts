@@ -31,6 +31,33 @@ export function getAppUrl(): string {
   ).replace(/\/$/, '');
 }
 
+function isLocalOrigin(value?: string | null): boolean {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
+
+  return (
+    normalized.startsWith('http://localhost') ||
+    normalized.startsWith('https://localhost') ||
+    normalized.startsWith('http://127.0.0.1') ||
+    normalized.startsWith('https://127.0.0.1')
+  );
+}
+
+export function getPublicAppUrl(): string {
+  const candidates = [
+    process.env.FRONTEND_URL,
+    process.env.APP_URL,
+    process.env.NEXT_PUBLIC_APP_URL,
+    DEFAULT_APP_URL,
+  ]
+    .map((value) => String(value || '').trim().replace(/\/$/, ''))
+    .filter(Boolean);
+
+  const nonLocalCandidate = candidates.find((value) => !isLocalOrigin(value));
+  return nonLocalCandidate || candidates[0] || DEFAULT_APP_URL;
+}
+
 export function getAllowedWebOrigins(includeDevOrigins: boolean): string[] {
   const configuredDomain = getAppDomain();
   const configuredAppUrl = getAppUrl();
