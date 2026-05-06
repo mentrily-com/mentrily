@@ -100,33 +100,35 @@ export default function SharedCodingQuestionPage() {
                         />
                     }
                     rightContent={
-                        <div className="h-full min-h-0">
+                        <div className="flex h-full min-h-0 flex-col">
                             {rateLimit && (
-                                <div className="border-b border-slate-100 bg-slate-50 px-4 py-2 text-[11px] font-bold text-slate-500">
+                                <div className="shrink-0 border-b border-slate-100 bg-slate-50 px-4 py-2 text-[11px] font-bold text-slate-500">
                                     {rateLimit.remaining} of {rateLimit.limit} public runs left this hour
                                 </div>
                             )}
-                            <CodingQuestionRenderer
-                                question={question}
-                                hasAttemptSelected={false}
-                                attemptAnswer={null}
-                                currentAnswer={answer}
-                                onAnswerChange={setAnswer}
-                                onSubmit={setAnswer}
-                                contentFontSize={14}
-                                selectedCodingLang={selectedLang}
-                                onLanguageChange={setSelectedLang}
-                                isRunning={isRunning}
-                                setIsRunning={setIsRunning}
-                                terminalLogs={terminalLogs}
-                                setTerminalLogs={setTerminalLogs}
-                                executionResults={executionResults}
-                                setExecutionResults={setExecutionResults}
-                                publicMode
-                                publicQuestionSlug={slug}
-                                onPublicRateLimitChange={setRateLimit}
-                                hideSubmit
-                            />
+                            <div className="min-h-0 flex-1">
+                                <CodingQuestionRenderer
+                                    question={question}
+                                    hasAttemptSelected={false}
+                                    attemptAnswer={null}
+                                    currentAnswer={answer}
+                                    onAnswerChange={setAnswer}
+                                    onSubmit={setAnswer}
+                                    contentFontSize={14}
+                                    selectedCodingLang={selectedLang}
+                                    onLanguageChange={setSelectedLang}
+                                    isRunning={isRunning}
+                                    setIsRunning={setIsRunning}
+                                    terminalLogs={terminalLogs}
+                                    setTerminalLogs={setTerminalLogs}
+                                    executionResults={executionResults}
+                                    setExecutionResults={setExecutionResults}
+                                    publicMode
+                                    publicQuestionSlug={slug}
+                                    onPublicRateLimitChange={setRateLimit}
+                                    hideSubmit
+                                />
+                            </div>
                         </div>
                     }
                 />
