@@ -530,7 +530,7 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
                                 className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold outline-none focus:border-[var(--brand)]"
                             />
                         </label>
-                        <label className="space-y-2">
+                        <div className="space-y-2">
                             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                                 Problem Statement
                             </span>
@@ -542,7 +542,7 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
                                     compact
                                 />
                             </div>
-                        </label>
+                        </div>
                     </div>
 
                     <CodingEditor
