@@ -343,7 +343,7 @@ export default function CodeEditor(props: CodeEditorProps) {
             {/* TERMINAL DRAWER */}
             <div
                 ref={terminalDrawerRef}
-                className={`absolute bottom-[60px] left-0 right-0 bg-white border-t border-slate-200 ease-in-out z-[100] ${isResizingTerminal ? '' : 'transition-all duration-300'} ${
+                className={`absolute bottom-[60px] left-0 right-0 flex flex-col bg-white border-t border-slate-200 ease-in-out z-[100] ${isResizingTerminal ? '' : 'transition-all duration-300'} ${
                     isTerminalOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
                 } ${isResizingTerminal ? 'select-none' : ''}`}
                 style={{ height: isTerminalOpen ? `${terminalHeight}px` : '0px' }}
@@ -382,7 +382,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                     </button>
                 </div>
 
-                <div className="p-6 overflow-hidden h-full">
+                <div className="min-h-0 flex-1 overflow-hidden p-4 sm:p-6">
                     {activeTab === 'testcases' && (
                         <div className="flex h-full gap-8">
                             <div className="w-[260px] flex flex-col gap-3 content-start">
@@ -514,7 +514,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                     )}
 
                     {activeTab === 'terminal' && (
-                        <div className="bg-slate-900 rounded-xl p-6 h-[200px] font-mono text-[13px] text-emerald-400 overflow-y-auto shadow-inner whitespace-pre-wrap">
+                        <div className="h-full rounded-xl bg-slate-900 p-6 font-mono text-[13px] text-emerald-400 shadow-inner overflow-y-auto whitespace-pre-wrap">
                             <div className="flex items-center gap-2 mb-2 opacity-50">
                                 <span className="w-2 h-2 rounded-full bg-red-400"></span>
                                 <span className="w-2 h-2 rounded-full bg-yellow-400"></span>
@@ -525,7 +525,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                     )}
 
                     {activeTab === 'input' && (
-                        <div className="flex flex-col h-[220px] bg-white border border-slate-100 rounded-xl overflow-hidden shadow-sm">
+                        <div className="flex h-full flex-col overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm">
                             <div className="bg-slate-50 px-4 py-2 border-b border-slate-100 flex justify-between items-center">
                                 <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                                     Standard Input (stdin)
