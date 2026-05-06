@@ -357,9 +357,6 @@ function PublicCompilerSurface({
                         Run code instantly in the Mentrily playground.
                     </p>
                 </div>
-                <span className="rounded-full bg-slate-50 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-slate-500">
-                    Public
-                </span>
             </div>
             <div className="min-h-0 flex-1">
                 <CodingQuestionRenderer
@@ -434,7 +431,7 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
             } catch {}
         }
         if (raw.includes('429')) {
-            return 'Only one active shared question can be created from this IP address.';
+            return 'Only one active shared question can be created per IP. Sign in to create more questions.';
         }
         if (raw.includes('Problem statement is required')) {
             return 'Add a problem statement before generating the share link.';
@@ -552,8 +549,7 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
 
                     {error && (
                         <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
-                            <div className="font-black">Could not create question</div>
-                            <div className="mt-0.5 text-xs font-semibold text-red-600">{error}</div>
+                            <div className="font-black">{error}</div>
                         </div>
                     )}
                 </div>
