@@ -41,9 +41,10 @@ interface RichTextEditorProps {
     content: string;
     onChange: (content: string) => void;
     placeholder?: string;
+    compact?: boolean;
 }
 
-export default function RichTextEditor({ content, onChange, placeholder }: RichTextEditorProps) {
+export default function RichTextEditor({ content, onChange, placeholder, compact = false }: RichTextEditorProps) {
     const [isDarkMode, setIsDarkMode] = useState(false);
 
     // Removed unique instance ID as it breaks Tiptap HTML serialization and standard commands.
@@ -108,7 +109,7 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
         },
         editorProps: {
             attributes: {
-                class: `prose max-w-none focus:outline-none min-h-[400px] p-8 transition-colors duration-300 ${
+                class: `prose max-w-none focus:outline-none ${compact ? 'min-h-[180px] p-4' : 'min-h-[400px] p-8'} transition-colors duration-300 ${
                     isDarkMode
                         ? 'prose-invert bg-slate-900 text-slate-100 placeholder:text-slate-600'
                         : 'prose-slate bg-white text-slate-700 placeholder:text-slate-400'

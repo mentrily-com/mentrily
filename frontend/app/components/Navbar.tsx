@@ -615,7 +615,7 @@ export default function Navbar({ basePath, userRole: roleOverride, examConfig }:
                                         Coding
                                     </button>
                                     <button
-                                        onClick={() => router.push('/playground/web')}
+                                        onClick={() => router.push('/online-html-editor')}
                                         className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold text-slate-600 hover:bg-slate-50 hover:text-[var(--brand)] transition-all"
                                     >
                                         <div className="w-8 h-8 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center">
@@ -634,7 +634,7 @@ export default function Navbar({ basePath, userRole: roleOverride, examConfig }:
                                         HTML5
                                     </button>
                                     <button
-                                        onClick={() => router.push('/playground/pynb')}
+                                        onClick={() => router.push('/online-python-notebook')}
                                         className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold text-slate-600 hover:bg-slate-50 hover:text-[var(--brand)] transition-all"
                                     >
                                         <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center">

@@ -58,6 +58,16 @@ const nextConfig: NextConfig = {
                 destination: '/dashboard/creator/:path*',
                 permanent: true,
             },
+            {
+                source: '/playground/web',
+                destination: '/online-html-editor',
+                permanent: true,
+            },
+            {
+                source: '/playground/pynb',
+                destination: '/online-python-notebook',
+                permanent: true,
+            },
         ];
     },
 

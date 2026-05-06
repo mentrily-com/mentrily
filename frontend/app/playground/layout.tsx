@@ -2,9 +2,11 @@
 import React from 'react';
 import Navbar from '@/app/components/Navbar';
 import { useSession } from '@/hooks/useSession';
+import { usePathname } from 'next/navigation';
 
 export default function PlaygroundLayout({ children }: { children: React.ReactNode }) {
     const { data: sessionUser } = useSession();
+    const pathname = usePathname();
 
     const role = React.useMemo(() => {
         const backendRole = String(sessionUser?.role || '').toUpperCase();
@@ -15,7 +17,7 @@ export default function PlaygroundLayout({ children }: { children: React.ReactNo
         return null;
     }, [sessionUser?.role]);
 
-    if (role !== 'student') {
+    if (pathname?.startsWith('/playground/q') || role !== 'student') {
         return <>{children}</>;
     }
 

@@ -1,5 +1,8 @@
 import { Module } from '@nestjs/common';
-import { CodeExecutionController } from './code-execution.controller';
+import {
+  CodeExecutionController,
+  PublicCodingQuestionController,
+} from './code-execution.controller';
 import { CodeExecutionService } from './code-execution.service';
 import { PistonStrategy } from './strategies/piston.strategy';
 import { Judge0Strategy } from './strategies/judge0.strategy';
@@ -8,16 +11,18 @@ import { BullModule } from '@nestjs/bullmq';
 import { CodeExecutionProcessor } from './code-execution.processor';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PrismaModule } from '../../services/prisma/prisma.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
     HttpModule,
     PrismaModule,
+    AuthModule,
     BullModule.registerQueue({
       name: 'code-execution',
     }),
   ],
-  controllers: [CodeExecutionController],
+  controllers: [CodeExecutionController, PublicCodingQuestionController],
   providers: [
     CodeExecutionService,
     CodeExecutionProcessor,

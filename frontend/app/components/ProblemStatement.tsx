@@ -17,6 +17,7 @@ interface ProblemStatementProps {
     onToggleBookmark?: () => void;
     isBookmarked?: boolean;
     hideHeader?: boolean;
+    hideBookmark?: boolean;
     fontSize?: number;
     isExamMode?: boolean;
     marksObtained?: number;
@@ -38,6 +39,7 @@ export default function ProblemStatement({
     onToggleBookmark,
     isBookmarked = false,
     hideHeader = false,
+    hideBookmark = false,
     fontSize,
     isExamMode = false,
     marksObtained,
@@ -146,7 +148,7 @@ export default function ProblemStatement({
                                     <line x1="4" y1="22" x2="4" y2="15" />
                                 </svg>
                             </button>
-                        ) : (
+                        ) : hideBookmark ? null : (
                             // Standard Mode: Bookmark Button
                             <button
                                 onClick={onToggleBookmark}

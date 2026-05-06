@@ -7,6 +7,7 @@ import { OrgFeaturesGuard } from './guards/org-features.guard';
 import { OrgStatusGuard } from './guards/org-status.guard';
 import { PlanGuard } from './guards/plan.guard';
 import { OrgRequiredGuard } from './guards/org-required.guard';
+import { OptionalJwtAuthGuard } from './guards/optional-jwt-auth.guard';
 import { StorageModule } from '../../services/storage/storage.module';
 import { MailModule } from '../../services/mail.module';
 import { BillingModule } from '../billing/billing.module';
@@ -29,6 +30,7 @@ import { OrganizationModule } from '../organization/organization.module';
     OrgStatusGuard,
     PlanGuard,
     OrgRequiredGuard,
+    OptionalJwtAuthGuard,
   ],
   exports: [
     AuthService,
@@ -36,6 +38,7 @@ import { OrganizationModule } from '../organization/organization.module';
     OrgStatusGuard,
     PlanGuard,
     OrgRequiredGuard,
+    OptionalJwtAuthGuard,
   ],
 })
 export class AuthModule {}
