@@ -1,3 +1,6 @@
+const configuredAppUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.mentrily.com';
+const canonicalAppUrl = configuredAppUrl.replace(/^https:\/\/mentrily\.com\/?$/, 'https://www.mentrily.com');
+
 export const siteConfig = {
     name: process.env.NEXT_PUBLIC_APP_NAME || 'Mentrily',
     domain: process.env.NEXT_PUBLIC_APP_DOMAIN || 'mentrily.com',
@@ -5,7 +8,7 @@ export const siteConfig = {
     description:
         process.env.NEXT_PUBLIC_APP_DESCRIPTION ||
         'Mentrily helps educators create courses, run exams, mentor learners, and issue certificates from one branded learning platform.',
-    url: process.env.NEXT_PUBLIC_APP_URL || 'https://mentrily.com',
+    url: canonicalAppUrl,
     company: process.env.NEXT_PUBLIC_COMPANY_NAME || 'Mentrily',
     contactFormName: process.env.NEXT_PUBLIC_CONTACT_FORM_NAME || 'Mentrily Contact Form',
     contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'admin@mentrily.com',
