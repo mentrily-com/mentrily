@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { X, Paperclip, AlertTriangle, Send } from 'lucide-react';
 import { AuthService } from '@/services/api/AuthService';
 import { useToast } from '@/app/components/Common/Toast';
+import AppModal from './AppModal';
 
 const RichTextEditor = dynamic(() => import('@/app/components/Authoring/RichTextEditor'), { ssr: false });
 
@@ -120,112 +121,106 @@ export default function ReportProblemModal({ isOpen, onClose, onSubmitted }: Rep
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[1100] flex items-center justify-center p-2 sm:p-4">
-            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative z-10 w-full max-w-3xl bg-white rounded-[26px] border border-slate-100 shadow-2xl p-5 sm:p-8 md:p-10 max-h-[calc(100dvh-1rem)] sm:max-h-[90vh] overflow-y-auto custom-scrollbar sm:rounded-[40px]">
-                <button
-                    onClick={onClose}
-                    className="absolute top-4 right-4 w-10 h-10 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-400 flex items-center justify-center transition-all sm:top-6 sm:right-6"
-                >
-                    <X size={18} />
-                </button>
+        <AppModal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Report a Problem"
+            subtitle="Help us improve by reporting bugs you face."
+            icon={<AlertTriangle size={22} />}
+            size="lg"
+            zIndexClass="z-[1100]"
+            bodyClassName="space-y-6"
+        >
+            <div className="mb-6 p-4 rounded-2xl border border-amber-200 bg-amber-50/70 flex items-start gap-3">
+                <AlertTriangle size={16} className="text-amber-600 mt-0.5 shrink-0" />
+                <p className="text-xs font-bold text-amber-800 leading-relaxed">
+                    Warning: Submitting fake, misleading, or unnecessary reports may result in account suspension.
+                </p>
+            </div>
 
-                <div className="mb-6 pr-12">
-                    <h3 className="text-xl font-black text-slate-900 tracking-tight sm:text-2xl">Report a Problem</h3>
-                    <p className="text-sm font-bold text-slate-400 mt-1">Help us improve by reporting bugs you face.</p>
+            <div className="space-y-6">
+                <div>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">
+                        Title
+                    </label>
+                    <input
+                        type="text"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="Short summary of the issue"
+                        maxLength={120}
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-[var(--brand)]/5 focus:border-[var(--brand)] transition-all"
+                    />
+                    <p className="text-[10px] font-bold text-slate-400 mt-2">{title.length}/120</p>
                 </div>
 
-                <div className="mb-6 p-4 rounded-2xl border border-amber-200 bg-amber-50/70 flex items-start gap-3">
-                    <AlertTriangle size={16} className="text-amber-600 mt-0.5 shrink-0" />
-                    <p className="text-xs font-bold text-amber-800 leading-relaxed">
-                        Warning: Submitting fake, misleading, or unnecessary reports may result in account suspension.
+                <div>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">
+                        Description
+                    </label>
+                    <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                        <RichTextEditor
+                            content={description}
+                            onChange={setDescription}
+                            placeholder="Describe what happened, expected behavior, and steps to reproduce..."
+                        />
+                    </div>
+                    <p
+                        className={`text-[10px] font-bold mt-2 ${wordCount > MAX_WORDS ? 'text-rose-500' : 'text-slate-400'}`}
+                    >
+                        {wordCount}/{MAX_WORDS} words
                     </p>
                 </div>
 
-                <div className="space-y-6">
-                    <div>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">
-                            Title
-                        </label>
-                        <input
-                            type="text"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Short summary of the issue"
-                            maxLength={120}
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-[var(--brand)]/5 focus:border-[var(--brand)] transition-all"
-                        />
-                        <p className="text-[10px] font-bold text-slate-400 mt-2">{title.length}/120</p>
-                    </div>
+                <div>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">
+                        Attach Photos (Max 5)
+                    </label>
 
-                    <div>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">
-                            Description
-                        </label>
-                        <div className="border border-slate-200 rounded-2xl overflow-hidden">
-                            <RichTextEditor
-                                content={description}
-                                onChange={setDescription}
-                                placeholder="Describe what happened, expected behavior, and steps to reproduce..."
-                            />
-                        </div>
-                        <p
-                            className={`text-[10px] font-bold mt-2 ${wordCount > MAX_WORDS ? 'text-rose-500' : 'text-slate-400'}`}
-                        >
-                            {wordCount}/{MAX_WORDS} words
-                        </p>
-                    </div>
-
-                    <div>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">
-                            Attach Photos (Max 5)
-                        </label>
-
-                        {attachments.length > 0 && (
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
-                                {attachments.map((att, index) => (
-                                    <div
-                                        key={`${att.url}-${index}`}
-                                        className="relative border border-slate-100 rounded-xl overflow-hidden bg-slate-50"
+                    {attachments.length > 0 && (
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
+                            {attachments.map((att, index) => (
+                                <div
+                                    key={`${att.url}-${index}`}
+                                    className="relative border border-slate-100 rounded-xl overflow-hidden bg-slate-50"
+                                >
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src={att.url} alt={att.name} className="w-full h-28 object-cover" />
+                                    <button
+                                        onClick={() => removeAttachment(index)}
+                                        className="absolute top-2 right-2 w-6 h-6 rounded-lg bg-black/60 text-white flex items-center justify-center"
                                     >
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img src={att.url} alt={att.name} className="w-full h-28 object-cover" />
-                                        <button
-                                            onClick={() => removeAttachment(index)}
-                                            className="absolute top-2 right-2 w-6 h-6 rounded-lg bg-black/60 text-white flex items-center justify-center"
-                                        >
-                                            <X size={12} />
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                                        <X size={12} />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
 
-                        <label className="flex items-center gap-2 px-4 py-3 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-[var(--brand)] hover:bg-[var(--brand-light)]/30 transition-all">
-                            <Paperclip size={16} className="text-slate-400" />
-                            <span className="text-xs font-black text-slate-400 uppercase tracking-widest">
-                                {isUploading ? 'Uploading...' : 'Upload Images'}
-                            </span>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                multiple
-                                onChange={handleUpload}
-                                className="hidden"
-                                disabled={isUploading || attachments.length >= MAX_IMAGES}
-                            />
-                        </label>
-                    </div>
+                    <label className="flex items-center gap-2 px-4 py-3 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-[var(--brand)] hover:bg-[var(--brand-light)]/30 transition-all">
+                        <Paperclip size={16} className="text-slate-400" />
+                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest">
+                            {isUploading ? 'Uploading...' : 'Upload Images'}
+                        </span>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={handleUpload}
+                            className="hidden"
+                            disabled={isUploading || attachments.length >= MAX_IMAGES}
+                        />
+                    </label>
                 </div>
-
-                <button
-                    onClick={handleSubmit}
-                    disabled={isSubmitting || isUploading || !title.trim() || wordCount === 0 || wordCount > MAX_WORDS}
-                    className="w-full mt-8 py-4 rounded-2xl bg-[var(--brand)] hover:bg-[var(--brand-dark)] disabled:bg-slate-200 disabled:text-slate-400 text-white font-black text-xs uppercase tracking-[0.18em] transition-all flex items-center justify-center gap-2"
-                >
-                    <Send size={15} /> {isSubmitting ? 'Submitting...' : 'Submit Report'}
-                </button>
             </div>
-        </div>
+
+            <button
+                onClick={handleSubmit}
+                disabled={isSubmitting || isUploading || !title.trim() || wordCount === 0 || wordCount > MAX_WORDS}
+                className="w-full mt-8 py-4 rounded-2xl bg-[var(--brand)] hover:bg-[var(--brand-dark)] disabled:bg-slate-200 disabled:text-slate-400 text-white font-black text-xs uppercase tracking-[0.18em] transition-all flex items-center justify-center gap-2"
+            >
+                <Send size={15} /> {isSubmitting ? 'Submitting...' : 'Submit Report'}
+            </button>
+        </AppModal>
     );
 }

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { TeacherService, Student } from '@/services/api/TeacherService';
 import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
 import { useToast } from '@/app/components/Common/Toast';
+import AppModal from '@/app/components/Common/AppModal';
 import { io, Socket } from 'socket.io-client';
 
 // PeerJS dynamic import usage in useEffect
@@ -645,199 +646,18 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
             </div>
 
             {selectedStudent && (
-                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 md:p-10 animate-in fade-in duration-200">
-                    <div className="bg-white rounded-[24px] shadow-2xl w-full max-w-5xl flex flex-col h-[calc(100dvh-1rem)] overflow-hidden relative sm:h-[calc(100vh-80px)] sm:rounded-[32px]">
-                        {/* Modal Header */}
-                        <div className="p-4 border-b border-slate-100 flex items-start justify-between gap-3 bg-slate-50/30 sm:p-8 sm:items-center">
-                            <div className="flex min-w-0 items-center gap-3 sm:gap-6">
-                                <div
-                                    className={`w-12 h-12 shrink-0 rounded-2xl flex items-center justify-center font-black text-xl sm:h-16 sm:w-16 sm:rounded-3xl sm:text-2xl ${selectedStudent.vmDetected ? 'bg-rose-100 text-rose-600 shadow-xl shadow-rose-100/50' : `${activeBgClass} text-white shadow-xl ${activeShadowClass} shadow-indigo-100/50`}`}
-                                >
-                                    {selectedStudent.name[0]}
-                                </div>
-                                <div className="min-w-0">
-                                    <h2 className="text-xl font-black text-slate-900 leading-none mb-1 sm:text-2xl">
-                                        {selectedStudent.name}
-                                    </h2>
-                                    <p className="truncate text-xs font-bold text-slate-400 uppercase tracking-widest">
-                                        {selectedStudent.id} • {selectedStudent.appVersion}
-                                    </p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => setSelectedStudent(null)}
-                                className="p-3 hover:bg-slate-100 rounded-2xl transition-all text-slate-400"
-                            >
-                                <svg
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2.5"
-                                >
-                                    <path d="M18 6L6 18M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        {/* Modal Content */}
-                        <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar sm:p-10 sm:space-y-10">
-                            {/* Metadata Grid */}
-                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4 md:gap-8">
-                                <InfoItem
-                                    label="Monitors"
-                                    value={`${selectedStudent.monitors} Display`}
-                                    icon={
-                                        <svg
-                                            width="14"
-                                            height="14"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="2.5"
-                                        >
-                                            <rect x="2" y="3" width="20" height="14" rx="2" />
-                                            <line x1="8" y1="21" x2="16" y2="21" />
-                                            <line x1="12" y1="17" x2="12" y2="21" />
-                                        </svg>
-                                    }
-                                />
-                                <InfoItem
-                                    label="Client IP"
-                                    value={selectedStudent.ip}
-                                    icon={
-                                        <svg
-                                            width="14"
-                                            height="14"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="2.5"
-                                        >
-                                            <rect x="2" y="2" width="20" height="8" rx="2" />
-                                            <rect x="2" y="14" width="20" height="8" rx="2" />
-                                            <line x1="6" y1="6" x2="6.01" y2="6" />
-                                            <line x1="6" y1="18" x2="6.01" y2="18" />
-                                        </svg>
-                                    }
-                                />
-                                <InfoItem
-                                    label="Login Count"
-                                    value={`${selectedStudent.loginCount} Sessions`}
-                                    icon={
-                                        <svg
-                                            width="14"
-                                            height="14"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="2.5"
-                                        >
-                                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M13.8 12H3" />
-                                        </svg>
-                                    }
-                                />
-                                <InfoItem
-                                    label="Sleep Duration"
-                                    value={selectedStudent.sleepDuration}
-                                    icon={
-                                        <svg
-                                            width="14"
-                                            height="14"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="2.5"
-                                        >
-                                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
-                                        </svg>
-                                    }
-                                />
-                            </div>
-
-                            {/* VM & Time Strip */}
-                            <div className="flex flex-wrap gap-4 items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-[24px] sm:p-6 sm:rounded-[32px]">
-                                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-                                    <div
-                                        className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest border ${selectedStudent.vmDetected ? 'bg-rose-50 border-rose-200 text-rose-600' : 'bg-emerald-50 border-emerald-200 text-emerald-600'}`}
-                                    >
-                                        VM:{' '}
-                                        {selectedStudent.vmDetected ? `DETECTED (${selectedStudent.vmType})` : 'NONE'}
-                                    </div>
-                                    <div className="hidden h-6 w-[1px] bg-slate-200 sm:block"></div>
-                                    <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-                                        <div className="flex flex-col">
-                                            <span className="text-[9px] font-black uppercase text-slate-300">
-                                                Started
-                                            </span>
-                                            <span className="text-xs font-black text-slate-700">
-                                                {selectedStudent.startTime}
-                                            </span>
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-[9px] font-black uppercase text-slate-300">
-                                                Ends At
-                                            </span>
-                                            <span className="text-xs font-black text-slate-700">
-                                                {selectedStudent.endTime}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <span className="text-xs font-bold text-slate-400">Current Health:</span>
-                                    <div className="flex gap-1">
-                                        {[1, 2, 3, 4, 5].map((i) => (
-                                            <div
-                                                key={i}
-                                                className={`w-3 h-1.5 rounded-full ${i <= (selectedStudent.vmDetected ? 2 : 5) ? (selectedStudent.vmDetected ? 'bg-rose-400' : 'bg-emerald-400') : 'bg-slate-200'}`}
-                                            ></div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Detailed Event Logs */}
-                            <div>
-                                <div className="flex items-center gap-4 mb-6">
-                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                                        Comprehensive Event Logs
-                                    </span>
-                                    <div className="h-[1px] flex-1 bg-slate-100"></div>
-                                </div>
-                                <div className="space-y-4">
-                                    {selectedStudent.logs.map((log, idx) => (
-                                        <div
-                                            key={idx}
-                                            className="flex flex-col gap-3 p-4 rounded-[20px] border border-slate-50 bg-white hover:border-slate-100 hover:shadow-sm transition-all group sm:flex-row sm:items-start sm:gap-6 sm:p-5 sm:rounded-[24px]"
-                                        >
-                                            <span className="text-xs font-black text-slate-400 tabular-nums sm:min-w-[100px]">
-                                                {log.time}
-                                            </span>
-                                            <div className="flex-1">
-                                                <p
-                                                    className={`text-sm font-black mb-0.5 ${log.event === 'VM Detection' || (log.event === 'Tab Switch' && log.description.includes('Out')) ? 'text-rose-600' : 'text-slate-800'}`}
-                                                >
-                                                    {log.event}
-                                                </p>
-                                                <p className="text-xs font-bold text-slate-400">{log.description}</p>
-                                            </div>
-                                            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <span
-                                                    className={`text-[9px] font-black uppercase bg-[var(--brand-light)] px-2.5 py-1 rounded-lg ${activeTextClass}`}
-                                                >
-                                                    Verified
-                                                </span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Modal Footer */}
-                        <div className="p-4 border-t border-slate-100 bg-white flex justify-end sm:p-8">
+                <AppModal
+                    isOpen={!!selectedStudent}
+                    onClose={() => setSelectedStudent(null)}
+                    title={selectedStudent.name}
+                    subtitle={`${selectedStudent.id} • ${selectedStudent.appVersion}`}
+                    icon={<span className="text-xl font-black">{selectedStudent.name[0]}</span>}
+                    size="xl"
+                    zIndexClass="z-50"
+                    panelClassName="max-w-5xl sm:max-h-[calc(100vh-80px)]"
+                    bodyClassName="space-y-6 sm:space-y-10"
+                    footer={
+                        <div className="flex justify-end">
                             <button
                                 onClick={async () => {
                                     if (selectedStudent.status === 'Terminated') {
@@ -881,8 +701,153 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                     : 'Terminate & Block Session'}
                             </button>
                         </div>
+                    }
+                >
+                    {/* Metadata Grid */}
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4 md:gap-8">
+                        <InfoItem
+                            label="Monitors"
+                            value={`${selectedStudent.monitors} Display`}
+                            icon={
+                                <svg
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2.5"
+                                >
+                                    <rect x="2" y="3" width="20" height="14" rx="2" />
+                                    <line x1="8" y1="21" x2="16" y2="21" />
+                                    <line x1="12" y1="17" x2="12" y2="21" />
+                                </svg>
+                            }
+                        />
+                        <InfoItem
+                            label="Client IP"
+                            value={selectedStudent.ip}
+                            icon={
+                                <svg
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2.5"
+                                >
+                                    <rect x="2" y="2" width="20" height="8" rx="2" />
+                                    <rect x="2" y="14" width="20" height="8" rx="2" />
+                                    <line x1="6" y1="6" x2="6.01" y2="6" />
+                                    <line x1="6" y1="18" x2="6.01" y2="18" />
+                                </svg>
+                            }
+                        />
+                        <InfoItem
+                            label="Login Count"
+                            value={`${selectedStudent.loginCount} Sessions`}
+                            icon={
+                                <svg
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2.5"
+                                >
+                                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M13.8 12H3" />
+                                </svg>
+                            }
+                        />
+                        <InfoItem
+                            label="Sleep Duration"
+                            value={selectedStudent.sleepDuration}
+                            icon={
+                                <svg
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2.5"
+                                >
+                                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                                </svg>
+                            }
+                        />
                     </div>
-                </div>
+
+                    {/* VM & Time Strip */}
+                    <div className="flex flex-wrap gap-4 items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-[24px] sm:p-6 sm:rounded-[32px]">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                            <div
+                                className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest border ${selectedStudent.vmDetected ? 'bg-rose-50 border-rose-200 text-rose-600' : 'bg-emerald-50 border-emerald-200 text-emerald-600'}`}
+                            >
+                                VM: {selectedStudent.vmDetected ? `DETECTED (${selectedStudent.vmType})` : 'NONE'}
+                            </div>
+                            <div className="hidden h-6 w-[1px] bg-slate-200 sm:block"></div>
+                            <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+                                <div className="flex flex-col">
+                                    <span className="text-[9px] font-black uppercase text-slate-300">Started</span>
+                                    <span className="text-xs font-black text-slate-700">
+                                        {selectedStudent.startTime}
+                                    </span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[9px] font-black uppercase text-slate-300">Ends At</span>
+                                    <span className="text-xs font-black text-slate-700">{selectedStudent.endTime}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <span className="text-xs font-bold text-slate-400">Current Health:</span>
+                            <div className="flex gap-1">
+                                {[1, 2, 3, 4, 5].map((i) => (
+                                    <div
+                                        key={i}
+                                        className={`w-3 h-1.5 rounded-full ${i <= (selectedStudent.vmDetected ? 2 : 5) ? (selectedStudent.vmDetected ? 'bg-rose-400' : 'bg-emerald-400') : 'bg-slate-200'}`}
+                                    ></div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Detailed Event Logs */}
+                    <div>
+                        <div className="flex items-center gap-4 mb-6">
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                Comprehensive Event Logs
+                            </span>
+                            <div className="h-[1px] flex-1 bg-slate-100"></div>
+                        </div>
+                        <div className="space-y-4">
+                            {selectedStudent.logs.map((log, idx) => (
+                                <div
+                                    key={idx}
+                                    className="flex flex-col gap-3 p-4 rounded-[20px] border border-slate-50 bg-white hover:border-slate-100 hover:shadow-sm transition-all group sm:flex-row sm:items-start sm:gap-6 sm:p-5 sm:rounded-[24px]"
+                                >
+                                    <span className="text-xs font-black text-slate-400 tabular-nums sm:min-w-[100px]">
+                                        {log.time}
+                                    </span>
+                                    <div className="flex-1">
+                                        <p
+                                            className={`text-sm font-black mb-0.5 ${log.event === 'VM Detection' || (log.event === 'Tab Switch' && log.description.includes('Out')) ? 'text-rose-600' : 'text-slate-800'}`}
+                                        >
+                                            {log.event}
+                                        </p>
+                                        <p className="text-xs font-bold text-slate-400">{log.description}</p>
+                                    </div>
+                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <span
+                                            className={`text-[9px] font-black uppercase bg-[var(--brand-light)] px-2.5 py-1 rounded-lg ${activeTextClass}`}
+                                        >
+                                            Verified
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </AppModal>
             )}
         </div>
     );
