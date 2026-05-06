@@ -100,6 +100,8 @@ import { OrganizationProvider } from './context/OrganizationContext';
 import { Toaster } from '@/components/ui/toaster';
 import NextTopLoader from 'nextjs-toploader';
 import { ClerkProvider } from '@clerk/nextjs';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import ClerkTokenBridge from './components/ClerkTokenBridge';
 import PostHogProvider from './components/PostHogProvider';
 import ApolloProvider from './components/ApolloProvider';
@@ -268,6 +270,8 @@ export default async function RootLayout({
                                 </OrganizationProvider>
                             </QueryProvider>
                         </ApolloProvider>
+                        <Analytics />
+                        <SpeedInsights />
                     </PostHogProvider>
                 </ClerkProvider>
             </body>
