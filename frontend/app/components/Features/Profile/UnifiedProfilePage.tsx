@@ -245,9 +245,16 @@ export default function UnifiedProfilePage() {
                 .clerk-profile-clean .cl-footerActionLink,
                 .clerk-profile-clean .cl-footerPages,
                 .clerk-profile-clean .cl-footerPagesLink,
+                .clerk-profile-clean .cl-navbar > :last-child,
+                .clerk-profile-clean .cl-navbar [class*='brand'],
+                .clerk-profile-clean .cl-navbar [class*='Brand'],
                 .clerk-profile-clean [class*='footer'],
                 .clerk-profile-clean [class*='Footer'] {
                     display: none !important;
+                }
+
+                .clerk-profile-clean .cl-navbar {
+                    background-image: none !important;
                 }
             `}</style>
         </div>
