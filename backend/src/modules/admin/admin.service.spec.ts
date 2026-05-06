@@ -122,7 +122,7 @@ describe('AdminService invite flow', () => {
     expect(clerkInvite).toHaveBeenCalledWith(
       expect.objectContaining({
         emailAddress: 'newuser@example.com',
-        redirectUrl: 'https://school.example.com/dashboard',
+        redirectUrl: 'https://school.example.com/signup',
         notify: true,
         expiresInDays: 7,
         publicMetadata: expect.objectContaining({
@@ -230,7 +230,7 @@ describe('AdminService invite flow', () => {
     expect(clerkInvite).toHaveBeenCalledWith(
       expect.objectContaining({
         emailAddress: 'public-fallback@example.com',
-        redirectUrl: 'https://mentrily.com/dashboard',
+        redirectUrl: 'https://mentrily.com/signup',
       }),
     );
   });

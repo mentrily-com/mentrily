@@ -41,20 +41,20 @@ export class SuperAdminService {
     return createClerkClient({ secretKey });
   }
 
-  private getOrganizationDashboardUrl(orgDomain?: string | null): string {
+  private getOrganizationInvitationUrl(orgDomain?: string | null): string {
     const fallbackBase = getPublicAppUrl().replace(/\/+$/, '');
 
     const rawOrgDomain = String(orgDomain || '')
       .trim()
       .replace(/\/+$/, '');
-    if (!rawOrgDomain) return `${fallbackBase}/dashboard`;
+    if (!rawOrgDomain) return `${fallbackBase}/signup`;
 
     if (/^https?:\/\//i.test(rawOrgDomain)) {
-      return `${rawOrgDomain}/dashboard`;
+      return `${rawOrgDomain}/signup`;
     }
 
     const protocol = rawOrgDomain.includes('localhost') ? 'http' : 'https';
-    return `${protocol}://${rawOrgDomain}/dashboard`;
+    return `${protocol}://${rawOrgDomain}/signup`;
   }
 
   private normalizeEmail(email?: string): string {
@@ -379,7 +379,7 @@ export class SuperAdminService {
         try {
           const invitation = await clerkClient.invitations.createInvitation({
             emailAddress: adminEmail,
-            redirectUrl: this.getOrganizationDashboardUrl(org.domain),
+            redirectUrl: this.getOrganizationInvitationUrl(org.domain),
             notify: true,
             ignoreExisting: true,
             expiresInDays: 7,
