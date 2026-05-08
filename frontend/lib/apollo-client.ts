@@ -19,7 +19,7 @@ type ApolloClientOptions = {
     dashboardMode?: boolean;
 };
 
-export function makeApolloClient(options: ApolloClientOptions = {}): ApolloClient<unknown> {
+export function makeApolloClient(options: ApolloClientOptions = {}) {
     const graphqlUrl = getGraphqlUrl();
     const anonKey = getAnonKey();
     const attachBearer = shouldAttachBearer();
