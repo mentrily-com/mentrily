@@ -656,6 +656,7 @@ export default function CodeEditor(props: CodeEditorProps) {
 
                                     {!props.hideSubmit && (
                                         <button
+                                            data-element-id="starter-submit-answer"
                                             onClick={async () => {
                                                 if (view) {
                                                     if (props.actions?.onSubmit) {

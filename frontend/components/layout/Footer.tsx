@@ -9,29 +9,45 @@ import { BrandLogo } from '@/components/brand/BrandLogo';
 const productLinks = [
     { label: 'Features', href: '/#features' },
     { label: 'Pricing', href: '/pricing' },
-    { label: 'Changelog', href: '#' },
-    { label: 'Roadmap', href: '#' },
-    { label: 'API Docs', href: '#' },
+    { label: 'Changelog', href: '/changelog' },
+    { label: 'Roadmap', href: '/roadmap' },
+    { label: 'API Docs', href: '/docs' },
 ];
 
 const companyLinks = [
     { label: 'About', href: '/about' },
-    { label: 'Blog', href: '#' },
-    { label: 'Careers', href: '#' },
+    { label: 'Blog', href: '/blog' },
+    { label: 'Careers', href: '/careers' },
+    { label: 'Partnership', href: '/partnership' },
     { label: 'Contact', href: '/contact' },
-    { label: 'Status Page', href: '#' },
+    { label: 'Status Page', href: '/status' },
 ];
 
 export default function Footer() {
     const [email, setEmail] = useState('');
-    const [subscribed, setSubscribed] = useState(false);
+    const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
-    const handleSubscribe = (e: React.FormEvent) => {
+    const handleSubscribe = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (email.trim()) {
-            setSubscribed(true);
-            setEmail('');
-            setTimeout(() => setSubscribed(false), 3000);
+        if (!email) return;
+
+        setStatus('loading');
+        try {
+            const res = await fetch('/api/marketing/newsletter', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+            });
+            if (res.ok) {
+                setStatus('success');
+                setEmail('');
+                setTimeout(() => setStatus('idle'), 5000);
+            } else {
+                setStatus('error');
+            }
+        } catch (error) {
+            console.error('Newsletter error:', error);
+            setStatus('error');
         }
     };
 
@@ -141,21 +157,24 @@ export default function Footer() {
                                 onFocus={(e) => (e.currentTarget.style.borderColor = '#008D98')}
                                 onBlur={(e) => (e.currentTarget.style.borderColor = '#E2E8F0')}
                             />
-                            <button
-                                type="submit"
-                                className="px-3 py-2 text-sm font-medium text-white rounded-lg transition-colors duration-150 cursor-pointer flex items-center gap-1 shrink-0"
-                                style={{ backgroundColor: '#008D98' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#006F78')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#008D98')}
-                            >
-                                {subscribed ? (
-                                    'Subscribed!'
-                                ) : (
-                                    <>
-                                        Subscribe <ArrowRight size={14} />
-                                    </>
-                                )}
-                            </button>
+                                <button
+                                    type="submit"
+                                    disabled={status === 'loading'}
+                                    className="px-3 py-2 text-sm font-medium text-white rounded-lg transition-colors duration-150 cursor-pointer flex items-center gap-1 shrink-0 disabled:opacity-70"
+                                    style={{ backgroundColor: '#008D98' }}
+                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#006F78')}
+                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#008D98')}
+                                >
+                                    {status === 'loading' ? (
+                                        'Joining...'
+                                    ) : status === 'success' ? (
+                                        'Subscribed!'
+                                    ) : (
+                                        <>
+                                            Subscribe <ArrowRight size={14} />
+                                        </>
+                                    )}
+                                </button>
                         </form>
                     </div>
                 </div>

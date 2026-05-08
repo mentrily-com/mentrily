@@ -3,10 +3,16 @@ import React, { useState, useEffect } from 'react';
 import CoursePlayerSkeleton from '@/app/components/Skeletons/CoursePlayerSkeleton';
 import UnitRenderer, { UnitQuestion } from '@/app/components/UnitRenderer';
 import UnitSidebar from '@/app/components/UnitSidebar';
+import OnboardingTour from '@/app/components/Common/OnboardingTour';
 import { CourseService } from '@/services/api/CourseService';
 import { StudentService } from '@/services/api/StudentService';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/app/components/Common/Toast';
+import {
+    getOnboardingQuestion,
+    gettingStartedCourse,
+    MENTRILY_ONBOARDING_SKIP_KEY,
+} from '../../getting-started-course';
 
 export default function StudentUnitPage({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
     const params = React.use(paramsPromise);
@@ -22,7 +28,7 @@ export default function StudentUnitPage({ params: paramsPromise }: { params: Pro
     const [selectedAttemptId, setSelectedAttemptId] = useState<string | undefined>();
     const [attempts, setAttempts] = useState<any[]>([]);
     const [isExecuting, setIsExecuting] = useState(false);
-    const [executedBlocks, setExecutedBlocks] = useState<Set<string>>(new Set());
+    const [, setExecutedBlocks] = useState<Set<string>>(new Set());
     const { success: showSuccess, error: showError } = useToast();
 
     const [courseModules, setCourseModules] = useState<any[] | null>(null);
@@ -48,6 +54,16 @@ export default function StudentUnitPage({ params: paramsPromise }: { params: Pro
         async function loadUnit() {
             try {
                 setLoading(true);
+                const onboardingQuestion = getOnboardingQuestion(id);
+                if (onboardingQuestion) {
+                    setCurrentQuestion(onboardingQuestion);
+                    setIsBookmarked(false);
+                    setAttempts([]);
+                    setCourseModules(gettingStartedCourse.modules);
+                    setCourseTests(gettingStartedCourse.tests);
+                    return;
+                }
+
                 const [unitData, bookmarks, attemptsData] = await Promise.all([
                     CourseService.getUnit(id),
                     StudentService.getBookmarks(),
@@ -99,6 +115,10 @@ export default function StudentUnitPage({ params: paramsPromise }: { params: Pro
 
     const handleToggleBookmark = async () => {
         if (!currentQuestion) return;
+        if (getOnboardingQuestion(id)) {
+            showSuccess('This starter course stays available until you hide it from the dashboard.', 'Saved');
+            return;
+        }
         try {
             if (isBookmarked) {
                 await StudentService.removeBookmark(id);
@@ -209,6 +229,24 @@ export default function StudentUnitPage({ params: paramsPromise }: { params: Pro
                 return content;
             })();
 
+            if (getOnboardingQuestion(id)) {
+                const completedKey = 'mentrily_getting_started_completed_units';
+                const currentCompleted = JSON.parse(window.localStorage.getItem(completedKey) || '[]');
+                const nextCompleted = Array.from(new Set([...currentCompleted, id]));
+                window.localStorage.setItem(completedKey, JSON.stringify(nextCompleted));
+                const localAttempt = {
+                    id: `local-${id}-${Date.now()}`,
+                    date: new Date().toLocaleString(),
+                    status,
+                    score,
+                    content: normalizedContent,
+                    testCases,
+                };
+                setAttempts((prev) => [localAttempt, ...prev]);
+                showSuccess('Progress saved for the starter course.', 'Submitted');
+                return;
+            }
+
             await StudentService.submitUnit(id, {
                 status: status,
                 content: normalizedContent,
@@ -247,6 +285,7 @@ export default function StudentUnitPage({ params: paramsPromise }: { params: Pro
                 handleSubmit('READING_COMPLETED');
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentQuestion, attempts]);
 
     const handleCodeBlockRun = (blockId: string) => {
@@ -268,6 +307,62 @@ export default function StudentUnitPage({ params: paramsPromise }: { params: Pro
     };
 
     const viewingAttempt = currentQuestion ? attempts.find(a => a.id === selectedAttemptId) : undefined;
+    const isStarterUnit = Boolean(getOnboardingQuestion(id));
+    const starterUnitTourDetails = (() => {
+        if (!currentQuestion) return null;
+
+        switch (currentQuestion.type) {
+            case 'MCQ':
+                return {
+                    workspaceTitle: 'Choose one answer',
+                    workspaceDescription:
+                        'MCQ questions use single-select options. Click the option that best answers the prompt, then submit to record the attempt.',
+                    submitDescription:
+                        'Submit locks in the selected option for this attempt. If the author included a correct answer, Mentrily can show whether it matched.',
+                };
+            case 'MultiSelect':
+                return {
+                    workspaceTitle: 'Select every correct answer',
+                    workspaceDescription:
+                        'Multi-select questions can have more than one correct choice. Use them for checklists, concept grouping, and expectation setting.',
+                    submitDescription:
+                        'Submit records the whole selection set, so learners can compare which choices they included or missed.',
+                };
+            case 'Coding':
+                return {
+                    workspaceTitle: 'Write code in the editor',
+                    workspaceDescription:
+                        'Coding questions include a code editor, language setup, terminal output, and test cases. Run or submit when the function matches the prompt.',
+                    submitDescription:
+                        'Submit runs the configured tests and saves the code, score, and test-case result as an attempt.',
+                };
+            case 'Web':
+                return {
+                    workspaceTitle: 'Edit the live web preview',
+                    workspaceDescription:
+                        'Web questions split work across HTML, CSS, and JavaScript. The preview lets learners see interface changes as they build.',
+                    submitDescription:
+                        'Submit saves the current page files together, so the full web answer can be reviewed later.',
+                };
+            case 'Notebook':
+                return {
+                    workspaceTitle: 'Explore in a notebook',
+                    workspaceDescription:
+                        'Notebook questions are for Python exploration, data checks, and written reasoning. Execute code to inspect output, then submit the notebook state.',
+                    submitDescription:
+                        'Submit saves the notebook code as the learner answer. This is useful for reflection and exploratory work.',
+                };
+            case 'Reading':
+            default:
+                return {
+                    workspaceTitle: 'Read the lesson content',
+                    workspaceDescription:
+                        'Reading units focus on explanation, examples, and context. Some readings can include runnable code blocks or videos.',
+                    submitDescription:
+                        'Use Next when you are ready. Simple reading units are marked complete automatically in this starter course.',
+                };
+        }
+    })();
 
     const handleAttemptSelect = (attempt: any) => {
         setSelectedAttemptId(attempt.id);
@@ -303,7 +398,7 @@ export default function StudentUnitPage({ params: paramsPromise }: { params: Pro
             if (test) {
                 let questionsData: any = test.questions;
                 if (typeof questionsData === 'string') {
-                    try { questionsData = JSON.parse(questionsData); } catch (e) { /* ignore */ }
+                    try { questionsData = JSON.parse(questionsData); } catch { /* ignore */ }
                 }
 
                 // If questionsData is a flat array of question objects (no sections), return them directly
@@ -350,7 +445,7 @@ export default function StudentUnitPage({ params: paramsPromise }: { params: Pro
             if (test) {
                 let questionsData: any = test.questions;
                 if (typeof questionsData === 'string') {
-                    try { questionsData = JSON.parse(questionsData); } catch (e) { /* ignore */ }
+                    try { questionsData = JSON.parse(questionsData); } catch { /* ignore */ }
                 }
                 // produce a flat list of question objects
                 const sections = Array.isArray(questionsData) ? questionsData : (questionsData?.sections || []);
@@ -385,7 +480,26 @@ export default function StudentUnitPage({ params: paramsPromise }: { params: Pro
     const handleNextUnit = () => {
         if (!moduleUnitsList || moduleUnitsList.length === 0) return;
         const idx = moduleUnitsList.findIndex((u: any) => normalizeId(u.id) === normalizeId(id));
-        const next = moduleUnitsList[(idx + 1) % moduleUnitsList.length];
+        if (idx >= 0 && idx < moduleUnitsList.length - 1) {
+            const next = moduleUnitsList[idx + 1];
+            if (next) navigateToUnit(String(next.id));
+            return;
+        }
+
+        const currentModuleId = (currentQuestion as any)?.module?.id;
+        if (courseModules && currentModuleId) {
+            const moduleIdx = courseModules.findIndex((m: any) => String(m.id) === String(currentModuleId));
+            if (moduleIdx >= 0) {
+                const nextModule = courseModules[moduleIdx + 1];
+                const firstUnit = Array.isArray(nextModule?.units) ? nextModule.units[0] : null;
+                if (firstUnit?.id) {
+                    navigateToUnit(String(firstUnit.id));
+                    return;
+                }
+            }
+        }
+
+        const next = moduleUnitsList[0];
         if (next) navigateToUnit(String(next.id));
     };
 
@@ -407,7 +521,7 @@ export default function StudentUnitPage({ params: paramsPromise }: { params: Pro
             if (test) {
                 let questionsData: any = test.questions;
                 if (typeof questionsData === 'string') {
-                    try { questionsData = JSON.parse(questionsData); } catch (e) { /* ignore */ }
+                    try { questionsData = JSON.parse(questionsData); } catch { /* ignore */ }
                 }
 
                 let sections: any[] = [];
@@ -455,7 +569,7 @@ export default function StudentUnitPage({ params: paramsPromise }: { params: Pro
             if (test) {
                 let questionsData: any = test.questions;
                 if (typeof questionsData === 'string') {
-                    try { questionsData = JSON.parse(questionsData); } catch (e) { /* ignore */ }
+                    try { questionsData = JSON.parse(questionsData); } catch { /* ignore */ }
                 }
 
                 let sections: any[] = [];
@@ -514,6 +628,51 @@ export default function StudentUnitPage({ params: paramsPromise }: { params: Pro
 
     return (
         <div className="h-[calc(100dvh-var(--topbar-height))] min-h-0 flex flex-col bg-white overflow-hidden">
+            {isStarterUnit && (
+                <OnboardingTour
+                    tourId={`mentrily_starter_unit_${id}_v2`}
+                    ignoreUserOnboardingFlag
+                    repeatUntilSkipped
+                    skipStorageKey={MENTRILY_ONBOARDING_SKIP_KEY}
+                    delayMs={800}
+                    steps={[
+                        {
+                            element: '[data-element-id="starter-unit-sidebar-toggle"]',
+                            title: 'Open the course outline',
+                            description:
+                                'Use this button to show every question in the current section. It helps you jump between steps without going back to the course page.',
+                        },
+                        {
+                            element: '[data-element-id="starter-question-prompt"]',
+                            title: currentQuestion.type === 'Reading' ? 'Start with the lesson' : 'Read the problem statement first',
+                            description:
+                                currentQuestion.type === 'Reading'
+                                    ? starterUnitTourDetails?.workspaceDescription || ''
+                                    : 'The left side explains the goal, context, and exact task. In real courses, this is where teachers describe what good work looks like.',
+                        },
+                        ...(currentQuestion.type === 'Reading'
+                            ? []
+                            : [
+                                  {
+                                      element: '[data-element-id="starter-answer-workspace"]',
+                                      title: starterUnitTourDetails?.workspaceTitle || 'Work on the right side',
+                                      description: starterUnitTourDetails?.workspaceDescription || '',
+                                  },
+                                  {
+                                      element: '[data-element-id="starter-submit-answer"]',
+                                      title: 'Submit when ready',
+                                      description: starterUnitTourDetails?.submitDescription || '',
+                                  },
+                              ]),
+                        {
+                            element: '[data-element-id="starter-unit-next"]',
+                            title: 'Move to the next step',
+                            description:
+                                'Use the arrow controls to continue through the starter course. Each unit introduces a different Mentrily learning format.',
+                        },
+                    ]}
+                />
+            )}
             <div className="flex-1 flex overflow-hidden">
                 <div className="flex-1 flex flex-col overflow-hidden relative">
                     <div className="flex-1 overflow-hidden relative">

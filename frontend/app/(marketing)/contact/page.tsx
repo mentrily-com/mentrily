@@ -6,6 +6,7 @@ import { useInView } from 'react-intersection-observer';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { siteConfig } from '../../config/site';
 import { Mail, MessageSquare, FileText, Handshake, Check, Loader2, ArrowRight } from 'lucide-react';
 
@@ -27,25 +28,23 @@ const useCaseCTAs = [
         title: 'For Sales',
         description: 'Book a 20-min demo call.',
         cta: 'Book a Demo',
-        href: '#',
-    },
-    {
-        icon: FileText,
-        title: 'For Technical Issues',
-        description: 'Check our documentation first.',
-        cta: 'View Docs',
-        href: '#',
+        href: 'https://calendly.com/sumanydv514/consult-with-mentrily',
+        external: true,
     },
     {
         icon: Handshake,
         title: 'For Partnerships',
         description: 'Integrations, reseller agreements, institutional licenses.',
-        cta: 'Email Partnerships',
-        href: `mailto:partnerships@${siteConfig.domain}`,
+        cta: 'Learn More',
+        href: '/partnership',
     },
 ];
 
-export default function ContactPage() {
+import { Suspense } from 'react';
+
+function ContactForm() {
+    const searchParams = useSearchParams();
+    const defaultCategory = searchParams.get('category') || '';
     const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.05 });
     const [submitState, setSubmitState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
     const [submitError, setSubmitError] = useState('');
@@ -207,7 +206,7 @@ export default function ContactPage() {
                                             borderColor: errors.category ? '#EF4444' : '#E2E8F0',
                                             color: '#0F172A',
                                         }}
-                                        defaultValue=""
+                                        defaultValue={defaultCategory}
                                     >
                                         <option value="" disabled>
                                             Select a category
@@ -318,46 +317,50 @@ export default function ContactPage() {
                                 return (
                                     <div
                                         key={card.title}
-                                        className="p-4 rounded-xl transition-all duration-200 cursor-pointer"
+                                        className="p-5 rounded-2xl transition-all duration-300 cursor-pointer group"
                                         style={{
-                                            backgroundColor: '#FFFFFF',
-                                            border: '1px solid #E2E8F0',
+                                            backgroundColor: card.title.includes('Partnership') ? '#F0FDFA' : '#FFFFFF',
+                                            border: card.title.includes('Partnership') ? '1px solid #99F6E4' : '1px solid #E2E8F0',
                                             boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
                                         }}
                                         onMouseEnter={(e) => {
-                                            e.currentTarget.style.transform = 'translateY(-2px)';
-                                            e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)';
-                                            e.currentTarget.style.borderColor = '#CBD5E1';
+                                            e.currentTarget.style.transform = 'translateY(-4px)';
+                                            e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.06)';
+                                            if (!card.title.includes('Partnership')) e.currentTarget.style.borderColor = '#CBD5E1';
                                         }}
                                         onMouseLeave={(e) => {
                                             e.currentTarget.style.transform = 'translateY(0)';
                                             e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
-                                            e.currentTarget.style.borderColor = '#E2E8F0';
+                                            if (!card.title.includes('Partnership')) e.currentTarget.style.borderColor = '#E2E8F0';
                                         }}
                                     >
-                                        <div className="flex items-start gap-3">
+                                        <div className="flex items-start gap-4">
                                             <div
-                                                className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-                                                style={{ backgroundColor: '#E6F7F8' }}
+                                                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110"
+                                                style={{ backgroundColor: card.title.includes('Partnership') ? '#CCFBF1' : '#E6F7F8' }}
                                             >
-                                                <Icon size={18} style={{ color: '#008D98' }} />
+                                                <Icon size={20} style={{ color: '#008D98' }} />
                                             </div>
                                             <div className="flex-1">
-                                                <h4
-                                                    className="text-sm font-semibold mb-0.5"
-                                                    style={{ color: '#0F172A' }}
-                                                >
-                                                    {card.title}
-                                                </h4>
-                                                <p className="text-xs mb-2" style={{ color: '#475569' }}>
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <h4
+                                                        className="text-sm font-bold"
+                                                        style={{ color: '#0F172A' }}
+                                                    >
+                                                        {card.title}
+                                                    </h4>
+                                                </div>
+                                                <p className="text-xs mb-3 leading-relaxed" style={{ color: '#475569' }}>
                                                     {card.description}
                                                 </p>
                                                 <Link
                                                     href={card.href}
-                                                    className="inline-flex items-center gap-1 text-xs font-medium cursor-pointer"
+                                                    target={card.external ? "_blank" : undefined}
+                                                    rel={card.external ? "noopener noreferrer" : undefined}
+                                                    className="inline-flex items-center gap-1.5 text-xs font-bold transition-all duration-200 group-hover:gap-2"
                                                     style={{ color: '#008D98' }}
                                                 >
-                                                    {card.cta} <ArrowRight size={12} />
+                                                    {card.cta} <ArrowRight size={14} className="transition-transform" />
                                                 </Link>
                                             </div>
                                         </div>
@@ -369,5 +372,17 @@ export default function ContactPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function ContactPage() {
+    return (
+        <Suspense fallback={
+            <div className="pt-32 pb-20 text-center">
+                <Loader2 className="w-8 h-8 animate-spin mx-auto text-teal-600" />
+            </div>
+        }>
+            <ContactForm />
+        </Suspense>
     );
 }

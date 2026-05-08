@@ -12,7 +12,7 @@ const rateLimit = new LRUCache<string, number>({
 const resend = new Resend(process.env.RESEND_API_KEY);
 const SENDER_EMAIL = process.env.RESEND_SENDER_EMAIL || `contact@${siteConfig.domain}`;
 const RECIPIENT_EMAIL = process.env.RESEND_CONTACT_RECIPIENT || siteConfig.contactEmail;
-const LOGO_URL = new URL(siteConfig.logo, siteConfig.url).toString();
+const LOGO_URL = new URL('/android-chrome-512x512.png', siteConfig.url).toString();
 
 const escapeHtml = (value: string) =>
     value
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
             <div style="margin:0;padding:24px;background:#f8fafc;font-family:Arial,sans-serif;color:#0f172a;">
               <div style="max-width:640px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
                 <div style="padding:24px;border-bottom:1px solid #e2e8f0;">
-                  <img src="${LOGO_URL}" alt="${escapeHtml(siteConfig.name)}" width="150" style="display:block;max-width:150px;height:auto;" />
+                  <img src="${LOGO_URL}" alt="${escapeHtml(siteConfig.name)}" width="64" style="display:block;max-width:64px;height:auto;border-radius:12px;" />
                 </div>
                 <div style="padding:24px;">
                   <h2 style="margin:0 0 18px;font-size:20px;line-height:1.3;color:#0f172a;">New Contact Form Submission</h2>
