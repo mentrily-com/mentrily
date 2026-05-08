@@ -94,7 +94,9 @@ export default function PublicExamPage() {
     const [isAiProctoringEnabled, setIsAiProctoringEnabled] = useState(false);
     const [publicExamStatus, setPublicExamStatus] = useState<any>(null);
     const [isCourseLinkedExam, setIsCourseLinkedExam] = useState(false);
-    const [examVerdict, setExamVerdict] = useState<{ passed: boolean; score?: number | null; passingPercentage?: number } | undefined>();
+    const [examVerdict, setExamVerdict] = useState<
+        { passed: boolean; score?: number | null; passingPercentage?: number } | undefined
+    >();
     const [examBlock, setExamBlock] = useState<ExamBlockState | null>(null);
     const [isCourseLinkResolved, setIsCourseLinkResolved] = useState(false);
     const isCourseLinkedExamRef = useRef(false);
@@ -461,7 +463,11 @@ export default function PublicExamPage() {
                 const currentUserMeta = await resolveCurrentUser();
                 if (!currentUserMeta) {
                     console.log('[ExamPage] No user session found, redirecting to login');
-                    router.replace(courseLinked ? `/login?redirect=${encodeURIComponent(`/exam/${slug}`)}` : `/exam/login?slug=${slug}`);
+                    router.replace(
+                        courseLinked
+                            ? `/login?redirect=${encodeURIComponent(`/exam/${slug}`)}`
+                            : `/exam/login?slug=${slug}`,
+                    );
                     return;
                 }
 
@@ -474,7 +480,8 @@ export default function PublicExamPage() {
                 }
 
                 // 0.3 Get Metadata (Roll No, Name, Section)
-                const studentMetadataRaw = typeof window !== 'undefined' ? localStorage.getItem(`exam_${slug}_metadata`) : null;
+                const studentMetadataRaw =
+                    typeof window !== 'undefined' ? localStorage.getItem(`exam_${slug}_metadata`) : null;
                 const studentMetadata = studentMetadataRaw ? JSON.parse(studentMetadataRaw) : null;
 
                 // 0.4 Standardize Identity (DeviceId & TabId)
@@ -789,7 +796,9 @@ export default function PublicExamPage() {
                 }
 
                 if (error.message?.includes('ATTEMPT_COOLDOWN')) {
-                    const resumesAt = error.resumesAt ? ` Retake available at ${new Date(error.resumesAt).toLocaleString()}.` : '';
+                    const resumesAt = error.resumesAt
+                        ? ` Retake available at ${new Date(error.resumesAt).toLocaleString()}.`
+                        : '';
                     setExamBlock({
                         title: 'Retake Cooldown Active',
                         description: `Your previous attempt is finished, but your instructor requires a waiting period before another attempt.${resumesAt}`,
@@ -814,7 +823,11 @@ export default function PublicExamPage() {
                         actionLabel: 'Back to Course',
                         actionHref: getCourseReturnHref(),
                     });
-                    toastError(wasTerminated ? 'This attempt was terminated and no attempts remain.' : 'No attempts left for this course exam.');
+                    toastError(
+                        wasTerminated
+                            ? 'This attempt was terminated and no attempts remain.'
+                            : 'No attempts left for this course exam.',
+                    );
                     setIsLoading(false);
                     return;
                 }
@@ -954,7 +967,9 @@ export default function PublicExamPage() {
             });
         } catch (e) {
             console.error('Full submission failed', e);
-            warning('Final submission could not be confirmed. Your answers are still saved here; please check your connection and submit again.');
+            warning(
+                'Final submission could not be confirmed. Your answers are still saved here; please check your connection and submit again.',
+            );
             posthog.capture('exam_completed', {
                 slug,
                 submissionMode: 'failed',
@@ -962,7 +977,18 @@ export default function PublicExamPage() {
         } finally {
             setIsFinalSubmitting(false);
         }
-    }, [sessionId, slug, logEvent, saveAnswer, warning, disconnect, setElectronStrictMode, clearLocalDraft, examVerdict, isFinalSubmitting]);
+    }, [
+        sessionId,
+        slug,
+        logEvent,
+        saveAnswer,
+        warning,
+        disconnect,
+        setElectronStrictMode,
+        clearLocalDraft,
+        examVerdict,
+        isFinalSubmitting,
+    ]);
 
     const handleFeedbackSubmit = useCallback(
         async (rating: number, comment: string) => {
@@ -1567,9 +1593,21 @@ export default function PublicExamPage() {
         }
     };
 
+    const examMetadata =
+        typeof window !== 'undefined'
+            ? (() => {
+                  try {
+                      return JSON.parse(localStorage.getItem(`exam_${slug}_metadata`) || '{}');
+                  } catch {
+                      return {};
+                  }
+              })()
+            : {};
+
     const examConfig: ExamConfig = {
         rollNumber: user?.rollNumber || '2211981482',
         userName: user?.name || 'Student',
+        profilePicture: user?.profilePicture || user?.imageUrl || examMetadata?.profilePicture,
         hideBrandSuffix: true,
         hideBrandName: true,
         onRefresh: () => window.location.reload(),
@@ -1821,10 +1859,21 @@ export default function PublicExamPage() {
                   : 'from-slate-950 via-slate-900 to-slate-800 border-slate-400/20 text-slate-100 bg-slate-500/10';
 
         return (
-            <div className={`h-screen w-full bg-gradient-to-br ${toneClasses.split(' ').slice(0, 3).join(' ')} flex items-center justify-center p-5`}>
+            <div
+                className={`h-screen w-full bg-gradient-to-br ${toneClasses.split(' ').slice(0, 3).join(' ')} flex items-center justify-center p-5`}
+            >
                 <div className="max-w-xl w-full rounded-[2rem] border border-white/10 bg-white/[0.06] p-8 text-center shadow-2xl backdrop-blur-xl">
-                    <div className={`mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border ${toneClasses.split(' ').slice(3).join(' ')}`}>
-                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+                    <div
+                        className={`mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border ${toneClasses.split(' ').slice(3).join(' ')}`}
+                    >
+                        <svg
+                            width="30"
+                            height="30"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.4"
+                        >
                             <path d="M12 9v4" />
                             <path d="M12 17h.01" />
                             <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
@@ -1832,7 +1881,9 @@ export default function PublicExamPage() {
                     </div>
                     <p className="text-xs font-black uppercase tracking-[0.35em] text-white/45">Course Exam</p>
                     <h1 className="mt-3 text-3xl font-black text-white">{examBlock.title}</h1>
-                    <p className="mx-auto mt-4 max-w-md text-sm font-semibold leading-6 text-slate-300">{examBlock.description}</p>
+                    <p className="mx-auto mt-4 max-w-md text-sm font-semibold leading-6 text-slate-300">
+                        {examBlock.description}
+                    </p>
                     <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
                         <button
                             onClick={() => window.location.reload()}

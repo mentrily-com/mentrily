@@ -6,7 +6,17 @@ import { useAuth, useClerk, useUser } from '@clerk/nextjs';
 import ImpersonationBanner from './Common/ImpersonationBanner';
 import PaymentFailedBanner from './Common/PaymentFailedBanner';
 import { useOrganization } from '../context/OrganizationContext';
-import { Lock, Megaphone, X, FileText, ImageIcon, File as FileIcon, Download, CreditCard, LifeBuoy } from 'lucide-react';
+import {
+    Lock,
+    Megaphone,
+    X,
+    FileText,
+    ImageIcon,
+    File as FileIcon,
+    Download,
+    CreditCard,
+    LifeBuoy,
+} from 'lucide-react';
 import { StudentService } from '@/services/api/StudentService';
 import DOMPurify from 'isomorphic-dompurify';
 import { useSession } from '@/hooks/useSession';
@@ -16,6 +26,7 @@ import { BrandLockup } from '@/components/brand/BrandLockup';
 export interface ExamConfig {
     rollNumber?: string;
     userName?: string;
+    profilePicture?: string;
     onRefresh?: () => void;
     leftContent?: React.ReactNode;
     centerContent?: React.ReactNode;
@@ -615,7 +626,7 @@ export default function Navbar({ basePath, userRole: roleOverride, examConfig }:
                                         Coding
                                     </button>
                                     <button
-                                        onClick={() => router.push('/online-html-editor')}
+                                        onClick={() => router.push('/playground/web')}
                                         className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold text-slate-600 hover:bg-slate-50 hover:text-[var(--brand)] transition-all"
                                     >
                                         <div className="w-8 h-8 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center">
@@ -634,7 +645,7 @@ export default function Navbar({ basePath, userRole: roleOverride, examConfig }:
                                         HTML5
                                     </button>
                                     <button
-                                        onClick={() => router.push('/online-python-notebook')}
+                                        onClick={() => router.push('/playground/pynb')}
                                         className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold text-slate-600 hover:bg-slate-50 hover:text-[var(--brand)] transition-all"
                                     >
                                         <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center">
@@ -754,8 +765,9 @@ const ContentDropdown = React.memo(function ContentDropdown({
                 type="button"
                 data-element-id="nav-content-dropdown"
                 onClick={() => setOpen((prev) => !prev)}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 ${active ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-slate-400 hover:text-slate-600'
-                    }`}
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 ${
+                    active ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-slate-400 hover:text-slate-600'
+                }`}
             >
                 <svg
                     width="18"
@@ -800,10 +812,11 @@ const ContentDropdown = React.memo(function ContentDropdown({
                                 setOpen(false);
                                 router.push(item.path);
                             }}
-                            className={`w-full text-left px-4 py-2 text-sm font-semibold transition-colors ${item.active
+                            className={`w-full text-left px-4 py-2 text-sm font-semibold transition-colors ${
+                                item.active
                                     ? 'text-[var(--brand)] bg-[var(--brand-light)]'
                                     : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                                }`}
+                            }`}
                         >
                             {item.label}
                         </button>
@@ -829,115 +842,115 @@ const AppsMenu = React.memo(function AppsMenu({ isTeacher }: { isTeacher: boolea
 
     const apps = isTeacher
         ? [
-            {
-                label: 'My Exams',
-                icon: (
-                    <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
-                        <rect x="4" y="4" width="16" height="16" rx="2" />
-                        <path d="M12 11h4" />
-                        <path d="M12 15h4" />
-                        <path d="M12 7h4" />
-                        <path d="M8 12h.01" />
-                        <path d="M8 16h.01" />
-                        <path d="M8 8h.01" />
-                    </svg>
-                ),
-                path: '/dashboard/creator/exams',
-            },
-            {
-                label: 'Users',
-                icon: (
-                    <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                        <circle cx="9" cy="7" r="4" />
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                    </svg>
-                ),
-                path: '/dashboard/creator/users',
-            },
-        ]
+              {
+                  label: 'My Exams',
+                  icon: (
+                      <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                      >
+                          <rect x="4" y="4" width="16" height="16" rx="2" />
+                          <path d="M12 11h4" />
+                          <path d="M12 15h4" />
+                          <path d="M12 7h4" />
+                          <path d="M8 12h.01" />
+                          <path d="M8 16h.01" />
+                          <path d="M8 8h.01" />
+                      </svg>
+                  ),
+                  path: '/dashboard/creator/exams',
+              },
+              {
+                  label: 'Users',
+                  icon: (
+                      <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                      >
+                          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                          <circle cx="9" cy="7" r="4" />
+                          <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                      </svg>
+                  ),
+                  path: '/dashboard/creator/users',
+              },
+          ]
         : [
-            {
-                label: 'Assessments',
-                icon: (
-                    <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
-                        <path d="M12 11h4" />
-                        <path d="M12 15h4" />
-                        <path d="M12 7h4" />
-                        <path d="M8 12h.01" />
-                        <path d="M8 16h.01" />
-                        <path d="M8 8h.01" />
-                        <rect x="4" y="4" width="16" height="16" rx="2" />
-                    </svg>
-                ),
-                path: '/dashboard/learner/test',
-            },
-            {
-                label: 'Bookmarks',
-                icon: (
-                    <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
-                        <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
-                    </svg>
-                ),
-                path: '/dashboard/learner/bookmarks',
-            },
-            {
-                label: 'Certificates',
-                icon: (
-                    <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
-                        <circle cx="12" cy="8" r="6" />
-                        <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
-                    </svg>
-                ),
-                path: '/dashboard/learner/certificates',
-            },
-        ];
+              {
+                  label: 'Assessments',
+                  icon: (
+                      <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                      >
+                          <path d="M12 11h4" />
+                          <path d="M12 15h4" />
+                          <path d="M12 7h4" />
+                          <path d="M8 12h.01" />
+                          <path d="M8 16h.01" />
+                          <path d="M8 8h.01" />
+                          <rect x="4" y="4" width="16" height="16" rx="2" />
+                      </svg>
+                  ),
+                  path: '/dashboard/learner/test',
+              },
+              {
+                  label: 'Bookmarks',
+                  icon: (
+                      <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                      >
+                          <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+                      </svg>
+                  ),
+                  path: '/dashboard/learner/bookmarks',
+              },
+              {
+                  label: 'Certificates',
+                  icon: (
+                      <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                      >
+                          <circle cx="12" cy="8" r="6" />
+                          <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+                      </svg>
+                  ),
+                  path: '/dashboard/learner/certificates',
+              },
+          ];
 
     return (
         <div ref={ref} className="relative">
@@ -1030,17 +1043,17 @@ function ProfileMenu({
     const dashboardPath = isSuperAdmin
         ? '/dashboard/super-admin'
         : isAdmin
+          ? '/dashboard/creator'
+          : isTeacher
             ? '/dashboard/creator'
-            : isTeacher
-                ? '/dashboard/creator'
-                : '/dashboard/learner';
+            : '/dashboard/learner';
     const canManageTeacherBilling = (isTeacher && sessionUser?.features?.teacherSelfBilling !== false) || isAdmin;
     const normalizedPlan = String(sessionUser?.plan || '').toUpperCase();
     const canAccessSupport = (isTeacher || isAdmin) && ['STARTER', 'PRO'].includes(normalizedPlan);
     const displayName = examConfig?.userName || sessionUser?.name || clerkUser?.fullName || 'User';
     const displayEmail = sessionUser?.email || clerkUser?.primaryEmailAddress?.emailAddress || '';
     const initial = displayName.charAt(0).toUpperCase();
-    const avatarUrl = clerkUser?.imageUrl || sessionUser?.profilePicture;
+    const avatarUrl = examConfig?.profilePicture || clerkUser?.imageUrl || sessionUser?.profilePicture;
 
     const handleSignOut = async () => {
         setOpen(false);
@@ -1076,8 +1089,14 @@ function ProfileMenu({
                 <button
                     onClick={() => examConfig.onRefresh?.()}
                     className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white font-black text-sm overflow-hidden relative"
+                    title="Refresh exam"
                 >
-                    R
+                    {avatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+                    ) : (
+                        initial
+                    )}
                 </button>
             ) : (
                 <>
@@ -1086,6 +1105,7 @@ function ProfileMenu({
                         className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white font-black text-sm overflow-hidden relative"
                     >
                         {avatarUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
                             <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
                         ) : (
                             initial
@@ -1097,6 +1117,7 @@ function ProfileMenu({
                             <div className="px-4 py-4 border-b border-slate-100 flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] text-white font-black flex items-center justify-center overflow-hidden shrink-0">
                                     {avatarUrl ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
                                         <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
                                     ) : (
                                         initial
@@ -1211,8 +1232,9 @@ function MenuBtn({
     return (
         <button
             onClick={onClick}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold transition-all ${danger ? 'text-red-500 hover:bg-red-50' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                }`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold transition-all ${
+                danger ? 'text-red-500 hover:bg-red-50' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+            }`}
         >
             {icon}
             {label}
@@ -1325,14 +1347,16 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                                     <button
                                         key={ann.id}
                                         onClick={() => handleClick(ann)}
-                                        className={`w-full text-left px-5 py-3.5 hover:bg-slate-50 transition-all border-b border-slate-50 last:border-0 flex items-start gap-3 ${!ann.isRead ? 'bg-[var(--brand-light)]/20' : ''
-                                            }`}
+                                        className={`w-full text-left px-5 py-3.5 hover:bg-slate-50 transition-all border-b border-slate-50 last:border-0 flex items-start gap-3 ${
+                                            !ann.isRead ? 'bg-[var(--brand-light)]/20' : ''
+                                        }`}
                                     >
                                         <div
-                                            className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${ann.isRead
+                                            className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                                                ann.isRead
                                                     ? 'bg-slate-100 text-slate-400'
                                                     : 'bg-[var(--brand)] text-white'
-                                                }`}
+                                            }`}
                                         >
                                             <Megaphone size={12} />
                                         </div>

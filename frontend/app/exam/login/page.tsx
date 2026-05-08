@@ -130,7 +130,9 @@ export default function ExamLoginPage() {
             return existingUser;
         }
 
-        await signOut({ redirectUrl: `${afterSignInUrl}${afterSignInUrl.includes('?') ? '&' : '?'}error=account_not_found` });
+        await signOut({
+            redirectUrl: `${afterSignInUrl}${afterSignInUrl.includes('?') ? '&' : '?'}error=account_not_found`,
+        });
         return null;
     };
 
@@ -151,9 +153,7 @@ export default function ExamLoginPage() {
     };
 
     const prepareExamSecondFactor = async (result: any) => {
-        const emailFactor = result?.supportedSecondFactors?.find(
-            (factor: any) => factor?.strategy === 'email_code',
-        );
+        const emailFactor = result?.supportedSecondFactors?.find((factor: any) => factor?.strategy === 'email_code');
 
         if (!emailFactor) {
             throw new Error('This account requires a second factor that is not supported here.');
@@ -191,6 +191,7 @@ export default function ExamLoginPage() {
                 const metadata = {
                     rollNumber: rollNo || user?.unsafeMetadata?.rollNumber || user?.publicMetadata?.rollNumber || '',
                     name: name || signedInUserName,
+                    profilePicture: user?.imageUrl || '',
                     section,
                 };
                 localStorage.setItem(`exam_${targetSlug}_metadata`, JSON.stringify(metadata));
@@ -362,12 +363,7 @@ export default function ExamLoginPage() {
     }, [isSignedIn, slugFromQuery, pendingCodeStorageKey]);
 
     if (isOauthCallback) {
-        return (
-            <AuthenticateWithRedirectCallback
-                transferable={false}
-                signInUrl={afterSignInUrl}
-            />
-        );
+        return <AuthenticateWithRedirectCallback transferable={false} signInUrl={afterSignInUrl} />;
     }
 
     if (isCheckingStatus) {
