@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { usePathname } from 'next/navigation';
-import { useOrganization } from './context/OrganizationContext';
+import { useOrganization } from '@/app/context/OrganizationContext';
 import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
 import PlaygroundSkeleton from '@/app/components/Skeletons/PlaygroundSkeleton';
 import CoursePlayerSkeleton from '@/app/components/Skeletons/CoursePlayerSkeleton';

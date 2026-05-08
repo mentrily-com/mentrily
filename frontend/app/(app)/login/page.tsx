@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, KeyRound, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { AuthService } from '@/services/api/AuthService';
-import { useOrganization } from '../context/OrganizationContext';
+import { useOrganization } from '@/app/context/OrganizationContext';
 import { AuthenticateWithRedirectCallback, useClerk, useSignIn, useUser } from '@clerk/nextjs';
 import { BrandLockup } from '@/components/brand/BrandLockup';
 import BrandedPageLoader from '@/app/components/Common/BrandedPageLoader';

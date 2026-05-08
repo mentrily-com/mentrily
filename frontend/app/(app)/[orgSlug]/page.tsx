@@ -2,10 +2,10 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import PlaygroundCore from '@/app/components/Playground/PlaygroundCore';
 import PublicPlaygroundShell from '@/app/components/Playground/PublicPlaygroundShell';
-import PythonNotebookPage from '@/app/playground/pynb/page';
-import WebPlaygroundPage from '@/app/playground/web/page';
+import PythonNotebookPage from '@/app/(app)/playground/pynb/page';
+import WebPlaygroundPage from '@/app/(app)/playground/web/page';
 import { siteConfig } from '@/app/config/site';
-import { getPublicPlaygroundSeoEntry, publicPlaygroundSeoEntries } from '@/app/playground/publicSeo';
+import { getPublicPlaygroundSeoEntry, publicPlaygroundSeoEntries } from '@/app/(app)/playground/publicSeo';
 
 interface PageProps {
     params: Promise<{ orgSlug: string }>;

@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { siteConfig } from './config/site';
-import { publicPlaygroundSeoEntries } from './playground/publicSeo';
+import { publicPlaygroundSeoEntries } from './(app)/playground/publicSeo';
 
 const marketingRoutes = ['', '/pricing', '/about', '/contact'];
 

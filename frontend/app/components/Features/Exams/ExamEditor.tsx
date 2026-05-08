@@ -2,7 +2,7 @@
 import React, { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import Loading from '@/app/loading';
+import Loading from '@/app/(app)/loading';
 import AlertModal from '@/app/components/Common/AlertModal';
 import { useState } from 'react';
 import { AuthService } from '@/services/api/AuthService';

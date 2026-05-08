@@ -4,9 +4,9 @@ import React from 'react';
 import EnrollmentModal from '@/app/components/Common/EnrollmentModal';
 import CourseDetailsView from '@/app/components/Features/Courses/CourseDetailsView';
 import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
-import StudioModuleList from '@/app/dashboard/creator/_components/StudioModuleList';
-import StudioRecentActivity from '@/app/dashboard/creator/_components/StudioRecentActivity';
-import { useStudioDashboard } from '@/app/dashboard/creator/_components/useStudioDashboard';
+import StudioModuleList from '@/app/(app)/dashboard/creator/_components/StudioModuleList';
+import StudioRecentActivity from '@/app/(app)/dashboard/creator/_components/StudioRecentActivity';
+import { useStudioDashboard } from '@/app/(app)/dashboard/creator/_components/useStudioDashboard';
 import { usePlan } from '@/hooks/usePlan';
 
 export default function CreatorCoursesPage() {

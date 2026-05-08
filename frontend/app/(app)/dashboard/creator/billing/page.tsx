@@ -2,8 +2,8 @@
 
 import React from 'react';
 import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
-import TeacherBillingPage from '@/app/dashboard/creator/_components/TeacherBillingPage';
-import AdminBillingPage from '@/app/dashboard/creator/_components/AdminBillingPage';
+import TeacherBillingPage from '@/app/(app)/dashboard/creator/_components/TeacherBillingPage';
+import AdminBillingPage from '@/app/(app)/dashboard/creator/_components/AdminBillingPage';
 import { usePlan } from '@/hooks/usePlan';
 
 export default function CreatorBillingPage() {
