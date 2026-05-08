@@ -2,7 +2,7 @@
 
 import React from 'react';
 import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
-import TeacherStudentsPage from '@/app/dashboard/creator/_components/TeacherStudentsPage';
+import TeacherStudentsPage from '@/app/(app)/dashboard/creator/_components/TeacherStudentsPage';
 import { usePlan } from '@/hooks/usePlan';
 
 export default function CreatorUsersPage() {

@@ -1,11 +1,13 @@
+import dynamic from 'next/dynamic';
 import Hero from '@/components/sections/Hero';
 import SocialProof from '@/components/sections/SocialProof';
-import RoleSelector from '@/components/sections/RoleSelector';
 import Features from '@/components/sections/Features';
-import HowItWorks from '@/components/sections/HowItWorks';
-import Testimonials from '@/components/sections/Testimonials';
-import PricingTeaser from '@/components/sections/PricingTeaser';
-import CTASection from '@/components/sections/CTASection';
+
+const RoleSelector = dynamic(() => import('@/components/sections/RoleSelector'));
+const HowItWorks = dynamic(() => import('@/components/sections/HowItWorks'));
+const Testimonials = dynamic(() => import('@/components/sections/Testimonials'));
+const PricingTeaser = dynamic(() => import('@/components/sections/PricingTeaser'));
+const CTASection = dynamic(() => import('@/components/sections/CTASection'));
 
 export default function HomePage() {
     return (

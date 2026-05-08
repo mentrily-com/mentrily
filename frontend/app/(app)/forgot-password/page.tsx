@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Mail, ArrowLeft, ArrowRight, Loader2, CheckCircle2, Lock, KeyRound } from 'lucide-react';
 import Link from 'next/link';
-import { useOrganization } from '../context/OrganizationContext';
+import { useOrganization } from '@/app/context/OrganizationContext';
 import { useSignIn } from '@clerk/nextjs';
 import { BrandLockup } from '@/components/brand/BrandLockup';
 

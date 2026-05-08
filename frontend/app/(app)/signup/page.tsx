@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, User, KeyRound } from 'lucide-react';
 import Link from 'next/link';
-import { useOrganization } from '../context/OrganizationContext';
+import { useOrganization } from '@/app/context/OrganizationContext';
 import { AuthenticateWithRedirectCallback, useSignUp, useUser } from '@clerk/nextjs';
 
 import { AuthService } from '@/services/api/AuthService';

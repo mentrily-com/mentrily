@@ -47,7 +47,8 @@ const useCaseCTAs = [
 
 export default function ContactPage() {
     const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.05 });
-    const [submitState, setSubmitState] = useState<'idle' | 'loading' | 'success'>('idle');
+    const [submitState, setSubmitState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    const [submitError, setSubmitError] = useState('');
 
     const {
         register,
@@ -56,13 +57,29 @@ export default function ContactPage() {
         reset,
     } = useForm<ContactFormData>();
 
-    const onSubmit = async (_data: ContactFormData) => {
+    const onSubmit = async (data: ContactFormData) => {
         setSubmitState('loading');
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        setSubmitState('success');
-        reset();
-        setTimeout(() => setSubmitState('idle'), 3000);
+        setSubmitError('');
+
+        try {
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+            const body = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(body.error || 'Failed to send message. Please try again later.');
+            }
+
+            setSubmitState('success');
+            reset();
+            setTimeout(() => setSubmitState('idle'), 3000);
+        } catch (error) {
+            setSubmitError(error instanceof Error ? error.message : 'Failed to send message. Please try again later.');
+            setSubmitState('error');
+        }
     };
 
     return (
@@ -257,10 +274,15 @@ export default function ContactPage() {
                                 >
                                     {submitState === 'loading' && <Loader2 size={16} className="animate-spin" />}
                                     {submitState === 'success' && <Check size={16} />}
-                                    {submitState === 'idle' && 'Send Message'}
+                                    {(submitState === 'idle' || submitState === 'error') && 'Send Message'}
                                     {submitState === 'loading' && 'Sending...'}
                                     {submitState === 'success' && "We've received your message."}
                                 </button>
+                                {submitError && (
+                                    <p className="text-sm" style={{ color: '#EF4444' }}>
+                                        {submitError}
+                                    </p>
+                                )}
                             </form>
                         </div>
                     </motion.div>

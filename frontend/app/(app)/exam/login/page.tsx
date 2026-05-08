@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useOrganization } from '@/app/context/OrganizationContext';
-import Loading from '@/app/loading';
+import Loading from '../../loading';
 import { AuthService } from '@/services/api/AuthService';
 import { ExamService } from '@/services/api/ExamService';
 import { buildOrgUrl, getRootDomain } from '@/lib/domain';

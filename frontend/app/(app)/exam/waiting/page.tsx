@@ -1,8 +1,8 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { BRAND } from '../../constants/brand';
-import { useOrganization } from '../../context/OrganizationContext';
+import { BRAND } from '@/app/constants/brand';
+import { useOrganization } from '@/app/context/OrganizationContext';
 import { BrandLockup } from '@/components/brand/BrandLockup';
 
 export default function ExamWaitingRoom() {
