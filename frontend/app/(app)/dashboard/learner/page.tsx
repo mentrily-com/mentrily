@@ -9,17 +9,24 @@ import { useQuery } from '@/hooks/useQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useNotificationSocket } from '@/hooks/useNotificationSocket';
 import { useToast } from '@/app/components/Common/Toast';
-import { Award, Megaphone, X, FileText, ImageIcon, File, Download } from 'lucide-react';
+import { Award, Megaphone, X, FileText, ImageIcon, File, Download, EyeOff, Sparkles } from 'lucide-react';
 import DOMPurify from 'isomorphic-dompurify';
+import {
+    gettingStartedCourse,
+    isOnboardingCourseHidden,
+    MENTRILY_ONBOARDING_SKIP_KEY,
+    MENTRILY_ONBOARDING_STORAGE_KEY,
+} from './getting-started-course';
 
 export default function DashboardPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
     const { success: toastSuccess } = useToast();
+    const [hideGettingStarted, setHideGettingStarted] = useState(false);
 
     // Announcements state
     const [announcements, setAnnouncements] = useState<any[]>([]);
-    const [unreadCount, setUnreadCount] = useState(0);
+    const [_unreadCount, setUnreadCount] = useState(0);
     const [selectedAnnouncement, setSelectedAnnouncement] = useState<any>(null);
 
     // Auth Check
@@ -43,6 +50,10 @@ export default function DashboardPage() {
         loadAnnouncements();
     }, [loadAnnouncements]);
 
+    useEffect(() => {
+        setHideGettingStarted(isOnboardingCourseHidden());
+    }, []);
+
     // Real-time notifications
     useNotificationSocket((announcement) => {
         toastSuccess(`New announcement: ${announcement.title}`);
@@ -56,7 +67,7 @@ export default function DashboardPage() {
                 await StudentService.markAnnouncementRead(ann.id);
                 setUnreadCount((prev) => Math.max(prev - 1, 0));
                 setAnnouncements((prev) => prev.map((a) => (a.id === ann.id ? { ...a, isRead: true } : a)));
-            } catch (err) {
+            } catch {
                 /* silent */
             }
         }
@@ -76,7 +87,51 @@ export default function DashboardPage() {
     const stats = dashboardData?.stats || null;
     const modules: StudentModule[] = dashboardData?.courses || [];
 
-    const filteredModules = modules.filter((m) => m.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()));
+    const visibleModules: StudentModule[] = hideGettingStarted ? modules : [gettingStartedCourse, ...modules];
+    const filteredModules = visibleModules.filter((m) =>
+        m.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()),
+    );
+
+    const handleHideGettingStarted = (event: React.MouseEvent) => {
+        event.preventDefault();
+        event.stopPropagation();
+        window.localStorage.setItem(MENTRILY_ONBOARDING_STORAGE_KEY, 'true');
+        setHideGettingStarted(true);
+        toastSuccess('Getting Started course hidden. You can clear browser site data to show it again.');
+    };
+
+    const learnerTourSteps = [
+        {
+            element: '[data-element-id="learner-modules"]',
+            title: 'Start from your active modules',
+            description: 'Your assigned learning path stays centered here so you can jump straight back into progress.',
+        },
+        ...(!hideGettingStarted
+            ? [
+                  {
+                      element: '[data-element-id="mentrily-getting-started-course"]',
+                      title: 'Try the guided starter course',
+                      description:
+                          'This welcome course walks through lessons, question types, practice tools, and a course exam. Hide it anytime once you know your way around.',
+                  },
+              ]
+            : []),
+        {
+            element: '[data-element-id="learner-streak"]',
+            title: 'Keep your streak alive',
+            description: 'This card tracks your learning habit and gives you a fast health check every day.',
+        },
+        {
+            element: '[data-element-id="learner-announcements"]',
+            title: 'New updates stay visible',
+            description: 'Teacher announcements land here so schedule or content changes are hard to miss.',
+        },
+        {
+            element: '[data-element-id="learner-quick-access"]',
+            title: 'Results, bookmarks, and certificates are one tap away',
+            description: 'Use quick access to move between progress, saved content, and credentials without digging.',
+        },
+    ];
 
     // Show loading only if no data at all (first load)
     if (loading && !stats) {
@@ -90,32 +145,11 @@ export default function DashboardPage() {
     return (
         <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-orange-100 selection:text-orange-900">
             <OnboardingTour
-                tourId="learner_dashboard"
-                steps={[
-                    {
-                        element: '[data-element-id="learner-modules"]',
-                        title: 'Start from your active modules',
-                        description:
-                            'Your assigned learning path stays centered here so you can jump straight back into progress.',
-                    },
-                    {
-                        element: '[data-element-id="learner-streak"]',
-                        title: 'Keep your streak alive',
-                        description:
-                            'This card tracks your learning habit and gives you a fast health check every day.',
-                    },
-                    {
-                        element: '[data-element-id="learner-announcements"]',
-                        title: 'New updates stay visible',
-                        description: 'Teacher announcements land here so schedule or content changes are hard to miss.',
-                    },
-                    {
-                        element: '[data-element-id="learner-quick-access"]',
-                        title: 'Results, bookmarks, and certificates are one tap away',
-                        description:
-                            'Use quick access to move between progress, saved content, and credentials without digging.',
-                    },
-                ]}
+                tourId="learner_dashboard_guided_v2"
+                ignoreUserOnboardingFlag
+                repeatUntilSkipped
+                skipStorageKey={MENTRILY_ONBOARDING_SKIP_KEY}
+                steps={learnerTourSteps}
             />
 
             <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-10 animate-fade-in">
@@ -150,15 +184,45 @@ export default function DashboardPage() {
 
                         <div className="space-y-4">
                             {filteredModules.length > 0 ? (
-                                filteredModules.map((m) => (
+                                filteredModules.map((m) => {
+                                    const isGettingStarted = (m as any).isOnboardingCourse;
+                                    return (
                                     <Link
                                         key={m.slug}
                                         href={`/dashboard/learner/module/${m.slug}`}
-                                        className="block bg-white rounded-3xl border border-slate-100 p-5 sm:p-6 shadow-sm hover:border-[var(--brand-light)] hover:shadow-md transition-all"
+                                        className={`block rounded-3xl border p-5 shadow-sm transition-all sm:p-6 ${
+                                            isGettingStarted
+                                                ? 'bg-white border-orange-200/80 shadow-orange-100/60 hover:border-[var(--brand)] hover:shadow-lg'
+                                                : 'bg-white border-slate-100 hover:border-[var(--brand-light)] hover:shadow-md'
+                                        }`}
+                                        data-element-id={isGettingStarted ? 'mentrily-getting-started-course' : undefined}
                                     >
                                         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
                                             <div className="min-w-0 flex-1">
+                                                <div className="mb-2 flex flex-wrap items-center gap-2">
+                                                    {isGettingStarted && (
+                                                        <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--brand)]">
+                                                            <Sparkles size={12} /> Welcome Course
+                                                        </span>
+                                                    )}
+                                                    {isGettingStarted && (
+                                                        <button
+                                                            onClick={handleHideGettingStarted}
+                                                            className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-700"
+                                                            title="Hide this onboarding course"
+                                                        >
+                                                            <EyeOff size={12} /> Hide
+                                                        </button>
+                                                    )}
+                                                </div>
                                                 <h3 className="text-lg font-black text-slate-800 mb-1">{m.title}</h3>
+                                                {isGettingStarted && (
+                                                    <p className="mb-3 max-w-2xl text-sm font-semibold leading-6 text-slate-500">
+                                                        A guided preview of Mentrily lessons, question types, practice
+                                                        tools, and a course exam before you start your real learning
+                                                        path.
+                                                    </p>
+                                                )}
                                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
                                                     {m.sections} Sections · {m.totalUnits ?? m.sections} Learning Units
                                                 </p>
@@ -195,7 +259,8 @@ export default function DashboardPage() {
                                             </div>
                                         </div>
                                     </Link>
-                                ))
+                                );
+                                })
                             ) : (
                                 <div className="text-center py-12 text-slate-400 font-bold">
                                     No modules available found.

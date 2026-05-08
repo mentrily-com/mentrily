@@ -220,6 +220,7 @@ export function UnitRendererComponent({
 
                     <div
                         className={`flex-1 overflow-y-auto custom-scrollbar transition-all duration-500 ${isReadingFullScreen ? 'px-4 py-6' : 'px-4 py-8 sm:px-8 lg:px-[10%] lg:py-12'}`}
+                        data-element-id="starter-question-prompt"
                     >
                         <div
                             className={`transition-all duration-500 ${isReadingFullScreen ? 'w-full max-w-none' : 'max-w-4xl mx-auto'}`}
@@ -447,6 +448,7 @@ export function UnitRendererComponent({
             case 'MultiSelect':
                 const correctOptionIds = (question.mcqOptions || []).filter((o) => o.isCorrect).map((o) => o.id);
                 return (
+                    <div className="h-full" data-element-id="starter-answer-workspace">
                     <MCQOptions
                         key={`mcq-${question.id}`}
                         options={question.mcqOptions || []}
@@ -460,9 +462,11 @@ export function UnitRendererComponent({
                         readOnly={hasAttemptSelected}
                         fontSize={contentFontSize}
                     />
+                    </div>
                 );
             case 'Coding':
                 return (
+                    <div className="h-full" data-element-id="starter-answer-workspace">
                     <CodingQuestionRenderer
                         key={`coding-${question.id}`}
                         question={question}
@@ -485,9 +489,11 @@ export function UnitRendererComponent({
                         isExamMode={isExamMode}
                         onCheatDetected={onCheatDetected}
                     />
+                    </div>
                 );
             case 'Web':
                 return (
+                    <div className="h-full" data-element-id="starter-answer-workspace">
                     <WebEditor
                         key={`web-${question.id}`}
                         initialHTML={
@@ -515,9 +521,11 @@ export function UnitRendererComponent({
                         isExamMode={isExamMode}
                         onCheatDetected={onCheatDetected}
                     />
+                    </div>
                 );
             case 'Notebook':
                 return (
+                    <div className="h-full" data-element-id="starter-answer-workspace">
                     <PythonNotebook
                         key={`notebook-${question.id}`}
                         initialCode={
@@ -529,6 +537,7 @@ export function UnitRendererComponent({
                         readOnly={hasAttemptSelected}
                         isExamMode={isExamMode}
                     />
+                    </div>
                 );
             // Reading case removed from here as it's handled at top level
             default:

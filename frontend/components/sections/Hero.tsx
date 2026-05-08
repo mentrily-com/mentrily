@@ -11,6 +11,7 @@ import ImagePreviewModal, { type PreviewImage } from '@/components/ui/ImagePrevi
 
 export default function Hero() {
     const [previewImage, setPreviewImage] = useState<PreviewImage | null>(null);
+
     const heroImage = {
         src: '/images/dashboard-learner-preview.jpg',
         alt: `${siteConfig.name} learner dashboard with course modules, daily streak, and analytics`,
@@ -63,7 +64,7 @@ export default function Hero() {
                     <div className="max-w-xl">
                         {/* Headline */}
                         <motion.h1 variants={heroWordStagger} initial="hidden" animate="visible" className="mb-6">
-                            {['Teach', 'smartly.'].map((word, i) => (
+                            {['Your', 'school.', 'Your', 'brand.'].map((word, i) => (
                                 <motion.span
                                     key={i}
                                     variants={heroWord}
@@ -95,7 +96,7 @@ export default function Hero() {
                                         color: '#0F172A',
                                     }}
                                 >
-                                    Mentor
+                                    Launch
                                 </motion.span>
                                 <motion.span
                                     variants={heroWord}
@@ -110,7 +111,7 @@ export default function Hero() {
                                         color: '#0F172A',
                                     }}
                                 >
-                                    easily.
+                                    today.
                                 </motion.span>
                                 <motion.div
                                     aria-hidden="true"
@@ -134,14 +135,13 @@ export default function Hero() {
                             className="mb-8 leading-relaxed max-w-lg"
                             style={{
                                 fontFamily: 'var(--font-body), system-ui, sans-serif',
-                                fontSize: '17px',
+                                fontSize: '18px',
                                 lineHeight: 1.7,
                                 color: '#475569',
+                                fontWeight: 500,
                             }}
                         >
-                            {siteConfig.name} gives educators a complete platform to create courses, lessons, quizzes,
-                            proctored exams, assignments, and certificates, with mentoring workflows that keep every
-                            learner moving.
+                            Join educators who chose ownership over renting.
                         </motion.p>
 
                         {/* CTAs */}
@@ -193,28 +193,6 @@ export default function Hero() {
                                 See Pricing
                             </Link>
                         </motion.div>
-
-                        {/* Trust micro-text */}
-                        <motion.p
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.9, duration: 0.3 }}
-                            className="mt-5 text-xs flex items-center gap-4"
-                            style={{ color: '#94A3B8' }}
-                        >
-                            <span className="flex items-center gap-1.5">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                                No credit card
-                            </span>
-                            <span className="flex items-center gap-1.5">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                                Free forever plan
-                            </span>
-                            <span className="hidden sm:flex items-center gap-1.5">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                                Setup in minutes
-                            </span>
-                        </motion.p>
                     </div>
 
                     {/* ── Right: Dashboard preview with 3D tilt ── */}

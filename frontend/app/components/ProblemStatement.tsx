@@ -46,7 +46,7 @@ export default function ProblemStatement({
     questionTotalMarks,
 }: ProblemStatementProps) {
     return (
-        <div className="flex h-full min-h-0 flex-col bg-white relative">
+        <div className="flex h-full min-h-0 flex-col bg-white relative" data-element-id="starter-question-prompt">
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain no-scrollbar">
                 {/* Header / Navigation */}
                 {!hideHeader && (

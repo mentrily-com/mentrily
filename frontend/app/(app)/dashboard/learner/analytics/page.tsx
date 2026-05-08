@@ -39,10 +39,28 @@ interface Question {
     attempts: Attempt[];
 }
 
+const emptyAnalyticsData = {
+    weeklyActivity: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => ({
+        day,
+        attempts: 0,
+        passed: 0,
+        failed: 0,
+    })),
+    courseMastery: [],
+    stats: {
+        totalQuestions: 0,
+        totalAttempts: 0,
+        passedAttempts: 0,
+        successRate: 0,
+        streak: 0,
+    },
+};
+
 export default function AnalyticsPage() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const studentNameParam = searchParams.get('studentName');
+    const studentIdParam = searchParams.get('studentId');
 
     const [activeTab, setActiveTab] = useState<'overview' | 'attempts'>('overview');
 
@@ -64,7 +82,7 @@ export default function AnalyticsPage() {
     useEffect(() => {
         async function loadAnalytics() {
             try {
-                const studentId = searchParams.get('studentId');
+                const studentId = studentIdParam;
                 let data;
                 let attemptsData;
 
@@ -81,13 +99,13 @@ export default function AnalyticsPage() {
                     // Fetch as student
                     const [analyticsResult, attemptsResult] = await Promise.all([
                         StudentService.getAnalytics(),
-                        StudentService.getUnitAttempts(),
+                        StudentService.getUnitAttempts().catch(() => []),
                     ]);
                     data = analyticsResult;
                     attemptsData = attemptsResult;
                 }
 
-                setAnalyticsData(data);
+                setAnalyticsData(data || emptyAnalyticsData);
 
                 // Group submissions by unitId for the detailed table
                 const unitMap = new Map<string, Question>();
@@ -122,14 +140,15 @@ export default function AnalyticsPage() {
 
                 const mappedQuestions = Array.from(unitMap.values());
                 setQuestions(mappedQuestions);
-            } catch (error) {
-                console.error('Failed to load analytics', error);
+            } catch {
+                setAnalyticsData(emptyAnalyticsData);
+                setQuestions([]);
             } finally {
                 setLoading(false);
             }
         }
         loadAnalytics();
-    }, []);
+    }, [studentIdParam]);
 
     const stats = useMemo(() => {
         if (!analyticsData)

@@ -20,6 +20,7 @@ const isPublicRoute = createRouteMatcher([
     '/exam/login(.*)',
     '/exam/waiting(.*)',
     '/playground(.*)',
+    '/online-(.*)',
     '/certificate(.*)',
     '/api/webhooks/clerk(.*)',
     '/_next(.*)',

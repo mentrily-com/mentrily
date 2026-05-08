@@ -17,6 +17,23 @@ const getHeaders = () => {
     };
 };
 
+const emptyAnalytics = {
+    weeklyActivity: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => ({
+        day,
+        attempts: 0,
+        passed: 0,
+        failed: 0,
+    })),
+    courseMastery: [],
+    stats: {
+        totalQuestions: 0,
+        totalAttempts: 0,
+        passedAttempts: 0,
+        successRate: 0,
+        streak: 0,
+    },
+};
+
 // Helper for authorized fetch
 const authFetch = async (endpoint: string, options: RequestInit = {}) => {
     // endpoint should be relative like '/student/stats'
@@ -127,11 +144,14 @@ export const StudentService = {
     async getAnalytics() {
         try {
             const res = await authFetch('/student/analytics');
-            if (!res.ok) throw new Error('Failed to fetch analytics');
+            if (!res.ok) {
+                console.warn(`[StudentService] Analytics unavailable (${res.status}); using empty analytics.`);
+                return emptyAnalytics;
+            }
             return await res.json();
         } catch (error) {
-            console.error('[StudentService] Error', error);
-            throw error;
+            console.warn('[StudentService] Analytics unavailable; using empty analytics.', error);
+            return emptyAnalytics;
         }
     },
 

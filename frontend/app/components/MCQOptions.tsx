@@ -174,6 +174,7 @@ export default function MCQOptions({
 
                     <button
                         onClick={handleSubmit}
+                        data-element-id="starter-submit-answer"
                         disabled={selectedIds.length === 0}
                         className={`px-8 py-2.5 rounded-xl font-black transition-all flex items-center gap-2 ${
                             selectedIds.length === 0

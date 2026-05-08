@@ -97,11 +97,7 @@ function Mission() {
                     transition={{ duration: 0.48 }}
                 >
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#008D98' }} />
-                        <span className="text-sm font-medium uppercase tracking-widest" style={{ color: '#008D98' }}>
-                            Mission
-                        </span>
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#008D98' }} />
+                        <div className="w-12 h-0.5" style={{ backgroundColor: '#008D98' }} />
                     </div>
                     <p
                         style={{
@@ -135,11 +131,7 @@ function ProductPhilosophy() {
                     className="text-center mb-12"
                 >
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#008D98' }} />
-                        <span className="text-sm font-medium uppercase tracking-widest" style={{ color: '#008D98' }}>
-                            Philosophy
-                        </span>
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#008D98' }} />
+                        <div className="w-12 h-0.5" style={{ backgroundColor: '#008D98' }} />
                     </div>
                 </motion.div>
 
@@ -260,11 +252,7 @@ function Values() {
                     className="text-center mb-12"
                 >
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#008D98' }} />
-                        <span className="text-sm font-medium uppercase tracking-widest" style={{ color: '#008D98' }}>
-                            Values
-                        </span>
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#008D98' }} />
+                        <div className="w-12 h-0.5" style={{ backgroundColor: '#008D98' }} />
                     </div>
                 </motion.div>
 
@@ -333,11 +321,7 @@ function Timeline() {
                     className="text-center mb-14"
                 >
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#008D98' }} />
-                        <span className="text-sm font-medium uppercase tracking-widest" style={{ color: '#008D98' }}>
-                            Timeline
-                        </span>
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#008D98' }} />
+                        <div className="w-12 h-0.5" style={{ backgroundColor: '#008D98' }} />
                     </div>
                 </motion.div>
 
@@ -472,11 +456,7 @@ function Team() {
                     className="text-center mb-12"
                 >
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#008D98' }} />
-                        <span className="text-sm font-medium uppercase tracking-widest" style={{ color: '#008D98' }}>
-                            Team
-                        </span>
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#008D98' }} />
+                        <div className="w-12 h-0.5" style={{ backgroundColor: '#008D98' }} />
                     </div>
                 </motion.div>
 

@@ -2,12 +2,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import OnboardingTour from '@/app/components/Common/OnboardingTour';
 import { CourseService } from '@/services/api/CourseService';
 import { StudentService } from '@/services/api/StudentService';
 import StudentExamCard from '@/app/components/Features/Courses/StudentExamCard';
+import {
+    gettingStartedCourse,
+    MENTRILY_ONBOARDING_COURSE_SLUG,
+    MENTRILY_ONBOARDING_SKIP_KEY,
+} from '../../getting-started-course';
 
 type Attempt = { date: string; score: string; status: 'success' | 'failed' };
-type Lesson = { id: number; type: string; title: string; done?: boolean; attempts?: Attempt[] };
+type _Lesson = { id: number; type: string; title: string; done?: boolean; attempts?: Attempt[] };
 
 export default function ModulePage({ params: paramsPromise }: { params: Promise<{ slug: string }> }) {
     const router = useRouter();
@@ -108,7 +114,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
     const selectedModule = course?.modules?.[activeModuleIndex] || null;
 
     // Helper: map a test question object into the frontend UnitQuestion shape expected by UnitRenderer
-    const mapTestQuestionToUnitQuestion = (rawQ: any) => {
+    const _mapTestQuestionToUnitQuestion = (rawQ: any) => {
         const content = rawQ.content || rawQ.unitContent || rawQ.body || rawQ || {};
         const description = content.problemStatement || content.description || content.body || rawQ.description || '';
 
@@ -262,6 +268,19 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
             setLoading(true);
             setError(null);
             try {
+                if (slug === MENTRILY_ONBOARDING_COURSE_SLUG) {
+                    setCourse(gettingStartedCourse);
+                    setProgressData({
+                        totalUnits: gettingStartedCourse.totalUnits,
+                        completedUnitIds:
+                            typeof window === 'undefined'
+                                ? []
+                                : JSON.parse(window.localStorage.getItem('mentrily_getting_started_completed_units') || '[]'),
+                        attempts: {},
+                    });
+                    return;
+                }
+
                 const [data, progress, examStatus] = await Promise.all([
                     CourseService.getCourse(slug),
                     StudentService.getCourseProgress(slug),
@@ -370,6 +389,41 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
+            {slug === MENTRILY_ONBOARDING_COURSE_SLUG && (
+                <OnboardingTour
+                    tourId="mentrily_starter_course_map_v2"
+                    ignoreUserOnboardingFlag
+                    repeatUntilSkipped
+                    skipStorageKey={MENTRILY_ONBOARDING_SKIP_KEY}
+                    delayMs={700}
+                    steps={[
+                        {
+                            element: '[data-element-id="starter-course-tabs"]',
+                            title: 'This is your course map',
+                            description:
+                                'Use these tabs to switch between learning units, the course exam, and your performance history.',
+                        },
+                        {
+                            element: '[data-element-id="starter-section-card"]',
+                            title: 'Pick a section',
+                            description:
+                                'Sections group related lessons. Click a section card to reveal the units inside it.',
+                        },
+                        {
+                            element: '[data-element-id="starter-unit-row"]',
+                            title: 'Open a learning unit',
+                            description:
+                                'Click the first unit to enter the guided player. Mentrily will show the prompt on the left and the workspace on the right.',
+                        },
+                        {
+                            element: '[data-element-id="starter-course-exam-card"]',
+                            title: 'Course exams live here too',
+                            description:
+                                'After practicing, switch to Tests to see the course exam. The starter exam previews how final checks are organized.',
+                        },
+                    ]}
+                />
+            )}
             {/* COMPACT STICKY HEADER BELOW NAVBAR */}
             <div className="sticky top-[56px] sm:top-[61px] z-40 bg-white border-b border-slate-200/60 shadow-sm transition-all duration-300">
                 <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 py-3.5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -383,7 +437,10 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                             </div>
 
                             {/* COMPACT TAB SWITCHER */}
-                            <div className="flex items-center gap-4 mt-1.5 overflow-x-auto no-scrollbar sm:gap-6">
+                            <div
+                                className="flex items-center gap-4 mt-1.5 overflow-x-auto no-scrollbar sm:gap-6"
+                                data-element-id={slug === MENTRILY_ONBOARDING_COURSE_SLUG ? 'starter-course-tabs' : undefined}
+                            >
                                 <TabLink
                                     active={activeTab === 'learning'}
                                     onClick={() => setActiveTab('learning')}
@@ -468,6 +525,11 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                         <div
                                             key={m.id}
                                             onClick={() => setActiveModuleIndex(i)}
+                                            data-element-id={
+                                                slug === MENTRILY_ONBOARDING_COURSE_SLUG && i === 0
+                                                    ? 'starter-section-card'
+                                                    : undefined
+                                            }
                                             className={`min-w-[220px] max-w-[220px] h-[160px] cursor-pointer snap-start rounded-[24px] border-2 p-5 transition-all duration-300 relative flex flex-col justify-between sm:min-w-[240px] sm:max-w-[240px] sm:h-[170px] sm:p-6 ${activeModuleIndex === i ? 'bg-white border-[var(--brand)] shadow-2xl shadow-[var(--brand)]/10' : 'bg-white border-slate-100 hover:border-slate-200'}`}
                                         >
                                             <div className="flex items-center justify-between">
@@ -529,7 +591,15 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                             {(selectedModule?.units || []).map((u: any, uIdx: number) => {
                                 const isCompleted = progressData?.completedUnitIds.includes(u.id);
                                 return (
-                                    <div key={u.id} className="group">
+                                    <div
+                                        key={u.id}
+                                        className="group"
+                                        data-element-id={
+                                            slug === MENTRILY_ONBOARDING_COURSE_SLUG && uIdx === 0
+                                                ? 'starter-unit-row'
+                                                : undefined
+                                        }
+                                    >
                                         <div
                                             className={`px-4 py-4 rounded-[22px] border transition-all cursor-pointer flex items-center justify-between bg-white border-slate-100/80 hover:border-slate-300/50 sm:px-8 sm:py-5 sm:rounded-[24px]`}
                                         >
@@ -625,6 +695,11 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                             onClick={() => {
                                                 setActiveTestIndex(i);
                                             }}
+                                            data-element-id={
+                                                slug === MENTRILY_ONBOARDING_COURSE_SLUG && i === 0
+                                                    ? 'starter-course-exam-card'
+                                                    : undefined
+                                            }
                                             className={`min-w-[220px] max-w-[220px] h-[160px] cursor-pointer snap-start rounded-[24px] border-2 p-5 transition-all duration-300 relative flex flex-col justify-between sm:min-w-[240px] sm:max-w-[240px] sm:h-[170px] sm:p-6 ${activeTestIndex === i ? 'bg-white border-[var(--brand)] shadow-2xl shadow-[var(--brand)]/10' : 'bg-white border-slate-100 hover:border-slate-200'}`}
                                         >
                                             <div className="flex items-center justify-between">

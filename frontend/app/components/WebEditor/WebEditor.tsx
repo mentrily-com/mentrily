@@ -279,6 +279,7 @@ export default function WebEditor({
                                     js: files['index.js'],
                                 })
                             }
+                            data-element-id="starter-submit-answer"
                             className={`px-10 py-3 bg-[var(--brand)] text-white font-black rounded-xl text-[12px] uppercase tracking-widest shadow-lg shadow-[var(--brand-light)] hover:bg-[var(--brand-dark)] hover:-translate-y-0.5 transition-all active:translate-y-0 active:scale-[0.98] flex items-center gap-2`}
                         >
                             Submit

@@ -34,6 +34,7 @@ export default function UnitNavHeader({
                     <>
                         <button
                             onClick={onToggleSidebar}
+                            data-element-id="starter-unit-sidebar-toggle"
                             className={`p-2 transition-all rounded-xl hover:bg-slate-50 ${showSidebar ? 'text-indigo-600 bg-indigo-50/50' : 'text-slate-400'}`}
                             title="Toggle Sidebar"
                         >
@@ -63,6 +64,7 @@ export default function UnitNavHeader({
                         <div className="flex items-center gap-0.5 pr-1 border-r border-slate-200/60 mr-1">
                             <button
                                 onClick={onPrevious}
+                                data-element-id="starter-unit-previous"
                                 className="p-1.5 hover:bg-white hover:text-indigo-600 rounded-lg text-slate-400 transition-all active:scale-95"
                                 title="Previous"
                             >
@@ -79,6 +81,7 @@ export default function UnitNavHeader({
                             </button>
                             <button
                                 onClick={onNext}
+                                data-element-id="starter-unit-next"
                                 className="p-1.5 hover:bg-white hover:text-indigo-600 rounded-lg text-slate-400 transition-all active:scale-95"
                                 title="Next"
                             >
@@ -103,6 +106,7 @@ export default function UnitNavHeader({
                                 <button
                                     key={tab}
                                     onClick={() => onTabChange(tab as any)}
+                                    data-element-id={`starter-unit-tab-${tab}`}
                                     className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all sm:px-4 ${
                                         activeTab === tab
                                             ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-black/5'
