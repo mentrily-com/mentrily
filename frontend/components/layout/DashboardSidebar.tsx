@@ -518,12 +518,12 @@ export default function DashboardSidebar({
             backendRole === 'SUPER_ADMIN'
                 ? 'super-admin'
                 : backendRole === 'ADMIN'
-                    ? 'admin'
-                    : backendRole === 'TEACHER'
-                        ? 'teacher'
-                        : backendRole === 'LEARNER' || backendRole === 'STUDENT'
-                            ? 'student'
-                            : null;
+                  ? 'admin'
+                  : backendRole === 'TEACHER'
+                    ? 'teacher'
+                    : backendRole === 'LEARNER' || backendRole === 'STUDENT'
+                      ? 'student'
+                      : null;
 
         if (userRole) return userRole;
         if (pathname?.startsWith('/dashboard/super-admin')) return 'super-admin';
@@ -544,7 +544,9 @@ export default function DashboardSidebar({
         () => getNavGroups(role, sessionUser as Record<string, unknown> | null),
         [role, sessionUser],
     );
-    const hasCreatorRole = String(sessionUser?.role || '').toUpperCase() === 'ADMIN' || String(sessionUser?.role || '').toUpperCase() === 'TEACHER';
+    const hasCreatorRole =
+        String(sessionUser?.role || '').toUpperCase() === 'ADMIN' ||
+        String(sessionUser?.role || '').toUpperCase() === 'TEACHER';
     const isCreatorRole = role === 'teacher' || role === 'admin';
     const isCreatorSessionPending = Boolean(pathname?.startsWith('/dashboard/creator')) && !hasCreatorRole;
     const isPlanPending = isCreatorRole && !sessionUser?.plan;
@@ -621,9 +623,7 @@ export default function DashboardSidebar({
                         <div className="space-y-5 px-1.5 py-1">
                             {[0, 1, 2].map((groupIndex) => (
                                 <div key={groupIndex}>
-                                    {!collapsed && (
-                                        <div className="mb-3 h-3 w-20 rounded bg-slate-100" />
-                                    )}
+                                    {!collapsed && <div className="mb-3 h-3 w-20 rounded bg-slate-100" />}
                                     <div className="space-y-2">
                                         {[0, 1, 2].map((itemIndex) => (
                                             <div
@@ -635,112 +635,122 @@ export default function DashboardSidebar({
                                 </div>
                             ))}
                         </div>
-                    ) : navGroups.map((group, gi) => {
-                        const visibleItems = group.items.filter((item) => !item.hidden);
+                    ) : (
+                        navGroups.map((group, gi) => {
+                            const visibleItems = group.items.filter((item) => !item.hidden);
 
-                        if (visibleItems.length === 0) {
-                            return null;
-                        }
+                            if (visibleItems.length === 0) {
+                                return null;
+                            }
 
-                        return (
-                            <div key={gi}>
-                                {group.label && !collapsed && (
-                                    <p
-                                        className="px-2.5 mb-2 text-[11px] font-semibold uppercase tracking-[0.04em]"
-                                        style={{ color: 'var(--color-text-muted)' }}
-                                    >
-                                        {group.label}
-                                    </p>
-                                )}
-                                {collapsed && group.label && (
-                                    <div
-                                        className="h-px mx-2 mb-2"
-                                        style={{ backgroundColor: 'var(--color-border-subtle)' }}
-                                    />
-                                )}
-                                <div className="space-y-0.5">
-                                    {visibleItems.map((item) => {
-                                        const active = isActive(item.path);
-                                        const isDisabled = item.disabled;
+                            return (
+                                <div key={gi}>
+                                    {group.label && !collapsed && (
+                                        <p
+                                            className="px-2.5 mb-2 text-[11px] font-semibold uppercase tracking-[0.04em]"
+                                            style={{ color: 'var(--color-text-muted)' }}
+                                        >
+                                            {group.label}
+                                        </p>
+                                    )}
+                                    {collapsed && group.label && (
+                                        <div
+                                            className="h-px mx-2 mb-2"
+                                            style={{ backgroundColor: 'var(--color-border-subtle)' }}
+                                        />
+                                    )}
+                                    <div className="space-y-0.5">
+                                        {visibleItems.map((item) => {
+                                            const active = isActive(item.path);
+                                            const isDisabled = item.disabled;
 
-                                        return (
-                                            <Link
-                                                key={item.path}
-                                                href={isDisabled ? '#' : item.path}
-                                                title={collapsed ? item.label : undefined}
-                                                className={`relative w-full flex items-center gap-2.5 rounded-lg transition-all duration-150 text-sm font-medium cursor-pointer ${isDisabled ? 'opacity-40 cursor-not-allowed' : ''
+                                            return (
+                                                <Link
+                                                    key={item.path}
+                                                    href={isDisabled ? '#' : item.path}
+                                                    title={collapsed ? item.label : undefined}
+                                                    className={`relative w-full flex items-center gap-2.5 rounded-lg transition-all duration-150 text-sm font-medium cursor-pointer ${
+                                                        isDisabled ? 'opacity-40 cursor-not-allowed' : ''
                                                     }`}
-                                                style={{
-                                                    height: 40,
-                                                    padding: collapsed ? '0 12px' : '0 12px',
-                                                    justifyContent: collapsed ? 'center' : 'flex-start',
-                                                    backgroundColor: active ? 'var(--color-bg-blue-tint)' : 'transparent',
-                                                    color: active ? 'var(--brand, #008D98)' : 'var(--color-text-secondary)',
-                                                }}
-                                                onMouseEnter={(e) => {
-                                                    if (!active && !isDisabled) {
-                                                        e.currentTarget.style.backgroundColor = 'var(--color-bg-muted)';
-                                                        e.currentTarget.style.color = 'var(--color-text-primary)';
-                                                    }
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    if (!active) {
-                                                        e.currentTarget.style.backgroundColor = 'transparent';
-                                                        e.currentTarget.style.color = 'var(--color-text-secondary)';
-                                                    }
-                                                }}
-                                                onClick={(event) => {
-                                                    if (isDisabled) event.preventDefault();
-                                                }}
-                                            >
-                                                {/* Active indicator */}
-                                                {active && (
-                                                    <span
-                                                        className="absolute left-0 top-[8px] bottom-[8px] w-[2px] rounded-full"
-                                                        style={{ backgroundColor: 'var(--brand, #008D98)' }}
-                                                    />
-                                                )}
-
-                                                {/* Icon */}
-                                                <span
                                                     style={{
-                                                        color: active ? 'var(--brand, #008D98)' : 'var(--color-text-muted)',
+                                                        height: 40,
+                                                        padding: collapsed ? '0 12px' : '0 12px',
+                                                        justifyContent: collapsed ? 'center' : 'flex-start',
+                                                        backgroundColor: active
+                                                            ? 'var(--color-bg-blue-tint)'
+                                                            : 'transparent',
+                                                        color: active
+                                                            ? 'var(--brand, #008D98)'
+                                                            : 'var(--color-text-secondary)',
+                                                    }}
+                                                    onMouseEnter={(e) => {
+                                                        if (!active && !isDisabled) {
+                                                            e.currentTarget.style.backgroundColor =
+                                                                'var(--color-bg-muted)';
+                                                            e.currentTarget.style.color = 'var(--color-text-primary)';
+                                                        }
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        if (!active) {
+                                                            e.currentTarget.style.backgroundColor = 'transparent';
+                                                            e.currentTarget.style.color = 'var(--color-text-secondary)';
+                                                        }
+                                                    }}
+                                                    onClick={(event) => {
+                                                        if (isDisabled) event.preventDefault();
                                                     }}
                                                 >
-                                                    {item.icon}
-                                                </span>
+                                                    {/* Active indicator */}
+                                                    {active && (
+                                                        <span
+                                                            className="absolute left-0 top-[8px] bottom-[8px] w-[2px] rounded-full"
+                                                            style={{ backgroundColor: 'var(--brand, #008D98)' }}
+                                                        />
+                                                    )}
 
-                                                {/* Label */}
-                                                {!collapsed && <span className="truncate">{item.label}</span>}
-
-                                                {/* Badge */}
-                                                {!collapsed && item.badge && (
+                                                    {/* Icon */}
                                                     <span
-                                                        className="ml-auto px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wider"
                                                         style={{
-                                                            backgroundColor: 'var(--color-bg-muted)',
-                                                            color: 'var(--color-text-muted)',
+                                                            color: active
+                                                                ? 'var(--brand, #008D98)'
+                                                                : 'var(--color-text-muted)',
                                                         }}
                                                     >
-                                                        {item.badge}
+                                                        {item.icon}
                                                     </span>
-                                                )}
 
-                                                {/* Disabled lock */}
-                                                {isDisabled && !collapsed && (
-                                                    <Lock
-                                                        size={12}
-                                                        className="ml-auto"
-                                                        style={{ color: 'var(--color-text-muted)' }}
-                                                    />
-                                                )}
-                                            </Link>
-                                        );
-                                    })}
+                                                    {/* Label */}
+                                                    {!collapsed && <span className="truncate">{item.label}</span>}
+
+                                                    {/* Badge */}
+                                                    {!collapsed && item.badge && (
+                                                        <span
+                                                            className="ml-auto px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wider"
+                                                            style={{
+                                                                backgroundColor: 'var(--color-bg-muted)',
+                                                                color: 'var(--color-text-muted)',
+                                                            }}
+                                                        >
+                                                            {item.badge}
+                                                        </span>
+                                                    )}
+
+                                                    {/* Disabled lock */}
+                                                    {isDisabled && !collapsed && (
+                                                        <Lock
+                                                            size={12}
+                                                            className="ml-auto"
+                                                            style={{ color: 'var(--color-text-muted)' }}
+                                                        />
+                                                    )}
+                                                </Link>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
-                            </div>
-                        )
-                    })}
+                            );
+                        })
+                    )}
 
                     {/* ── Playground section ── */}
                     <div className="pt-2">
@@ -789,6 +799,16 @@ export default function DashboardSidebar({
                                                 e.currentTarget.style.backgroundColor = 'transparent';
                                                 e.currentTarget.style.color = 'var(--color-text-secondary)';
                                             }
+                                        }}
+                                        onClick={() => {
+                                            localStorage.setItem(
+                                                'playground-workspace-role',
+                                                JSON.stringify({
+                                                    role,
+                                                    expiresAt: Date.now() + 30_000,
+                                                }),
+                                            );
+                                            localStorage.setItem('user-role', role);
                                         }}
                                     >
                                         {active && (

@@ -21,6 +21,7 @@ interface Tab {
 interface PlaygroundCoreProps {
     initialLangId?: string;
     publicMode?: boolean;
+    publicSurface?: boolean;
 }
 
 function getDefaultLanguage(initialLangId?: string) {
@@ -31,7 +32,11 @@ function getDefaultLanguage(initialLangId?: string) {
     );
 }
 
-export default function PlaygroundCore({ initialLangId = 'javascript', publicMode = false }: PlaygroundCoreProps) {
+export default function PlaygroundCore({
+    initialLangId = 'javascript',
+    publicMode = false,
+    publicSurface = false,
+}: PlaygroundCoreProps) {
     const initialLanguage = getDefaultLanguage(initialLangId);
     const [tabs, setTabs] = useState<Tab[]>([
         { id: 1, name: 'playground', langId: initialLanguage.id, code: initialLanguage.initialBody },
@@ -44,13 +49,18 @@ export default function PlaygroundCore({ initialLangId = 'javascript', publicMod
     const [showQuestionModal, setShowQuestionModal] = useState(false);
 
     useEffect(() => {
-        if (publicMode && typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('create') === '1') {
+        if (
+            publicMode &&
+            typeof window !== 'undefined' &&
+            new URLSearchParams(window.location.search).get('create') === '1'
+        ) {
             setShowQuestionModal(true);
         }
     }, [publicMode]);
 
     const activeTab = tabs.find((tab) => tab.id === activeTabId) || tabs[0];
-    const currentLang = PLAYGROUND_LANGUAGES.find((language) => language.id === activeTab.langId) || PLAYGROUND_LANGUAGES[0];
+    const currentLang =
+        PLAYGROUND_LANGUAGES.find((language) => language.id === activeTab.langId) || PLAYGROUND_LANGUAGES[0];
 
     const handleRun = async () => {
         if (isRunning) return;
@@ -114,10 +124,11 @@ export default function PlaygroundCore({ initialLangId = 'javascript', publicMod
         setTabs(tabs.map((tab) => (tab.id === activeTabId ? { ...tab, langId, code: lang?.initialBody || '' } : tab)));
     };
 
-    if (publicMode) {
+    if (publicMode || publicSurface) {
         return (
             <PublicCompilerSurface
                 initialLangId={initialLanguage.id}
+                publicMode={publicMode}
                 onCreateQuestion={() => setShowQuestionModal(true)}
                 showQuestionModal={showQuestionModal}
                 onCloseQuestionModal={() => setShowQuestionModal(false)}
@@ -234,7 +245,6 @@ export default function PlaygroundCore({ initialLangId = 'javascript', publicMod
                                     code={activeTab.code}
                                     onChange={handleCodeChange}
                                 />
-
                             </div>
                         }
                         rightContent={
@@ -277,7 +287,6 @@ export default function PlaygroundCore({ initialLangId = 'javascript', publicMod
                     )}
                 </div>
             </div>
-
         </div>
     );
 }
@@ -319,11 +328,13 @@ function buildCompilerQuestion(initialLangId: string) {
 
 function PublicCompilerSurface({
     initialLangId,
+    publicMode,
     onCreateQuestion,
     showQuestionModal,
     onCloseQuestionModal,
 }: {
     initialLangId: string;
+    publicMode: boolean;
     onCreateQuestion: () => void;
     showQuestionModal: boolean;
     onCloseQuestionModal: () => void;
@@ -335,7 +346,8 @@ function PublicCompilerSurface({
     const [terminalLogs, setTerminalLogs] = useState('');
     const [executionResults, setExecutionResults] = useState<any[]>([]);
     const selectedLanguageLabel =
-        PLAYGROUND_LANGUAGES.find((language) => language.id === selectedLang)?.label || getDefaultLanguage(initialLangId).label;
+        PLAYGROUND_LANGUAGES.find((language) => language.id === selectedLang)?.label ||
+        getDefaultLanguage(initialLangId).label;
 
     useEffect(() => {
         const openBuilder = (event: Event) => {
@@ -375,7 +387,7 @@ function PublicCompilerSurface({
                     setTerminalLogs={setTerminalLogs}
                     executionResults={executionResults}
                     setExecutionResults={setExecutionResults}
-                    publicMode
+                    publicMode={publicMode}
                     hideSubmit
                 />
             </div>
@@ -505,67 +517,79 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
                     </div>
                 ) : (
                     <>
-                <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-                    <div>
-                        <h2 className="text-lg font-black text-slate-800">Create a coding question</h2>
-                        <p className="text-xs font-semibold text-slate-500">
-                            Anonymous links are valid for 3 days. Sign in to keep links valid for 30 days.
-                        </p>
-                    </div>
-                    <button onClick={onClose} className="rounded-lg p-2 text-slate-400 hover:bg-slate-50 hover:text-slate-700">
-                        <X size={18} />
-                    </button>
-                </div>
-
-                <div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-5">
-                    <div className="grid gap-4 md:grid-cols-[0.7fr_1.3fr]">
-                        <label className="space-y-2">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Title</span>
-                            <input
-                                value={question.title}
-                                onChange={(event) => setQuestion((prev: any) => ({ ...prev, title: event.target.value }))}
-                                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold outline-none focus:border-[var(--brand)]"
-                            />
-                        </label>
-                        <div className="space-y-2">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                                Problem Statement
-                            </span>
-                            <div className="rounded-[28px]">
-                                <RichTextEditor
-                                    content={question.description}
-                                    onChange={(description) => setQuestion((prev: any) => ({ ...prev, description }))}
-                                    placeholder="Describe what the solver needs to build."
-                                    compact
-                                />
+                        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+                            <div>
+                                <h2 className="text-lg font-black text-slate-800">Create a coding question</h2>
+                                <p className="text-xs font-semibold text-slate-500">
+                                    Anonymous links are valid for 3 days. Sign in to keep links valid for 30 days.
+                                </p>
                             </div>
+                            <button
+                                onClick={onClose}
+                                className="rounded-lg p-2 text-slate-400 hover:bg-slate-50 hover:text-slate-700"
+                            >
+                                <X size={18} />
+                            </button>
                         </div>
-                    </div>
 
-                    <CodingEditor
-                        question={question}
-                        onChange={(updates) => setQuestion((prev: any) => ({ ...prev, ...updates }))}
-                    />
+                        <div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-5">
+                            <div className="grid gap-4 md:grid-cols-[0.7fr_1.3fr]">
+                                <label className="space-y-2">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                        Title
+                                    </span>
+                                    <input
+                                        value={question.title}
+                                        onChange={(event) =>
+                                            setQuestion((prev: any) => ({ ...prev, title: event.target.value }))
+                                        }
+                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold outline-none focus:border-[var(--brand)]"
+                                    />
+                                </label>
+                                <div className="space-y-2">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                        Problem Statement
+                                    </span>
+                                    <div className="rounded-[28px]">
+                                        <RichTextEditor
+                                            content={question.description}
+                                            onChange={(description) =>
+                                                setQuestion((prev: any) => ({ ...prev, description }))
+                                            }
+                                            placeholder="Describe what the solver needs to build."
+                                            compact
+                                        />
+                                    </div>
+                                </div>
+                            </div>
 
-                    {error && (
-                        <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
-                            <div className="font-black">{error}</div>
+                            <CodingEditor
+                                question={question}
+                                onChange={(updates) => setQuestion((prev: any) => ({ ...prev, ...updates }))}
+                            />
+
+                            {error && (
+                                <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                                    <div className="font-black">{error}</div>
+                                </div>
+                            )}
                         </div>
-                    )}
-                </div>
 
-                <div className="flex justify-end gap-3 border-t border-slate-100 px-5 py-4">
-                    <button onClick={onClose} className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-500">
-                        Close
-                    </button>
-                    <button
-                        onClick={save}
-                        disabled={isSaving}
-                        className="rounded-xl bg-[var(--brand)] px-5 py-2 text-sm font-black text-white disabled:opacity-60"
-                    >
-                        {isSaving ? 'Saving...' : 'Save and generate link'}
-                    </button>
-                </div>
+                        <div className="flex justify-end gap-3 border-t border-slate-100 px-5 py-4">
+                            <button
+                                onClick={onClose}
+                                className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-500"
+                            >
+                                Close
+                            </button>
+                            <button
+                                onClick={save}
+                                disabled={isSaving}
+                                className="rounded-xl bg-[var(--brand)] px-5 py-2 text-sm font-black text-white disabled:opacity-60"
+                            >
+                                {isSaving ? 'Saving...' : 'Save and generate link'}
+                            </button>
+                        </div>
                     </>
                 )}
             </div>

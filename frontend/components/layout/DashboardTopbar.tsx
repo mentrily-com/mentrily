@@ -72,6 +72,7 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
     const isTeacher = role === 'teacher';
     const isAdmin = role === 'admin';
     const isSuperAdmin = role === 'super-admin';
+    const isPlaygroundRoute = Boolean(pathname?.startsWith('/playground'));
     const backendRole = String(sessionUser?.role || '').toUpperCase();
     const isCreatorSessionPending =
         Boolean(pathname?.startsWith('/dashboard/creator')) && backendRole !== 'ADMIN' && backendRole !== 'TEACHER';
@@ -122,6 +123,11 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
         : isAdmin || isTeacher
           ? '/dashboard/creator/profile'
           : '/dashboard/learner/profile';
+    const workspaceHomePath = isSuperAdmin
+        ? '/dashboard/super-admin'
+        : isAdmin || isTeacher
+          ? '/dashboard/creator'
+          : '/dashboard/learner';
 
     // Close profile dropdown on outside click
     useEffect(() => {
@@ -248,6 +254,22 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
                             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-bg-amber-tint)')}
                         >
                             Exit View
+                        </button>
+                    )}
+
+                    {isPlaygroundRoute && (
+                        <button
+                            onClick={() => router.push(workspaceHomePath)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold uppercase tracking-wider transition-colors cursor-pointer"
+                            style={{
+                                backgroundColor: 'var(--color-bg-amber-tint)',
+                                color: '#92400E',
+                                border: '1px solid #FDE68A',
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#FEF3C7')}
+                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-bg-amber-tint)')}
+                        >
+                            Exit Playground
                         </button>
                     )}
 

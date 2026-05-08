@@ -5,10 +5,7 @@ import PublicPlaygroundShell from '@/app/components/Playground/PublicPlaygroundS
 import PythonNotebookPage from '@/app/playground/pynb/page';
 import WebPlaygroundPage from '@/app/playground/web/page';
 import { siteConfig } from '@/app/config/site';
-import {
-    getPublicPlaygroundSeoEntry,
-    publicPlaygroundSeoEntries,
-} from '@/app/playground/publicSeo';
+import { getPublicPlaygroundSeoEntry, publicPlaygroundSeoEntries } from '@/app/playground/publicSeo';
 
 interface PageProps {
     params: Promise<{ orgSlug: string }>;
@@ -73,8 +70,8 @@ export default async function PublicPlaygroundPage({ params }: PageProps) {
         <PublicPlaygroundShell>
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
             {entry.kind === 'code' && <PlaygroundCore initialLangId={entry.langId} publicMode />}
-            {entry.kind === 'web' && <WebPlaygroundPage />}
-            {entry.kind === 'notebook' && <PythonNotebookPage />}
+            {entry.kind === 'web' && <WebPlaygroundPage embeddedShell={false} />}
+            {entry.kind === 'notebook' && <PythonNotebookPage embeddedShell={false} />}
         </PublicPlaygroundShell>
     );
 }
