@@ -69,16 +69,36 @@ jobs:
           REGISTRY="${{ steps.ecr.outputs.registry }}"
           
           # Create deployment script
-          cat << EOF > deploy.sh
+          cat << 'EOF' > deploy.sh
           #!/bin/bash
           set -e
+          
+          # Base64 decode environment variables
+          echo "$BACKEND_ENV_FILE_B64" | base64 -d > /tmp/backend.env
+          
+          # Fix Redis host to use Docker bridge and strip double quotes from values
+          sed -i 's/"//g' /tmp/backend.env
+          sed -i 's/REDIS_HOST=localhost/REDIS_HOST=172.17.0.1/g' /tmp/backend.env
+          
+          # Ensure Redis is running alongside the backend
+          if ! docker ps | grep -q redis-server; then
+            docker run -d --name redis-server --restart unless-stopped -p 172.17.0.1:6379:6379 redis:alpine || true
+          fi
+          
           docker login -u AWS -p "$ECR_PASSWORD" "$REGISTRY"
           docker pull "$IMAGE_URI"
+          
           docker stop blockscode-backend || true
           docker rm blockscode-backend || true
-          echo "$BACKEND_ENV_FILE_B64" | base64 -d > /tmp/backend.env
+          
           docker run -d --name blockscode-backend --restart unless-stopped --env-file /tmp/backend.env -p 3000:3000 "$IMAGE_URI"
           EOF
+          
+          # Inject variables into the script locally before encoding
+          sed -i "s|\$BACKEND_ENV_FILE_B64|${BACKEND_ENV_FILE_B64}|g" deploy.sh
+          sed -i "s|\$ECR_PASSWORD|${ECR_PASSWORD}|g" deploy.sh
+          sed -i "s|\$REGISTRY|${REGISTRY}|g" deploy.sh
+          sed -i "s|\$IMAGE_URI|${IMAGE_URI}|g" deploy.sh
           
           # Base64 encode the script to pass it safely through SSM
           SCRIPT_B64=$(cat deploy.sh | base64 -w 0)
