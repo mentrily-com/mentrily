@@ -91,7 +91,11 @@ jobs:
           docker stop blockscode-backend || true
           docker rm blockscode-backend || true
           
-          docker run -d --name blockscode-backend --restart unless-stopped --env-file /tmp/backend.env -p 3000:3000 "$IMAGE_URI"
+          # Extract the expected container port from the env file (fallback to 3000 if not found)
+          CONTAINER_PORT=$(grep -E "^PORT=" /tmp/backend.env | cut -d= -f2 | tr -d '"')
+          CONTAINER_PORT=${CONTAINER_PORT:-3000}
+          
+          docker run -d --name blockscode-backend --restart unless-stopped --env-file /tmp/backend.env -p 3000:$CONTAINER_PORT "$IMAGE_URI"
           EOF
           
           # Inject variables into the script locally before encoding
