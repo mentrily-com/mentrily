@@ -12,6 +12,7 @@ import {
   sanitizeQuestionForClient,
   shouldSanitizeSensitiveContent,
 } from '../common/testcase-visibility.util';
+import { readStashedSessionAnswers } from '../common/session-answers.util';
 import { toStudentExamResponseDto } from './dto/exam-response.dto';
 import { CertificateService } from '../certificate/certificate.service';
 import { NotificationGateway } from '../notification/notification.gateway';
@@ -419,7 +420,6 @@ export class ExamService {
         }
       }
 
-      console.log('Found CourseTest:', JSON.stringify(courseTest, null, 2));
       const transformed = this.transformCourseTest(
         courseTest,
         !shouldSanitizeSensitiveContent(user),
@@ -800,15 +800,6 @@ export class ExamService {
       duration = Math.floor(diffMs / 60000);
     }
 
-    console.log(
-      `[ExamService] Transforming CourseTest "${test.slug}". Found ${normalizedSections.length} sections.`,
-    );
-    normalizedSections.forEach((s: any, i: number) => {
-      console.log(
-        `  Section ${i + 1} ("${s.id}"): ${s.questions.length} questions`,
-      );
-    });
-
     return {
       id: test.id,
       title: test.title,
@@ -861,6 +852,32 @@ export class ExamService {
     };
   }
 
+  /**
+   * Tab-switch counts via an aggregate query instead of loading every
+   * violation row into memory (a resumed session can hold hundreds).
+   */
+  private async getTabSwitchCounts(
+    sessionId: string,
+  ): Promise<{ inCount: number; outCount: number }> {
+    const grouped = await this.prisma.violation.groupBy({
+      by: ['type'],
+      where: {
+        sessionId,
+        type: { in: ['TAB_SWITCH', 'TAB_SWITCH_OUT', 'TAB_SWITCH_IN'] },
+      },
+      _count: { _all: true },
+    });
+
+    let inCount = 0;
+    let outCount = 0;
+    for (const row of grouped) {
+      const count = Number((row as any)._count?._all || 0);
+      if (row.type === 'TAB_SWITCH_IN') inCount += count;
+      else outCount += count;
+    }
+    return { inCount, outCount };
+  }
+
   async startSession(
     userId: string,
     examId: string,
@@ -877,18 +894,9 @@ export class ExamService {
         },
       });
 
-      const sessionInclude = {
-        violations: {
-          where: {
-            type: { in: ['TAB_SWITCH', 'TAB_SWITCH_OUT', 'TAB_SWITCH_IN'] },
-          },
-        },
-      };
-
       let activeSession: any = await this.prisma.examSession.findFirst({
         where: { userId, examId, status: 'IN_PROGRESS' },
         orderBy: { createdAt: 'desc' },
-        include: sessionInclude,
       });
 
       let latestSession: any;
@@ -896,7 +904,6 @@ export class ExamService {
         latestSession = activeSession || await this.prisma.examSession.findFirst({
           where: { userId, examId },
           orderBy: [{ attemptNumber: 'desc' }, { createdAt: 'desc' }],
-          include: sessionInclude,
         });
       } catch (error) {
         if (!this.isMissingExamSessionAttemptNumberError(error)) {
@@ -906,7 +913,6 @@ export class ExamService {
         latestSession = activeSession || await this.prisma.examSession.findFirst({
           where: { userId, examId },
           orderBy: [{ createdAt: 'desc' }],
-          include: sessionInclude,
         });
       }
 
@@ -933,14 +939,15 @@ export class ExamService {
           }
 
           try {
-            const redisKey = `session:answers:${latestSession.id}`;
-            const cachedAnswers = await this.redis.get(redisKey);
-            if (cachedAnswers) {
+            const redisAnswers = await readStashedSessionAnswers(
+              this.redis,
+              latestSession.id,
+            );
+            if (Object.keys(redisAnswers).length > 0) {
               const dbAnswers =
                 typeof latestSession.answers === 'string'
                   ? JSON.parse(latestSession.answers)
                   : latestSession.answers || {};
-              const redisAnswers = JSON.parse(cachedAnswers);
               (latestSession as any).answers = { ...dbAnswers, ...redisAnswers };
             }
           } catch (e) {
@@ -972,16 +979,16 @@ export class ExamService {
             }
           }
 
-          const feedbackRecord = await this.prisma.feedback.findFirst({
-            where: { userId, examId },
-          });
+          const [feedbackRecord, tabSwitchCounts] = await Promise.all([
+            this.prisma.feedback.findFirst({
+              where: { userId, examId },
+              select: { id: true },
+            }),
+            this.getTabSwitchCounts(latestSession.id),
+          ]);
 
-          (latestSession as any).tabSwitchOutCount = latestSession.violations.filter(
-            (v: any) => v.type === 'TAB_SWITCH' || v.type === 'TAB_SWITCH_OUT',
-          ).length;
-          (latestSession as any).tabSwitchInCount = latestSession.violations.filter(
-            (v: any) => v.type === 'TAB_SWITCH_IN',
-          ).length;
+          (latestSession as any).tabSwitchOutCount = tabSwitchCounts.outCount;
+          (latestSession as any).tabSwitchInCount = tabSwitchCounts.inCount;
           (latestSession as any).feedbackDone = !!feedbackRecord;
           return latestSession;
         }
@@ -1043,39 +1050,36 @@ export class ExamService {
           });
         }
 
-        // Merge Redis-cached answers with DB answers for fast restore
-        // Redis may have answers that BullMQ hasn't persisted yet
-        try {
-          const redisKey = `session:answers:${existing.id}`;
-          const cachedAnswers = await this.redis.get(redisKey);
-          if (cachedAnswers) {
-            const dbAnswers =
-              typeof existing.answers === 'string'
-                ? JSON.parse(existing.answers)
-                : existing.answers || {};
-            const redisAnswers = JSON.parse(cachedAnswers);
-            // Merge: Redis answers take priority (they're more recent)
-            (existing as any).answers = { ...dbAnswers, ...redisAnswers };
-          }
-        } catch (e) {
-          console.error(
-            '[ExamService] Redis answer merge failed, using DB answers:',
-            e,
-          );
+        // Merge Redis-staged answers with DB answers for fast restore
+        // (Redis may hold answers the flush job hasn't persisted yet), and
+        // fetch feedback status + tab-switch counts in parallel.
+        const [redisAnswers, feedbackRecord, tabSwitchCounts] =
+          await Promise.all([
+            readStashedSessionAnswers(this.redis, existing.id).catch((e) => {
+              console.error(
+                '[ExamService] Redis answer merge failed, using DB answers:',
+                e,
+              );
+              return {} as Record<string, unknown>;
+            }),
+            this.prisma.feedback.findFirst({
+              where: { userId, examId },
+              select: { id: true },
+            }),
+            this.getTabSwitchCounts(existing.id),
+          ]);
+
+        if (Object.keys(redisAnswers).length > 0) {
+          const dbAnswers =
+            typeof existing.answers === 'string'
+              ? JSON.parse(existing.answers)
+              : existing.answers || {};
+          // Merge: Redis answers take priority (they're more recent)
+          (existing as any).answers = { ...dbAnswers, ...redisAnswers };
         }
 
-        // CHECK FEEDBACK STATUS
-        const feedbackRecord = await this.prisma.feedback.findFirst({
-          where: { userId, examId },
-        });
-
-        // Add violation counts to existing object
-        (existing as any).tabSwitchOutCount = existing.violations.filter(
-          (v: any) => v.type === 'TAB_SWITCH' || v.type === 'TAB_SWITCH_OUT',
-        ).length;
-        (existing as any).tabSwitchInCount = existing.violations.filter(
-          (v: any) => v.type === 'TAB_SWITCH_IN',
-        ).length;
+        (existing as any).tabSwitchOutCount = tabSwitchCounts.outCount;
+        (existing as any).tabSwitchInCount = tabSwitchCounts.inCount;
         (existing as any).feedbackDone = !!feedbackRecord;
         return existing;
       }
@@ -1196,10 +1200,37 @@ export class ExamService {
     return response;
   }
 
+  /**
+   * Tenancy check for teacher-facing exam endpoints: the exam must belong
+   * to the caller's organization (SUPER_ADMIN is exempt).
+   */
+  async assertExamOrgAccess(examId: string, user: any): Promise<void> {
+    if (String(user?.role || '').toUpperCase() === 'SUPER_ADMIN') {
+      return;
+    }
+
+    const exam = await this.prisma.exam.findUnique({
+      where: { id: examId },
+      select: { orgId: true },
+    });
+
+    if (!exam) {
+      throw new NotFoundException('Exam not found');
+    }
+
+    if (exam.orgId && exam.orgId !== user?.orgId) {
+      throw new ForbiddenException('You do not have access to this exam');
+    }
+  }
+
   async getMonitoredStudents(examId: string) {
+    // The teacher monitor polls this endpoint; loading every violation row
+    // per student per poll melts under load. Fetch recent logs capped per
+    // session and compute counts with a single aggregate query instead.
     const sessions = await this.prisma.examSession.findMany({
       where: { examId },
       select: {
+        id: true,
         userId: true,
         status: true,
         ipAddress: true,
@@ -1218,34 +1249,68 @@ export class ExamService {
             message: true,
             timestamp: true,
           },
+          orderBy: { timestamp: 'desc' },
+          take: 50,
         },
       },
     });
 
-    return sessions.map((session: any) => ({
-      name: session.user?.name || 'Unknown',
-      id: session.user?.rollNumber || session.userId.substring(0, 8),
-      status: session.status === 'IN_PROGRESS' ? 'In Progress' : 'Completed',
-      ip: session.ipAddress,
-      tabOuts: session.violations.filter((v: any) => v.type === 'TAB_SWITCH')
-        .length,
-      tabIns: 0,
-      vmDetected: session.vmDetected,
-      vmType: session.vmDetected ? 'Generic VM' : undefined,
-      appVersion: '1.0.0',
-      monitors: 1,
-      startTime: session.startTime.toLocaleTimeString(),
-      endTime: session.endTime ? session.endTime.toLocaleTimeString() : '-',
-      loginCount: 1,
-      sleepDuration: '0s',
-      lastActivity: 'Just now',
-      isHighRisk: session.violations.length > 2 || session.vmDetected,
-      logs: session.violations.map((v: any) => ({
-        time: v.timestamp.toLocaleTimeString(),
-        event: v.type,
-        description: v.message || 'Violation detected',
-      })),
-    }));
+    const sessionIds = sessions.map((s: any) => s.id);
+    const violationCounts =
+      sessionIds.length > 0
+        ? await this.prisma.violation.groupBy({
+            by: ['sessionId', 'type'],
+            where: { sessionId: { in: sessionIds } },
+            _count: { _all: true },
+          })
+        : [];
+
+    const countsBySession = new Map<
+      string,
+      { tabOuts: number; total: number }
+    >();
+    for (const row of violationCounts as any[]) {
+      const entry = countsBySession.get(row.sessionId) || {
+        tabOuts: 0,
+        total: 0,
+      };
+      const count = Number(row._count?._all || 0);
+      entry.total += count;
+      if (row.type === 'TAB_SWITCH' || row.type === 'TAB_SWITCH_OUT') {
+        entry.tabOuts += count;
+      }
+      countsBySession.set(row.sessionId, entry);
+    }
+
+    return sessions.map((session: any) => {
+      const counts = countsBySession.get(session.id) || {
+        tabOuts: 0,
+        total: 0,
+      };
+      return {
+        name: session.user?.name || 'Unknown',
+        id: session.user?.rollNumber || session.userId.substring(0, 8),
+        status: session.status === 'IN_PROGRESS' ? 'In Progress' : 'Completed',
+        ip: session.ipAddress,
+        tabOuts: counts.tabOuts,
+        tabIns: 0,
+        vmDetected: session.vmDetected,
+        vmType: session.vmDetected ? 'Generic VM' : undefined,
+        appVersion: '1.0.0',
+        monitors: 1,
+        startTime: session.startTime.toLocaleTimeString(),
+        endTime: session.endTime ? session.endTime.toLocaleTimeString() : '-',
+        loginCount: 1,
+        sleepDuration: '0s',
+        lastActivity: 'Just now',
+        isHighRisk: counts.total > 2 || session.vmDetected,
+        logs: session.violations.map((v: any) => ({
+          time: v.timestamp.toLocaleTimeString(),
+          event: v.type,
+          description: v.message || 'Violation detected',
+        })),
+      };
+    });
   }
 
   async getFeedbacks(examId: string) {

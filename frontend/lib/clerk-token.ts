@@ -1,3 +1,5 @@
+import { getActiveOrgId } from './active-org';
+
 type ClerkTokenGetter = () => Promise<string | null>;
 
 type WindowWithClerk = Window & {
@@ -70,12 +72,18 @@ export async function getClerkToken(): Promise<string | null> {
 
 export async function withClerkAuthorization(headers: HeadersInit = {}): Promise<HeadersInit> {
     const token = await getClerkToken();
-    if (!token) {
-        return headers;
+    // Every service already funnels its fetch headers through this one
+    // helper, so this is the single place the active-org header needs to be
+    // attached for workspace switching to reach every request.
+    const activeOrgId = getActiveOrgId();
+
+    const merged: HeadersInit = token
+        ? { ...headers, Authorization: `Bearer ${token}` }
+        : { ...headers };
+
+    if (activeOrgId) {
+        (merged as Record<string, string>)['X-Active-Org-Id'] = activeOrgId;
     }
 
-    return {
-        ...headers,
-        Authorization: `Bearer ${token}`,
-    };
+    return merged;
 }

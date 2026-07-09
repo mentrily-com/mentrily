@@ -7,13 +7,21 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { WebhookService } from '../webhook/webhook.service';
 import { ExamService } from '../exam/exam.service';
+import {
+  readStashedSessionAnswers,
+  sessionAnswersHashKey,
+  stashSessionAnswers,
+} from '../common/session-answers.util';
 
 @Processor('submission_queue', {
   // Optimize for serverless Redis (reduce command usage)
   stalledInterval: 300000, // 5 minutes
   maxStalledCount: 3,
   lockDuration: 60000, // 60s
-  concurrency: 5, // Process 5 answers in parallel
+  // Flush jobs are IO-bound (1 read + 1 write); with coalescing there is at
+  // most one job per active session so a higher concurrency drains bursts
+  // (e.g. everyone answering at exam start) without backlog.
+  concurrency: 25,
 })
 export class SubmissionProcessor extends WorkerHost {
   constructor(
@@ -32,303 +40,235 @@ export class SubmissionProcessor extends WorkerHost {
 
   async process(job: Job<any, any, string>): Promise<any> {
     switch (job.name) {
+      case 'flush_answers':
+        return this.handleFlushAnswers(job.data.sessionId);
       case 'save_answer':
-        return this.handleSaveAnswer(job);
+        // Legacy job shape (in-flight during deploy): stage the payload,
+        // then run the same flush path.
+        await stashSessionAnswers(
+          this.redis,
+          job.data.sessionId,
+          job.data.answer || {},
+        );
+        return this.handleFlushAnswers(job.data.sessionId);
       case 'auto_submit':
         return this.handleAutoSubmit(job);
     }
   }
 
-  private async handleSaveAnswer(job: Job) {
-    const { sessionId, answer } = job.data;
-    // console.log(`[SubmissionProcessor] Saving answer for session ${sessionId}:`, JSON.stringify(answer));
-
-    try {
-      // PERFORMANCE: Check Redis for cached grading data (Exam Questions)
-      // We need examId first. We can cache "session:meta:{sessionId}" -> { examId, examQuestions }
-
-      const sessionCacheKey = `session:meta:${sessionId}`;
-      const cachedSession = await this.redis.get(sessionCacheKey);
-
-      let examQuestions = null;
-      let sessionStatus = null;
-      let sessionUserId: string | null = null;
-      let isCourseLinkedExam = false;
-
-      if (cachedSession) {
-        const meta = JSON.parse(cachedSession);
-        examQuestions = meta.questions;
-        sessionStatus = meta.status;
-        sessionUserId = meta.userId || null;
-        isCourseLinkedExam = Boolean(meta.linkedCourseId);
-        if (typeof meta.linkedCourseId === 'undefined') {
-          const session = await this.prisma.examSession.findUnique({
-            where: { id: sessionId },
-            select: {
-              exam: {
-                select: { linkedCourseId: true },
-              },
-            },
-          });
-          isCourseLinkedExam = Boolean(session?.exam?.linkedCourseId);
+  /**
+   * Session metadata needed for flushing, cached in Redis for the duration
+   * of the exam so repeated flushes cost zero extra DB reads.
+   */
+  private async getSessionMeta(sessionId: string): Promise<{
+    userId: string | null;
+    status: string | null;
+    questions: any;
+    linkedCourseId: string | null;
+    startTimeMs: number | null;
+    durationMins: number | null;
+  } | null> {
+    const sessionCacheKey = `session:meta:${sessionId}`;
+    const cached = await this.redis.get(sessionCacheKey);
+    if (cached) {
+      try {
+        const meta = JSON.parse(cached);
+        if (
+          typeof meta.linkedCourseId !== 'undefined' &&
+          typeof meta.startTimeMs !== 'undefined'
+        ) {
+          return {
+            userId: meta.userId || null,
+            status: meta.status || null,
+            questions: meta.questions,
+            linkedCourseId: meta.linkedCourseId || null,
+            startTimeMs: meta.startTimeMs ?? null,
+            durationMins: meta.durationMins ?? null,
+          };
         }
-      } else {
-        // Fetch from DB
-        const session = await this.prisma.examSession.findUnique({
-          where: { id: sessionId },
-          select: {
-            id: true,
-            userId: true,
-            status: true,
-            exam: {
-              select: { questions: true, linkedCourseId: true },
-            },
-          },
-        });
-
-        if (session) {
-          examQuestions = session.exam?.questions;
-          sessionStatus = session.status;
-          sessionUserId = session.userId;
-          isCourseLinkedExam = Boolean(session.exam?.linkedCourseId);
-
-          if (examQuestions) {
-            // Cache for the duration of the exam session (e.g., 3 hours)
-            await this.redis.set(
-              sessionCacheKey,
-              JSON.stringify({
-                examId: session.id,
-                userId: session.userId,
-                questions: examQuestions,
-                status: session.status,
-                linkedCourseId: session.exam?.linkedCourseId || null,
-              }),
-              'EX',
-              10800,
-            );
-          }
-        }
+      } catch {
+        /* fall through to DB */
       }
+    }
 
-      // CHECK STATUS: If terminated or completed, ignore answers
-      if (sessionStatus === 'TERMINATED' || sessionStatus === 'COMPLETED') {
-        // console.log(`[SubmissionProcessor] Ignored answer for ${sessionStatus} session ${sessionId}`);
+    const session = await this.prisma.examSession.findUnique({
+      where: { id: sessionId },
+      select: {
+        id: true,
+        userId: true,
+        status: true,
+        startTime: true,
+        exam: {
+          select: { questions: true, linkedCourseId: true, duration: true },
+        },
+      },
+    });
+
+    if (!session) return null;
+
+    const meta = {
+      userId: session.userId,
+      status: session.status,
+      questions: session.exam?.questions ?? null,
+      linkedCourseId: session.exam?.linkedCourseId || null,
+      startTimeMs: session.startTime
+        ? new Date(session.startTime).getTime()
+        : null,
+      durationMins: session.exam?.duration ?? null,
+    };
+
+    await this.redis.set(
+      sessionCacheKey,
+      JSON.stringify({
+        examId: session.id,
+        userId: meta.userId,
+        questions: meta.questions,
+        status: meta.status,
+        linkedCourseId: meta.linkedCourseId,
+        startTimeMs: meta.startTimeMs,
+        durationMins: meta.durationMins,
+      }),
+      'EX',
+      10800,
+    );
+
+    return meta;
+  }
+
+  /** Grace window past the official end before the server closes a session. */
+  private static readonly LATE_SUBMIT_GRACE_MS = 2 * 60 * 1000;
+
+  /**
+   * Server-side time enforcement. The client timer is advisory — a student
+   * can freeze it with dev tools. If a write arrives past the deadline, the
+   * session is closed (auto-submitted) instead of accepting answers forever.
+   */
+  private isPastDeadline(meta: {
+    startTimeMs: number | null;
+    durationMins: number | null;
+  }): boolean {
+    if (!meta.startTimeMs || !meta.durationMins) return false;
+    const deadline =
+      meta.startTimeMs +
+      meta.durationMins * 60 * 1000 +
+      SubmissionProcessor.LATE_SUBMIT_GRACE_MS;
+    return Date.now() > deadline;
+  }
+
+  /**
+   * Drain the session's staged answers from Redis into Postgres in a single
+   * batched write, grading the batch once. Coalescing (one delayed job per
+   * session, keyed by jobId) means this runs at most once per
+   * FLUSH_DELAY_MS per session regardless of typing speed.
+   */
+  private async handleFlushAnswers(sessionId: string) {
+    try {
+      const staged = await readStashedSessionAnswers(this.redis, sessionId);
+      if (Object.keys(staged).length === 0) {
         return;
       }
 
-      const internalMarks: Record<string, number> = {};
-      if (examQuestions && !isCourseLinkedExam) {
-        // Reuse variable name to minimize code change in logic below
-        // const examQuestions = session.exam.questions as any; <-- Removed
+      const meta = await this.getSessionMeta(sessionId);
+      if (!meta) return;
 
-        // Helper to find question
-        const findQuestion = (questionsData: any, questionId: string) => {
-          // 1. Check if it's in sections
-          if (questionsData.sections && Array.isArray(questionsData.sections)) {
-            for (const section of questionsData.sections) {
-              if (section.questions) {
-                const q = section.questions.find(
-                  (q: any) => q.id === questionId,
-                );
-                if (q) return q;
-              }
-            }
-          }
-
-          // 2. Check if questionsData is array of sections or questions
-          if (Array.isArray(questionsData)) {
-            for (const item of questionsData) {
-              // If item is section
-              if (item.questions && Array.isArray(item.questions)) {
-                const q = item.questions.find((q: any) => q.id === questionId);
-                if (q) return q;
-              }
-              // If item is question
-              if (item.id === questionId) return item;
-            }
-          }
-
-          // 3. Check if map (object with section keys)
-          if (typeof questionsData === 'object' && questionsData !== null) {
-            // Direct access check
-            if (questionsData[questionId]) return questionsData[questionId];
-
-            // Iterate over values (sections)
-            const sections = Object.values(questionsData);
-            for (const section of sections as any[]) {
-              if (
-                section &&
-                typeof section === 'object' &&
-                section.questions &&
-                Array.isArray(section.questions)
-              ) {
-                const q = section.questions.find(
-                  (q: any) => q.id === questionId,
-                );
-                if (q) return q;
-              }
-            }
-          }
-
-          return null;
-        };
-
-        // Calculate marks for each answered question
-        for (const [qId, ans] of Object.entries(answer)) {
-          if (qId.startsWith('_')) continue;
-
-          const question = findQuestion(examQuestions, qId);
-          if (!question) continue;
-
-          let marks = 0;
-
-          if (question.type === 'MCQ' || question.type === 'MultiSelect') {
-            const options = question.mcqOptions || question.options || [];
-            const correctIds = options
-              .filter((o: any) => o.isCorrect)
-              .map((o: any) => o.id);
-            const selectedIds = Array.isArray(ans) ? ans : [ans];
-
-            // Check if correct (exact match)
-            const isCorrect =
-              JSON.stringify(selectedIds.sort()) ===
-              JSON.stringify(correctIds.sort());
-
-            if (isCorrect) {
-              marks = question.marks ?? question.points ?? 1;
-            }
-          } else if (question.type === 'Coding') {
-            // Check for execution result in answer
-            // The answer object itself might be the result, or it might be nested
-            const result =
-              typeof ans === 'object' && (ans as any).executionResult
-                ? (ans as any).executionResult
-                : ans;
-
-            if (result && typeof result === 'object') {
-              const testCases = question.codingConfig?.testCases || [];
-              const resultsArray = result.testResults || result.results;
-
-              if (resultsArray && Array.isArray(resultsArray)) {
-                resultsArray.forEach((res: any, idx: number) => {
-                  if (res.passed) {
-                    const tc = testCases[idx];
-                    // Use test case marks/points if available, else distribute total marks
-                    const tcPoints = tc?.marks || tc?.points;
-                    const questionMarks = Number(question.marks ?? question.points ?? 0);
-                    const tcMarks = tcPoints
-                      ? parseFloat(tcPoints)
-                      : questionMarks > 0
-                        ? questionMarks / testCases.length
-                        : 0;
-                    marks += tcMarks;
-                  }
-                });
-              }
-            }
-          }
-
-          internalMarks[qId] = marks;
-        }
+      // Ignore late writes for finished sessions
+      if (meta.status === 'TERMINATED' || meta.status === 'COMPLETED') {
+        return;
       }
 
-      // Step A: Save the actual answers (merge with existing JSONB)
-      // This is critical, otherwise the frontend will get empty answers on reload
-      if (Object.keys(answer).length > 0) {
-        await this.prisma.$executeRaw`
-                    UPDATE "ExamSession"
-                    SET "answers" = COALESCE("answers", '{}'::jsonb) || ${JSON.stringify(answer)}::jsonb,
-                        "updatedAt" = NOW()
-                    WHERE "id" = ${sessionId}
-                `;
+      // Server-side time enforcement: a write arriving past the exam deadline
+      // (plus grace) means the client timer was bypassed. Close the session
+      // via the auto-submit path instead of persisting the late answers.
+      if (this.isPastDeadline(meta)) {
+        console.warn(
+          `[SubmissionProcessor] Late write for session ${sessionId} past deadline — auto-submitting`,
+        );
+        return this.handleAutoSubmit({ data: { sessionId } } as Job);
       }
+
+      const isCourseLinkedExam = Boolean(meta.linkedCourseId);
 
       if (isCourseLinkedExam) {
+        // Course-linked exams are graded exclusively at submit time; persist
+        // the answers and make sure no stale draft score survives.
         await this.prisma.$executeRaw`
-                    UPDATE "ExamSession"
-                    SET "answers" = COALESCE("answers", '{}'::jsonb) - '_internal_marks' - '_internal_score',
-                        "score" = NULL,
-                        "updatedAt" = NOW()
-                    WHERE "id" = ${sessionId}
-                      AND "status" = 'IN_PROGRESS'
-                `;
-      }
-
-      // 2. Merge marks with existing marks (Fetch-Modify-Save pattern)
-      // We need to fetch current answers to merge _internal_marks correctly
-      // Note: This loses strict atomicity but is necessary for deep merge of _internal_marks
-
-      // However, to minimize race conditions, we can try to use the atomic update for the answer part,
-      // and a separate update for marks? No, that's worse.
-
-      // Let's use the atomic update for the ANSWER, and then a separate update for MARKS.
-      // This way, the answer is always saved safely. The marks might have a race condition but it's less critical (can be re-calculated).
-
-      // Step B: Update Marks (if any)
-      if (Object.keys(internalMarks).length > 0 && !isCourseLinkedExam) {
-        // We need to fetch current _internal_marks, merge, and save back.
+          UPDATE "ExamSession"
+          SET "answers" = (COALESCE("answers", '{}'::jsonb) || ${JSON.stringify(staged)}::jsonb)
+                            - '_internal_marks' - '_internal_score',
+              "score" = NULL,
+              "updatedAt" = NOW()
+          WHERE "id" = ${sessionId}
+            AND "status" = 'IN_PROGRESS'
+        `;
+      } else if (meta.questions) {
+        // Live-graded exams: read once, grade the merged view, write once.
         const currentSession = await this.prisma.examSession.findUnique({
           where: { id: sessionId },
           select: { answers: true },
         });
 
-        const currentAnswers = {
+        const mergedAnswers = {
           ...((currentSession?.answers as any) || {}),
-          ...answer,
+          ...staged,
         };
+
         const scoreDetails = this.examService.calculateScoreDetails(
-          currentAnswers,
-          examQuestions,
+          mergedAnswers,
+          meta.questions,
         );
 
-        // We only update _internal_marks key in the jsonb
         await this.prisma.$executeRaw`
-                    UPDATE "ExamSession"
-                    SET "answers" = jsonb_set(jsonb_set("answers", '{_internal_marks}', ${JSON.stringify(scoreDetails.marksByQuestion)}::jsonb), '{_internal_score}', ${JSON.stringify({
-                      earnedMarks: scoreDetails.earnedMarks,
-                      totalMarks: scoreDetails.totalMarks,
-                      percentage: scoreDetails.percentage,
-                    })}::jsonb),
-                        "score" = ${scoreDetails.percentage},
-                        "updatedAt" = NOW()
-                    WHERE "id" = ${sessionId}
-                `;
-      }
+          UPDATE "ExamSession"
+          SET "answers" = COALESCE("answers", '{}'::jsonb)
+                            || ${JSON.stringify(staged)}::jsonb
+                            || jsonb_build_object(
+                                 '_internal_marks', ${JSON.stringify(scoreDetails.marksByQuestion)}::jsonb,
+                                 '_internal_score', ${JSON.stringify({
+                                   earnedMarks: scoreDetails.earnedMarks,
+                                   totalMarks: scoreDetails.totalMarks,
+                                   percentage: scoreDetails.percentage,
+                                 })}::jsonb
+                               ),
+              "score" = ${scoreDetails.percentage},
+              "updatedAt" = NOW()
+          WHERE "id" = ${sessionId}
+            AND "status" NOT IN ('COMPLETED', 'TERMINATED')
+        `;
 
-      // Trigger question attempts for analytics
-      let userId = sessionUserId;
-      if (!userId) {
-        const sessionUser = await this.prisma.examSession.findUnique({
-          where: { id: sessionId },
-          select: { userId: true },
-        });
-        userId = sessionUser?.userId || null;
-      }
+        // Question-attempt analytics, one entry per question per flush
+        // (coalescing already collapsed the per-keystroke stream).
+        if (meta.userId) {
+          const jobs = Object.entries(staged)
+            .filter(([qId]) => !qId.startsWith('_'))
+            .map(([qId, ans]) => ({
+              name: 'save-question-attempt',
+              data: {
+                userId: meta.userId,
+                itemId: qId,
+                sessionId,
+                type: 'EXAM',
+                content: ans,
+                isCorrect: (scoreDetails.marksByQuestion[qId] || 0) > 0,
+                score: scoreDetails.marksByQuestion[qId],
+              },
+            }));
 
-      if (userId) {
-        const jobs = Object.entries(answer)
-          .filter(([qId]) => !qId.startsWith('_'))
-          .map(([qId, ans]) => ({
-            name: 'save-question-attempt',
-            data: {
-              userId,
-              itemId: qId,
-              sessionId: sessionId,
-              type: 'EXAM',
-              content: ans,
-              isCorrect: (internalMarks[qId] || 0) > 0,
-              score: internalMarks[qId],
-            },
-          }));
-
-        if (jobs.length > 0) {
-          await this.studentAnalyticsQueue.addBulk(jobs as any);
+          if (jobs.length > 0) {
+            await this.studentAnalyticsQueue.addBulk(jobs as any);
+          }
         }
+      } else {
+        // No grading data — persist answers only.
+        await this.prisma.$executeRaw`
+          UPDATE "ExamSession"
+          SET "answers" = COALESCE("answers", '{}'::jsonb) || ${JSON.stringify(staged)}::jsonb,
+              "updatedAt" = NOW()
+          WHERE "id" = ${sessionId}
+            AND "status" NOT IN ('COMPLETED', 'TERMINATED')
+        `;
       }
-
-      // console.log(`[SubmissionProcessor] Atomic update completed for ${sessionId}`);
     } catch (error) {
-      console.error('[SubmissionProcessor] Failed to save answer:', error);
+      console.error('[SubmissionProcessor] Failed to flush answers:', error);
       throw error; // Retry job
     }
   }
@@ -343,21 +283,30 @@ export class SubmissionProcessor extends WorkerHost {
       select: {
         answers: true,
         score: true,
+        status: true,
         userId: true,
         startTime: true,
         exam: { select: { questions: true } },
       },
     });
 
-    const answers = (session?.answers as any) || {};
+    // Idempotency: manual submit may already have completed the session.
+    if (!session || session.status === 'COMPLETED') {
+      return;
+    }
+
+    const dbAnswers = (session.answers as any) || {};
+    const staged = await readStashedSessionAnswers(this.redis, sessionId);
+    const answers = { ...dbAnswers, ...staged };
+
     const scoreDetails = this.examService.calculateScoreDetails(
       answers,
-      session?.exam?.questions,
+      session.exam?.questions,
     );
     const finalScore = scoreDetails.percentage;
 
     const completedAt = new Date();
-    const computedTimeTakenSec = session?.startTime
+    const computedTimeTakenSec = session.startTime
       ? Math.max(
           0,
           Math.floor(
@@ -367,8 +316,8 @@ export class SubmissionProcessor extends WorkerHost {
         )
       : null;
 
-    await this.prisma.examSession.update({
-      where: { id: sessionId },
+    const updated = await this.prisma.examSession.updateMany({
+      where: { id: sessionId, status: { not: 'COMPLETED' } },
       data: {
         status: 'COMPLETED',
         endTime: completedAt,
@@ -386,57 +335,59 @@ export class SubmissionProcessor extends WorkerHost {
       } as any,
     });
 
+    if (updated.count === 0) {
+      return;
+    }
+
     // Trigger analytics updates
-    if (session) {
-      await this.studentAnalyticsQueue.add('update-streak', {
-        userId: session.userId,
+    await this.studentAnalyticsQueue.add('update-streak', {
+      userId: session.userId,
+    });
+
+    try {
+      const examSession = await this.prisma.examSession.findUnique({
+        where: { id: sessionId },
+        select: {
+          userId: true,
+          score: true,
+          examId: true,
+          exam: { select: { orgId: true } },
+        },
       });
 
-      try {
-        const examSession = await this.prisma.examSession.findUnique({
-          where: { id: sessionId },
-          select: {
-            userId: true,
-            score: true,
-            examId: true,
-            exam: { select: { orgId: true } },
-          },
+      const orgId = examSession?.exam?.orgId || null;
+      if (orgId && examSession) {
+        await this.webhookService.dispatch(orgId, 'exam.completed', {
+          sessionId,
+          examId: examSession.examId,
+          studentId: examSession.userId,
+          score: Number(examSession.score || 0),
         });
 
-        const orgId = examSession?.exam?.orgId || null;
-        if (orgId && examSession) {
-          await this.webhookService.dispatch(orgId, 'exam.completed', {
+        const threshold = Number(process.env.WEBHOOK_SCORE_THRESHOLD || 40);
+        if (Number(examSession.score || 0) < threshold) {
+          await this.webhookService.dispatch(orgId, 'score.below_threshold', {
             sessionId,
             examId: examSession.examId,
             studentId: examSession.userId,
             score: Number(examSession.score || 0),
+            threshold,
           });
-
-          const threshold = Number(process.env.WEBHOOK_SCORE_THRESHOLD || 40);
-          if (Number(examSession.score || 0) < threshold) {
-            await this.webhookService.dispatch(orgId, 'score.below_threshold', {
-              sessionId,
-              examId: examSession.examId,
-              studentId: examSession.userId,
-              score: Number(examSession.score || 0),
-              threshold,
-            });
-          }
         }
-      } catch (error) {
-        console.warn(
-          `[SubmissionProcessor] Failed to dispatch webhook events for session ${sessionId}`,
-          error,
-        );
       }
+    } catch (error) {
+      console.warn(
+        `[SubmissionProcessor] Failed to dispatch webhook events for session ${sessionId}`,
+        error,
+      );
+    }
 
-      try {
-        await this.examService.handleExamCompletion(sessionId);
-      } catch (error: any) {
-        console.warn(
-          `[SubmissionProcessor] Exam completion post-processing skipped for session ${sessionId}: ${error?.message || 'unknown_error'}`,
-        );
-      }
+    try {
+      await this.examService.handleExamCompletion(sessionId);
+    } catch (error: any) {
+      console.warn(
+        `[SubmissionProcessor] Exam completion post-processing skipped for session ${sessionId}: ${error?.message || 'unknown_error'}`,
+      );
     }
   }
 }

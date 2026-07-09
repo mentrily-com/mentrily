@@ -131,6 +131,12 @@ export default function DashboardPage() {
             title: 'Results, bookmarks, and certificates are one tap away',
             description: 'Use quick access to move between progress, saved content, and credentials without digging.',
         },
+        {
+            element: '[data-element-id="learner-practice-exam"]',
+            title: 'Take a 2-minute practice exam',
+            description:
+                'Before your first real exam, run through this guided practice: it teaches the question palette, review flags, timers, and section submission — with nothing recorded.',
+        },
     ];
 
     // Show loading only if no data at all (first load)
@@ -392,6 +398,9 @@ export default function DashboardPage() {
                             </div>
 
                             <div className="space-y-3">
+                                <Link href="/exam/practice" className="block" data-element-id="learner-practice-exam">
+                                    <QuickLink icon="🎯" label="Practice Exam" sub="Learn the exam interface" />
+                                </Link>
                                 <Link href="/dashboard/learner/test" className="block">
                                     <QuickLink icon="📊" label="My Results" sub="Performance history" />
                                 </Link>

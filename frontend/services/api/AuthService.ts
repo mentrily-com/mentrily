@@ -1,6 +1,15 @@
 import { API_BASE_URL } from '@/lib/api-base';
 import { withCsrfHeader } from '@/lib/csrf';
 import { getClerkToken, withClerkAuthorization } from '@/lib/clerk-token';
+import { setActiveOrgId, clearActiveOrgId } from '@/lib/active-org';
+
+export interface WorkspaceMembership {
+    orgId: string;
+    orgName: string;
+    orgSlug: string | null;
+    role: 'STUDENT' | 'TEACHER' | 'ADMIN' | 'SUPER_ADMIN';
+    isHome: boolean;
+}
 
 const BASE_URL = API_BASE_URL;
 
@@ -274,9 +283,49 @@ export const AuthService = {
 
     logout() {
         resetSessionCache();
+        clearActiveOrgId();
         if (typeof window !== 'undefined') {
             window.location.href = '/logout';
         }
+    },
+
+    async listMemberships(): Promise<WorkspaceMembership[]> {
+        const authHeaders = await withClerkAuthorization({ 'Content-Type': 'application/json' });
+        const res = await fetch(`${BASE_URL}/auth/memberships`, {
+            headers: authHeaders,
+            credentials: 'include',
+        });
+
+        if (!res.ok) {
+            throw new Error('Failed to load workspaces');
+        }
+
+        return await res.json();
+    },
+
+    // Switching never touches the user's home org/role — it only changes
+    // which membership subsequent requests resolve against. Resets the
+    // cache and refetches /auth/me under the new org so callers get back a
+    // fully up-to-date session in one round trip.
+    async switchOrg(orgId: string): Promise<any> {
+        const authHeaders = await withClerkAuthorization(
+            withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
+        );
+        const res = await fetch(`${BASE_URL}/auth/switch-org`, {
+            method: 'POST',
+            headers: authHeaders,
+            credentials: 'include',
+            body: JSON.stringify({ orgId }),
+        });
+
+        if (!res.ok) {
+            const error = await res.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to switch workspace');
+        }
+
+        setActiveOrgId(orgId);
+        resetSessionCache();
+        return await this.checkSession(true);
     },
 
     async uploadBugReportImage(file: File): Promise<{ url: string; name: string; type: string; size: number }> {

@@ -2,3 +2,4 @@
 .agent/skills/
 __pycache__/
 *.py[cod]
+mentrily_mvp.xml

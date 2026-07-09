@@ -18,8 +18,10 @@ import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { User } from './user.decorator';
 import { SelectRoleDto } from './dto/select-role.dto';
+import { SwitchOrgDto } from './dto/switch-org.dto';
 import type { FastifyRequest } from 'fastify';
 import { StorageService } from '../../services/storage/storage.service';
+import { MembershipService } from '../organization/membership.service';
 import { Webhook } from 'svix';
 
 const ALLOWED_IMAGE_TYPES = [
@@ -44,6 +46,7 @@ export class AuthController {
     private authService: AuthService,
     private storageService: StorageService,
     private configService: ConfigService,
+    private membershipService: MembershipService,
   ) {}
 
   @Post('webhooks/clerk')
@@ -125,6 +128,24 @@ export class AuthController {
   @Post('select-role-creator')
   async selectRoleCreator(@User() user: any) {
     return this.authService.selectRoleCreator(user.id);
+  }
+
+  // Workspace switching — every org a user belongs to (their home org plus
+  // any they've been invited into since), and switching which one is
+  // active. Switching never touches the user's home org/role; it only
+  // changes which membership the NEXT request resolves against (the client
+  // sends X-Active-Org-Id and refetches /auth/me after calling this).
+  @UseGuards(JwtAuthGuard)
+  @Get('memberships')
+  async listMemberships(@User() user: any) {
+    return this.membershipService.listMemberships(user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('switch-org')
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
+  async switchOrg(@User() user: any, @Body() body: SwitchOrgDto) {
+    return this.membershipService.switchActiveOrg(user, body.orgId);
   }
 
   @UseGuards(JwtAuthGuard)

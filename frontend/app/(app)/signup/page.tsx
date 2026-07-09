@@ -57,6 +57,13 @@ export default function SignupPage() {
         AuthService.resetSessionCache();
     }, []);
 
+    // Warm the post-signup destinations while the user fills the form so the
+    // first dashboard paint after account creation feels instant.
+    React.useEffect(() => {
+        router.prefetch('/dashboard');
+        router.prefetch('/dashboard/learner');
+    }, [router]);
+
     React.useEffect(() => {
         if (!isOauthCallback || !hasOauthCallbackError) return;
 

@@ -21,6 +21,7 @@ import {
   toExamEnterResponseDto,
   toStudentExamResponseDto,
 } from './dto/exam-response.dto';
+import { shouldSanitizeSensitiveContent } from '../common/testcase-visibility.util';
 import { EnterExamDto } from './dto/enter-exam.dto';
 import { CreateExamDto } from './dto/create-exam.dto';
 import { SaveFeedbackDto } from './dto/save-feedback.dto';
@@ -99,12 +100,10 @@ export class ExamController {
     @User() user: any,
   ) {
     const exam = await this.examService.getExamBySlug(slug, user);
-    const isStudent = String(user?.role || '').toUpperCase() === 'STUDENT';
-    if (isStudent) {
+    // Fail closed: anyone who isn't an explicitly privileged role gets the
+    // whitelisted student payload (no answer keys, solutions, hidden tests).
+    if (shouldSanitizeSensitiveContent(user)) {
       return toStudentExamResponseDto(exam);
-    }
-    if (json) {
-      return exam;
     }
     return exam;
   }
@@ -248,14 +247,18 @@ export class ExamController {
   }
 
   @Get(':examId/monitoring')
-  @UseGuards(JwtAuthGuard)
-  async getMonitoredStudents(@Param('examId') examId: string) {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('TEACHER', 'ADMIN', 'SUPER_ADMIN')
+  async getMonitoredStudents(@Param('examId') examId: string, @User() user: any) {
+    await this.examService.assertExamOrgAccess(examId, user);
     return this.examService.getMonitoredStudents(examId);
   }
 
   @Get(':examId/feedbacks')
-  @UseGuards(JwtAuthGuard)
-  async getFeedbacks(@Param('examId') examId: string) {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('TEACHER', 'ADMIN', 'SUPER_ADMIN')
+  async getFeedbacks(@Param('examId') examId: string, @User() user: any) {
+    await this.examService.assertExamOrgAccess(examId, user);
     const feedbacks = await this.examService.getFeedbacks(examId);
     return feedbacks.map((f: any) => ({
       id: f.id,

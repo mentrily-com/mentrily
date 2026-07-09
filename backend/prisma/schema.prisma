@@ -42,6 +42,13 @@ enum PlanStatus {
   @@map("PlanStatus")
 }
 
+enum MembershipStatus {
+  ACTIVE
+  SUSPENDED
+
+  @@map("MembershipStatus")
+}
+
 model User {
   id                 String   @id @default(uuid())
   email              String   @unique
@@ -99,6 +106,13 @@ model User {
 
   orgId        String?
   organization Organization? @relation(fields: [orgId], references: [id], onDelete: SetNull)
+
+  // Multi-org membership: orgId/role above remain the user's home org (never
+  // overwritten by joining a second org — see OrgMembership). lastActiveOrgId
+  // is the org the workspace switcher last pointed at, used to default the
+  // active org on a fresh session when no X-Active-Org-Id header is sent.
+  lastActiveOrgId String?
+  memberships     OrgMembership[]
 
   @@index([email])
   @@index([clerkId])
@@ -196,6 +210,7 @@ model ExamSession {
   @@index([status]) // Used in active session filtering
   @@index([userId, status]) // Compound for "active sessions by user"
   @@index([userId, examId, attemptNumber])
+  @@index([userId, examId, status]) // Hot path: start/resume session + attempt counting
 }
 
 model Violation {
@@ -439,6 +454,8 @@ model Organization {
   announcements Announcement[]
   bugReports    BugReport[]
 
+  memberships OrgMembership[]
+
   planStatus       PlanStatus @default(ACTIVE)
   slug             String?    @unique
   customDomain     String?    @unique
@@ -564,7 +581,10 @@ model SubscriptionEvent {
 
 model PendingInvite {
   id                String   @id @default(uuid())
-  email             String   @unique
+  // Was @unique on its own — blocked inviting the same email to a second
+  // org. Uniqueness is now per (email, orgId) so a person can have separate
+  // outstanding invites at different orgs simultaneously.
+  email             String
   role              Role     @default(STUDENT)
   orgId             String
   clerkInvitationId String?
@@ -576,8 +596,34 @@ model PendingInvite {
 
   organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
+  @@unique([email, orgId])
   @@index([orgId])
+  @@index([email])
   @@index([expiresAt])
+}
+
+// A person's role in one specific org. User.orgId/role above stay the
+// person's home org and are never overwritten by this table — joining a
+// second org only ever adds a row here. ClerkAuthGuard resolves the
+// request's effective role/orgId from whichever membership is "active"
+// (X-Active-Org-Id header, falling back to lastActiveOrgId, falling back to
+// the home org) — see MembershipService.
+model OrgMembership {
+  id        String           @id @default(uuid())
+  userId    String
+  orgId     String
+  role      Role             @default(STUDENT)
+  status    MembershipStatus @default(ACTIVE)
+  joinedAt  DateTime         @default(now())
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, orgId])
+  @@index([userId, status])
+  @@index([orgId, status])
 }
 
 model Bookmark {

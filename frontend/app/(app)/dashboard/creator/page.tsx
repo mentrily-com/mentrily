@@ -137,23 +137,59 @@ export default function TeacherDashboardPage() {
                 steps={[
                     {
                         element: '[data-element-id="creator-studio-hero"]',
-                        title: 'Your studio is now task-first',
-                        description: 'Everything important for planning, shipping, and monitoring content starts here.',
+                        title: 'Welcome to your Creator Studio',
+                        description:
+                            'This is home base: plan courses, schedule exams, and watch learner activity without leaving the page. Let’s take a 60-second lap around it.',
+                        side: 'bottom',
                     },
                     {
                         element: '[data-element-id="create-course-btn"]',
-                        title: 'Course creation is one click away',
-                        description: 'Jump straight into authoring without hunting through menus.',
+                        title: 'Start with a course',
+                        description:
+                            'One click opens the course builder — add sections, lessons, and practice questions there. Your first course is the natural first step.',
+                        side: 'bottom',
+                    },
+                    {
+                        element: '[data-element-id="create-exam-btn"]',
+                        title: 'Then attach an exam',
+                        description:
+                            'Exams can stand alone or link to a course. Scheduling, access rules, tab-switch limits, and proctoring all live in the exam editor.',
+                        side: 'bottom',
+                    },
+                    {
+                        element: '[data-element-id="creator-stats"]',
+                        title: 'Your numbers at a glance',
+                        description:
+                            'Learners, courses, exams, and issued certificates update live here — a quick health check every time you land on the studio.',
+                        side: 'bottom',
+                    },
+                    {
+                        element: '[data-element-id="creator-capacity"]',
+                        title: 'Capacity before it becomes a blocker',
+                        description:
+                            'Student seats and storage are tracked against your plan, so you’ll see limits approaching long before publishing gets interrupted.',
+                        side: 'top',
                     },
                     {
                         element: '[data-element-id="creator-content-pipeline"]',
-                        title: 'Track content health in one board',
-                        description: 'Search, filter, and open draft or published content from a single place.',
+                        title: 'Everything you’re building, one board',
+                        description:
+                            'Flip between Published and Draft, search by name, and jump into editing a course or its linked exam from the same row.',
+                        side: 'top',
                     },
                     {
                         element: '[data-element-id="creator-recent-activity"]',
-                        title: 'Stay on top of learner signals',
-                        description: 'Recent submissions, completions, and certificates stay visible while you build.',
+                        title: 'Learner signals while you build',
+                        description:
+                            'Submissions, completions, and certificates stream in here, so you never have to leave authoring to check on your class.',
+                        side: 'left',
+                    },
+                    {
+                        element: '[data-element-id="creator-workflow"]',
+                        title: 'Ready to go deeper?',
+                        description:
+                            'The workflow cards outline the create → assess → certify loop, and Open Analytics gives you per-course performance. That’s the tour — build something great!',
+                        side: 'top',
                     },
                 ]}
             />
@@ -211,6 +247,7 @@ export default function TeacherDashboardPage() {
                         </Link>
                         <Link
                             href="/dashboard/creator/exams/new"
+                            data-element-id="create-exam-btn"
                             className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white/80 px-5 py-3 text-sm font-semibold text-slate-700 backdrop-blur-sm transition-colors duration-200 hover:bg-white"
                         >
                             <ClipboardList size={15} />
@@ -455,6 +492,7 @@ export default function TeacherDashboardPage() {
 
             {/* ═══════════════ CHECKLIST + ANALYTICS ═══════════════ */}
             <motion.section
+                data-element-id="creator-workflow"
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.35, duration: 0.45 }}
@@ -587,6 +625,7 @@ function CapacityPanel({
 }) {
     return (
         <motion.div
+            data-element-id="creator-capacity"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15, duration: 0.45 }}

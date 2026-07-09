@@ -22,6 +22,7 @@ import DOMPurify from 'isomorphic-dompurify';
 import { useSession } from '@/hooks/useSession';
 import CrispWidget from './CrispWidget';
 import { BrandLockup } from '@/components/brand/BrandLockup';
+import WorkspaceSwitcher from './Common/WorkspaceSwitcher';
 
 export interface ExamConfig {
     rollNumber?: string;
@@ -681,6 +682,7 @@ export default function Navbar({ basePath, userRole: roleOverride, examConfig }:
                             {!isTeacher && !isAdmin && !isSuperAdmin && !examConfig && !mustChangePassword && (
                                 <AppsMenu isTeacher={isTeacher} />
                             )}
+                            {!examConfig && <WorkspaceSwitcher sessionUser={sessionUser} />}
                             <ProfileMenu
                                 isTeacher={isTeacher}
                                 isAdmin={isAdmin}
