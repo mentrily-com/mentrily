@@ -86,6 +86,10 @@ const nextConfig: NextConfig = {
 
     experimental: {
         optimizeCss: true,
+        // Tree-shake heavy barrel-file packages so pages only bundle the
+        // components they actually import (lucide-react is covered by the
+        // built-in default list).
+        optimizePackageImports: ['framer-motion', 'recharts', '@apollo/client'],
         serverActions: {
             bodySizeLimit: '10mb',
         },

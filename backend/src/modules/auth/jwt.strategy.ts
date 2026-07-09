@@ -21,6 +21,7 @@ import {
 } from '../../config/plan-limits';
 import { QuotaService } from '../billing/quota.service';
 import { OrgProvisioningService } from '../organization/org-provisioning.service';
+import { MembershipService } from '../organization/membership.service';
 
 @Injectable()
 export class ClerkAuthGuard implements CanActivate {
@@ -39,7 +40,9 @@ export class ClerkAuthGuard implements CanActivate {
     private prisma: PrismaService,
     @InjectRedis() private readonly redis: Redis,
     @Optional() private readonly quotaService?: QuotaService,
-    @Optional() private readonly orgProvisioningService?: OrgProvisioningService,
+    @Optional()
+    private readonly orgProvisioningService?: OrgProvisioningService,
+    @Optional() private readonly membershipService?: MembershipService,
   ) {}
 
   private getRootDomain(): string {
@@ -222,7 +225,11 @@ export class ClerkAuthGuard implements CanActivate {
 
     const labels = new Set(
       enumRows
-        .map((row) => String(row?.enumlabel || '').trim().toUpperCase())
+        .map((row) =>
+          String(row?.enumlabel || '')
+            .trim()
+            .toUpperCase(),
+        )
         .filter(Boolean),
     );
 
@@ -274,13 +281,21 @@ export class ClerkAuthGuard implements CanActivate {
   }
 
   private isMissingOnboardingColumnError(error: unknown): boolean {
+    return this.isMissingColumnError(error, 'User.hasCompletedOnboarding');
+  }
+
+  private hasLastActiveOrgIdColumn: boolean | null = null;
+
+  private isMissingLastActiveOrgIdColumnError(error: unknown): boolean {
+    return this.isMissingColumnError(error, 'User.lastActiveOrgId');
+  }
+
+  private isMissingColumnError(error: unknown, column: string): boolean {
     return (
       typeof error === 'object' &&
       error !== null &&
       (error as any).code === 'P2022' &&
-      String((error as any)?.meta?.column || '').includes(
-        'User.hasCompletedOnboarding',
-      )
+      String((error as any)?.meta?.column || '').includes(column)
     );
   }
 
@@ -295,70 +310,78 @@ export class ClerkAuthGuard implements CanActivate {
   }
 
   private async findSessionUser(where: any) {
-    const baseSelect = {
-      id: true,
-      clerkId: true,
-      email: true,
-      role: true,
-      isActive: true,
-      orgId: true,
-      profilePicture: true,
-      name: true,
-      rollNumber: true,
-      department: true,
-      needsRoleSelection: true,
-      mustChangePassword: true,
-      createdAt: true,
-      organization: {
-        select: {
-          domain: true,
-          features: true,
-          plan: true,
-          planStatus: true,
-          studentCount: true,
-          courseCount: true,
-          storageUsedMb: true,
-          teacherSeatCount: true,
-        } as any,
-      },
-    } as const;
+    // Bounded retry: each optional column (hasCompletedOnboarding,
+    // lastActiveOrgId — added by migrations that may not be deployed yet)
+    // is probed independently and dropped from the select on a P2022, so
+    // this degrades gracefully whichever subset of them exists.
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const select = {
+        id: true,
+        clerkId: true,
+        email: true,
+        role: true,
+        isActive: true,
+        orgId: true,
+        profilePicture: true,
+        name: true,
+        rollNumber: true,
+        department: true,
+        needsRoleSelection: true,
+        mustChangePassword: true,
+        createdAt: true,
+        organization: {
+          select: {
+            domain: true,
+            features: true,
+            plan: true,
+            planStatus: true,
+            studentCount: true,
+            courseCount: true,
+            storageUsedMb: true,
+            teacherSeatCount: true,
+          } as any,
+        },
+        ...(this.hasOnboardingColumn === false
+          ? {}
+          : { hasCompletedOnboarding: true }),
+        ...(this.hasLastActiveOrgIdColumn === false
+          ? {}
+          : { lastActiveOrgId: true }),
+      } as const;
 
-    const select =
-      this.hasOnboardingColumn === false
-        ? baseSelect
-        : ({
-            ...baseSelect,
-            hasCompletedOnboarding: true,
-          } as const);
+      try {
+        const user = await this.prisma.user.findFirst({
+          where,
+          select: select as any,
+        });
+        this.hasOnboardingColumn = true;
+        this.hasLastActiveOrgIdColumn = true;
+        return this.normalizeLegacyUser(user as any);
+      } catch (error) {
+        if (this.isDatabaseConnectionError(error)) {
+          this.logger.error(
+            `Database connection failed while resolving session user: ${this.getErrorMessage(error)}`,
+          );
+          throw new ServiceUnavailableException(
+            'Database is temporarily unavailable.',
+          );
+        }
 
-    try {
-      const user = await this.prisma.user.findFirst({
-        where,
-        select: select as any,
-      });
-      this.hasOnboardingColumn = true;
-      return this.normalizeLegacyUser(user as any);
-    } catch (error) {
-      if (this.isDatabaseConnectionError(error)) {
-        this.logger.error(
-          `Database connection failed while resolving session user: ${this.getErrorMessage(error)}`,
-        );
-        throw new ServiceUnavailableException(
-          'Database is temporarily unavailable.',
-        );
-      }
+        if (this.isMissingOnboardingColumnError(error)) {
+          this.hasOnboardingColumn = false;
+          continue;
+        }
 
-      if (!this.isMissingOnboardingColumnError(error)) {
+        if (this.isMissingLastActiveOrgIdColumnError(error)) {
+          this.hasLastActiveOrgIdColumn = false;
+          continue;
+        }
+
         throw error;
       }
-
-      this.hasOnboardingColumn = false;
-      const legacyUser = await this.prisma.user.findFirst({
-        where,
-        select: baseSelect as any,
-      });
-      return this.normalizeLegacyUser(legacyUser as any);
     }
+
+    throw new UnauthorizedException('SESSION_USER_SELECT_FAILED');
   }
 
   private isDatabaseConnectionError(error: unknown): boolean {
@@ -402,9 +425,7 @@ export class ClerkAuthGuard implements CanActivate {
     value: string,
   ) {
     const whereSql =
-      column === 'email'
-        ? `LOWER("email") = LOWER($1)`
-        : `"${column}" = $1`;
+      column === 'email' ? `LOWER("email") = LOWER($1)` : `"${column}" = $1`;
 
     const rows = await client.$queryRawUnsafe(
       `
@@ -504,10 +525,59 @@ export class ClerkAuthGuard implements CanActivate {
     }
   }
 
+  /**
+   * When an email has more than one outstanding invite (multi-org), picks
+   * the one Clerk actually meant. A single match needs no disambiguation.
+   * With several, prefers the orgId Clerk stamped into invitation
+   * publicMetadata — checked on the token first (free), falling back to one
+   * Clerk API call for the user's publicMetadata (Clerk copies an
+   * invitation's publicMetadata onto the resulting user at signup). If
+   * neither source resolves it, falls back to the most recent invite —
+   * the same guess the code made before multi-org invites were possible.
+   */
+  private async resolvePendingInvite(
+    tx: any,
+    email: string,
+    clerkId: string,
+    payload: any,
+    secretKey: string,
+  ): Promise<any> {
+    const candidates = await tx.pendingInvite.findMany({
+      where: { email },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (candidates.length <= 1) {
+      return candidates[0] || null;
+    }
+
+    let preferredOrgId: string | null =
+      payload?.public_metadata?.orgId ||
+      payload?.publicMetadata?.orgId ||
+      payload?.org_id ||
+      null;
+
+    if (!preferredOrgId) {
+      try {
+        const clerkClient = createClerkClient({ secretKey });
+        const clerkUser = await clerkClient.users.getUser(clerkId);
+        preferredOrgId = (clerkUser.publicMetadata as any)?.orgId || null;
+      } catch {
+        preferredOrgId = null;
+      }
+    }
+
+    const matched = preferredOrgId
+      ? candidates.find((invite: any) => invite.orgId === preferredOrgId)
+      : null;
+
+    return matched || candidates[0];
+  }
+
   private async provisionUserFromClerkPayload(
     clerkId: string,
     payload: any,
-    options?: { forceRoleSelection?: boolean },
+    options?: { forceRoleSelection?: boolean; secretKey?: string },
   ) {
     const email = this.normalizePrimaryEmail(payload);
     if (!email) {
@@ -527,10 +597,18 @@ export class ClerkAuthGuard implements CanActivate {
         };
       }
 
-      const byEmail: any = await this.findLegacyUserByColumn(tx, 'email', email);
-      const pendingInvite = await tx.pendingInvite.findUnique({
-        where: { email },
-      });
+      const byEmail: any = await this.findLegacyUserByColumn(
+        tx,
+        'email',
+        email,
+      );
+      const pendingInvite = await this.resolvePendingInvite(
+        tx,
+        email,
+        clerkId,
+        payload,
+        options?.secretKey || '',
+      );
       const pendingInviteRole = this.normalizeRoleValue(pendingInvite?.role);
       const inviteCounter =
         pendingInvite && pendingInviteRole
@@ -545,17 +623,30 @@ export class ClerkAuthGuard implements CanActivate {
         const shouldForceRoleSelection =
           options?.forceRoleSelection === true && byEmail.role === 'STUDENT';
 
+        // The person already has a home org — if this invite is for a
+        // DIFFERENT org, it must never move their home orgId/role. It
+        // becomes an additive OrgMembership instead (see below). Only a
+        // first-ever org, or a re-invite to the SAME home org, still
+        // updates User.orgId/role directly (unchanged legacy behavior).
+        const hasHomeOrg = Boolean(String(byEmail.orgId || '').trim());
+        const inviteTargetsNewOrg = Boolean(
+          pendingInvite && hasHomeOrg && byEmail.orgId !== pendingInvite.orgId,
+        );
+
         await tx.user.updateMany({
           where: { id: byEmail.id },
           data: {
             clerkId,
             name:
               this.deriveDisplayName(payload) ||
-              (pendingInvite as any)?.name ||
+              pendingInvite?.name ||
               byEmail.name,
-            rollNumber: (pendingInvite as any)?.rollNumber || byEmail.rollNumber,
-            department:
-              (pendingInvite as any)?.department || byEmail.department,
+            rollNumber: inviteTargetsNewOrg
+              ? byEmail.rollNumber
+              : pendingInvite?.rollNumber || byEmail.rollNumber,
+            department: inviteTargetsNewOrg
+              ? byEmail.department
+              : pendingInvite?.department || byEmail.department,
             needsRoleSelection: isPrivilegedRole
               ? false
               : pendingInvite
@@ -563,7 +654,7 @@ export class ClerkAuthGuard implements CanActivate {
                 : shouldForceRoleSelection
                   ? true
                   : byEmail.needsRoleSelection,
-            ...(pendingInvite && !isPrivilegedRole
+            ...(pendingInvite && !isPrivilegedRole && !inviteTargetsNewOrg
               ? {
                   orgId: pendingInvite.orgId,
                 }
@@ -577,12 +668,30 @@ export class ClerkAuthGuard implements CanActivate {
         }
 
         if (pendingInvite && !isPrivilegedRole && pendingInviteRole) {
-          await this.setUserRoleCompat(
-            tx,
-            updated.id,
-            pendingInviteRole,
-            pendingInvite.orgId,
-          );
+          if (!inviteTargetsNewOrg) {
+            await this.setUserRoleCompat(
+              tx,
+              updated.id,
+              pendingInviteRole,
+              pendingInvite.orgId,
+            );
+          }
+
+          await tx.orgMembership.upsert({
+            where: {
+              userId_orgId: {
+                userId: updated.id,
+                orgId: pendingInvite.orgId,
+              },
+            },
+            update: { role: pendingInviteRole, status: 'ACTIVE' },
+            create: {
+              userId: updated.id,
+              orgId: pendingInvite.orgId,
+              role: pendingInviteRole,
+              status: 'ACTIVE',
+            },
+          });
         }
 
         if (pendingInvite) {
@@ -604,13 +713,31 @@ export class ClerkAuthGuard implements CanActivate {
       const created = await this.createUserCompat(tx, {
         clerkId,
         email,
-        name: this.deriveDisplayName(payload) || (pendingInvite as any)?.name,
+        name: this.deriveDisplayName(payload) || pendingInvite?.name,
         orgId: pendingInvite ? pendingInvite.orgId : null,
         needsRoleSelection: pendingInvite ? false : true,
         role: pendingInviteRole || 'STUDENT',
-        department: (pendingInvite as any)?.department || null,
-        rollNumber: (pendingInvite as any)?.rollNumber || null,
+        department: pendingInvite?.department || null,
+        rollNumber: pendingInvite?.rollNumber || null,
       });
+
+      if (pendingInvite && pendingInviteRole) {
+        await tx.orgMembership.upsert({
+          where: {
+            userId_orgId: {
+              userId: created.id,
+              orgId: pendingInvite.orgId,
+            },
+          },
+          update: { role: pendingInviteRole, status: 'ACTIVE' },
+          create: {
+            userId: created.id,
+            orgId: pendingInvite.orgId,
+            role: pendingInviteRole,
+            status: 'ACTIVE',
+          },
+        });
+      }
 
       if (pendingInvite) {
         await tx.pendingInvite.delete({ where: { id: pendingInvite.id } });
@@ -738,9 +865,8 @@ export class ClerkAuthGuard implements CanActivate {
 
     const strictQueryValue = getQueryValue('strict').toLowerCase();
     const flowQueryValue = getQueryValue('flow').toLowerCase();
-    const allowProvisioningQueryValue = getQueryValue(
-      'allowProvisioning',
-    ).toLowerCase();
+    const allowProvisioningQueryValue =
+      getQueryValue('allowProvisioning').toLowerCase();
 
     const isAuthMeRoute = requestUrl.includes('/auth/me');
     const hasStrictFlag =
@@ -864,7 +990,13 @@ export class ClerkAuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    const cacheKey = `user:session:${clerkId}`;
+    // Workspace switcher: which org this request should resolve role/orgId
+    // against. Never trusted as-is — resolveActiveMembership() below only
+    // honors it if the user actually has an ACTIVE membership there.
+    const requestedOrgId =
+      String(req?.headers?.['x-active-org-id'] || '').trim() || null;
+
+    const cacheKey = `user:session:${clerkId}:${requestedOrgId || 'default'}`;
     const cached = await this.redis.get(cacheKey);
 
     if (cached) {
@@ -912,15 +1044,18 @@ export class ClerkAuthGuard implements CanActivate {
         effectivePayload,
         {
           forceRoleSelection: isExplicitRegistrationFlow,
+          secretKey,
         },
       );
       if (provisioned) {
         const freshUser = await this.findSessionUser({
           id: String(provisioned.id),
         });
-        
+
         if (!freshUser) {
-          this.logger.error(`[CRITICAL_BUG] User provisioned id=${provisioned.id} but findFirst returned null!`);
+          this.logger.error(
+            `[CRITICAL_BUG] User provisioned id=${provisioned.id} but findFirst returned null!`,
+          );
           user = provisioned;
         } else {
           user = freshUser;
@@ -972,18 +1107,68 @@ export class ClerkAuthGuard implements CanActivate {
         });
 
         if (refreshedUser) {
-          user = refreshedUser as any;
+          user = refreshedUser;
         }
       }
     }
 
-    const plan = (user.organization?.plan as PlanKey) || 'FREE';
+    // Workspace switching: role/org for this request come from whichever
+    // membership is active (X-Active-Org-Id header, falling back to
+    // lastActiveOrgId, falling back to the home org) — never from the flat
+    // User columns directly. This is the one place that resolution happens;
+    // every guard and service downstream keeps reading req.user.role /
+    // req.user.orgId exactly as before. user.orgId/user.role themselves are
+    // never mutated here — switching is purely a read-time re-point.
+    let effectiveOrgId: string | null = user.orgId ?? null;
+    let effectiveRole = user.role;
+    let effectiveOrganization = user.organization;
+
+    if (this.membershipService) {
+      try {
+        const resolved = await this.membershipService.resolveActiveMembership(
+          {
+            id: user.id,
+            orgId: user.orgId ?? null,
+            role: user.role,
+            lastActiveOrgId: user.lastActiveOrgId ?? null,
+          },
+          requestedOrgId,
+        );
+        effectiveOrgId = resolved.orgId;
+        effectiveRole = resolved.role;
+
+        if (effectiveOrgId && effectiveOrgId !== user.orgId) {
+          effectiveOrganization = (await this.prisma.organization.findUnique({
+            where: { id: effectiveOrgId },
+            select: {
+              domain: true,
+              features: true,
+              plan: true,
+              planStatus: true,
+              studentCount: true,
+              courseCount: true,
+              storageUsedMb: true,
+              teacherSeatCount: true,
+            } as any,
+          })) as any;
+        }
+      } catch (error) {
+        // OrgMembership may not exist yet if this migration hasn't been
+        // deployed — fail open to the user's home org/role rather than
+        // blocking authentication entirely.
+        this.logger.warn(
+          `[MEMBERSHIP_RESOLUTION_FAILED] userId=${user.id}: ${this.getErrorMessage(error)}`,
+        );
+      }
+    }
+
+    const plan = (effectiveOrganization?.plan as PlanKey) || 'FREE';
     const baseFeatures = PLAN_FEATURES[plan] || PLAN_FEATURES.FREE;
     const overrides =
-      user.organization?.features &&
-      typeof user.organization.features === 'object' &&
-      !Array.isArray(user.organization.features)
-        ? (user.organization.features as Record<string, unknown>)
+      effectiveOrganization?.features &&
+      typeof effectiveOrganization.features === 'object' &&
+      !Array.isArray(effectiveOrganization.features)
+        ? (effectiveOrganization.features as Record<string, unknown>)
         : {};
 
     const effectiveFeatures = {
@@ -991,24 +1176,28 @@ export class ClerkAuthGuard implements CanActivate {
       ...overrides,
     };
 
-    const orgUsage = user.orgId
+    const orgUsage = effectiveOrgId
       ? {
-          students: Number(user.organization?.studentCount || 0),
-          courses: Number(user.organization?.courseCount || 0),
-          storageMb: Number(user.organization?.storageUsedMb || 0),
-          seats: Number(user.organization?.teacherSeatCount || 0),
+          students: Number(effectiveOrganization?.studentCount || 0),
+          courses: Number(effectiveOrganization?.courseCount || 0),
+          storageMb: Number(effectiveOrganization?.storageUsedMb || 0),
+          seats: Number(effectiveOrganization?.teacherSeatCount || 0),
           adminSeats: await this.prisma.user.count({
-            where: { orgId: user.orgId, role: 'ADMIN' },
+            where: { orgId: effectiveOrgId, role: 'ADMIN' },
           }),
           teacherSeats: await this.prisma.user.count({
-            where: { orgId: user.orgId, role: 'TEACHER' },
+            where: { orgId: effectiveOrgId, role: 'TEACHER' },
           }),
           monthlyExams: await this.prisma.usageLedger.count({
             where: {
-              orgId: user.orgId,
+              orgId: effectiveOrgId,
               eventType: 'exam.created',
               createdAt: {
-                gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+                gte: new Date(
+                  new Date().getFullYear(),
+                  new Date().getMonth(),
+                  1,
+                ),
               },
             },
           }),
@@ -1035,20 +1224,21 @@ export class ClerkAuthGuard implements CanActivate {
       id: user.id,
       email: user.email,
       name: user.name,
-      role: user.role,
-      orgId: user.orgId,
+      role: effectiveRole,
+      orgId: effectiveOrgId,
+      homeOrgId: user.orgId ?? null,
       rollNumber: user.rollNumber,
       department: user.department,
       profilePicture: user.profilePicture,
-      orgDomain: user.organization?.domain || null,
+      orgDomain: effectiveOrganization?.domain || null,
       features: {
         ...legacyFeatureFlags,
         ...overrides,
       },
       plan,
-      planStatus: user.organization?.planStatus || 'ACTIVE',
+      planStatus: effectiveOrganization?.planStatus || 'ACTIVE',
       effectiveFeatures,
-      limits: getEffectivePlanLimits(plan, user.organization?.features),
+      limits: getEffectivePlanLimits(plan, effectiveOrganization?.features),
       usage: orgUsage,
       needsRoleSelection: user.needsRoleSelection,
       hasCompletedOnboarding: user.hasCompletedOnboarding,

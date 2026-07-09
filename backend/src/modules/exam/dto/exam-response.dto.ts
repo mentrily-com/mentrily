@@ -76,6 +76,22 @@ export function toStudentExamResponseDto(exam: any): StudentExamResponseDto {
   };
 }
 
+/**
+ * Grading internals live inside the answers JSONB (written by the flush
+ * worker). They must never reach the student while an exam is running:
+ * `_internal_marks` is a per-question correctness oracle — change an answer,
+ * resume the exam, read whether it scored.
+ */
+function stripGradingInternals(answers: any): any {
+  if (!answers || typeof answers !== 'object' || Array.isArray(answers)) {
+    return answers;
+  }
+  const safe = { ...answers };
+  delete safe._internal_marks;
+  delete safe._internal_score;
+  return safe;
+}
+
 export function toStudentExamSessionDto(session: any): StudentExamSessionDto {
   const tabSwitchOutCount = Array.isArray(session?.violations)
     ? session.violations.filter(
@@ -92,7 +108,7 @@ export function toStudentExamSessionDto(session: any): StudentExamSessionDto {
     status: session?.status,
     startTime: session?.startTime,
     endTime: session?.endTime ?? null,
-    answers: session?.answers,
+    answers: stripGradingInternals(session?.answers),
     tabSwitchOutCount,
     tabSwitchInCount,
     feedbackDone: !!session?.feedbackDone,

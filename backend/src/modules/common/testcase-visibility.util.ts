@@ -8,8 +8,15 @@ const SENSITIVE_QUESTION_KEYS = [
   'isCorrect',
 ];
 
+const PRIVILEGED_ROLES = new Set(['TEACHER', 'ADMIN', 'SUPER_ADMIN']);
+
+/**
+ * Fail closed: only explicitly privileged roles may see answer keys,
+ * solutions, and hidden test cases. Anything else — students, users who
+ * haven't picked a role yet, missing users — gets sanitized content.
+ */
 export function shouldSanitizeSensitiveContent(user?: any): boolean {
-  return String(user?.role || '').toUpperCase() === 'STUDENT';
+  return !PRIVILEGED_ROLES.has(String(user?.role || '').toUpperCase());
 }
 
 function sanitizeCodingConfigForClient(

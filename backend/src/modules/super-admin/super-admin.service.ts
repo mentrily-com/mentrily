@@ -8,10 +8,7 @@ import { SupabaseService } from '../../services/supabase/supabase.service';
 import { StorageService } from '../../services/storage/storage.service';
 import { BillingService } from '../billing/billing.service';
 import { QuotaService } from '../billing/quota.service';
-import {
-  PlanKey,
-  getEffectivePlanLimits,
-} from '../../config/plan-limits';
+import { PlanKey, getEffectivePlanLimits } from '../../config/plan-limits';
 import { Plan, Role } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { UpdateOrganizationPlanDto } from './dto/update-organization-plan.dto';
@@ -272,7 +269,10 @@ export class SuperAdminService {
         );
       }
 
-      const existingInvite = await this.prisma.pendingInvite.findUnique({
+      // email is no longer globally unique on PendingInvite (a person can
+      // have separate outstanding invites at different orgs), so this is a
+      // soft "any invite anywhere" pre-flight check, not a constraint lookup.
+      const existingInvite = await this.prisma.pendingInvite.findFirst({
         where: { email: adminEmail },
       });
       if (existingInvite && existingInvite.expiresAt > new Date()) {
@@ -357,8 +357,10 @@ export class SuperAdminService {
 
       if (adminEmail) {
         const clerkClient = this.getClerkClient();
+        // Scoped to this org only — an unrelated pending invite for the same
+        // email at a different org must be left alone (multi-org invites).
         const staleInvite = await this.prisma.pendingInvite.findUnique({
-          where: { email: adminEmail },
+          where: { email_orgId: { email: adminEmail, orgId: org.id } },
         });
         if (staleInvite) {
           await this.prisma.pendingInvite.delete({
@@ -468,7 +470,10 @@ export class SuperAdminService {
     return updated;
   }
 
-  async updateOrganizationLimits(id: string, data: UpdateOrganizationLimitsDto) {
+  async updateOrganizationLimits(
+    id: string,
+    data: UpdateOrganizationLimitsDto,
+  ) {
     const organization = await this.prisma.organization.findUnique({
       where: { id },
       select: {

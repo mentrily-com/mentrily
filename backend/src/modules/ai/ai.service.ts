@@ -44,6 +44,43 @@ type OpenAiLikeResponse = {
   usage?: OpenAiLikeUsage;
 };
 
+const AI_REQUEST_TIMEOUT_MS = 45000;
+
+/** HTTP failure from a provider — carries the status so the retry loop can
+ *  tell permanent client errors (4xx) apart from transient ones (429/5xx). */
+class AiProviderHttpError extends Error {
+  constructor(
+    provider: string,
+    readonly status: number,
+    body: string,
+  ) {
+    super(`${provider} error ${status}: ${body}`);
+  }
+}
+
+/** The model answered but the JSON didn't match the schema. Carries the real
+ *  token spend (the tokens were consumed even though the output was unusable)
+ *  and the validation errors for corrective-feedback retries. */
+class SchemaValidationError extends Error {
+  constructor(
+    readonly validationErrors: string,
+    readonly tokenUsage: AiTokenUsage,
+    readonly model: string,
+  ) {
+    super(`Schema validation failed: ${validationErrors}`);
+  }
+}
+
+/** Shared JSON-mode system prompt. The schema is serialized compact — the
+ *  full-course schema is ~9KB pretty-printed and every indent/newline is a
+ *  billed prompt token on every single generation call. */
+function buildJsonSystemPrompt(
+  systemPrompt: string,
+  schema: AnySchema,
+): string {
+  return `${systemPrompt}\n\nYou MUST return a valid JSON object matching this schema exactly. Do NOT wrap the JSON in markdown blocks (e.g. \`\`\`json). JUST return the raw parseable JSON object:\n${JSON.stringify(schema)}`;
+}
+
 class GroqProvider implements AiProviderStrategy {
   readonly name = 'groq' as const;
   private readonly apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
@@ -64,7 +101,7 @@ class GroqProvider implements AiProviderStrategy {
       messages: [
         {
           role: 'system',
-          content: this.buildSystemPrompt(systemPrompt, schema),
+          content: buildJsonSystemPrompt(systemPrompt, schema),
         },
         { role: 'user', content: userPrompt },
       ],
@@ -89,10 +126,6 @@ class GroqProvider implements AiProviderStrategy {
     };
   }
 
-  private buildSystemPrompt(systemPrompt: string, schema: AnySchema): string {
-    return `${systemPrompt}\n\nYou MUST return a valid JSON object matching this schema exactly. Do NOT wrap the JSON in markdown blocks (e.g. \`\`\`json). JUST return the raw parseable JSON object:\n${JSON.stringify(schema, null, 2)}`;
-  }
-
   private async callOpenAiLikeApi(
     url: string,
     apiKey: string,
@@ -105,11 +138,12 @@ class GroqProvider implements AiProviderStrategy {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify(body),
+      signal: AbortSignal.timeout(AI_REQUEST_TIMEOUT_MS),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Groq error ${response.status}: ${errorText}`);
+      throw new AiProviderHttpError('groq', response.status, errorText);
     }
 
     return (await response.json()) as OpenAiLikeResponse;
@@ -155,7 +189,7 @@ class OpenAiProvider implements AiProviderStrategy {
       messages: [
         {
           role: 'system',
-          content: this.buildSystemPrompt(systemPrompt, schema),
+          content: buildJsonSystemPrompt(systemPrompt, schema),
         },
         { role: 'user', content: userPrompt },
       ],
@@ -170,11 +204,12 @@ class OpenAiProvider implements AiProviderStrategy {
         Authorization: `Bearer ${this.apiKey}`,
       },
       body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(AI_REQUEST_TIMEOUT_MS),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`OpenAI error ${response.status}: ${errorText}`);
+      throw new AiProviderHttpError('openai', response.status, errorText);
     }
 
     const data = (await response.json()) as OpenAiLikeResponse;
@@ -198,10 +233,6 @@ class OpenAiProvider implements AiProviderStrategy {
       },
       model: payload.model,
     };
-  }
-
-  private buildSystemPrompt(systemPrompt: string, schema: AnySchema): string {
-    return `${systemPrompt}\n\nYou MUST return a valid JSON object matching this schema exactly. Do NOT wrap the JSON in markdown blocks (e.g. \`\`\`json). JUST return the raw parseable JSON object:\n${JSON.stringify(schema, null, 2)}`;
   }
 }
 
@@ -235,12 +266,16 @@ class AnthropicProvider implements AiProviderStrategy {
     userPrompt: string,
     schema: AnySchema,
   ): Promise<AiProviderResponse> {
+    // claude-3-5-sonnet-20241022 was retired (Oct 2025) and now 404s.
+    // Sonnet 5: non-default temperature is rejected (omit it), thinking is
+    // on by default (disabled here — this is a JSON-emitter under a 45s
+    // deadline), and 4096 max_tokens truncated full-course JSON mid-object.
     const payload = {
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 4096,
-      system: this.buildSystemPrompt(systemPrompt, schema),
+      model: 'claude-sonnet-5',
+      max_tokens: 16000,
+      system: buildJsonSystemPrompt(systemPrompt, schema),
       messages: [{ role: 'user', content: userPrompt }],
-      temperature: 0.7,
+      thinking: { type: 'disabled' },
     };
 
     const response = await fetch(this.apiUrl, {
@@ -251,11 +286,12 @@ class AnthropicProvider implements AiProviderStrategy {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(AI_REQUEST_TIMEOUT_MS),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Anthropic error ${response.status}: ${errorText}`);
+      throw new AiProviderHttpError('anthropic', response.status, errorText);
     }
 
     const data = (await response.json()) as AnthropicResponse;
@@ -285,10 +321,6 @@ class AnthropicProvider implements AiProviderStrategy {
       },
       model: payload.model,
     };
-  }
-
-  private buildSystemPrompt(systemPrompt: string, schema: AnySchema): string {
-    return `${systemPrompt}\n\nYou MUST return a valid JSON object matching this schema exactly. Do NOT wrap the JSON in markdown blocks (e.g. \`\`\`json). JUST return the raw parseable JSON object:\n${JSON.stringify(schema, null, 2)}`;
   }
 }
 
@@ -348,11 +380,15 @@ export class AiService {
     const providerErrors: string[] = [];
 
     for (const provider of enabledProviders) {
+      // Reset per provider: feedback about one model's malformed JSON
+      // shouldn't leak into a different model's first attempt.
+      let attemptUserPrompt = userPrompt;
+
       for (let attempt = 0; attempt < retryDelaysMs.length; attempt++) {
         try {
           const response = await this.withTimeout(
-            provider.generate(systemPrompt, userPrompt, schema),
-            45000,
+            provider.generate(systemPrompt, attemptUserPrompt, schema),
+            AI_REQUEST_TIMEOUT_MS,
           );
 
           const isValid = validate(response.content);
@@ -360,7 +396,11 @@ export class AiService {
             const validationError = this.ajv.errorsText(validate.errors, {
               separator: '; ',
             });
-            throw new Error(`Schema validation failed: ${validationError}`);
+            throw new SchemaValidationError(
+              validationError,
+              response.tokenUsage,
+              response.model,
+            );
           }
 
           await this.recordUsage({
@@ -386,27 +426,58 @@ export class AiService {
             `[${provider.name}] attempt ${attempt + 1}/3 failed: ${message}`,
           );
 
-          if (attempt < retryDelaysMs.length - 1) {
+          // Failed validations still consumed real tokens — bill them.
+          if (error instanceof SchemaValidationError) {
+            await this.recordUsage({
+              orgId: context.orgId,
+              userId: context.userId,
+              provider: provider.name,
+              model: error.model,
+              operation,
+              tokenUsage: error.tokenUsage,
+              success: false,
+              errorMessage: message,
+            });
+
+            // Retry with the exact validation errors so the model can fix
+            // the offending fields instead of re-rolling blind.
+            attemptUserPrompt = `${userPrompt}\n\nYour previous JSON response failed schema validation: ${error.validationErrors}. Return a corrected JSON object that fixes exactly these issues.`;
+          }
+
+          // Client errors (bad key, malformed request, unknown model) fail
+          // identically on every retry — skip straight to the next provider
+          // instead of burning two more calls and 1.5s of backoff.
+          const isPermanent =
+            error instanceof AiProviderHttpError &&
+            error.status >= 400 &&
+            error.status < 500 &&
+            error.status !== 429;
+
+          if (!isPermanent && attempt < retryDelaysMs.length - 1) {
             await this.delay(retryDelaysMs[attempt]);
             continue;
           }
 
           providerErrors.push(`${provider.name}: ${message}`);
 
-          await this.recordUsage({
-            orgId: context.orgId,
-            userId: context.userId,
-            provider: provider.name,
-            model: 'unknown',
-            operation,
-            tokenUsage: {
-              promptTokens: 0,
-              completionTokens: 0,
-              totalTokens: 0,
-            },
-            success: false,
-            errorMessage: message,
-          });
+          if (!(error instanceof SchemaValidationError)) {
+            await this.recordUsage({
+              orgId: context.orgId,
+              userId: context.userId,
+              provider: provider.name,
+              model: 'unknown',
+              operation,
+              tokenUsage: {
+                promptTokens: 0,
+                completionTokens: 0,
+                totalTokens: 0,
+              },
+              success: false,
+              errorMessage: message,
+            });
+          }
+
+          break;
         }
       }
     }
@@ -440,7 +511,7 @@ Course Description: "${description}"
 
 Return strictly valid JSON matching the provided schema.`;
 
-    const userPrompt = `Generate complete content for this section only:\n${JSON.stringify(section, null, 2)}`;
+    const userPrompt = `Generate complete content for this section only:\n${JSON.stringify(section)}`;
 
     return this.generateObject(
       systemPrompt,
@@ -521,9 +592,34 @@ Course Description: "${description}"`;
       additionalProperties: false,
     };
 
+    // The summary only needs the course's shape (what is taught), not the
+    // full payload. Re-sending every problem statement, coding template, and
+    // test case here made the summary call the most expensive one of the
+    // whole run — often bigger than all section generations combined.
+    const courseDigest = generatedSections.map((section) => {
+      const s = section as {
+        title?: string;
+        questions?: Array<{
+          title?: string;
+          type?: string;
+          difficulty?: string;
+          tags?: string[];
+        }>;
+      };
+      return {
+        title: s?.title,
+        questions: (s?.questions || []).map((q) => ({
+          title: q?.title,
+          type: q?.type,
+          difficulty: q?.difficulty,
+          tags: q?.tags,
+        })),
+      };
+    });
+
     const summaryResult = await this.generateObject(
       summarySystemPrompt,
-      `Generate a summary for this generated course:\n${JSON.stringify(generatedSections, null, 2)}`,
+      `Generate a summary cheat sheet for a course with these sections and topics:\n${JSON.stringify(courseDigest)}`,
       summarySchema,
       {
         ...context,

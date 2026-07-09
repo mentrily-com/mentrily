@@ -31,6 +31,13 @@ import { GenerateExamFullDto } from './dto/generate-exam-full.dto';
 export class AiController {
   constructor(private readonly aiService: AiService) {}
 
+  /** Course summaries are model-generated and unbounded; injected verbatim
+   *  into exam prompts they can dwarf the actual instructions. */
+  private clampForPrompt(text: string, maxChars = 12000): string {
+    if (text.length <= maxChars) return text;
+    return `${text.slice(0, maxChars)}\n[...summary truncated for length]`;
+  }
+
   private buildAiContext(
     user: { id?: string; orgId?: string | null } | null | undefined,
   ) {
@@ -110,7 +117,7 @@ CRITICAL INSTRUCTIONS FOR HIGH-QUALITY OUTPUT:
 6. WEB PROJECT: For 'Web' types, provide sensible starter HTML/CSS/JS.
 YOUR OUTPUT MUST EXACTLY MATCH THE PROVIDED JSON SCHEMA. IF IT DOES NOT, THE SYSTEM WILL CRASH.`;
 
-    const userPrompt = `Here is the approved course outline:\n\n${JSON.stringify(outline, null, 2)}\n\nPlease generate the full course content and the summary cheat sheet based on this outline. Ensure \`problemStatement\` is always rich HTML.`;
+    const userPrompt = `Here is the approved course outline:\n\n${JSON.stringify(outline)}\n\nPlease generate the full course content and the summary cheat sheet based on this outline. Ensure \`problemStatement\` is always rich HTML.`;
 
     return this.aiService.generateObject(
       systemPrompt,
@@ -246,7 +253,7 @@ YOUR OUTPUT MUST EXACTLY MATCH THE PROVIDED JSON SCHEMA. IF IT DOES NOT, THE SYS
 
     let contextInjection = '';
     if (courseSummary) {
-      contextInjection = `\nCRITICAL CONTEXT: This exam is based on an existing course. Here is the course summary:\n"""\n${courseSummary}\n"""\nYou MUST strictly generate an exam outline that aligns with concepts taught in this summary.`;
+      contextInjection = `\nCRITICAL CONTEXT: This exam is based on an existing course. Here is the course summary:\n"""\n${this.clampForPrompt(courseSummary)}\n"""\nYou MUST strictly generate an exam outline that aligns with concepts taught in this summary.`;
     }
 
     let sectionDemands = '';
@@ -298,7 +305,7 @@ Generate ONLY the structural outline: section titles and the list of question co
 
     let contextInjection = '';
     if (courseSummary) {
-      contextInjection = `\nCRITICAL CONTEXT: This exam is based on a specific syllabus:\n"""\n${courseSummary}\n"""\nEnsure all generated questions strictly adhere to this context.`;
+      contextInjection = `\nCRITICAL CONTEXT: This exam is based on a specific syllabus:\n"""\n${this.clampForPrompt(courseSummary)}\n"""\nEnsure all generated questions strictly adhere to this context.`;
     }
 
     const systemPrompt = `You are an expert examiner creating the full content of an exam based on a structural outline.

@@ -119,6 +119,58 @@ export class MonitoringGateway
     { userId: string; examId: string }
   >(); // socketId -> Metadata
 
+  private static readonly PRIVILEGED_ROLES = new Set([
+    'TEACHER',
+    'ADMIN',
+    'SUPER_ADMIN',
+  ]);
+
+  /**
+   * Server-side identity for socket handlers. The Clerk token only proves
+   * *who* connected — role and DB user id must come from our own records,
+   * never from event payloads (a student can put role: 'teacher' in
+   * join_exam data). Memoized on the socket, Redis-cached across sockets.
+   */
+  private async getSocketUser(
+    client: Socket,
+  ): Promise<{ id: string; role: string } | null> {
+    if (client.data.dbUser) {
+      return client.data.dbUser;
+    }
+
+    const clerkId = String(client.data.userId || '');
+    if (!clerkId) return null;
+
+    const cacheKey = `user:socket-identity:${clerkId}`;
+    try {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) {
+        client.data.dbUser = JSON.parse(cached);
+        return client.data.dbUser;
+      }
+    } catch {
+      /* fall through to DB */
+    }
+
+    const user = await this.prisma.user.findFirst({
+      where: { clerkId },
+      select: { id: true, role: true },
+    });
+
+    if (!user) return null;
+
+    const identity = { id: user.id, role: String(user.role || '') };
+    client.data.dbUser = identity;
+    await this.redis.set(cacheKey, JSON.stringify(identity), 'EX', 600);
+    return identity;
+  }
+
+  private isPrivileged(role: string | undefined | null): boolean {
+    return MonitoringGateway.PRIVILEGED_ROLES.has(
+      String(role || '').toUpperCase(),
+    );
+  }
+
   private async getViolationCounts(
     sessionId: string,
   ): Promise<{ inCount: number; outCount: number }> {
@@ -172,13 +224,14 @@ export class MonitoringGateway
         ? `violation:count:in:${sessionId}`
         : `violation:count:out:${sessionId}`;
 
-    const next = await this.redis.incr(key);
-    const ttl = await this.redis.ttl(key);
-    if (ttl < 0) {
-      await this.redis.expire(key, this.violationCounterTtlSec);
-    }
+    // Single round-trip: INCR + refresh TTL together.
+    const results = await this.redis
+      .multi()
+      .incr(key)
+      .expire(key, this.violationCounterTtlSec)
+      .exec();
 
-    return next;
+    return Number(results?.[0]?.[1] ?? 0);
   }
 
   async afterInit(server: Server) {
@@ -259,15 +312,38 @@ export class MonitoringGateway
   ) {
     if (!data.examId || !data.userId) return { status: 'error' };
 
+    // Identity and role come from the server, not the payload.
+    const socketUser = await this.getSocketUser(client);
+    if (!socketUser) {
+      return { status: 'error', reason: 'UNAUTHENTICATED' };
+    }
+
     const examRoom = `exam_${data.examId}`;
     client.join(examRoom);
 
     if (data.role === 'teacher') {
+      // The monitor room streams every student's violations and status —
+      // joining it requires a privileged role in OUR records.
+      if (!this.isPrivileged(socketUser.role)) {
+        console.warn(
+          `[JoinExam] Blocked monitor join: user ${socketUser.id} claimed teacher but has role ${socketUser.role}`,
+        );
+        return { status: 'error', reason: 'FORBIDDEN' };
+      }
       client.join(`${examRoom}_monitor`);
-      console.log(`[JoinExam] Teacher ${data.userId} joined monitor`);
+      console.log(`[JoinExam] Teacher ${socketUser.id} joined monitor`);
     } else {
+      // Students may only join as themselves; the room name is derived from
+      // the server-side user id so it can't be pointed at someone else.
+      if (data.userId !== socketUser.id) {
+        console.warn(
+          `[JoinExam] Blocked student join: socket user ${socketUser.id} attempted to join as ${data.userId}`,
+        );
+        return { status: 'error', reason: 'FORBIDDEN' };
+      }
+
       // Student logic - Takeover (Kick Out) Model
-      const studentRoom = `student_${data.userId}_exam_${data.examId}`;
+      const studentRoom = `student_${socketUser.id}_exam_${data.examId}`;
 
       // 1. SURGICAL KICK: Disconnect only OTHER sockets in this student's room
       const peers = await this.server.in(studentRoom).fetchSockets();
@@ -321,20 +397,24 @@ export class MonitoringGateway
     @MessageBody() data: { sessionId: string; answer: any },
     @ConnectedSocket() client: Socket,
   ) {
-    // Immediate Redis cache for fast reads on page refresh/resume
-    // This ensures answers are available even before the BullMQ job processes
-    try {
-      const redisKey = `session:answers:${data.sessionId}`;
-      const existing = await this.redis.get(redisKey);
-      const current = existing ? JSON.parse(existing) : {};
-      const merged = { ...current, ...data.answer };
-      // Cache for 6 hours (longer than most exams)
-      await this.redis.set(redisKey, JSON.stringify(merged), 'EX', 21600);
-    } catch (e) {
-      console.error('[MonitoringGateway] Redis answer cache failed:', e);
+    // Exam integrity: only the session's owner may write answers into it.
+    const socketUser = await this.getSocketUser(client);
+    if (!socketUser) {
+      return { status: 'rejected', reason: 'UNAUTHENTICATED' };
+    }
+    const ownerId = await this.submissionService.getSessionOwner(
+      data.sessionId,
+    );
+    if (!ownerId || ownerId !== socketUser.id) {
+      console.warn(
+        `[SaveAnswer] Blocked: user ${socketUser.id} attempted to write session ${data.sessionId}`,
+      );
+      return { status: 'rejected', reason: 'FORBIDDEN' };
     }
 
-    // Queue for persistent DB save (async, may have slight delay)
+    // Stages the answer in a per-question Redis hash (atomic — no lost
+    // updates between tabs) and schedules one coalesced DB flush for the
+    // session. See SubmissionService.queueAnswer.
     await this.submissionService.queueAnswer(data.sessionId, data.answer);
     return { status: 'saved' };
   }
@@ -369,6 +449,25 @@ export class MonitoringGateway
     },
     @ConnectedSocket() client: Socket,
   ) {
+    // Exam integrity: violations may only be logged by the session's owner.
+    // Otherwise anyone could spam TAB_SWITCH events with a victim's session
+    // id until their exam auto-terminates.
+    const socketUser = await this.getSocketUser(client);
+    if (!socketUser) {
+      return { status: 'rejected', reason: 'UNAUTHENTICATED' };
+    }
+    const ownerId = await this.submissionService.getSessionOwner(
+      data.sessionId,
+    );
+    if (!ownerId || ownerId !== socketUser.id) {
+      console.warn(
+        `[LogViolation] Blocked: user ${socketUser.id} attempted to log against session ${data.sessionId}`,
+      );
+      return { status: 'rejected', reason: 'FORBIDDEN' };
+    }
+    // Identity in downstream events comes from the server, not the payload.
+    data.userId = socketUser.id;
+
     // PERFORMANCE: Check Cache for Session Status & Limits
     const cacheKey = `session:status:${data.sessionId}`;
     const cachedData = await this.redis.get(cacheKey);
@@ -418,9 +517,6 @@ export class MonitoringGateway
     });
 
     // OPTIMIZATION: Use Redis Atomic Counters for Tab Switches
-    const keyIn = `violation:count:in:${data.sessionId}`;
-    const keyOut = `violation:count:out:${data.sessionId}`;
-
     let { inCount: tabSwitchInCount, outCount: tabSwitchOutCount } =
       await this.getViolationCounts(data.sessionId);
 
@@ -485,12 +581,6 @@ export class MonitoringGateway
       timestamp: new Date(),
     });
 
-    await this.redis
-      .multi()
-      .expire(keyIn, this.violationCounterTtlSec)
-      .expire(keyOut, this.violationCounterTtlSec)
-      .exec();
-
     return { status: 'recorded' };
   }
 
@@ -500,6 +590,16 @@ export class MonitoringGateway
     data: { targetUserId: string; examId: string; teacherPeerId: string },
     @ConnectedSocket() client: Socket,
   ) {
+    // Webcam streams are the most sensitive surface here: only verified
+    // privileged roles may request one.
+    const socketUser = await this.getSocketUser(client);
+    if (!socketUser || !this.isPrivileged(socketUser.role)) {
+      console.warn(
+        `[Proctoring] Blocked stream request from user ${socketUser?.id || 'unknown'} (role: ${socketUser?.role || 'none'})`,
+      );
+      return { status: 'rejected', reason: 'FORBIDDEN' };
+    }
+
     // Teacher requests stream from student
     // Broadcast to the specific student room
     const studentRoom = `student_${data.targetUserId}_exam_${data.examId}`;

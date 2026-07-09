@@ -125,6 +125,7 @@ export default function ProblemStatement({
                         {isExamMode ? (
                             // Exam Mode: Review Flag Button
                             <button
+                                data-element-id="starter-mark-review"
                                 onClick={onToggleReview}
                                 className={`shrink-0 rounded-xl border p-2 transition-all sm:p-2.5 ${
                                     isMarkedForReview

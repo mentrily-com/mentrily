@@ -59,99 +59,73 @@ jobs:
           docker push "$IMAGE_URI"
           echo "uri=$IMAGE_URI" >> "$GITHUB_OUTPUT"
 
-      - name: Prepare Elastic Beanstalk bundle
-        working-directory: backend
+      - name: Deploy to VPS via SSM
         env:
-          BACKEND_ENV_FILE_B64: ${{ secrets.BACKEND_ENV_FILE_B64 }}
           IMAGE_URI: ${{ steps.image.outputs.uri }}
-          EB_ENV_SKIP_KEYS: SUPABASE_TEST_JWT_SUPER_ADMIN,SUPABASE_TEST_JWT_ADMIN,SUPABASE_TEST_JWT_TEACHER,SUPABASE_TEST_JWT_STUDENT,SENTRY_ORG,SENTRY_PROJECT
+          BACKEND_ENV_FILE_B64: ${{ secrets.BACKEND_ENV_FILE_B64 }}
+          INSTANCE_ID: "i-0d5a5dd315aba5853"
         run: |
-          test -n "$BACKEND_ENV_FILE_B64"
-          printf '%s' "$BACKEND_ENV_FILE_B64" | base64 --decode > /tmp/backend.env
-          node scripts/env-to-eb-options.mjs /tmp/backend.env /tmp/backend-eb-options.json
-          node scripts/create-dockerrun.mjs "$IMAGE_URI" /tmp/eb-bundle/Dockerrun.aws.json
-          cd /tmp/eb-bundle
-          zip -r /tmp/backend-eb-bundle.zip Dockerrun.aws.json
-
-      - name: Ensure Elastic Beanstalk application exists
-        run: |
-          aws elasticbeanstalk describe-applications --application-names "$EB_APPLICATION_NAME" \
-            --query 'Applications[0].ApplicationName' --output text | grep -qx "$EB_APPLICATION_NAME" \
-            || aws elasticbeanstalk create-application --application-name "$EB_APPLICATION_NAME" >/dev/null
-
-      - name: Upload application version
-        id: version
-        env:
-          VERSION_LABEL: backend-${{ github.sha }}-${{ github.run_number }}
-        run: |
-          EB_BUCKET="elasticbeanstalk-$AWS_REGION-$AWS_ACCOUNT_ID"
-          aws s3 cp /tmp/backend-eb-bundle.zip "s3://$EB_BUCKET/$VERSION_LABEL.zip"
-          aws elasticbeanstalk create-application-version \
-            --application-name "$EB_APPLICATION_NAME" \
-            --version-label "$VERSION_LABEL" \
-            --source-bundle "S3Bucket=$EB_BUCKET,S3Key=$VERSION_LABEL.zip"
-          echo "label=$VERSION_LABEL" >> "$GITHUB_OUTPUT"
-
-      - name: Create or update Elastic Beanstalk environment
-        env:
-          VERSION_LABEL: ${{ steps.version.outputs.label }}
-        run: |
-          STATUS="$(aws elasticbeanstalk describe-environments \
-            --application-name "$EB_APPLICATION_NAME" \
-            --environment-names "$EB_ENVIRONMENT_NAME" \
-            --query 'Environments[0].Status' --output text 2>/dev/null || true)"
-
-          if [ "$STATUS" = "None" ] || [ -z "$STATUS" ] || [ "$STATUS" = "Terminated" ]; then
-            aws elasticbeanstalk create-environment \
-              --application-name "$EB_APPLICATION_NAME" \
-              --environment-name "$EB_ENVIRONMENT_NAME" \
-              --cname-prefix "$EB_CNAME_PREFIX" \
-              --version-label "$VERSION_LABEL" \
-              --solution-stack-name "$EB_SOLUTION_STACK" \
-              --option-settings file:///tmp/backend-eb-options.json
-          else
-            aws elasticbeanstalk update-environment \
-              --application-name "$EB_APPLICATION_NAME" \
-              --environment-name "$EB_ENVIRONMENT_NAME" \
-              --version-label "$VERSION_LABEL" \
-              --option-settings file:///tmp/backend-eb-options.json
+          ECR_PASSWORD=$(aws ecr get-login-password --region ${{ env.AWS_REGION }})
+          REGISTRY="${{ steps.ecr.outputs.registry }}"
+          
+          # Create deployment script
+          cat << EOF > deploy.sh
+          #!/bin/bash
+          set -e
+          docker login -u AWS -p "$ECR_PASSWORD" "$REGISTRY"
+          docker pull "$IMAGE_URI"
+          docker stop blockscode-backend || true
+          docker rm blockscode-backend || true
+          echo "$BACKEND_ENV_FILE_B64" | base64 -d > /tmp/backend.env
+          docker run -d --name blockscode-backend --restart unless-stopped --env-file /tmp/backend.env -p 3000:3000 "$IMAGE_URI"
+          EOF
+          
+          # Base64 encode the script to pass it safely through SSM
+          SCRIPT_B64=$(cat deploy.sh | base64 -w 0)
+          
+          echo "Sending SSM command to instance $INSTANCE_ID..."
+          COMMAND_ID=$(aws ssm send-command \
+            --instance-ids "$INSTANCE_ID" \
+            --document-name "AWS-RunShellScript" \
+            --parameters commands=["echo $SCRIPT_B64 | base64 -d | sudo bash"] \
+            --region ${{ env.AWS_REGION }} \
+            --query "Command.CommandId" \
+            --output text)
+            
+          echo "Command ID: $COMMAND_ID"
+          
+          # Wait for command to complete
+          echo "Waiting for command execution to complete..."
+          aws ssm wait command-executed \
+            --command-id "$COMMAND_ID" \
+            --instance-id "$INSTANCE_ID" \
+            --region ${{ env.AWS_REGION }} || true
+            
+          # Check status
+          STATUS=$(aws ssm get-command-invocation \
+            --command-id "$COMMAND_ID" \
+            --instance-id "$INSTANCE_ID" \
+            --region ${{ env.AWS_REGION }} \
+            --query "Status" \
+            --output text)
+            
+          if [ "$STATUS" != "Success" ]; then
+            echo "Deployment failed with status: $STATUS"
+            echo "Error output:"
+            aws ssm get-command-invocation \
+              --command-id "$COMMAND_ID" \
+              --instance-id "$INSTANCE_ID" \
+              --region ${{ env.AWS_REGION }} \
+              --query "StandardErrorContent" \
+              --output text
+            exit 1
           fi
-
-      - name: Wait for environment
-        run: |
-          for attempt in $(seq 1 60); do
-            ENV_JSON="$(aws elasticbeanstalk describe-environments \
-              --application-name "$EB_APPLICATION_NAME" \
-              --environment-names "$EB_ENVIRONMENT_NAME" \
-              --no-include-deleted \
-              --query 'Environments[0]' \
-              --output json)"
-
-            STATUS="$(printf '%s' "$ENV_JSON" | jq -r '.Status')"
-            HEALTH="$(printf '%s' "$ENV_JSON" | jq -r '.Health')"
-            ABORTABLE="$(printf '%s' "$ENV_JSON" | jq -r '.AbortableOperationInProgress')"
-
-            echo "Environment status=$STATUS health=$HEALTH abortable=$ABORTABLE"
-
-            if [ "$STATUS" = "Ready" ] && [ "$ABORTABLE" = "false" ]; then
-              exit 0
-            fi
-
-            if [ "$STATUS" = "Terminated" ] || [ "$STATUS" = "Terminating" ]; then
-              echo "Environment entered terminal status: $STATUS" >&2
-              exit 1
-            fi
-
-            sleep 15
-          done
-
-          echo "Timed out waiting for Elastic Beanstalk environment." >&2
-          exit 1
-
-      - name: Verify health endpoint
-        run: |
-          CNAME="$(aws elasticbeanstalk describe-environments \
-            --application-name "$EB_APPLICATION_NAME" \
-            --environment-names "$EB_ENVIRONMENT_NAME" \
-            --query 'Environments[0].CNAME' --output text)"
-          curl --fail --retry 12 --retry-delay 10 --retry-all-errors "http://$CNAME/api/health"
+          
+          echo "Deployment successful!"
+          echo "Standard Output:"
+          aws ssm get-command-invocation \
+            --command-id "$COMMAND_ID" \
+            --instance-id "$INSTANCE_ID" \
+            --region ${{ env.AWS_REGION }} \
+            --query "StandardOutputContent" \
+            --output text

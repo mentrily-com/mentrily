@@ -339,8 +339,17 @@ export default function PublicExamPage() {
                 setExamBlock(null);
                 setIsCourseLinkResolved(false);
                 let resolvedPublicStatus: any = null;
-                // 0. Use the robust check API first
-                const checkStatus = await ExamService.checkExamStatus(slug as string);
+                // 0. Fire the two independent status checks in parallel — they
+                // were sequential before, doubling time-to-first-render.
+                const [checkStatusResult, publicStatusResult] = await Promise.allSettled([
+                    ExamService.checkExamStatus(slug as string),
+                    ExamService.getExamPublicStatus(slug as string),
+                ]);
+
+                if (checkStatusResult.status === 'rejected') {
+                    throw checkStatusResult.reason;
+                }
+                const checkStatus = checkStatusResult.value;
 
                 if (checkStatus.error || !checkStatus.quiz) {
                     if (checkStatus.error === 'Exam not found' || !checkStatus.quiz) {
@@ -350,9 +359,12 @@ export default function PublicExamPage() {
                     }
                 }
 
-                // 0.1 Check Public Status First (Does not require auth)
+                // 0.1 Public Status result (does not require auth)
                 try {
-                    const publicStatus = await ExamService.getExamPublicStatus(slug as string);
+                    if (publicStatusResult.status === 'rejected') {
+                        throw publicStatusResult.reason;
+                    }
+                    const publicStatus = publicStatusResult.value;
                     resolvedPublicStatus = publicStatus;
                     setPublicExamStatus(publicStatus);
                     const startTime = new Date(publicStatus.startTime).getTime();

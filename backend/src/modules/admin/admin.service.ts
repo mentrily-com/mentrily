@@ -13,10 +13,7 @@ import Redis from 'ioredis';
 import { createClerkClient, type ClerkClient } from '@clerk/backend';
 import { Role } from '@prisma/client';
 import { QuotaService } from '../billing/quota.service';
-import {
-  getEffectivePlanLimits,
-  type PlanKey,
-} from '../../config/plan-limits';
+import { getEffectivePlanLimits, type PlanKey } from '../../config/plan-limits';
 import { getPublicAppUrl } from '../../config/app-brand';
 
 type InviteInput = {
@@ -167,11 +164,7 @@ export class AdminService {
       await this.quotaService.checkTeacherSeatQuota(orgId, additional);
     } else if (role === Role.ADMIN) {
       await this.quotaService.checkAdminSeatQuota(orgId, additional);
-      await this.enforceAdminSeatCap(
-        orgId,
-        (org as any).maxAdminSeats,
-        additional,
-      );
+      await this.enforceAdminSeatCap(orgId, org.maxAdminSeats, additional);
     }
 
     const pendingCount = await this.prisma.pendingInvite.count({
@@ -185,7 +178,7 @@ export class AdminService {
     if (pendingCount <= 0) return;
 
     const limits = getEffectivePlanLimits(
-      ((org.plan as PlanKey) || 'FREE') as PlanKey,
+      (org.plan as PlanKey) || 'FREE',
       org.features,
     );
 
@@ -530,7 +523,8 @@ export class AdminService {
 
     return [...users, ...pendingRows].sort(
       (left, right) =>
-        new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime(),
+        new Date(right.createdAt).getTime() -
+        new Date(left.createdAt).getTime(),
     );
   }
 
@@ -758,11 +752,7 @@ export class AdminService {
     return this.inviteUsersBulk(users, currentUser, targetOrgId);
   }
 
-  async inviteUser(
-    data: InviteInput,
-    currentUser?: any,
-    targetOrgId?: string,
-  ) {
+  async inviteUser(data: InviteInput, currentUser?: any, targetOrgId?: string) {
     const result = await this.createInvite(data, currentUser, targetOrgId);
     if (!result.success && result.error) {
       if (result.error === 'User with this email already exists') {
@@ -883,14 +873,27 @@ export class AdminService {
 
     const existingUser = await this.prisma.user.findUnique({
       where: { email },
-      select: { id: true },
+      select: { id: true, orgId: true },
     });
     if (existingUser) {
-      throw new ConflictException('User with this email already exists');
+      // A person already having an account elsewhere no longer blocks the
+      // invite outright — they can join a second org without losing their
+      // first. Only block if they're already a member of *this* org.
+      const alreadyMember =
+        existingUser.orgId === orgId ||
+        (await this.prisma.orgMembership.findUnique({
+          where: { userId_orgId: { userId: existingUser.id, orgId } },
+          select: { id: true },
+        }));
+      if (alreadyMember) {
+        throw new ConflictException(
+          'This user is already a member of this organization',
+        );
+      }
     }
 
     const existingInvite = await this.prisma.pendingInvite.findUnique({
-      where: { email },
+      where: { email_orgId: { email, orgId } },
     });
     if (existingInvite && existingInvite.expiresAt > new Date()) {
       return {

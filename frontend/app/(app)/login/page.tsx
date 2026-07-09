@@ -63,6 +63,16 @@ export default function LoginPage() {
         AuthService.resetSessionCache();
     }, []);
 
+    // Warm the likely post-login destinations while the user types so the
+    // redirect after authentication feels instant.
+    React.useEffect(() => {
+        router.prefetch('/dashboard');
+        router.prefetch('/dashboard/learner');
+        router.prefetch('/dashboard/creator');
+        const safeRedirect = getSafeRedirectPath();
+        if (safeRedirect) router.prefetch(safeRedirect);
+    }, [router, getSafeRedirectPath]);
+
     React.useEffect(() => {
         if (!isOauthCallback || !hasOauthCallbackError) return;
 
@@ -164,7 +174,9 @@ export default function LoginPage() {
             return;
         }
 
-        router.push(path);
+        // replace (not push) so the back button doesn't land on a login form
+        // that instantly re-redirects to the dashboard.
+        router.replace(path);
     };
 
     const prepareEmailSecondFactor = async (result: any) => {
