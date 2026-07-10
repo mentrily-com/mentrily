@@ -14,9 +14,10 @@ const ROLE_LABELS: Record<string, string> = {
     SUPER_ADMIN: 'Super Admin',
 };
 
-// Sentinel orgId for the synthetic home (Learner) entry — it maps to
-// AuthService.switchToHome() rather than a real org switch.
-const HOME_SENTINEL = '__home__';
+// Sentinel orgId for the synthetic Learner entry — it maps to
+// AuthService.switchToLearner() (an org-less Student persona) rather than a
+// real org switch.
+const LEARNER_SENTINEL = '__learner__';
 
 /**
  * Lists every dashboard persona a user holds (Learner in org A, Instructor
@@ -59,19 +60,19 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
     );
     // Home persona is the flat account role, independent of whichever org is
     // currently active (homeRole/homeOrgId come straight from /auth/me).
-    const homeOrgId: string | null = sessionUser?.homeOrgId ?? null;
     const homeRole: string | undefined = sessionUser?.homeRole ?? sessionUser?.role;
     const canBecomeCreator = homeRole === 'STUDENT' && !hasCreatorPersona;
 
-    // A learner's home can be org-less, so it never shows up as an
-    // OrgMembership row. Inject a synthetic "Learner" entry so they can always
-    // switch back to it once they've picked up a second (creator) persona.
-    const homeRepresented = memberships.some((membership) => membership.orgId === homeOrgId);
-    const needsHomeEntry = homeRole === 'STUDENT' && !homeRepresented;
-    const displayMemberships: WorkspaceMembership[] = needsHomeEntry
+    // Every account can act as a learner. If the user has no Student membership
+    // of their own (a signup-creator who was never a learner, or an org-less
+    // learner whose home isn't an OrgMembership row), inject a synthetic
+    // "My Learning" entry that flips them into an org-less Student persona.
+    const hasStudentMembership = memberships.some((membership) => membership.role === 'STUDENT');
+    const needsLearnerEntry = !hasStudentMembership;
+    const displayMemberships: WorkspaceMembership[] = needsLearnerEntry
         ? [
               {
-                  orgId: HOME_SENTINEL,
+                  orgId: LEARNER_SENTINEL,
                   orgName: 'My Learning',
                   orgSlug: null,
                   role: 'STUDENT',
@@ -81,12 +82,13 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
           ]
         : memberships;
 
-    const isHomeActive = (sessionUser?.orgId ?? null) === homeOrgId;
+    // In learner mode the resolved role is STUDENT and there's no active org.
+    const isLearnerActive = String(sessionUser?.role || '').toUpperCase() === 'STUDENT';
     const activeMembership =
         displayMemberships.find((membership) =>
-            membership.orgId === HOME_SENTINEL
-                ? isHomeActive
-                : membership.orgId === sessionUser?.orgId,
+            membership.orgId === LEARNER_SENTINEL
+                ? isLearnerActive
+                : !isLearnerActive && membership.orgId === sessionUser?.orgId,
         ) || displayMemberships[0];
 
     const landOnDashboard = async () => {
@@ -108,8 +110,8 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
         setError(null);
 
         try {
-            if (membership.orgId === HOME_SENTINEL) {
-                await AuthService.switchToHome();
+            if (membership.orgId === LEARNER_SENTINEL) {
+                await AuthService.switchToLearner();
             } else {
                 await AuthService.switchOrg(membership.orgId);
             }
@@ -204,7 +206,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                     {displayMemberships.map((membership) => {
                         const isActive = membership.orgId === activeMembership?.orgId;
                         const isSwitchingThis = switchingOrgId === membership.orgId;
-                        const isHomeEntry = membership.orgId === HOME_SENTINEL;
+                        const isHomeEntry = membership.orgId === LEARNER_SENTINEL;
                         return (
                             <button
                                 key={membership.orgId}
