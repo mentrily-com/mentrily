@@ -22,6 +22,7 @@ import { SwitchOrgDto } from './dto/switch-org.dto';
 import type { FastifyRequest } from 'fastify';
 import { StorageService } from '../../services/storage/storage.service';
 import { MembershipService } from '../organization/membership.service';
+import { OrgProvisioningService } from '../organization/org-provisioning.service';
 import { Webhook } from 'svix';
 
 const ALLOWED_IMAGE_TYPES = [
@@ -47,6 +48,7 @@ export class AuthController {
     private storageService: StorageService,
     private configService: ConfigService,
     private membershipService: MembershipService,
+    private orgProvisioningService: OrgProvisioningService,
   ) {}
 
   @Post('webhooks/clerk')
@@ -146,6 +148,21 @@ export class AuthController {
   @Throttle({ default: { limit: 30, ttl: 60000 } })
   async switchOrg(@User() user: any, @Body() body: SwitchOrgDto) {
     return this.membershipService.switchActiveOrg(user, body.orgId);
+  }
+
+  // Self-serve Creator persona: adds a Teacher membership on the user's own
+  // personal org without ever touching their existing home org/role (e.g. a
+  // Learner keeps their Learner data untouched). Idempotent — a user only
+  // ever owns one personal org, so repeat calls just return it.
+  @UseGuards(JwtAuthGuard)
+  @Post('become-creator')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  async becomeCreator(@User() user: any) {
+    if (user.role === 'SUPER_ADMIN') {
+      throw new BadRequestException('Not available for this account');
+    }
+
+    return this.orgProvisioningService.ensureCreatorPersona(user.id);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -712,6 +712,19 @@ export class SuperAdminService {
       }
     }
 
+    if (!sourceOrgDeleted) {
+      // Deleting the org would have cascaded OrgMembership rows away. If it
+      // didn't get deleted (still has other users, or the delete failed),
+      // every user whose flat orgId we just moved off of sourceOrgId (the
+      // whole org's user base — this migrates everyone, not just
+      // normalizedUserId) would otherwise keep a stale ACTIVE membership
+      // granting continued dashboard access to an org their content/home
+      // org no longer lives in.
+      await this.prisma.orgMembership.deleteMany({
+        where: { orgId: sourceOrgId },
+      });
+    }
+
     return {
       transferred: true,
       userId: normalizedUserId,

@@ -1,6 +1,7 @@
 import { randomBytes } from 'crypto';
 import {
   BadRequestException,
+  ForbiddenException,
   GoneException,
   HttpException,
   HttpStatus,
@@ -340,12 +341,33 @@ export class CodeExecutionService {
     code: string,
     examId?: string,
     testCasesBody?: any[],
+    user?: any,
   ) {
     this.validateExecutionPayload(language, code, '');
 
     let testCases: any[] = [];
 
     if (examId) {
+      // Tenancy check FIRST, independent of the questions cache below —
+      // any authenticated user could otherwise run/grade against another
+      // org's exam questions just by knowing/guessing its examId, since
+      // this endpoint previously carried no org scoping at all.
+      const examOrg = await this.prisma.exam.findFirst({
+        where: { OR: [{ id: examId }, { slug: examId }] },
+        select: { orgId: true },
+      });
+      if (!examOrg) {
+        throw new NotFoundException('Exam not found');
+      }
+      if (
+        user &&
+        user.role !== 'SUPER_ADMIN' &&
+        examOrg.orgId &&
+        examOrg.orgId !== user.orgId
+      ) {
+        throw new ForbiddenException('You do not have access to this exam');
+      }
+
       // PERFORMANCE: Cache exam questions to avoid fetching large JSON blobs on every run
       const cacheKey = `exam:questions:${examId}`;
       const cachedQuestions = await this.redis.get(cacheKey);
@@ -445,9 +467,25 @@ export class CodeExecutionService {
       // 1. Fetch authoritative unit test cases first
       const unit = await this.prisma.unit.findUnique({
         where: { id: unitId },
+        include: {
+          module: { include: { course: { select: { orgId: true } } } },
+        },
       });
 
       if (unit) {
+        // Same tenancy gap as the exam branch above: without this, any
+        // authenticated user could grade against another org's unit just
+        // by knowing/guessing its unitId.
+        const unitOrgId = unit.module?.course?.orgId;
+        if (
+          user &&
+          user.role !== 'SUPER_ADMIN' &&
+          unitOrgId &&
+          unitOrgId !== user.orgId
+        ) {
+          throw new ForbiddenException('You do not have access to this unit');
+        }
+
         // Assuming unit.content follows a structure suitable for coding problems
         // generic casting, in a real app we'd want strict DTOs/Validation
         const content: any = unit.content;

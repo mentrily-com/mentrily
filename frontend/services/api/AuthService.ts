@@ -328,6 +328,28 @@ export const AuthService = {
         return await this.checkSession(true);
     },
 
+    // Self-serve Creator persona — grants a Teacher membership on the
+    // caller's own personal org without touching any other role/org they
+    // already have. Does NOT switch to it; callers should follow up with
+    // switchOrg(orgId) once they want to land on the new dashboard.
+    async becomeCreator(): Promise<{ orgId: string; role: 'TEACHER' }> {
+        const authHeaders = await withClerkAuthorization(
+            withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
+        );
+        const res = await fetch(`${BASE_URL}/auth/become-creator`, {
+            method: 'POST',
+            headers: authHeaders,
+            credentials: 'include',
+        });
+
+        if (!res.ok) {
+            const error = await res.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to set up your creator workspace');
+        }
+
+        return await res.json();
+    },
+
     async uploadBugReportImage(file: File): Promise<{ url: string; name: string; type: string; size: number }> {
         const formData = new FormData();
         formData.append('file', file);

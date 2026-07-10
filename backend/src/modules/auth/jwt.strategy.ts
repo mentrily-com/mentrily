@@ -574,6 +574,55 @@ export class ClerkAuthGuard implements CanActivate {
     return matched || candidates[0];
   }
 
+  /**
+   * Handles the case provisionUserFromClerkPayload can't: an ALREADY
+   * signed-in user (clerkId already on file) gets invited to a second org.
+   * canActivate resolves them via findSessionUser({clerkId}) and never
+   * reaches provisionUserFromClerkPayload again, so that invite would
+   * otherwise sit in PendingInvite forever. Cheap indexed no-op for the
+   * common case (no pending invite for this email) — one PendingInvite
+   * lookup by email per cache-miss request.
+   */
+  private async applyPendingInviteForExistingUser(
+    user: { id: string; orgId: string | null },
+    payload: any,
+    clerkId: string,
+    secretKey: string,
+  ): Promise<void> {
+    const email = this.normalizePrimaryEmail(payload);
+    if (!email) return;
+
+    const hasCandidate = await this.prisma.pendingInvite.findFirst({
+      where: { email },
+      select: { id: true },
+    });
+    if (!hasCandidate) return;
+
+    const invite = await this.resolvePendingInvite(
+      this.prisma,
+      email,
+      clerkId,
+      payload,
+      secretKey,
+    );
+    if (!invite || invite.orgId === user.orgId) return;
+
+    const role = this.normalizeRoleValue(invite.role);
+    if (!role || !this.membershipService) return;
+
+    await this.membershipService.grantMembership(user.id, invite.orgId, role);
+    await this.prisma.pendingInvite
+      .delete({ where: { id: invite.id } })
+      .catch(() => {});
+
+    if (this.quotaService) {
+      const counterField = role === 'STUDENT' ? 'studentCount' : 'teacherSeatCount';
+      await this.quotaService
+        .incrementCounter(invite.orgId, counterField, 1)
+        .catch(() => {});
+    }
+  }
+
   private async provisionUserFromClerkPayload(
     clerkId: string,
     payload: any,
@@ -1093,6 +1142,21 @@ export class ClerkAuthGuard implements CanActivate {
         `[AUTH_USER_NOT_RESOLVED] clerkId=${clerkId} email=${payloadEmail || 'none'} active=${user?.isActive ?? 'none'}`,
       );
       throw new UnauthorizedException('ACCOUNT_SUSPENDED');
+    }
+
+    if (user?.id) {
+      try {
+        await this.applyPendingInviteForExistingUser(
+          { id: user.id, orgId: user.orgId ?? null },
+          effectivePayload,
+          clerkId,
+          secretKey,
+        );
+      } catch (err) {
+        this.logger.warn(
+          `[PENDING_INVITE_APPLY_FAILED] userId=${user.id}: ${err instanceof Error ? err.message : err}`,
+        );
+      }
     }
 
     if (user?.id && this.orgProvisioningService) {

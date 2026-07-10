@@ -65,13 +65,21 @@ export class StorageService {
     folder: string = 'uploads',
     contentLength?: number,
     orgId?: string,
+    ownerId?: string,
   ): Promise<string> {
     if (!fileData) {
       throw new Error('File data is required');
     }
 
     const fileExtension = filename.split('.').pop();
-    const key = `${folder}/${uuidv4()}.${fileExtension}`;
+    // Namespace the key by org (or, for org-less personal accounts, by
+    // owner) so ownership can be verified at delete time without a DB
+    // lookup. Falls back to the old flat shape when neither is available —
+    // fully backward compatible with every key already in the bucket.
+    const namespace = orgId || (ownerId ? `user-${ownerId}` : null);
+    const key = namespace
+      ? `${folder}/${namespace}/${uuidv4()}.${fileExtension}`
+      : `${folder}/${uuidv4()}.${fileExtension}`;
     const uploadSizeMb = contentLength
       ? Number((contentLength / (1024 * 1024)).toFixed(4))
       : 0;
@@ -178,6 +186,37 @@ export class StorageService {
       this.logger.error(`Failed to delete file: ${error.message}`, error.stack);
       // Non-throwing: don't block the caller if cleanup fails
     }
+  }
+
+  /**
+   * Verifies a file URL was uploaded under one of the caller's own
+   * namespaces (their orgId, or `user-${userId}` for org-less personal
+   * uploads) before an endpoint that accepts a CLIENT-SUPPLIED url is
+   * allowed to delete it. Legacy keys uploaded before namespacing existed
+   * (flat `folder/uuid.ext` shape) have no verifiable owner and are
+   * rejected by default — pass `allowUnnamespacedLegacy: true` only for
+   * callers where the URL is independently known to be server-derived
+   * (already-authorized), never for a raw client-supplied URL.
+   */
+  isOwnedByNamespace(
+    fileUrl: string,
+    allowedNamespaces: (string | undefined | null)[],
+    options?: { allowUnnamespacedLegacy?: boolean },
+  ): boolean {
+    const key = this.extractKeyFromUrl(fileUrl);
+    if (!key) return false;
+
+    const parts = key.split('/');
+    // folder/namespace/filename = 3 segments; legacy folder/filename = 2.
+    if (parts.length < 3) {
+      return Boolean(options?.allowUnnamespacedLegacy);
+    }
+
+    const namespace = parts[1];
+    const allowed = new Set(
+      allowedNamespaces.filter((value): value is string => Boolean(value)),
+    );
+    return allowed.has(namespace);
   }
 
   /**

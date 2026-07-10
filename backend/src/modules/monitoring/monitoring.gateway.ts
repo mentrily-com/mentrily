@@ -171,6 +171,54 @@ export class MonitoringGateway
     );
   }
 
+  /**
+   * A globally-privileged role is not enough: it says "this person is a
+   * teacher/admin SOMEWHERE," not "for THIS exam." Any account can become a
+   * Teacher of its own personal org via self-serve signup (or the become-
+   * creator flow), so join_exam/request_stream must also verify the caller
+   * actually owns or belongs to the org THIS exam lives in — otherwise any
+   * account on the platform could join another org's live monitor room or
+   * pull another org's student webcam streams. Reuses OrgMembership so a
+   * second-org Teacher persona (not just the home org) is also honored.
+   */
+  private async canMonitorExam(
+    socketUser: { id: string; role: string },
+    examId: string,
+  ): Promise<boolean> {
+    if (!this.isPrivileged(socketUser.role)) return false;
+    if (socketUser.role === 'SUPER_ADMIN') return true;
+
+    const exam = await this.prisma.exam.findUnique({
+      where: { id: examId },
+      select: { orgId: true, creatorId: true },
+    });
+    if (!exam) return false;
+    if (exam.creatorId === socketUser.id) return true;
+    if (!exam.orgId) return false;
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: socketUser.id },
+      select: { orgId: true, role: true },
+    });
+    if (
+      user?.orgId === exam.orgId &&
+      (user.role === 'TEACHER' || user.role === 'ADMIN')
+    ) {
+      return true;
+    }
+
+    const membership = await this.prisma.orgMembership.findUnique({
+      where: { userId_orgId: { userId: socketUser.id, orgId: exam.orgId } },
+      select: { role: true, status: true },
+    });
+
+    return Boolean(
+      membership &&
+        membership.status === 'ACTIVE' &&
+        (membership.role === 'TEACHER' || membership.role === 'ADMIN'),
+    );
+  }
+
   private async getViolationCounts(
     sessionId: string,
   ): Promise<{ inCount: number; outCount: number }> {
@@ -323,10 +371,11 @@ export class MonitoringGateway
 
     if (data.role === 'teacher') {
       // The monitor room streams every student's violations and status —
-      // joining it requires a privileged role in OUR records.
-      if (!this.isPrivileged(socketUser.role)) {
+      // joining it requires a privileged role in OUR records AND actual
+      // ownership/membership of the org this specific exam belongs to.
+      if (!(await this.canMonitorExam(socketUser, data.examId))) {
         console.warn(
-          `[JoinExam] Blocked monitor join: user ${socketUser.id} claimed teacher but has role ${socketUser.role}`,
+          `[JoinExam] Blocked monitor join: user ${socketUser.id} (role ${socketUser.role}) has no access to exam ${data.examId}`,
         );
         return { status: 'error', reason: 'FORBIDDEN' };
       }
@@ -590,12 +639,14 @@ export class MonitoringGateway
     data: { targetUserId: string; examId: string; teacherPeerId: string },
     @ConnectedSocket() client: Socket,
   ) {
-    // Webcam streams are the most sensitive surface here: only verified
-    // privileged roles may request one.
+    // Webcam streams are the most sensitive surface here: only a
+    // teacher/admin who actually owns or belongs to THIS exam's org may
+    // request one — a privileged role elsewhere on the platform is not
+    // enough (see canMonitorExam).
     const socketUser = await this.getSocketUser(client);
-    if (!socketUser || !this.isPrivileged(socketUser.role)) {
+    if (!socketUser || !(await this.canMonitorExam(socketUser, data.examId))) {
       console.warn(
-        `[Proctoring] Blocked stream request from user ${socketUser?.id || 'unknown'} (role: ${socketUser?.role || 'none'})`,
+        `[Proctoring] Blocked stream request from user ${socketUser?.id || 'unknown'} (role: ${socketUser?.role || 'none'}) for exam ${data.examId}`,
       );
       return { status: 'rejected', reason: 'FORBIDDEN' };
     }

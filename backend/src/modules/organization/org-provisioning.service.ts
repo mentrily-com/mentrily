@@ -5,12 +5,14 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../services/prisma/prisma.service';
 import { QuotaService } from '../billing/quota.service';
+import { MembershipService } from './membership.service';
 
 @Injectable()
 export class OrgProvisioningService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly quotaService: QuotaService,
+    private readonly membershipService: MembershipService,
   ) {}
 
   private slugifyOrganizationName(orgName: string): string {
@@ -44,6 +46,38 @@ export class OrgProvisioningService {
     throw new ConflictException('Unable to generate a unique organization slug');
   }
 
+  private async createPersonalOrganization(user: {
+    id: string;
+    name: string | null;
+  }): Promise<{ id: string }> {
+    const normalizedUserName = String(user.name || '').trim();
+    const orgName = normalizedUserName
+      ? `${normalizedUserName}'s School`
+      : 'My School';
+    const slug = await this.generateUniqueOrganizationSlug(
+      this.slugifyOrganizationName(orgName),
+    );
+
+    const organization = await this.prisma.organization.create({
+      data: {
+        name: orgName,
+        slug,
+        plan: 'FREE',
+        provisionedFromUserId: user.id,
+      } as any,
+      select: { id: true },
+    });
+
+    await this.quotaService.incrementCounter(
+      organization.id,
+      'teacherSeatCount',
+      1,
+    );
+    await this.quotaService.recalculateCounters(organization.id);
+
+    return organization;
+  }
+
   async ensureOrgForUser(userId: string): Promise<string> {
     const normalizedUserId = String(userId || '').trim();
     const user = await this.prisma.user.findUnique({
@@ -64,23 +98,7 @@ export class OrgProvisioningService {
       return user.orgId;
     }
 
-    const normalizedUserName = String(user.name || '').trim();
-    const orgName = normalizedUserName
-      ? `${normalizedUserName}'s School`
-      : 'My School';
-    const slug = await this.generateUniqueOrganizationSlug(
-      this.slugifyOrganizationName(orgName),
-    );
-
-    const organization = await this.prisma.organization.create({
-      data: {
-        name: orgName,
-        slug,
-        plan: 'FREE',
-        provisionedFromUserId: user.id,
-      } as any,
-      select: { id: true },
-    });
+    const organization = await this.createPersonalOrganization(user);
 
     await this.prisma.user.update({
       where: { id: user.id },
@@ -90,14 +108,57 @@ export class OrgProvisioningService {
       },
     });
 
-    await this.quotaService.incrementCounter(
-      organization.id,
-      'teacherSeatCount',
-      1,
-    );
-    await this.quotaService.recalculateCounters(organization.id);
-
     return organization.id;
+  }
+
+  /**
+   * Additive Creator persona for a user who ALREADY has a home org/role
+   * (e.g. a Learner). Never touches User.orgId/role — grants an OrgMembership
+   * on a personal org instead, same additive principle as accepting a
+   * second-org invite. Idempotent: a user only ever owns one personal org,
+   * found via Organization.provisionedFromUserId regardless of whether it's
+   * their home org.
+   */
+  async ensureCreatorPersona(
+    userId: string,
+  ): Promise<{ orgId: string; role: 'TEACHER' }> {
+    const normalizedUserId = String(userId || '').trim();
+    const user = await this.prisma.user.findUnique({
+      where: { id: normalizedUserId },
+      select: { id: true, orgId: true, name: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!user.orgId) {
+      const orgId = await this.ensureOrgForUser(user.id);
+      return { orgId, role: 'TEACHER' };
+    }
+
+    let personalOrg = await this.prisma.organization.findFirst({
+      where: { provisionedFromUserId: user.id },
+      select: { id: true },
+    });
+
+    if (!personalOrg) {
+      // Brand new personal org — createPersonalOrganization already
+      // increments the seat counter, no separate quota check needed.
+      personalOrg = await this.createPersonalOrganization(user);
+    } else {
+      // Re-granting on an already-provisioned personal org (idempotent
+      // repeat call, or re-added after being removed) — still gate it.
+      await this.quotaService.checkTeacherSeatQuota(personalOrg.id, 1);
+    }
+
+    await this.membershipService.grantMembership(
+      user.id,
+      personalOrg.id,
+      'TEACHER',
+    );
+
+    return { orgId: personalOrg.id, role: 'TEACHER' };
   }
 
   async normalizeAccidentalFreeOrgForUser(userId: string): Promise<boolean> {

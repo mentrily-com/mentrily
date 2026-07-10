@@ -343,12 +343,109 @@ export class TeacherService {
     throw new ForbiddenException('Access denied: You do not own this resource');
   }
 
+  /**
+   * createCourse/updateCourse accept linkedExamId/certificateTemplateId as
+   * plain client-supplied ids. Without verifying the caller actually has
+   * access to that specific exam/template (and that it's in the same org),
+   * a course they own could be wired to point at another org's exam or
+   * template by id — linkExamToCourse already does this correctly; this
+   * mirrors that same check for the inline create/update paths.
+   */
+  private async assertLinkableExam(
+    examId: string,
+    orgId: string | null,
+    user: any,
+  ): Promise<void> {
+    const exam = await this.findExamByIdCompat(examId);
+    if (!exam) throw new NotFoundException('Linked exam not found');
+    await this.checkAccess(exam, user);
+    if ((exam.orgId || null) !== (orgId || null)) {
+      throw new BadRequestException(
+        'Course and exam must belong to the same organization',
+      );
+    }
+  }
+
+  private async assertLinkableCourse(
+    courseId: string,
+    orgId: string | null,
+    user: any,
+  ): Promise<void> {
+    const course = await this.prisma.course.findUnique({
+      where: { id: courseId },
+    });
+    if (!course) throw new NotFoundException('Linked course not found');
+    await this.checkAccess(course, user);
+    if ((course.orgId || null) !== (orgId || null)) {
+      throw new BadRequestException(
+        'Course and exam must belong to the same organization',
+      );
+    }
+  }
+
+  /**
+   * The group CRUD methods below used to grant ANY user with role ADMIN
+   * full read/write/delete access to ANY group platform-wide (a bare
+   * `user.role === 'ADMIN'` check with no org match) — a plain global-role
+   * check like the ones already fixed in monitoring.gateway.ts. Now that
+   * self-serve Creator personas exist, org-scoping this is required.
+   */
+  private assertGroupAccess(
+    group: { teacherId: string; orgId: string | null },
+    user: any,
+  ): void {
+    if (group.teacherId === user.id) return;
+    if (user.role === 'SUPER_ADMIN') return;
+    if (user.role === 'ADMIN' && group.orgId && group.orgId === user.orgId) {
+      return;
+    }
+    throw new ForbiddenException('Access denied');
+  }
+
+  /** Same bare-ADMIN-bypass bug as assertGroupAccess, same fix. */
+  private assertAnnouncementAccess(
+    announcement: { teacherId: string; orgId: string | null },
+    user: any,
+  ): void {
+    if (announcement.teacherId === user.id) return;
+    if (user.role === 'SUPER_ADMIN') return;
+    if (
+      user.role === 'ADMIN' &&
+      announcement.orgId &&
+      announcement.orgId === user.orgId
+    ) {
+      return;
+    }
+    throw new ForbiddenException('Access denied');
+  }
+
+  private async assertLinkableCertificateTemplate(
+    templateId: string,
+    orgId: string | null,
+    user: any,
+  ): Promise<void> {
+    const template = await this.prisma.certificateTemplate.findUnique({
+      where: { id: templateId },
+      select: { orgId: true },
+    });
+    if (
+      !template ||
+      (user.role !== 'SUPER_ADMIN' && template.orgId !== orgId)
+    ) {
+      throw new BadRequestException(
+        'Certificate template not found in your organization',
+      );
+    }
+  }
+
   async getStats(user: any) {
     const userId = user.id;
     const orgId = String(user?.orgId || '').trim() || null;
 
-    // CACHE
-    const cacheKey = `teacher:stats:${userId}`;
+    // CACHE — keyed by role+org too: this account may hold multiple
+    // personas (e.g. Learner + self-serve Creator), and stats differ per
+    // active persona, not just per user id.
+    const cacheKey = `teacher:stats:${userId}:${user.role}:${orgId || 'none'}`;
     const cached = await this.redis.get(cacheKey);
     if (cached) return JSON.parse(cached);
 
@@ -483,8 +580,8 @@ export class TeacherService {
   }
 
   async getRecentSubmissions(user: any) {
-    // CACHE
-    const cacheKey = `teacher:recent_submissions:${user.id}`;
+    // CACHE — keyed by role+org too, same reasoning as getStats.
+    const cacheKey = `teacher:recent_submissions:${user.id}:${user.role}:${user.orgId || 'none'}`;
     const cached = await this.redis.get(cacheKey);
     if (cached) return JSON.parse(cached);
 
@@ -1120,9 +1217,11 @@ export class TeacherService {
   }
 
   async getStudentAnalytics(studentId: string, user: any) {
-    const cacheKey = `teacher:student_analytics:${user.id}:${studentId}`;
-    const cached = await this.redis.get(cacheKey);
-    if (cached) return JSON.parse(cached);
+    // Access must be re-verified on every call, not just cache misses —
+    // caching the authorization decision would let a caller who has since
+    // lost access to this student (org/persona switch, unassigned course)
+    // keep seeing cached data for the TTL window.
+    const cacheKey = `teacher:student_analytics:${user.id}:${user.role}:${user.orgId || 'none'}:${studentId}`;
 
     // Verify teacher has access to this student
     if (user.role === 'ADMIN') {
@@ -1147,6 +1246,9 @@ export class TeacherService {
       if (!enrollment)
         throw new Error('Access denied: Student not enrolled in your courses');
     }
+
+    const cached = await this.redis.get(cacheKey);
+    if (cached) return JSON.parse(cached);
 
     const submissionScope: any = { userId: studentId };
     if (user.role === 'ADMIN') {
@@ -1330,9 +1432,10 @@ export class TeacherService {
   ) {
     const limit = this.parseBoundedNumber(options?.limit, 100, 1, 200);
     const offset = this.parseBoundedNumber(options?.offset, 0, 0, 5000);
-    const cacheKey = `teacher:student_attempts:${user.id}:${studentId}:limit:${limit}:offset:${offset}`;
-    const cached = await this.redis.get(cacheKey);
-    if (cached) return JSON.parse(cached);
+    // Access must be re-verified on every call, not just cache misses —
+    // caching the authorization decision would let a caller who has since
+    // lost access to this student keep seeing cached data for the TTL.
+    const cacheKey = `teacher:student_attempts:${user.id}:${user.role}:${user.orgId || 'none'}:${studentId}:limit:${limit}:offset:${offset}`;
 
     // Verify teacher/admin has access to this student
     const teacherId = user.id;
@@ -1352,7 +1455,10 @@ export class TeacherService {
     } else if (user.role !== 'SUPER_ADMIN') {
       const enrollment = await this.prisma.course.findFirst({
         where: {
-          creatorId: teacherId,
+          OR: [
+            { creatorId: teacherId },
+            { assignments: { some: { teacherId } } },
+          ],
           students: { some: { id: studentId } },
         },
       });
@@ -1361,6 +1467,9 @@ export class TeacherService {
           'Access denied: Student not enrolled in your courses',
         );
     }
+
+    const cached = await this.redis.get(cacheKey);
+    if (cached) return JSON.parse(cached);
 
     const whereClause: any = { userId: studentId };
     if (user.role === 'ADMIN') {
@@ -1407,9 +1516,10 @@ export class TeacherService {
   ) {
     const limit = this.parseBoundedNumber(options?.limit, 100, 1, 200);
     const offset = this.parseBoundedNumber(options?.offset, 0, 0, 5000);
-    const cacheKey = `teacher:student_unit_subs:${user.id}:${studentId}:limit:${limit}:offset:${offset}`;
-    const cached = await this.redis.get(cacheKey);
-    if (cached) return JSON.parse(cached);
+    // Access must be re-verified on every call, not just cache misses —
+    // caching the authorization decision would let a caller who has since
+    // lost access to this student keep seeing cached data for the TTL.
+    const cacheKey = `teacher:student_unit_subs:${user.id}:${user.role}:${user.orgId || 'none'}:${studentId}:limit:${limit}:offset:${offset}`;
 
     // Verify teacher/admin has access to this student
     const teacherId = user.id;
@@ -1432,7 +1542,10 @@ export class TeacherService {
     } else if (user.role !== 'SUPER_ADMIN') {
       const enrollment = await this.prisma.course.findFirst({
         where: {
-          creatorId: teacherId,
+          OR: [
+            { creatorId: teacherId },
+            { assignments: { some: { teacherId } } },
+          ],
           students: { some: { id: studentId } },
         },
       });
@@ -1440,8 +1553,20 @@ export class TeacherService {
         throw new ForbiddenException(
           'Access denied: Student not enrolled in your courses',
         );
-      submissionFilter.unit = { module: { course: { creatorId: teacherId } } };
+      submissionFilter.unit = {
+        module: {
+          course: {
+            OR: [
+              { creatorId: teacherId },
+              { assignments: { some: { teacherId } } },
+            ],
+          },
+        },
+      };
     }
+
+    const cached = await this.redis.get(cacheKey);
+    if (cached) return JSON.parse(cached);
 
     const submissions = await this.prisma.unitSubmission.findMany({
       where: submissionFilter,
@@ -2063,6 +2188,20 @@ export class TeacherService {
       }
     }
 
+    if (typeof data.linkedExamId === 'string' && data.linkedExamId.trim()) {
+      await this.assertLinkableExam(data.linkedExamId, orgId, user);
+    }
+    if (
+      typeof data.certificateTemplateId === 'string' &&
+      data.certificateTemplateId.trim()
+    ) {
+      await this.assertLinkableCertificateTemplate(
+        data.certificateTemplateId,
+        orgId,
+        user,
+      );
+    }
+
     const hasExplicitStatus =
       typeof data?.status === 'string' && data.status.trim().length > 0;
     const hasExplicitVisibility = typeof data?.isVisible === 'boolean';
@@ -2392,6 +2531,20 @@ export class TeacherService {
       await this.quotaService.checkCourseQuotaForUser(user.id, 1);
     }
 
+    if (typeof data.linkedExamId === 'string' && data.linkedExamId.trim()) {
+      await this.assertLinkableExam(data.linkedExamId, orgId, user);
+    }
+    if (
+      typeof data.certificateTemplateId === 'string' &&
+      data.certificateTemplateId.trim()
+    ) {
+      await this.assertLinkableCertificateTemplate(
+        data.certificateTemplateId,
+        orgId,
+        user,
+      );
+    }
+
     const normalizedStatus = this.normalizeCourseStatus(
       data.status,
       data.isVisible,
@@ -2646,6 +2799,14 @@ export class TeacherService {
       this.collectQuestionTypesFromExamContent(data.sections || data.questions || []),
       existing.orgId || user.orgId,
     );
+
+    if (typeof data.linkedCourseId === 'string' && data.linkedCourseId.trim()) {
+      await this.assertLinkableCourse(
+        data.linkedCourseId,
+        existing.orgId || user.orgId,
+        user,
+      );
+    }
 
     // Calculate total marks from questions if provided
     let calculatedTotalMarks = 0;
@@ -3018,14 +3179,18 @@ export class TeacherService {
     const boundedLimit = this.parseBoundedNumber(limit, 50, 1, 100);
     const boundedPage = this.parseBoundedNumber(page, 1, 1, 100000);
     const normalizedSearch = String(search || '').trim();
-    const cacheKey = `teacher:exam_results:${user.id}:${examId}:p:${boundedPage}:l:${boundedLimit}:q:${normalizedSearch || '_'}`;
-    const cached = await this.redis.get(cacheKey);
-    if (cached) return JSON.parse(cached);
+    const cacheKey = `teacher:exam_results:${user.id}:${user.role}:${examId}:p:${boundedPage}:l:${boundedLimit}:q:${normalizedSearch || '_'}`;
 
-    // Verify ownership
+    // Verify ownership BEFORE serving cached data — caching the
+    // authorization decision would let a caller who has since lost access
+    // to this exam (unassigned, org/persona switch) keep seeing cached
+    // results for the TTL window.
     const exam = await this.findExamByIdCompat(examId);
     if (!exam) throw new Error('Exam not found');
     await this.checkAccess(exam, user);
+
+    const cached = await this.redis.get(cacheKey);
+    if (cached) return JSON.parse(cached);
 
     const skip = (boundedPage - 1) * boundedLimit;
 
@@ -3411,13 +3576,7 @@ export class TeacherService {
       },
     });
     if (!group) throw new NotFoundException('Group not found');
-    if (
-      group.teacherId !== user.id &&
-      user.role !== 'ADMIN' &&
-      user.role !== 'SUPER_ADMIN'
-    ) {
-      throw new ForbiddenException('Access denied');
-    }
+    this.assertGroupAccess(group, user);
     return group;
   }
 
@@ -3447,13 +3606,7 @@ export class TeacherService {
       where: { id: groupId },
     });
     if (!group) throw new NotFoundException('Group not found');
-    if (
-      group.teacherId !== user.id &&
-      user.role !== 'ADMIN' &&
-      user.role !== 'SUPER_ADMIN'
-    ) {
-      throw new ForbiddenException('Access denied');
-    }
+    this.assertGroupAccess(group, user);
 
     return this.prisma.studentGroup.update({
       where: { id: groupId },
@@ -3466,13 +3619,7 @@ export class TeacherService {
       where: { id: groupId },
     });
     if (!group) throw new NotFoundException('Group not found');
-    if (
-      group.teacherId !== user.id &&
-      user.role !== 'ADMIN' &&
-      user.role !== 'SUPER_ADMIN'
-    ) {
-      throw new ForbiddenException('Access denied');
-    }
+    this.assertGroupAccess(group, user);
 
     return this.prisma.studentGroup.delete({ where: { id: groupId } });
   }
@@ -3482,13 +3629,7 @@ export class TeacherService {
       where: { id: groupId },
     });
     if (!group) throw new NotFoundException('Group not found');
-    if (
-      group.teacherId !== user.id &&
-      user.role !== 'ADMIN' &&
-      user.role !== 'SUPER_ADMIN'
-    ) {
-      throw new ForbiddenException('Access denied');
-    }
+    this.assertGroupAccess(group, user);
 
     const normalizedEmails = [
       ...new Set(
@@ -3598,13 +3739,7 @@ export class TeacherService {
       where: { id: groupId },
     });
     if (!group) throw new NotFoundException('Group not found');
-    if (
-      group.teacherId !== user.id &&
-      user.role !== 'ADMIN' &&
-      user.role !== 'SUPER_ADMIN'
-    ) {
-      throw new ForbiddenException('Access denied');
-    }
+    this.assertGroupAccess(group, user);
 
     await this.prisma.studentGroup.update({
       where: { id: groupId },
@@ -3630,13 +3765,7 @@ export class TeacherService {
       include: { students: { select: { id: true, email: true, name: true } } },
     });
     if (!group) throw new NotFoundException('Group not found');
-    if (
-      group.teacherId !== user.id &&
-      user.role !== 'ADMIN' &&
-      user.role !== 'SUPER_ADMIN'
-    ) {
-      throw new ForbiddenException('Access denied');
-    }
+    this.assertGroupAccess(group, user);
 
     const existingCourse = await this.prisma.course.findUnique({
       where: { id: courseId },
@@ -3783,13 +3912,7 @@ export class TeacherService {
     });
 
     if (!existing) throw new NotFoundException('Announcement not found');
-    if (
-      existing.teacherId !== user.id &&
-      user.role !== 'ADMIN' &&
-      user.role !== 'SUPER_ADMIN'
-    ) {
-      throw new ForbiddenException('Access denied');
-    }
+    this.assertAnnouncementAccess(existing, user);
 
     if (!data.title?.trim()) throw new BadRequestException('Title is required');
     if (!data.content?.trim())
@@ -3848,13 +3971,7 @@ export class TeacherService {
       include: { groups: true },
     });
     if (!announcement) throw new NotFoundException('Announcement not found');
-    if (
-      announcement.teacherId !== user.id &&
-      user.role !== 'ADMIN' &&
-      user.role !== 'SUPER_ADMIN'
-    ) {
-      throw new ForbiddenException('Access denied');
-    }
+    this.assertAnnouncementAccess(announcement, user);
 
     // Delete attachment files from S3
     const attachments = announcement.attachments as any[];

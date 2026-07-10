@@ -12,6 +12,7 @@ import Redis from 'ioredis';
 import { MailService } from '../../services/mail.service';
 import { QuotaService } from './quota.service';
 import { OrgProvisioningService } from '../organization/org-provisioning.service';
+import { MembershipService } from '../organization/membership.service';
 const Stripe = require('stripe');
 import {
   PLAN_FEATURES,
@@ -39,6 +40,7 @@ export class BillingService {
     private readonly mailService: MailService,
     private readonly quotaService: QuotaService,
     private readonly orgProvisioningService: OrgProvisioningService,
+    private readonly membershipService: MembershipService,
     @InjectRedis() private readonly redis: Redis,
   ) {
     this.initializeStripe();
@@ -46,6 +48,26 @@ export class BillingService {
 
   private get prisma() {
     return this.supabase.legacyPrisma;
+  }
+
+  /**
+   * Distinguishes "this Teacher owns this org outright" (self-serve
+   * personal org — become-creator, or the classic solo-signup flow) from
+   * "this Teacher was invited into someone else's shared org" (billing is
+   * that org's admin's job). A Teacher's orgId being set is no longer proof
+   * of the latter now that become-creator hands out a personal org+Teacher
+   * role in one click — checking provisionedFromUserId is the real signal.
+   */
+  async isSelfOwnedPersonalOrg(
+    userId: string,
+    orgId: string,
+  ): Promise<boolean> {
+    if (!userId || !orgId) return false;
+    const org = await this.prisma.organization.findUnique({
+      where: { id: orgId },
+      select: { provisionedFromUserId: true },
+    });
+    return org?.provisionedFromUserId === userId;
   }
 
   initializeStripe(): any {
@@ -594,14 +616,35 @@ export class BillingService {
     });
 
     if (isUpgradeFromFree && org.provisionedFromUserId) {
-      await this.prisma.user.update({
+      const owner = await this.prisma.user.findUnique({
         where: { id: org.provisionedFromUserId },
-        data: {
-          role: 'ADMIN',
-          orgId: org.id,
-          needsRoleSelection: false,
-        },
+        select: { orgId: true },
       });
+
+      if (owner?.orgId === org.id) {
+        // This personal org IS the owner's home org — legacy direct update,
+        // no other persona to preserve.
+        await this.prisma.user.update({
+          where: { id: org.provisionedFromUserId },
+          data: {
+            role: 'ADMIN',
+            orgId: org.id,
+            needsRoleSelection: false,
+          },
+        });
+      } else {
+        // Owner has a different home org (e.g. they're a Learner elsewhere)
+        // and this personal org is an additive Creator persona — promote
+        // that persona's OrgMembership role instead of touching their home
+        // org/role, same additive principle as accepting a second-org
+        // invite.
+        await this.membershipService.grantMembership(
+          org.provisionedFromUserId,
+          org.id,
+          'ADMIN',
+        );
+      }
+
       await this.orgProvisioningService.migratePersonalResourcesToOrg(
         org.provisionedFromUserId,
         org.id,

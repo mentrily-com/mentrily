@@ -224,7 +224,7 @@ export class ExamService {
     return { totalQuestions, totalSections };
   }
 
-  async createExam(data: any) {
+  async createExam(data: any, user?: any) {
     try {
       return await this.prisma.exam.create({
         data: {
@@ -233,6 +233,12 @@ export class ExamService {
           duration: data.duration || 60,
           questions: data.questions,
           strictness: data.strictness || 'high',
+          // Without these an exam is an orphan: orgId is nullable, and every
+          // tenant-isolation check in this codebase is `if (exam.orgId &&
+          // exam.orgId !== user.orgId)` — a falsy orgId SKIPS the check
+          // entirely, making the exam visible/manageable from any org.
+          creatorId: user?.id || null,
+          orgId: user?.orgId || null,
         },
       });
     } catch (e) {
@@ -263,6 +269,7 @@ export class ExamService {
         select: {
           id: true,
           orgId: true,
+          creatorId: true,
           isActive: true,
           allowedIPs: true,
           examMode: true,
@@ -286,12 +293,17 @@ export class ExamService {
           select: {
             id: true,
             orgId: true,
-            course: { select: { orgId: true } },
+            course: { select: { orgId: true, creatorId: true } },
           },
         });
 
         if (test) {
-          foundData = { id: test.id, orgId: test.course?.orgId, type: 'test' };
+          foundData = {
+            id: test.id,
+            orgId: test.course?.orgId,
+            creatorId: test.course?.creatorId,
+            type: 'test',
+          };
         } else {
           // 3. Course (Curriculum)
           const course = await this.prisma.course.findFirst({
@@ -299,7 +311,7 @@ export class ExamService {
               slug,
               ...(scopedOrgId ? { orgId: scopedOrgId } : {}),
             },
-            select: { id: true, orgId: true },
+            select: { id: true, orgId: true, creatorId: true },
           });
           if (course) {
             foundData = { ...course, type: 'course' };
@@ -329,14 +341,7 @@ export class ExamService {
 
       if (foundData.isActive === false)
         throw new NotFoundException('Exam is not active');
-      if (
-        user &&
-        user.role !== 'SUPER_ADMIN' &&
-        foundData.orgId &&
-        foundData.orgId !== user.orgId
-      ) {
-        throw new NotFoundException('Access Denied');
-      }
+      this.assertTenantOrOwnerAccess(foundData, user, 'Access Denied');
       return foundData;
     }
 
@@ -355,11 +360,11 @@ export class ExamService {
 
     if (entity) {
       // ISOLATION CHECK from Cached Data
-      if (user && user.role !== 'SUPER_ADMIN') {
-        if (entity.orgId && entity.orgId !== user.orgId) {
-          throw new NotFoundException('Assessment not found or access denied');
-        }
-      }
+      this.assertTenantOrOwnerAccess(
+        entity,
+        user,
+        'Assessment not found or access denied',
+      );
       return this.transformExam(entity, !shouldSanitizeSensitiveContent(user));
     }
 
@@ -400,25 +405,25 @@ export class ExamService {
       await this.redis.set(cacheKey, JSON.stringify(exam), 'EX', 3600);
 
       // ISOLATION CHECK
-      if (user && user.role !== 'SUPER_ADMIN') {
-        if (exam.orgId && exam.orgId !== user.orgId) {
-          throw new NotFoundException('Assessment not found or access denied');
-        }
-      }
+      this.assertTenantOrOwnerAccess(
+        exam,
+        user,
+        'Assessment not found or access denied',
+      );
       return this.transformExam(exam, !shouldSanitizeSensitiveContent(user));
     }
 
     if (courseTest) {
-      const mappedTest = { ...courseTest, orgId: courseTest.course.orgId };
+      const mappedTest = {
+        ...courseTest,
+        orgId: courseTest.course.orgId,
+        creatorId: courseTest.course.creatorId,
+      };
       // Cache
       await this.redis.set(cacheKey, JSON.stringify(mappedTest), 'EX', 3600);
 
       // ISOLATION CHECK from Course
-      if (user && user.role !== 'SUPER_ADMIN') {
-        if (courseTest.course.orgId && courseTest.course.orgId !== user.orgId) {
-          throw new NotFoundException('Assessment not found');
-        }
-      }
+      this.assertTenantOrOwnerAccess(mappedTest, user, 'Assessment not found');
 
       const transformed = this.transformCourseTest(
         courseTest,
@@ -432,11 +437,7 @@ export class ExamService {
 
     if (course) {
       // ISOLATION CHECK
-      if (user && user.role !== 'SUPER_ADMIN') {
-        if (course.orgId && course.orgId !== user.orgId) {
-          throw new NotFoundException('Assessment not found');
-        }
-      }
+      this.assertTenantOrOwnerAccess(course, user, 'Assessment not found');
       return this.transformCourse(
         course,
         !shouldSanitizeSensitiveContent(user),
@@ -1201,8 +1202,36 @@ export class ExamService {
   }
 
   /**
+   * Tenant isolation for a resource that's EITHER org-owned (orgId set) OR
+   * personal/org-less (orgId null — a solo teacher's content before
+   * joining/creating an org, isolated by creatorId instead). Checking only
+   * `resource.orgId && resource.orgId !== user.orgId` treats a falsy orgId
+   * as "no isolation needed," which lets ANY privileged-role account read
+   * another person's personal exam/course by slug or id. SUPER_ADMIN exempt.
+   */
+  private assertTenantOrOwnerAccess(
+    resource: { orgId?: string | null; creatorId?: string | null } | null | undefined,
+    user: any,
+    message = 'Not found or access denied',
+  ): void {
+    if (!resource || !user || user.role === 'SUPER_ADMIN') return;
+
+    if (resource.orgId) {
+      if (resource.orgId !== user.orgId) {
+        throw new NotFoundException(message);
+      }
+      return;
+    }
+
+    if (resource.creatorId && resource.creatorId !== user.id) {
+      throw new NotFoundException(message);
+    }
+  }
+
+  /**
    * Tenancy check for teacher-facing exam endpoints: the exam must belong
-   * to the caller's organization (SUPER_ADMIN is exempt).
+   * to the caller's organization, or be their own personal exam
+   * (SUPER_ADMIN is exempt).
    */
   async assertExamOrgAccess(examId: string, user: any): Promise<void> {
     if (String(user?.role || '').toUpperCase() === 'SUPER_ADMIN') {
@@ -1211,14 +1240,16 @@ export class ExamService {
 
     const exam = await this.prisma.exam.findUnique({
       where: { id: examId },
-      select: { orgId: true },
+      select: { orgId: true, creatorId: true },
     });
 
     if (!exam) {
       throw new NotFoundException('Exam not found');
     }
 
-    if (exam.orgId && exam.orgId !== user?.orgId) {
+    try {
+      this.assertTenantOrOwnerAccess(exam, user);
+    } catch {
       throw new ForbiddenException('You do not have access to this exam');
     }
   }
