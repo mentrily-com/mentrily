@@ -1,173 +1,168 @@
 # Mentrily
 
-Mentrily is a full-stack learning, assessment, and coding-exam platform for organizations that need to create courses, run exams, manage learners, monitor submissions, and issue certificates from one product.
+Mentrily is a full-stack learning, assessment, and coding-exam platform designed for organizations. It enables the creation of courses, execution of exams, management of learners, monitoring of submissions, and issuance of certificates from a single, unified product.
 
 Built and maintained by **Suman Yadav**.
 
-## What This Repository Contains
+## 📦 What This Repository Contains
 
-This is a monorepo with a Next.js frontend and a NestJS backend.
+This repository is structured as a monorepo containing a Next.js frontend and a NestJS backend.
 
 ```text
 .
-├── frontend/   # Next.js app, dashboard UI, marketing pages, exam experience
-├── backend/    # NestJS API, Prisma schema, Supabase migrations, workers
-└── package.json
+├── frontend/   # Next.js application, dashboard UI, marketing pages, and exam interfaces.
+├── backend/    # NestJS API, Prisma schema, Supabase migrations, and background workers.
+└── package.json# Root configuration providing workspace-level commands.
 ```
 
-The root `package.json` provides workspace-level commands that delegate to both apps.
+The root `package.json` delegates commands to both the `frontend` and `backend` applications.
 
-## Product Overview
+## 🌟 Product Overview
 
-Mentrily is designed around three major workflows:
+Mentrily streamlines three major organizational workflows:
 
-- **Learning management**: create courses, structure modules and units, publish learning content, and give learners a focused dashboard.
-- **Assessment and exams**: build exams with coding, MCQ, reading, notebook, and web-based question types; invite candidates; monitor attempts; and review results.
-- **Organization operations**: manage organizations, roles, users, billing limits, certificates, onboarding, notifications, and super-admin controls.
+- **Learning Management**: Create comprehensive courses, structure modules and units, publish learning content, and provide learners with an intuitive, focused dashboard.
+- **Assessment and Exams**: Build robust exams supporting various question types (coding, MCQ, reading, notebook, web-based). Invite candidates, monitor attempts in real-time, and review detailed results.
+- **Organization Operations**: Manage multi-tenant organizations, roles, users, billing limits, certificate templates, onboarding processes, notifications, and super-admin controls.
 
-## Main Capabilities
+## 🚀 Main Capabilities
 
-- Organization-scoped dashboards for admins, creators, learners, and super admins
-- Course and exam builders with AI-assisted generation flows
-- Coding execution integrations and playground experiences
-- Real-time exam monitoring through WebSockets
-- Clerk-based authentication and invitation flows
-- Supabase-backed schema, RPC, RLS policies, and verification tests
-- Prisma data model and database migrations
-- Billing, quota, plan, and organization limit services
-- Certificate templates, verification pages, and certificate generation
-- Sentry/PostHog/Crisp integration points for observability, analytics, and support
+- **Multi-Tenant Dashboards**: Organization-scoped views tailored for admins, creators, learners, and super admins.
+- **AI-Assisted Builders**: Course and exam creation flows enhanced by AI generation.
+- **Coding Playground**: Integrated code execution environments for exams and practice.
+- **Real-Time Monitoring**: Live exam monitoring powered by WebSockets.
+- **Secure Authentication**: Robust authentication and invitation flows managed via Clerk.
+- **Database & RLS**: PostgreSQL database with Supabase-backed schema, RPC, and Row Level Security (RLS) policies, fully verified by automated tests.
+- **Data Modeling**: Type-safe database interactions using Prisma.
+- **Billing & Quotas**: Built-in services for managing billing plans, quotas, and organization limits.
+- **Certificates**: Customizable certificate templates, automated generation, and verification pages.
+- **Observability**: Integrations with Sentry, PostHog, and Crisp for comprehensive observability, analytics, and user support.
 
-## Tech Stack
+## 💻 Tech Stack
 
-**Frontend**
+### Frontend
 
-- Next.js 16
-- React 19
+- Next.js 16 (React 19)
 - TypeScript
 - Tailwind CSS
-- Apollo Client and GraphQL
+- Apollo Client & GraphQL
 - TanStack Query
-- Clerk authentication
-- Socket.IO client
+- Clerk Authentication
+- Socket.IO Client
 
-**Backend**
+### Backend
 
-- NestJS 11
-- Fastify
+- NestJS 11 (Fastify)
 - TypeScript
-- Prisma
-- Supabase
-- PostgreSQL
-- BullMQ and Redis
+- Prisma ORM
+- Supabase (PostgreSQL, Auth, Storage, Edge Functions)
+- BullMQ & Redis
 - Socket.IO
 - Stripe
-- Clerk backend SDK
+- Clerk Backend SDK
 
-## Getting Started
+## 🛠️ Getting Started
 
-Install dependencies in each app:
+### Prerequisites
+
+Ensure you have Node.js (v18+) and npm installed.
+
+### Installation
+
+Install dependencies for both applications from the root directory:
 
 ```bash
 npm install --prefix frontend
 npm install --prefix backend
 ```
 
-Run the frontend:
+### Running the Application
+
+**Start the Frontend (Development Mode):**
 
 ```bash
 npm run dev --prefix frontend
 ```
+The frontend application will be available at `http://localhost:3000`.
 
-Run the backend:
+**Start the Backend (Development Mode):**
 
 ```bash
 npm run start:dev --prefix backend
 ```
 
-The frontend normally runs at:
+## ⌨️ Common Commands (Workspace Level)
 
-```text
-http://localhost:3000
-```
+Execute these commands from the root directory to run them across both applications:
 
-## Common Commands
+- **Run basic checks (linting/typechecking):**
+  ```bash
+  npm run check
+  ```
+- **Run full validation (including tests):**
+  ```bash
+  npm run check:full
+  ```
+- **Build both applications:**
+  ```bash
+  npm run build
+  ```
+- **Format code:**
+  ```bash
+  npm run format
+  ```
 
-Run checks for both apps:
+## ⚙️ Environment Configuration
 
-```bash
-npm run check
-```
+Environment variables (`.env`) are intentionally excluded from version control. You must create local `.env` files within both the `frontend/` and `backend/` directories.
 
-Run full validation for both apps:
+**Key Backend Integrations Required:**
+- `DATABASE_URL` and `DIRECT_URL` (for Prisma and Supabase connections)
+- Clerk Secret Keys & Webhook Secrets
+- Supabase URL, Anon Key, and Service Role Key
+- Redis/BullMQ Configuration URLs
+- Stripe Secret Keys
+- Mail and Storage Provider Credentials
 
-```bash
-npm run check:full
-```
+**Key Frontend Integrations Required:**
+- Public API Base URLs
+- Clerk Publishable Keys
+- Supabase GraphQL URL and Anon Key
+- Analytics/Support Provider IDs
 
-Build both apps:
+*For detailed, app-specific configuration notes, please refer to `backend/README.md` and `frontend/README.md`.*
 
-```bash
-npm run build
-```
+## 🗄️ Database And Supabase Management
 
-Format both apps:
+The backend utilizes both Prisma for data modeling and Supabase SQL for migrations and RLS.
 
-```bash
-npm run format
-```
+**Useful Database Commands (Run from root):**
 
-## Environment Configuration
-
-Environment variables are intentionally not committed. Use local `.env` files inside `frontend/` and `backend/`.
-
-Important backend integrations include:
-
-- Database URLs for Prisma and Supabase
-- Clerk secret keys and webhook secrets
-- Supabase URL, anon key, and service role key
-- Redis/BullMQ configuration
-- Stripe keys
-- Mail and storage provider credentials
-
-Important frontend integrations include:
-
-- Public API base URLs
-- Clerk public keys
-- Supabase GraphQL URL and anon key
-- Analytics/support provider IDs
-
-See `backend/README.md` and `frontend/README.md` for app-specific notes.
-
-## Database And Supabase
-
-The backend contains both Prisma migrations and Supabase SQL migrations.
-
-Useful backend commands:
-
+Deploy Supabase schemas, RPCs, and RLS policies:
 ```bash
 npm run supabase:deploy --prefix backend
+```
+
+Generate RLS test tokens:
+```bash
 npm run supabase:rls:tokens --prefix backend
+```
+
+Seed the database with demo data:
+```bash
 npm run seed:college-demo --prefix backend
 ```
 
-Supabase migration and data-migration scripts live under:
+*Note: Supabase migration and data-migration scripts are located in `backend/supabase/`.*
 
-```text
-backend/supabase/
-```
+## 🔗 Repository Status
 
-## Repository Status
-
-This repository is connected to:
-
+This repository is tracked at:
 ```text
 https://github.com/mentrily-com/mentrily.git
 ```
+*(The legacy `blockscodeX` remote is maintained separately as `origin` in local working copies and should not be used for pushing Mentrily updates.)*
 
-The previous `blockscodeX` remote is kept separately as `origin` in the local working copy and should not be used for Mentrily pushes.
-
-## Author
+## 👤 Author
 
 **Suman Yadab**
-
