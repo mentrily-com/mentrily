@@ -18,6 +18,18 @@ import {
 /** How long to coalesce answer saves before flushing to Postgres. */
 const FLUSH_DELAY_MS = 2500;
 
+/**
+ * A session counts as "live monitored" only if the proctoring SOCKET touched it
+ * (heartbeat / join / socket save_answer) within this window. The client
+ * heartbeats every 30s, so 90s tolerates two missed beats / a brief blip.
+ * HTTP writes deliberately do NOT refresh this — otherwise a student could drop
+ * the monitoring socket to evade proctoring and still save/submit over plain
+ * HTTP. The final submit is gated on it, so evading the socket costs the exam.
+ */
+const PRESENCE_WINDOW_MS = 90_000;
+/** TTL must outlive a full exam so a long absence is still measurable as a gap. */
+const PRESENCE_TTL_S = 21_600; // 6h
+
 @Injectable()
 export class SubmissionService {
   constructor(
@@ -48,6 +60,51 @@ export class SubmissionService {
 
     await this.redis.set(cacheKey, session.userId, 'EX', 21600);
     return session.userId;
+  }
+
+  private presenceKey(sessionId: string) {
+    return `session:lastseen:${sessionId}`;
+  }
+
+  /**
+   * Record SOCKET presence for a session. Called ONLY from the WebSocket
+   * gateway (heartbeat / join_exam / socket save_answer) — never from an HTTP
+   * handler, so this tracks live monitoring-socket connectivity specifically.
+   */
+  async recordPresence(sessionId: string): Promise<void> {
+    if (!sessionId) return;
+    await this.redis.set(
+      this.presenceKey(sessionId),
+      Date.now().toString(),
+      'EX',
+      PRESENCE_TTL_S,
+    );
+  }
+
+  /** ms since the monitoring socket last touched this session, or null if never. */
+  async getPresenceGapMs(sessionId: string): Promise<number | null> {
+    const raw = await this.redis.get(this.presenceKey(sessionId));
+    if (!raw) return null;
+    const last = Number(raw);
+    if (!Number.isFinite(last)) return null;
+    return Date.now() - last;
+  }
+
+  /**
+   * Throw unless a proctoring socket has been present within the window.
+   * Enforced on the user-initiated submit path (NOT the server's deadline
+   * auto-submit) so dropping the monitoring socket to evade proctoring means
+   * you cannot finalize the exam without reconnecting.
+   */
+  async assertLiveMonitoring(sessionId: string): Promise<void> {
+    const gap = await this.getPresenceGapMs(sessionId);
+    if (gap === null || gap > PRESENCE_WINDOW_MS) {
+      throw new ForbiddenException({
+        code: 'MONITORING_OFFLINE',
+        message:
+          'Live proctoring connection is not active. Reconnect to the exam to submit your answers.',
+      });
+    }
   }
 
   /**

@@ -1306,6 +1306,7 @@ export default function PublicExamPage() {
         };
         const handleContextMenu = (e: MouseEvent) => {
             e.preventDefault();
+            socketLogViolation('RIGHT_CLICK', 'Student attempted to open the context menu');
         };
 
         document.addEventListener('paste', handlePaste, true);
@@ -1318,6 +1319,85 @@ export default function PublicExamPage() {
             document.removeEventListener('copy', handleCopy, true);
             document.removeEventListener('cut', handleCut, true);
             document.removeEventListener('contextmenu', handleContextMenu, true);
+        };
+    }, [isFeedbackMode, isSuccessMode, warning, socketLogViolation]);
+
+    // === DEVTOOLS / INSPECT DETERRENCE ===
+    // IMPORTANT: this is a client-side DETERRENT, not a security boundary. A
+    // determined user can still bypass it (disable JS, attach an external
+    // debugger/proxy, or dock DevTools before the page loads). Its job is to
+    // raise the effort bar for casual cheating and record attempts to the
+    // proctoring feed so a reviewer sees them. Real answer integrity must be
+    // enforced server-side. Browser extensions cannot be disabled from a web
+    // page, so we cannot truly "lock" the inspector — we block the common entry
+    // points and flag when DevTools appears to be open.
+    useEffect(() => {
+        if (isFeedbackMode || isSuccessMode) return;
+
+        // Identify the keyboard shortcuts that open DevTools / view-source /
+        // save-page across Windows/Linux (Ctrl) and macOS (Cmd/Meta).
+        const blockedCombo = (e: KeyboardEvent): string | null => {
+            const key = (e.key || '').toLowerCase();
+            if (key === 'f12') return 'F12';
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && ['i', 'j', 'c'].includes(key)) {
+                return `${e.metaKey ? 'Cmd' : 'Ctrl'}+Shift+${key.toUpperCase()}`;
+            }
+            if ((e.ctrlKey || e.metaKey) && key === 'u') {
+                return `${e.metaKey ? 'Cmd' : 'Ctrl'}+U`; // view source
+            }
+            if ((e.ctrlKey || e.metaKey) && key === 's') {
+                return `${e.metaKey ? 'Cmd' : 'Ctrl'}+S`; // save page
+            }
+            return null;
+        };
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            const combo = blockedCombo(e);
+            if (!combo) return;
+            e.preventDefault();
+            e.stopPropagation();
+            warning('Developer tools are disabled during the exam.', 'Action Blocked', 4000);
+            socketLogViolation('DEVTOOLS_SHORTCUT', `Blocked developer-tools shortcut: ${combo}`);
+        };
+
+        document.addEventListener('keydown', handleKeyDown, true);
+
+        // DevTools-open detection via the viewport-gap heuristic. Docked
+        // DevTools shrink the inner viewport well below the outer window frame.
+        // We compare against the gap measured at mount (which already accounts
+        // for the browser chrome) and flag only a large increase, to avoid
+        // false positives from normal chrome/zoom. Latched so one open episode
+        // logs a single violation, not one per tick.
+        const baseWidthGap = window.outerWidth - window.innerWidth;
+        const baseHeightGap = window.outerHeight - window.innerHeight;
+        const OPEN_DELTA = 180;
+        let devtoolsFlagged = false;
+
+        const checkDevtools = () => {
+            const widthGrew = window.outerWidth - window.innerWidth - baseWidthGap;
+            const heightGrew = window.outerHeight - window.innerHeight - baseHeightGap;
+            const open = widthGrew > OPEN_DELTA || heightGrew > OPEN_DELTA;
+            if (open && !devtoolsFlagged) {
+                devtoolsFlagged = true;
+                warning(
+                    'Developer tools appear to be open. This has been recorded.',
+                    'Proctoring Alert',
+                    5000,
+                );
+                socketLogViolation('DEVTOOLS_OPENED', 'Developer tools detected open during exam');
+            } else if (!open) {
+                devtoolsFlagged = false;
+            }
+        };
+
+        const interval = window.setInterval(checkDevtools, 1000);
+        window.addEventListener('resize', checkDevtools);
+        checkDevtools();
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown, true);
+            window.clearInterval(interval);
+            window.removeEventListener('resize', checkDevtools);
         };
     }, [isFeedbackMode, isSuccessMode, warning, socketLogViolation]);
 

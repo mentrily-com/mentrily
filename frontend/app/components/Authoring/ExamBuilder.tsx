@@ -37,6 +37,13 @@ import DashboardSkeleton from '../Skeletons/DashboardSkeleton';
 import { usePlan } from '@/hooks/usePlan';
 import UpgradeModal from '../Common/UpgradeModal';
 import ComingSoon from '../Common/ComingSoon';
+import {
+    getAllTimeZones,
+    detectTimeZone,
+    zonedWallClockToUtcISO,
+    utcISOToZonedWallClock,
+    zoneLabel,
+} from '@/lib/timezone';
 
 const RichTextEditor = dynamic(() => import('./RichTextEditor'), {
     ssr: false,
@@ -79,6 +86,31 @@ export default function ExamBuilder({
     const { success, error } = useToast();
     const router = useRouter();
     const [exam, setExam] = useState<Partial<Exam>>(initialData || createDefaultExam());
+
+    // Full global IANA zone list (every country/continent), computed once.
+    const [timeZoneOptions] = useState<string[]>(() => getAllTimeZones());
+    const [scheduleTz, setScheduleTz] = useState<string>(
+        (initialData as any)?.timeZone || detectTimeZone(),
+    );
+
+    // Changing the zone keeps the wall-clock the creator typed and reinterprets
+    // it in the new zone (so "3:00 PM" stays "3:00 PM", the stored UTC instant
+    // shifts). scheduleTz here is still the previous zone inside the updater.
+    const handleTimeZoneChange = (tz: string) => {
+        setExam((prev) => {
+            const next: Partial<Exam> = { ...prev, timeZone: tz };
+            if (prev.startTime) {
+                const wall = utcISOToZonedWallClock(prev.startTime, scheduleTz);
+                next.startTime = zonedWallClockToUtcISO(wall, tz);
+            }
+            if (prev.endTime) {
+                const wall = utcISOToZonedWallClock(prev.endTime, scheduleTz);
+                next.endTime = zonedWallClockToUtcISO(wall, tz);
+            }
+            return next;
+        });
+        setScheduleTz(tz);
+    };
 
     const [activeSectionId, setActiveSectionId] = useState<string>('sec-1');
     const [activeStep, setActiveStep] = useState<'metadata' | 'builder'>('builder');
@@ -170,13 +202,6 @@ export default function ExamBuilder({
         }));
     };
 
-    // Helper to format ISO datetime to a `datetime-local` compatible value (YYYY-MM-DDThh:mm)
-    const formatDateTimeLocal = (iso?: string | undefined) => {
-        if (!iso) return '';
-        const d = new Date(iso);
-        const pad = (n: number) => n.toString().padStart(2, '0');
-        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-    };
 
     const addQuestion = (type: Question['type']) => {
         if (!activeSection) return;
@@ -798,6 +823,28 @@ export default function ExamBuilder({
                                             </h3>
                                         </div>
 
+                                        <div className="space-y-1.5 mb-6">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                                Exam Timezone
+                                            </label>
+                                            <select
+                                                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-600 outline-none focus:border-[var(--brand-light)] transition-all"
+                                                value={scheduleTz}
+                                                onChange={(e) => handleTimeZoneChange(e.target.value)}
+                                            >
+                                                {timeZoneOptions.map((tz) => (
+                                                    <option key={tz} value={tz}>
+                                                        {zoneLabel(tz)}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <p className="text-[10px] font-semibold text-slate-400">
+                                                Start &amp; end times below are in this timezone. Learners
+                                                anywhere see the exam open at the same moment, labeled in
+                                                their own zone.
+                                            </p>
+                                        </div>
+
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                             <div className="space-y-1.5">
                                                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
@@ -806,12 +853,13 @@ export default function ExamBuilder({
                                                 <input
                                                     type="datetime-local"
                                                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-600 outline-none focus:border-[var(--brand-light)] transition-all"
-                                                    value={formatDateTimeLocal(exam.startTime)}
+                                                    value={utcISOToZonedWallClock(exam.startTime || '', scheduleTz)}
                                                     onChange={(e) =>
                                                         setExam((prev) => ({
                                                             ...prev,
+                                                            timeZone: scheduleTz,
                                                             startTime: e.target.value
-                                                                ? new Date(e.target.value).toISOString()
+                                                                ? zonedWallClockToUtcISO(e.target.value, scheduleTz)
                                                                 : undefined,
                                                         }))
                                                     }
@@ -824,12 +872,13 @@ export default function ExamBuilder({
                                                 <input
                                                     type="datetime-local"
                                                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-600 outline-none focus:border-[var(--brand-light)] transition-all"
-                                                    value={formatDateTimeLocal(exam.endTime)}
+                                                    value={utcISOToZonedWallClock(exam.endTime || '', scheduleTz)}
                                                     onChange={(e) =>
                                                         setExam((prev) => ({
                                                             ...prev,
+                                                            timeZone: scheduleTz,
                                                             endTime: e.target.value
-                                                                ? new Date(e.target.value).toISOString()
+                                                                ? zonedWallClockToUtcISO(e.target.value, scheduleTz)
                                                                 : undefined,
                                                         }))
                                                     }

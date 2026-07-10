@@ -6,6 +6,7 @@ import ExamSidebar from '@/app/components/ExamSidebar';
 import UnitRenderer, { UnitQuestion } from '@/app/components/UnitRenderer';
 import ExamSubmitView from '@/app/components/ExamSubmitView';
 import { createGuide, type GuideStep } from '@/app/components/Common/hints/guide';
+import { useNetworkMonitor } from '@/hooks/useNetworkMonitor';
 
 const TOUR_DONE_KEY = 'tour_practice_exam_completed';
 const DRAFT_KEY = 'practice_exam_draft_v1';
@@ -213,8 +214,20 @@ export default function PracticeExamPage() {
     const [hydrated, setHydrated] = useState(false);
     const [windowFocus, setWindowFocus] = useState({ in: 0, out: 0 });
     const [focusAlert, setFocusAlert] = useState<{ outCount: number } | null>(null);
+    const [lockdownAlert, setLockdownAlert] = useState<string | null>(null);
+    // Same live network signal the real exam shows in its toolbar.
+    const { isOnline, downlink } = useNetworkMonitor();
+    const toggleFullscreen = useCallback(() => {
+        if (typeof document === 'undefined') return;
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen?.().catch(() => {});
+        } else {
+            document.exitFullscreen?.().catch(() => {});
+        }
+    }, []);
     const guideRef = useRef<ReturnType<typeof createGuide> | null>(null);
     const focusAlertTimerRef = useRef<number | null>(null);
+    const lockdownAlertTimerRef = useRef<number | null>(null);
 
     // --- Restore a draft on mount (refresh-safe, session only) ---
     useEffect(() => {
@@ -297,6 +310,92 @@ export default function PracticeExamPage() {
             window.removeEventListener('blur', handleFocusLoss);
             window.removeEventListener('focus', handleFocusGain);
             window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, [isFinished]);
+
+    // --- Lockdown: mirror the real exam's right-click / clipboard / DevTools
+    // deterrence so practice feels identical. Local-only here (no proctoring
+    // socket) — it coaches via the same banner instead of logging violations.
+    // Same honest caveat as the real exam: this is a deterrent, not a security
+    // boundary; a determined user can still bypass it. ---
+    useEffect(() => {
+        if (isFinished) return;
+
+        const flash = (message: string) => {
+            setLockdownAlert(message);
+            if (lockdownAlertTimerRef.current) window.clearTimeout(lockdownAlertTimerRef.current);
+            lockdownAlertTimerRef.current = window.setTimeout(() => setLockdownAlert(null), 4000);
+        };
+
+        const isFromCodeEditor = (target: EventTarget | null): boolean =>
+            target instanceof HTMLElement && target.closest('.cm-editor') !== null;
+
+        const handleContextMenu = (e: MouseEvent) => {
+            e.preventDefault();
+            flash('Right-click is disabled during the exam.');
+        };
+        const handleClipboard = (label: string) => (e: ClipboardEvent) => {
+            if (isFromCodeEditor(e.target)) return;
+            e.preventDefault();
+            flash(`${label} is not allowed during the exam.`);
+        };
+
+        const blockedCombo = (e: KeyboardEvent): string | null => {
+            const key = (e.key || '').toLowerCase();
+            if (key === 'f12') return 'F12';
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && ['i', 'j', 'c'].includes(key)) {
+                return `${e.metaKey ? 'Cmd' : 'Ctrl'}+Shift+${key.toUpperCase()}`;
+            }
+            if ((e.ctrlKey || e.metaKey) && key === 'u') return `${e.metaKey ? 'Cmd' : 'Ctrl'}+U`;
+            if ((e.ctrlKey || e.metaKey) && key === 's') return `${e.metaKey ? 'Cmd' : 'Ctrl'}+S`;
+            return null;
+        };
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (!blockedCombo(e)) return;
+            e.preventDefault();
+            e.stopPropagation();
+            flash('Developer tools are disabled during the exam.');
+        };
+
+        const handleCopy = handleClipboard('Copying');
+        const handlePaste = handleClipboard('Pasting');
+        const handleCut = handleClipboard('Cutting');
+
+        document.addEventListener('contextmenu', handleContextMenu, true);
+        document.addEventListener('copy', handleCopy, true);
+        document.addEventListener('paste', handlePaste, true);
+        document.addEventListener('cut', handleCut, true);
+        document.addEventListener('keydown', handleKeyDown, true);
+
+        // DevTools-open detection (viewport-gap delta from mount baseline).
+        const baseWidthGap = window.outerWidth - window.innerWidth;
+        const baseHeightGap = window.outerHeight - window.innerHeight;
+        const OPEN_DELTA = 180;
+        let devtoolsFlagged = false;
+        const checkDevtools = () => {
+            const widthGrew = window.outerWidth - window.innerWidth - baseWidthGap;
+            const heightGrew = window.outerHeight - window.innerHeight - baseHeightGap;
+            const open = widthGrew > OPEN_DELTA || heightGrew > OPEN_DELTA;
+            if (open && !devtoolsFlagged) {
+                devtoolsFlagged = true;
+                flash('Developer tools appear to be open. In a real exam this is recorded.');
+            } else if (!open) {
+                devtoolsFlagged = false;
+            }
+        };
+        const dtInterval = window.setInterval(checkDevtools, 1000);
+        window.addEventListener('resize', checkDevtools);
+        checkDevtools();
+
+        return () => {
+            if (lockdownAlertTimerRef.current) window.clearTimeout(lockdownAlertTimerRef.current);
+            document.removeEventListener('contextmenu', handleContextMenu, true);
+            document.removeEventListener('copy', handleCopy, true);
+            document.removeEventListener('paste', handlePaste, true);
+            document.removeEventListener('cut', handleCut, true);
+            document.removeEventListener('keydown', handleKeyDown, true);
+            window.clearInterval(dtInterval);
+            window.removeEventListener('resize', checkDevtools);
         };
     }, [isFinished]);
 
@@ -487,6 +586,12 @@ export default function PracticeExamPage() {
         return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     };
 
+    // Network state depends on client-only APIs (navigator.onLine/downlink), so
+    // render a stable "online / detecting" default until after mount to keep the
+    // server HTML and first client render identical (no hydration mismatch).
+    const netOnline = hydrated ? isOnline : true;
+    const netDownlink = hydrated ? downlink : 0;
+
     const examConfig: ExamConfig = {
         rollNumber: 'PRACTICE-001',
         userName: 'Practice Run',
@@ -494,6 +599,17 @@ export default function PracticeExamPage() {
         hideBrandName: true,
         leftContent: (
             <div className="ml-4 flex items-center gap-2" data-tour="practice-badge">
+                <button
+                    onClick={() => router.push('/dashboard/learner')}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-600 transition-all hover:border-[var(--brand)] hover:text-[var(--brand)] active:scale-95"
+                    title="Leave practice and return to your dashboard"
+                >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M19 12H5" />
+                        <path d="m12 19-7-7 7-7" />
+                    </svg>
+                    Back
+                </button>
                 <button
                     onClick={startGuide}
                     className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-600 transition-all hover:border-[var(--brand)] hover:text-[var(--brand)] active:scale-95"
@@ -506,10 +622,6 @@ export default function PracticeExamPage() {
                     </svg>
                     Guide
                 </button>
-                <span className="hidden items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-emerald-700 sm:inline-flex">
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-                    Practice Mode · Not Recorded
-                </span>
                 <div
                     data-tour="practice-focus"
                     className={`flex items-center gap-3 rounded-xl border border-slate-100 bg-white px-3 py-1.5 transition-shadow duration-300 ${
@@ -614,6 +726,60 @@ export default function PracticeExamPage() {
                         </svg>
                     </button>
                 </div>
+
+                {/* WiFi Signal Icon with Tooltip — same live network indicator the
+                    real exam shows, so practice looks identical. */}
+                <div className="relative group flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-help border border-slate-100">
+                    <div className="flex items-end gap-0.5 h-3.5 mb-0.5">
+                        {[1, 2, 3, 4].map((bar) => {
+                            const barThresholds = [0, 2, 5, 10];
+                            const isActive = netOnline && netDownlink >= barThresholds[bar - 1];
+                            return (
+                                <div
+                                    key={bar}
+                                    className={`w-1 rounded-sm transition-all duration-300 ${isActive ? 'bg-emerald-500' : 'bg-slate-200'} ${!netOnline ? 'bg-rose-400' : ''}`}
+                                    style={{ height: `${25 * bar}%` }}
+                                />
+                            );
+                        })}
+                    </div>
+                    {!netOnline && (
+                        <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 border-2 border-white rounded-full animate-pulse" />
+                    )}
+                    <div className="absolute invisible group-hover:visible top-full left-1/2 -translate-x-1/2 mt-3 p-3 bg-white text-slate-900 text-[10px] font-bold rounded-xl whitespace-nowrap shadow-2xl z-50 border border-slate-100 ring-4 ring-slate-900/5 transition-all">
+                        <div className="flex flex-col gap-2">
+                            <div className="flex items-center justify-between gap-8">
+                                <span className="text-slate-400 uppercase tracking-tighter">Net Status</span>
+                                <span className={netOnline ? 'text-emerald-500 font-black' : 'text-rose-500 font-black'}>
+                                    {netOnline ? 'ONLINE' : 'OFFLINE'}
+                                </span>
+                            </div>
+                            {netOnline && (
+                                <div className="flex items-center justify-between gap-8 border-t border-slate-50 pt-2">
+                                    <span className="text-slate-400 uppercase tracking-tighter">Sync Speed</span>
+                                    <span className="text-indigo-600 font-black">
+                                        {netDownlink > 0 ? `${netDownlink} MB/s` : 'Detecting...'}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-8 border-transparent border-b-white" />
+                    </div>
+                </div>
+
+                {/* Fullscreen toggle — matches the real exam toolbar. */}
+                <button
+                    onClick={toggleFullscreen}
+                    className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-500 rounded-xl border border-slate-100 transition-all"
+                    aria-label="Toggle fullscreen"
+                >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M15 3h6v6" />
+                        <path d="M9 21H3v-6" />
+                        <path d="M21 3l-7 7" />
+                        <path d="M3 21l7-7" />
+                    </svg>
+                </button>
             </div>
         ),
     };
@@ -719,6 +885,59 @@ export default function PracticeExamPage() {
                                     ? 'text-rose-400 hover:bg-rose-100 hover:text-rose-700'
                                     : 'text-amber-400 hover:bg-amber-100 hover:text-amber-700'
                             }`}
+                            aria-label="Dismiss warning"
+                        >
+                            <svg
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="3"
+                                strokeLinecap="round"
+                            >
+                                <path d="M18 6 6 18" />
+                                <path d="m6 6 12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Lockdown coaching banner — right-click / clipboard / DevTools.
+                Sits below the tab-switch banner so both can show at once. */}
+            {lockdownAlert && (
+                <div className="fixed left-1/2 top-32 z-[1000000001] w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 animate-in fade-in slide-in-from-top-3 duration-300">
+                    <div
+                        className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-900/95 p-4 shadow-2xl backdrop-blur-md"
+                        role="alert"
+                    >
+                        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white">
+                            <svg
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                            </svg>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <h4 className="text-xs font-black uppercase tracking-wider text-white">
+                                Exam lockdown
+                            </h4>
+                            <p className="mt-1 text-xs font-semibold leading-5 text-slate-300">
+                                {lockdownAlert}
+                            </p>
+                        </div>
+                        <button
+                            onClick={() => setLockdownAlert(null)}
+                            className="shrink-0 rounded-lg p-1 text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
                             aria-label="Dismiss warning"
                         >
                             <svg

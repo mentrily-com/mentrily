@@ -68,6 +68,7 @@ export class TeacherService {
     strictness: true,
     startTime: true,
     endTime: true,
+    timeZone: true,
     questions: true,
     isActive: true,
     resultsPublished: true,
@@ -1266,14 +1267,21 @@ export class TeacherService {
       };
     }
 
+    // Only createdAt/status/unitId and the course title are read below, so
+    // select exactly those instead of include-ing full unit/module/course rows
+    // (and the submission's own large `content` JSON). The deep include pulled
+    // every column of three joined tables per submission for a single title.
     const submissions = await this.prisma.unitSubmission.findMany({
       where: submissionScope,
-      include: {
+      select: {
+        createdAt: true,
+        status: true,
+        unitId: true,
         unit: {
-          include: {
+          select: {
             module: {
-              include: {
-                course: true,
+              select: {
+                course: { select: { title: true } },
               },
             },
           },
@@ -2741,6 +2749,7 @@ export class TeacherService {
           : null,
         startTime: linkedCourseId ? null : data.startTime ? new Date(data.startTime) : null,
         endTime: linkedCourseId ? null : data.endTime ? new Date(data.endTime) : null,
+        timeZone: linkedCourseId ? null : data.timeZone || null,
         questions: data.sections || data.questions || [],
         aiTokensUsed: data.aiTokensUsed ? Number(data.aiTokensUsed) : undefined,
         isActive: data.isActive ?? data.isVisible ?? true,
@@ -2871,6 +2880,7 @@ export class TeacherService {
         : null,
       startTime: isCourseLinked ? null : data.startTime ? new Date(data.startTime) : null,
       endTime: isCourseLinked ? null : data.endTime ? new Date(data.endTime) : null,
+      timeZone: isCourseLinked ? null : data.timeZone ?? undefined,
       questions: data.sections || data.questions,
       aiTokensUsed: data.aiTokensUsed ? Number(data.aiTokensUsed) : undefined,
       isActive: data.isActive ?? data.isVisible,
@@ -3206,12 +3216,6 @@ export class TeacherService {
       };
     }
 
-    // 1. Fetch Stats (Minimal)
-    const allStatsData = await this.prisma.examSession.findMany({
-      where: { examId },
-      select: { status: true, score: true },
-    });
-
     // 2. Fetch Paginated Sessions
     const [sessions, totalFiltered] = await Promise.all([
       this.prisma.examSession.findMany({
@@ -3342,26 +3346,43 @@ export class TeacherService {
       };
     });
 
-    let totalScore = 0;
-    let highScore = 0;
-    let passedCount = 0;
-    const distribution = [0, 0, 0, 0];
+    // Stats computed DB-side. Was: pull every ExamSession row for this exam and
+    // sum/bucket them in a JS loop, which grew unbounded with submissions.
+    // marksDenominator is known here, so the score buckets and pass threshold
+    // become indexed COUNTs and avg/max become an aggregate — only a handful of
+    // numbers cross the wire instead of every session. Semantics preserved:
+    // a null score counts as 0 (old code used `Number(row.score) || 0`), so
+    // null scores land in the 0-25% bucket and never count as passed — the
+    // explicit `score: null` OR below keeps that behavior.
+    const D = marksDenominator;
+    const [scoreAgg, totalCount, passedCount, bucket0, bucket1, bucket2] =
+      await Promise.all([
+        this.prisma.examSession.aggregate({
+          where: { examId },
+          _sum: { score: true },
+          _max: { score: true },
+        }),
+        this.prisma.examSession.count({ where: { examId } }),
+        this.prisma.examSession.count({
+          where: { examId, score: { gte: 0.4 * D } },
+        }),
+        this.prisma.examSession.count({
+          where: { examId, OR: [{ score: { lt: 0.25 * D } }, { score: null }] },
+        }),
+        this.prisma.examSession.count({
+          where: { examId, score: { gte: 0.25 * D, lt: 0.5 * D } },
+        }),
+        this.prisma.examSession.count({
+          where: { examId, score: { gte: 0.5 * D, lt: 0.75 * D } },
+        }),
+      ]);
 
-    for (const row of allStatsData as any[]) {
-      const score = Number(row.score) || 0;
-      totalScore += score;
-      if (score > highScore) highScore = score;
-
-      const pct = marksDenominator > 0 ? score / marksDenominator : 0;
-      if (pct < 0.25) distribution[0] += 1;
-      else if (pct < 0.5) distribution[1] += 1;
-      else if (pct < 0.75) distribution[2] += 1;
-      else distribution[3] += 1;
-
-      if (pct >= 0.4) passedCount += 1;
-    }
-
-    const failedCount = allStatsData.length - passedCount;
+    const totalScore = Number(scoreAgg._sum.score || 0);
+    const highScore = Number(scoreAgg._max.score || 0);
+    const failedCount = totalCount - passedCount;
+    // Remaining rows (score >= 0.75*D) — derived to avoid a 4th count query.
+    const bucket3 = totalCount - bucket0 - bucket1 - bucket2;
+    const distribution = [bucket0, bucket1, bucket2, bucket3];
 
     const response = {
       results: mappedSessions,
@@ -3373,10 +3394,10 @@ export class TeacherService {
         totalPages: Math.ceil(totalFiltered / boundedLimit),
       },
       stats: {
-        avgScore: totalScore / (allStatsData.length || 1),
+        avgScore: totalScore / (totalCount || 1),
         passedCount,
         failedCount,
-        totalCount: allStatsData.length,
+        totalCount,
         highScore,
         distribution: [
           { score: '0-25%', count: distribution[0] },

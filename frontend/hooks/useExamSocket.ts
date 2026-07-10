@@ -230,6 +230,9 @@ export const useExamSocket = (
                 role: 'student',
                 deviceId: identity.deviceId,
                 tabId: identity.tabId,
+                // Lets the server mark live presence at join so the submit guard
+                // has a fresh signal before the first heartbeat lands.
+                sessionId: sessionIdRef.current,
             });
 
             // Restart heartbeat bound to this fresh socket

@@ -150,10 +150,16 @@ export default function DashboardPage() {
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-orange-100 selection:text-orange-900">
+            {/* Show the guided dashboard tour ONCE on first login. Dropping
+                repeatUntilSkipped switches to the per-tour localStorage
+                "completed" marker (set the first time it runs) instead of the
+                session-only flag that re-triggered it every login until the
+                user explicitly skipped. ignoreUserOnboardingFlag stays so this
+                tour keeps its own per-tour state and doesn't collide with the
+                shared global hasCompletedOnboarding flag used by other tours. */}
             <OnboardingTour
                 tourId="learner_dashboard_guided_v2"
                 ignoreUserOnboardingFlag
-                repeatUntilSkipped
                 skipStorageKey={MENTRILY_ONBOARDING_SKIP_KEY}
                 steps={learnerTourSteps}
             />

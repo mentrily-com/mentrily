@@ -75,8 +75,11 @@ export class MonitoringGateway
     return {
       serverTimeMs: now.getTime(),
       serverTimeIso: now.toISOString(),
-      timeZone: 'Asia/Kathmandu',
-      utcOffsetMinutes: 345,
+      // UTC reference clock (was hardcoded to Asia/Kathmandu). The heartbeat_ack
+      // only needs the absolute serverTimeMs for the client's countdown drift
+      // correction; the exam's display zone travels with the exam payload.
+      timeZone: 'UTC',
+      utcOffsetMinutes: 0,
     };
   }
 
@@ -355,6 +358,7 @@ export class MonitoringGateway
       role: string;
       deviceId?: string;
       tabId?: string;
+      sessionId?: string;
     },
     @ConnectedSocket() client: Socket,
   ) {
@@ -417,6 +421,13 @@ export class MonitoringGateway
         examId: data.examId,
       });
 
+      // Establish live presence immediately on join so a fast first submit
+      // isn't blocked before the first 30s heartbeat lands. Owner is already
+      // verified above (data.userId === socketUser.id).
+      if (data.sessionId) {
+        await this.submissionService.recordPresence(data.sessionId);
+      }
+
       // 2. SET Redis ownership IMMEDIATELY
       // const identity = {
       //     deviceId: data.deviceId,
@@ -465,6 +476,8 @@ export class MonitoringGateway
     // updates between tabs) and schedules one coalesced DB flush for the
     // session. See SubmissionService.queueAnswer.
     await this.submissionService.queueAnswer(data.sessionId, data.answer);
+    // Socket activity counts as live presence for the submit guard.
+    await this.submissionService.recordPresence(data.sessionId);
     return { status: 'saved' };
   }
 
@@ -473,8 +486,51 @@ export class MonitoringGateway
     @MessageBody() data: { sessionId: string; timestamp: number },
     @ConnectedSocket() client: Socket,
   ) {
-    // Can be used to track last seen timestamp in Redis for precise online status
-    // await this.redis.set(`session:last_seen:${data.sessionId}`, Date.now(), 'EX', 60);
+    // Presence + gap detection. Trusted only from the session's OWNER, so a
+    // student can't spoof presence for another session. The gap since the last
+    // socket contact is SERVER-observable: it doesn't rely on the client
+    // reporting that it left. A gap past the threshold means the student was
+    // away, backgrounded (browsers throttle timers on hidden tabs, so the 30s
+    // heartbeat balloons), or briefly dropped the socket — all recorded as a
+    // soft violation for the proctor to review (network blips look the same).
+    const HEARTBEAT_GAP_MS = 75_000;
+    if (data?.sessionId) {
+      const socketUser = await this.getSocketUser(client);
+      const ownerId = socketUser
+        ? await this.submissionService.getSessionOwner(data.sessionId)
+        : null;
+
+      if (socketUser && ownerId === socketUser.id) {
+        const gapMs = await this.submissionService.getPresenceGapMs(
+          data.sessionId,
+        );
+        await this.submissionService.recordPresence(data.sessionId);
+
+        if (gapMs !== null && gapMs > HEARTBEAT_GAP_MS) {
+          const examId = this.activeConnections.get(client.id)?.examId;
+          const seconds = Math.round(gapMs / 1000);
+          const message = `No proctoring signal for ${seconds}s (possible tab switch, backgrounded tab, or disconnect)`;
+          await this.prisma.violation.create({
+            data: {
+              sessionId: data.sessionId,
+              type: 'HEARTBEAT_GAP',
+              message,
+              severity: 'WARNING',
+              timestamp: new Date(),
+            },
+          });
+          if (examId) {
+            this.server.to(`exam_${examId}_monitor`).emit('live_violation', {
+              userId: socketUser.id,
+              type: 'HEARTBEAT_GAP',
+              message,
+              details: { gapMs },
+              timestamp: new Date(),
+            });
+          }
+        }
+      }
+    }
 
     // Emit explicit acknowledgement for client-side heartbeat tracking
     client.emit('heartbeat_ack', {

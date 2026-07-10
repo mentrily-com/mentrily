@@ -340,6 +340,10 @@ export const AuthService = {
             method: 'POST',
             headers: authHeaders,
             credentials: 'include',
+            // Content-Type is application/json, so Fastify rejects an empty
+            // body ("Body cannot be empty…"). This endpoint takes no input, so
+            // send an empty JSON object.
+            body: JSON.stringify({}),
         });
 
         if (!res.ok) {

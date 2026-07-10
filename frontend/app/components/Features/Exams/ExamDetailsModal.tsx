@@ -5,6 +5,7 @@ import { siteConfig } from '@/app/config/site';
 import AlertModal from '@/app/components/Common/AlertModal';
 import { useOrganization } from '@/app/context/OrganizationContext';
 import AppModal from '@/app/components/Common/AppModal';
+import { formatInZone } from '@/lib/timezone';
 
 interface ExamDetailsModalProps {
     exam: any;
@@ -207,7 +208,7 @@ export default function ExamDetailsModal({ exam, onClose }: ExamDetailsModalProp
                             </div>
                             <div>
                                 <p className="text-[9px] font-black text-slate-300 uppercase">Starts At</p>
-                                <p className="text-xs font-black text-slate-700">{exam.startTime}</p>
+                                <p className="text-xs font-black text-slate-700">{formatInZone(exam.startTime, exam.timeZone)}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
@@ -216,7 +217,7 @@ export default function ExamDetailsModal({ exam, onClose }: ExamDetailsModalProp
                             </div>
                             <div>
                                 <p className="text-[9px] font-black text-slate-300 uppercase">Ends At</p>
-                                <p className="text-xs font-black text-slate-700">{exam.endTime}</p>
+                                <p className="text-xs font-black text-slate-700">{formatInZone(exam.endTime, exam.timeZone)}</p>
                             </div>
                         </div>
                     </div>

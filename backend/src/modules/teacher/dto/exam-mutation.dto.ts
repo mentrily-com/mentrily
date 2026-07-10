@@ -100,6 +100,14 @@ export class ExamMutationDto {
   @IsString()
   endTime?: string;
 
+  // IANA timezone the creator scheduled startTime/endTime in (e.g.
+  // "America/New_York"). startTime/endTime are stored as absolute UTC instants;
+  // this records the intended zone for display/labeling.
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  timeZone?: string;
+
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;

@@ -45,8 +45,13 @@ export class ExamController {
     return {
       serverTimeMs: now.getTime(),
       serverTimeIso: now.toISOString(),
-      timeZone: 'Asia/Kathmandu',
-      utcOffsetMinutes: 345,
+      // UTC reference clock. Was previously hardcoded to Asia/Kathmandu, which
+      // mislabeled the exam clock for every non-Nepal user. The exam's actual
+      // scheduled zone now travels with the exam payload (Exam.timeZone); the
+      // countdown only needs serverTimeMs (an absolute instant), so UTC here is
+      // both correct and timezone-neutral.
+      timeZone: 'UTC',
+      utcOffsetMinutes: 0,
     };
   }
 
