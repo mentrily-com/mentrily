@@ -339,6 +339,7 @@ export class ClerkAuthGuard implements CanActivate {
             courseCount: true,
             storageUsedMb: true,
             teacherSeatCount: true,
+            provisionedFromUserId: true,
           } as any,
         },
         ...(this.hasOnboardingColumn === false
@@ -843,6 +844,18 @@ export class ClerkAuthGuard implements CanActivate {
   }
 
   private async enforceTenantAccess(req: any, sessionUser: any): Promise<void> {
+    // "Act as learner" is a deliberately org-less, personal session. It carries
+    // no org, so tenant-subdomain scoping doesn't apply — and without this a
+    // creator who switches to learner while still on their org's subdomain gets
+    // 403'd (which surfaces to the client as a bogus "account not found" logout).
+    const actingAsLearner =
+      String(req?.headers?.['x-active-persona'] || '')
+        .trim()
+        .toLowerCase() === 'learner';
+    if (actingAsLearner) {
+      return;
+    }
+
     const tenantSubdomainFromHeader = String(
       req?.headers?.['x-org-subdomain'] || '',
     )
@@ -1232,6 +1245,7 @@ export class ClerkAuthGuard implements CanActivate {
               courseCount: true,
               storageUsedMb: true,
               teacherSeatCount: true,
+              provisionedFromUserId: true,
             } as any,
           })) as any;
         }
@@ -1314,6 +1328,14 @@ export class ClerkAuthGuard implements CanActivate {
       // is currently active — lets the workspace switcher always offer a way
       // back to their Learner home, even when that home is org-less.
       homeRole: user.role,
+      // Whether the caller personally owns the active org (their own
+      // become-creator / solo-signup personal org) vs. is a Teacher invited
+      // into someone else's org. Drives self-serve billing: owners manage
+      // their own plan; invited teachers can't (that's the org admin's job).
+      isOrgOwner: Boolean(
+        effectiveOrgId &&
+          (effectiveOrganization as any)?.provisionedFromUserId === user.id,
+      ),
       rollNumber: user.rollNumber,
       department: user.department,
       profilePicture: user.profilePicture,

@@ -111,8 +111,12 @@ export default function TeacherBillingPage() {
             try {
                 const session = await AuthService.checkSession();
                 const hasOrganization = Boolean(String(session?.orgId || '').trim());
+                // Owning your personal org (become-creator / solo signup) is NOT
+                // "org billing managed by an admin" — only a Teacher invited into
+                // someone else's org is. isOrgOwner comes from /auth/me.
+                const ownsActiveOrg = (session as Record<string, unknown> | null)?.isOrgOwner === true;
                 const teacherBillingAllowed = session?.features?.teacherSelfBilling !== false;
-                setIsOrgBilling(hasOrganization);
+                setIsOrgBilling(hasOrganization && !ownsActiveOrg);
 
                 if (!teacherBillingAllowed && !hasOrganization) {
                     if (mounted) {
