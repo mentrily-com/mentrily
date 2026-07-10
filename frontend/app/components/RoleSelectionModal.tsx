@@ -2,6 +2,14 @@
 
 import { useState } from 'react';
 import posthog from 'posthog-js';
+import {
+    GraduationCap,
+    Presentation,
+    Check,
+    ArrowRight,
+    Loader2,
+    Sparkles,
+} from 'lucide-react';
 
 type Role = 'STUDENT';
 
@@ -44,71 +52,66 @@ export default function RoleSelectionModal({ onSelectRole, onSelectCreator }: Ro
         }
     };
 
-    const learnerDisabled = selectedRole === 'CREATOR';
-    const creatorDisabled = selectedRole === 'STUDENT';
+    const busy = selectedRole !== null;
 
     return (
-        <div className="fixed inset-0 z-[2100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
-            <div className="w-full max-w-[620px] bg-white rounded-[28px] p-10 shadow-2xl border border-slate-100 text-center">
-                <h2 className="text-[28px] font-black text-slate-900 tracking-tight leading-tight">
-                    Welcome! How will you use Mentrily?
-                </h2>
-                <p className="mt-3 text-sm font-medium text-slate-500">
-                    Choose your role to get started. You can always contact an admin to change it later.
-                </p>
+        <div className="fixed inset-0 z-[2100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+            <div className="w-full max-w-[680px] bg-white rounded-[28px] p-6 shadow-2xl border border-slate-100 sm:p-10 animate-in fade-in zoom-in-95 duration-300 max-h-[calc(100dvh-32px)] overflow-y-auto">
+                {/* Header */}
+                <div className="text-center">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--brand-light)]/40 text-[var(--brand)] text-[10px] font-black uppercase tracking-widest">
+                        <Sparkles size={12} strokeWidth={2.5} />
+                        Welcome to Mentrily
+                    </span>
+                    <h2 className="mt-4 text-2xl font-black text-slate-900 tracking-tight leading-tight sm:text-[28px]">
+                        How will you use Mentrily?
+                    </h2>
+                    <p className="mt-2 text-sm font-medium text-slate-500 max-w-md mx-auto">
+                        Pick the workspace that fits you. You can add the other role later — nothing here is permanent.
+                    </p>
+                </div>
 
+                {/* Cards */}
                 <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <RoleCard
-                        icon="🎓"
+                        icon={<GraduationCap size={22} strokeWidth={2.25} />}
                         title="Learner"
-                        description="Access courses, complete exercises, and track your learning progress."
+                        description="Enroll in courses, take exams, and grow your skills."
                         badge="Student"
-                        loading={selectedRole === 'STUDENT'}
-                        disabled={learnerDisabled}
+                        features={[
+                            'Enroll in courses & modules',
+                            'Take exams and track scores',
+                            'Earn shareable certificates',
+                        ]}
+                        selected={selectedRole === 'STUDENT'}
+                        disabled={busy && selectedRole !== 'STUDENT'}
                         onClick={() => handleSelect('STUDENT')}
                     />
 
-                    <button
-                        type="button"
+                    <RoleCard
+                        icon={<Presentation size={22} strokeWidth={2.25} />}
+                        title="Creator"
+                        description="Build and run your own courses and assessments."
+                        badge="Teacher"
+                        features={[
+                            'Author courses & assessments',
+                            'Invite and manage learners',
+                            'Starts free — upgrade anytime',
+                        ]}
+                        selected={selectedRole === 'CREATOR'}
+                        disabled={busy && selectedRole !== 'CREATOR'}
                         onClick={handleSelectCreator}
-                        disabled={creatorDisabled}
-                        className={`group rounded-[20px] border-2 p-6 text-left transition-all ${
-                            creatorDisabled ? 'opacity-70 cursor-not-allowed' : ''
-                        } ${
-                            selectedRole === 'CREATOR'
-                                ? 'border-[var(--brand)] bg-[var(--brand-light)]/20'
-                                : 'border-slate-200 hover:border-[var(--brand)] hover:bg-[var(--brand-light)]/20'
-                        }`}
-                    >
-                        <div className="text-3xl">🏫</div>
-                        <h3 className="mt-3 text-lg font-black text-slate-900">Creator</h3>
-                        <p className="mt-1 text-sm text-slate-500 leading-relaxed">
-                            Personal teacher account on Free. Create courses and assessments now, then upgrade later for team features.
-                        </p>
-
-                        <div className="mt-4 flex items-center justify-between">
-                            <span className="inline-flex px-3 py-1 rounded-full bg-[var(--brand-light)]/30 text-[var(--brand)] text-[11px] font-black uppercase tracking-widest">
-                                Teacher
-                            </span>
-
-                            {selectedRole === 'CREATOR' && (
-                                <span className="inline-flex items-center gap-2 text-[11px] font-black text-[var(--brand)] uppercase tracking-widest">
-                                    <span className="w-3 h-3 rounded-full border-2 border-[var(--brand)] border-t-transparent animate-spin" />
-                                    Saving...
-                                </span>
-                            )}
-                        </div>
-                    </button>
+                    />
                 </div>
 
                 {error && (
-                    <p className="mt-5 text-xs font-bold text-rose-500" role="alert">
+                    <p className="mt-5 text-xs font-bold text-rose-500 text-center" role="alert">
                         {error}
                     </p>
                 )}
 
-                <p className="mt-4 text-[11px] font-bold text-slate-400">
-                    This modal cannot be dismissed — a role is required to continue.
+                <p className="mt-5 text-[11px] font-bold text-slate-400 text-center">
+                    A role is required to continue — this step can’t be skipped.
                 </p>
             </div>
         </div>
@@ -120,15 +123,17 @@ function RoleCard({
     title,
     description,
     badge,
-    loading,
+    features,
+    selected,
     disabled,
     onClick,
 }: {
-    icon: string;
+    icon: React.ReactNode;
     title: string;
     description: string;
     badge: string;
-    loading: boolean;
+    features: string[];
+    selected: boolean;
     disabled: boolean;
     onClick: () => void;
 }) {
@@ -137,23 +142,46 @@ function RoleCard({
             type="button"
             onClick={onClick}
             disabled={disabled}
-            className="group rounded-[20px] border-2 border-slate-200 p-6 text-left transition-all hover:border-[var(--brand)] hover:bg-[var(--brand-light)]/20 disabled:opacity-70 disabled:cursor-not-allowed"
+            aria-pressed={selected}
+            className={`group relative flex flex-col rounded-[22px] border-2 p-6 text-left transition-all duration-200 disabled:cursor-not-allowed ${
+                selected
+                    ? 'border-[var(--brand)] bg-[var(--brand-light)]/25 shadow-lg shadow-[var(--brand)]/10'
+                    : disabled
+                      ? 'border-slate-200 opacity-60'
+                      : 'border-slate-200 hover:border-[var(--brand)] hover:bg-[var(--brand-light)]/15 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-200/60'
+            }`}
         >
-            <div className="text-3xl">{icon}</div>
-            <h3 className="mt-3 text-lg font-black text-slate-900">{title}</h3>
-            <p className="mt-1 text-sm text-slate-500 leading-relaxed">{description}</p>
+            {/* Selected check */}
+            {selected && (
+                <span className="absolute top-4 right-4 w-6 h-6 rounded-full bg-[var(--brand)] text-white flex items-center justify-center">
+                    <Loader2 size={13} className="animate-spin" />
+                </span>
+            )}
 
-            <div className="mt-4 flex items-center justify-between">
-                <span className="inline-flex px-3 py-1 rounded-full bg-slate-100 text-slate-500 text-[11px] font-black uppercase tracking-widest">
+            <div className="w-12 h-12 rounded-2xl bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center group-hover:scale-105 transition-transform">
+                {icon}
+            </div>
+
+            <h3 className="mt-4 text-lg font-black text-slate-900 tracking-tight">{title}</h3>
+            <p className="mt-1 text-[13px] text-slate-500 leading-relaxed">{description}</p>
+
+            <ul className="mt-4 space-y-2">
+                {features.map((feat) => (
+                    <li key={feat} className="flex items-start gap-2 text-[12px] font-semibold text-slate-600">
+                        <Check size={14} strokeWidth={3} className="mt-0.5 flex-shrink-0 text-[var(--brand)]" />
+                        <span>{feat}</span>
+                    </li>
+                ))}
+            </ul>
+
+            <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
+                <span className="inline-flex px-3 py-1 rounded-full bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-widest group-hover:bg-[var(--brand-light)]/40 group-hover:text-[var(--brand)] transition-colors">
                     {badge}
                 </span>
-
-                {loading && (
-                    <span className="inline-flex items-center gap-2 text-[11px] font-black text-[var(--brand)] uppercase tracking-widest">
-                        <span className="w-3 h-3 rounded-full border-2 border-[var(--brand)] border-t-transparent animate-spin" />
-                        Saving...
-                    </span>
-                )}
+                <span className="inline-flex items-center gap-1 text-[11px] font-black text-[var(--brand)] uppercase tracking-widest opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all">
+                    Choose
+                    <ArrowRight size={13} strokeWidth={3} />
+                </span>
             </div>
         </button>
     );

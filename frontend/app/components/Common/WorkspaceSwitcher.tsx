@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { Building2, ChevronsUpDown, Check, Loader2, Plus } from 'lucide-react';
+import { Building2, ChevronsUpDown, Check, Loader2, Plus, GraduationCap } from 'lucide-react';
 import { AuthService, WorkspaceMembership } from '@/services/api/AuthService';
 import { useSession } from '@/hooks/useSession';
 
@@ -13,6 +13,10 @@ const ROLE_LABELS: Record<string, string> = {
     ADMIN: 'Org Admin',
     SUPER_ADMIN: 'Super Admin',
 };
+
+// Sentinel orgId for the synthetic home (Learner) entry — it maps to
+// AuthService.switchToHome() rather than a real org switch.
+const HOME_SENTINEL = '__home__';
 
 /**
  * Lists every dashboard persona a user holds (Learner in org A, Instructor
@@ -53,10 +57,37 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
     const hasCreatorPersona = memberships.some(
         (membership) => membership.role === 'TEACHER' || membership.role === 'ADMIN',
     );
-    const canBecomeCreator = sessionUser?.role === 'STUDENT' && !hasCreatorPersona;
+    // Home persona is the flat account role, independent of whichever org is
+    // currently active (homeRole/homeOrgId come straight from /auth/me).
+    const homeOrgId: string | null = sessionUser?.homeOrgId ?? null;
+    const homeRole: string | undefined = sessionUser?.homeRole ?? sessionUser?.role;
+    const canBecomeCreator = homeRole === 'STUDENT' && !hasCreatorPersona;
 
+    // A learner's home can be org-less, so it never shows up as an
+    // OrgMembership row. Inject a synthetic "Learner" entry so they can always
+    // switch back to it once they've picked up a second (creator) persona.
+    const homeRepresented = memberships.some((membership) => membership.orgId === homeOrgId);
+    const needsHomeEntry = homeRole === 'STUDENT' && !homeRepresented;
+    const displayMemberships: WorkspaceMembership[] = needsHomeEntry
+        ? [
+              {
+                  orgId: HOME_SENTINEL,
+                  orgName: 'My Learning',
+                  orgSlug: null,
+                  role: 'STUDENT',
+                  isHome: true,
+              },
+              ...memberships,
+          ]
+        : memberships;
+
+    const isHomeActive = (sessionUser?.orgId ?? null) === homeOrgId;
     const activeMembership =
-        memberships.find((membership) => membership.orgId === sessionUser?.orgId) || memberships[0];
+        displayMemberships.find((membership) =>
+            membership.orgId === HOME_SENTINEL
+                ? isHomeActive
+                : membership.orgId === sessionUser?.orgId,
+        ) || displayMemberships[0];
 
     const landOnDashboard = async () => {
         await refetch();
@@ -77,7 +108,11 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
         setError(null);
 
         try {
-            await AuthService.switchOrg(membership.orgId);
+            if (membership.orgId === HOME_SENTINEL) {
+                await AuthService.switchToHome();
+            } else {
+                await AuthService.switchOrg(membership.orgId);
+            }
             await landOnDashboard();
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to switch workspace');
@@ -103,11 +138,11 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
         }
     };
 
-    if (memberships.length <= 1 && !canBecomeCreator) {
+    if (displayMemberships.length <= 1 && !canBecomeCreator) {
         return null;
     }
 
-    if (memberships.length <= 1 && canBecomeCreator) {
+    if (displayMemberships.length <= 1 && canBecomeCreator) {
         return (
             <div className="relative" title={error || 'Become a Creator'}>
                 <button
@@ -166,9 +201,10 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                     <p className="px-4 py-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
                         Your workspaces
                     </p>
-                    {memberships.map((membership) => {
+                    {displayMemberships.map((membership) => {
                         const isActive = membership.orgId === activeMembership?.orgId;
                         const isSwitchingThis = switchingOrgId === membership.orgId;
+                        const isHomeEntry = membership.orgId === HOME_SENTINEL;
                         return (
                             <button
                                 key={membership.orgId}
@@ -179,6 +215,8 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                                 <div className="w-8 h-8 rounded-lg bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center shrink-0">
                                     {isSwitchingThis ? (
                                         <Loader2 size={14} className="animate-spin" />
+                                    ) : isHomeEntry ? (
+                                        <GraduationCap size={14} />
                                     ) : (
                                         <Building2 size={14} />
                                     )}
