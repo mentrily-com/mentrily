@@ -45,6 +45,11 @@ describe('AdminService invite flow', () => {
       user: {
         findUnique: jest.fn().mockResolvedValue(null),
         count: jest.fn().mockResolvedValue(0),
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      orgMembership: {
+        findMany: jest.fn().mockResolvedValue([]),
+        findUnique: jest.fn().mockResolvedValue(null),
       },
       pendingInvite: {
         findUnique: jest.fn().mockResolvedValue(null),
@@ -133,8 +138,14 @@ describe('AdminService invite flow', () => {
     );
   });
 
-  it('rejects existing application users', async () => {
-    prisma.user.findUnique.mockResolvedValueOnce({ id: 'user_1' });
+  it('rejects existing application users who are already a member of this org', async () => {
+    // Being an existing user elsewhere no longer blocks an invite on its
+    // own (a person can hold a Learner persona in one org and be invited
+    // as Teacher in another) — only membership in THIS specific org does.
+    prisma.user.findUnique.mockResolvedValueOnce({
+      id: 'user_1',
+      orgId: 'org_1',
+    });
 
     await expect(
       service.inviteUser(
@@ -143,6 +154,21 @@ describe('AdminService invite flow', () => {
       ),
     ).rejects.toBeInstanceOf(ConflictException);
     expect(clerkInvite).not.toHaveBeenCalled();
+  });
+
+  it('invites an existing user from another org (additive second-org membership)', async () => {
+    prisma.user.findUnique.mockResolvedValueOnce({
+      id: 'user_1',
+      orgId: 'org_home',
+    });
+
+    const result = await service.inviteUser(
+      { email: 'multi-org@example.com', role: 'STUDENT' },
+      { role: 'ADMIN', orgId: 'org_1' },
+    );
+
+    expect(result).toMatchObject({ invited: true });
+    expect(clerkInvite).toHaveBeenCalled();
   });
 
   it('returns success for active duplicate pending invites', async () => {

@@ -26,14 +26,24 @@ export class BillingController {
     private readonly orgProvisioningService: OrgProvisioningService,
   ) {}
 
-  private isOrgTeacher(user: any): boolean {
+  private async isOrgTeacher(user: any): Promise<boolean> {
     const role = String(user?.role || '').toUpperCase();
     const orgId = String(user?.orgId || '').trim();
-    return role === 'TEACHER' && Boolean(orgId);
+    if (role !== 'TEACHER' || !orgId) return false;
+
+    // orgId being set no longer proves "invited into someone else's org" —
+    // become-creator hands a Teacher their own personal org+role in one
+    // click. Only block self-service when they're a Teacher INSIDE an org
+    // they don't personally own.
+    const ownsOrg = await this.billingService.isSelfOwnedPersonalOrg(
+      String(user.id || ''),
+      orgId,
+    );
+    return !ownsOrg;
   }
 
-  private ensureBillingMutationAllowed(user: any) {
-    if (this.isOrgTeacher(user)) {
+  private async ensureBillingMutationAllowed(user: any) {
+    if (await this.isOrgTeacher(user)) {
       throw new ForbiddenException({
         code: 'ORG_BILLING_MANAGED_BY_ADMIN',
         message: 'Organization billing is managed by organization admins.',
@@ -60,7 +70,7 @@ export class BillingController {
     @User() user: any,
     @Body() body: { priceId?: string; successUrl?: string; cancelUrl?: string },
   ) {
-    this.ensureBillingMutationAllowed(user);
+    await this.ensureBillingMutationAllowed(user);
 
     if (!body?.priceId) {
       throw new BadRequestException('priceId is required');
@@ -105,7 +115,7 @@ export class BillingController {
     @User() user: any,
     @Body() body: { returnUrl?: string },
   ) {
-    this.ensureBillingMutationAllowed(user);
+    await this.ensureBillingMutationAllowed(user);
 
     const orgId = String(user?.orgId || '').trim();
     if (!orgId) {
@@ -126,7 +136,7 @@ export class BillingController {
     @User() user: any,
     @Body() body: { sessionId?: string },
   ) {
-    this.ensureBillingMutationAllowed(user);
+    await this.ensureBillingMutationAllowed(user);
 
     const orgId = String(user?.orgId || '').trim();
     if (!orgId) {

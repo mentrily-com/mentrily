@@ -182,9 +182,7 @@ export class AdminService {
       org.features,
     );
 
-    const currentAccepted = await this.prisma.user.count({
-      where: { orgId, role },
-    });
+    const currentAccepted = await this.countSeatHolders(orgId, role);
 
     if (
       role === Role.STUDENT &&
@@ -223,6 +221,54 @@ export class AdminService {
     }
   }
 
+  /**
+   * A seat holder for a role in an org is no longer just User.orgId/role —
+   * a Learner can hold an ADDITIVE Teacher/Admin persona (a second-org
+   * OrgMembership) without their flat User row ever pointing at this org.
+   * Counting only the flat column undercounts (always reads toward 0 for
+   * additive personas), which would let seat caps be bypassed. Unions both
+   * sources, deduped by user id, so a legacy home-org holder and an
+   * additive-persona holder are never double counted. Mirrors
+   * QuotaService.countSeatHolders.
+   */
+  private async countSeatHolders(orgId: string, role: Role): Promise<number> {
+    const [flatUsers, memberships] = await Promise.all([
+      this.prisma.user.findMany({
+        where: { orgId, role },
+        select: { id: true },
+      }),
+      this.prisma.orgMembership.findMany({
+        where: { orgId, role, status: 'ACTIVE' },
+        select: { userId: true },
+      }),
+    ]);
+
+    const ids = new Set<string>();
+    flatUsers.forEach((u) => ids.add(u.id));
+    memberships.forEach((m) => ids.add(m.userId));
+    return ids.size;
+  }
+
+  /** Same union-count principle as countSeatHolders, but headcount across
+   * every role — used for the org-wide maxUsers cap. */
+  private async countOrgMemberCount(orgId: string): Promise<number> {
+    const [flatUsers, memberships] = await Promise.all([
+      this.prisma.user.findMany({
+        where: { orgId },
+        select: { id: true },
+      }),
+      this.prisma.orgMembership.findMany({
+        where: { orgId, status: 'ACTIVE' },
+        select: { userId: true },
+      }),
+    ]);
+
+    const ids = new Set<string>();
+    flatUsers.forEach((u) => ids.add(u.id));
+    memberships.forEach((m) => ids.add(m.userId));
+    return ids.size;
+  }
+
   private async enforceAdminSeatCap(
     orgId: string,
     maxAdminSeats?: number | null,
@@ -233,9 +279,7 @@ export class AdminService {
       return;
     }
 
-    const currentAdmins = await this.prisma.user.count({
-      where: { orgId, role: 'ADMIN' },
-    });
+    const currentAdmins = await this.countSeatHolders(orgId, 'ADMIN');
 
     if (currentAdmins + additional > normalizedCap) {
       throw new ForbiddenException({
@@ -855,17 +899,24 @@ export class AdminService {
         domain: true,
         maxUsers: true,
         maxAdminSeats: true,
-        _count: { select: { users: true } },
       } as any,
     });
 
     if (!org) throw new NotFoundException('Organization not found');
 
-    const activePendingInviteCount = await this.prisma.pendingInvite.count({
-      where: { orgId, expiresAt: { gt: new Date() } },
-    });
+    // org._count.users (the Organization.users relation) only follows the
+    // flat User.orgId FK — an additive OrgMembership persona in this org
+    // (e.g. a Learner elsewhere self-served or was invited as a Teacher
+    // here) never shows up there, undercounting real headcount and
+    // letting maxUsers be bypassed. Union both sources instead.
+    const [activePendingInviteCount, currentMemberCount] = await Promise.all([
+      this.prisma.pendingInvite.count({
+        where: { orgId, expiresAt: { gt: new Date() } },
+      }),
+      this.countOrgMemberCount(orgId),
+    ]);
 
-    if (org._count.users + activePendingInviteCount >= org.maxUsers) {
+    if (currentMemberCount + activePendingInviteCount >= org.maxUsers) {
       throw new BadRequestException(
         'Organization user limit reached. Upgrade plan to add more users.',
       );

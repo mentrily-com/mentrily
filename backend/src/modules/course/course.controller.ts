@@ -7,6 +7,7 @@ import {
   UseGuards,
   Header,
   BadRequestException,
+  ForbiddenException,
   Req,
   Body,
 } from '@nestjs/common';
@@ -82,6 +83,7 @@ export class CourseController {
           'courseVideos',
           fileSize,
           user?.orgId,
+          user?.id,
         );
         return { url };
       } else if (part.type === 'file') {
@@ -97,6 +99,18 @@ export class CourseController {
     if (!body?.url) {
       throw new BadRequestException('Video URL is required');
     }
+
+    // body.url is client-supplied — never trust it as proof of ownership.
+    // Only allow deleting a video uploaded under the caller's own org or
+    // personal namespace (see uploadCourseVideo/StorageService.uploadFile).
+    const allowedNamespaces = [
+      user?.orgId,
+      user?.id ? `user-${user.id}` : null,
+    ];
+    if (!this.storageService.isOwnedByNamespace(body.url, allowedNamespaces)) {
+      throw new ForbiddenException('You do not have access to this file');
+    }
+
     await this.storageService.deleteFile(body.url, user?.orgId);
     return { success: true };
   }

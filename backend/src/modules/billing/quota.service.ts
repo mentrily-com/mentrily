@@ -11,6 +11,7 @@ import {
   getRequiredPlanForFeature,
 } from '../../config/plan-limits';
 import { AlertService } from './alert.service';
+import { Role } from '@prisma/client';
 
 type CounterField =
   | 'studentCount'
@@ -46,6 +47,36 @@ export class QuotaService {
       limit,
       upgradeUrl: '/dashboard/creator/billing',
     });
+  }
+
+  /**
+   * Seat holders for a role in an org are no longer just User.orgId/role —
+   * a Learner can hold an ADDITIVE Teacher/Admin persona (a second-org
+   * OrgMembership) without their flat User row ever pointing at this org.
+   * Counting only the flat column undercounts (always reads toward 0 for
+   * additive personas), which would let seat limits be bypassed. Counts the
+   * union of both sources, deduped by user id, so a legacy home-org holder
+   * and an additive-persona holder are never double counted.
+   */
+  private async countSeatHolders(
+    orgId: string,
+    roles: Role[],
+  ): Promise<number> {
+    const [flatUsers, memberships] = await Promise.all([
+      this.prisma.user.findMany({
+        where: { orgId, role: { in: roles } },
+        select: { id: true },
+      }),
+      this.prisma.orgMembership.findMany({
+        where: { orgId, role: { in: roles }, status: 'ACTIVE' },
+        select: { userId: true },
+      }),
+    ]);
+
+    const ids = new Set<string>();
+    flatUsers.forEach((u) => ids.add(u.id));
+    memberships.forEach((m) => ids.add(m.userId));
+    return ids.size;
   }
 
   private getMonthStart(): Date {
@@ -128,9 +159,7 @@ export class QuotaService {
   async checkStudentQuota(orgId: string, additional = 1): Promise<void> {
     const [limits, accepted, pending] = await Promise.all([
       this.getLimitsForOrg(orgId),
-      this.prisma.user.count({
-        where: { orgId, role: 'STUDENT' },
-      }),
+      this.countSeatHolders(orgId, ['STUDENT']),
       this.prisma.pendingInvite.count({
         where: { orgId, role: 'STUDENT', expiresAt: { gt: new Date() } },
       }),
@@ -213,9 +242,7 @@ export class QuotaService {
   async checkAdminSeatQuota(orgId: string, additional = 1): Promise<void> {
     const [limits, accepted, pending] = await Promise.all([
       this.getLimitsForOrg(orgId),
-      this.prisma.user.count({
-        where: { orgId, role: 'ADMIN' },
-      }),
+      this.countSeatHolders(orgId, ['ADMIN']),
       this.prisma.pendingInvite.count({
         where: { orgId, role: 'ADMIN', expiresAt: { gt: new Date() } },
       }),
@@ -230,9 +257,7 @@ export class QuotaService {
   async checkTeacherSeatQuota(orgId: string, additional = 1): Promise<void> {
     const [limits, accepted, pending] = await Promise.all([
       this.getLimitsForOrg(orgId),
-      this.prisma.user.count({
-        where: { orgId, role: 'TEACHER' },
-      }),
+      this.countSeatHolders(orgId, ['TEACHER']),
       this.prisma.pendingInvite.count({
         where: { orgId, role: 'TEACHER', expiresAt: { gt: new Date() } },
       }),
@@ -250,12 +275,7 @@ export class QuotaService {
   async checkSeatQuota(orgId: string, additional = 1): Promise<void> {
     const [limits, accepted, pending] = await Promise.all([
       this.getLimitsForOrg(orgId),
-      this.prisma.user.count({
-        where: {
-          orgId,
-          role: { in: ['ADMIN', 'TEACHER'] },
-        },
-      }),
+      this.countSeatHolders(orgId, ['ADMIN', 'TEACHER']),
       this.prisma.pendingInvite.count({
         where: {
           orgId,

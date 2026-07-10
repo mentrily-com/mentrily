@@ -29,6 +29,7 @@ export class CodeExecutionController {
       examId?: string;
       testCases?: any[];
     },
+    @User() user: any,
   ) {
     return this.codeExecutionService.submitCode(
       body.unitId,
@@ -36,6 +37,7 @@ export class CodeExecutionController {
       body.code,
       body.examId,
       body.testCases,
+      user,
     );
   }
 

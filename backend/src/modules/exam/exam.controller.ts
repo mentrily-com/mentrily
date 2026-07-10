@@ -242,8 +242,9 @@ export class ExamController {
   async createExam(
     @Body(new ValidationPipe({ transform: true, whitelist: false }))
     body: CreateExamDto,
+    @User() user: any,
   ) {
-    return this.examService.createExam(body);
+    return this.examService.createExam(body, user);
   }
 
   @Get(':examId/monitoring')

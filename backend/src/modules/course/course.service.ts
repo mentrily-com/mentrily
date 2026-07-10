@@ -34,6 +34,33 @@ export class CourseService {
     );
   }
 
+  /**
+   * Tenant isolation for a resource that's EITHER org-owned (orgId set) OR
+   * personal/org-less (orgId null — a solo teacher's content before
+   * joining/creating an org, isolated by creatorId instead). Checking only
+   * `resource.orgId && resource.orgId !== user.orgId` treats a falsy orgId
+   * as "no isolation needed," which lets ANY privileged-role account read
+   * another person's personal course/unit by slug or id. SUPER_ADMIN exempt.
+   */
+  private assertTenantOrOwnerAccess(
+    resource: { orgId?: string | null; creatorId?: string | null } | null | undefined,
+    user: any,
+    message = 'Not found or access denied',
+  ): void {
+    if (!resource || !user || user.role === 'SUPER_ADMIN') return;
+
+    if (resource.orgId) {
+      if (resource.orgId !== user.orgId) {
+        throw new NotFoundException(message);
+      }
+      return;
+    }
+
+    if (resource.creatorId && resource.creatorId !== user.id) {
+      throw new NotFoundException(message);
+    }
+  }
+
   private buildCourseQuery(slug: string, scopedOrgId: string | null) {
     return {
       where: {
@@ -132,11 +159,11 @@ export class CourseService {
     if (!course) throw new NotFoundException('Course not found');
 
     // ISOLATION CHECK
-    if (user && user.role !== 'SUPER_ADMIN') {
-      if (course.orgId && course.orgId !== user.orgId) {
-        throw new NotFoundException('Course not found or access denied');
-      }
-    }
+    this.assertTenantOrOwnerAccess(
+      course,
+      user,
+      'Course not found or access denied',
+    );
 
     if (!shouldSanitizeSensitiveContent(user)) {
       return course;
@@ -251,7 +278,7 @@ export class CourseService {
     const cached = await this.redis.get(cacheKey);
 
     if (cached) {
-      const { data, source, orgId } = JSON.parse(cached);
+      const { data, source, orgId, creatorId } = JSON.parse(cached);
 
       // If it's a test-source unit but missing moduleUnits (stale cache), bust cache and re-fetch
       if (
@@ -262,11 +289,11 @@ export class CourseService {
         // Fall through to re-fetch below
       } else {
         // Re-verify isolation
-        if (user && user.role !== 'SUPER_ADMIN') {
-          if (orgId && orgId !== user.orgId) {
-            throw new NotFoundException('Unit not found');
-          }
-        }
+        this.assertTenantOrOwnerAccess(
+          { orgId, creatorId },
+          user,
+          'Unit not found',
+        );
         if (!shouldSanitizeSensitiveContent(user)) {
           return data;
         }
@@ -290,6 +317,7 @@ export class CourseService {
     // 1. If Unit Found, Check Isolation via Course
     if (unit) {
       const orgId = unit.module.course.orgId;
+      const creatorId = unit.module.course.creatorId;
 
       // Cache immediately before checks (data is valid, access is situational)
       await this.redis.set(
@@ -297,17 +325,14 @@ export class CourseService {
         JSON.stringify({
           data: unit,
           source: 'unit',
-          orgId: orgId,
+          orgId,
+          creatorId,
         }),
         'EX',
         3600,
       );
 
-      if (user && user.role !== 'SUPER_ADMIN') {
-        if (orgId && orgId !== user.orgId) {
-          throw new NotFoundException('Unit not found');
-        }
-      }
+      this.assertTenantOrOwnerAccess({ orgId, creatorId }, user, 'Unit not found');
       if (!shouldSanitizeSensitiveContent(user)) {
         return unit;
       }
@@ -354,6 +379,7 @@ export class CourseService {
     let matchedTest = null;
     let foundQuestion: any = null;
     let foundOrgId: string | null = null;
+    let foundCreatorId: string | null = null;
     for (const test of tests) {
       // Defensive: CourseTest.questions might be stored as a JSON string or already as object
       let questionsData: any = test.questions;
@@ -403,6 +429,7 @@ export class CourseService {
 
       if (foundQuestion) {
         foundOrgId = test.course.orgId;
+        foundCreatorId = test.course.creatorId;
         matchedTest = test;
         break;
       }
@@ -459,16 +486,17 @@ export class CourseService {
           data: responseData,
           source: 'test',
           orgId: foundOrgId,
+          creatorId: foundCreatorId,
         }),
         'EX',
         3600,
       );
 
-      if (user && user.role !== 'SUPER_ADMIN') {
-        if (foundOrgId && foundOrgId !== user.orgId) {
-          throw new NotFoundException('Unit not found');
-        }
-      }
+      this.assertTenantOrOwnerAccess(
+        { orgId: foundOrgId, creatorId: foundCreatorId },
+        user,
+        'Unit not found',
+      );
       if (!shouldSanitizeSensitiveContent(user)) {
         return responseData;
       }
