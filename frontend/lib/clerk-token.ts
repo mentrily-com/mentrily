@@ -1,4 +1,4 @@
-import { getActiveOrgId } from './active-org';
+import { getActiveOrgId, getActivePersona } from './active-org';
 
 type ClerkTokenGetter = () => Promise<string | null>;
 
@@ -76,6 +76,7 @@ export async function withClerkAuthorization(headers: HeadersInit = {}): Promise
     // helper, so this is the single place the active-org header needs to be
     // attached for workspace switching to reach every request.
     const activeOrgId = getActiveOrgId();
+    const activePersona = getActivePersona();
 
     const merged: HeadersInit = token
         ? { ...headers, Authorization: `Bearer ${token}` }
@@ -83,6 +84,12 @@ export async function withClerkAuthorization(headers: HeadersInit = {}): Promise
 
     if (activeOrgId) {
         (merged as Record<string, string>)['X-Active-Org-Id'] = activeOrgId;
+    }
+
+    // "Act as learner" persona — resolves the caller as an org-less Student on
+    // the backend regardless of their real role (see jwt.strategy).
+    if (activePersona) {
+        (merged as Record<string, string>)['X-Active-Persona'] = activePersona;
     }
 
     return merged;

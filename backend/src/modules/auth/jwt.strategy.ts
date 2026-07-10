@@ -1045,7 +1045,18 @@ export class ClerkAuthGuard implements CanActivate {
     const requestedOrgId =
       String(req?.headers?.['x-active-org-id'] || '').trim() || null;
 
-    const cacheKey = `user:session:${clerkId}:${requestedOrgId || 'default'}`;
+    // "Act as learner": any user (including a creator who was never a learner)
+    // can drop into an org-less Student persona. Client-driven via header, same
+    // as X-Active-Org-Id — see resolveActiveMembership override below.
+    const requestedPersona =
+      String(req?.headers?.['x-active-persona'] || '')
+        .trim()
+        .toLowerCase() || null;
+
+    const cacheScope =
+      requestedOrgId ||
+      (requestedPersona === 'learner' ? 'persona-learner' : 'default');
+    const cacheKey = `user:session:${clerkId}:${cacheScope}`;
     const cached = await this.redis.get(cacheKey);
 
     if (cached) {
@@ -1187,7 +1198,15 @@ export class ClerkAuthGuard implements CanActivate {
     let effectiveRole = user.role;
     let effectiveOrganization = user.organization;
 
-    if (this.membershipService) {
+    if (requestedPersona === 'learner') {
+      // Force an org-less Student persona regardless of the user's real (home)
+      // role. Powers the workspace switcher's "My Learning" entry so a creator
+      // can use the learner experience — their creator org/role are untouched
+      // and remain switchable. homeRole below still reports the real role.
+      effectiveOrgId = null;
+      effectiveRole = 'STUDENT';
+      effectiveOrganization = null;
+    } else if (this.membershipService) {
       try {
         const resolved = await this.membershipService.resolveActiveMembership(
           {

@@ -1,7 +1,7 @@
 import { API_BASE_URL } from '@/lib/api-base';
 import { withCsrfHeader } from '@/lib/csrf';
 import { getClerkToken, withClerkAuthorization } from '@/lib/clerk-token';
-import { setActiveOrgId, clearActiveOrgId } from '@/lib/active-org';
+import { setActiveOrgId, clearActiveOrgId, setActivePersona, clearActivePersona } from '@/lib/active-org';
 
 export interface WorkspaceMembership {
     orgId: string;
@@ -284,6 +284,7 @@ export const AuthService = {
     logout() {
         resetSessionCache();
         clearActiveOrgId();
+        clearActivePersona();
         if (typeof window !== 'undefined') {
             window.location.href = '/logout';
         }
@@ -349,6 +350,16 @@ export const AuthService = {
         }
 
         clearActiveOrgId();
+        resetSessionCache();
+        return await this.checkSession(true);
+    },
+
+    // Act as a learner. No backend mutation needed — flipping the persona flag
+    // makes every subsequent request carry X-Active-Persona: learner, which the
+    // backend resolves as an org-less Student. Lets a creator (even one who was
+    // never a learner) use the learner experience and switch back anytime.
+    async switchToLearner(): Promise<any> {
+        setActivePersona('learner');
         resetSessionCache();
         return await this.checkSession(true);
     },

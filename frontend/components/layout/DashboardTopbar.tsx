@@ -8,6 +8,7 @@ import { useSession } from '@/hooks/useSession';
 import { BrandLockup } from '@/components/brand/BrandLockup';
 import ImpersonationBanner from '@/app/components/Common/ImpersonationBanner';
 import PaymentFailedBanner from '@/app/components/Common/PaymentFailedBanner';
+import WorkspaceSwitcher from '@/app/components/Common/WorkspaceSwitcher';
 // import CrispWidget from '@/app/components/CrispWidget';
 import { LogOut, User, Settings, ChevronDown, Compass, Menu } from 'lucide-react';
 
@@ -272,6 +273,11 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
                             Exit Playground
                         </button>
                     )}
+
+                    {/* Workspace switcher — lets a multi-persona user (e.g. a
+                        learner who became a creator) hop back to their other
+                        dashboard. Self-hides when there's only one workspace. */}
+                    {!isPlaygroundRoute && <WorkspaceSwitcher sessionUser={sessionUser} />}
 
                     {/* Divider */}
                     <div
