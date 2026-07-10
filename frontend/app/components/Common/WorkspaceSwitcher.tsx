@@ -20,7 +20,7 @@ const ROLE_LABELS: Record<string, string> = {
  * Switching never changes any persona's underlying role/org — it only
  * re-points which membership subsequent requests resolve against (see
  * MembershipService on the backend). A single-persona account still sees
- * the "Become an Instructor" self-serve entry point if it hasn't claimed
+ * the "Become a Creator" self-serve entry point if it hasn't claimed
  * a Creator persona yet.
  */
 export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }) {
@@ -109,7 +109,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
 
     if (memberships.length <= 1 && canBecomeCreator) {
         return (
-            <div className="relative" title={error || 'Become an Instructor'}>
+            <div className="relative" title={error || 'Become a Creator'}>
                 <button
                     onClick={handleBecomeCreator}
                     disabled={becomingCreator}
@@ -121,7 +121,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                         <Plus size={13} />
                     )}
                     <span className="hidden sm:block text-[11px] font-black">
-                        {becomingCreator ? 'Setting up…' : 'Become an Instructor'}
+                        {becomingCreator ? 'Setting up…' : 'Become a Creator'}
                     </span>
                 </button>
                 {error && (
@@ -212,7 +212,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                                     )}
                                 </div>
                                 <span className="text-[13px] font-bold text-[var(--brand)]">
-                                    {becomingCreator ? 'Setting up…' : 'Become an Instructor'}
+                                    {becomingCreator ? 'Setting up…' : 'Become a Creator'}
                                 </span>
                             </button>
                         </>
