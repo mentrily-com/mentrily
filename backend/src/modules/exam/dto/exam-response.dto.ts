@@ -32,6 +32,7 @@ interface StudentExamResponseDto {
   tabSwitchLimit: number | null;
   startTime: string | Date | null;
   endTime: string | Date | null;
+  timeZone: string | null;
   sections: StudentExamSectionDto[];
   questions: Record<string, StudentExamQuestionDto>;
 }
@@ -68,6 +69,7 @@ export function toStudentExamResponseDto(exam: any): StudentExamResponseDto {
     tabSwitchLimit: exam?.tabSwitchLimit ?? null,
     startTime: exam?.startTime || null,
     endTime: exam?.endTime || null,
+    timeZone: exam?.timeZone || null,
     sections: Array.isArray(exam?.sections) ? exam.sections : [],
     questions:
       exam?.questions && typeof exam.questions === 'object'

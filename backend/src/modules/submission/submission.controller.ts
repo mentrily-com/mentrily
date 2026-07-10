@@ -53,6 +53,12 @@ export class SubmissionController {
       body.sessionId,
       user?.id,
     );
+    // Proctoring: a student may only finalize while the monitoring socket is
+    // live. Dropping it to evade heartbeat/tab-switch tracking now blocks
+    // submission until they reconnect (which resumes monitoring). The server's
+    // own deadline auto-submit path does NOT go through here, so a legitimately
+    // timed-out but disconnected student is still auto-submitted.
+    await this.submissionService.assertLiveMonitoring(body.sessionId);
     return this.submissionService.submitExamNow(body.sessionId, body.answers);
   }
 }

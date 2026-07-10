@@ -118,6 +118,7 @@ model User {
   @@index([clerkId])
   @@index([role])
   @@index([orgId])
+  @@index([orgId, role]) // Seat counting / counter recalc: WHERE orgId AND role IN (...)
 }
 
 model Exam {
@@ -147,9 +148,12 @@ model Exam {
   tabSwitchLimit Int?
   strictness     String  @default("high") // high, medium, relaxed
 
-  // Scheduling
+  // Scheduling — startTime/endTime are absolute UTC instants; timeZone records
+  // the IANA zone (e.g. "America/New_York") the creator scheduled them in, for
+  // display/labeling. Enforcement compares UTC instants, so it is unaffected.
   startTime DateTime?
   endTime   DateTime?
+  timeZone  String?
 
   questions        Json // Stored as JSON: Assessment sections/questions
   isActive         Boolean @default(true)

@@ -1,15 +1,29 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { Code2, Copy, Link as LinkIcon, X } from 'lucide-react';
 import SplitPane from '@/app/components/SplitPane';
 import PlaygroundEditor from '@/app/components/Playground/PlaygroundEditor';
 import PlaygroundTerminal from '@/app/components/Playground/PlaygroundTerminal';
 import CodingEditor from '@/app/components/Authoring/QuestionBuilder/modules/CodingEditor';
-import RichTextEditor from '@/app/components/Authoring/RichTextEditor';
 import CodingQuestionRenderer from '@/app/components/CodingQuestionRenderer';
 import { PLAYGROUND_LANGUAGES } from '@/app/components/Editor/playgroundLanguages';
 import { CodeExecutionService } from '@/services/api/CodeExecutionService';
+
+// Tiptap rich-text editor is heavy and only used for the (conditionally
+// rendered) coding-question authoring panel — defer it so the playground shell
+// paints without pulling the editor bundle up front. No ref is passed and it's
+// interactive-only, so ssr:false is safe.
+const RichTextEditor = dynamic(
+    () => import('@/app/components/Authoring/RichTextEditor'),
+    {
+        ssr: false,
+        loading: () => (
+            <div className="min-h-[160px] rounded-[28px] bg-slate-50 animate-pulse" />
+        ),
+    },
+);
 
 interface Tab {
     id: number;

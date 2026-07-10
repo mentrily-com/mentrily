@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth, useClerk, useUser } from '@clerk/nextjs';
 import ImpersonationBanner from './Common/ImpersonationBanner';
@@ -807,21 +808,18 @@ const ContentDropdown = React.memo(function ContentDropdown({
             {open && (
                 <div className="absolute left-0 top-full mt-2 min-w-[180px] bg-white rounded-xl shadow-xl ring-1 ring-slate-200 z-50 py-1">
                     {items.map((item) => (
-                        <button
+                        <Link
                             key={item.path}
-                            type="button"
-                            onClick={() => {
-                                setOpen(false);
-                                router.push(item.path);
-                            }}
-                            className={`w-full text-left px-4 py-2 text-sm font-semibold transition-colors ${
+                            href={item.path}
+                            onClick={() => setOpen(false)}
+                            className={`block w-full text-left px-4 py-2 text-sm font-semibold transition-colors ${
                                 item.active
                                     ? 'text-[var(--brand)] bg-[var(--brand-light)]'
                                     : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                             }`}
                         >
                             {item.label}
-                        </button>
+                        </Link>
                     ))}
                 </div>
             )}
@@ -983,19 +981,17 @@ const AppsMenu = React.memo(function AppsMenu({ isTeacher }: { isTeacher: boolea
                     </h3>
                     <div className="grid grid-cols-3 gap-2">
                         {apps.map((app) => (
-                            <button
+                            <Link
                                 key={app.label}
-                                onClick={() => {
-                                    setOpen(false);
-                                    router.push(app.path);
-                                }}
+                                href={app.path}
+                                onClick={() => setOpen(false)}
                                 className="flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100"
                             >
                                 <div className="w-10 h-10 rounded-xl bg-[var(--brand-lighter)] text-[var(--brand)] flex items-center justify-center">
                                     {app.icon}
                                 </div>
                                 <span className="text-[10px] font-bold text-slate-600 text-center">{app.label}</span>
-                            </button>
+                            </Link>
                         ))}
                     </div>
                 </div>

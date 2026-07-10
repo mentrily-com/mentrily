@@ -601,6 +601,9 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                         }
                                     >
                                         <div
+                                            onMouseEnter={() =>
+                                                router.prefetch(`/dashboard/learner/unit/${u.id}`)
+                                            }
                                             className={`px-4 py-4 rounded-[22px] border transition-all cursor-pointer flex items-center justify-between bg-white border-slate-100/80 hover:border-slate-300/50 sm:px-8 sm:py-5 sm:rounded-[24px]`}
                                         >
                                             <div
@@ -833,6 +836,9 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                         {flattenTestQuestions(activeTest).map((q: any, qi: number) => (
                                             <div key={q.id} className="group">
                                                 <div
+                                                    onMouseEnter={() =>
+                                                        router.prefetch(`/dashboard/learner/unit/${q.id}`)
+                                                    }
                                                     className={`px-4 py-4 rounded-[22px] border transition-all cursor-pointer flex items-center justify-between bg-white border-slate-100/80 hover:border-slate-300/50 sm:px-8 sm:py-5 sm:rounded-[24px]`}
                                                 >
                                                     <div

@@ -419,6 +419,16 @@ export class StudentService {
   }
 
   async getCourses(userId: string) {
+    // Short-TTL cache: this loads the full enrolled-course tree, a bulk
+    // completed-submissions query, and a per-course linked-exam summary on
+    // every learner dashboard visit. Invalidated on submitUnit (progress
+    // changes), same 60s window as student:stats.
+    const cacheKey = `student:courses:${userId}`;
+    const cached = await this.redis.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+
     // Get courses the student is enrolled in
     const user = await this.findUserCompat({
       where: { id: userId },
@@ -475,7 +485,7 @@ export class StudentService {
 
     const completedSet = new Set(completedSubs.map((s: any) => s.unitId));
 
-    return await Promise.all((user as any).courses.map(async (course: any) => {
+    const courses = await Promise.all((user as any).courses.map(async (course: any) => {
       const totalUnits = course.modules.reduce(
         (sum: number, mod: any) => sum + mod.units.length,
         0,
@@ -515,6 +525,9 @@ export class StudentService {
         linkedExam,
       };
     }));
+
+    await this.redis.set(cacheKey, JSON.stringify(courses), 'EX', 60);
+    return courses;
   }
 
   async getCourseExamStatus(userId: string, courseSlug: string) {
@@ -1209,6 +1222,7 @@ export class StudentService {
     // Invalidate cache
     await this.redis.del(`student:stats:${userId}`);
     await this.redis.del(`student:analytics:${userId}`);
+    await this.redis.del(`student:courses:${userId}`);
 
     return submission;
   }

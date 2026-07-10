@@ -104,6 +104,7 @@ export interface Course {
     tabSwitchLimit?: number;
     startTime?: string;
     endTime?: string;
+    timeZone?: string; // IANA zone the start/end were scheduled in
     moduleId?: string;
     courseId?: string;
     linkedCourseId?: string;
