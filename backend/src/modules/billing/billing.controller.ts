@@ -77,20 +77,28 @@ export class BillingController {
     }
 
     const targetPlan = this.billingService.getPlanFromPriceId(body.priceId);
+    // Bill the org the caller is ACTUALLY in (the resolved active org — e.g.
+    // their become-creator personal org), not a re-derivation from the flat
+    // User.orgId which, for a learner-turned-creator, points at their learner
+    // home. Only provision a fresh org when the caller has no active org at all
+    // (an org-less solo teacher upgrading for the first time).
     const existingOrgId = String(user?.orgId || '').trim();
-    const orgId =
-      targetPlan === 'FREE'
-        ? existingOrgId
-        : await this.orgProvisioningService.ensureOrgForUser(user.id);
+    let orgId = existingOrgId;
+    let provisionedNewOrg = false;
+
+    if (!existingOrgId && targetPlan !== 'FREE') {
+      orgId = await this.orgProvisioningService.ensureOrgForUser(user.id);
+      provisionedNewOrg = Boolean(orgId);
+    }
 
     if (!orgId && targetPlan !== 'FREE') {
       throw new BadRequestException('Organization provisioning failed');
     }
 
-    // As soon as we provision an org for a personal teacher, move their
-    // personal resources under that org so the dashboard does not appear empty
-    // while Stripe/webhook/session state catches up.
-    if (targetPlan !== 'FREE' && !existingOrgId && orgId) {
+    // Only when we just provisioned a brand-new org for a previously org-less
+    // teacher do we migrate their personal resources under it, so the dashboard
+    // doesn't look empty while Stripe/webhook/session state catches up.
+    if (targetPlan !== 'FREE' && provisionedNewOrg && orgId) {
       await this.orgProvisioningService.migratePersonalResourcesToOrg(
         user.id,
         orgId,
