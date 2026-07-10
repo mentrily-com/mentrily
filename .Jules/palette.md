@@ -1,0 +1,3 @@
+## 2024-07-10 - Mobile Menu Button Missing ARIA Attributes
+**Learning:** The mobile menu toggle button in `LandingNavbar.tsx` lacked ARIA attributes, making it completely invisible/inaccessible to screen readers. This pattern of adding a simple `<button>` to toggle UI states is common but creates significant accessibility gaps for keyboard-only or screen reader users.
+**Action:** Always ensure that toggle buttons have `aria-expanded` reflecting their state, an `aria-controls` linking to the controlled element, and a dynamic `aria-label` providing clear context ("Open menu" / "Close menu"). Ensure the controlled container also has the corresponding `id`.
