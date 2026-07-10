@@ -155,6 +155,31 @@ export class MembershipService {
   }
 
   /**
+   * Returns the user to their home persona: clears lastActiveOrgId so future
+   * requests (which carry no X-Active-Org-Id header once the client resets
+   * its active org) resolve back to the flat home org/role. Works even when
+   * the home is org-less (a plain Learner with no org) — the one case
+   * switchActiveOrg() can't express because it requires a target orgId.
+   */
+  async switchToHome(userId: string): Promise<ResolvedOrgContext> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { orgId: true, role: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { lastActiveOrgId: null },
+    });
+
+    return { orgId: user.orgId ?? null, role: user.role };
+  }
+
+  /**
    * Adds (or reactivates/reroles) a membership for an org that is NOT the
    * user's home org, without ever touching User.orgId/role. Used when an
    * already-existing user accepts an invite to a second org.

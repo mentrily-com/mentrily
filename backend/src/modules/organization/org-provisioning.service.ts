@@ -132,11 +132,13 @@ export class OrgProvisioningService {
       throw new NotFoundException('User not found');
     }
 
-    if (!user.orgId) {
-      const orgId = await this.ensureOrgForUser(user.id);
-      return { orgId, role: 'TEACHER' };
-    }
-
+    // Additive for EVERY caller, including a learner with no home org: we
+    // find-or-create their own personal org and grant a TEACHER membership
+    // on it, without ever touching User.orgId/role. This keeps their learner
+    // home (even an org-less one) intact and switchable, and — crucially —
+    // always leaves an ACTIVE OrgMembership row so switchActiveOrg() can
+    // resolve the new persona (otherwise the follow-up switch 403s with
+    // "You are not a member of that organization").
     let personalOrg = await this.prisma.organization.findFirst({
       where: { provisionedFromUserId: user.id },
       select: { id: true },
@@ -147,9 +149,17 @@ export class OrgProvisioningService {
       // increments the seat counter, no separate quota check needed.
       personalOrg = await this.createPersonalOrganization(user);
     } else {
-      // Re-granting on an already-provisioned personal org (idempotent
-      // repeat call, or re-added after being removed) — still gate it.
-      await this.quotaService.checkTeacherSeatQuota(personalOrg.id, 1);
+      // Existing personal org. Only gate on quota when we're about to add a
+      // NEW active membership — re-granting to the same user (idempotent
+      // repeat call) must not be blocked by their own seat.
+      const existingMembership = await this.prisma.orgMembership.findUnique({
+        where: { userId_orgId: { userId: user.id, orgId: personalOrg.id } },
+        select: { status: true },
+      });
+
+      if (!existingMembership || existingMembership.status !== 'ACTIVE') {
+        await this.quotaService.checkTeacherSeatQuota(personalOrg.id, 1);
+      }
     }
 
     await this.membershipService.grantMembership(

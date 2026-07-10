@@ -150,6 +150,15 @@ export class AuthController {
     return this.membershipService.switchActiveOrg(user, body.orgId);
   }
 
+  // Return to the home (Learner) persona. Separate from switch-org because a
+  // learner's home can be org-less, which switch-org can't target.
+  @UseGuards(JwtAuthGuard)
+  @Post('switch-home')
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
+  async switchHome(@User() user: any) {
+    return this.membershipService.switchToHome(user.id);
+  }
+
   // Self-serve Creator persona: adds a Teacher membership on the user's own
   // personal org without ever touching their existing home org/role (e.g. a
   // Learner keeps their Learner data untouched). Idempotent — a user only

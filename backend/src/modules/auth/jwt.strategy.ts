@@ -1291,6 +1291,10 @@ export class ClerkAuthGuard implements CanActivate {
       role: effectiveRole,
       orgId: effectiveOrgId,
       homeOrgId: user.orgId ?? null,
+      // The user's underlying (home) persona, independent of whichever org
+      // is currently active — lets the workspace switcher always offer a way
+      // back to their Learner home, even when that home is org-less.
+      homeRole: user.role,
       rollNumber: user.rollNumber,
       department: user.department,
       profilePicture: user.profilePicture,

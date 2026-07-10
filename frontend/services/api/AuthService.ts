@@ -328,6 +328,31 @@ export const AuthService = {
         return await this.checkSession(true);
     },
 
+    // Returns to the user's home (Learner) persona. Clears the client's
+    // active-org pointer AND resets it server-side (lastActiveOrgId) so the
+    // next /auth/me resolves back to the home org/role — needed because a
+    // learner's home can be org-less, which switchOrg can't express.
+    async switchToHome(): Promise<any> {
+        const authHeaders = await withClerkAuthorization(
+            withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
+        );
+        const res = await fetch(`${BASE_URL}/auth/switch-home`, {
+            method: 'POST',
+            headers: authHeaders,
+            credentials: 'include',
+            body: JSON.stringify({}),
+        });
+
+        if (!res.ok) {
+            const error = await res.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to switch to your learner workspace');
+        }
+
+        clearActiveOrgId();
+        resetSessionCache();
+        return await this.checkSession(true);
+    },
+
     // Self-serve Creator persona — grants a Teacher membership on the
     // caller's own personal org without touching any other role/org they
     // already have. Does NOT switch to it; callers should follow up with

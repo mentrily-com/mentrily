@@ -9,7 +9,7 @@ import { useQuery } from '@/hooks/useQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useNotificationSocket } from '@/hooks/useNotificationSocket';
 import { useToast } from '@/app/components/Common/Toast';
-import { Award, Megaphone, X, FileText, ImageIcon, File, Download, EyeOff, Sparkles } from 'lucide-react';
+import { Award, Megaphone, X, FileText, ImageIcon, File, Download, EyeOff, Sparkles, Target, BarChart3, Bookmark } from 'lucide-react';
 import DOMPurify from 'isomorphic-dompurify';
 import {
     gettingStartedCourse,
@@ -405,17 +405,17 @@ export default function DashboardPage() {
 
                             <div className="space-y-3">
                                 <Link href="/exam/practice" className="block" data-element-id="learner-practice-exam">
-                                    <QuickLink icon="🎯" label="Practice Exam" sub="Learn the exam interface" />
+                                    <QuickLink icon={<Target size={18} />} label="Practice Exam" sub="Learn the exam interface" />
                                 </Link>
                                 <Link href="/dashboard/learner/test" className="block">
-                                    <QuickLink icon="📊" label="My Results" sub="Performance history" />
+                                    <QuickLink icon={<BarChart3 size={18} />} label="My Results" sub="Performance history" />
                                 </Link>
                                 <Link href="/dashboard/learner/bookmarks" className="block">
-                                    <QuickLink icon="🔖" label="Bookmarks" sub="Saved content" />
+                                    <QuickLink icon={<Bookmark size={18} />} label="Bookmarks" sub="Saved content" />
                                 </Link>
                                 <Link href="/dashboard/learner/certificates" className="block">
                                     <QuickLink
-                                        icon={<Award className="w-4 h-4" />}
+                                        icon={<Award size={18} />}
                                         label="My Certificates"
                                         sub="Earned credentials"
                                     />
@@ -533,7 +533,9 @@ export default function DashboardPage() {
 function QuickLink({ icon, label, sub }: { icon: React.ReactNode; label: string; sub: string }) {
     return (
         <button className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all text-left group">
-            <div className={`text-2xl group-hover:scale-110 transition-transform`}>{icon}</div>
+            <div className="w-10 h-10 rounded-xl bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                {icon}
+            </div>
             <div>
                 <p className="text-sm font-black text-slate-800 leading-none mb-1">{label}</p>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{sub}</p>
