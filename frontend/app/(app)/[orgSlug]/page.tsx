@@ -5,7 +5,12 @@ import PublicPlaygroundShell from '@/app/components/Playground/PublicPlaygroundS
 import PythonNotebookPage from '@/app/(app)/playground/pynb/page';
 import WebPlaygroundPage from '@/app/(app)/playground/web/page';
 import { siteConfig } from '@/app/config/site';
-import { getPublicPlaygroundSeoEntry, publicPlaygroundSeoEntries } from '@/app/(app)/playground/publicSeo';
+import {
+    getPublicPlaygroundFaqs,
+    getPublicPlaygroundSeoEntry,
+    publicPlaygroundSeoEntries,
+} from '@/app/(app)/playground/publicSeo';
+import { PublicSeoContent, PublicSeoHeader } from '@/app/components/Playground/PublicSeoContent';
 
 interface PageProps {
     params: Promise<{ orgSlug: string }>;
@@ -66,12 +71,42 @@ export default async function PublicPlaygroundPage({ params }: PageProps) {
         description: entry.description,
     };
 
+    const faqJsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: getPublicPlaygroundFaqs(entry).map((faq) => ({
+            '@type': 'Question',
+            name: faq.question,
+            acceptedAnswer: {
+                '@type': 'Answer',
+                text: faq.answer,
+            },
+        })),
+    };
+
+    const breadcrumbJsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: siteConfig.url },
+            { '@type': 'ListItem', position: 2, name: 'Online Compilers', item: `${siteConfig.url}/online-compilers` },
+            { '@type': 'ListItem', position: 3, name: entry.h1, item: `${siteConfig.url}/${entry.slug}` },
+        ],
+    };
+
     return (
         <PublicPlaygroundShell>
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+            />
+            <PublicSeoHeader entry={entry} />
             {entry.kind === 'code' && <PlaygroundCore initialLangId={entry.langId} publicMode />}
             {entry.kind === 'web' && <WebPlaygroundPage embeddedShell={false} />}
             {entry.kind === 'notebook' && <PythonNotebookPage embeddedShell={false} />}
+            <PublicSeoContent entry={entry} />
         </PublicPlaygroundShell>
     );
 }
