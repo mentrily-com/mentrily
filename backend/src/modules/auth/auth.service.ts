@@ -391,6 +391,7 @@ export class AuthService {
     testCode: string,
     slug?: string,
     clientCtx?: { userAgent?: string; clientPlatform?: string },
+    effectiveRole?: string,
   ) {
     const whereClause: any = { testCode };
     if (slug) {
@@ -435,9 +436,15 @@ export class AuthService {
       );
     }
 
+    // Use the request's effective (persona-aware) role, not the home role —
+    // a Creator using their built-in Learner persona resolves to STUDENT at
+    // the JWT layer and must be allowed through here too. Falls back to the
+    // home role only if the caller didn't resolve one.
+    const roleForAccessCheck = effectiveRole ?? user.role;
+
     if (
-      user.role === 'TEACHER' ||
-      (user.role !== 'STUDENT' && user.role !== 'ADMIN')
+      roleForAccessCheck === 'TEACHER' ||
+      (roleForAccessCheck !== 'STUDENT' && roleForAccessCheck !== 'ADMIN')
     ) {
       throw new UnauthorizedException(
         'Access denied. Valid student credentials required.',
