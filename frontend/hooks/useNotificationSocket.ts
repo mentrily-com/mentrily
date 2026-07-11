@@ -30,7 +30,12 @@ export const useNotificationSocket = (onNewAnnouncement?: (announcement: Announc
 
     useEffect(() => {
         const socket = io(`${SOCKET_URL}/notifications`, {
-            transports: ['websocket'],
+            // See useExamSocket.ts: the production API Gateway (HTTP API,
+            // not a WebSocket API) can't perform a WS upgrade at all, so
+            // 'websocket'-only here meant this socket could never connect
+            // in production. Force long-polling instead.
+            transports: ['polling'],
+            upgrade: false,
             reconnection: true,
             reconnectionAttempts: 10,
             reconnectionDelay: 3000,
