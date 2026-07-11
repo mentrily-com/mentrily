@@ -5,6 +5,7 @@ import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
 import { useToast } from '@/app/components/Common/Toast';
 import AppModal from '@/app/components/Common/AppModal';
 import { io, Socket } from 'socket.io-client';
+import { getClerkToken } from '@/lib/clerk-token';
 
 // PeerJS dynamic import usage in useEffect
 
@@ -59,108 +60,127 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
     useEffect(() => {
         if (view !== 'ai-proctoring') return;
 
-        // 1. Socket Init
-        // Trailing slash must be stripped before appending the namespace
-        // below — "host.com//ns" is a different, invalid namespace to the
-        // server than "host.com/ns" (see useExamSocket.ts).
-        const SOCKET_URL = (process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000').replace(
-            /\/+$/,
-            '',
-        );
-        const socket = io(`${SOCKET_URL}/proctoring`, {
-            // See useExamSocket.ts: production's API Gateway can't perform a
-            // WS upgrade at all, so 'websocket'-only meant this could never
-            // connect in production. Force long-polling instead.
-            transports: ['polling'],
-            upgrade: false,
-            reconnection: true,
-        });
-        socketRef.current = socket;
+        let cancelled = false;
+        let socket: Socket | null = null;
 
-        socket.on('connect', () => {
-            console.log('[Monitor] Connected to socket');
-            socket.emit('join_exam', {
-                examId,
-                userId: 'teacher-' + Math.random().toString(36).substr(2, 9),
-                role: 'teacher',
+        const setup = async () => {
+            // 1. Socket Init
+            // Trailing slash must be stripped before appending the namespace
+            // below — "host.com//ns" is a different, invalid namespace to the
+            // server than "host.com/ns" (see useExamSocket.ts).
+            const SOCKET_URL = (
+                process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000'
+            ).replace(/\/+$/, '');
+            // The socket connects to a different origin than the app in
+            // production (an AWS API Gateway domain, not www.mentrily.com),
+            // so cookie-based auth can never reach it — attach a bearer
+            // token explicitly, same as REST calls (see lib/clerk-token.ts).
+            const token = await getClerkToken();
+            if (cancelled) return;
+
+            socket = io(`${SOCKET_URL}/proctoring`, {
+                // See useExamSocket.ts: production's API Gateway can't perform a
+                // WS upgrade at all, so 'websocket'-only meant this could never
+                // connect in production. Force long-polling instead.
+                transports: ['polling'],
+                upgrade: false,
+                reconnection: true,
+                withCredentials: true,
+                auth: token ? { token } : undefined,
             });
-        });
+            socketRef.current = socket;
 
-        // 2. PeerJS Init
-        const initPeer = async () => {
-            if (peerRef.current) return;
-            try {
-                const { Peer } = await import('peerjs');
-                const peer = new Peer();
-
-                peer.on('open', (id: string) => {
-                    console.log('[Monitor] My Peer ID:', id);
-                    peerRef.current = peer;
+            socket.on('connect', () => {
+                console.log('[Monitor] Connected to socket');
+                socket!.emit('join_exam', {
+                    examId,
+                    userId: 'teacher-' + Math.random().toString(36).substr(2, 9),
+                    role: 'teacher',
                 });
+            });
 
-                peer.on('call', (call: any) => {
-                    console.log('[Monitor] Incoming Call');
-                    call.answer(); // Answer automatically
-                    call.on('stream', (remoteStream: MediaStream) => {
-                        console.log('[Monitor] Stream received');
-                        // Find who is calling?
-                        // Simplified: Just show the stream
-                        setActiveStream({ studentId: 'Unknown', stream: remoteStream });
+            // 2. PeerJS Init
+            const initPeer = async () => {
+                if (peerRef.current) return;
+                try {
+                    const { Peer } = await import('peerjs');
+                    const peer = new Peer();
+
+                    peer.on('open', (id: string) => {
+                        console.log('[Monitor] My Peer ID:', id);
+                        peerRef.current = peer;
                     });
-                });
-            } catch (e) {
-                console.error('Peer init failed', e);
-            }
-        };
-        initPeer();
 
-        // 3. Listeners
-        socket.on('live_violation', async (data: any) => {
-            console.log('Live Violation Received (RAW):', data);
-            if (data.details) console.log('Details Type:', typeof data.details, 'Length:', data.details.length);
-
-            // Check for Redis Reference
-            if (data.details && data.details.startsWith('violation_img:')) {
-                // Fetch Image Async
-                socket.emit('get_violation_image', { imageKey: data.details }, (response: any) => {
-                    if (response && response.imageData) {
-                        // Update the violation object with the real image
-                        setViolations((prev) => {
-                            const updated = [...prev];
-                            // Find if we already added it (race condition safety)
-                            const existingIndex = updated.findIndex(
-                                (v) => v.timestamp === data.timestamp && v.userId === data.userId,
-                            );
-
-                            if (existingIndex >= 0) {
-                                updated[existingIndex] = { ...updated[existingIndex], details: response.imageData };
-                                return updated;
-                            } else {
-                                // Add new with image
-                                return [{ ...data, details: response.imageData }, ...prev];
-                            }
+                    peer.on('call', (call: any) => {
+                        console.log('[Monitor] Incoming Call');
+                        call.answer(); // Answer automatically
+                        call.on('stream', (remoteStream: MediaStream) => {
+                            console.log('[Monitor] Stream received');
+                            // Find who is calling?
+                            // Simplified: Just show the stream
+                            setActiveStream({ studentId: 'Unknown', stream: remoteStream });
                         });
-                    }
-                });
+                    });
+                } catch (e) {
+                    console.error('Peer init failed', e);
+                }
+            };
+            initPeer();
 
-                // Add placeholder initially?
-                // For simplicity, let's just add it, and if the fetch works, we update.
-                // BUT updating state async is tricky.
+            // 3. Listeners
+            socket.on('live_violation', async (data: any) => {
+                console.log('Live Violation Received (RAW):', data);
+                if (data.details) console.log('Details Type:', typeof data.details, 'Length:', data.details.length);
 
-                // Let's Add it to state with the Key, and have a separate Effect or component resolve it?
-                // Or just do it here:
+                // Check for Redis Reference
+                if (data.details && data.details.startsWith('violation_img:')) {
+                    // Fetch Image Async
+                    socket!.emit('get_violation_image', { imageKey: data.details }, (response: any) => {
+                        if (response && response.imageData) {
+                            // Update the violation object with the real image
+                            setViolations((prev) => {
+                                const updated = [...prev];
+                                // Find if we already added it (race condition safety)
+                                const existingIndex = updated.findIndex(
+                                    (v) => v.timestamp === data.timestamp && v.userId === data.userId,
+                                );
 
-                // Add initially with key (it will fail string check in render, showing text, which is fine)
-                setViolations((prev) => [data, ...prev]);
-            } else {
-                setViolations((prev) => [data, ...prev]);
-            }
+                                if (existingIndex >= 0) {
+                                    updated[existingIndex] = {
+                                        ...updated[existingIndex],
+                                        details: response.imageData,
+                                    };
+                                    return updated;
+                                } else {
+                                    // Add new with image
+                                    return [{ ...data, details: response.imageData }, ...prev];
+                                }
+                            });
+                        }
+                    });
 
-            warning(`Violation: ${data.userId} - ${data.type}`);
-        });
+                    // Add placeholder initially?
+                    // For simplicity, let's just add it, and if the fetch works, we update.
+                    // BUT updating state async is tricky.
+
+                    // Let's Add it to state with the Key, and have a separate Effect or component resolve it?
+                    // Or just do it here:
+
+                    // Add initially with key (it will fail string check in render, showing text, which is fine)
+                    setViolations((prev) => [data, ...prev]);
+                } else {
+                    setViolations((prev) => [data, ...prev]);
+                }
+
+                warning(`Violation: ${data.userId} - ${data.type}`);
+            });
+        };
+
+        void setup();
 
         return () => {
-            socket.disconnect();
+            cancelled = true;
+            socket?.disconnect();
             if (peerRef.current) peerRef.current.destroy();
             peerRef.current = null;
         };
