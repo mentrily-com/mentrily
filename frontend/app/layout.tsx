@@ -49,9 +49,6 @@ export const metadata: Metadata = {
     },
     description: siteConfig.description,
     applicationName: siteConfig.name,
-    alternates: {
-        canonical: '/',
-    },
     manifest: '/manifest.json',
     icons: {
         icon: [
