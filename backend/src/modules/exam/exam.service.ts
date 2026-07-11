@@ -249,11 +249,9 @@ export class ExamService {
   }
 
   async getExamIdBySlug(slug: string, user?: any) {
-    const scopedOrgId = user?.orgId ?? this.getDefaultOrgId();
-    const cacheOrgId = scopedOrgId || 'none';
-
-    // PERFORMANCE: Check Cache
-    const cacheKey = `exam:lookup:${cacheOrgId}:${slug}`;
+    // Cache the raw lookup by slug alone (data doesn't vary per requester);
+    // the access decision runs fresh every call below.
+    const cacheKey = `exam:lookup:${slug}`;
     const cached = await this.redis.get(cacheKey);
 
     let foundData = cached ? JSON.parse(cached) : null;
@@ -270,53 +268,26 @@ export class ExamService {
         maxAttempts: true,
         attemptBufferMins: true,
       } as const;
-      const testSelect = {
-        id: true,
-        orgId: true,
-        course: { select: { orgId: true, creatorId: true } },
-      } as const;
-      const courseSelect = { id: true, orgId: true, creatorId: true } as const;
 
       // Lightweight lookup for Start Session
       // 1. Exam
-      let exam = await this.prisma.exam.findFirst({
-        where: {
-          slug,
-          ...(scopedOrgId ? { orgId: scopedOrgId } : {}),
-        },
+      const exam = await this.prisma.exam.findFirst({
+        where: { slug },
         select: examSelect,
       });
-      // Bare-domain / persona-learner requests resolve to DEFAULT_ORG_ID
-      // (or no org at all), which may not be the exam's actual org — fall
-      // back to an unscoped slug lookup rather than 404ing a real exam.
-      // assertTenantOrOwnerAccess below still enforces the real isolation
-      // check against the exam's true org once found.
-      if (!exam && scopedOrgId) {
-        exam = await this.prisma.exam.findFirst({
-          where: { slug },
-          select: examSelect,
-        });
-      }
 
       if (exam) {
         foundData = { ...exam, type: 'exam' };
       } else {
         // 2. Course Test
-        let test = await this.prisma.courseTest.findFirst({
-          where: {
-            slug,
-            course: {
-              ...(scopedOrgId ? { orgId: scopedOrgId } : {}),
-            },
+        const test = await this.prisma.courseTest.findFirst({
+          where: { slug },
+          select: {
+            id: true,
+            orgId: true,
+            course: { select: { orgId: true, creatorId: true } },
           },
-          select: testSelect,
         });
-        if (!test && scopedOrgId) {
-          test = await this.prisma.courseTest.findFirst({
-            where: { slug },
-            select: testSelect,
-          });
-        }
 
         if (test) {
           foundData = {
@@ -327,19 +298,10 @@ export class ExamService {
           };
         } else {
           // 3. Course (Curriculum)
-          let course = await this.prisma.course.findFirst({
-            where: {
-              slug,
-              ...(scopedOrgId ? { orgId: scopedOrgId } : {}),
-            },
-            select: courseSelect,
+          const course = await this.prisma.course.findFirst({
+            where: { slug },
+            select: { id: true, orgId: true, creatorId: true },
           });
-          if (!course && scopedOrgId) {
-            course = await this.prisma.course.findFirst({
-              where: { slug },
-              select: courseSelect,
-            });
-          }
           if (course) {
             foundData = { ...course, type: 'course' };
           }
@@ -366,58 +328,43 @@ export class ExamService {
         foundData.examMode = examModeRecord?.examMode;
       }
 
+      if (!this.canAccessPublicExamResource(foundData, user?.orgId, user)) {
+        throw new NotFoundException('Exam not found');
+      }
+
       if (foundData.isActive === false)
         throw new NotFoundException('Exam is not active');
-      this.assertTenantOrOwnerAccess(foundData, user, 'Access Denied');
       return foundData;
     }
 
     throw new NotFoundException('Exam not found');
   }
 
-  async getExamBySlug(slug: string, user?: any) {
-    const scopedOrgId = user?.orgId ?? this.getDefaultOrgId();
-    const cacheOrgId = scopedOrgId || 'none';
-
-    // PERFORMANCE: Check Cache
-    const cacheKey = `exam:content:${cacheOrgId}:${slug}`;
+  async getExamBySlug(slug: string, user?: any, requestOrgId?: string) {
+    // Cache the raw entity by slug alone; access decision runs fresh below.
+    const cacheKey = `exam:content:${slug}`;
     const cached = await this.redis.get(cacheKey);
 
     const entity = cached ? JSON.parse(cached) : null;
 
     if (entity) {
-      // ISOLATION CHECK from Cached Data
-      this.assertTenantOrOwnerAccess(
-        entity,
-        user,
-        'Assessment not found or access denied',
-      );
+      if (!this.canAccessPublicExamResource(entity, requestOrgId, user)) {
+        throw new NotFoundException('Assessment not found or access denied');
+      }
       return this.transformExam(entity, !shouldSanitizeSensitiveContent(user));
     }
 
     // 1. Try finding all at once using Promise.all to reduce latency
     const [exam, courseTest, course] = await Promise.all([
       this.prisma.exam.findFirst({
-        where: {
-          slug,
-          ...(scopedOrgId ? { orgId: scopedOrgId } : {}),
-          isActive: true,
-        },
+        where: { slug, isActive: true },
       }),
       this.prisma.courseTest.findFirst({
-        where: {
-          slug,
-          course: {
-            ...(scopedOrgId ? { orgId: scopedOrgId } : {}),
-          },
-        },
+        where: { slug },
         include: { course: true },
       }),
       this.prisma.course.findFirst({
-        where: {
-          slug,
-          ...(scopedOrgId ? { orgId: scopedOrgId } : {}),
-        },
+        where: { slug },
         include: {
           modules: {
             include: { units: true },
@@ -431,12 +378,9 @@ export class ExamService {
       // Cache before check
       await this.redis.set(cacheKey, JSON.stringify(exam), 'EX', 3600);
 
-      // ISOLATION CHECK
-      this.assertTenantOrOwnerAccess(
-        exam,
-        user,
-        'Assessment not found or access denied',
-      );
+      if (!this.canAccessPublicExamResource(exam, requestOrgId, user)) {
+        throw new NotFoundException('Assessment not found or access denied');
+      }
       return this.transformExam(exam, !shouldSanitizeSensitiveContent(user));
     }
 
@@ -449,8 +393,9 @@ export class ExamService {
       // Cache
       await this.redis.set(cacheKey, JSON.stringify(mappedTest), 'EX', 3600);
 
-      // ISOLATION CHECK from Course
-      this.assertTenantOrOwnerAccess(mappedTest, user, 'Assessment not found');
+      if (!this.canAccessPublicExamResource(mappedTest, requestOrgId, user)) {
+        throw new NotFoundException('Assessment not found');
+      }
 
       const transformed = this.transformCourseTest(
         courseTest,
@@ -463,8 +408,9 @@ export class ExamService {
     }
 
     if (course) {
-      // ISOLATION CHECK
-      this.assertTenantOrOwnerAccess(course, user, 'Assessment not found');
+      if (!this.canAccessPublicExamResource(course, requestOrgId, user)) {
+        throw new NotFoundException('Assessment not found');
+      }
       return this.transformCourse(
         course,
         !shouldSanitizeSensitiveContent(user),
@@ -474,11 +420,14 @@ export class ExamService {
     throw new NotFoundException('Assessment not found');
   }
 
-  async getPublicStatus(slug: string, ip?: string, orgId?: string) {
-    const scopedOrgId = orgId ?? this.getDefaultOrgId();
-    const cacheOrgId = scopedOrgId || 'none';
-
-    const cacheKey = `exam:public-status:${cacheOrgId}:${slug}`;
+  async getPublicStatus(
+    slug: string,
+    ip?: string,
+    requestOrgId?: string,
+    user?: any,
+  ) {
+    // Cache the raw lookup by slug alone; access decision runs fresh below.
+    const cacheKey = `exam:public-status:${slug}`;
     const cached = await this.redis.get(cacheKey);
 
     let payload: any = cached ? JSON.parse(cached) : null;
@@ -497,16 +446,14 @@ export class ExamService {
         passingPercentage: true,
         maxAttempts: true,
         attemptBufferMins: true,
+        orgId: true,
+        creatorId: true,
       };
 
       let exam: any;
       try {
         exam = await this.prisma.exam.findFirst({
-          where: {
-            slug,
-            ...(scopedOrgId ? { orgId: scopedOrgId } : {}),
-            isActive: true,
-          },
+          where: { slug, isActive: true },
           select: examSelect as any,
         });
       } catch (error) {
@@ -519,11 +466,7 @@ export class ExamService {
         delete examSelect.attemptBufferMins;
 
         exam = await this.prisma.exam.findFirst({
-          where: {
-            slug,
-            ...(scopedOrgId ? { orgId: scopedOrgId } : {}),
-            isActive: true,
-          },
+          where: { slug, isActive: true },
           select: examSelect as any,
         });
       }
@@ -534,6 +477,8 @@ export class ExamService {
         );
         payload = {
           type: 'exam',
+          orgId: exam.orgId,
+          creatorId: exam.creatorId,
           allowedIPs: exam.allowedIPs || null,
           linkedCourseId: exam.linkedCourseId,
           passingPercentage: exam.passingPercentage,
@@ -556,18 +501,14 @@ export class ExamService {
         };
       } else {
         const courseTest = await this.prisma.courseTest.findFirst({
-          where: {
-            slug,
-            course: {
-              ...(scopedOrgId ? { orgId: scopedOrgId } : {}),
-            },
-          },
+          where: { slug },
           select: {
             title: true,
             startDate: true,
             endDate: true,
             id: true,
             questions: true,
+            course: { select: { orgId: true, creatorId: true } },
           },
         });
 
@@ -584,6 +525,8 @@ export class ExamService {
           );
           payload = {
             type: 'course-test',
+            orgId: courseTest.course?.orgId ?? null,
+            creatorId: courseTest.course?.creatorId ?? null,
             allowedIPs: null,
             response: {
               title: courseTest.title,
@@ -604,6 +547,10 @@ export class ExamService {
     }
 
     if (!payload) {
+      throw new NotFoundException(`Exam not found for slug: ${slug}`);
+    }
+
+    if (!this.canAccessPublicExamResource(payload, requestOrgId, user)) {
       throw new NotFoundException(`Exam not found for slug: ${slug}`);
     }
 
@@ -1145,111 +1092,133 @@ export class ExamService {
     return { version: '1.0.0', features: ['monitoring', 'lockdown'] };
   }
 
-  async checkExamStatus(slug: string, orgId?: string) {
-    const scopedOrgId = orgId ?? this.getDefaultOrgId();
-    const cacheOrgId = scopedOrgId || 'none';
-
-    const cacheKey = `exam:check-status:${cacheOrgId}:${slug}`;
+  async checkExamStatus(slug: string, requestOrgId?: string, user?: any) {
+    // Cache the raw lookup by slug alone (data doesn't vary per requester);
+    // the access decision below runs fresh every time so it can never leak
+    // a real org's exam to the wrong requester off a stale cache entry.
+    const cacheKey = `exam:check-status:${slug}`;
     const cached = await this.redis.get(cacheKey);
-    if (cached) {
-      return JSON.parse(cached);
+    const found: {
+      kind: 'exam' | 'test';
+      orgId: string | null;
+      creatorId: string | null;
+      data: any;
+    } | null = cached ? JSON.parse(cached) : await this.findExamOrTestBySlugForStatus(slug);
+
+    if (!cached && found) {
+      await this.redis.set(cacheKey, JSON.stringify(found), 'EX', 30);
     }
 
-    const examSelect = {
-      id: true,
-      title: true,
-      slug: true,
-      isActive: true,
-      duration: true,
-      questions: true,
-      linkedCourseId: true,
-    } as const;
+    if (!found) {
+      return { quiz: null, error: 'Exam not found' };
+    }
 
-    let exam = await this.prisma.exam.findFirst({
-      where: {
-        slug,
-        ...(scopedOrgId ? { orgId: scopedOrgId } : {}),
+    if (!this.canAccessPublicExamResource(found, requestOrgId, user)) {
+      // Don't distinguish "exists but not yours" from "doesn't exist" to an
+      // unauthorized requester — same response shape either way.
+      return { quiz: null, error: 'Exam not found' };
+    }
+
+    if (found.kind === 'exam' && !found.data.isActive) {
+      return { quiz: null, error: 'Exam is not active' };
+    }
+
+    const { totalQuestions } = this.countQuestions(found.data.questions);
+    return {
+      quiz: {
+        id: found.data.id,
+        title: found.data.title,
+        slug: found.data.slug,
+        isActive: found.kind === 'exam' ? found.data.isActive : true,
+        duration: found.kind === 'exam' ? found.data.duration * 60 : 3600,
+        totalQuestions,
+        linkedCourseId: found.data.linkedCourseId,
       },
-      select: examSelect,
-    });
+      error: null,
+    };
+  }
 
-    // No per-org subdomain to scope by (bare domain, or the exam simply
-    // lives in a different org than DEFAULT_ORG_ID) — fall back to an
-    // unscoped slug lookup rather than 404ing a real, published exam.
-    // Exam.slug is only unique per-org (@@unique([slug, orgId])), but
-    // slugs carry a random suffix, so a cross-org collision is
-    // vanishingly unlikely — far less costly than the false 404.
-    if (!exam && scopedOrgId) {
-      exam = await this.prisma.exam.findFirst({
-        where: { slug },
-        select: examSelect,
-      });
-    }
+  private async findExamOrTestBySlugForStatus(slug: string) {
+    const exam = await this.prisma.exam.findFirst({
+      where: { slug },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        isActive: true,
+        duration: true,
+        questions: true,
+        linkedCourseId: true,
+        orgId: true,
+        creatorId: true,
+      },
+    });
 
     if (exam) {
-      let response: any;
-      if (!exam.isActive) {
-        response = { quiz: null, error: 'Exam is not active' };
-      } else {
-        const { totalQuestions } = this.countQuestions(exam.questions);
-        response = {
-          quiz: {
-            id: exam.id,
-            title: exam.title,
-            slug: exam.slug,
-            isActive: exam.isActive,
-            duration: exam.duration * 60,
-            totalQuestions,
-            linkedCourseId: exam.linkedCourseId,
-          },
-          error: null,
-        };
-      }
-
-      await this.redis.set(cacheKey, JSON.stringify(response), 'EX', 30);
-      return response;
+      return {
+        kind: 'exam' as const,
+        orgId: exam.orgId,
+        creatorId: exam.creatorId,
+        data: exam,
+      };
     }
 
-    const testSelect = { id: true, title: true, slug: true, questions: true } as const;
-
-    let test = await this.prisma.courseTest.findFirst({
-      where: {
-        slug,
-        course: {
-          ...(scopedOrgId ? { orgId: scopedOrgId } : {}),
-        },
+    const test = await this.prisma.courseTest.findFirst({
+      where: { slug },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        questions: true,
+        course: { select: { orgId: true, creatorId: true } },
       },
-      select: testSelect,
     });
 
-    if (!test && scopedOrgId) {
-      test = await this.prisma.courseTest.findFirst({
-        where: { slug },
-        select: testSelect,
-      });
-    }
-
     if (test) {
-      const { totalQuestions } = this.countQuestions(test.questions);
-      const response = {
-        quiz: {
-          id: test.id,
-          title: test.title,
-          slug: test.slug,
-          isActive: true,
-          duration: 3600,
-          totalQuestions,
-        },
-        error: null,
+      return {
+        kind: 'test' as const,
+        orgId: test.course?.orgId ?? null,
+        creatorId: test.course?.creatorId ?? null,
+        data: test,
       };
-
-      await this.redis.set(cacheKey, JSON.stringify(response), 'EX', 30);
-      return response;
     }
 
-    const response = { quiz: null, error: 'Exam not found' };
-    await this.redis.set(cacheKey, JSON.stringify(response), 'EX', 15);
-    return response;
+    return null;
+  }
+
+  /**
+   * A resource is public "default org" content — DEFAULT_ORG_ID is the
+   * open, marketing-facing surface every visitor can reach regardless of
+   * subdomain or login state. A real, admin-provisioned org's content
+   * stays member-scoped (see canAccessPublicExamResource).
+   */
+  private isDefaultOrgResource(resourceOrgId: string | null | undefined): boolean {
+    const defaultOrgId = this.getDefaultOrgId();
+    return Boolean(defaultOrgId && resourceOrgId && resourceOrgId === defaultOrgId);
+  }
+
+  /**
+   * Access rule for exam/course-test resources reached off a public,
+   * possibly-unauthenticated surface (exam landing page, test-code entry):
+   *  - DEFAULT_ORG_ID content is open to everyone, any host, logged in or not.
+   *  - A real org's content requires arriving through that org's own
+   *    subdomain (requestOrgId) OR an authenticated same-org user, OR the
+   *    resource's own creator, OR SUPER_ADMIN.
+   *  - Org-less/personal content (orgId: null, not the default org — a solo
+   *    teacher's own exam) stays creator-only.
+   */
+  private canAccessPublicExamResource(
+    resource: { orgId?: string | null; creatorId?: string | null },
+    requestOrgId: string | null | undefined,
+    user?: any,
+  ): boolean {
+    if (this.isDefaultOrgResource(resource.orgId)) return true;
+    if (String(user?.role || '').toUpperCase() === 'SUPER_ADMIN') return true;
+    if (resource.creatorId && user?.id && resource.creatorId === user.id) return true;
+    if (!resource.orgId) return false;
+    if (requestOrgId && requestOrgId === resource.orgId) return true;
+    if (user?.orgId && user.orgId === resource.orgId) return true;
+    return false;
   }
 
   /**

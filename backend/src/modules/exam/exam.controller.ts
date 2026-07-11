@@ -10,10 +10,10 @@ import {
   UnauthorizedException,
   BadRequestException,
   ValidationPipe,
-  NotFoundException,
 } from '@nestjs/common';
 import { ExamService } from './exam.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { User } from '../auth/user.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -29,16 +29,6 @@ import { SaveFeedbackDto } from './dto/save-feedback.dto';
 @Controller('exam')
 export class ExamController {
   constructor(private examService: ExamService) {}
-
-  private isLocalHostRequest(req: any): boolean {
-    const host = String(req?.headers?.host || '').toLowerCase();
-    return (
-      host.startsWith('localhost') ||
-      host.includes('.localhost') ||
-      host.startsWith('127.0.0.1') ||
-      host.startsWith('0.0.0.0')
-    );
-  }
 
   private getTimeMeta() {
     const now = new Date();
@@ -113,8 +103,11 @@ export class ExamController {
     return exam;
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
   @Get(':slug/public-status')
-  async getPublicStatus(@Param('slug') slug: string, @Req() req: any) {
+  async getPublicStatus(@Param('slug') slug: string, @User() user: any, @Req() req: any) {
+    // See checkExamWithOrg — a missing subdomain is not an error, the
+    // per-resource access rule in getPublicStatus decides reachability.
     const resolvedOrgId = await this.examService.resolveOrgIdForPublicRequest({
       subdomainHeader: req?.headers?.['x-org-subdomain'],
       tenantHost: req?.headers?.['x-tenant-host'],
@@ -122,15 +115,12 @@ export class ExamController {
       host: req?.headers?.host,
     });
 
-    if (!resolvedOrgId && !this.isLocalHostRequest(req)) {
-      throw new NotFoundException('Organization not found for this subdomain');
-    }
-
     const clientIp = this.getClientIp(req);
     const result = await this.examService.getPublicStatus(
       slug,
       clientIp,
       resolvedOrgId || undefined,
+      user,
     );
     return {
       ...result,
@@ -138,16 +128,23 @@ export class ExamController {
     };
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
   @Get(':slug/check')
   async checkExamWithOrg(
     @Param('slug') slug: string,
     @Query('json') json: string,
+    @User() user: any,
     @Req() req: any,
   ) {
     if (!json) {
       return { error: 'json=1 parameter required' };
     }
 
+    // A missing/unrecognized subdomain just means "no org context from the
+    // host" (e.g. the bare apex domain) — it is NOT an error. Whether the
+    // exam is reachable from here is decided per-resource in
+    // checkExamStatus (open for DEFAULT_ORG_ID content, member-scoped
+    // otherwise), not by whether the host happens to map to an org.
     const resolvedOrgId = await this.examService.resolveOrgIdForPublicRequest({
       subdomainHeader: req?.headers?.['x-org-subdomain'],
       tenantHost: req?.headers?.['x-tenant-host'],
@@ -155,13 +152,10 @@ export class ExamController {
       host: req?.headers?.host,
     });
 
-    if (!resolvedOrgId && !this.isLocalHostRequest(req)) {
-      throw new NotFoundException('Organization not found for this subdomain');
-    }
-
     const result = await this.examService.checkExamStatus(
       slug,
       resolvedOrgId || undefined,
+      user,
     );
     return {
       ...result,
