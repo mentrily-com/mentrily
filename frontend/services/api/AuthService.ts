@@ -349,6 +349,10 @@ export const AuthService = {
             throw new Error(error.message || 'Failed to switch to your learner workspace');
         }
 
+        // Home can be any role (a signup-creator's home is TEACHER), so an
+        // active "act as learner" persona must be dropped too — otherwise the
+        // next request still resolves as an org-less Student.
+        clearActivePersona();
         clearActiveOrgId();
         resetSessionCache();
         return await this.checkSession(true);
@@ -471,6 +475,14 @@ export const AuthService = {
         }
 
         const payload = await res.json();
+        // Signup-creators get a personal org provisioned server-side; point
+        // subsequent requests at it immediately (same as the become-creator
+        // flow does via switchOrg) so the creator dashboard resolves against
+        // their own org from the very first render.
+        const provisionedOrgId = String((payload as { orgId?: string })?.orgId || '').trim();
+        if (provisionedOrgId) {
+            setActiveOrgId(provisionedOrgId);
+        }
         resetSessionCache();
         return payload;
     },

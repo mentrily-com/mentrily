@@ -13,6 +13,7 @@ import { SupabaseService } from '../../services/supabase/supabase.service';
 import { MailService } from '../../services/mail.service';
 import { StorageService } from '../../services/storage/storage.service';
 import { QuotaService } from '../billing/quota.service';
+import { OrgProvisioningService } from '../organization/org-provisioning.service';
 
 @Injectable()
 export class AuthService {
@@ -31,10 +32,50 @@ export class AuthService {
     private mailService: MailService,
     private storageService: StorageService,
     private quotaService: QuotaService,
+    private orgProvisioningService: OrgProvisioningService,
   ) {}
 
   private get db() {
     return this.supabase.legacyPrisma;
+  }
+
+  /**
+   * The session guard caches under `user:session:{clerkId}:{scope}` where
+   * scope is an org id, 'persona-learner', or 'default' — a bare
+   * `del('user:session:{id}')` never matches any of those, so role changes
+   * kept being served from cache for the full 5-minute TTL. Always bust via
+   * this helper, which sweeps every scope for every known id.
+   */
+  async clearSessionCache(
+    ...ids: Array<string | null | undefined>
+  ): Promise<void> {
+    const uniqueIds = [
+      ...new Set(
+        ids.map((id) => String(id || '').trim()).filter((id) => id.length > 0),
+      ),
+    ];
+    if (uniqueIds.length === 0) return;
+
+    const keys: string[] = [];
+    for (const id of uniqueIds) {
+      keys.push(`user:session:${id}`);
+      let cursor = '0';
+      do {
+        const [nextCursor, batch] = await this.redis.scan(
+          cursor,
+          'MATCH',
+          `user:session:${id}:*`,
+          'COUNT',
+          100,
+        );
+        cursor = nextCursor;
+        keys.push(...batch);
+      } while (cursor !== '0');
+    }
+
+    if (keys.length > 0) {
+      await this.redis.del(...keys);
+    }
   }
 
   private async getRoleEnumMeta(): Promise<{
@@ -299,7 +340,7 @@ export class AuthService {
     if (!clerkId) return { success: true };
 
     if (event === 'user.created') {
-      await this.redis.del(`user:session:${clerkId}`);
+      await this.clearSessionCache(clerkId);
       return { success: true, deferredProvisioning: true };
     }
 
@@ -328,7 +369,7 @@ export class AuthService {
 
       const syncResult = (data || {}) as Record<string, any>;
 
-      await this.redis.del(`user:session:${clerkId}`);
+      await this.clearSessionCache(clerkId);
       return { success: true, ...(syncResult || {}) };
     }
 
@@ -338,7 +379,7 @@ export class AuthService {
         data: { isActive: false },
       });
 
-      await this.redis.del(`user:session:${clerkId}`);
+      await this.clearSessionCache(clerkId);
       return { success: true };
     }
 
@@ -528,10 +569,7 @@ export class AuthService {
       },
     });
 
-    await this.redis.del(`user:session:${userId}`);
-    if (updatedUser.clerkId) {
-      await this.redis.del(`user:session:${updatedUser.clerkId}`);
-    }
+    await this.clearSessionCache(userId, updatedUser.clerkId);
 
     return updatedUser;
   }
@@ -563,10 +601,7 @@ export class AuthService {
       },
     });
 
-    await this.redis.del(`user:session:${userId}`);
-    if (existingUser?.clerkId) {
-      await this.redis.del(`user:session:${existingUser.clerkId}`);
-    }
+    await this.clearSessionCache(userId, existingUser?.clerkId);
 
     return updatedUser;
   }
@@ -626,10 +661,7 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
-    await this.redis.del(`user:session:${userId}`);
-    if (existingUser.clerkId) {
-      await this.redis.del(`user:session:${existingUser.clerkId}`);
-    }
+    await this.clearSessionCache(userId, existingUser.clerkId);
 
     return updatedUser;
   }
@@ -661,17 +693,23 @@ export class AuthService {
       return alreadySelectedUser;
     }
 
-    const roleEnumMeta = await this.getRoleEnumMeta();
-    await this.db.$executeRawUnsafe(
-      `UPDATE "User" SET "role" = $1::${roleEnumMeta.castType}, "needsRoleSelection" = FALSE WHERE "id" = $2`,
-      Role.TEACHER,
+    // Provision the personal org + TEACHER OrgMembership up front, exactly
+    // like the learner-side "Become a Creator" flow. Without the membership
+    // row a signup-creator has zero workspaces, so the switcher (and its
+    // built-in learner persona entry) never renders for them.
+    const persona = await this.orgProvisioningService.ensureCreatorPersona(
       user.id,
     );
 
-    await this.redis.del(`user:session:${userId}`);
-    if (user.clerkId) {
-      await this.redis.del(`user:session:${user.clerkId}`);
-    }
+    const roleEnumMeta = await this.getRoleEnumMeta();
+    await this.db.$executeRawUnsafe(
+      `UPDATE "User" SET "role" = $1::${roleEnumMeta.castType}, "needsRoleSelection" = FALSE, "orgId" = COALESCE("orgId", $2), "lastActiveOrgId" = $2 WHERE "id" = $3`,
+      Role.TEACHER,
+      persona.orgId,
+      user.id,
+    );
+
+    await this.clearSessionCache(userId, user.clerkId);
 
     return this.getUserRoleSelectionPayload(user.id);
   }
@@ -717,10 +755,7 @@ export class AuthService {
       });
     }
 
-    await this.redis.del(`user:session:${userId}`);
-    if (existingUser.clerkId) {
-      await this.redis.del(`user:session:${existingUser.clerkId}`);
-    }
+    await this.clearSessionCache(userId, existingUser.clerkId);
 
     return { success: true, hasCompletedOnboarding: true };
   }

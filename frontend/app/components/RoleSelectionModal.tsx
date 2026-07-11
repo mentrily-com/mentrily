@@ -2,14 +2,7 @@
 
 import { useState } from 'react';
 import posthog from 'posthog-js';
-import {
-    GraduationCap,
-    Presentation,
-    Check,
-    ArrowRight,
-    Loader2,
-    Sparkles,
-} from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 
 type Role = 'STUDENT';
 
@@ -18,171 +11,162 @@ interface RoleSelectionModalProps {
     onSelectCreator: () => Promise<void>;
 }
 
+/**
+ * First product moment after signup: pick which side of the classroom you're
+ * on. Two full-height "doors" anchored by a single verb each — the choice is
+ * the layout. Either choice is additive: the workspace switcher lets any
+ * account hold both personas later.
+ */
 export default function RoleSelectionModal({ onSelectRole, onSelectCreator }: RoleSelectionModalProps) {
     const [selectedRole, setSelectedRole] = useState<Role | 'CREATOR' | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    const handleSelect = async (role: Role) => {
-        if (selectedRole && selectedRole !== role) return;
-        setError(null);
-        setSelectedRole(role);
-        posthog.capture('role_selected', { role });
-
-        try {
-            await onSelectRole(role);
-        } catch (err: unknown) {
-            setSelectedRole(null);
-            const message = err instanceof Error ? err.message : 'Failed to save role. Please try again.';
-            setError(message);
-        }
-    };
-
-    const handleSelectCreator = async () => {
-        if (selectedRole && selectedRole !== 'CREATOR') return;
-        setError(null);
-        setSelectedRole('CREATOR');
-        posthog.capture('role_selected', { role: 'CREATOR' });
-
-        try {
-            await onSelectCreator();
-        } catch (err: unknown) {
-            setSelectedRole(null);
-            const message = err instanceof Error ? err.message : 'Failed to set creator role. Please try again.';
-            setError(message);
-        }
-    };
-
     const busy = selectedRole !== null;
 
+    const choose = async (choice: Role | 'CREATOR') => {
+        if (busy) return;
+        setError(null);
+        setSelectedRole(choice);
+        posthog.capture('role_selected', { role: choice });
+
+        try {
+            if (choice === 'CREATOR') {
+                await onSelectCreator();
+            } else {
+                await onSelectRole(choice);
+            }
+        } catch (err: unknown) {
+            setSelectedRole(null);
+            setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+        }
+    };
+
     return (
-        <div className="fixed inset-0 z-[2100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
-            <div className="w-full max-w-[680px] bg-white rounded-[28px] p-6 shadow-2xl border border-slate-100 sm:p-10 animate-in fade-in zoom-in-95 duration-300 max-h-[calc(100dvh-32px)] overflow-y-auto">
+        <div className="fixed inset-0 z-[2100] bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+            <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="role-selection-title"
+                className="w-full max-w-[640px] bg-white rounded-[28px] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300 max-h-[calc(100dvh-32px)] overflow-y-auto"
+            >
                 {/* Header */}
-                <div className="text-center">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--brand-light)]/40 text-[var(--brand)] text-[10px] font-black uppercase tracking-widest">
-                        <Sparkles size={12} strokeWidth={2.5} />
+                <div className="px-6 pt-9 pb-7 text-center sm:px-10">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--brand)]">
                         Welcome to Mentrily
-                    </span>
-                    <h2 className="mt-4 text-2xl font-black text-slate-900 tracking-tight leading-tight sm:text-[28px]">
-                        How will you use Mentrily?
+                    </p>
+                    <h2
+                        id="role-selection-title"
+                        className="mt-3 text-[26px] font-black text-slate-900 tracking-tight leading-tight sm:text-3xl"
+                    >
+                        Pick your side of the classroom
                     </h2>
-                    <p className="mt-2 text-sm font-medium text-slate-500 max-w-md mx-auto">
-                        Pick the workspace that fits you. You can add the other role later — nothing here is permanent.
+                    <p className="mt-2 text-[13px] font-medium text-slate-500">
+                        You can add the other side to your account whenever you like.
                     </p>
                 </div>
 
-                {/* Cards */}
-                <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <RoleCard
-                        icon={<GraduationCap size={22} strokeWidth={2.25} />}
-                        title="Learner"
-                        description="Enroll in courses, take exams, and grow your skills."
-                        badge="Student"
-                        features={[
-                            'Enroll in courses & modules',
-                            'Take exams and track scores',
-                            'Earn shareable certificates',
-                        ]}
+                {/* The two doors */}
+                <div className="grid grid-cols-1 border-t border-slate-100 divide-y divide-slate-100 sm:grid-cols-2 sm:divide-y-0 sm:divide-x">
+                    <Door
+                        kicker="For students"
+                        verb="Learn."
+                        body="Take courses and exams, track your scores, and earn certificates you can share."
+                        action="Start learning"
                         selected={selectedRole === 'STUDENT'}
-                        disabled={busy && selectedRole !== 'STUDENT'}
-                        onClick={() => handleSelect('STUDENT')}
+                        busy={busy}
+                        onClick={() => choose('STUDENT')}
                     />
-
-                    <RoleCard
-                        icon={<Presentation size={22} strokeWidth={2.25} />}
-                        title="Creator"
-                        description="Build and run your own courses and assessments."
-                        badge="Teacher"
-                        features={[
-                            'Author courses & assessments',
-                            'Invite and manage learners',
-                            'Starts free — upgrade anytime',
-                        ]}
+                    <Door
+                        kicker="For educators"
+                        verb="Teach."
+                        body="Build courses and assessments, invite learners, and run it all from one dashboard. Free to start."
+                        action="Start teaching"
                         selected={selectedRole === 'CREATOR'}
-                        disabled={busy && selectedRole !== 'CREATOR'}
-                        onClick={handleSelectCreator}
+                        busy={busy}
+                        onClick={() => choose('CREATOR')}
                     />
                 </div>
 
-                {error && (
-                    <p className="mt-5 text-xs font-bold text-rose-500 text-center" role="alert">
-                        {error}
+                {/* Footer */}
+                <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 text-center sm:px-10">
+                    {error && (
+                        <p className="mb-2 text-xs font-bold text-rose-500" role="alert">
+                            {error}
+                        </p>
+                    )}
+                    <p className="text-[11px] font-semibold text-slate-400">
+                        A role is required to continue. Learners can become creators later — and creators can always learn.
                     </p>
-                )}
-
-                <p className="mt-5 text-[11px] font-bold text-slate-400 text-center">
-                    A role is required to continue — this step can’t be skipped.
-                </p>
+                </div>
             </div>
         </div>
     );
 }
 
-function RoleCard({
-    icon,
-    title,
-    description,
-    badge,
-    features,
+function Door({
+    kicker,
+    verb,
+    body,
+    action,
     selected,
-    disabled,
+    busy,
     onClick,
 }: {
-    icon: React.ReactNode;
-    title: string;
-    description: string;
-    badge: string;
-    features: string[];
+    kicker: string;
+    verb: string;
+    body: string;
+    action: string;
     selected: boolean;
-    disabled: boolean;
+    busy: boolean;
     onClick: () => void;
 }) {
     return (
         <button
             type="button"
             onClick={onClick}
-            disabled={disabled}
+            disabled={busy}
             aria-pressed={selected}
-            className={`group relative flex flex-col rounded-[22px] border-2 p-6 text-left transition-all duration-200 disabled:cursor-not-allowed ${
+            className={`group flex flex-col p-7 pb-6 text-left transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand)] sm:p-8 sm:pb-7 ${
                 selected
-                    ? 'border-[var(--brand)] bg-[var(--brand-light)]/25 shadow-lg shadow-[var(--brand)]/10'
-                    : disabled
-                      ? 'border-slate-200 opacity-60'
-                      : 'border-slate-200 hover:border-[var(--brand)] hover:bg-[var(--brand-light)]/15 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-200/60'
+                    ? 'bg-[var(--brand-light)]/50'
+                    : busy
+                      ? 'opacity-50'
+                      : 'hover:bg-[var(--brand-light)]/30 cursor-pointer'
             }`}
         >
-            {/* Selected check */}
-            {selected && (
-                <span className="absolute top-4 right-4 w-6 h-6 rounded-full bg-[var(--brand)] text-white flex items-center justify-center">
-                    <Loader2 size={13} className="animate-spin" />
-                </span>
-            )}
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 group-hover:text-[var(--brand)] transition-colors">
+                {kicker}
+            </span>
 
-            <div className="w-12 h-12 rounded-2xl bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center group-hover:scale-105 transition-transform">
-                {icon}
-            </div>
+            <span className="mt-2 text-4xl font-black tracking-tight text-slate-900 sm:text-[40px] sm:leading-none">
+                {verb}
+            </span>
 
-            <h3 className="mt-4 text-lg font-black text-slate-900 tracking-tight">{title}</h3>
-            <p className="mt-1 text-[13px] text-slate-500 leading-relaxed">{description}</p>
+            <span className="mt-3 text-[13px] leading-relaxed text-slate-500 flex-1">
+                {body}
+            </span>
 
-            <ul className="mt-4 space-y-2">
-                {features.map((feat) => (
-                    <li key={feat} className="flex items-start gap-2 text-[12px] font-semibold text-slate-600">
-                        <Check size={14} strokeWidth={3} className="mt-0.5 flex-shrink-0 text-[var(--brand)]" />
-                        <span>{feat}</span>
-                    </li>
-                ))}
-            </ul>
-
-            <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
-                <span className="inline-flex px-3 py-1 rounded-full bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-widest group-hover:bg-[var(--brand-light)]/40 group-hover:text-[var(--brand)] transition-colors">
-                    {badge}
-                </span>
-                <span className="inline-flex items-center gap-1 text-[11px] font-black text-[var(--brand)] uppercase tracking-widest opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all">
-                    Choose
-                    <ArrowRight size={13} strokeWidth={3} />
-                </span>
-            </div>
+            <span
+                className={`mt-6 inline-flex items-center gap-1.5 text-[12px] font-black uppercase tracking-widest transition-colors ${
+                    selected ? 'text-[var(--brand-dark)]' : 'text-[var(--brand)]'
+                }`}
+            >
+                {selected ? (
+                    <>
+                        Setting up
+                        <Loader2 size={14} strokeWidth={3} className="animate-spin" />
+                    </>
+                ) : (
+                    <>
+                        {action}
+                        <ArrowRight
+                            size={14}
+                            strokeWidth={3}
+                            className="transition-transform duration-200 group-hover:translate-x-1"
+                        />
+                    </>
+                )}
+            </span>
         </button>
     );
 }
