@@ -103,7 +103,7 @@ export default function SocialProof() {
             <div className="absolute bottom-0 left-0 right-0 h-px" style={{ backgroundColor: '#E2E8F0' }} />
 
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-0">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-2 gap-y-6 sm:gap-0">
                     {stats.map((stat, i) => {
                         const Icon = stat.icon;
                         return (
@@ -112,7 +112,7 @@ export default function SocialProof() {
                                 initial={{ opacity: 0, y: 12 }}
                                 animate={inView ? { opacity: 1, y: 0 } : {}}
                                 transition={{ delay: 0.1 + i * 0.08, duration: 0.4 }}
-                                className="flex flex-col items-center px-6 sm:px-8 py-3 group cursor-default"
+                                className="flex flex-col items-center px-2 sm:px-8 py-3 text-center group cursor-default"
                                 style={{
                                     borderRight: i < stats.length - 1 ? '1px solid transparent' : 'none',
                                 }}
@@ -142,7 +142,7 @@ export default function SocialProof() {
                                 </span>
                                 {/* Label */}
                                 <span
-                                    className="text-xs sm:text-sm mt-1 font-medium"
+                                    className="text-xs sm:text-sm mt-1 font-medium leading-tight"
                                     style={{ color: '#64748B' }}
                                 >
                                     {stat.label}

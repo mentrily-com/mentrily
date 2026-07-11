@@ -10,6 +10,7 @@ export function useAdminUsers(organizationId?: string) {
     const [userToDelete, setUserToDelete] = useState<any | null>(null);
     const [users, setUsers] = useState<any[]>([]);
     const [userData, setUserData] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
     const { success, error: toastError } = useToast();
 
     useEffect(() => {
@@ -23,6 +24,8 @@ export function useAdminUsers(organizationId?: string) {
                 setUsers(data);
             } catch (error) {
                 console.error(error);
+            } finally {
+                setLoading(false);
             }
         }
         void load();
@@ -79,5 +82,6 @@ export function useAdminUsers(organizationId?: string) {
         filteredUsers,
         handleToggleStatus,
         handleDelete,
+        loading,
     };
 }

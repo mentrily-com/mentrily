@@ -7,7 +7,7 @@ import { siteConfig } from '@/app/config/site';
 
 const RoleSelector = dynamic(() => import('@/components/sections/RoleSelector'));
 const HowItWorks = dynamic(() => import('@/components/sections/HowItWorks'));
-const Testimonials = dynamic(() => import('@/components/sections/Testimonials'));
+// const Testimonials = dynamic(() => import('@/components/sections/Testimonials'));
 const PricingTeaser = dynamic(() => import('@/components/sections/PricingTeaser'));
 const CTASection = dynamic(() => import('@/components/sections/CTASection'));
 
@@ -52,7 +52,7 @@ export default function HomePage() {
             <Features />
             <RoleSelector />
             <HowItWorks />
-            <Testimonials />
+            {/* <Testimonials /> */}
             <PricingTeaser />
             <CTASection />
         </>

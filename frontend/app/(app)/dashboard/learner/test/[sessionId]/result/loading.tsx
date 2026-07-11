@@ -1,14 +1,11 @@
 'use client';
 
 import React from 'react';
-import CoursePlayerSkeleton from '@/app/components/Skeletons/CoursePlayerSkeleton';
+import BrandedSpinner from '@/app/components/Common/BrandedSpinner';
 
+// See app/(app)/loading.tsx — the result page renders its own
+// CoursePlayerSkeleton while it loads, so this route-transition fallback
+// stays a lightweight spinner instead of duplicating it.
 export default function LearnerExamResultLoading() {
-    return (
-        <div className="min-h-screen flex flex-col bg-white overflow-hidden">
-            <div className="flex-1 overflow-hidden">
-                <CoursePlayerSkeleton hasSidebar={true} isExamMode={false} />
-            </div>
-        </div>
-    );
+    return <BrandedSpinner />;
 }
