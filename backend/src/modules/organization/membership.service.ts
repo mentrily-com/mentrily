@@ -3,6 +3,8 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import { Redis } from 'ioredis';
 import { PrismaService } from '../../services/prisma/prisma.service';
 import { Role } from '@prisma/client';
 
@@ -26,7 +28,47 @@ export interface MembershipSummary {
  */
 @Injectable()
 export class MembershipService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectRedis() private readonly redis: Redis,
+  ) {}
+
+  private getDefaultOrgId(): string | null {
+    const value = String(process.env.DEFAULT_ORG_ID || '').trim();
+    return value || null;
+  }
+
+  /**
+   * A resource's org counts as "public" (open surface, not member-scoped)
+   * if it's DEFAULT_ORG_ID, or if it's a self-serve Creator's own
+   * auto-provisioned personal org (Organization.provisionedFromUserId is
+   * set — see org-provisioning.service.ts ensureCreatorPersona). Only an
+   * org a super-admin explicitly created through org management (no
+   * provisionedFromUserId) is a real, member-scoped tenant. Shared by any
+   * flow that needs to distinguish "open to everyone" orgs from real
+   * tenants — e.g. exam.service.ts's canAccessPublicExamResource and
+   * auth.service.ts's examLogin use the same cache key/logic here.
+   */
+  async isPublicOrgResource(
+    orgId: string | null | undefined,
+  ): Promise<boolean> {
+    if (!orgId) return false;
+
+    const defaultOrgId = this.getDefaultOrgId();
+    if (defaultOrgId && orgId === defaultOrgId) return true;
+
+    const cacheKey = `org:is-public-surface:${orgId}`;
+    const cached = await this.redis.get(cacheKey);
+    if (cached !== null) return cached === '1';
+
+    const org = await this.prisma.organization.findUnique({
+      where: { id: orgId },
+      select: { provisionedFromUserId: true },
+    });
+    const isPublic = Boolean(org?.provisionedFromUserId);
+    await this.redis.set(cacheKey, isPublic ? '1' : '0', 'EX', 300);
+    return isPublic;
+  }
 
   /**
    * Idempotent: makes sure the user's home org (if any) has a matching

@@ -14,6 +14,7 @@ import { MailService } from '../../services/mail.service';
 import { StorageService } from '../../services/storage/storage.service';
 import { QuotaService } from '../billing/quota.service';
 import { OrgProvisioningService } from '../organization/org-provisioning.service';
+import { MembershipService } from '../organization/membership.service';
 
 @Injectable()
 export class AuthService {
@@ -33,6 +34,7 @@ export class AuthService {
     private storageService: StorageService,
     private quotaService: QuotaService,
     private orgProvisioningService: OrgProvisioningService,
+    private membershipService: MembershipService,
   ) {}
 
   private get db() {
@@ -436,11 +438,37 @@ export class AuthService {
       );
     }
 
-    // Use the request's effective (persona-aware) role, not the home role —
-    // a Creator using their built-in Learner persona resolves to STUDENT at
-    // the JWT layer and must be allowed through here too. Falls back to the
-    // home role only if the caller didn't resolve one.
-    const roleForAccessCheck = effectiveRole ?? user.role;
+    // Same public/scoped-org split used for viewing exams (see
+    // exam.service.ts canAccessPublicExamResource): a public-org exam
+    // (default/self-serve org) is open to anyone, so we honor the
+    // request's persona-aware effective role (e.g. a Creator's built-in
+    // Learner persona resolving to STUDENT). A real, member-scoped org's
+    // exam instead resolves the caller's role specifically against THAT
+    // org via OrgMembership — not whichever org/persona happens to be
+    // "active" for the request — so a student invited to Org B can take
+    // Org B's exam even if their home org or currently active workspace
+    // is Org A.
+    const isPublicExamOrg = exam.orgId
+      ? await this.membershipService.isPublicOrgResource(exam.orgId)
+      : false;
+
+    let roleForAccessCheck: string | undefined;
+    let orgAccessGranted: boolean;
+
+    if (isPublicExamOrg) {
+      roleForAccessCheck = effectiveRole ?? user.role;
+      orgAccessGranted = true;
+    } else if (exam.orgId) {
+      const membership = await this.membershipService.resolveActiveMembership(
+        user,
+        exam.orgId,
+      );
+      roleForAccessCheck = membership.role;
+      orgAccessGranted = membership.orgId === exam.orgId;
+    } else {
+      roleForAccessCheck = effectiveRole ?? user.role;
+      orgAccessGranted = exam.creatorId === user.id;
+    }
 
     if (
       roleForAccessCheck === 'TEACHER' ||
@@ -451,7 +479,7 @@ export class AuthService {
       );
     }
 
-    if (exam.orgId !== user.orgId) {
+    if (!orgAccessGranted) {
       throw new UnauthorizedException(
         'This exam does not belong to your organization',
       );
