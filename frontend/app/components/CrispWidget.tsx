@@ -9,6 +9,12 @@ interface CrispWidgetProps {
     role: 'ADMIN' | 'TEACHER';
 }
 
+// Crisp is a global singleton (window.$crisp) — every API call besides
+// configure() throws "websiteId must be set" if configure() hasn't run at
+// least once yet. Tracked at module scope (not component state) because
+// it needs to survive remounts and be visible to every instance.
+let crispConfigured = false;
+
 export default function CrispWidget({ role }: CrispWidgetProps) {
     const pathname = usePathname();
 
@@ -17,13 +23,20 @@ export default function CrispWidget({ role }: CrispWidgetProps) {
         if (!websiteId) return;
 
         if (pathname?.startsWith('/exam')) {
-            Crisp.chat.hide();
+            // Nothing to hide if it was never configured/shown yet — e.g.
+            // an exam link opened as the very first page of the session.
+            if (crispConfigured) {
+                Crisp.chat.hide();
+            }
             return;
         }
 
-        Crisp.configure(websiteId, {
-            autoload: true,
-        });
+        if (!crispConfigured) {
+            Crisp.configure(websiteId, {
+                autoload: true,
+            });
+            crispConfigured = true;
+        }
 
         let active = true;
 
