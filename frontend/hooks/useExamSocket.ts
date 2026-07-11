@@ -200,9 +200,16 @@ export const useExamSocket = (
         }
 
         const socket = io(`${SOCKET_URL}/proctoring`, {
-            // Allow polling as fallback so we can upgrade; prevents hard failure
-            // when websocket is briefly blocked by a proxy during initial handshake.
-            transports: ['websocket', 'polling'],
+            // Production traffic goes through an AWS API Gateway HTTP API in
+            // front of the backend (not a WebSocket API) — it proxies plain
+            // HTTP fine but cannot perform a raw WS protocol upgrade at all
+            // (verified directly: the upgrade closes immediately with code
+            // 1006, while the Engine.IO polling handshake succeeds). Listing
+            // 'websocket' first meant every connection attempt tried the one
+            // transport that can never succeed here before ever falling back,
+            // so force long-polling and never attempt the upgrade.
+            transports: ['polling'],
+            upgrade: false,
             // Disable socket.io's built-in reconnection entirely — we manage it
             // ourselves so we can create a FRESH socket (required after
             // 'io server disconnect' which permanently sets skipReconnect).

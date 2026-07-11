@@ -62,7 +62,11 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
         // 1. Socket Init
         const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000';
         const socket = io(`${SOCKET_URL}/proctoring`, {
-            transports: ['websocket'],
+            // See useExamSocket.ts: production's API Gateway can't perform a
+            // WS upgrade at all, so 'websocket'-only meant this could never
+            // connect in production. Force long-polling instead.
+            transports: ['polling'],
+            upgrade: false,
             reconnection: true,
         });
         socketRef.current = socket;
