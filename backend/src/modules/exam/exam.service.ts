@@ -16,6 +16,7 @@ import { readStashedSessionAnswers } from '../common/session-answers.util';
 import { toStudentExamResponseDto } from './dto/exam-response.dto';
 import { CertificateService } from '../certificate/certificate.service';
 import { NotificationGateway } from '../notification/notification.gateway';
+import { MembershipService } from '../organization/membership.service';
 
 @Injectable()
 export class ExamService {
@@ -25,6 +26,7 @@ export class ExamService {
     private readonly supabase: SupabaseService,
     private readonly certificateService: CertificateService,
     private readonly notificationGateway: NotificationGateway,
+    private readonly membershipService: MembershipService,
     @InjectRedis() private readonly redis: Redis,
   ) {}
 
@@ -1239,6 +1241,42 @@ export class ExamService {
     if (requestOrgId && requestOrgId === resource.orgId) return true;
     if (user?.orgId && user.orgId === resource.orgId) return true;
     return this.isPublicOrgResource(resource.orgId);
+  }
+
+  /**
+   * Gate for actually STARTING a session (enterExam), as opposed to just
+   * viewing exam metadata (canAccessPublicExamResource) — takes an attempt,
+   * so it's stricter about who counts as "a student here." Same public-vs-
+   * scoped-org split used throughout this file/auth.service.ts's examLogin:
+   * a public-org exam is open to anyone with an active account (no role
+   * gate — that's the whole point of "accessible by anyone and everyone"),
+   * while a real member-scoped org's exam requires the caller's role
+   * resolved specifically against THAT org (not whichever org/persona
+   * happens to be active for the request) to be STUDENT or ADMIN.
+   */
+  async assertCanEnterExam(
+    exam: { orgId?: string | null; creatorId?: string | null },
+    user: any,
+  ): Promise<void> {
+    if (String(user?.role || '').toUpperCase() === 'SUPER_ADMIN') return;
+    if (exam.creatorId && user?.id && exam.creatorId === user.id) return;
+
+    if (exam.orgId) {
+      if (await this.isPublicOrgResource(exam.orgId)) return;
+
+      const membership = await this.membershipService.resolveActiveMembership(
+        user,
+        exam.orgId,
+      );
+      if (
+        membership.orgId === exam.orgId &&
+        (membership.role === 'STUDENT' || membership.role === 'ADMIN')
+      ) {
+        return;
+      }
+    }
+
+    throw new UnauthorizedException('Only Student accounts can access exams.');
   }
 
   /**
