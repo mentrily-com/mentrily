@@ -393,7 +393,6 @@ export class AuthService {
     testCode: string,
     slug?: string,
     clientCtx?: { userAgent?: string; clientPlatform?: string },
-    effectiveRole?: string,
   ) {
     const whereClause: any = { testCode };
     if (slug) {
@@ -440,46 +439,38 @@ export class AuthService {
 
     // Same public/scoped-org split used for viewing exams (see
     // exam.service.ts canAccessPublicExamResource): a public-org exam
-    // (default/self-serve org) is open to anyone, so we honor the
-    // request's persona-aware effective role (e.g. a Creator's built-in
-    // Learner persona resolving to STUDENT). A real, member-scoped org's
-    // exam instead resolves the caller's role specifically against THAT
-    // org via OrgMembership — not whichever org/persona happens to be
-    // "active" for the request — so a student invited to Org B can take
-    // Org B's exam even if their home org or currently active workspace
-    // is Org A.
+    // (default/self-serve org) is "accessible by anyone and everyone" —
+    // so it must NOT be gated on whichever role/workspace the caller's
+    // browser happens to have active right now (X-Active-Org-Id /
+    // X-Active-Persona are sent on every request once a user has ever
+    // switched workspaces, including this one, and have nothing to do
+    // with which exam they're trying to take). A real, member-scoped
+    // org's exam resolves the caller's role specifically against THAT
+    // org via OrgMembership, ignoring the request's active workspace too
+    // — so a student invited to Org B can take Org B's exam even while
+    // Org A happens to be their active workspace.
     const isPublicExamOrg = exam.orgId
       ? await this.membershipService.isPublicOrgResource(exam.orgId)
       : false;
 
-    let roleForAccessCheck: string | undefined;
-    let orgAccessGranted: boolean;
-
     if (isPublicExamOrg) {
-      roleForAccessCheck = effectiveRole ?? user.role;
-      orgAccessGranted = true;
+      // open to anyone with an active account — no role/membership gate.
     } else if (exam.orgId) {
       const membership = await this.membershipService.resolveActiveMembership(
         user,
         exam.orgId,
       );
-      roleForAccessCheck = membership.role;
-      orgAccessGranted = membership.orgId === exam.orgId;
-    } else {
-      roleForAccessCheck = effectiveRole ?? user.role;
-      orgAccessGranted = exam.creatorId === user.id;
-    }
 
-    if (
-      roleForAccessCheck === 'TEACHER' ||
-      (roleForAccessCheck !== 'STUDENT' && roleForAccessCheck !== 'ADMIN')
-    ) {
-      throw new UnauthorizedException(
-        'Access denied. Valid student credentials required.',
-      );
-    }
-
-    if (!orgAccessGranted) {
+      if (
+        membership.orgId !== exam.orgId ||
+        membership.role === 'TEACHER' ||
+        (membership.role !== 'STUDENT' && membership.role !== 'ADMIN')
+      ) {
+        throw new UnauthorizedException(
+          'Access denied. Valid student credentials required.',
+        );
+      }
+    } else if (exam.creatorId !== user.id) {
       throw new UnauthorizedException(
         'This exam does not belong to your organization',
       );

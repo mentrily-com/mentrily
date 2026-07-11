@@ -110,7 +110,6 @@ export class AuthController {
         userAgent: req?.headers?.['user-agent'],
         clientPlatform: req?.headers?.['x-client-platform'],
       },
-      req.user.role,
     );
   }
 
