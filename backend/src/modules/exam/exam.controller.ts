@@ -176,12 +176,6 @@ export class ExamController {
       throw new UnauthorizedException('User ID required');
     }
 
-    if (user.role && user.role !== 'STUDENT') {
-      throw new UnauthorizedException(
-        'Only Student accounts can access exams.',
-      );
-    }
-
     // OPTIMIZATION: Use lightweight ID lookup instead of full transform
     const lookup: any = await this.examService.getExamIdBySlug(slug, user);
     console.log(`[ExamController] Lookup for slug ${slug}:`, lookup);
@@ -191,6 +185,14 @@ export class ExamController {
         'Assessment type does not support live sessions',
       );
     }
+
+    // Same public/scoped-org rule as everywhere else: public-org exams are
+    // open to anyone, member-scoped org exams require STUDENT/ADMIN
+    // membership resolved against the exam's own org — not a flat
+    // user.role !== 'STUDENT' check, which blocked any account whose
+    // currently active workspace/persona wasn't literally Student even on
+    // exams open to everyone.
+    await this.examService.assertCanEnterExam(lookup, user);
 
     if (lookup.examMode === 'App' && !this.isAppClient(req)) {
       throw new UnauthorizedException('APP_REQUIRED');
