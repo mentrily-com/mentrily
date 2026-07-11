@@ -1,13 +1,34 @@
 'use client';
 import React from 'react';
-import BrandedSpinner from '@/app/components/Common/BrandedSpinner';
+import { usePathname } from 'next/navigation';
+import BrandedPageLoader from '@/app/components/Common/BrandedPageLoader';
 
-// This is Next's route-transition Suspense fallback — shown only for the
-// brief moment between navigating and the destination page mounting. Every
-// destination page already renders its own accurate skeleton while its data
-// fetch resolves, so this stays a lightweight spinner rather than a
-// page-shaped skeleton (which used to flash right before the page's own,
-// nearly-identical skeleton — a jarring "double skeleton" load).
+// Next's route-transition Suspense fallback. NextTopLoader (wired in the
+// layout) already signals "navigating" with its progress bar, and every
+// destination page renders its own accurate, layout-matching skeleton the
+// instant it mounts — so this must not compete with either. Returning null
+// here used to be a full-page skeleton (or, briefly, a generic spinner) that
+// flashed right before the page's own skeleton, reading as a double load.
+//
+// The only routes that keep a full takeover are ones where the app chrome
+// itself must never flash: unauthenticated auth screens, and exam entry
+// (no navigation should be visible mid-exam).
 export default function Loading() {
-    return <BrandedSpinner />;
+    const pathname = usePathname();
+    const isAuthRoute =
+        !pathname ||
+        pathname === '/' ||
+        pathname === '/about' ||
+        pathname === '/contact' ||
+        pathname === '/login' ||
+        pathname === '/signup' ||
+        pathname === '/forgot-password' ||
+        pathname.startsWith('/sign-in') ||
+        pathname.startsWith('/sign-up');
+
+    if (isAuthRoute || pathname?.startsWith('/exam/')) {
+        return <BrandedPageLoader />;
+    }
+
+    return null;
 }
