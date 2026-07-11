@@ -1758,16 +1758,6 @@ export class TeacherService {
           continue;
         }
 
-        if (student.role !== 'STUDENT') {
-          results.push({
-            email,
-            success: false,
-            error: 'User is not a student',
-          });
-          failedCount++;
-          continue;
-        }
-
         if (enrolledSet.has(student.id)) {
           results.push({ email, success: false, error: 'Already enrolled' });
           failedCount++;
@@ -3512,8 +3502,7 @@ export class TeacherService {
     const recipientsMap = new Map<string, { email: string; name: string }>();
     for (const group of groups) {
       for (const student of group.students) {
-        if (student.role !== 'STUDENT' || !student.isActive || !student.email)
-          continue;
+        if (!student.isActive || !student.email) continue;
         const normalizedEmail = String(student.email).trim().toLowerCase();
         if (!normalizedEmail) continue;
         if (!recipientsMap.has(normalizedEmail)) {
@@ -3702,16 +3691,6 @@ export class TeacherService {
           failedCount++;
           continue;
         }
-        if (student.role !== 'STUDENT') {
-          results.push({
-            email,
-            success: false,
-            error: 'User is not a student',
-          });
-          failedCount++;
-          continue;
-        }
-
         if (memberSet.has(student.id)) {
           results.push({ email, success: false, error: 'Already in group' });
           failedCount++;
