@@ -21,6 +21,7 @@ import ExamInviteModal from '@/app/components/Features/Exams/ExamInviteModal';
 import { AdminService } from '@/services/api/AdminService';
 import { AuthService } from '@/services/api/AuthService';
 import { useEffect } from 'react';
+import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
 
 interface AdminExamsViewProps {
     basePath?: string;
@@ -106,6 +107,10 @@ export default function AdminExamsView({ basePath = '/dashboard/creator', organi
         if (startLabel !== '—') return `Starts ${startLabel}`;
         return `Ends ${endLabel}`;
     };
+
+    if (loading) {
+        return <DashboardSkeleton type="list" />;
+    }
 
     return (
         <div className="animate-fade-in font-sans pb-10">

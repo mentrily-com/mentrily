@@ -78,8 +78,8 @@ export default function Footer() {
                             The course platform for educators who want courses, exams, certificates, and learner
                             progress in one place.
                         </p>
+                        {/* GitHub link disabled for now
                         <div className="flex gap-4 mt-5">
-                            {/* GitHub */}
                             <a
                                 href={siteConfig.links.github}
                                 target="_blank"
@@ -93,6 +93,7 @@ export default function Footer() {
                                 </svg>
                             </a>
                         </div>
+                        */}
                     </div>
 
                     {/* Col 2: Product */}
