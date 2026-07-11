@@ -16,6 +16,11 @@
         "format": "prettier --write .",
         "format:check": "prettier --check ."
     },
+    "overrides": {
+        "isomorphic-dompurify": {
+            "jsdom": "^26.1.0"
+        }
+    },
     "dependencies": {
         "@apollo/client": "^4.1.6",
         "@clerk/nextjs": "^6.27.3",

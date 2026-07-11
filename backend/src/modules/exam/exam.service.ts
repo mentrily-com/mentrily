@@ -435,6 +435,7 @@ export class ExamService {
     if (!payload) {
       const examSelect: Record<string, boolean> = {
         title: true,
+        shortDescription: true,
         startTime: true,
         duration: true,
         id: true,
@@ -486,6 +487,7 @@ export class ExamService {
           attemptBufferMins: exam.attemptBufferMins,
           response: {
             title: exam.title,
+            shortDescription: exam.shortDescription || null,
             startTime: exam.startTime,
             duration: exam.duration,
             examMode: exam.examMode || 'Browser',
