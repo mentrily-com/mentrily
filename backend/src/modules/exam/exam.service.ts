@@ -259,43 +259,64 @@ export class ExamService {
     let foundData = cached ? JSON.parse(cached) : null;
 
     if (!foundData) {
+      const examSelect = {
+        id: true,
+        orgId: true,
+        creatorId: true,
+        isActive: true,
+        allowedIPs: true,
+        examMode: true,
+        linkedCourseId: true,
+        maxAttempts: true,
+        attemptBufferMins: true,
+      } as const;
+      const testSelect = {
+        id: true,
+        orgId: true,
+        course: { select: { orgId: true, creatorId: true } },
+      } as const;
+      const courseSelect = { id: true, orgId: true, creatorId: true } as const;
+
       // Lightweight lookup for Start Session
       // 1. Exam
-      const exam = await this.prisma.exam.findFirst({
+      let exam = await this.prisma.exam.findFirst({
         where: {
           slug,
           ...(scopedOrgId ? { orgId: scopedOrgId } : {}),
         },
-        select: {
-          id: true,
-          orgId: true,
-          creatorId: true,
-          isActive: true,
-          allowedIPs: true,
-          examMode: true,
-          linkedCourseId: true,
-          maxAttempts: true,
-          attemptBufferMins: true,
-        },
+        select: examSelect,
       });
+      // Bare-domain / persona-learner requests resolve to DEFAULT_ORG_ID
+      // (or no org at all), which may not be the exam's actual org — fall
+      // back to an unscoped slug lookup rather than 404ing a real exam.
+      // assertTenantOrOwnerAccess below still enforces the real isolation
+      // check against the exam's true org once found.
+      if (!exam && scopedOrgId) {
+        exam = await this.prisma.exam.findFirst({
+          where: { slug },
+          select: examSelect,
+        });
+      }
 
       if (exam) {
         foundData = { ...exam, type: 'exam' };
       } else {
         // 2. Course Test
-        const test = await this.prisma.courseTest.findFirst({
+        let test = await this.prisma.courseTest.findFirst({
           where: {
             slug,
             course: {
               ...(scopedOrgId ? { orgId: scopedOrgId } : {}),
             },
           },
-          select: {
-            id: true,
-            orgId: true,
-            course: { select: { orgId: true, creatorId: true } },
-          },
+          select: testSelect,
         });
+        if (!test && scopedOrgId) {
+          test = await this.prisma.courseTest.findFirst({
+            where: { slug },
+            select: testSelect,
+          });
+        }
 
         if (test) {
           foundData = {
@@ -306,13 +327,19 @@ export class ExamService {
           };
         } else {
           // 3. Course (Curriculum)
-          const course = await this.prisma.course.findFirst({
+          let course = await this.prisma.course.findFirst({
             where: {
               slug,
               ...(scopedOrgId ? { orgId: scopedOrgId } : {}),
             },
-            select: { id: true, orgId: true, creatorId: true },
+            select: courseSelect,
           });
+          if (!course && scopedOrgId) {
+            course = await this.prisma.course.findFirst({
+              where: { slug },
+              select: courseSelect,
+            });
+          }
           if (course) {
             foundData = { ...course, type: 'course' };
           }
@@ -1128,21 +1155,36 @@ export class ExamService {
       return JSON.parse(cached);
     }
 
-    const exam = await this.prisma.exam.findFirst({
+    const examSelect = {
+      id: true,
+      title: true,
+      slug: true,
+      isActive: true,
+      duration: true,
+      questions: true,
+      linkedCourseId: true,
+    } as const;
+
+    let exam = await this.prisma.exam.findFirst({
       where: {
         slug,
         ...(scopedOrgId ? { orgId: scopedOrgId } : {}),
       },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        isActive: true,
-        duration: true,
-        questions: true,
-        linkedCourseId: true,
-      },
+      select: examSelect,
     });
+
+    // No per-org subdomain to scope by (bare domain, or the exam simply
+    // lives in a different org than DEFAULT_ORG_ID) — fall back to an
+    // unscoped slug lookup rather than 404ing a real, published exam.
+    // Exam.slug is only unique per-org (@@unique([slug, orgId])), but
+    // slugs carry a random suffix, so a cross-org collision is
+    // vanishingly unlikely — far less costly than the false 404.
+    if (!exam && scopedOrgId) {
+      exam = await this.prisma.exam.findFirst({
+        where: { slug },
+        select: examSelect,
+      });
+    }
 
     if (exam) {
       let response: any;
@@ -1168,15 +1210,24 @@ export class ExamService {
       return response;
     }
 
-    const test = await this.prisma.courseTest.findFirst({
+    const testSelect = { id: true, title: true, slug: true, questions: true } as const;
+
+    let test = await this.prisma.courseTest.findFirst({
       where: {
         slug,
         course: {
           ...(scopedOrgId ? { orgId: scopedOrgId } : {}),
         },
       },
-      select: { id: true, title: true, slug: true, questions: true },
+      select: testSelect,
     });
+
+    if (!test && scopedOrgId) {
+      test = await this.prisma.courseTest.findFirst({
+        where: { slug },
+        select: testSelect,
+      });
+    }
 
     if (test) {
       const { totalQuestions } = this.countQuestions(test.questions);
