@@ -61,11 +61,55 @@ export class CourseService {
     }
   }
 
-  private buildCourseQuery(slug: string, scopedOrgId: string | null) {
+  /**
+   * Same tenant/owner check, but with an enrollment escape hatch: a student
+   * actually enrolled in the course (course.students) must always be able to
+   * open it, regardless of org match. Two real cases hit this:
+   *  - The Learner persona (workspace switcher's "My Learning") resolves to
+   *    an org-less identity (effectiveOrgId: null) by design, even for a
+   *    Creator whose home org is set — so the plain org check always fails.
+   *  - A user enrolled by email into a course outside their own home org
+   *    (enrollment no longer requires matching org or STUDENT role — see
+   *    teacher.service.ts enrollByEmails).
+   * Falls back to a targeted membership query only when the cheap sync
+   * check would otherwise deny, so the common (already-authorized) path
+   * never pays for the extra lookup.
+   */
+  private async assertCourseAccess(
+    course: { id: string; orgId?: string | null; creatorId?: string | null },
+    user: any,
+    message = 'Not found or access denied',
+  ): Promise<void> {
+    try {
+      this.assertTenantOrOwnerAccess(course, user, message);
+      return;
+    } catch (error) {
+      if (!(error instanceof NotFoundException) || !user?.id || !course?.id) {
+        throw error;
+      }
+    }
+
+    const enrolled = await this.prisma.course.count({
+      where: { id: course.id, students: { some: { id: user.id } } },
+    });
+
+    if (enrolled === 0) {
+      throw new NotFoundException(message);
+    }
+  }
+
+  private buildCourseQuery(slug: string, scopedOrgId: string | null, userId?: string) {
+    const orConditions: any[] = [];
+    if (scopedOrgId) orConditions.push({ orgId: scopedOrgId });
+    if (userId) orConditions.push({ students: { some: { id: userId } } });
+
     return {
       where: {
         slug,
-        ...(scopedOrgId ? { orgId: scopedOrgId } : {}),
+        // Widen beyond the org scope so an enrolled user can still find a
+        // course that lives in a different org than their active identity
+        // (org-less Learner persona, or cross-org enrollment by email).
+        ...(orConditions.length > 0 ? { OR: orConditions } : {}),
       },
       include: {
         linkedExam: {
@@ -133,7 +177,7 @@ export class CourseService {
     if (cached) {
       course = JSON.parse(cached);
     } else {
-      const courseQuery = this.buildCourseQuery(slug, scopedOrgId);
+      const courseQuery = this.buildCourseQuery(slug, scopedOrgId, user?.id);
 
       try {
         course = await this.prisma.course.findFirst(courseQuery);
@@ -142,7 +186,7 @@ export class CourseService {
           throw error;
         }
 
-        const fallbackCourseQuery = this.buildCourseQuery(slug, scopedOrgId);
+        const fallbackCourseQuery = this.buildCourseQuery(slug, scopedOrgId, user?.id);
         delete fallbackCourseQuery.include.linkedExam.select.passingPercentage;
         delete fallbackCourseQuery.include.linkedExam.select.maxAttempts;
         delete fallbackCourseQuery.include.linkedExam.select.attemptBufferMins;
@@ -158,8 +202,8 @@ export class CourseService {
 
     if (!course) throw new NotFoundException('Course not found');
 
-    // ISOLATION CHECK
-    this.assertTenantOrOwnerAccess(
+    // ISOLATION CHECK (enrollment overrides a plain org/creator mismatch)
+    await this.assertCourseAccess(
       course,
       user,
       'Course not found or access denied',
@@ -278,7 +322,7 @@ export class CourseService {
     const cached = await this.redis.get(cacheKey);
 
     if (cached) {
-      const { data, source, orgId, creatorId } = JSON.parse(cached);
+      const { data, source, orgId, creatorId, courseId } = JSON.parse(cached);
 
       // If it's a test-source unit but missing moduleUnits (stale cache), bust cache and re-fetch
       if (
@@ -288,9 +332,9 @@ export class CourseService {
         await this.redis.del(cacheKey);
         // Fall through to re-fetch below
       } else {
-        // Re-verify isolation
-        this.assertTenantOrOwnerAccess(
-          { orgId, creatorId },
+        // Re-verify isolation (enrollment overrides a plain org/creator mismatch)
+        await this.assertCourseAccess(
+          { id: courseId, orgId, creatorId },
           user,
           'Unit not found',
         );
@@ -316,6 +360,7 @@ export class CourseService {
 
     // 1. If Unit Found, Check Isolation via Course
     if (unit) {
+      const courseId = unit.module.course.id;
       const orgId = unit.module.course.orgId;
       const creatorId = unit.module.course.creatorId;
 
@@ -325,6 +370,7 @@ export class CourseService {
         JSON.stringify({
           data: unit,
           source: 'unit',
+          courseId,
           orgId,
           creatorId,
         }),
@@ -332,7 +378,7 @@ export class CourseService {
         3600,
       );
 
-      this.assertTenantOrOwnerAccess({ orgId, creatorId }, user, 'Unit not found');
+      await this.assertCourseAccess({ id: courseId, orgId, creatorId }, user, 'Unit not found');
       if (!shouldSanitizeSensitiveContent(user)) {
         return unit;
       }
@@ -380,6 +426,7 @@ export class CourseService {
     let foundQuestion: any = null;
     let foundOrgId: string | null = null;
     let foundCreatorId: string | null = null;
+    let foundCourseId: string | null = null;
     for (const test of tests) {
       // Defensive: CourseTest.questions might be stored as a JSON string or already as object
       let questionsData: any = test.questions;
@@ -430,6 +477,7 @@ export class CourseService {
       if (foundQuestion) {
         foundOrgId = test.course.orgId;
         foundCreatorId = test.course.creatorId;
+        foundCourseId = test.courseId;
         matchedTest = test;
         break;
       }
@@ -485,6 +533,7 @@ export class CourseService {
         JSON.stringify({
           data: responseData,
           source: 'test',
+          courseId: foundCourseId,
           orgId: foundOrgId,
           creatorId: foundCreatorId,
         }),
@@ -492,8 +541,8 @@ export class CourseService {
         3600,
       );
 
-      this.assertTenantOrOwnerAccess(
-        { orgId: foundOrgId, creatorId: foundCreatorId },
+      await this.assertCourseAccess(
+        { id: foundCourseId as string, orgId: foundOrgId, creatorId: foundCreatorId },
         user,
         'Unit not found',
       );
