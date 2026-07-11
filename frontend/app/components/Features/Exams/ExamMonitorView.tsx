@@ -60,7 +60,13 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
         if (view !== 'ai-proctoring') return;
 
         // 1. Socket Init
-        const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000';
+        // Trailing slash must be stripped before appending the namespace
+        // below — "host.com//ns" is a different, invalid namespace to the
+        // server than "host.com/ns" (see useExamSocket.ts).
+        const SOCKET_URL = (process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000').replace(
+            /\/+$/,
+            '',
+        );
         const socket = io(`${SOCKET_URL}/proctoring`, {
             // See useExamSocket.ts: production's API Gateway can't perform a
             // WS upgrade at all, so 'websocket'-only meant this could never
