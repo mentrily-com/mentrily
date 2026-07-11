@@ -7,7 +7,9 @@ import PublicPlaygroundShell from '@/app/components/Playground/PublicPlaygroundS
 export default function PythonNotebookPage({ embeddedShell = true }: { embeddedShell?: boolean }) {
     const content = (
         <div
-            className="w-full h-full min-h-0 flex flex-col overflow-hidden font-sans rounded-lg border bg-white"
+            className={`w-full flex flex-col overflow-hidden font-sans rounded-lg border bg-white ${
+                embeddedShell ? 'h-full min-h-0' : 'h-[70vh] max-h-[720px] min-h-[420px]'
+            }`}
             style={{ borderColor: 'var(--color-border-subtle)', boxShadow: 'var(--shadow-sm)' }}
         >
             <div

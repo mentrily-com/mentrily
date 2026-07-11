@@ -13,7 +13,9 @@ const WebEditor = dynamic(() => import('@/app/components/WebEditor/WebEditor'), 
 export default function WebPlaygroundPage({ embeddedShell = true }: { embeddedShell?: boolean }) {
     const content = (
         <div
-            className="w-full h-full min-h-0 flex flex-col overflow-hidden font-sans rounded-lg border bg-white"
+            className={`w-full flex flex-col overflow-hidden font-sans rounded-lg border bg-white ${
+                embeddedShell ? 'h-full min-h-0' : 'h-[70vh] max-h-[720px] min-h-[420px]'
+            }`}
             style={{ borderColor: 'var(--color-border-subtle)', boxShadow: 'var(--shadow-sm)' }}
         >
             <div
