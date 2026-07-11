@@ -7,6 +7,7 @@ import {
 import { SupabaseService } from '../../services/supabase/supabase.service';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Redis } from 'ioredis';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class TestCodeRotationService implements OnModuleInit, OnModuleDestroy {
@@ -78,14 +79,14 @@ export class TestCodeRotationService implements OnModuleInit, OnModuleDestroy {
     const normalizedLength = Math.min(10, Math.max(4, length));
     let value = '';
     for (let i = 0; i < normalizedLength; i += 1) {
-      value += Math.floor(Math.random() * 10).toString();
+      value += crypto.randomInt(0, 10).toString();
     }
     return value;
   }
 
   private async tryAcquireLock(): Promise<boolean> {
     const lockKey = 'exam:test-code-rotation:lock';
-    const lockValue = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const lockValue = `${Date.now()}-${crypto.randomUUID()}`;
     const result = await this.redis.set(
       lockKey,
       lockValue,
