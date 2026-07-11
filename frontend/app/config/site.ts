@@ -1,6 +1,8 @@
-const configuredAppUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mentrily.com';
+// Production serves on www.mentrily.com (the apex 307s to it), so canonicals,
+// sitemap, and OG URLs must use the www host to avoid pointing at redirects.
+const configuredAppUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.mentrily.com';
 const canonicalAppUrl = configuredAppUrl
-    .replace(/^https:\/\/www\.mentrily\.com\/?$/, 'https://mentrily.com')
+    .replace(/^https:\/\/mentrily\.com\/?$/, 'https://www.mentrily.com')
     .replace(/\/$/, '');
 
 export const siteConfig = {
