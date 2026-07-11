@@ -2,8 +2,15 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useToast } from '../app/components/Common/Toast';
 
-const SOCKET_URL =
-    process.env.NEXT_PUBLIC_WS_URL || process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000';
+// Trailing slash (NEXT_PUBLIC_WS_URL is configured with one in production)
+// must be stripped before appending the namespace below — "host.com//ns"
+// parses as a different, invalid namespace than "host.com/ns" and the
+// server rejects the connection outright.
+const SOCKET_URL = (
+    process.env.NEXT_PUBLIC_WS_URL ||
+    process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') ||
+    'http://localhost:4000'
+).replace(/\/+$/, '');
 const HEARTBEAT_INTERVAL = 30000; // 30 s
 const MAX_MISSED_HEARTBEATS = 3;
 const MAX_RECONNECT_ATTEMPTS = 8; // total retries before giving up

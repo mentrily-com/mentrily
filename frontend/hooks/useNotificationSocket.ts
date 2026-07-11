@@ -1,8 +1,14 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 
-const SOCKET_URL =
-    process.env.NEXT_PUBLIC_WS_URL || process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000';
+// Trailing slash must be stripped before appending the namespace below —
+// "host.com//ns" is a different, invalid namespace to the server than
+// "host.com/ns" (see useExamSocket.ts).
+const SOCKET_URL = (
+    process.env.NEXT_PUBLIC_WS_URL ||
+    process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') ||
+    'http://localhost:4000'
+).replace(/\/+$/, '');
 
 export interface AnnouncementEvent {
     id: string;
