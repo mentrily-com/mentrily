@@ -373,7 +373,7 @@ function PublicCompilerSurface({
     }, [onCreateQuestion]);
 
     return (
-        <div className="public-compiler-surface relative flex h-full min-h-[calc(100vh-6rem)] flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div className="public-compiler-surface relative flex h-[70vh] max-h-[720px] min-h-[420px] flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
             <div className="flex h-10 items-center justify-between border-b border-slate-100 px-3">
                 <div className="min-w-0">
                     <h1 className="truncate text-xs font-black text-slate-800">
