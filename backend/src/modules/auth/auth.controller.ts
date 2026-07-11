@@ -147,7 +147,14 @@ export class AuthController {
   @Post('switch-org')
   @Throttle({ default: { limit: 30, ttl: 60000 } })
   async switchOrg(@User() user: any, @Body() body: SwitchOrgDto) {
-    return this.membershipService.switchActiveOrg(user, body.orgId);
+    const resolved = await this.membershipService.switchActiveOrg(
+      user,
+      body.orgId,
+    );
+    // lastActiveOrgId changed — cached sessions (especially the header-less
+    // 'default' scope) would keep resolving the previous org until TTL.
+    await this.authService.clearSessionCache(user.id, user.clerkId);
+    return resolved;
   }
 
   // Return to the home (Learner) persona. Separate from switch-org because a
@@ -156,7 +163,9 @@ export class AuthController {
   @Post('switch-home')
   @Throttle({ default: { limit: 30, ttl: 60000 } })
   async switchHome(@User() user: any) {
-    return this.membershipService.switchToHome(user.id);
+    const resolved = await this.membershipService.switchToHome(user.id);
+    await this.authService.clearSessionCache(user.id, user.clerkId);
+    return resolved;
   }
 
   // Self-serve Creator persona: adds a Teacher membership on the user's own
@@ -171,7 +180,11 @@ export class AuthController {
       throw new BadRequestException('Not available for this account');
     }
 
-    return this.orgProvisioningService.ensureCreatorPersona(user.id);
+    const persona = await this.orgProvisioningService.ensureCreatorPersona(
+      user.id,
+    );
+    await this.authService.clearSessionCache(user.id, user.clerkId);
+    return persona;
   }
 
   @UseGuards(JwtAuthGuard)

@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
-import { Building2, ChevronsUpDown, Check, Loader2, Plus, GraduationCap } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Building2, ChevronsUpDown, Check, Loader2, Plus, GraduationCap, Presentation } from 'lucide-react';
 import { AuthService, WorkspaceMembership } from '@/services/api/AuthService';
 import { useSession } from '@/hooks/useSession';
 
@@ -18,6 +18,11 @@ const ROLE_LABELS: Record<string, string> = {
 // AuthService.switchToLearner() (an org-less Student persona) rather than a
 // real org switch.
 const LEARNER_SENTINEL = '__learner__';
+// Sentinel for a creator whose home role is TEACHER/ADMIN but who has no
+// OrgMembership row (accounts from before signup provisioned a personal
+// org). Maps to AuthService.switchToHome() so they can get back from the
+// learner persona to their flat creator home.
+const CREATOR_HOME_SENTINEL = '__creator_home__';
 
 /**
  * Lists every dashboard persona a user holds (Learner in org A, Instructor
@@ -30,6 +35,7 @@ const LEARNER_SENTINEL = '__learner__';
  */
 export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }) {
     const router = useRouter();
+    const queryClient = useQueryClient();
     const { refetch } = useSession();
     const [open, setOpen] = useState(false);
     const [switchingOrgId, setSwitchingOrgId] = useState<string | null>(null);
@@ -69,29 +75,53 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
     // "My Learning" entry that flips them into an org-less Student persona.
     const hasStudentMembership = memberships.some((membership) => membership.role === 'STUDENT');
     const needsLearnerEntry = !hasStudentMembership;
-    const displayMemberships: WorkspaceMembership[] = needsLearnerEntry
-        ? [
-              {
-                  orgId: LEARNER_SENTINEL,
-                  orgName: 'My Learning',
-                  orgSlug: null,
-                  role: 'STUDENT',
-                  isHome: true,
-              },
-              ...memberships,
-          ]
-        : memberships;
+    // Legacy signup-creators (role TEACHER, zero membership rows) still need a
+    // way back out of the learner persona — give their flat creator home a
+    // synthetic entry wired to switch-home.
+    const isCreatorHome = homeRole === 'TEACHER' || homeRole === 'ADMIN';
+    const needsCreatorHomeEntry = isCreatorHome && !hasCreatorPersona;
+    const displayMemberships: WorkspaceMembership[] = [
+        ...(needsLearnerEntry
+            ? [
+                  {
+                      orgId: LEARNER_SENTINEL,
+                      orgName: 'My Learning',
+                      orgSlug: null,
+                      role: 'STUDENT' as const,
+                      isHome: !isCreatorHome,
+                  },
+              ]
+            : []),
+        ...(needsCreatorHomeEntry
+            ? [
+                  {
+                      orgId: CREATOR_HOME_SENTINEL,
+                      orgName: 'My Workspace',
+                      orgSlug: null,
+                      role: (homeRole === 'ADMIN' ? 'ADMIN' : 'TEACHER') as 'ADMIN' | 'TEACHER',
+                      isHome: true,
+                  },
+              ]
+            : []),
+        ...memberships,
+    ];
 
     // In learner mode the resolved role is STUDENT and there's no active org.
     const isLearnerActive = String(sessionUser?.role || '').toUpperCase() === 'STUDENT';
     const activeMembership =
-        displayMemberships.find((membership) =>
-            membership.orgId === LEARNER_SENTINEL
-                ? isLearnerActive
-                : !isLearnerActive && membership.orgId === sessionUser?.orgId,
-        ) || displayMemberships[0];
+        displayMemberships.find((membership) => {
+            if (membership.orgId === LEARNER_SENTINEL) return isLearnerActive;
+            if (membership.orgId === CREATOR_HOME_SENTINEL) {
+                return !isLearnerActive && !sessionUser?.orgId;
+            }
+            return !isLearnerActive && membership.orgId === sessionUser?.orgId;
+        }) || displayMemberships[0];
 
     const landOnDashboard = async () => {
+        // The memberships list changes on become-creator (new TEACHER row) and
+        // must not be served stale (30s staleTime) — otherwise the creator
+        // dashboard keeps showing "Become a Creator" until the cache expires.
+        await queryClient.invalidateQueries({ queryKey: ['workspace-memberships'] });
         await refetch();
         setOpen(false);
         // Role can differ per persona — route through the same
@@ -112,6 +142,8 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
         try {
             if (membership.orgId === LEARNER_SENTINEL) {
                 await AuthService.switchToLearner();
+            } else if (membership.orgId === CREATOR_HOME_SENTINEL) {
+                await AuthService.switchToHome();
             } else {
                 await AuthService.switchOrg(membership.orgId);
             }
@@ -206,7 +238,8 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                     {displayMemberships.map((membership) => {
                         const isActive = membership.orgId === activeMembership?.orgId;
                         const isSwitchingThis = switchingOrgId === membership.orgId;
-                        const isHomeEntry = membership.orgId === LEARNER_SENTINEL;
+                        const isLearnerEntry = membership.orgId === LEARNER_SENTINEL;
+                        const isCreatorHomeEntry = membership.orgId === CREATOR_HOME_SENTINEL;
                         return (
                             <button
                                 key={membership.orgId}
@@ -217,8 +250,10 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                                 <div className="w-8 h-8 rounded-lg bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center shrink-0">
                                     {isSwitchingThis ? (
                                         <Loader2 size={14} className="animate-spin" />
-                                    ) : isHomeEntry ? (
+                                    ) : isLearnerEntry ? (
                                         <GraduationCap size={14} />
+                                    ) : isCreatorHomeEntry ? (
+                                        <Presentation size={14} />
                                     ) : (
                                         <Building2 size={14} />
                                     )}

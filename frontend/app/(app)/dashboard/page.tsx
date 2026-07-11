@@ -77,12 +77,16 @@ export default function DashboardPage() {
             AuthService.resetSessionCache();
             setIsRedirectingToRoleDashboard(false);
 
-            for (let attempt = 0; attempt < 3; attempt += 1) {
+            // Fresh signups race Clerk token issuance + first-request user
+            // provisioning; a 3×120ms window regularly lost that race and
+            // stranded the user on the loader with no role modal. Retry a
+            // handful of times with growing waits before concluding anything.
+            for (let attempt = 0; attempt < 6; attempt += 1) {
                 const user = shouldProvisionSignup
                     ? await AuthService.checkSessionForSignup()
                     : await AuthService.checkSession(true);
                 if (!user) {
-                    await new Promise((resolve) => setTimeout(resolve, 120));
+                    await new Promise((resolve) => setTimeout(resolve, 250 * (attempt + 1)));
                     continue;
                 }
 
