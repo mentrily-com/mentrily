@@ -73,9 +73,19 @@ export default clerkMiddleware(async (auth, request) => {
 
     requestHeaders.set('x-tenant-host', hostWithoutPort);
 
-    const authState = await auth();
+    // A malformed/expired session cookie can make Clerk's verification throw
+    // instead of just reporting "signed out" — without this, that 500s every
+    // route the middleware matcher covers (nearly all of them). Fail open to
+    // an unauthenticated snapshot so the request still reaches the page,
+    // which already has its own signed-in/signed-out handling.
+    let authState: Awaited<ReturnType<typeof auth>> | null = null;
+    try {
+        authState = await auth();
+    } catch (error) {
+        console.error('[middleware] auth() failed, continuing unauthenticated', error);
+    }
 
-    const authSnapshot = authState as {
+    const authSnapshot = (authState || {}) as {
         userId?: string | null;
         orgId?: string | null;
         sessionClaims?: Record<string, unknown>;

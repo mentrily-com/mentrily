@@ -377,13 +377,13 @@ export default function PublicExamPage() {
                 } catch (e: any) {
                     console.warn('Failed to check public status', e);
 
-                    if (
-                        e.status === 401 ||
-                        e.message?.includes('IP address is not whitelisted') ||
-                        e.message?.includes('Access denied') ||
-                        e.message?.toLowerCase?.().includes('network not allowed')
-                    ) {
+                    if (e.message?.includes('IP address is not whitelisted')) {
                         router.replace(`/exam/login?slug=${slug}&error=ip_blocked`);
+                        return;
+                    }
+
+                    if (e.status === 401 || e.message?.includes('Access denied')) {
+                        router.replace(`/exam/login?slug=${slug}&error=session_expired`);
                         return;
                     }
 
@@ -785,13 +785,13 @@ export default function PublicExamPage() {
             } catch (error: any) {
                 console.error('[ExamPage] Failed to load exam data', error);
 
-                if (
-                    error.status === 401 ||
-                    error.message?.includes('IP address is not whitelisted') ||
-                    error.message?.includes('Access denied') ||
-                    error.message?.toLowerCase?.().includes('network not allowed')
-                ) {
+                if (error.message?.includes('IP address is not whitelisted')) {
                     window.location.href = `/exam/login?slug=${slug}&error=ip_blocked`;
+                    return;
+                }
+
+                if (error.status === 401 || error.message?.includes('Access denied')) {
+                    window.location.href = `/exam/login?slug=${slug}&error=session_expired`;
                     return;
                 }
 

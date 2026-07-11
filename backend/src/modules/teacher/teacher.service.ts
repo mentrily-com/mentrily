@@ -2920,13 +2920,29 @@ export class TeacherService {
     }
 
     // Invalidate Redis cache
-    await this.redis.del(`exam:content:${updatedExam.slug}`);
+    await this.invalidateExamCaches(updatedExam.slug);
     if (existing.slug !== updatedExam.slug) {
-      await this.redis.del(`exam:content:${existing.slug}`);
+      await this.invalidateExamCaches(existing.slug);
     }
     await this.invalidateTeacherExamListCache(user);
 
     return updatedExam;
+  }
+
+  /**
+   * Every slug-keyed exam cache entry, so an edit (e.g. clearing
+   * allowedIPs) can't keep being served stale via check-status/lookup/
+   * public-status for up to their TTL — see exam.service.ts's
+   * getExamIdBySlug (1hr TTL, backs enterExam's IP-allowlist check),
+   * getPublicStatus, and checkExamStatus for the corresponding reads.
+   */
+  private async invalidateExamCaches(slug: string): Promise<void> {
+    await Promise.all([
+      this.redis.del(`exam:content:${slug}`),
+      this.redis.del(`exam:lookup:${slug}`),
+      this.redis.del(`exam:public-status:${slug}`),
+      this.redis.del(`exam:check-status:${slug}`),
+    ]);
   }
 
   async deleteExam(id: string, user: any) {
@@ -2942,8 +2958,7 @@ export class TeacherService {
         await tx.exam.delete({ where: { id } });
       });
 
-      await this.redis.del(`exam:content:${exam.slug}`);
-      await this.redis.del(`exam:lookup:${exam.slug}`);
+      await this.invalidateExamCaches(exam.slug);
       await this.invalidateTeacherExamListCache(user);
 
       return { success: true, deleted: { id } };
