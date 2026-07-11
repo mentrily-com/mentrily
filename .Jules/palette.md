@@ -1,0 +1,3 @@
+## 2025-07-11 - Missing ARIA attributes on Icon-only Navigation and Toggles
+**Learning:** Common pattern found across layout components (Topbar, Sidebar) where utility toggle buttons (mobile menu, sidebar collapse, profile dropdown) either lacked `aria-label` or did not announce their expanded state to screen readers. Relying solely on `title` attribute for icon buttons is insufficient for a11y.
+**Action:** Always verify custom dropdown menus and toggles explicitly define `aria-haspopup` (if applicable) and `aria-expanded` reflecting their dynamic state, along with descriptive `aria-label` when visible text is absent.
