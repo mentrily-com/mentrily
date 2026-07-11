@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useToast } from '../app/components/Common/Toast';
+import { getClerkToken } from '../lib/clerk-token';
 
 // Trailing slash (NEXT_PUBLIC_WS_URL is configured with one in production)
 // must be stripped before appending the namespace below — "host.com//ns"
@@ -172,7 +173,7 @@ export const useExamSocket = (
     // ─────────────────────────────────────────────────────────────────────────
     // Socket factory — creates a brand-new socket and wires all events
     // ─────────────────────────────────────────────────────────────────────────
-    const initSocket = useCallback(() => {
+    const initSocket = useCallback(async () => {
         if (isKicked.current) return;
         if (!examIdRef.current || !userIdRef.current) return;
 
@@ -206,6 +207,17 @@ export const useExamSocket = (
             reconnectTimerRef.current = null;
         }
 
+        // The socket connects to a different origin than the app in
+        // production (an AWS API Gateway domain, not www.mentrily.com), so
+        // withCredentials alone can never authenticate it — a cookie scoped
+        // to mentrily.com is never sent to a request targeting a completely
+        // different domain, regardless of CORS/credentials settings. REST
+        // calls avoid this by attaching a bearer token explicitly (see
+        // lib/clerk-token.ts); do the same here so the gateway's
+        // extractToken() has something to verify.
+        const token = await getClerkToken();
+        if (isKicked.current) return; // state may have changed during the await
+
         const socket = io(`${SOCKET_URL}/proctoring`, {
             // Production traffic goes through an AWS API Gateway HTTP API in
             // front of the backend (not a WebSocket API) — it proxies plain
@@ -222,6 +234,7 @@ export const useExamSocket = (
             // 'io server disconnect' which permanently sets skipReconnect).
             reconnection: false,
             withCredentials: true,
+            auth: token ? { token } : undefined,
         });
 
         socketRef.current = socket;

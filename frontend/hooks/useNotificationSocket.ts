@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { getClerkToken } from '../lib/clerk-token';
 
 // Trailing slash must be stripped before appending the namespace below —
 // "host.com//ns" is a different, invalid namespace to the server than
@@ -35,38 +36,55 @@ export const useNotificationSocket = (onNewAnnouncement?: (announcement: Announc
     }, [onNewAnnouncement]);
 
     useEffect(() => {
-        const socket = io(`${SOCKET_URL}/notifications`, {
-            // See useExamSocket.ts: the production API Gateway (HTTP API,
-            // not a WebSocket API) can't perform a WS upgrade at all, so
-            // 'websocket'-only here meant this socket could never connect
-            // in production. Force long-polling instead.
-            transports: ['polling'],
-            upgrade: false,
-            reconnection: true,
-            reconnectionAttempts: 10,
-            reconnectionDelay: 3000,
-            withCredentials: true,
-        });
+        let cancelled = false;
 
-        socketRef.current = socket;
+        const connect = async () => {
+            // The socket connects to a different origin than the app in
+            // production (an AWS API Gateway domain, not www.mentrily.com),
+            // so withCredentials alone can never authenticate it — a cookie
+            // scoped to mentrily.com is never sent to a request targeting a
+            // different domain. Attach a bearer token explicitly, same as
+            // REST calls (see lib/clerk-token.ts).
+            const token = await getClerkToken();
+            if (cancelled) return;
 
-        socket.on('connect', () => {
-            console.log('[NotificationSocket] Connected');
-            setIsConnected(true);
-        });
+            const socket = io(`${SOCKET_URL}/notifications`, {
+                // See useExamSocket.ts: the production API Gateway (HTTP API,
+                // not a WebSocket API) can't perform a WS upgrade at all, so
+                // 'websocket'-only here meant this socket could never connect
+                // in production. Force long-polling instead.
+                transports: ['polling'],
+                upgrade: false,
+                reconnection: true,
+                reconnectionAttempts: 10,
+                reconnectionDelay: 3000,
+                withCredentials: true,
+                auth: token ? { token } : undefined,
+            });
 
-        socket.on('new_announcement', (data: AnnouncementEvent) => {
-            console.log('[NotificationSocket] New announcement:', data.title);
-            callbackRef.current?.(data);
-        });
+            socketRef.current = socket;
 
-        socket.on('disconnect', (reason) => {
-            console.log('[NotificationSocket] Disconnected:', reason);
-            setIsConnected(false);
-        });
+            socket.on('connect', () => {
+                console.log('[NotificationSocket] Connected');
+                setIsConnected(true);
+            });
+
+            socket.on('new_announcement', (data: AnnouncementEvent) => {
+                console.log('[NotificationSocket] New announcement:', data.title);
+                callbackRef.current?.(data);
+            });
+
+            socket.on('disconnect', (reason) => {
+                console.log('[NotificationSocket] Disconnected:', reason);
+                setIsConnected(false);
+            });
+        };
+
+        void connect();
 
         return () => {
-            socket.disconnect();
+            cancelled = true;
+            socketRef.current?.disconnect();
             socketRef.current = null;
         };
     }, []);
