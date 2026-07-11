@@ -138,8 +138,6 @@ export default function ExamLoginPage() {
             setError('Your exam session has been terminated by the administrator. Contact your teacher.');
         } else if (errorType === 'ip_blocked') {
             setError('Your network is not allowed to access this exam. Ask your teacher to add your IP to the allowed list.');
-        } else if (errorType === 'session_expired') {
-            setError('Your session expired or access was denied. Please sign in again to continue.');
         } else if (errorType === 'app_required') {
             setError('APP_REQUIRED');
         } else if (errorType === 'not_student') {
@@ -711,15 +709,21 @@ export default function ExamLoginPage() {
                         }}
                     />
                     <div className="relative z-10 w-full">
-                        <h2 className="text-5xl font-black tracking-tight mb-2 leading-tight">
+                        {examInfo?.title && (
+                            <p className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-[11px] font-bold uppercase tracking-widest text-indigo-100 mb-6">
+                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                Exam is live
+                            </p>
+                        )}
+                        <h2 className="text-4xl lg:text-5xl font-black tracking-tight mb-3 leading-tight">
                             {examInfo?.title || 'Secure Examination'}
                         </h2>
-                        <p className="text-indigo-100 font-medium text-lg mb-10">
-                            Please authenticate to begin your examination
+                        <p className="text-indigo-100 font-medium text-lg mb-8 max-w-lg leading-relaxed">
+                            {examInfo?.shortDescription || 'Please authenticate to begin your examination'}
                         </p>
 
                         {examInfo && (
-                            <div className="flex flex-wrap gap-3">
+                            <div className="flex flex-wrap gap-3 mb-10">
                                 {typeof examInfo.duration === 'number' && (
                                     <div className="px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/15">
                                         <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-200">
@@ -736,8 +740,34 @@ export default function ExamLoginPage() {
                                         <p className="text-lg font-black">{examInfo.totalQuestions}</p>
                                     </div>
                                 )}
+                                {typeof examInfo.totalMarks === 'number' && examInfo.totalMarks > 0 && (
+                                    <div className="px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/15">
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-200">
+                                            Total Marks
+                                        </p>
+                                        <p className="text-lg font-black">{examInfo.totalMarks}</p>
+                                    </div>
+                                )}
                             </div>
                         )}
+
+                        <div className="max-w-md rounded-2xl bg-white/[0.07] border border-white/10 p-5">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-indigo-200 mb-3">
+                                Before you begin
+                            </p>
+                            <ul className="space-y-2.5">
+                                {[
+                                    'Keep your test code ready — your teacher shared it with you.',
+                                    'Use a stable internet connection and close other tabs.',
+                                    'Once you start, the timer runs until you submit.',
+                                ].map((tip) => (
+                                    <li key={tip} className="flex items-start gap-2.5 text-sm text-indigo-50 font-medium">
+                                        <CheckCircle2 size={15} className="mt-0.5 shrink-0 text-emerald-300" />
+                                        {tip}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
                     </div>
 
                     <p className="relative z-10 text-indigo-200 text-xs font-semibold uppercase tracking-widest">

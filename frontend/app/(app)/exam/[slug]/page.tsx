@@ -382,8 +382,11 @@ export default function PublicExamPage() {
                         return;
                     }
 
+                    // Any other 401 just means "not exam-logged-in yet" — the
+                    // normal entry flow. Send them to the login page without
+                    // an error banner.
                     if (e.status === 401 || e.message?.includes('Access denied')) {
-                        router.replace(`/exam/login?slug=${slug}&error=session_expired`);
+                        router.replace(`/exam/login?slug=${slug}`);
                         return;
                     }
 
@@ -790,8 +793,11 @@ export default function PublicExamPage() {
                     return;
                 }
 
+                // Any other 401 just means "not exam-logged-in yet" — the
+                // normal entry flow, not an error worth alarming the student
+                // with. Send them to the login page without an error banner.
                 if (error.status === 401 || error.message?.includes('Access denied')) {
-                    window.location.href = `/exam/login?slug=${slug}&error=session_expired`;
+                    window.location.href = `/exam/login?slug=${slug}`;
                     return;
                 }
 
