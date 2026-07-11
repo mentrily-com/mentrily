@@ -11,7 +11,7 @@ export default function AboutPage() {
             <ProductPhilosophy />
             <Values />
             <Timeline />
-            <Team />
+            {/* <Team /> */}
         </div>
     );
 }

@@ -27,6 +27,23 @@ import {
     Lock,
     RotateCcw,
 } from 'lucide-react';
+import {
+    DndContext,
+    closestCenter,
+    PointerSensor,
+    KeyboardSensor,
+    useSensor,
+    useSensors,
+    type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+    SortableContext,
+    verticalListSortingStrategy,
+    arrayMove,
+    useSortable,
+    sortableKeyboardCoordinates,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Course as Exam, Section, Question } from './types';
 import QuestionBuilder from './QuestionBuilder/QuestionBuilder';
 import { siteConfig } from '@/app/config/site';
@@ -36,7 +53,8 @@ import { useToast } from '../Common/Toast';
 import DashboardSkeleton from '../Skeletons/DashboardSkeleton';
 import { usePlan } from '@/hooks/usePlan';
 import UpgradeModal from '../Common/UpgradeModal';
-import ComingSoon from '../Common/ComingSoon';
+import AiGenerateModal from './AiGenerateModal';
+import { getAvailableImportTypes } from './aiImport';
 import {
     getAllTimeZones,
     detectTimeZone,
@@ -311,6 +329,46 @@ export default function ExamBuilder({
         });
     };
 
+    const dndSensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    );
+
+    // Single DndContext covers both the section list and, nested inside each
+    // expanded section, its question list — dnd-kit supports nested
+    // SortableContexts under one DndContext, so drag type (section vs
+    // question) is disambiguated via the dragged item's `data`.
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (!over || active.id === over.id) return;
+        const activeData = active.data.current as { type?: string; sectionId?: string } | undefined;
+
+        if (activeData?.type === 'section') {
+            setExam((prev) => {
+                const sections = prev.sections || [];
+                const oldIndex = sections.findIndex((s) => s.id === active.id);
+                const newIndex = sections.findIndex((s) => s.id === over.id);
+                if (oldIndex === -1 || newIndex === -1) return prev;
+                return { ...prev, sections: arrayMove(sections, oldIndex, newIndex) };
+            });
+            return;
+        }
+
+        if (activeData?.type === 'question' && activeData.sectionId) {
+            const sectionId = activeData.sectionId;
+            setExam((prev) => ({
+                ...prev,
+                sections: prev.sections?.map((s) => {
+                    if (s.id !== sectionId) return s;
+                    const oldIndex = s.questions.findIndex((q) => q.id === active.id);
+                    const newIndex = s.questions.findIndex((q) => q.id === over.id);
+                    if (oldIndex === -1 || newIndex === -1) return s;
+                    return { ...s, questions: arrayMove(s.questions, oldIndex, newIndex) };
+                }),
+            }));
+        }
+    };
+
     const resetDraft = () => {
         if (typeof window !== 'undefined') {
             localStorage.removeItem(getDraftKey());
@@ -544,150 +602,41 @@ export default function ExamBuilder({
                                     </button>
                                 </h3>
 
-                                <div className="space-y-4">
-                                    {exam.sections?.map((section) => (
-                                        <div key={section.id} className="space-y-1">
-                                            <div
-                                                onClick={() => setActiveSectionId(section.id)}
-                                                className={`group flex items-center gap-3 px-4 py-3 rounded-2xl cursor-pointer transition-all border ${activeSectionId === section.id ? 'bg-white border-[var(--brand-light)] shadow-md shadow-[var(--brand)]/5 text-slate-900' : 'bg-transparent border-transparent text-slate-500 hover:bg-white hover:border-slate-100 hover:shadow-sm'}`}
-                                            >
-                                                <GripVertical
-                                                    size={14}
-                                                    className="text-slate-300 cursor-grab active:cursor-grabbing"
+                                <DndContext
+                                    sensors={dndSensors}
+                                    collisionDetection={closestCenter}
+                                    onDragEnd={handleDragEnd}
+                                >
+                                    <SortableContext
+                                        items={(exam.sections || []).map((s) => s.id)}
+                                        strategy={verticalListSortingStrategy}
+                                    >
+                                        <div className="space-y-4">
+                                            {exam.sections?.map((section) => (
+                                                <SectionRow
+                                                    key={section.id}
+                                                    section={section}
+                                                    isActive={activeSectionId === section.id}
+                                                    onSelect={() => setActiveSectionId(section.id)}
+                                                    onRename={(title) => renameSection(section.id, title)}
+                                                    onDelete={() => deleteSection(section.id)}
+                                                    activeQuestionId={activeQuestionId}
+                                                    onSelectQuestion={(id) => setActiveQuestionId(id)}
+                                                    onDeleteQuestion={(id) => deleteQuestion(section.id, id)}
+                                                    showAddMenu={showAddMenu === section.id}
+                                                    onToggleAddMenu={() =>
+                                                        setShowAddMenu(
+                                                            showAddMenu === section.id ? null : section.id,
+                                                        )
+                                                    }
+                                                    onAddQuestion={addQuestion}
+                                                    canUse={canUse}
+                                                    openUpgrade={openUpgrade}
                                                 />
-                                                {activeSectionId === section.id ? (
-                                                    <input
-                                                        type="text"
-                                                        value={section.title}
-                                                        onClick={(e) => e.stopPropagation()}
-                                                        onChange={(e) => renameSection(section.id, e.target.value)}
-                                                        placeholder="Section name"
-                                                        className="text-xs font-black flex-1 bg-transparent border-b border-transparent focus:border-[var(--brand-light)] outline-none text-slate-900"
-                                                    />
-                                                ) : (
-                                                    <span className="text-xs font-black flex-1 truncate">
-                                                        {section.title}
-                                                    </span>
-                                                )}
-                                                <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                                                    {section.questions.length}
-                                                </span>
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        deleteSection(section.id);
-                                                    }}
-                                                    className="opacity-0 group-hover:opacity-100 p-1 text-slate-300 hover:text-red-500 transition-all"
-                                                >
-                                                    <Trash2 size={12} />
-                                                </button>
-                                                <ChevronRight
-                                                    size={14}
-                                                    className={`transition-transform ${activeSectionId === section.id ? 'rotate-90' : ''}`}
-                                                />
-                                            </div>
-
-                                            {activeSectionId === section.id && (
-                                                <div className="pl-8 space-y-1 py-1">
-                                                    {section.questions.map((q) => (
-                                                        <div
-                                                            key={q.id}
-                                                            onClick={() => setActiveQuestionId(q.id)}
-                                                            className={`group/q flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer transition-all border ${activeQuestionId === q.id ? 'bg-[var(--brand-light)] border-[var(--brand-light)] text-[var(--brand-dark)]' : 'bg-transparent border-transparent text-slate-400 hover:text-slate-600'}`}
-                                                        >
-                                                            <QuestionIcon type={q.type} />
-                                                            <span className="text-[11px] font-bold truncate flex-1">
-                                                                {q.title}
-                                                            </span>
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    deleteQuestion(section.id, q.id);
-                                                                }}
-                                                                className="opacity-0 group-hover/q:opacity-100 p-1 hover:text-red-500 transition-all"
-                                                            >
-                                                                <Trash2 size={10} />
-                                                            </button>
-                                                        </div>
-                                                    ))}
-                                                    <div className="relative">
-                                                        <button
-                                                            onClick={() =>
-                                                                setShowAddMenu(
-                                                                    showAddMenu === section.id ? null : section.id,
-                                                                )
-                                                            }
-                                                            className="flex items-center gap-2 px-3 py-2 w-full text-[var(--brand)] opacity-70 hover:opacity-100 transition-opacity text-[10px] font-black uppercase tracking-wider"
-                                                        >
-                                                            <Plus size={12} strokeWidth={3} />
-                                                            Add Exam Question
-                                                        </button>
-
-                                                        {showAddMenu === section.id && (
-                                                            <div className="absolute left-0 top-full z-50 w-48 bg-white border border-slate-100 rounded-2xl shadow-2xl p-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                                                                <AddMenuItem
-                                                                    onClick={() => addQuestion('MCQ')}
-                                                                    label="Single Choice (MCQ)"
-                                                                    icon={<HelpCircle size={14} />}
-                                                                />
-                                                                <AddMenuItem
-                                                                    onClick={() => addQuestion('MultiSelect')}
-                                                                    label="Multiple Choice"
-                                                                    icon={
-                                                                        <CheckCircle2
-                                                                            size={14}
-                                                                            className="text-emerald-500"
-                                                                        />
-                                                                    }
-                                                                />
-                                                                <AddMenuItem
-                                                                    onClick={() => addQuestion('Coding')}
-                                                                    label="Coding Exercise"
-                                                                    icon={
-                                                                        <Code size={14} className="text-indigo-500" />
-                                                                    }
-                                                                    disabled={!canUse('coding')}
-                                                                    onDisabledClick={() =>
-                                                                        openUpgrade(
-                                                                            'Coding questions are available on Starter plans and above.',
-                                                                        )
-                                                                    }
-                                                                />
-                                                                <AddMenuItem
-                                                                    onClick={() => addQuestion('Web')}
-                                                                    label="Web Assessment"
-                                                                    icon={<Globe size={14} className="text-blue-500" />}
-                                                                    disabled={!canUse('webEditor')}
-                                                                    onDisabledClick={() =>
-                                                                        openUpgrade(
-                                                                            'Web editor questions are available on Starter plans and above.',
-                                                                        )
-                                                                    }
-                                                                />
-                                                                <AddMenuItem
-                                                                    onClick={() => addQuestion('Notebook')}
-                                                                    label="Notebook"
-                                                                    icon={
-                                                                        <TerminalSquare
-                                                                            size={14}
-                                                                            className="text-orange-500"
-                                                                        />
-                                                                    }
-                                                                    disabled={!canUse('pythonNotebook')}
-                                                                    onDisabledClick={() =>
-                                                                        openUpgrade(
-                                                                            'Notebook questions are available on Pro and Enterprise plans.',
-                                                                        )
-                                                                    }
-                                                                />
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            )}
+                                            ))}
                                         </div>
-                                    ))}
-                                </div>
+                                    </SortableContext>
+                                </DndContext>
                             </>
                         ) : (
                             <div className="space-y-6">
@@ -1344,11 +1293,21 @@ export default function ExamBuilder({
                 onCancel={() => setAlertConfig((prev) => ({ ...prev, isOpen: false }))}
             />
             {showComingSoon ? (
-                <ComingSoon
-                    variant="modal"
-                    title="AI Exam Generation"
-                    description="AI-assisted exam building is reserved in the product flow, but the generation workflow is still being finalized."
+                <AiGenerateModal
+                    kind="exam"
+                    availableTypes={getAvailableImportTypes('exam', canUse)}
                     onClose={() => setShowComingSoon(false)}
+                    onImport={(importedSections, stats) => {
+                        setExam((prev) => ({
+                            ...prev,
+                            sections: [...(prev.sections || []), ...importedSections],
+                        }));
+                        setShowComingSoon(false);
+                        success(
+                            `Imported ${stats.questionsImported} question${stats.questionsImported === 1 ? '' : 's'} across ${stats.sectionsImported} section${stats.sectionsImported === 1 ? '' : 's'}.${stats.questionsSkipped ? ` ${stats.questionsSkipped} skipped.` : ''}`,
+                            'Imported',
+                        );
+                    }}
                 />
             ) : null}
             <UpgradeModal
@@ -1399,6 +1358,219 @@ function SidebarMetric({ label, value }: { label: string; value: number }) {
         <div className="rounded-2xl border border-slate-200 bg-white px-3 py-3 shadow-sm">
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">{label}</p>
             <p className="mt-1 text-lg font-semibold tracking-tight text-slate-950">{value}</p>
+        </div>
+    );
+}
+
+// useSortable is a hook, so each section/question needs its own component —
+// it can't be called inline inside a .map() callback. The grip icon (not the
+// whole row) carries the drag listeners so click-to-select, rename, delete,
+// and the expand chevron all keep working exactly as before.
+function SectionRow({
+    section,
+    isActive,
+    onSelect,
+    onRename,
+    onDelete,
+    activeQuestionId,
+    onSelectQuestion,
+    onDeleteQuestion,
+    showAddMenu,
+    onToggleAddMenu,
+    onAddQuestion,
+    canUse,
+    openUpgrade,
+}: {
+    section: Section;
+    isActive: boolean;
+    onSelect: () => void;
+    onRename: (title: string) => void;
+    onDelete: () => void;
+    activeQuestionId: string | null;
+    onSelectQuestion: (id: string) => void;
+    onDeleteQuestion: (id: string) => void;
+    showAddMenu: boolean;
+    onToggleAddMenu: () => void;
+    onAddQuestion: (type: Question['type']) => void;
+    canUse: (feature: string) => boolean;
+    openUpgrade: (message: string, title?: string) => void;
+}) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+        id: section.id,
+        data: { type: 'section' },
+    });
+
+    const style: React.CSSProperties = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.6 : 1,
+    };
+
+    return (
+        <div ref={setNodeRef} style={style} className="space-y-1">
+            <div
+                onClick={onSelect}
+                className={`group flex items-center gap-3 px-4 py-3 rounded-2xl cursor-pointer transition-all border ${isActive ? 'bg-white border-[var(--brand-light)] shadow-md shadow-[var(--brand)]/5 text-slate-900' : 'bg-transparent border-transparent text-slate-500 hover:bg-white hover:border-slate-100 hover:shadow-sm'}`}
+            >
+                <span
+                    {...attributes}
+                    {...listeners}
+                    onClick={(e) => e.stopPropagation()}
+                    className="touch-none text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing"
+                >
+                    <GripVertical size={14} />
+                </span>
+                {isActive ? (
+                    <input
+                        type="text"
+                        value={section.title}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={(e) => onRename(e.target.value)}
+                        placeholder="Section name"
+                        className="text-xs font-black flex-1 bg-transparent border-b border-transparent focus:border-[var(--brand-light)] outline-none text-slate-900"
+                    />
+                ) : (
+                    <span className="text-xs font-black flex-1 truncate">{section.title}</span>
+                )}
+                <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    {section.questions.length}
+                </span>
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete();
+                    }}
+                    className="opacity-0 group-hover:opacity-100 p-1 text-slate-300 hover:text-red-500 transition-all"
+                >
+                    <Trash2 size={12} />
+                </button>
+                <ChevronRight size={14} className={`transition-transform ${isActive ? 'rotate-90' : ''}`} />
+            </div>
+
+            {isActive && (
+                <div className="pl-8 space-y-1 py-1">
+                    <SortableContext
+                        items={section.questions.map((q) => q.id)}
+                        strategy={verticalListSortingStrategy}
+                    >
+                        {section.questions.map((q) => (
+                            <QuestionRow
+                                key={q.id}
+                                question={q}
+                                sectionId={section.id}
+                                isActive={activeQuestionId === q.id}
+                                onSelect={() => onSelectQuestion(q.id)}
+                                onDelete={() => onDeleteQuestion(q.id)}
+                            />
+                        ))}
+                    </SortableContext>
+                    <div className="relative">
+                        <button
+                            onClick={onToggleAddMenu}
+                            className="flex items-center gap-2 px-3 py-2 w-full text-[var(--brand)] opacity-70 hover:opacity-100 transition-opacity text-[10px] font-black uppercase tracking-wider"
+                        >
+                            <Plus size={12} strokeWidth={3} />
+                            Add Exam Question
+                        </button>
+
+                        {showAddMenu && (
+                            <div className="absolute left-0 top-full z-50 w-48 bg-white border border-slate-100 rounded-2xl shadow-2xl p-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                                <AddMenuItem
+                                    onClick={() => onAddQuestion('MCQ')}
+                                    label="Single Choice (MCQ)"
+                                    icon={<HelpCircle size={14} />}
+                                />
+                                <AddMenuItem
+                                    onClick={() => onAddQuestion('MultiSelect')}
+                                    label="Multiple Choice"
+                                    icon={<CheckCircle2 size={14} className="text-emerald-500" />}
+                                />
+                                <AddMenuItem
+                                    onClick={() => onAddQuestion('Coding')}
+                                    label="Coding Exercise"
+                                    icon={<Code size={14} className="text-indigo-500" />}
+                                    disabled={!canUse('coding')}
+                                    onDisabledClick={() =>
+                                        openUpgrade('Coding questions are available on Starter plans and above.')
+                                    }
+                                />
+                                <AddMenuItem
+                                    onClick={() => onAddQuestion('Web')}
+                                    label="Web Assessment"
+                                    icon={<Globe size={14} className="text-blue-500" />}
+                                    disabled={!canUse('webEditor')}
+                                    onDisabledClick={() =>
+                                        openUpgrade('Web editor questions are available on Starter plans and above.')
+                                    }
+                                />
+                                <AddMenuItem
+                                    onClick={() => onAddQuestion('Notebook')}
+                                    label="Notebook"
+                                    icon={<TerminalSquare size={14} className="text-orange-500" />}
+                                    disabled={!canUse('pythonNotebook')}
+                                    onDisabledClick={() =>
+                                        openUpgrade('Notebook questions are available on Pro and Enterprise plans.')
+                                    }
+                                />
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+function QuestionRow({
+    question,
+    sectionId,
+    isActive,
+    onSelect,
+    onDelete,
+}: {
+    question: Question;
+    sectionId: string;
+    isActive: boolean;
+    onSelect: () => void;
+    onDelete: () => void;
+}) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+        id: question.id,
+        data: { type: 'question', sectionId },
+    });
+
+    const style: React.CSSProperties = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.6 : 1,
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            onClick={onSelect}
+            className={`group/q flex items-center gap-2.5 px-3 py-2 rounded-xl cursor-pointer transition-all border ${isActive ? 'bg-[var(--brand-light)] border-[var(--brand-light)] text-[var(--brand-dark)]' : 'bg-transparent border-transparent text-slate-400 hover:text-slate-600'}`}
+        >
+            <span
+                {...attributes}
+                {...listeners}
+                onClick={(e) => e.stopPropagation()}
+                className="touch-none opacity-40 hover:opacity-100 cursor-grab active:cursor-grabbing"
+            >
+                <GripVertical size={12} />
+            </span>
+            <QuestionIcon type={question.type} />
+            <span className="text-[11px] font-bold truncate flex-1">{question.title}</span>
+            <button
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete();
+                }}
+                className="opacity-0 group-hover/q:opacity-100 p-1 hover:text-red-500 transition-all"
+            >
+                <Trash2 size={10} />
+            </button>
         </div>
     );
 }
