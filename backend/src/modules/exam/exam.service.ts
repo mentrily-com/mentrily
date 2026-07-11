@@ -328,7 +328,7 @@ export class ExamService {
         foundData.examMode = examModeRecord?.examMode;
       }
 
-      if (!this.canAccessPublicExamResource(foundData, user?.orgId, user)) {
+      if (!(await this.canAccessPublicExamResource(foundData, user?.orgId, user))) {
         throw new NotFoundException('Exam not found');
       }
 
@@ -348,7 +348,7 @@ export class ExamService {
     const entity = cached ? JSON.parse(cached) : null;
 
     if (entity) {
-      if (!this.canAccessPublicExamResource(entity, requestOrgId, user)) {
+      if (!(await this.canAccessPublicExamResource(entity, requestOrgId, user))) {
         throw new NotFoundException('Assessment not found or access denied');
       }
       return this.transformExam(entity, !shouldSanitizeSensitiveContent(user));
@@ -378,7 +378,7 @@ export class ExamService {
       // Cache before check
       await this.redis.set(cacheKey, JSON.stringify(exam), 'EX', 3600);
 
-      if (!this.canAccessPublicExamResource(exam, requestOrgId, user)) {
+      if (!(await this.canAccessPublicExamResource(exam, requestOrgId, user))) {
         throw new NotFoundException('Assessment not found or access denied');
       }
       return this.transformExam(exam, !shouldSanitizeSensitiveContent(user));
@@ -393,7 +393,7 @@ export class ExamService {
       // Cache
       await this.redis.set(cacheKey, JSON.stringify(mappedTest), 'EX', 3600);
 
-      if (!this.canAccessPublicExamResource(mappedTest, requestOrgId, user)) {
+      if (!(await this.canAccessPublicExamResource(mappedTest, requestOrgId, user))) {
         throw new NotFoundException('Assessment not found');
       }
 
@@ -408,7 +408,7 @@ export class ExamService {
     }
 
     if (course) {
-      if (!this.canAccessPublicExamResource(course, requestOrgId, user)) {
+      if (!(await this.canAccessPublicExamResource(course, requestOrgId, user))) {
         throw new NotFoundException('Assessment not found');
       }
       return this.transformCourse(
@@ -550,7 +550,7 @@ export class ExamService {
       throw new NotFoundException(`Exam not found for slug: ${slug}`);
     }
 
-    if (!this.canAccessPublicExamResource(payload, requestOrgId, user)) {
+    if (!(await this.canAccessPublicExamResource(payload, requestOrgId, user))) {
       throw new NotFoundException(`Exam not found for slug: ${slug}`);
     }
 
@@ -1113,7 +1113,7 @@ export class ExamService {
       return { quiz: null, error: 'Exam not found' };
     }
 
-    if (!this.canAccessPublicExamResource(found, requestOrgId, user)) {
+    if (!(await this.canAccessPublicExamResource(found, requestOrgId, user))) {
       // Don't distinguish "exists but not yours" from "doesn't exist" to an
       // unauthorized requester — same response shape either way.
       return { quiz: null, error: 'Exam not found' };
@@ -1187,38 +1187,56 @@ export class ExamService {
   }
 
   /**
-   * A resource is public "default org" content — DEFAULT_ORG_ID is the
-   * open, marketing-facing surface every visitor can reach regardless of
-   * subdomain or login state. A real, admin-provisioned org's content
-   * stays member-scoped (see canAccessPublicExamResource).
+   * A resource's org counts as "public" (open surface, not member-scoped)
+   * if it's DEFAULT_ORG_ID, or if it's a self-serve Creator's own
+   * auto-provisioned personal org (Organization.provisionedFromUserId is
+   * set — see org-provisioning.service.ts ensureCreatorPersona). Only an
+   * org a super-admin explicitly created through org management (no
+   * provisionedFromUserId) is a real, member-scoped tenant.
    */
-  private isDefaultOrgResource(resourceOrgId: string | null | undefined): boolean {
+  private async isPublicOrgResource(
+    resourceOrgId: string | null | undefined,
+  ): Promise<boolean> {
+    if (!resourceOrgId) return false;
+
     const defaultOrgId = this.getDefaultOrgId();
-    return Boolean(defaultOrgId && resourceOrgId && resourceOrgId === defaultOrgId);
+    if (defaultOrgId && resourceOrgId === defaultOrgId) return true;
+
+    const cacheKey = `org:is-public-surface:${resourceOrgId}`;
+    const cached = await this.redis.get(cacheKey);
+    if (cached !== null) return cached === '1';
+
+    const org = await this.prisma.organization.findUnique({
+      where: { id: resourceOrgId },
+      select: { provisionedFromUserId: true },
+    });
+    const isPublic = Boolean(org?.provisionedFromUserId);
+    await this.redis.set(cacheKey, isPublic ? '1' : '0', 'EX', 300);
+    return isPublic;
   }
 
   /**
    * Access rule for exam/course-test resources reached off a public,
    * possibly-unauthenticated surface (exam landing page, test-code entry):
-   *  - DEFAULT_ORG_ID content is open to everyone, any host, logged in or not.
-   *  - A real org's content requires arriving through that org's own
-   *    subdomain (requestOrgId) OR an authenticated same-org user, OR the
-   *    resource's own creator, OR SUPER_ADMIN.
-   *  - Org-less/personal content (orgId: null, not the default org — a solo
-   *    teacher's own exam) stays creator-only.
+   *  - Public-org content (see isPublicOrgResource) is open to everyone,
+   *    any host, logged in or not.
+   *  - A real, super-admin-provisioned org's content requires arriving
+   *    through that org's own subdomain (requestOrgId) OR an authenticated
+   *    same-org user, OR the resource's own creator, OR SUPER_ADMIN.
+   *  - Org-less/personal content (orgId: null — no org at all) stays
+   *    creator-only.
    */
-  private canAccessPublicExamResource(
+  private async canAccessPublicExamResource(
     resource: { orgId?: string | null; creatorId?: string | null },
     requestOrgId: string | null | undefined,
     user?: any,
-  ): boolean {
-    if (this.isDefaultOrgResource(resource.orgId)) return true;
+  ): Promise<boolean> {
     if (String(user?.role || '').toUpperCase() === 'SUPER_ADMIN') return true;
     if (resource.creatorId && user?.id && resource.creatorId === user.id) return true;
     if (!resource.orgId) return false;
     if (requestOrgId && requestOrgId === resource.orgId) return true;
     if (user?.orgId && user.orgId === resource.orgId) return true;
-    return false;
+    return this.isPublicOrgResource(resource.orgId);
   }
 
   /**
