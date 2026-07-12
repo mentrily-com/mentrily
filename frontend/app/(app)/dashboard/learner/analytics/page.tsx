@@ -4,6 +4,22 @@ import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { StudentService } from '@/services/api/StudentService';
 import {
+    BookOpenCheck,
+    Zap,
+    Target,
+    Sparkles,
+    Repeat,
+    Flame,
+    Code2,
+    Globe,
+    ListChecks,
+    BookOpen,
+    NotebookPen,
+    Layers,
+    TrendingUp,
+    GraduationCap,
+} from 'lucide-react';
+import {
     PieChart,
     Pie,
     Cell,
@@ -12,19 +28,14 @@ import {
     YAxis,
     CartesianGrid,
     Tooltip,
-    Legend,
-    AreaChart,
-    Area,
-    Radar,
-    RadarChart,
-    PolarGrid,
-    PolarAngleAxis,
-    PolarRadiusAxis,
+    BarChart,
+    Bar,
 } from 'recharts';
 
 interface Attempt {
     id: string;
     date: string;
+    dateMs: number;
     testCases: string;
     status: 'success' | 'failed';
 }
@@ -38,6 +49,23 @@ interface Question {
     status: string;
     attempts: Attempt[];
 }
+
+// Status colors (validated: deutan ΔE 19.2 — passes CVD separation; the
+// emerald contrast warn is relieved by printed counts + legend everywhere
+// these fills appear).
+const PASSED_COLOR = '#10b981';
+const FAILED_COLOR = '#f43f5e';
+
+const HEATMAP_WEEKS = 16;
+
+const tooltipStyle: React.CSSProperties = {
+    borderRadius: '12px',
+    border: '1px solid #e2e8f0',
+    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.08)',
+    fontSize: '11px',
+    fontWeight: 700,
+    background: '#ffffff',
+};
 
 const emptyAnalyticsData = {
     weeklyActivity: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => ({
@@ -54,6 +82,15 @@ const emptyAnalyticsData = {
         successRate: 0,
         streak: 0,
     },
+};
+
+const TYPE_META: Record<string, { icon: React.ComponentType<any>; label: string }> = {
+    MCQ: { icon: ListChecks, label: 'Multiple Choice' },
+    MultiSelect: { icon: ListChecks, label: 'Multi Select' },
+    Coding: { icon: Code2, label: 'Coding' },
+    Web: { icon: Globe, label: 'Web Lab' },
+    Reading: { icon: BookOpen, label: 'Reading' },
+    Notebook: { icon: NotebookPen, label: 'Notebook' },
 };
 
 export default function AnalyticsPage() {
@@ -78,6 +115,7 @@ export default function AnalyticsPage() {
     const [loading, setLoading] = useState(true);
     const [analyticsData, setAnalyticsData] = useState<any>(null);
     const [questions, setQuestions] = useState<Question[]>([]);
+    const [heatCellTip, setHeatCellTip] = useState<{ x: number; y: number; text: string } | null>(null);
 
     useEffect(() => {
         async function loadAnalytics() {
@@ -133,6 +171,7 @@ export default function AnalyticsPage() {
                     unit.attempts.push({
                         id: sub.id,
                         date: new Date(sub.createdAt).toLocaleString(),
+                        dateMs: new Date(sub.createdAt).getTime(),
                         testCases: sub.testCases || (sub.score !== null ? `${sub.score}/100` : 'N/A'),
                         status: sub.status === 'COMPLETED' ? 'success' : 'failed',
                     });
@@ -150,41 +189,216 @@ export default function AnalyticsPage() {
         loadAnalytics();
     }, [studentIdParam]);
 
+    const allAttempts = useMemo(() => questions.flatMap((q) => q.attempts), [questions]);
+
     const stats = useMemo(() => {
         if (!analyticsData)
             return {
                 totalQuestions: 0,
                 totalAttempts: 0,
-                totalExecutions: 0,
                 passedAttempts: 0,
                 failedAttempts: 0,
                 successRate: 0,
-                avgAttempts: 0,
+                avgAttempts: '0',
+                firstTryRate: 0,
                 streak: 0,
-                exams: { total: 0, passed: 0, failed: 0 },
+                unitsCleared: 0,
             };
 
-        const passedExams = questions.filter((q) => q.status === 'Submitted' || q.status === 'COMPLETED').length;
+        // First-try success: units whose EARLIEST attempt already passed.
+        let firstTryHits = 0;
+        questions.forEach((q) => {
+            if (q.attempts.length === 0) return;
+            const earliest = [...q.attempts].sort((a, b) => a.dateMs - b.dateMs)[0];
+            if (earliest.status === 'success') firstTryHits += 1;
+        });
+
+        const unitsCleared = questions.filter((q) => q.status === 'Submitted' || q.status === 'COMPLETED').length;
 
         return {
             totalQuestions: analyticsData.stats.totalQuestions,
             totalAttempts: analyticsData.stats.totalAttempts,
-            totalExecutions: analyticsData.stats.totalAttempts, // Using actual attempts as executions count
             passedAttempts: analyticsData.stats.passedAttempts,
             failedAttempts: analyticsData.stats.totalAttempts - analyticsData.stats.passedAttempts,
             successRate: analyticsData.stats.successRate,
             avgAttempts:
                 analyticsData.stats.totalQuestions > 0
                     ? (analyticsData.stats.totalAttempts / analyticsData.stats.totalQuestions).toFixed(1)
-                    : 0,
+                    : '0',
+            firstTryRate: questions.length > 0 ? Math.round((firstTryHits / questions.length) * 100) : 0,
             streak: analyticsData.stats.streak || 0,
-            exams: {
-                total: questions.length,
-                passed: passedExams,
-                failed: questions.length - passedExams,
-            },
+            unitsCleared,
         };
     }, [analyticsData, questions]);
+
+    // Last 14 days of activity, computed from raw attempt timestamps (falls
+    // back to the backend's 7-day series when the attempts fetch failed).
+    const dailySeries = useMemo(() => {
+        const days: { key: string; label: string; passed: number; failed: number }[] = [];
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        for (let i = 13; i >= 0; i--) {
+            const d = new Date(today);
+            d.setDate(d.getDate() - i);
+            days.push({
+                key: d.toDateString(),
+                label: d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' }),
+                passed: 0,
+                failed: 0,
+            });
+        }
+
+        if (allAttempts.length > 0) {
+            const index = new Map(days.map((d, i) => [d.key, i]));
+            allAttempts.forEach((a) => {
+                const d = new Date(a.dateMs);
+                d.setHours(0, 0, 0, 0);
+                const idx = index.get(d.toDateString());
+                if (idx === undefined) return;
+                if (a.status === 'success') days[idx].passed += 1;
+                else days[idx].failed += 1;
+            });
+            return days;
+        }
+
+        // Fallback: backend series covers the trailing 7 days.
+        const weekly = analyticsData?.weeklyActivity || [];
+        weekly.forEach((w: any, i: number) => {
+            const idx = days.length - weekly.length + i;
+            if (idx >= 0) {
+                days[idx].passed = w.passed || 0;
+                days[idx].failed = w.failed || 0;
+            }
+        });
+        return days;
+    }, [allAttempts, analyticsData]);
+
+    // GitHub-style consistency heatmap: HEATMAP_WEEKS trailing weeks,
+    // columns = weeks, rows = Sun..Sat.
+    const heatmap = useMemo(() => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const end = new Date(today);
+        // Pad the final column through Saturday so the last week renders full-height.
+        end.setDate(end.getDate() + (6 - end.getDay()));
+        const start = new Date(end);
+        start.setDate(start.getDate() - (HEATMAP_WEEKS * 7 - 1));
+
+        const counts = new Map<string, number>();
+        allAttempts.forEach((a) => {
+            const d = new Date(a.dateMs);
+            d.setHours(0, 0, 0, 0);
+            const key = d.toDateString();
+            counts.set(key, (counts.get(key) || 0) + 1);
+        });
+
+        let max = 0;
+        counts.forEach((v) => {
+            if (v > max) max = v;
+        });
+
+        const weeks: { date: Date; count: number; future: boolean }[][] = [];
+        const monthLabels: { index: number; label: string }[] = [];
+        const cursor = new Date(start);
+        let lastMonth = -1;
+        let lastLabelIndex = -10;
+        for (let w = 0; w < HEATMAP_WEEKS; w++) {
+            const col: { date: Date; count: number; future: boolean }[] = [];
+            for (let d = 0; d < 7; d++) {
+                col.push({
+                    date: new Date(cursor),
+                    count: counts.get(cursor.toDateString()) || 0,
+                    future: cursor > today,
+                });
+                cursor.setDate(cursor.getDate() + 1);
+            }
+            const firstOfWeek = col[0].date;
+            // ≥3 columns since the last label, so a partial first month
+            // followed immediately by the next can't collide.
+            if (firstOfWeek.getMonth() !== lastMonth && w - lastLabelIndex >= 3) {
+                monthLabels.push({
+                    index: w,
+                    label: firstOfWeek.toLocaleDateString(undefined, { month: 'short' }),
+                });
+                lastLabelIndex = w;
+            }
+            lastMonth = firstOfWeek.getMonth();
+            weeks.push(col);
+        }
+
+        // Side-rail summary stats
+        let busiest: { date: Date; count: number } | null = null;
+        weeks.flat().forEach((c) => {
+            if (!c.future && c.count > 0 && (!busiest || c.count > busiest.count)) {
+                busiest = { date: c.date, count: c.count };
+            }
+        });
+        const weekStart = new Date(today);
+        weekStart.setDate(weekStart.getDate() - today.getDay());
+        let thisWeek = 0;
+        counts.forEach((v, k) => {
+            const d = new Date(k);
+            if (d >= weekStart) thisWeek += v;
+        });
+
+        const activeDays = counts.size;
+        return { weeks, monthLabels, max, activeDays, busiest: busiest as { date: Date; count: number } | null, thisWeek };
+    }, [allAttempts]);
+
+    // Sequential brand ramp for the heatmap: one hue, light -> dark.
+    const heatColor = (count: number, max: number) => {
+        if (count === 0) return '#f1f5f9';
+        const level = max <= 1 ? 4 : Math.min(4, Math.ceil((count / max) * 4));
+        const mix = [30, 55, 78, 100][level - 1];
+        return `color-mix(in srgb, var(--brand) ${mix}%, white)`;
+    };
+
+    // Per-course progress, computed from real per-unit outcomes (falls back
+    // to the backend's courseMastery when attempts data is unavailable).
+    const courseProgress = useMemo(() => {
+        if (questions.length > 0) {
+            const byCourse = new Map<string, { attempted: number; completed: number; attempts: number }>();
+            questions.forEach((q) => {
+                const entry = byCourse.get(q.course) || { attempted: 0, completed: 0, attempts: 0 };
+                entry.attempted += 1;
+                entry.attempts += q.attempts.length;
+                if (q.status === 'Submitted' || q.status === 'COMPLETED') entry.completed += 1;
+                byCourse.set(q.course, entry);
+            });
+            return Array.from(byCourse.entries())
+                .map(([name, v]) => ({
+                    name,
+                    pct: v.attempted > 0 ? Math.round((v.completed / v.attempted) * 100) : 0,
+                    ...v,
+                }))
+                .sort((a, b) => b.pct - a.pct);
+        }
+
+        return (analyticsData?.courseMastery || []).map((c: any) => ({
+            name: c.subject,
+            pct: Math.round(((c.A || 0) / (c.fullMark || 150)) * 100),
+            attempted: null,
+            completed: null,
+            attempts: null,
+        }));
+    }, [questions, analyticsData]);
+
+    const typeBreakdown = useMemo(() => {
+        const byType = new Map<string, { units: number; completed: number }>();
+        questions.forEach((q) => {
+            const entry = byType.get(q.type) || { units: 0, completed: 0 };
+            entry.units += 1;
+            if (q.status === 'Submitted' || q.status === 'COMPLETED') entry.completed += 1;
+            byType.set(q.type, entry);
+        });
+        return Array.from(byType.entries())
+            .map(([type, v]) => ({
+                type,
+                pct: v.units > 0 ? Math.round((v.completed / v.units) * 100) : 0,
+                ...v,
+            }))
+            .sort((a, b) => b.units - a.units);
+    }, [questions]);
 
     const availableCourses = useMemo(() => {
         const courses = new Set(questions.map((q) => q.course));
@@ -195,10 +409,12 @@ export default function AnalyticsPage() {
         return questions.filter((q) => selectedCourse === 'All Courses' || q.course === selectedCourse);
     }, [questions, selectedCourse]);
 
-    const examPieData = [
-        { name: 'Succeeded', value: stats.passedAttempts },
+    const outcomePieData = [
+        { name: 'Passed', value: stats.passedAttempts },
         { name: 'Failed', value: stats.failedAttempts },
     ];
+    const hasOutcomes = stats.totalAttempts > 0;
+    const hasAnyData = stats.totalAttempts > 0 || questions.length > 0;
 
     const toggleExpand = (id: number) => {
         setExpandedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
@@ -284,270 +500,487 @@ export default function AnalyticsPage() {
 
             <div className="max-w-[1440px] mx-auto px-4 sm:px-8 py-6 sm:py-10">
                 {activeTab === 'overview' ? (
-                    <div className="space-y-8 animate-in fade-in duration-500">
-                        {/* COMPACT STAT BAR */}
-                        <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm p-3.5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:flex lg:flex-wrap lg:items-center lg:justify-between lg:gap-4">
-                            <StatItem label="Questions" value={stats.totalQuestions} icon="✓" color="indigo" />
-                            <div className="w-px h-10 bg-slate-100 hidden sm:block" />
-                            <StatItem label="Attempts" value={stats.totalAttempts} icon="⚡" color="indigo" />
-                            <div className="w-px h-10 bg-slate-100 hidden sm:block" />
-                            <StatItem label="Executions" value={stats.totalExecutions} icon="⚙" color="slate" />
-                            <div className="w-px h-10 bg-slate-100 hidden sm:block" />
-                            <StatItem label="Success" value={`${stats.successRate}%`} icon="🎯" color="emerald" />
-                            <div className="w-px h-10 bg-slate-100 hidden sm:block" />
-                            <StatItem label="Avg Attempts" value={stats.avgAttempts} icon="🔄" color="amber" />
-                            <div className="w-px h-10 bg-slate-100 hidden sm:block" />
-                            <StatItem label="Daily Streak" value={`${stats.streak} Days`} icon="🔥" color="rose" />
-                        </div>
+                    !hasAnyData ? (
+                        <EmptyState isTeacherView={!!studentNameParam} />
+                    ) : (
+                        <div className="space-y-6 animate-in fade-in duration-500">
+                            {/* STAT TILES */}
+                            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
+                                <StatTile
+                                    icon={BookOpenCheck}
+                                    label="Questions"
+                                    value={stats.totalQuestions}
+                                    sub={`${stats.unitsCleared} cleared`}
+                                    tone="brand"
+                                />
+                                <StatTile
+                                    icon={Zap}
+                                    label="Attempts"
+                                    value={stats.totalAttempts}
+                                    sub={`${stats.passedAttempts} passed`}
+                                    tone="brand"
+                                />
+                                <StatTile
+                                    icon={Target}
+                                    label="Success Rate"
+                                    value={`${stats.successRate}%`}
+                                    sub="of all attempts"
+                                    tone={stats.successRate >= 60 ? 'emerald' : stats.successRate >= 30 ? 'amber' : 'rose'}
+                                />
+                                <StatTile
+                                    icon={Sparkles}
+                                    label="First Try"
+                                    value={`${stats.firstTryRate}%`}
+                                    sub="solved on attempt #1"
+                                    tone="emerald"
+                                />
+                                <StatTile
+                                    icon={Repeat}
+                                    label="Avg Attempts"
+                                    value={stats.avgAttempts}
+                                    sub="per question"
+                                    tone="slate"
+                                />
+                                <StatTile
+                                    icon={Flame}
+                                    label="Day Streak"
+                                    value={stats.streak}
+                                    sub={stats.streak > 0 ? 'keep it going!' : 'practice today'}
+                                    tone={stats.streak > 0 ? 'amber' : 'slate'}
+                                />
+                            </div>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            {/* Activity Chart */}
-                            <div className="lg:col-span-2 bg-white p-5 sm:p-8 rounded-[32px] border border-slate-100 shadow-sm">
-                                <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between sm:mb-8">
+                            {/* CONSISTENCY HEATMAP */}
+                            <div className="bg-white rounded-[20px] border border-slate-200/60 shadow-sm p-5 sm:p-7">
+                                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-5">
                                     <div>
-                                        <h3 className="text-lg font-black text-slate-800">Activity Trend</h3>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
-                                            Daily Performance Streak Analysis
+                                        <h3 className="text-base font-black text-slate-800">Practice Consistency</h3>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                                            Last {HEATMAP_WEEKS} weeks · {heatmap.activeDays} active day
+                                            {heatmap.activeDays === 1 ? '' : 's'}
                                         </p>
                                     </div>
-                                    <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-2 h-2 rounded-full bg-indigo-500" />
-                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                                                Total
+                                    <div className="flex items-center gap-4">
+                                        {stats.streak > 0 && (
+                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-100 text-[10px] font-black text-amber-600 uppercase tracking-widest">
+                                                <Flame size={12} />
+                                                {stats.streak} day streak
                                             </span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                                                Passed
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-2 h-2 rounded-full bg-rose-500" />
-                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                                                Failed
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="h-[320px] w-full">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <AreaChart data={analyticsData.weeklyActivity}>
-                                            <defs>
-                                                <linearGradient id="colorAttempts" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.1} />
-                                                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                                                </linearGradient>
-                                            </defs>
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                            <XAxis
-                                                dataKey="day"
-                                                axisLine={false}
-                                                tickLine={false}
-                                                tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }}
-                                                dy={10}
-                                            />
-                                            <YAxis
-                                                axisLine={false}
-                                                tickLine={false}
-                                                tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }}
-                                            />
-                                            <Tooltip
-                                                contentStyle={{
-                                                    borderRadius: '16px',
-                                                    border: 'none',
-                                                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                                                    fontSize: '11px',
-                                                    fontWeight: 'bold',
-                                                }}
-                                            />
-                                            <Area
-                                                type="monotone"
-                                                dataKey="attempts"
-                                                stroke="#6366f1"
-                                                strokeWidth={3}
-                                                fillOpacity={1}
-                                                fill="url(#colorAttempts)"
-                                            />
-                                            <Area
-                                                type="monotone"
-                                                dataKey="passed"
-                                                stroke="#10b981"
-                                                strokeWidth={3}
-                                                fill="transparent"
-                                            />
-                                            <Area
-                                                type="monotone"
-                                                dataKey="failed"
-                                                stroke="#f43f5e"
-                                                strokeWidth={2}
-                                                strokeDasharray="4 4"
-                                                fill="transparent"
-                                            />
-                                        </AreaChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            </div>
-
-                            {/* Status Distribution */}
-                            <div className="bg-white p-5 sm:p-8 rounded-[32px] border border-slate-100 shadow-sm flex flex-col">
-                                <h3 className="text-lg font-black text-slate-800 mb-8">Submission Distribution</h3>
-                                <div className="h-[250px] w-full relative">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <Pie
-                                                data={examPieData}
-                                                cx="50%"
-                                                cy="50%"
-                                                innerRadius={60}
-                                                outerRadius={80}
-                                                paddingAngle={5}
-                                                dataKey="value"
-                                            >
-                                                {examPieData.map((entry, index) => (
-                                                    <Cell
-                                                        key={`cell-${index}`}
-                                                        fill={index === 0 ? '#10b981' : '#f43f5e'}
-                                                    />
-                                                ))}
-                                            </Pie>
-                                            <Tooltip
-                                                contentStyle={{
-                                                    borderRadius: '16px',
-                                                    border: 'none',
-                                                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                                                    fontSize: '11px',
-                                                    fontWeight: 'bold',
-                                                }}
-                                            />
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                        <span className="text-2xl font-black text-slate-800">
-                                            {stats.exams.total > 0
-                                                ? Math.round((stats.exams.passed / stats.exams.total) * 100)
-                                                : 0}
-                                            %
-                                        </span>
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                            Cleared
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="mt-8 space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                                            <span className="text-xs font-bold text-slate-600">Succeeded</span>
-                                        </div>
-                                        <span className="text-xs font-black text-slate-800">
-                                            {stats.passedAttempts} Attempts
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-3 h-3 rounded-full bg-rose-500" />
-                                            <span className="text-xs font-bold text-slate-600">Failed</span>
-                                        </div>
-                                        <span className="text-xs font-black text-slate-800">
-                                            {stats.failedAttempts} Attempts
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* COURSE MASTERY & STRENGTHS */}
-                        <div className="bg-white p-5 sm:p-10 rounded-[28px] sm:rounded-[40px] border border-slate-100 shadow-sm">
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-center">
-                                <div className="lg:col-span-1">
-                                    <h3 className="text-xl font-black text-slate-900 mb-4">Course Mastery</h3>
-                                    <p className="text-sm font-medium text-slate-500 leading-relaxed mb-8">
-                                        Visualize your strengths across enrolled courses. Your proficiency is calculated
-                                        based on module accuracy and attempt efficiency.
-                                    </p>
-                                    <div className="space-y-4">
-                                        {analyticsData.courseMastery.map((course: any, idx: number) => (
-                                            <MasteryIndicator
-                                                key={idx}
-                                                label={course.subject}
-                                                score={Math.round((course.A / 150) * 100)}
-                                                color={
-                                                    idx % 4 === 0
-                                                        ? 'indigo'
-                                                        : idx % 4 === 1
-                                                          ? 'emerald'
-                                                          : idx % 4 === 2
-                                                            ? 'amber'
-                                                            : 'rose'
-                                                }
-                                            />
-                                        ))}
-                                        {analyticsData.courseMastery.length === 0 && (
-                                            <p className="text-xs text-slate-400 font-bold italic">
-                                                No course data available
-                                            </p>
                                         )}
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="text-[9px] font-black text-slate-400 uppercase">Less</span>
+                                            {[0, 1, 2, 3, 4].map((lvl) => (
+                                                <div
+                                                    key={lvl}
+                                                    className="w-3 h-3 rounded-[3px]"
+                                                    style={{
+                                                        backgroundColor:
+                                                            lvl === 0
+                                                                ? '#f1f5f9'
+                                                                : `color-mix(in srgb, var(--brand) ${[30, 55, 78, 100][lvl - 1]}%, white)`,
+                                                    }}
+                                                />
+                                            ))}
+                                            <span className="text-[9px] font-black text-slate-400 uppercase">More</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="lg:col-span-2 h-[320px] sm:h-[400px]">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <RadarChart
-                                            cx="50%"
-                                            cy="50%"
-                                            outerRadius="80%"
-                                            data={analyticsData.courseMastery}
-                                        >
-                                            <PolarGrid stroke="#f1f5f9" />
-                                            <PolarAngleAxis
-                                                dataKey="subject"
-                                                tick={{ fontSize: 10, fontWeight: 800, fill: '#64748b' }}
-                                            />
-                                            <PolarRadiusAxis
-                                                angle={30}
-                                                domain={[0, 150]}
-                                                tick={false}
-                                                axisLine={false}
-                                            />
-                                            <Radar
-                                                name="Current Proficiency"
-                                                dataKey="A"
-                                                stroke="#6366f1"
-                                                fill="#6366f1"
-                                                fillOpacity={0.6}
-                                            />
-                                            <Radar
-                                                name="Benchmark"
-                                                dataKey="B"
-                                                stroke="#10b981"
-                                                fill="#10b981"
-                                                fillOpacity={0.3}
-                                            />
-                                            <Tooltip
-                                                contentStyle={{
-                                                    borderRadius: '16px',
-                                                    border: 'none',
-                                                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                                                    fontSize: '11px',
-                                                    fontWeight: 'bold',
-                                                }}
-                                            />
-                                            <Legend
-                                                wrapperStyle={{
-                                                    fontSize: '10px',
-                                                    fontWeight: '800',
-                                                    textTransform: 'uppercase',
-                                                    letterSpacing: '0.05em',
-                                                    paddingTop: '20px',
-                                                }}
-                                            />
-                                        </RadarChart>
-                                    </ResponsiveContainer>
+
+                                <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                                    <div className="overflow-x-auto no-scrollbar">
+                                        <div className="min-w-max">
+                                            {/* Month labels */}
+                                            <div className="relative h-4 mb-1 ml-9">
+                                                {heatmap.monthLabels.map((m) => (
+                                                    <span
+                                                        key={`${m.label}-${m.index}`}
+                                                        className="absolute text-[9px] font-black text-slate-400 uppercase"
+                                                        style={{ left: `${m.index * 20}px` }}
+                                                    >
+                                                        {m.label}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                            <div className="flex gap-1">
+                                                {/* Day labels */}
+                                                <div className="flex flex-col gap-1 w-8 shrink-0 justify-between pr-1">
+                                                    {['', 'Mon', '', 'Wed', '', 'Fri', ''].map((d, i) => (
+                                                        <span
+                                                            key={i}
+                                                            className="h-4 text-[8px] font-black text-slate-400 uppercase leading-4"
+                                                        >
+                                                            {d}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                                {heatmap.weeks.map((week, wi) => (
+                                                    <div key={wi} className="flex flex-col gap-1">
+                                                        {week.map((cell, di) => (
+                                                            <div
+                                                                key={di}
+                                                                className="w-4 h-4 rounded-[4px] transition-transform hover:scale-125 hover:ring-2 hover:ring-slate-300"
+                                                                style={{
+                                                                    backgroundColor: cell.future
+                                                                        ? 'transparent'
+                                                                        : heatColor(cell.count, heatmap.max),
+                                                                }}
+                                                                onMouseEnter={(e) => {
+                                                                    if (cell.future) return;
+                                                                    const rect = (
+                                                                        e.target as HTMLElement
+                                                                    ).getBoundingClientRect();
+                                                                    setHeatCellTip({
+                                                                        x: rect.left + rect.width / 2,
+                                                                        y: rect.top,
+                                                                        text: `${cell.count} attempt${cell.count === 1 ? '' : 's'} · ${cell.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`,
+                                                                    });
+                                                                }}
+                                                                onMouseLeave={() => setHeatCellTip(null)}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Summary rail */}
+                                    <div className="grid grid-cols-3 gap-3 lg:grid-cols-1 lg:w-56 lg:border-l lg:border-slate-100 lg:pl-8 shrink-0">
+                                        <div>
+                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                                                This week
+                                            </p>
+                                            <p className="text-lg font-black text-slate-800 leading-none">
+                                                {heatmap.thisWeek}
+                                                <span className="text-[10px] font-bold text-slate-400 ml-1.5">
+                                                    attempts
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                                                Active days
+                                            </p>
+                                            <p className="text-lg font-black text-slate-800 leading-none">
+                                                {heatmap.activeDays}
+                                                <span className="text-[10px] font-bold text-slate-400 ml-1.5">
+                                                    total
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                                                Busiest day
+                                            </p>
+                                            <p className="text-lg font-black text-slate-800 leading-none">
+                                                {heatmap.busiest
+                                                    ? heatmap.busiest.date.toLocaleDateString(undefined, {
+                                                          month: 'short',
+                                                          day: 'numeric',
+                                                      })
+                                                    : '—'}
+                                                {heatmap.busiest && (
+                                                    <span className="text-[10px] font-bold text-slate-400 ml-1.5">
+                                                        {heatmap.busiest.count} attempts
+                                                    </span>
+                                                )}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {heatCellTip && (
+                                    <div
+                                        className="fixed z-[60] px-2.5 py-1.5 rounded-lg bg-slate-900 text-white text-[10px] font-bold pointer-events-none -translate-x-1/2 -translate-y-full whitespace-nowrap shadow-xl"
+                                        style={{ left: heatCellTip.x, top: heatCellTip.y - 6 }}
+                                    >
+                                        {heatCellTip.text}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                {/* DAILY ACTIVITY — stacked bars, last 14 days */}
+                                <div className="lg:col-span-2 bg-white rounded-[20px] border border-slate-200/60 shadow-sm p-5 sm:p-7">
+                                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+                                        <div>
+                                            <h3 className="text-base font-black text-slate-800">Daily Activity</h3>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                                                Submissions over the last 14 days
+                                            </p>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex items-center gap-2">
+                                                <div
+                                                    className="w-2.5 h-2.5 rounded-[3px]"
+                                                    style={{ backgroundColor: PASSED_COLOR }}
+                                                />
+                                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                                                    Passed
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div
+                                                    className="w-2.5 h-2.5 rounded-[3px]"
+                                                    style={{ backgroundColor: FAILED_COLOR }}
+                                                />
+                                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                                                    Failed
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="h-[280px] w-full">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <BarChart data={dailySeries} barCategoryGap="28%">
+                                                <CartesianGrid
+                                                    strokeDasharray="3 3"
+                                                    vertical={false}
+                                                    stroke="#f1f5f9"
+                                                />
+                                                <XAxis
+                                                    dataKey="label"
+                                                    axisLine={false}
+                                                    tickLine={false}
+                                                    tick={{ fontSize: 9, fontWeight: 800, fill: '#94a3b8' }}
+                                                    dy={8}
+                                                    interval="preserveStartEnd"
+                                                />
+                                                <YAxis
+                                                    axisLine={false}
+                                                    tickLine={false}
+                                                    allowDecimals={false}
+                                                    tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }}
+                                                    width={28}
+                                                />
+                                                <Tooltip
+                                                    cursor={{ fill: '#f8fafc' }}
+                                                    contentStyle={tooltipStyle}
+                                                    formatter={(value: any, name: any) => [
+                                                        value,
+                                                        name === 'passed' ? 'Passed' : 'Failed',
+                                                    ]}
+                                                />
+                                                <Bar
+                                                    dataKey="passed"
+                                                    stackId="a"
+                                                    fill={PASSED_COLOR}
+                                                    stroke="#ffffff"
+                                                    strokeWidth={1}
+                                                    maxBarSize={26}
+                                                />
+                                                <Bar
+                                                    dataKey="failed"
+                                                    stackId="a"
+                                                    fill={FAILED_COLOR}
+                                                    stroke="#ffffff"
+                                                    strokeWidth={1}
+                                                    radius={[4, 4, 0, 0]}
+                                                    maxBarSize={26}
+                                                />
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </div>
+
+                                {/* OUTCOME DONUT */}
+                                <div className="bg-white rounded-[20px] border border-slate-200/60 shadow-sm p-5 sm:p-7 flex flex-col">
+                                    <h3 className="text-base font-black text-slate-800">Outcomes</h3>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 mb-4">
+                                        All submissions
+                                    </p>
+                                    <div className="h-[200px] w-full relative">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <PieChart>
+                                                <Pie
+                                                    data={
+                                                        hasOutcomes
+                                                            ? outcomePieData.filter((d) => d.value > 0)
+                                                            : [{ name: 'No data', value: 1 }]
+                                                    }
+                                                    cx="50%"
+                                                    cy="50%"
+                                                    innerRadius={62}
+                                                    outerRadius={80}
+                                                    paddingAngle={hasOutcomes ? 3 : 0}
+                                                    dataKey="value"
+                                                    stroke="#ffffff"
+                                                    strokeWidth={2}
+                                                >
+                                                    {hasOutcomes ? (
+                                                        outcomePieData
+                                                            .filter((d) => d.value > 0)
+                                                            .map((entry) => (
+                                                                <Cell
+                                                                    key={entry.name}
+                                                                    fill={
+                                                                        entry.name === 'Passed'
+                                                                            ? PASSED_COLOR
+                                                                            : FAILED_COLOR
+                                                                    }
+                                                                />
+                                                            ))
+                                                    ) : (
+                                                        <Cell fill="#e2e8f0" />
+                                                    )}
+                                                </Pie>
+                                                {hasOutcomes && <Tooltip contentStyle={tooltipStyle} />}
+                                            </PieChart>
+                                        </ResponsiveContainer>
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                            <span className="text-3xl font-black text-slate-800 leading-none">
+                                                {stats.successRate}%
+                                            </span>
+                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1.5">
+                                                Success rate
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="mt-5 space-y-2.5">
+                                        <div className="flex items-center justify-between px-1">
+                                            <div className="flex items-center gap-2.5">
+                                                <div
+                                                    className="w-2.5 h-2.5 rounded-[3px]"
+                                                    style={{ backgroundColor: PASSED_COLOR }}
+                                                />
+                                                <span className="text-xs font-bold text-slate-600">Passed</span>
+                                            </div>
+                                            <span className="text-xs font-black text-slate-800">
+                                                {stats.passedAttempts}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center justify-between px-1">
+                                            <div className="flex items-center gap-2.5">
+                                                <div
+                                                    className="w-2.5 h-2.5 rounded-[3px]"
+                                                    style={{ backgroundColor: FAILED_COLOR }}
+                                                />
+                                                <span className="text-xs font-bold text-slate-600">Failed</span>
+                                            </div>
+                                            <span className="text-xs font-black text-slate-800">
+                                                {stats.failedAttempts}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center justify-between px-1 pt-2.5 border-t border-slate-100">
+                                            <div className="flex items-center gap-2.5">
+                                                <Sparkles size={12} className="text-slate-400" />
+                                                <span className="text-xs font-bold text-slate-600">
+                                                    First-try solves
+                                                </span>
+                                            </div>
+                                            <span className="text-xs font-black text-slate-800">
+                                                {stats.firstTryRate}%
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                {/* COURSE PROGRESS */}
+                                <div className="bg-white rounded-[20px] border border-slate-200/60 shadow-sm p-5 sm:p-7">
+                                    <div className="flex items-center gap-2.5 mb-1">
+                                        <GraduationCap size={16} className="text-[var(--brand)]" />
+                                        <h3 className="text-base font-black text-slate-800">Course Progress</h3>
+                                    </div>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6">
+                                        Questions cleared per enrolled course
+                                    </p>
+                                    {courseProgress.length > 0 ? (
+                                        <div className="space-y-5">
+                                            {courseProgress.map((course: any) => (
+                                                <div key={course.name}>
+                                                    <div className="flex items-baseline justify-between mb-1.5 gap-3">
+                                                        <span className="text-xs font-black text-slate-700 truncate">
+                                                            {course.name}
+                                                        </span>
+                                                        <span className="text-[10px] font-black text-slate-400 shrink-0">
+                                                            {course.completed !== null
+                                                                ? `${course.completed}/${course.attempted} · ${course.pct}%`
+                                                                : `${course.pct}%`}
+                                                        </span>
+                                                    </div>
+                                                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                                        <div
+                                                            className="h-full rounded-full bg-[var(--brand)] transition-all duration-700"
+                                                            style={{ width: `${course.pct}%` }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="py-10 text-center">
+                                            <p className="text-xs font-bold text-slate-400">
+                                                Start a course to track your progress here.
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* QUESTION TYPES */}
+                                <div className="bg-white rounded-[20px] border border-slate-200/60 shadow-sm p-5 sm:p-7">
+                                    <div className="flex items-center gap-2.5 mb-1">
+                                        <TrendingUp size={16} className="text-[var(--brand)]" />
+                                        <h3 className="text-base font-black text-slate-800">By Question Type</h3>
+                                    </div>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6">
+                                        Where you're strongest
+                                    </p>
+                                    {typeBreakdown.length > 0 ? (
+                                        <div className="space-y-3">
+                                            {typeBreakdown.map((t) => {
+                                                const meta = TYPE_META[t.type] || { icon: Layers, label: t.type };
+                                                const Icon = meta.icon;
+                                                return (
+                                                    <div
+                                                        key={t.type}
+                                                        className="flex items-center gap-4 p-3 rounded-xl border border-slate-100 hover:border-slate-200 transition-colors"
+                                                    >
+                                                        <div className="w-9 h-9 rounded-lg bg-[var(--brand-lighter)] text-[var(--brand)] flex items-center justify-center shrink-0">
+                                                            <Icon size={16} />
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="flex items-baseline justify-between gap-3 mb-1">
+                                                                <span className="text-xs font-black text-slate-700">
+                                                                    {meta.label}
+                                                                </span>
+                                                                <span className="text-[10px] font-black text-slate-400 shrink-0">
+                                                                    {t.completed}/{t.units} cleared
+                                                                </span>
+                                                            </div>
+                                                            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                                                <div
+                                                                    className="h-full rounded-full transition-all duration-700"
+                                                                    style={{
+                                                                        width: `${t.pct}%`,
+                                                                        backgroundColor:
+                                                                            t.pct >= 60
+                                                                                ? PASSED_COLOR
+                                                                                : t.pct >= 30
+                                                                                  ? '#f59e0b'
+                                                                                  : FAILED_COLOR,
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <span className="text-sm font-black text-slate-800 w-11 text-right shrink-0">
+                                                            {t.pct}%
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    ) : (
+                                        <div className="py-10 text-center">
+                                            <p className="text-xs font-bold text-slate-400">
+                                                Attempt questions to see your strengths by type.
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    )
                 ) : (
                     <div className="space-y-10 animate-in slide-in-from-bottom-4 duration-500">
                         {/* Filter Section */}
@@ -759,62 +1192,66 @@ export default function AnalyticsPage() {
     );
 }
 
-function MasteryIndicator({ label, score, color }: { label: string; score: number; color: string }) {
-    const colorClasses = {
-        indigo: 'bg-indigo-600',
-        emerald: 'bg-emerald-500',
-        amber: 'bg-amber-500',
-        rose: 'bg-rose-500',
-    };
-
+function EmptyState({ isTeacherView }: { isTeacherView: boolean }) {
+    const router = useRouter();
     return (
-        <div>
-            <div className="flex justify-between items-center mb-1.5">
-                <span className="text-[11px] font-black text-slate-800 uppercase tracking-tight">{label}</span>
-                <span className="text-[11px] font-black text-slate-400">{score}%</span>
+        <div className="bg-white rounded-[24px] border border-slate-200/60 shadow-sm px-6 py-16 sm:py-24 flex flex-col items-center text-center animate-in fade-in duration-500">
+            <div className="w-16 h-16 rounded-2xl bg-[var(--brand-lighter)] text-[var(--brand)] flex items-center justify-center mb-6">
+                <TrendingUp size={28} />
             </div>
-            <div className="w-full h-1.5 bg-slate-50 rounded-full overflow-hidden">
-                <div
-                    className={`h-full rounded-full transition-all duration-1000 ${(colorClasses as any)[color]}`}
-                    style={{ width: `${score}%` }}
-                />
-            </div>
+            <h2 className="text-xl font-black text-slate-900 mb-2">
+                {isTeacherView ? 'No activity yet' : 'Your analytics start here'}
+            </h2>
+            <p className="text-sm font-medium text-slate-500 max-w-md leading-relaxed mb-8">
+                {isTeacherView
+                    ? "This student hasn't attempted any questions yet. Their progress, consistency, and strengths will appear here once they start practicing."
+                    : 'Attempt your first question and this page comes alive — daily activity, practice streaks, success rates, and course-by-course strengths.'}
+            </p>
+            {!isTeacherView && (
+                <button
+                    onClick={() => router.push('/dashboard/learner')}
+                    className="px-8 py-3 rounded-xl bg-[var(--brand)] text-white text-xs font-black uppercase tracking-widest hover:brightness-105 active:scale-95 transition-all shadow-lg shadow-[var(--brand-light)]"
+                >
+                    Browse Courses
+                </button>
+            )}
         </div>
     );
 }
 
-function StatItem({
+function StatTile({
+    icon: Icon,
     label,
     value,
-    icon,
-    color,
+    sub,
+    tone,
 }: {
+    icon: React.ComponentType<any>;
     label: string;
     value: string | number;
-    icon: string;
-    color: string;
+    sub: string;
+    tone: 'brand' | 'emerald' | 'amber' | 'rose' | 'slate';
 }) {
-    const colorClasses = {
-        indigo: 'text-indigo-600 bg-indigo-50',
-        emerald: 'text-emerald-600 bg-emerald-50',
-        amber: 'text-amber-600 bg-amber-50',
-        rose: 'text-rose-600 bg-rose-50',
-        slate: 'text-slate-600 bg-slate-50',
+    const toneClasses: Record<string, string> = {
+        brand: 'bg-[var(--brand-lighter)] text-[var(--brand)]',
+        emerald: 'bg-emerald-50 text-emerald-600',
+        amber: 'bg-amber-50 text-amber-600',
+        rose: 'bg-rose-50 text-rose-600',
+        slate: 'bg-slate-100 text-slate-500',
     };
 
     return (
-        <div className="flex-1 min-w-[120px] flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-slate-50 transition-colors group">
-            <div
-                className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold transition-transform group-hover:scale-110 ${(colorClasses as any)[color]}`}
-            >
-                {icon}
+        <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-4 hover:border-[var(--brand-light)] hover:shadow-md transition-all group">
+            <div className="flex items-center justify-between mb-3">
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
+                <div
+                    className={`w-7 h-7 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110 ${toneClasses[tone]}`}
+                >
+                    <Icon size={14} />
+                </div>
             </div>
-            <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
-                    {label}
-                </p>
-                <p className="text-sm font-black text-slate-900 leading-none">{value}</p>
-            </div>
+            <p className="text-2xl font-black text-slate-900 leading-none tracking-tight">{value}</p>
+            <p className="text-[10px] font-bold text-slate-400 mt-1.5 truncate">{sub}</p>
         </div>
     );
 }

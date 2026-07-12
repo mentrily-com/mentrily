@@ -20,24 +20,9 @@ import { User } from './user.decorator';
 import { SelectRoleDto } from './dto/select-role.dto';
 import { SwitchOrgDto } from './dto/switch-org.dto';
 import type { FastifyRequest } from 'fastify';
-import { StorageService } from '../../services/storage/storage.service';
 import { MembershipService } from '../organization/membership.service';
 import { OrgProvisioningService } from '../organization/org-provisioning.service';
 import { Webhook } from 'svix';
-
-const ALLOWED_IMAGE_TYPES = [
-  'image/jpeg',
-  'image/png',
-  'image/gif',
-  'image/webp',
-];
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const BUG_ALLOWED_IMAGE_TYPES = [
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'image/gif',
-];
 
 @Controller('auth')
 export class AuthController {
@@ -45,7 +30,6 @@ export class AuthController {
 
   constructor(
     private authService: AuthService,
-    private storageService: StorageService,
     private configService: ConfigService,
     private membershipService: MembershipService,
     private orgProvisioningService: OrgProvisioningService,
@@ -199,46 +183,6 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('profile/avatar')
-  async uploadAvatar(@User() user: any, @Req() req: FastifyRequest) {
-    const multipartReq = req as any;
-
-    if (!multipartReq.isMultipart()) {
-      throw new BadRequestException('Request must be multipart/form-data');
-    }
-
-    const parts = multipartReq.parts();
-    for await (const part of parts) {
-      if (part.type === 'file' && part.fieldname === 'avatar') {
-        const buffer = await part.toBuffer();
-
-        if (buffer.length > MAX_FILE_SIZE) {
-          throw new BadRequestException('File size must be less than 5MB');
-        }
-        if (!ALLOWED_IMAGE_TYPES.includes(part.mimetype)) {
-          throw new BadRequestException(
-            'Only image files are allowed (JPEG, PNG, GIF, WebP)',
-          );
-        }
-
-        const url = await this.storageService.uploadFile(
-          buffer,
-          part.filename,
-          part.mimetype,
-          'avatars',
-          buffer.length,
-          user?.orgId,
-        );
-        return this.authService.updateProfile(user.id, { profilePicture: url });
-      } else if (part.type === 'file') {
-        await part.toBuffer();
-      }
-    }
-
-    throw new BadRequestException('No avatar file provided');
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Patch('profile')
   async updateProfile(@User() user: any, @Body() body: { name?: string }) {
     return this.authService.updateProfile(user.id, { name: body?.name });
@@ -248,46 +192,6 @@ export class AuthController {
   @Delete('profile/picture')
   async removeProfilePicture(@User() user: any) {
     return this.authService.removeProfilePicture(user.id);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('bug-reports/upload-image')
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
-  async uploadBugReportImage(@User() user: any, @Req() req: FastifyRequest) {
-    const multipartReq = req as any;
-
-    if (!multipartReq.isMultipart()) {
-      throw new BadRequestException('Request must be multipart/form-data');
-    }
-
-    const parts = multipartReq.parts();
-    for await (const part of parts) {
-      if (part.type === 'file' && part.fieldname === 'file') {
-        const buffer = await part.toBuffer();
-
-        if (buffer.length > MAX_FILE_SIZE) {
-          throw new BadRequestException('Each image must be less than 5MB');
-        }
-        if (!BUG_ALLOWED_IMAGE_TYPES.includes(part.mimetype)) {
-          throw new BadRequestException(
-            'Only image files are allowed (JPEG, PNG, WebP, GIF)',
-          );
-        }
-
-        const uploaded = await this.authService.uploadBugReportImage(
-          user,
-          buffer,
-          part.filename,
-          part.mimetype,
-          buffer.length,
-        );
-        return uploaded;
-      } else if (part.type === 'file') {
-        await part.toBuffer();
-      }
-    }
-
-    throw new BadRequestException('No image file provided');
   }
 
   @UseGuards(JwtAuthGuard)

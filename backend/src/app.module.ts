@@ -23,6 +23,7 @@ import { AiModule } from './modules/ai/ai.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { BillingModule } from './modules/billing/billing.module';
 import { WebhookModule } from './modules/webhook/webhook.module';
+import { UploadsModule } from './modules/uploads/uploads.module';
 
 @Module({
   imports: [
@@ -106,6 +107,7 @@ import { WebhookModule } from './modules/webhook/webhook.module';
     CodeExecutionModule,
     AiModule,
     NotificationModule,
+    UploadsModule,
   ],
   controllers: [AppController],
   providers: [

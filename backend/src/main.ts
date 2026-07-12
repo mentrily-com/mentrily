@@ -90,10 +90,13 @@ async function bootstrap() {
   // Force reload
   await app.register(require('./fastify-cors-auth-header.plugin').default);
 
-  // Register multipart support for file uploads
+  // Register multipart support for file uploads. Only the certificate
+  // signature endpoint still uploads through this backend (it needs
+  // server-side sharp processing) — everything else uploads directly to S3
+  // via presigned URLs (see UploadsModule), so this limit stays small.
   await app.register(require('@fastify/multipart'), {
     limits: {
-      fileSize: 500 * 1024 * 1024, // 500MB (to support course video uploads)
+      fileSize: 10 * 1024 * 1024, // 10MB
     },
   });
 

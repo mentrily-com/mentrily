@@ -8,14 +8,15 @@ import {
   Body,
   UseGuards,
   Param,
-  Req,
   Query,
+  Req,
+  ForbiddenException,
 } from '@nestjs/common';
 import { SuperAdminService } from './super-admin.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/roles.decorator';
-import type { FastifyRequest } from 'fastify';
+import { User } from '../auth/user.decorator';
 import { StorageService } from '../../services/storage/storage.service';
 import { UpdateOrganizationPlanDto } from './dto/update-organization-plan.dto';
 import { UpdateOrganizationLimitsDto } from './dto/update-organization-limits.dto';
@@ -45,48 +46,16 @@ export class SuperAdminController {
   }
 
   @Post('organizations')
-  async createOrganization(@Req() req: FastifyRequest) {
-    console.log('[SuperAdminController] Received createOrganization request');
-    const parts = (req as any).parts();
-    const body: any = {};
-
-    for await (const part of parts) {
-      console.log(
-        `[SuperAdminController] Processing part: ${part.fieldname}, type: ${part.type}`,
-      );
-      if (part.type === 'file') {
-        if (part.fieldname === 'logo') {
-          console.log('[SuperAdminController] Found logo file, uploading...');
-          const fileSizeHeader = req.headers['x-file-size'];
-          const fileSize = fileSizeHeader
-            ? parseInt(fileSizeHeader as string, 10)
-            : undefined;
-
-          body.logo = await this.storageService.uploadFile(
-            part.file,
-            part.filename,
-            part.mimetype,
-            'organizations',
-            fileSize,
-          );
-          console.log('[SuperAdminController] Logo uploaded:', body.logo);
-        } else {
-          await part.toBuffer(); // consume unused file
-        }
-      } else {
-        // @ts-ignore - part.value exists on field type
-        const value = part.value;
-        if (value === 'true') {
-          body[part.fieldname] = true;
-        } else if (value === 'false') {
-          body[part.fieldname] = false;
-        } else {
-          body[part.fieldname] = value;
-        }
+  async createOrganization(@User() user: any, @Body() body: any) {
+    if (body?.logo) {
+      // logo is a URL from a direct-to-S3 upload (kind: 'org-logo',
+      // namespaced under the calling admin's own user id since the org
+      // doesn't exist yet) — verify this caller actually uploaded it.
+      const allowedNamespaces = [user?.id ? `user-${user.id}` : null];
+      if (!this.storageService.isOwnedByNamespace(body.logo, allowedNamespaces)) {
+        throw new ForbiddenException('You do not have access to this file');
       }
     }
-
-    console.log('[SuperAdminController] Final body:', body);
     return this.superAdminService.createOrganization(body);
   }
 

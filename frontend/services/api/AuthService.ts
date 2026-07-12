@@ -2,6 +2,7 @@ import { API_BASE_URL } from '@/lib/api-base';
 import { withCsrfHeader } from '@/lib/csrf';
 import { getClerkToken, withClerkAuthorization } from '@/lib/clerk-token';
 import { setActiveOrgId, clearActiveOrgId, setActivePersona, clearActivePersona } from '@/lib/active-org';
+import { UploadService } from './UploadService';
 
 export interface WorkspaceMembership {
     orgId: string;
@@ -212,28 +213,6 @@ export const AuthService = {
         return updatedUser;
     },
 
-    async uploadAvatar(file: File): Promise<any> {
-        const formData = new FormData();
-        formData.append('avatar', file);
-
-        const authHeaders = await withClerkAuthorization(withCsrfHeader('POST'));
-        const res = await fetch(`${BASE_URL}/auth/profile/avatar`, {
-            method: 'POST',
-            headers: authHeaders,
-            credentials: 'include',
-            body: formData,
-        });
-
-        if (!res.ok) {
-            const error = await res.json().catch(() => ({}));
-            throw new Error(error.message || 'Failed to upload avatar');
-        }
-
-        await res.json().catch(() => null);
-        resetSessionCache();
-        return await this.checkSession(true);
-    },
-
     async removeProfilePicture(): Promise<any> {
         const authHeaders = await withClerkAuthorization(withCsrfHeader('DELETE'));
         const res = await fetch(`${BASE_URL}/auth/profile/picture`, {
@@ -395,23 +374,9 @@ export const AuthService = {
     },
 
     async uploadBugReportImage(file: File): Promise<{ url: string; name: string; type: string; size: number }> {
-        const formData = new FormData();
-        formData.append('file', file);
-        const authHeaders = await withClerkAuthorization(withCsrfHeader('POST'));
-
-        const res = await fetch(`${BASE_URL}/auth/bug-reports/upload-image`, {
-            method: 'POST',
-            headers: authHeaders,
-            credentials: 'include',
-            body: formData,
-        });
-
-        if (!res.ok) {
-            const error = await res.json().catch(() => ({}));
-            throw new Error(error.message || 'Failed to upload image');
-        }
-
-        return await res.json();
+        // Uploads directly to S3 (browser -> S3) — file bytes never transit
+        // this backend or the Vercel-hosted frontend.
+        return UploadService.uploadFile('bug-report', file);
     },
 
     async createBugReport(data: {

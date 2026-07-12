@@ -1,6 +1,7 @@
 import { API_BASE_URL } from '@/lib/api-base';
 import { withCsrfHeader } from '@/lib/csrf';
 import { withClerkAuthorization } from '@/lib/clerk-token';
+import { UploadService } from './UploadService';
 
 const BASE_URL = API_BASE_URL;
 
@@ -984,22 +985,8 @@ export const TeacherService = {
     },
 
     async uploadAnnouncementFile(file: File) {
-        try {
-            const formData = new FormData();
-            formData.append('file', file);
-
-            const res = await authFetch('/teacher/announcements/upload', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'x-file-size': String(file.size),
-                },
-            });
-            if (!res.ok) throw new Error('Failed to upload file');
-            return await res.json();
-        } catch (error) {
-            console.error('[TeacherService] Error', error);
-            throw error;
-        }
+        // Uploads directly to S3 (browser -> S3) — file bytes never transit
+        // this backend or the Vercel-hosted frontend.
+        return UploadService.uploadFile('announcement', file);
     },
 };

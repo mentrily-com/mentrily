@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { siteConfig } from '@/app/config/site';
 
 const ALLOWED_DOWNLOAD_HOSTS = [
-    'nyc3.digitaloceanspaces.com',
-    'digitaloceanspaces.com',
+    new URL(process.env.NEXT_PUBLIC_MEDIA_CDN_URL || 'https://dyp4wnn9yf27t.cloudfront.net').hostname,
     siteConfig.domain,
     `www.${siteConfig.domain}`,
     ...(process.env.NEXT_PUBLIC_DOWNLOAD_HOSTS || '')

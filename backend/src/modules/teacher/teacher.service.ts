@@ -4026,21 +4026,4 @@ export class TeacherService {
 
     return this.prisma.announcement.delete({ where: { id: announcementId } });
   }
-
-  async uploadAnnouncementFile(
-    fileData: any,
-    filename: string,
-    mimetype: string,
-    contentLength?: number,
-    orgId?: string,
-  ) {
-    return this.storageService.uploadFile(
-      fileData,
-      filename,
-      mimetype,
-      'announcements',
-      contentLength,
-      orgId,
-    );
-  }
 }

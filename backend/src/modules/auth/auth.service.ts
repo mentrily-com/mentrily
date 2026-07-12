@@ -797,36 +797,6 @@ export class AuthService {
     return text.split(' ').filter(Boolean).length;
   }
 
-  async uploadBugReportImage(
-    user: any,
-    fileData: any,
-    filename: string,
-    mimetype: string,
-    contentLength?: number,
-  ) {
-    if (!user?.id) throw new UnauthorizedException('Invalid session');
-    if (!['STUDENT', 'TEACHER', 'ADMIN'].includes(user.role)) {
-      throw new ForbiddenException(
-        'Only students, teachers, and admins can report problems',
-      );
-    }
-
-    const url = await this.storageService.uploadFile(
-      fileData,
-      filename,
-      mimetype,
-      'reported-bugs',
-      contentLength,
-      user?.orgId,
-    );
-    return {
-      url,
-      name: filename,
-      type: mimetype,
-      size: contentLength || 0,
-    };
-  }
-
   async createBugReport(
     user: any,
     data: {
