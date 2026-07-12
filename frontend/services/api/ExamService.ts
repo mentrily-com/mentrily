@@ -167,9 +167,16 @@ export const ExamService = {
 
     async submitSection(sessionId: string, sectionId: string, answers: any): Promise<any> {
         try {
+            // /submission/* is JwtAuthGuard-protected and, in production, lives
+            // on a different origin than the app (AWS API Gateway, not
+            // www.mentrily.com) — credentials: 'include' alone can never
+            // deliver the mentrily.com-scoped session cookie there. Attach the
+            // Clerk bearer token explicitly, same as every other authenticated
+            // call (see lib/clerk-token.ts).
+            const authHeaders = await withClerkAuthorization(withCsrfHeader('POST', getHeaders()));
             const res = await fetch(`${BASE_URL}/submission/section`, {
                 method: 'POST',
-                headers: withCsrfHeader('POST', getHeaders()),
+                headers: authHeaders,
                 credentials: 'include',
                 body: JSON.stringify({ sessionId, sectionId, answers }),
             });
@@ -183,10 +190,11 @@ export const ExamService = {
 
     async submitExam(sessionId: string, answers?: Record<string, any>): Promise<any> {
         try {
+            const authHeaders = await withClerkAuthorization(withCsrfHeader('POST', getHeaders()));
             const res = await fetch(`${BASE_URL}/submission/submit`, {
                 // Assuming endpoint
                 method: 'POST',
-                headers: withCsrfHeader('POST', getHeaders()),
+                headers: authHeaders,
                 credentials: 'include',
                 body: JSON.stringify({ sessionId, answers }),
             });
@@ -210,9 +218,10 @@ export const ExamService = {
 
     async saveFeedback(slug: string, userId: string, rating: number, comment: string): Promise<any> {
         try {
+            const authHeaders = await withClerkAuthorization(withCsrfHeader('POST', getHeaders()));
             const res = await fetch(`${BASE_URL}/exam/${slug}/feedback`, {
                 method: 'POST',
-                headers: withCsrfHeader('POST', getHeaders()),
+                headers: authHeaders,
                 credentials: 'include',
                 body: JSON.stringify({ userId, rating, comment }),
             });

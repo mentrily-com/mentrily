@@ -82,3 +82,24 @@ export async function clearStashedSessionAnswers(
     legacySessionAnswersKey(sessionId),
   );
 }
+
+/**
+ * Remove only the fields a flush just persisted to Postgres, not the whole
+ * hash — a save_answer socket event can HSET a new field in between the
+ * flush's HGETALL snapshot and this call, and a blanket DEL would silently
+ * drop that concurrent write (it would never be flushed again). The legacy
+ * blob key is still deleted outright: it's only ever written as a whole
+ * atomic blob by old clients, never partially, so once read it's safe to
+ * retire entirely.
+ */
+export async function clearFlushedSessionAnswerFields(
+  redis: Redis,
+  sessionId: string,
+  fields: string[],
+): Promise<void> {
+  const multi = redis.multi().del(legacySessionAnswersKey(sessionId));
+  if (fields.length > 0) {
+    multi.hdel(sessionAnswersHashKey(sessionId), ...fields);
+  }
+  await multi.exec();
+}

@@ -8,8 +8,9 @@ import { Queue } from 'bullmq';
 import { WebhookService } from '../webhook/webhook.service';
 import { ExamService } from '../exam/exam.service';
 import {
+  clearFlushedSessionAnswerFields,
+  clearStashedSessionAnswers,
   readStashedSessionAnswers,
-  sessionAnswersHashKey,
   stashSessionAnswers,
 } from '../common/session-answers.util';
 
@@ -200,6 +201,11 @@ export class SubmissionProcessor extends WorkerHost {
           WHERE "id" = ${sessionId}
             AND "status" = 'IN_PROGRESS'
         `;
+        await clearFlushedSessionAnswerFields(
+          this.redis,
+          sessionId,
+          Object.keys(staged),
+        );
       } else if (meta.questions) {
         // Live-graded exams: read once, grade the merged view, write once.
         const currentSession = await this.prisma.examSession.findUnique({
@@ -234,12 +240,30 @@ export class SubmissionProcessor extends WorkerHost {
           WHERE "id" = ${sessionId}
             AND "status" NOT IN ('COMPLETED', 'TERMINATED')
         `;
+        await clearFlushedSessionAnswerFields(
+          this.redis,
+          sessionId,
+          Object.keys(staged),
+        );
 
         // Question-attempt analytics, one entry per question per flush
-        // (coalescing already collapsed the per-keystroke stream).
+        // (coalescing already collapsed the per-keystroke stream). Reading
+        // `staged` here (not a fresh Redis read) is deliberate: it must
+        // match exactly what was just cleared above, or a field could be
+        // both cleared AND miss its analytics job (or double-count it) on a
+        // future flush.
+        //
+        // Idempotency: a re-save of the exact same answer (re-visiting an
+        // already-submitted question without changing it, a stray resave,
+        // etc.) must NOT create another QuestionAttempt row or award XP
+        // again — handleSaveQuestionAttempt does a plain create() + XP
+        // increment with no dedup of its own, so skip anything unchanged
+        // from what was already persisted before this flush.
         if (meta.userId) {
+          const previousAnswers = (currentSession?.answers as any) || {};
           const jobs = Object.entries(staged)
             .filter(([qId]) => !qId.startsWith('_'))
+            .filter(([qId, ans]) => JSON.stringify(previousAnswers[qId]) !== JSON.stringify(ans))
             .map(([qId, ans]) => ({
               name: 'save-question-attempt',
               data: {
@@ -266,6 +290,11 @@ export class SubmissionProcessor extends WorkerHost {
           WHERE "id" = ${sessionId}
             AND "status" NOT IN ('COMPLETED', 'TERMINATED')
         `;
+        await clearFlushedSessionAnswerFields(
+          this.redis,
+          sessionId,
+          Object.keys(staged),
+        );
       }
     } catch (error) {
       console.error('[SubmissionProcessor] Failed to flush answers:', error);
@@ -338,6 +367,8 @@ export class SubmissionProcessor extends WorkerHost {
     if (updated.count === 0) {
       return;
     }
+
+    await clearStashedSessionAnswers(this.redis, sessionId);
 
     // Trigger analytics updates
     await this.studentAnalyticsQueue.add('update-streak', {
