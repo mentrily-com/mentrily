@@ -56,6 +56,19 @@ const shuffleArray = (array: any[], seed: number) => {
 };
 // -----------------------
 
+// Answers can be primitives, arrays (multi-select), or objects (code-editor
+// payloads) — a reference (===) check only catches primitives, so a changed
+// array/object reference with identical content still looked "different"
+// and triggered a wasted save/flush/rescoring round-trip.
+const answersEqual = (a: any, b: any): boolean => {
+    if (a === b) return true;
+    try {
+        return JSON.stringify(a) === JSON.stringify(b);
+    } catch {
+        return false;
+    }
+};
+
 type ExamBlockState = {
     title: string;
     description: string;
@@ -422,8 +435,13 @@ export default function PublicExamPage() {
                 if (!courseLinked && typeof window !== 'undefined') {
                     const authKey = `exam_${slug}_auth`;
                     const metadataKey = `exam_${slug}_metadata`;
-                    let isExamAuthorized = localStorage.getItem(authKey);
-                    let examMetadata = localStorage.getItem(metadataKey);
+                    // sessionStorage, not localStorage: this flag must NOT
+                    // outlive the tab. It's only meant to let a mid-exam
+                    // refresh skip re-showing the login form — opening the
+                    // exam fresh (new tab, later day, still signed in to
+                    // Mentrily or not) must always go through /exam/login.
+                    let isExamAuthorized = sessionStorage.getItem(authKey);
+                    let examMetadata = sessionStorage.getItem(metadataKey);
 
                     const getCookieValue = (name: string): string | null => {
                         const cookieName = `${name}=`;
@@ -438,11 +456,16 @@ export default function PublicExamPage() {
                         }
                     };
 
+                    // Cookie fallback only exists for the cross-subdomain
+                    // redirect handoff (login on the apex domain -> exam on
+                    // an org subdomain). It's short-lived (2 min, see
+                    // exam/login/page.tsx) and consumed into sessionStorage
+                    // here so it's tab-scoped from this point on too.
                     if (!isExamAuthorized) {
                         const authFromCookie = getCookieValue(authKey);
                         if (authFromCookie) {
                             isExamAuthorized = authFromCookie;
-                            localStorage.setItem(authKey, authFromCookie);
+                            sessionStorage.setItem(authKey, authFromCookie);
                         }
                     }
 
@@ -450,7 +473,7 @@ export default function PublicExamPage() {
                         const metadataFromCookie = getCookieValue(metadataKey);
                         if (metadataFromCookie) {
                             examMetadata = metadataFromCookie;
-                            localStorage.setItem(metadataKey, metadataFromCookie);
+                            sessionStorage.setItem(metadataKey, metadataFromCookie);
                         }
                     }
 
@@ -496,7 +519,7 @@ export default function PublicExamPage() {
 
                 // 0.3 Get Metadata (Roll No, Name, Section)
                 const studentMetadataRaw =
-                    typeof window !== 'undefined' ? localStorage.getItem(`exam_${slug}_metadata`) : null;
+                    typeof window !== 'undefined' ? sessionStorage.getItem(`exam_${slug}_metadata`) : null;
                 const studentMetadata = studentMetadataRaw ? JSON.parse(studentMetadataRaw) : null;
 
                 // 0.4 Standardize Identity (DeviceId & TabId)
@@ -1138,6 +1161,9 @@ export default function PublicExamPage() {
     };
 
     const handleSubmitNext = (answer: any) => {
+        const previousAnswer = userAnswersRef.current[currentQuestionId as string];
+        const answerUnchanged = answersEqual(previousAnswer, answer);
+
         const nextAnswers = {
             ...userAnswersRef.current,
             [currentQuestionId as string]: answer,
@@ -1148,8 +1174,15 @@ export default function PublicExamPage() {
         userAnswersRef.current = nextAnswers;
         setUserAnswers(nextAnswers);
         writeLocalDraft(sessionId || localStorage.getItem('currentExamSessionId'), nextAnswers);
-        saveAnswer(currentQuestionId as string, answer);
-        // Also save the submitted flag
+        // Re-visiting an already-submitted question without changing the
+        // answer (Next/Prev navigation, clicking Submit twice) shouldn't
+        // re-emit the same answer — it re-triggers scoring, an analytics
+        // job, and an XP award on the server for content that didn't change.
+        if (!answerUnchanged) {
+            saveAnswer(currentQuestionId as string, answer);
+        }
+        // The submitted marker is cheap and excluded from scoring/analytics
+        // (keys starting with '_'), so it's fine to always resend.
         saveAnswer(`_submitted_${currentQuestionId}`, true);
 
         // 2. Mark as answered in local state
@@ -1183,8 +1216,11 @@ export default function PublicExamPage() {
     const handleAnswerChange = useCallback(
         (answer: any) => {
             const currentAnswer = userAnswersRef.current[currentQuestionId];
-            // Skip update if strictly equal (handles primitives)
-            if (currentAnswer === answer) {
+            // Skip update if unchanged — deep-compares so array/object
+            // answers (multi-select, code-editor payloads) dedupe too, not
+            // just primitives (=== alone missed those, they're always a new
+            // reference even with identical content).
+            if (answersEqual(currentAnswer, answer)) {
                 return;
             }
 
@@ -1695,7 +1731,7 @@ export default function PublicExamPage() {
         typeof window !== 'undefined'
             ? (() => {
                   try {
-                      return JSON.parse(localStorage.getItem(`exam_${slug}_metadata`) || '{}');
+                      return JSON.parse(sessionStorage.getItem(`exam_${slug}_metadata`) || '{}');
                   } catch {
                       return {};
                   }
@@ -2057,7 +2093,11 @@ export default function PublicExamPage() {
     }
 
     return (
-        <div className="h-screen bg-white flex flex-col overflow-hidden">
+        <div
+            className={`h-screen bg-white flex flex-col overflow-hidden ${
+                isFeedbackMode || isSuccessMode ? '' : 'select-none'
+            }`}
+        >
             {navbarVisible && !isFeedbackMode && !isSuccessMode && <Navbar examConfig={examConfig} />}
 
             <div className="flex-1 flex overflow-hidden relative">
@@ -2066,13 +2106,13 @@ export default function PublicExamPage() {
                         userDetails={{
                             name:
                                 (typeof window !== 'undefined'
-                                    ? JSON.parse(localStorage.getItem(`exam_${slug}_metadata`) || '{}').name
+                                    ? JSON.parse(sessionStorage.getItem(`exam_${slug}_metadata`) || '{}').name
                                     : '') ||
                                 user?.name ||
                                 'Student',
                             rollId:
                                 (typeof window !== 'undefined'
-                                    ? JSON.parse(localStorage.getItem(`exam_${slug}_metadata`) || '{}').rollNumber
+                                    ? JSON.parse(sessionStorage.getItem(`exam_${slug}_metadata`) || '{}').rollNumber
                                     : '') ||
                                 user?.rollNumber ||
                                 'N/A',

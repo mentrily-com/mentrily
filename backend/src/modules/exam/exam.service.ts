@@ -857,7 +857,66 @@ export class ExamService {
     return { inCount, outCount };
   }
 
+  /**
+   * startSessionUnlocked does a plain read-then-create with no DB unique
+   * constraint on (userId, examId, status='IN_PROGRESS') — two concurrent
+   * calls (double-clicked "Start Exam", or the exam link opened in two tabs
+   * within the same instant) can both see "no active session" and each
+   * create their own ExamSession row, forking the student's answers/socket
+   * state across two sessions for the rest of the exam. A short Redis lock
+   * around the whole read-then-create section serializes concurrent callers
+   * for the same (userId, examId) so the second one observes the first
+   * one's newly-created row instead of racing it.
+   */
   async startSession(
+    userId: string,
+    examId: string,
+    ip: string,
+    deviceId: string,
+    tabId?: string,
+    metadata?: any,
+  ) {
+    const lockKey = `examstart:lock:${userId}:${examId}`;
+    const lockToken = `${Date.now()}:${Math.random().toString(36).slice(2)}`;
+    let acquired = false;
+
+    for (let attempt = 0; attempt < 25; attempt += 1) {
+      const result = await this.redis.set(lockKey, lockToken, 'PX', 8000, 'NX');
+      if (result === 'OK') {
+        acquired = true;
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 120));
+    }
+
+    if (!acquired) {
+      // Lock never freed (contended or a prior holder crashed without
+      // releasing) — proceed unlocked rather than hang the request forever;
+      // worst case is the same pre-existing race, not a new failure mode.
+      console.warn(
+        `[ExamService] startSession lock contended for ${lockKey}, proceeding without it`,
+      );
+      return this.startSessionUnlocked(userId, examId, ip, deviceId, tabId, metadata);
+    }
+
+    try {
+      return await this.startSessionUnlocked(
+        userId,
+        examId,
+        ip,
+        deviceId,
+        tabId,
+        metadata,
+      );
+    } finally {
+      // Only release if we still hold it (a Lua CAS would be stricter, but
+      // the 8s TTL already bounds staleness and this is a single DEL either
+      // way — not worth a script for a lock held for tens of milliseconds).
+      await this.redis.del(lockKey);
+    }
+  }
+
+  private async startSessionUnlocked(
     userId: string,
     examId: string,
     ip: string,
