@@ -1136,6 +1136,49 @@ export class StudentService {
     }));
   }
 
+  /**
+   * MCQ/MultiSelect correctness must never come from the client — submitUnit
+   * used to persist whatever `status`/`score` the frontend sent verbatim
+   * (the frontend code even said as much: "In a real app, the backend would
+   * evaluate this... mock evaluation logic for demo purposes"), so a request
+   * built by hand (or a frontend bug, like MultiSelect previously letting a
+   * student select every option) could claim COMPLETED/100 regardless of
+   * what was actually selected. Recomputes from the unit's own stored
+   * mcqOptions using the same exact-match rule as exams: the selected set
+   * must equal the correct set exactly, no more, no fewer.
+   */
+  private recomputeMcqCorrectness(
+    unitType: string,
+    unitContent: any,
+    submittedContent: any,
+  ): { status: string; score: number } | null {
+    if (unitType !== 'MCQ' && unitType !== 'MultiSelect') return null;
+
+    const parsedContent =
+      typeof unitContent === 'string' ? JSON.parse(unitContent) : unitContent;
+    const options = parsedContent?.mcqOptions || [];
+    const correctIds = options
+      .filter((o: any) => o?.isCorrect)
+      .map((o: any) => String(o.id))
+      .sort();
+    const selectedIds = (
+      Array.isArray(submittedContent)
+        ? submittedContent
+        : submittedContent != null
+          ? [submittedContent]
+          : []
+    )
+      .map((v: any) => String(v))
+      .sort();
+
+    const isCorrect =
+      correctIds.length > 0 &&
+      correctIds.length === selectedIds.length &&
+      correctIds.every((id: string, i: number) => id === selectedIds[i]);
+
+    return { status: isCorrect ? 'COMPLETED' : 'IN_PROGRESS', score: isCorrect ? 100 : 0 };
+  }
+
   async submitUnit(
     userId: string,
     unitId: string,
@@ -1144,8 +1187,19 @@ export class StudentService {
     // Check if this unitId maps to a real Unit record (FK constraint)
     const unitExists = await this.prisma.unit.findUnique({
       where: { id: unitId },
-      select: { id: true },
+      select: { id: true, type: true, content: true },
     });
+
+    if (unitExists) {
+      const authoritative = this.recomputeMcqCorrectness(
+        unitExists.type,
+        unitExists.content,
+        data.content,
+      );
+      if (authoritative) {
+        data = { ...data, status: authoritative.status, score: authoritative.score };
+      }
+    }
 
     let submission: any;
 
