@@ -474,7 +474,15 @@ export function UnitRendererComponent({
                         key={`mcq-${question.id}`}
                         options={question.mcqOptions || []}
                         multiSelect={question.type === 'MultiSelect'}
-                        maxSelections={question.type === 'MCQ' ? 1 : undefined}
+                        // Cap selection count at the number of correct answers
+                        // this question actually has — previously MultiSelect
+                        // had no cap at all, so a student could select every
+                        // option. The exact-match scoring already rejects an
+                        // over-selection as wrong, but letting the UI accept
+                        // it in the first place invites exactly the "select
+                        // everything and see what sticks" behavior it should
+                        // prevent outright.
+                        maxSelections={question.type === 'MCQ' ? 1 : Math.max(correctOptionIds.length, 1)}
                         correctIds={correctOptionIds}
                         selectedIds={hasAttemptSelected ? attemptAnswer : currentAnswer}
                         onSubmit={onSubmit || ((ids) => console.log('Submitted MCQ:', ids))}
