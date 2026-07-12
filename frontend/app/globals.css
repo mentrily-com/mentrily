@@ -531,6 +531,22 @@ html.dark .glass-card {
     min-height: 12px;
 }
 
+/* Exam anti-cheat: question/instruction text is unselectable (select-none,
+   applied by the exam page), but the student's own answer surfaces must stay
+   fully selectable/editable — otherwise they couldn't select-and-replace
+   their own code or written text. CodeMirror is contenteditable-based, so it
+   inherits user-select:none from the ancestor and needs an explicit
+   override; native <input>/<textarea> are exempt from user-select by spec
+   already, but a few browsers get this wrong, so cover them too. */
+.select-none .cm-editor,
+.select-none .cm-editor *,
+.select-none input,
+.select-none textarea,
+.select-none [contenteditable='true'] {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
     *,
