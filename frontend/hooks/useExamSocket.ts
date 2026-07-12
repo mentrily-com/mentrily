@@ -178,14 +178,17 @@ export const useExamSocket = (
         if (!examIdRef.current || !userIdRef.current) return;
 
         if (requiresExamAuthRef.current && typeof window !== 'undefined') {
+            // sessionStorage (tab-scoped), matching exam/[slug]/page.tsx and
+            // exam/login/page.tsx — this marker must not outlive the tab, or
+            // a stale flag lets a fresh visit skip the exam login form.
             const examAuthKey = `exam_${examIdRef.current}_auth`;
-            let examAuthMarker = localStorage.getItem(examAuthKey);
+            let examAuthMarker = sessionStorage.getItem(examAuthKey);
 
             if (!examAuthMarker) {
                 const markerFromCookie = getBrowserCookie(examAuthKey);
                 if (markerFromCookie) {
                     examAuthMarker = markerFromCookie;
-                    localStorage.setItem(examAuthKey, markerFromCookie);
+                    sessionStorage.setItem(examAuthKey, markerFromCookie);
                 }
             }
 

@@ -219,8 +219,13 @@ export default function ExamLoginPage() {
                     profilePicture: user?.imageUrl || '',
                     section,
                 };
-                localStorage.setItem(`exam_${targetSlug}_metadata`, JSON.stringify(metadata));
-                localStorage.setItem(`exam_${targetSlug}_auth`, 'true');
+                // Tab-scoped on purpose: sessionStorage survives a mid-exam
+                // refresh but is gone in a new tab / after the browser is
+                // closed, so re-opening the exam link later always requires
+                // going through this login form again — even if the user is
+                // still signed in to Mentrily itself.
+                sessionStorage.setItem(`exam_${targetSlug}_metadata`, JSON.stringify(metadata));
+                sessionStorage.setItem(`exam_${targetSlug}_auth`, 'true');
 
                 const host = window.location.hostname.toLowerCase();
                 const isLocalHost =
@@ -243,7 +248,13 @@ export default function ExamLoginPage() {
                 const canSetCrossSubdomainCookie =
                     !isLocalHost && Boolean(rootDomain) && (host === rootDomain || host.endsWith(`.${rootDomain}`));
                 const domainAttr = canSetCrossSubdomainCookie ? `; domain=.${rootDomain}` : '';
-                const cookieMaxAge = 4 * 60 * 60;
+                // Short-lived on purpose: this cookie exists only to ferry the
+                // auth flag across a subdomain redirect (login on the apex
+                // domain -> exam on an org subdomain, different origins so
+                // sessionStorage can't cross that boundary). The exam page
+                // consumes it once and re-homes it into sessionStorage, so it
+                // only needs to survive the redirect itself, not the exam.
+                const cookieMaxAge = 2 * 60;
 
                 document.cookie = `exam_${targetSlug}_auth=true; path=/; max-age=${cookieMaxAge}; samesite=lax${domainAttr}`;
                 document.cookie = `exam_${targetSlug}_metadata=${encodeURIComponent(JSON.stringify(metadata))}; path=/; max-age=${cookieMaxAge}; samesite=lax${domainAttr}`;
