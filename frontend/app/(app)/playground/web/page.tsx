@@ -47,7 +47,7 @@ export default function WebPlaygroundPage({ embeddedShell = true }: { embeddedSh
                         js: true,
                     }}
                     hideTestCases
-                    submitLabel="Preview Submit"
+                    hideSubmit
                 />
             </div>
         </div>

@@ -1,6 +1,7 @@
 import { API_BASE_URL } from '@/lib/api-base';
 import { withCsrfHeader } from '@/lib/csrf';
 import { withClerkAuthorization } from '@/lib/clerk-token';
+import { UploadService } from './UploadService';
 
 const BASE_URL = API_BASE_URL;
 
@@ -60,19 +61,13 @@ export const SuperAdminService = {
 
     async createOrganization(data: any) {
         try {
-            const formData = new FormData();
-            Object.keys(data).forEach((key) => {
-                if (data[key] !== undefined && data[key] !== null) {
-                    formData.append(key, data[key]);
-                }
-            });
+            // Logo uploads directly to S3 (browser -> S3) first; the org is
+            // then created with the resulting URL, as plain JSON.
+            const logo = data.logo instanceof File ? (await UploadService.uploadFile('org-logo', data.logo)).url : data.logo;
 
-            // Use direct fetch for FormData to avoid Content-Type conflict
-            const res = await fetch(`${BASE_URL}/super-admin/organizations`, {
+            const res = await authFetch(`/super-admin/organizations`, {
                 method: 'POST',
-                headers: withCsrfHeader('POST'),
-                credentials: 'include',
-                body: formData,
+                body: JSON.stringify({ ...data, logo }),
             });
             if (!res.ok) throw new Error('Failed to create organization');
             return await res.json();

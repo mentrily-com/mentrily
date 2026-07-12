@@ -1,6 +1,10 @@
 import type { NextConfig } from 'next';
 import { withSentryConfig } from '@sentry/nextjs';
 
+const mediaCdnHostname = new URL(
+    process.env.NEXT_PUBLIC_MEDIA_CDN_URL || 'https://dyp4wnn9yf27t.cloudfront.net',
+).hostname;
+
 const nextConfig: NextConfig = {
     output: 'standalone',
     compress: true,
@@ -65,11 +69,7 @@ const nextConfig: NextConfig = {
         remotePatterns: [
             {
                 protocol: 'https',
-                hostname: 'nyc3.digitaloceanspaces.com',
-            },
-            {
-                protocol: 'https',
-                hostname: '**.digitaloceanspaces.com',
+                hostname: mediaCdnHostname,
             },
             {
                 protocol: 'https',

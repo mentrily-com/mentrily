@@ -25,6 +25,7 @@ interface WebEditorProps {
     // Optional test cases provided by backend
     testCases?: Array<any>;
     submitLabel?: string;
+    hideSubmit?: boolean;
     onSubmit?: (data: { html: string; css: string; js: string }) => void;
     isExamMode?: boolean;
     onCheatDetected?: (reason: string) => void;
@@ -42,6 +43,7 @@ export default function WebEditor({
     fontSize,
     testCases,
     submitLabel = 'Submit',
+    hideSubmit = false,
     onSubmit,
     isExamMode = false,
     onCheatDetected,
@@ -273,30 +275,32 @@ export default function WebEditor({
                                 </svg>
                             </button>
                         )}
-                        <button
-                            onClick={() =>
-                                onSubmit?.({
-                                    html: files['index.html'],
-                                    css: files['index.css'],
-                                    js: files['index.js'],
-                                })
-                            }
-                            data-element-id="starter-submit-answer"
-                            className={`px-10 py-3 bg-[var(--brand)] text-white font-black rounded-xl text-[12px] uppercase tracking-widest shadow-lg shadow-[var(--brand-light)] hover:bg-[var(--brand-dark)] hover:-translate-y-0.5 transition-all active:translate-y-0 active:scale-[0.98] flex items-center gap-2`}
-                        >
-                            {submitLabel}
-                            <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="3"
+                        {!hideSubmit && (
+                            <button
+                                onClick={() =>
+                                    onSubmit?.({
+                                        html: files['index.html'],
+                                        css: files['index.css'],
+                                        js: files['index.js'],
+                                    })
+                                }
+                                data-element-id="starter-submit-answer"
+                                className={`px-10 py-3 bg-[var(--brand)] text-white font-black rounded-xl text-[12px] uppercase tracking-widest shadow-lg shadow-[var(--brand-light)] hover:bg-[var(--brand-dark)] hover:-translate-y-0.5 transition-all active:translate-y-0 active:scale-[0.98] flex items-center gap-2`}
                             >
-                                <line x1="5" y1="12" x2="19" y2="12" />
-                                <polyline points="12 5 19 12 12 19" />
-                            </svg>
-                        </button>
+                                {submitLabel}
+                                <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="3"
+                                >
+                                    <line x1="5" y1="12" x2="19" y2="12" />
+                                    <polyline points="12 5 19 12 12 19" />
+                                </svg>
+                            </button>
+                        )}
                     </div>
                 </div>
             )}

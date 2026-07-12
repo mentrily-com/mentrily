@@ -9,7 +9,6 @@ import {
   UseGuards,
   BadRequestException,
   Query,
-  Req,
   ValidationPipe,
 } from '@nestjs/common';
 import { TeacherService } from './teacher.service';
@@ -18,7 +17,6 @@ import { OrgFeaturesGuard } from '../auth/guards/org-features.guard';
 import { OrgStatusGuard } from '../auth/guards/org-status.guard';
 import { RequireOrgFeature } from '../auth/org-feature.decorator';
 import { User } from '../auth/user.decorator';
-import type { FastifyRequest } from 'fastify';
 import { SendExamInviteDto } from './dto/send-exam-invite.dto';
 import { CourseMutationDto } from './dto/course-mutation.dto';
 import { ExamMutationDto } from './dto/exam-mutation.dto';
@@ -438,42 +436,4 @@ export class TeacherController {
     return this.teacherService.deleteAnnouncement(id, user);
   }
 
-  @Post('announcements/upload')
-  async uploadAnnouncementFile(@User() user: any, @Req() req: FastifyRequest) {
-    const multipartReq = req as any;
-    if (!multipartReq.isMultipart()) {
-      throw new BadRequestException('Request must be multipart/form-data');
-    }
-
-    const parts = multipartReq.parts();
-    const fileSizeHeader = req.headers['x-file-size'];
-    const fileSize = fileSizeHeader
-      ? parseInt(fileSizeHeader as string, 10)
-      : undefined;
-
-    for await (const part of parts) {
-      if (part.type === 'file' && part.fieldname === 'file') {
-        // Buffer the file so we always have a known content length
-        const buffer = await part.toBuffer();
-        const actualSize = fileSize || buffer.length;
-        const url = await this.teacherService.uploadAnnouncementFile(
-          buffer,
-          part.filename,
-          part.mimetype,
-          actualSize,
-          user?.orgId,
-        );
-        return {
-          url,
-          name: part.filename,
-          type: part.mimetype,
-          size: actualSize,
-        };
-      } else if (part.type === 'file') {
-        await part.toBuffer(); // consume unused parts
-      }
-    }
-
-    throw new BadRequestException('No file provided');
-  }
 }

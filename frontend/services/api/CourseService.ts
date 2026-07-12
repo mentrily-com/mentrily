@@ -1,6 +1,7 @@
 import { API_BASE_URL } from '@/lib/api-base';
 import { withCsrfHeader } from '@/lib/csrf';
 import { withClerkAuthorization } from '@/lib/clerk-token';
+import { UploadService } from './UploadService';
 
 const BASE_URL = API_BASE_URL;
 
@@ -309,56 +310,10 @@ export const CourseService = {
         }
     },
 
-    uploadCourseVideo(file: File, onProgress?: (percent: number) => void): Promise<{ url: string }> {
-        return new Promise((resolve, reject) => {
-            const formData = new FormData();
-            formData.append('video', file);
-
-            const xhr = new XMLHttpRequest();
-            xhr.withCredentials = true;
-
-            xhr.upload.addEventListener('progress', (event) => {
-                if (event.lengthComputable && onProgress) {
-                    onProgress(Math.round((event.loaded / event.total) * 100));
-                }
-            });
-
-            xhr.addEventListener('load', () => {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    try {
-                        resolve(JSON.parse(xhr.responseText));
-                    } catch {
-                        reject(new Error('Invalid response from server'));
-                    }
-                } else {
-                    try {
-                        const err = JSON.parse(xhr.responseText);
-                        reject(new Error(err.message || 'Failed to upload video'));
-                    } catch {
-                        reject(new Error(`Upload failed with status ${xhr.status}`));
-                    }
-                }
-            });
-
-            xhr.addEventListener('error', () => reject(new Error('Network error during upload')));
-            xhr.addEventListener('abort', () => reject(new Error('Upload was cancelled')));
-
-            // Bypass Proxy for large video uploads to avoid Vercel 4.5MB limit
-            // Use direct backend URL if provided, otherwise fallback to proxy
-            const uploadUrl = `${API_BASE_URL}/course/upload-video`;
-
-            xhr.open('POST', uploadUrl);
-
-            const csrfHeaders = withCsrfHeader('POST');
-            const csrfToken = (csrfHeaders as Record<string, string>)['X-CSRF-Token'];
-            if (csrfToken) {
-                xhr.setRequestHeader('X-CSRF-Token', csrfToken);
-            }
-
-            // Add File Size header to help backend handle stream length (fixes 500 error with dd-trace)
-            xhr.setRequestHeader('X-File-Size', file.size.toString());
-
-            xhr.send(formData);
-        });
+    async uploadCourseVideo(file: File, onProgress?: (percent: number) => void): Promise<{ url: string }> {
+        // Uploads directly to S3 (browser -> S3) — file bytes never transit
+        // this backend or the Vercel-hosted frontend.
+        const uploaded = await UploadService.uploadFile('course-video', file, onProgress);
+        return { url: uploaded.url };
     },
 };

@@ -95,18 +95,19 @@ export default async function PublicPlaygroundPage({ params }: PageProps) {
     };
 
     return (
-        <PublicPlaygroundShell>
+        <PublicPlaygroundShell
+            seoHeader={<PublicSeoHeader entry={entry} />}
+            seoContent={<PublicSeoContent entry={entry} />}
+        >
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
             />
-            <PublicSeoHeader entry={entry} />
             {entry.kind === 'code' && <PlaygroundCore initialLangId={entry.langId} publicMode />}
             {entry.kind === 'web' && <WebPlaygroundPage embeddedShell={false} />}
             {entry.kind === 'notebook' && <PythonNotebookPage embeddedShell={false} />}
-            <PublicSeoContent entry={entry} />
         </PublicPlaygroundShell>
     );
 }

@@ -6,6 +6,7 @@ import {
   DeleteObjectCommand,
   HeadObjectCommand,
 } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuidv4 } from 'uuid';
 import { QuotaService } from '../../modules/billing/quota.service';
 
@@ -20,43 +21,94 @@ export class StorageService {
     private configService: ConfigService,
     private quotaService: QuotaService,
   ) {
-    const region = this.configService.get<string>('S3_REGION') || 'sgp1';
-    const endpoint = this.configService.get<string>('S3_ENDPOINT') || '';
+    const region = this.configService.get<string>('S3_REGION') || 'ap-south-1';
     const accessKeyId = this.configService.get<string>('S3_ACCESS_KEY') || '';
     const secretAccessKey =
       this.configService.get<string>('S3_SECRET_KEY') || '';
     this.bucketName = this.configService.get<string>('S3_BUCKET_NAME') || '';
-    // Public CDN/origin URL for the bucket: https://<bucket>.<region>.digitaloceanspaces.com
-    this.cdnUrl =
-      this.configService.get<string>('S3_CDN_URL') ||
-      `https://${this.bucketName}.${region}.digitaloceanspaces.com`;
+    // Public read path is the CloudFront distribution in front of the
+    // (otherwise fully private) bucket — never the bucket's own S3 endpoint.
+    this.cdnUrl = this.configService.get<string>('S3_CDN_URL') || '';
 
-    if (!endpoint || !accessKeyId || !secretAccessKey || !this.bucketName) {
+    if (!accessKeyId || !secretAccessKey || !this.bucketName || !this.cdnUrl) {
       this.logger.warn(
-        'Storage (DigitalOcean Spaces) configuration is missing. File uploads will fail.',
+        'Storage (AWS S3) configuration is missing. File uploads will fail.',
       );
     }
 
     this.s3Client = new S3Client({
       region,
-      endpoint,
-      credentials: {
-        accessKeyId,
-        secretAccessKey,
-      },
-      // DigitalOcean Spaces uses virtual-hosted-style URLs
-      forcePathStyle: false,
+      credentials: { accessKeyId, secretAccessKey },
     });
   }
 
   /**
-   * Upload a file to DigitalOcean Spaces.
-   * @param fileData       - The file content (Buffer, Stream, or Blob)
-   * @param filename       - Original filename to extract extension
-   * @param mimetype       - Content type of the file
-   * @param folder         - Logical sub-folder inside the bucket
-   * @param contentLength  - Length of the content in bytes (optional, but recommended for streams)
-   * @returns Public URL of the uploaded file
+   * Namespace an object key by org (or, for org-less personal accounts, by
+   * owner) so ownership can be verified at delete/confirm time without a DB
+   * lookup.
+   */
+  buildKey(
+    folder: string,
+    filename: string,
+    orgId?: string,
+    ownerId?: string,
+  ): string {
+    const fileExtension = filename.split('.').pop();
+    const namespace = orgId || (ownerId ? `user-${ownerId}` : null);
+    return namespace
+      ? `${folder}/${namespace}/${uuidv4()}.${fileExtension}`
+      : `${folder}/${uuidv4()}.${fileExtension}`;
+  }
+
+  publicUrl(key: string): string {
+    return `${this.cdnUrl}/${key}`;
+  }
+
+  /**
+   * Create a short-lived presigned PUT URL so the browser can upload an
+   * object directly to S3 — file bytes never transit this backend.
+   */
+  async createPresignedPutUrl(
+    key: string,
+    mimetype: string,
+    expiresInSeconds = 300,
+  ): Promise<string> {
+    const command = new PutObjectCommand({
+      Bucket: this.bucketName,
+      Key: key,
+      ContentType: mimetype,
+    });
+    return getSignedUrl(this.s3Client, command, {
+      expiresIn: expiresInSeconds,
+    });
+  }
+
+  /**
+   * Look up the size (and existence) of an object — used to confirm a
+   * direct browser upload actually completed before trusting its URL.
+   */
+  async headObject(
+    key: string,
+  ): Promise<{ contentLength: number; contentType?: string } | null> {
+    try {
+      const head = await this.s3Client.send(
+        new HeadObjectCommand({ Bucket: this.bucketName, Key: key }),
+      );
+      return {
+        contentLength:
+          typeof head.ContentLength === 'number' ? head.ContentLength : 0,
+        contentType: head.ContentType,
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Upload a file directly from the backend (server-generated files only —
+   * certificate PDFs, sharp-processed signature images). Everything else
+   * uploads directly to S3 via a presigned URL (see UploadsService).
+   * @returns Public (CDN) URL of the uploaded file
    */
   async uploadFile(
     fileData: any,
@@ -71,15 +123,7 @@ export class StorageService {
       throw new Error('File data is required');
     }
 
-    const fileExtension = filename.split('.').pop();
-    // Namespace the key by org (or, for org-less personal accounts, by
-    // owner) so ownership can be verified at delete time without a DB
-    // lookup. Falls back to the old flat shape when neither is available —
-    // fully backward compatible with every key already in the bucket.
-    const namespace = orgId || (ownerId ? `user-${ownerId}` : null);
-    const key = namespace
-      ? `${folder}/${namespace}/${uuidv4()}.${fileExtension}`
-      : `${folder}/${uuidv4()}.${fileExtension}`;
+    const key = this.buildKey(folder, filename, orgId, ownerId);
     const uploadSizeMb = contentLength
       ? Number((contentLength / (1024 * 1024)).toFixed(4))
       : 0;
@@ -94,13 +138,10 @@ export class StorageService {
       Body: fileData,
       ContentType: mimetype,
       ContentLength: contentLength,
-      ACL: 'public-read',
     });
 
     try {
-      this.logger.log(
-        `Uploading file ${filename} to DigitalOcean Spaces: ${this.bucketName}/${key}`,
-      );
+      this.logger.log(`Uploading file ${filename} to S3: ${this.bucketName}/${key}`);
       await this.s3Client.send(command);
       this.logger.log(`File uploaded successfully: ${key}`);
 
@@ -112,7 +153,7 @@ export class StorageService {
         );
       }
 
-      return `${this.cdnUrl}/${key}`;
+      return this.publicUrl(key);
     } catch (error) {
       this.logger.error(
         `Failed to upload file ${filename}: ${error.message}`,
@@ -123,7 +164,7 @@ export class StorageService {
   }
 
   /**
-   * Delete a file from DigitalOcean Spaces by its public URL.
+   * Delete a file from S3 by its public (CDN) URL.
    * Non-throwing: logs errors but doesn't break the caller.
    */
   async deleteFile(
@@ -143,22 +184,8 @@ export class StorageService {
 
       let effectiveContentLength = contentLength;
       if (orgId && (!effectiveContentLength || effectiveContentLength <= 0)) {
-        try {
-          const head = await this.s3Client.send(
-            new HeadObjectCommand({
-              Bucket: this.bucketName,
-              Key: key,
-            }),
-          );
-          if (
-            typeof head.ContentLength === 'number' &&
-            Number.isFinite(head.ContentLength)
-          ) {
-            effectiveContentLength = head.ContentLength;
-          }
-        } catch {
-          effectiveContentLength = contentLength;
-        }
+        const head = await this.headObject(key);
+        if (head) effectiveContentLength = head.contentLength;
       }
 
       const command = new DeleteObjectCommand({
@@ -166,9 +193,7 @@ export class StorageService {
         Key: key,
       });
 
-      this.logger.log(
-        `Deleting file from DigitalOcean Spaces: ${this.bucketName}/${key}`,
-      );
+      this.logger.log(`Deleting file from S3: ${this.bucketName}/${key}`);
       await this.s3Client.send(command);
       this.logger.log(`File deleted successfully: ${key}`);
 
@@ -220,19 +245,22 @@ export class StorageService {
   }
 
   /**
-   * Extract the object key from a DigitalOcean Spaces public URL.
+   * Extract the object key from a public CDN URL.
    * Supports:
-   *  - https://<bucket>.<region>.digitaloceanspaces.com/<key>
-   *  - https://<bucket>.<region>.cdn.digitaloceanspaces.com/<key>
-   *  - Legacy Supabase URLs (graceful fallback for existing stored URLs)
+   *  - https://<cloudfront-domain>/<key>
+   *  - Legacy DigitalOcean Spaces / Supabase URLs (graceful fallback for
+   *    any URLs stored in the DB from a previous storage provider)
    */
-  private extractKeyFromUrl(url: string): string | null {
+  extractKeyFromUrl(url: string): string | null {
     try {
       const urlObj = new URL(url);
 
-      // DigitalOcean Spaces: hostname starts with <bucket>.<region>.digitaloceanspaces.com
+      if (this.cdnUrl && url.startsWith(this.cdnUrl)) {
+        return urlObj.pathname.replace(/^\//, '');
+      }
+
+      // Legacy DigitalOcean Spaces: <bucket>.<region>.digitaloceanspaces.com/<key>
       if (urlObj.hostname.includes('digitaloceanspaces.com')) {
-        // pathname is /<key>, strip leading slash
         return urlObj.pathname.replace(/^\//, '');
       }
 
@@ -242,11 +270,10 @@ export class StorageService {
       );
       if (supabaseMatch) return supabaseMatch[1];
 
-      // Generic fallback: skip first path segment (assumed to be bucket)
-      const parts = urlObj.pathname.split('/').filter(Boolean);
-      if (parts.length >= 2) return parts.slice(1).join('/');
-
-      return null;
+      // Generic fallback: whole pathname is the key (CDN has no bucket
+      // segment in the URL, unlike the legacy providers above).
+      const pathname = urlObj.pathname.replace(/^\//, '');
+      return pathname || null;
     } catch {
       return null;
     }
