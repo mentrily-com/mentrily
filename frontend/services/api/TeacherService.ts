@@ -70,6 +70,7 @@ export interface Student {
     name: string;
     email?: string;
     rollNumber?: string;
+    section?: string;
     ip?: string;
     status: string;
     lastActivity: string;

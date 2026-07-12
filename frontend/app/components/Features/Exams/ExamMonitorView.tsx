@@ -380,6 +380,16 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
                                                                     {student.rollNumber}
                                                                 </span>
+                                                                {student.section && student.section !== 'N/A' && (
+                                                                    <>
+                                                                        <span className="text-[10px] font-bold text-slate-300">
+                                                                            •
+                                                                        </span>
+                                                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                                                                            Sec {student.section}
+                                                                        </span>
+                                                                    </>
+                                                                )}
                                                                 <span className="text-[10px] font-bold text-slate-300">
                                                                     •
                                                                 </span>
