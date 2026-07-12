@@ -144,7 +144,13 @@ export class SubmissionService {
       'flush_answers',
       { sessionId },
       {
-        jobId: `flush:${sessionId}`,
+        // BullMQ rejects a custom jobId containing ':' unless splitting on
+        // it yields exactly 3 parts (a legacy repeatable-job carve-out) —
+        // `flush:${sessionId}` split into 2 and threw "Custom Id cannot
+        // contain :" on every single call, meaning this coalescing job was
+        // NEVER successfully scheduled and every submitSection/save-answer
+        // request 500'd. '-' has no such restriction.
+        jobId: `flush-${sessionId}`,
         delay: FLUSH_DELAY_MS,
         // jobIds must leave the queue after completion so the next batch
         // for this session can schedule a fresh flush.
