@@ -9,7 +9,9 @@ import {
     FileCode2,
     LayoutDashboard,
     LogOut,
+    Maximize,
     Menu,
+    Minimize,
     NotebookTabs,
     Sparkles,
     User,
@@ -36,6 +38,39 @@ export default function PublicPlaygroundShell({
 }) {
     const pathname = usePathname();
     const [open, setOpen] = useState(false);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    const containerRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        const handleFullscreenChange = () => {
+            setIsFullscreen(!!document.fullscreenElement);
+        };
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    }, []);
+
+    const toggleFullscreen = () => {
+        // isFullscreen (not document.fullscreenElement) drives this check —
+        // the CSS-only fallback below sets isFullscreen without ever engaging
+        // the native API, so checking fullscreenElement alone would make the
+        // fallback path un-exitable (every click would just retry a request
+        // that already failed once).
+        if (isFullscreen) {
+            if (document.fullscreenElement) {
+                document.exitFullscreen().catch(() => {});
+            }
+            setIsFullscreen(false);
+            return;
+        }
+
+        if (!containerRef.current) return;
+        containerRef.current.requestFullscreen().catch(() => {
+            // Fullscreen API blocked (no user gesture, browser policy, etc.) —
+            // fall back to the CSS-only maximized layout, which needs no
+            // permission and still reclaims the header/sidebar chrome.
+            setIsFullscreen(true);
+        });
+    };
 
     const openQuestionBuilder = () => {
         if (typeof window !== 'undefined') {
@@ -49,9 +84,12 @@ export default function PublicPlaygroundShell({
 
     return (
         <div
-            className={`public-playground-page bg-[#F8FAFC] text-slate-900 ${embedded ? 'h-full min-h-0' : 'min-h-screen'}`}
+            ref={containerRef}
+            className={`public-playground-page bg-[#F8FAFC] text-slate-900 ${
+                isFullscreen ? 'fixed inset-0 z-[2000] h-screen w-screen' : embedded ? 'h-full min-h-0' : 'min-h-screen'
+            }`}
         >
-            {!embedded && (
+            {!embedded && !isFullscreen && (
                 <header className="sticky top-0 z-[1000] border-b border-slate-100 bg-white/90 backdrop-blur-md">
                     <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-6">
                         <div className="flex items-center gap-6">
@@ -121,29 +159,43 @@ export default function PublicPlaygroundShell({
 
             <main
                 className={
-                    embedded
-                        ? 'h-full min-h-0 w-full bg-[#F8FAFC] p-3 lg:p-4'
-                        : 'mx-auto min-h-[calc(100vh-4rem)] w-full max-w-[1660px] px-4 py-4 lg:px-6'
+                    isFullscreen
+                        ? 'h-full min-h-0 w-full bg-[#F8FAFC] p-0'
+                        : embedded
+                          ? 'h-full min-h-0 w-full bg-[#F8FAFC] p-3 lg:p-4'
+                          : 'mx-auto min-h-[calc(100vh-4rem)] w-full max-w-[1660px] px-4 py-4 lg:px-6'
                 }
             >
                 <div
                     className={
-                        embedded
-                            ? `h-full min-h-0 ${showQuestionBuilder ? 'grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_300px]' : ''}`
-                            : 'grid min-h-[calc(100vh-6rem)] grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1120px)_minmax(260px,1fr)]'
+                        isFullscreen
+                            ? 'h-full min-h-0'
+                            : embedded
+                              ? `h-full min-h-0 ${showQuestionBuilder ? 'grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_300px]' : ''}`
+                              : 'grid min-h-[calc(100vh-6rem)] grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1120px)_minmax(260px,1fr)]'
                     }
                 >
-                    <div className={embedded ? 'h-full min-h-0 min-w-0' : 'min-h-[calc(100vh-6rem)] min-w-0'}>
+                    <div
+                        className={`relative ${isFullscreen || embedded ? 'h-full min-h-0 min-w-0' : 'min-h-[calc(100vh-6rem)] min-w-0'}`}
+                    >
+                        <button
+                            type="button"
+                            onClick={toggleFullscreen}
+                            title={isFullscreen ? 'Exit full screen' : 'Full screen'}
+                            className="absolute right-3 top-3 z-[1500] flex items-center justify-center rounded-lg border border-slate-200 bg-white/95 p-2 text-slate-500 shadow-sm backdrop-blur-sm transition hover:border-slate-300 hover:text-[var(--brand)]"
+                        >
+                            {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+                        </button>
                         {children}
                     </div>
-                    {showQuestionBuilder && (
+                    {showQuestionBuilder && !isFullscreen && (
                         <aside className="hidden min-h-0 xl:block">
                             <div className="sticky top-4">
                                 <QuestionBuilderCard onOpen={openQuestionBuilder} />
                             </div>
                         </aside>
                     )}
-                    {!embedded && (
+                    {!embedded && !isFullscreen && (
                         <aside className="hidden min-h-[calc(100vh-6rem)] xl:block">
                             <div className="sticky top-20 space-y-3">
                                 <div className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900 shadow-sm">
