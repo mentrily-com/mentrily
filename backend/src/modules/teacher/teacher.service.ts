@@ -3005,11 +3005,28 @@ export class TeacherService {
         (v: any) => v.type === 'VM_DETECTED',
       );
 
+      // The roll number / section shown here is what the student actually
+      // typed on the exam login form, stashed in the session's own
+      // _internal_metadata (see ExamService.startSession) — NOT the
+      // User.rollNumber profile column, which is a separate, usually-empty
+      // field most exam-only accounts never fill in.
+      const sessionAnswers =
+        typeof session.answers === 'string'
+          ? JSON.parse(session.answers || '{}')
+          : session.answers || {};
+      const sessionMetadata = sessionAnswers._internal_metadata || {};
+
       return {
         id: session.user.id,
-        name: session.user.name || session.user.email || 'Unknown',
+        name:
+          sessionMetadata.name ||
+          session.user.name ||
+          session.user.email ||
+          'Unknown',
         email: session.user.email,
-        rollNumber: session.user.rollNumber || 'N/A',
+        rollNumber:
+          sessionMetadata.rollNumber || session.user.rollNumber || 'N/A',
+        section: sessionMetadata.section || 'N/A',
         status:
           session.status === 'COMPLETED' ||
           (Date.now() >
@@ -3432,7 +3449,13 @@ export class TeacherService {
     if (!session) throw new Error('Session not found');
     await this.checkAccess(session.exam, user);
 
-    const updateData: any = { score: newScore };
+    const totalMarks = Number(session.exam?.totalMarks) || 0;
+    const clampedScore =
+      totalMarks > 0
+        ? Math.max(0, Math.min(Number(newScore) || 0, totalMarks))
+        : Math.max(0, Number(newScore) || 0);
+
+    const updateData: any = { score: clampedScore };
 
     // If internal marks are provided, update the answers JSON
     if (internalMarks) {
