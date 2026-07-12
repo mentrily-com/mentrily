@@ -18,8 +18,19 @@ export function useNetworkMonitor() {
 
     useEffect(() => {
         let intervalId: any = null;
+        let cancelled = false;
 
-        const measureFallbackSpeed = async () => {
+        // The Network Information API's `downlink` is not a real measurement —
+        // per spec browsers deliberately round it to a coarse set of buckets
+        // and add random noise (fingerprinting mitigation), and only refresh
+        // it every couple of seconds off a rolling average. Trusting it
+        // directly (as this hook used to) shows a stale/inaccurate number
+        // whenever it happens to be present. A real fetch against the actual
+        // exam backend — what "true speed" means in this context — is the
+        // only way to reflect the connection students are actually depending
+        // on, so it's now the primary source and runs continuously, not just
+        // as a fallback for when the native API is missing.
+        const measureRealSpeed = async () => {
             if (typeof window === 'undefined' || typeof navigator === 'undefined' || !navigator.onLine) return;
 
             try {
@@ -30,6 +41,7 @@ export function useNetworkMonitor() {
                 });
                 const text = await res.text();
                 const endedAt = performance.now();
+                if (cancelled) return;
 
                 const durationSec = Math.max((endedAt - startedAt) / 1000, 0.05);
                 const bytes = new TextEncoder().encode(text).length;
@@ -43,56 +55,41 @@ export function useNetworkMonitor() {
                     }));
                 }
             } catch {
-                // Silent fallback - keep previous status
+                if (!cancelled) {
+                    setStatus((prev) => ({ ...prev, isOnline: false }));
+                }
             }
         };
 
-        const updateStatus = () => {
+        const updateOnlineState = () => {
             const conn =
                 (navigator as any).connection ||
                 (navigator as any).mozConnection ||
                 (navigator as any).webkitConnection;
-            const connectionDownlink = conn && typeof conn.downlink === 'number' ? conn.downlink : 0;
-            setStatus({
+            setStatus((prev) => ({
+                ...prev,
                 isOnline: navigator.onLine,
-                downlink: connectionDownlink,
                 effectiveType: conn ? conn.effectiveType : 'unknown',
-                rtt: conn ? conn.rtt : 0,
-            });
+            }));
 
-            if (navigator.onLine && connectionDownlink <= 0) {
-                measureFallbackSpeed();
+            if (navigator.onLine) {
+                measureRealSpeed();
             }
         };
 
-        window.addEventListener('online', updateStatus);
-        window.addEventListener('offline', updateStatus);
+        window.addEventListener('online', updateOnlineState);
+        window.addEventListener('offline', updateOnlineState);
 
-        const conn =
-            (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
-        if (conn) {
-            conn.addEventListener('change', updateStatus);
-        }
+        updateOnlineState();
 
-        updateStatus();
-
-        intervalId = setInterval(() => {
-            const conn =
-                (navigator as any).connection ||
-                (navigator as any).mozConnection ||
-                (navigator as any).webkitConnection;
-            const hasNativeDownlink = conn && typeof conn.downlink === 'number' && conn.downlink > 0;
-            if (navigator.onLine && !hasNativeDownlink) {
-                measureFallbackSpeed();
-            }
-        }, 15000);
+        // Re-measure regularly so the displayed speed tracks real, current
+        // conditions instead of a one-time reading from page load.
+        intervalId = setInterval(measureRealSpeed, 10000);
 
         return () => {
-            window.removeEventListener('online', updateStatus);
-            window.removeEventListener('offline', updateStatus);
-            if (conn) {
-                conn.removeEventListener('change', updateStatus);
-            }
+            cancelled = true;
+            window.removeEventListener('online', updateOnlineState);
+            window.removeEventListener('offline', updateOnlineState);
             if (intervalId) {
                 clearInterval(intervalId);
             }

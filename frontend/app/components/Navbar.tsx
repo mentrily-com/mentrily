@@ -1084,18 +1084,69 @@ function ProfileMenu({
             </div>
 
             {examConfig ? (
-                <button
-                    onClick={() => examConfig.onRefresh?.()}
-                    className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white font-black text-sm overflow-hidden relative"
-                    title="Refresh exam"
-                >
-                    {avatarUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
-                    ) : (
-                        initial
+                <>
+                    <button
+                        onClick={() => setOpen((value) => !value)}
+                        className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white font-black text-sm overflow-hidden relative"
+                    >
+                        {avatarUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+                        ) : (
+                            initial
+                        )}
+                    </button>
+
+                    {open && (
+                        <div className="absolute right-0 top-full mt-3 w-64 rounded-2xl bg-white shadow-2xl ring-1 ring-slate-200/60 z-50 overflow-hidden animate-fade-in">
+                            <div className="px-4 py-4 border-b border-slate-100 flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] text-white font-black flex items-center justify-center overflow-hidden shrink-0">
+                                    {avatarUrl ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+                                    ) : (
+                                        initial
+                                    )}
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-sm font-black text-slate-800 truncate">{displayName}</p>
+                                    {examConfig.rollNumber && (
+                                        <p className="text-[11px] font-bold text-slate-400 truncate mt-0.5">
+                                            Roll: {examConfig.rollNumber}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="p-2">
+                                <button
+                                    onClick={() => {
+                                        setOpen(false);
+                                        examConfig.onRefresh?.();
+                                    }}
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-black text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                                >
+                                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
+                                        <svg
+                                            width="16"
+                                            height="16"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2.5"
+                                        >
+                                            <path d="M21 2v6h-6" />
+                                            <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
+                                            <path d="M3 22v-6h6" />
+                                            <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
+                                        </svg>
+                                    </div>
+                                    Refresh Exam
+                                </button>
+                            </div>
+                        </div>
                     )}
-                </button>
+                </>
             ) : (
                 <>
                     <button
