@@ -2,6 +2,7 @@ import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { SubmissionService } from './submission.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '../auth/user.decorator';
+import { SaveAnswerDto, SubmitSectionDto, SubmitExamDto } from './dto/submission.dto';
 
 @Controller('submission')
 @UseGuards(JwtAuthGuard)
@@ -9,10 +10,7 @@ export class SubmissionController {
   constructor(private submissionService: SubmissionService) {}
 
   @Post('save-answer')
-  async saveAnswer(
-    @Body() body: { sessionId: string; sectionId: string; answer: any },
-    @User() user: any,
-  ) {
+  async saveAnswer(@Body() body: SaveAnswerDto, @User() user: any) {
     await this.submissionService.assertSessionOwnership(
       body.sessionId,
       user?.id,
@@ -22,10 +20,7 @@ export class SubmissionController {
   }
 
   @Post('section')
-  async submitSection(
-    @Body() body: { sessionId: string; sectionId: string; answers: any },
-    @User() user: any,
-  ) {
+  async submitSection(@Body() body: SubmitSectionDto, @User() user: any) {
     await this.submissionService.assertSessionOwnership(
       body.sessionId,
       user?.id,
@@ -45,10 +40,7 @@ export class SubmissionController {
   }
 
   @Post('submit')
-  async submitExam(
-    @Body() body: { sessionId: string; answers?: Record<string, any> },
-    @User() user: any,
-  ) {
+  async submitExam(@Body() body: SubmitExamDto, @User() user: any) {
     await this.submissionService.assertSessionOwnership(
       body.sessionId,
       user?.id,

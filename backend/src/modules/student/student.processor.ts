@@ -237,6 +237,25 @@ export class StudentProcessor extends WorkerHost {
   }): Promise<void> {
     const { userId, itemId, type, content, isCorrect, score, sessionId } = data;
 
+    // Idempotency safety net: a queued job can be retried by BullMQ after a
+    // transient failure (e.g. the create() below succeeds but the process
+    // crashes before the job is acked), which would otherwise re-run this
+    // exact same job data — a second identical row plus a second XP award
+    // for an answer that didn't actually change. Only skips an EXACT repeat
+    // (same session, question, and content); a genuinely changed answer
+    // still creates a new attempt row as before.
+    if (sessionId) {
+      // @ts-ignore
+      const recentDuplicate = await this.prisma.questionAttempt.findFirst({
+        where: { sessionId, itemId },
+        orderBy: { createdAt: 'desc' },
+        select: { content: true },
+      });
+      if (recentDuplicate && JSON.stringify(recentDuplicate.content) === JSON.stringify(content)) {
+        return;
+      }
+    }
+
     // @ts-ignore
     await this.prisma.questionAttempt.create({
       data: {
