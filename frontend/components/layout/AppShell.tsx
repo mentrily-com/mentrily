@@ -86,6 +86,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             );
         }
 
+        // Anonymous/no-role visitors to a playground route still need a real
+        // height for PublicPlaygroundShell's `embedded` (h-full) sizing to
+        // cascade into — without this, the shell has no ancestor height to
+        // resolve against and collapses to its own content height instead of
+        // filling the viewport. No Navbar here (unlike the learner branch
+        // above): PublicPlaygroundShell already renders its own header /
+        // sign-in affordances for anonymous visitors.
+        if (isPlaygroundRoute) {
+            return <div className="h-screen min-h-0 overflow-hidden bg-[#F8FAFC]">{children}</div>;
+        }
+
         return <>{children}</>;
     }
 
