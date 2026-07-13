@@ -126,6 +126,7 @@ export default function GroupsTab({ onEnrollGroupInCourse }: GroupsTabProps) {
                                     </p>
                                 </div>
                                 <button
+                                    aria-label="Delete group"
                                     onClick={() => handleDeleteGroup(group.id)}
                                     className="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all opacity-0 group-hover/card:opacity-100"
                                 >
@@ -227,6 +228,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
             />
             <div className="bg-white w-full max-w-xl rounded-[48px] p-12 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[85vh] overflow-y-auto custom-scrollbar">
                 <button
+                    aria-label="Close modal"
                     onClick={() => {
                         if (step === 'students') onCreated();
                         else onClose();
@@ -330,6 +332,7 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
             />
             <div className="bg-white w-full max-w-2xl rounded-[48px] p-12 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[85vh] overflow-hidden flex flex-col">
                 <button
+                    aria-label="Close modal"
                     onClick={() => {
                         onUpdated();
                     }}
@@ -365,6 +368,7 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
                             <div className="flex items-center gap-2">
                                 <h2 className="text-2xl font-black text-slate-900 tracking-tight">{groupName}</h2>
                                 <button
+                                    aria-label="Edit group name"
                                     onClick={() => setIsEditingName(true)}
                                     className="p-1 text-slate-300 hover:text-[var(--brand)] transition-colors"
                                 >
@@ -440,6 +444,7 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
                                     </div>
                                 </div>
                                 <button
+                                    aria-label="Remove student"
                                     onClick={() => handleRemoveStudent(st.id)}
                                     className="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all opacity-0 group-hover/student:opacity-100"
                                     title="Remove from group"

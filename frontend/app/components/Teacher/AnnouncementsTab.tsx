@@ -166,12 +166,14 @@ export default function AnnouncementsTab() {
                                         </p>
                                     </div>
                                     <button
+                                        aria-label="Edit announcement"
                                         onClick={() => setEditingAnnouncement(ann)}
                                         className="p-2 text-slate-300 hover:text-[var(--brand)] hover:bg-[var(--brand-light)]/40 rounded-xl transition-all opacity-0 group-hover/ann:opacity-100"
                                     >
                                         <Pencil size={16} />
                                     </button>
                                     <button
+                                        aria-label="Delete announcement"
                                         onClick={() => handleDelete(ann.id)}
                                         className="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all opacity-0 group-hover/ann:opacity-100"
                                     >
@@ -328,6 +330,7 @@ function ComposeAnnouncementModal({
             <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={onClose} />
             <div className="bg-white w-full max-w-3xl rounded-[48px] p-12 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[85vh] overflow-y-auto custom-scrollbar">
                 <button
+                    aria-label="Close modal"
                     onClick={onClose}
                     className="absolute top-10 right-10 w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all hover:scale-110 active:scale-95"
                 >
@@ -426,6 +429,7 @@ function ComposeAnnouncementModal({
                                             {att.name}
                                         </span>
                                         <button
+                                            aria-label="Remove attachment"
                                             onClick={() => removeAttachment(idx)}
                                             className="text-slate-300 hover:text-rose-500 transition-colors"
                                         >
