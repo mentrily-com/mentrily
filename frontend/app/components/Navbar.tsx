@@ -158,6 +158,7 @@ export default function Navbar({ basePath, userRole: roleOverride, examConfig }:
         [dashboardRoute, pathname],
     );
     const isAnalytics = useMemo(() => pathname?.includes('/analytics'), [pathname]);
+    const isBrowse = useMemo(() => pathname?.includes('/learner/browse'), [pathname]);
     const isExams = useMemo(() => pathname?.includes('/exams'), [pathname]);
     const isStudents = useMemo(() => pathname?.includes('/students'), [pathname]);
     const isUsers = useMemo(() => pathname?.includes('/users'), [pathname]);
@@ -511,6 +512,28 @@ export default function Navbar({ basePath, userRole: roleOverride, examConfig }:
                                     </>
                                 )}
 
+                                {role === 'student' && (
+                                    <NavItem
+                                        active={isBrowse}
+                                        onClick={() => router.push('/dashboard/learner/browse')}
+                                        icon={
+                                            <svg
+                                                width="18"
+                                                height="18"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            >
+                                                <circle cx="12" cy="12" r="10" />
+                                                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+                                            </svg>
+                                        }
+                                        label="Browse"
+                                    />
+                                )}
                                 {role === 'student' && (
                                     <NavItem
                                         active={isAnalytics}

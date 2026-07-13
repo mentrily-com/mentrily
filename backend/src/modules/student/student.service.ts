@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { SupabaseService } from '../../services/supabase/supabase.service';
 import { ExamService } from '../exam/exam.service';
 import { InjectRedis } from '@nestjs-modules/ioredis';
@@ -528,6 +532,84 @@ export class StudentService {
 
     await this.redis.set(cacheKey, JSON.stringify(courses), 'EX', 60);
     return courses;
+  }
+
+  async browseCourses(user: any) {
+    // Catalog of self-enrollable courses: everything published/visible in the
+    // learner's own org plus platform-wide org-less courses. Only card-level
+    // metadata leaves the server — never unit content or exam payloads.
+    const orgId = user.orgId || null;
+    const courses = await this.prisma.course.findMany({
+      where: {
+        isVisible: true,
+        OR: orgId ? [{ orgId }, { orgId: null }] : [{ orgId: null }],
+      },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        shortDescription: true,
+        difficulty: true,
+        tags: true,
+        thumbnail: true,
+        modules: { select: { units: { select: { id: true } } } },
+        students: { where: { id: user.id }, select: { id: true } },
+        linkedExamId: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return courses.map((course: any) => ({
+      id: course.id,
+      slug: course.slug,
+      title: course.title,
+      shortDescription: course.shortDescription,
+      difficulty: course.difficulty,
+      tags: course.tags || [],
+      thumbnail: course.thumbnail,
+      sections: course.modules.length,
+      totalUnits: course.modules.reduce(
+        (sum: number, mod: any) => sum + mod.units.length,
+        0,
+      ),
+      hasFinalExam: !!course.linkedExamId,
+      enrolled: course.students.length > 0,
+    }));
+  }
+
+  async enrollInCourse(user: any, courseId: string) {
+    const course = await this.prisma.course.findUnique({
+      where: { id: courseId },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        isVisible: true,
+        orgId: true,
+      },
+    });
+    if (!course) throw new NotFoundException('Course not found');
+
+    // Self-enroll is only open for browsable courses: visible AND either
+    // org-less (platform-wide) or belonging to the learner's own org.
+    const orgId = user.orgId || null;
+    const enrollable =
+      course.isVisible && (course.orgId === null || course.orgId === orgId);
+    if (!enrollable) {
+      throw new ForbiddenException('This course is not open for enrollment');
+    }
+
+    await this.prisma.course.update({
+      where: { id: courseId },
+      data: { students: { connect: { id: user.id } } },
+    });
+
+    // Bust the learner dashboard caches so the course shows up immediately
+    await this.redis.del(`student:courses:${user.id}`);
+    await this.redis.del(`student:stats:${user.id}`);
+
+    return { enrolled: true, courseId: course.id, slug: course.slug };
   }
 
   async getCourseExamStatus(userId: string, courseSlug: string) {
@@ -1156,7 +1238,7 @@ export class StudentService {
 
     const parsedContent =
       typeof unitContent === 'string' ? JSON.parse(unitContent) : unitContent;
-    const options = parsedContent?.mcqOptions || [];
+    const options = parsedContent?.mcqOptions || parsedContent?.options || [];
     const correctIds = options
       .filter((o: any) => o?.isCorrect)
       .map((o: any) => String(o.id))

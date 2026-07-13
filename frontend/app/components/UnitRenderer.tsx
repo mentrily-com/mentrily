@@ -50,6 +50,10 @@ const PythonNotebook = dynamic(() => import('./Features/Notebook/PythonNotebook'
     loading: () => <CoursePlayerSkeleton isExamMode hasSidebar={false} />,
     ssr: false,
 });
+const YouTubeSegmentPlayer = dynamic(() => import('./Reading/YouTubeSegmentPlayer'), {
+    loading: () => <div className="w-full aspect-video bg-slate-100 animate-pulse rounded-2xl"></div>,
+    ssr: false,
+});
 
 import { SUPPORTED_LANGUAGES } from './Editor/languages';
 import { UnitQuestion, QuestionType } from '@/types/unit';
@@ -382,17 +386,26 @@ export function UnitRendererComponent({
                                                         }}
                                                     />
                                                 ) : block.type === 'video' ? (
-                                                    <div className="not-prose my-8">
-                                                        <video
-                                                            src={block.videoUrl}
-                                                            controls
-                                                            controlsList="nodownload"
-                                                            className="w-full rounded-2xl border border-slate-200 shadow-sm bg-black"
-                                                            style={{ maxHeight: '480px' }}
-                                                        >
-                                                            Your browser does not support the video tag.
-                                                        </video>
-                                                    </div>
+                                                    block.youtube?.videoId ? (
+                                                        <YouTubeSegmentPlayer
+                                                            videoId={block.youtube.videoId}
+                                                            startTimeSeconds={block.youtube.startTimeSeconds}
+                                                            endTimeSeconds={block.youtube.endTimeSeconds}
+                                                            title={question.title}
+                                                        />
+                                                    ) : (
+                                                        <div className="not-prose my-8">
+                                                            <video
+                                                                src={block.videoUrl}
+                                                                controls
+                                                                controlsList="nodownload"
+                                                                className="w-full rounded-2xl border border-slate-200 shadow-sm bg-black"
+                                                                style={{ maxHeight: '480px' }}
+                                                            >
+                                                                Your browser does not support the video tag.
+                                                            </video>
+                                                        </div>
+                                                    )
                                                 ) : (
                                                     <div className="not-prose my-8">
                                                         <EmbeddedCodeRunner
