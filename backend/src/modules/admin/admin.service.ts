@@ -4,7 +4,6 @@ import {
   NotFoundException,
   ConflictException,
   ForbiddenException,
-  UnauthorizedException,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { SupabaseService } from '../../services/supabase/supabase.service';
@@ -505,7 +504,7 @@ export class AdminService {
 
   async getUsers(user?: any, targetOrgId?: string) {
     const orgId = this.getEffectiveOrgId(user, targetOrgId);
-    const [users, pendingInvites] = await Promise.all([
+    const [homeUsers, orgMemberships, pendingInvites] = await Promise.all([
       this.prisma.user.findMany({
         where: {
           OR: [
@@ -528,6 +527,32 @@ export class AdminService {
           orgId: true,
         },
       }),
+      // Users who joined this org via an additive invite (their home
+      // identity — User.orgId/role — stays at their original org by
+      // design, see OrgMembership doc comment in schema.prisma). Without
+      // this, anyone invited into a second org as teacher/admin/student
+      // never appears here even though they're an active member. Includes
+      // SUSPENDED rows too (not just ACTIVE) so a suspended member still
+      // shows up with a "Suspended" status instead of disappearing.
+      this.prisma.orgMembership.findMany({
+        where: { orgId },
+        select: {
+          userId: true,
+          role: true,
+          status: true,
+          joinedAt: true,
+          user: {
+            select: {
+              id: true,
+              email: true,
+              name: true,
+              isActive: true,
+              rollNumber: true,
+              department: true,
+            },
+          },
+        },
+      }),
       this.prisma.pendingInvite.findMany({
         where: { orgId, expiresAt: { gt: new Date() } },
         select: {
@@ -545,6 +570,38 @@ export class AdminService {
       }),
     ]);
 
+    const membershipByUserId = new Map(
+      orgMemberships.map((membership) => [membership.userId, membership]),
+    );
+
+    // "Active" here reflects access to THIS org's workspace specifically —
+    // a global account deactivation (user.isActive) still counts, but so
+    // does an org-scoped suspension via OrgMembership.status, which is what
+    // toggleUserStatus now actually writes to (see below).
+    const homeRows = homeUsers.map((item) => {
+      const membership = membershipByUserId.get(item.id);
+      return {
+        ...item,
+        isActive: item.isActive && membership?.status !== 'SUSPENDED',
+      };
+    });
+
+    const homeUserIds = new Set(homeUsers.map((item) => item.id));
+    const membershipRows = orgMemberships
+      .filter((membership) => !homeUserIds.has(membership.userId))
+      .map((membership) => ({
+        id: membership.user.id,
+        email: membership.user.email,
+        name: membership.user.name,
+        role: membership.role,
+        isActive: membership.user.isActive && membership.status !== 'SUSPENDED',
+        rollNumber: membership.user.rollNumber,
+        department: membership.user.department,
+        createdAt: membership.joinedAt,
+        orgId,
+      }));
+
+    const users = [...homeRows, ...membershipRows];
     const invitedEmails = new Set(users.map((item) => item.email));
     const pendingRows = pendingInvites
       .filter((invite) => !invitedEmails.has(invite.email))
@@ -767,21 +824,46 @@ export class AdminService {
     };
   }
 
-  async toggleUserStatus(id: string, caller: any) {
-    const user = await this.prisma.user.findUnique({ where: { id } });
-    if (!user) throw new NotFoundException('User not found');
+  /**
+   * Suspension is scoped to the caller's org, not a global kill switch — a
+   * Teacher/Admin who also holds an active persona at another org must
+   * keep working there when THIS org's admin suspends them. Writes to
+   * OrgMembership.status (which MembershipService.resolveActiveMembership
+   * and listMemberships already honor), not User.isActive.
+   */
+  async toggleUserStatus(id: string, caller: any, targetOrgId?: string) {
+    const orgId = this.getEffectiveOrgId(caller, targetOrgId);
 
-    // Enforce org isolation
-    if (caller.role !== 'SUPER_ADMIN' && user.orgId !== caller.orgId) {
-      throw new UnauthorizedException(
-        'Cannot modify a user outside of your organization',
-      );
+    const targetUser = await this.prisma.user.findUnique({
+      where: { id },
+      select: { id: true, orgId: true, role: true },
+    });
+    if (!targetUser) throw new NotFoundException('User not found');
+
+    const membership = await this.prisma.orgMembership.findUnique({
+      where: { userId_orgId: { userId: id, orgId } },
+    });
+
+    if (!membership && targetUser.orgId !== orgId) {
+      throw new NotFoundException('User is not a member of this organization');
     }
 
-    return this.prisma.user.update({
-      where: { id },
-      data: { isActive: !user.isActive },
+    const nextStatus = membership?.status === 'SUSPENDED' ? 'ACTIVE' : 'SUSPENDED';
+
+    await this.prisma.orgMembership.upsert({
+      where: { userId_orgId: { userId: id, orgId } },
+      update: { status: nextStatus },
+      create: {
+        userId: id,
+        orgId,
+        role: membership?.role || targetUser.role,
+        status: nextStatus,
+      },
     });
+
+    await this.invalidateOrgFeatureCaches(orgId);
+
+    return { id, orgId, isActive: nextStatus === 'ACTIVE' };
   }
 
   async createUser(data: InviteInput, currentUser?: any, targetOrgId?: string) {
@@ -1125,18 +1207,80 @@ export class AdminService {
     return { removed: true };
   }
 
-  async deleteUser(id: string, caller: any) {
-    const user = await this.prisma.user.findUnique({ where: { id } });
-    if (!user) throw new NotFoundException('User not found');
-    const orgId = user.orgId;
+  private async decrementSeatCounter(orgId: string, role: Role): Promise<void> {
+    if (role === Role.STUDENT) {
+      await this.quotaService.decrementCounter(orgId, 'studentCount', 1).catch(() => {});
+    } else if (role === Role.ADMIN || role === Role.TEACHER) {
+      await this.quotaService.decrementCounter(orgId, 'teacherSeatCount', 1).catch(() => {});
+    }
+  }
 
-    // Enforce org isolation
-    if (caller.role !== 'SUPER_ADMIN' && user.orgId !== caller.orgId) {
-      throw new UnauthorizedException(
-        'Cannot delete a user outside of your organization',
-      );
+  /**
+   * "Delete" here means remove access to THIS org's workspace, never wipe
+   * an account outright — the multi-org model means a user deleted from
+   * one org can still be a real, active member of another. Only the org
+   * that is genuinely someone's ONLY relationship to the platform triggers
+   * a full account removal; otherwise their home identity is reassigned to
+   * another active org they hold and their membership row here is dropped.
+   */
+  async deleteUser(id: string, caller: any, targetOrgId?: string) {
+    if (id === caller?.id) {
+      throw new BadRequestException('You cannot remove yourself');
     }
 
+    const orgId = this.getEffectiveOrgId(caller, targetOrgId);
+
+    const targetUser = await this.prisma.user.findUnique({
+      where: { id },
+      select: { id: true, orgId: true, role: true },
+    });
+    if (!targetUser) throw new NotFoundException('User not found');
+
+    const isHomeMember = targetUser.orgId === orgId;
+    const membership = await this.prisma.orgMembership.findUnique({
+      where: { userId_orgId: { userId: id, orgId } },
+    });
+
+    if (!isHomeMember && !membership) {
+      throw new NotFoundException('User is not a member of this organization');
+    }
+
+    if (!isHomeMember) {
+      // Additive membership only — drop the membership row, account and
+      // home org untouched.
+      await this.prisma.orgMembership.delete({ where: { id: membership!.id } });
+      await this.decrementSeatCounter(orgId, membership!.role);
+      await this.invalidateOrgFeatureCaches(orgId);
+      return { id, orgId, removed: true, accountDeleted: false };
+    }
+
+    const otherActiveMembership = await this.prisma.orgMembership.findFirst({
+      where: { userId: id, orgId: { not: orgId }, status: 'ACTIVE' },
+      orderBy: { joinedAt: 'asc' },
+    });
+
+    if (otherActiveMembership) {
+      // Home org, but they have somewhere else active — reassign their
+      // home identity there instead of deleting the account, then drop the
+      // membership to the org they're being removed from.
+      await this.prisma.$transaction([
+        this.prisma.orgMembership.deleteMany({ where: { userId: id, orgId } }),
+        this.prisma.user.update({
+          where: { id },
+          data: {
+            orgId: otherActiveMembership.orgId,
+            role: otherActiveMembership.role,
+            lastActiveOrgId: null,
+          },
+        }),
+      ]);
+
+      await this.decrementSeatCounter(orgId, targetUser.role);
+      await this.invalidateOrgFeatureCaches(orgId);
+      return { id, orgId, removed: true, accountDeleted: false };
+    }
+
+    // This org really is their only relationship to the platform.
     console.log('[AdminService] Starting deletion for user:', id);
     try {
       const auditLogResult = await this.prisma.auditLog.deleteMany({
@@ -1148,17 +1292,11 @@ export class AdminService {
         where: { id },
       });
 
-      if (orgId && user.role === Role.STUDENT) {
-        await this.quotaService.decrementCounter(orgId, 'studentCount', 1);
-      } else if (
-        orgId &&
-        (user.role === Role.ADMIN || user.role === Role.TEACHER)
-      ) {
-        await this.quotaService.decrementCounter(orgId, 'teacherSeatCount', 1);
-      }
+      await this.decrementSeatCounter(orgId, targetUser.role);
+      await this.invalidateOrgFeatureCaches(orgId);
 
       console.log('[AdminService] User deleted successfully');
-      return userResult;
+      return { ...userResult, removed: true, accountDeleted: true };
     } catch (error: any) {
       console.error('[AdminService] Deletion error:', error);
       if (error.code === 'P2025') {
@@ -1166,5 +1304,87 @@ export class AdminService {
       }
       throw new BadRequestException(error.message || 'Failed to delete user');
     }
+  }
+
+  /**
+   * Elevate/demote a user's role within the caller's org. For an additive
+   * membership only the OrgMembership row changes; for a home-org member
+   * the flat User.role changes too (mirrors how invites/toggleUserStatus
+   * already branch on isHomeMember). Reuses enforceInviteQuota — the same
+   * seat-limit check applied when inviting someone new — so promoting an
+   * existing member into TEACHER/ADMIN can't overflow the org's plan tier
+   * any more than inviting a brand-new one could.
+   */
+  async updateUserRole(id: string, role: string, caller: any, targetOrgId?: string) {
+    if (id === caller?.id) {
+      throw new BadRequestException('You cannot change your own role');
+    }
+
+    const orgId = this.getEffectiveOrgId(caller, targetOrgId);
+    const normalizedRole = this.normalizeRole(role);
+
+    const targetUser = await this.prisma.user.findUnique({
+      where: { id },
+      select: { id: true, orgId: true, role: true },
+    });
+    if (!targetUser) throw new NotFoundException('User not found');
+
+    const isHomeMember = targetUser.orgId === orgId;
+    const membership = await this.prisma.orgMembership.findUnique({
+      where: { userId_orgId: { userId: id, orgId } },
+    });
+
+    if (!isHomeMember && !membership) {
+      throw new NotFoundException('User is not a member of this organization');
+    }
+
+    const currentRole = membership?.role || targetUser.role;
+    if (currentRole === normalizedRole) {
+      return { id, orgId, role: normalizedRole, changed: false };
+    }
+
+    const org: any = await this.prisma.organization.findUnique({
+      where: { id: orgId },
+      select: {
+        id: true,
+        plan: true,
+        features: true,
+        maxAdminSeats: true,
+      } as any,
+    });
+    if (!org) throw new NotFoundException('Organization not found');
+
+    // The user already occupies a seat under currentRole, not
+    // normalizedRole yet, so this cleanly checks "does one more member at
+    // the target role still fit the plan" without double-counting them.
+    await this.enforceInviteQuota(org, normalizedRole, 1);
+
+    if (membership) {
+      await this.prisma.orgMembership.update({
+        where: { id: membership.id },
+        data: { role: normalizedRole },
+      });
+    }
+
+    if (isHomeMember) {
+      await this.prisma.user.update({
+        where: { id },
+        data: { role: normalizedRole },
+      });
+    }
+
+    const wasStudent = currentRole === Role.STUDENT;
+    const willBeStudent = normalizedRole === Role.STUDENT;
+    if (wasStudent && !willBeStudent) {
+      await this.quotaService.decrementCounter(orgId, 'studentCount', 1).catch(() => {});
+      await this.quotaService.incrementCounter(orgId, 'teacherSeatCount', 1).catch(() => {});
+    } else if (!wasStudent && willBeStudent) {
+      await this.quotaService.decrementCounter(orgId, 'teacherSeatCount', 1).catch(() => {});
+      await this.quotaService.incrementCounter(orgId, 'studentCount', 1).catch(() => {});
+    }
+
+    await this.invalidateOrgFeatureCaches(orgId);
+
+    return { id, orgId, role: normalizedRole, changed: true };
   }
 }
