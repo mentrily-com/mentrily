@@ -49,7 +49,13 @@ export interface Question {
             id: string;
             type: 'text' | 'code-runner' | 'video';
             content: string; // HTML for text blocks
-            videoUrl?: string; // S3 URL for video blocks
+            videoUrl?: string; // S3 URL for uploaded video blocks
+            videoSource?: 'upload' | 'youtube';
+            youtube?: {
+                videoId: string;
+                startTimeSeconds?: number;
+                endTimeSeconds?: number;
+            }; // YouTube segment for video blocks (plays only the given time range)
             runnerConfig?: {
                 language: 'javascript' | 'python' | 'java' | 'cpp';
                 initialCode: string;

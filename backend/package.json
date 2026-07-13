@@ -19,6 +19,7 @@
     "supabase:data:import": "bash supabase/data-migration/import_data.sh",
     "supabase:data:verify": "bash supabase/data-migration/verify_data.sh",
     "seed:college-demo": "ts-node prisma/seed-college-demo.ts",
+    "seed:showcase": "ts-node --transpile-only --compiler-options \"{\\\"module\\\":\\\"commonjs\\\",\\\"moduleResolution\\\":\\\"node\\\"}\" ../course-demo/seed.ts",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --max-warnings=0",
     "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "typecheck": "tsc --noEmit -p tsconfig.json",

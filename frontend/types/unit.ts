@@ -56,6 +56,11 @@ export interface UnitQuestion {
         type: 'text' | 'code' | 'code-runner' | 'video';
         content?: string; // HTML for text
         videoUrl?: string; // S3 URL for video blocks
+        youtube?: {
+            videoId: string;
+            startTimeSeconds?: number;
+            endTimeSeconds?: number;
+        }; // YouTube segment for video blocks (plays only the given time range)
         codeConfig?: {
             languageId: string;
             initialCode: string;

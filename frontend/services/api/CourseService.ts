@@ -132,11 +132,23 @@ export const CourseService = {
                 readingContent = rawReading.map((b: any, idx: number) => {
                     const id = b.id || b.key || `reading-${idx}`;
                     const rawType = (b.type || b.blockType || '').toString().toLowerCase();
-                    if (rawType === 'video' || b.videoUrl) {
+                    if (rawType === 'video' || b.videoUrl || b.youtube) {
+                        // YouTube segment blocks carry { videoId, startTimeSeconds, endTimeSeconds }
+                        const yt = b.youtube || (b.videoSource === 'youtube' ? b : null);
+                        const youtubeId = yt?.videoId || yt?.youtubeId || '';
                         return {
                             id,
                             type: 'video',
                             videoUrl: b.videoUrl || b.url || b.src || '',
+                            ...(youtubeId
+                                ? {
+                                      youtube: {
+                                          videoId: youtubeId,
+                                          startTimeSeconds: Number(yt?.startTimeSeconds) || 0,
+                                          endTimeSeconds: Number(yt?.endTimeSeconds) || undefined,
+                                      },
+                                  }
+                                : {}),
                         };
                     }
                     if (

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Question } from '../../types';
 import CodeMirrorEditor from '../../CodeMirrorEditor';
+import YouTubeSegmentPlayer from '@/app/components/Reading/YouTubeSegmentPlayer';
 import { CourseService } from '@/services/api/CourseService';
 import AlertModal from '../../../Common/AlertModal';
 import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
@@ -31,6 +32,9 @@ interface ReadingEditorProps {
 }
 
 type ReadingContentBlock = NonNullable<Question['readingConfig']>['contentBlocks'][number];
+
+const isYouTubeBlock = (block: ReadingContentBlock) =>
+    block.videoSource === 'youtube' || (!block.videoSource && !!block.youtube);
 
 const createDefaultContentBlock = (): ReadingContentBlock => ({
     id: '1',
@@ -48,6 +52,8 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
                 type: block.type || 'text',
                 content: block.content || '',
                 videoUrl: block.videoUrl,
+                videoSource: block.videoSource,
+                youtube: block.youtube,
                 runnerConfig: block.runnerConfig,
             }))
             : [createDefaultContentBlock()];
@@ -301,6 +307,43 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
                                     ) : (
                                         /* Video Block */
                                         <div className="p-6 bg-slate-50">
+                                            {/* Source toggle: uploaded file vs YouTube segment */}
+                                            <div className="flex items-center gap-1 mb-4 bg-white border border-slate-200 rounded-xl p-1 w-fit">
+                                                <button
+                                                    onClick={() => updateBlock(index, { videoSource: 'upload' })}
+                                                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors ${
+                                                        !isYouTubeBlock(block)
+                                                            ? 'bg-violet-500 text-white shadow-sm'
+                                                            : 'text-slate-400 hover:text-slate-600'
+                                                    }`}
+                                                >
+                                                    Upload
+                                                </button>
+                                                <button
+                                                    onClick={() =>
+                                                        updateBlock(index, {
+                                                            videoSource: 'youtube',
+                                                            youtube: block.youtube || { videoId: '', startTimeSeconds: 0 },
+                                                        })
+                                                    }
+                                                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors ${
+                                                        isYouTubeBlock(block)
+                                                            ? 'bg-violet-500 text-white shadow-sm'
+                                                            : 'text-slate-400 hover:text-slate-600'
+                                                    }`}
+                                                >
+                                                    YouTube
+                                                </button>
+                                            </div>
+
+                                            {isYouTubeBlock(block) && (
+                                                <YouTubeVideoBlockEditor
+                                                    key={`yt-${block.id}`}
+                                                    block={block}
+                                                    onChange={(updates) => updateBlock(index, updates)}
+                                                />
+                                            )}
+
                                             {/* Hidden file input */}
                                             <input
                                                 type="file"
@@ -317,7 +360,7 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
                                                 }}
                                             />
 
-                                            {block.videoUrl ? (
+                                            {!isYouTubeBlock(block) && (block.videoUrl ? (
                                                 /* Video Preview */
                                                 <div className="space-y-3">
                                                     <video
@@ -390,7 +433,7 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
                                                         </div>
                                                     )}
                                                 </div>
-                                            )}
+                                            ))}
                                         </div>
                                     )}
                                 </div>
@@ -437,6 +480,147 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
                 onCancel={() => setDeleteConfirm(null)}
             />
         </>
+    );
+}
+
+// --- YouTube segment helpers -------------------------------------------------
+
+function parseYouTubeInput(value: string): string {
+    const raw = String(value || '').trim();
+    if (!raw) return '';
+    if (/^[a-zA-Z0-9_-]{11}$/.test(raw)) return raw;
+    try {
+        const url = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
+        const host = url.hostname.replace(/^www\./, '');
+        const clean = (id: string) => id.replace(/[^a-zA-Z0-9_-]/g, '');
+        if (host === 'youtu.be') return clean(url.pathname.slice(1).split('/')[0]);
+        if (host.endsWith('youtube.com') || host.endsWith('youtube-nocookie.com')) {
+            const v = url.searchParams.get('v');
+            if (v) return clean(v);
+            const match = url.pathname.match(/\/(?:embed|shorts|live|v)\/([a-zA-Z0-9_-]{6,})/);
+            if (match) return clean(match[1]);
+        }
+    } catch {
+        // not a URL — fall through
+    }
+    return '';
+}
+
+function parseTimeInput(value: string): number {
+    const raw = String(value || '').trim();
+    if (!raw) return 0;
+    const parts = raw.split(':').map((p) => p.trim());
+    if (parts.some((p) => p === '' || !/^\d+$/.test(p))) return 0;
+    return parts.reduce((total, part) => total * 60 + parseInt(part, 10), 0);
+}
+
+function formatTime(totalSeconds?: number): string {
+    const s = Math.max(0, Math.floor(totalSeconds || 0));
+    if (!s) return '';
+    const hours = Math.floor(s / 3600);
+    const minutes = Math.floor((s % 3600) / 60);
+    const seconds = s % 60;
+    const ss = String(seconds).padStart(2, '0');
+    if (hours > 0) return `${hours}:${String(minutes).padStart(2, '0')}:${ss}`;
+    return `${minutes}:${ss}`;
+}
+
+function YouTubeVideoBlockEditor({
+    block,
+    onChange,
+}: {
+    block: ReadingContentBlock;
+    onChange: (updates: Partial<ReadingContentBlock>) => void;
+}) {
+    const yt = block.youtube || { videoId: '' };
+    const [urlInput, setUrlInput] = useState(yt.videoId || '');
+    const [startInput, setStartInput] = useState(formatTime(yt.startTimeSeconds));
+    const [endInput, setEndInput] = useState(formatTime(yt.endTimeSeconds));
+    const [urlError, setUrlError] = useState('');
+
+    const commit = (updates: Partial<NonNullable<ReadingContentBlock['youtube']>>) => {
+        onChange({ youtube: { ...yt, ...updates, videoId: updates.videoId ?? yt.videoId ?? '' } });
+    };
+
+    const handleUrlBlur = () => {
+        const id = parseYouTubeInput(urlInput);
+        if (!id && urlInput.trim()) {
+            setUrlError('Could not read a video ID from that link.');
+            return;
+        }
+        setUrlError('');
+        if (id && id !== yt.videoId) commit({ videoId: id });
+    };
+
+    const handleTimesBlur = () => {
+        const start = parseTimeInput(startInput);
+        const end = parseTimeInput(endInput);
+        commit({ startTimeSeconds: start, endTimeSeconds: end > start ? end : undefined });
+        setStartInput(formatTime(start));
+        setEndInput(end > start ? formatTime(end) : '');
+    };
+
+    return (
+        <div className="space-y-4">
+            <div className="flex flex-col gap-1">
+                <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">
+                    YouTube URL or Video ID
+                </label>
+                <input
+                    type="text"
+                    value={urlInput}
+                    onChange={(e) => setUrlInput(e.target.value)}
+                    onBlur={handleUrlBlur}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    className="w-full bg-white text-slate-700 text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-200 focus:border-violet-400 outline-none"
+                />
+                {urlError && (
+                    <div className="flex items-center gap-2 text-[11px] font-bold text-rose-600">
+                        <AlertCircle size={13} />
+                        {urlError}
+                    </div>
+                )}
+            </div>
+
+            <div className="flex gap-4">
+                <div className="flex flex-col gap-1 w-32">
+                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">
+                        Start (mm:ss)
+                    </label>
+                    <input
+                        type="text"
+                        value={startInput}
+                        onChange={(e) => setStartInput(e.target.value)}
+                        onBlur={handleTimesBlur}
+                        placeholder="0:00"
+                        className="w-full bg-white text-slate-700 text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-200 focus:border-violet-400 outline-none tabular-nums"
+                    />
+                </div>
+                <div className="flex flex-col gap-1 w-32">
+                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">
+                        End (mm:ss)
+                    </label>
+                    <input
+                        type="text"
+                        value={endInput}
+                        onChange={(e) => setEndInput(e.target.value)}
+                        onBlur={handleTimesBlur}
+                        placeholder="Play to end"
+                        className="w-full bg-white text-slate-700 text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-200 focus:border-violet-400 outline-none tabular-nums"
+                    />
+                </div>
+            </div>
+
+            {yt.videoId && (
+                <YouTubeSegmentPlayer
+                    key={`${yt.videoId}-${yt.startTimeSeconds || 0}-${yt.endTimeSeconds || 0}`}
+                    videoId={yt.videoId}
+                    startTimeSeconds={yt.startTimeSeconds}
+                    endTimeSeconds={yt.endTimeSeconds}
+                    className="not-prose"
+                />
+            )}
+        </div>
     );
 }
 

@@ -42,6 +42,16 @@ export class StudentController {
     return this.studentService.getCourses(user.id);
   }
 
+  @Get('courses/browse')
+  async browseCourses(@User() user: any) {
+    return this.studentService.browseCourses(user);
+  }
+
+  @Post('courses/:courseId/enroll')
+  async enrollInCourse(@User() user: any, @Param('courseId') courseId: string) {
+    return this.studentService.enrollInCourse(user, courseId);
+  }
+
   @Get('attempts')
   async getAttempts(
     @User() user: any,

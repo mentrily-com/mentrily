@@ -69,6 +69,20 @@ export interface StudentModule {
     linkedExam?: any;
 }
 
+export interface BrowseCourse {
+    id: string;
+    slug: string;
+    title: string;
+    shortDescription?: string | null;
+    difficulty?: string | null;
+    tags: string[];
+    thumbnail?: string | null;
+    sections: number;
+    totalUnits: number;
+    hasFinalExam: boolean;
+    enrolled: boolean;
+}
+
 export const StudentService = {
     async getStats(forceRefresh = false): Promise<StudentStats> {
         const cacheKey = 'student_stats';
@@ -106,6 +120,34 @@ export const StudentService = {
             return await res.json();
         } catch (error) {
             // console.error('[StudentService] Error', error);
+            throw error;
+        }
+    },
+
+    async getBrowseCourses(): Promise<BrowseCourse[]> {
+        try {
+            const res = await authFetch('/student/courses/browse', { cache: 'no-store' });
+            if (!res.ok) throw new Error('Failed to fetch course catalog');
+            return await res.json();
+        } catch (error) {
+            console.error('[StudentService] Error fetching browse catalog', error);
+            throw error;
+        }
+    },
+
+    async enrollInCourse(courseId: string): Promise<{ enrolled: boolean; courseId: string; slug: string }> {
+        try {
+            const res = await authFetch(`/student/courses/${courseId}/enroll`, {
+                method: 'POST',
+                body: JSON.stringify({}),
+            });
+            if (!res.ok) {
+                const body = await res.json().catch(() => ({}));
+                throw new Error((body as any).message || 'Failed to enroll in course');
+            }
+            return await res.json();
+        } catch (error) {
+            console.error('[StudentService] Error enrolling in course', error);
             throw error;
         }
     },
