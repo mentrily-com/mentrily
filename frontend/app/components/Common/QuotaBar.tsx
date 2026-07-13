@@ -15,7 +15,7 @@ export default function QuotaBar({ label, used, limit }: QuotaBarProps) {
             <div className="flex items-center justify-between">
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{label}</span>
                 <span className="text-[10px] font-black text-slate-500">
-                    {unlimited ? `${used}` : `${used} / ${limit}`}
+                    {unlimited ? `${used} / Unlimited` : `${used} / ${limit}`}
                 </span>
             </div>
             <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">

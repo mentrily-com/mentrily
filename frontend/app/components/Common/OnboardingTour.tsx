@@ -33,12 +33,23 @@ export default function OnboardingTour({
     const startedRef = useRef(false);
     const completionInFlightRef = useRef(false);
 
+    // `steps` is passed as a fresh array/object literal by every call site on
+    // every render. Depending on it directly below would restart this effect
+    // (and its delayMs startup timer) on every parent re-render, which can
+    // perpetually postpone the tour on pages that re-render more than once
+    // within the delay window. A ref carries the latest steps into the
+    // timeout without being part of the dependency array; only the step
+    // *count* — a stable primitive — is a legitimate reason to re-run.
+    const stepsRef = useRef(steps);
+    stepsRef.current = steps;
+    const stepsLength = steps.length;
+
     const hasCompletedOnboarding = Boolean((session as any)?.hasCompletedOnboarding);
 
     useEffect(() => {
         if (
             typeof window === 'undefined' ||
-            !steps.length ||
+            !stepsLength ||
             isLoading ||
             isPlaceholderData ||
             (!ignoreUserOnboardingFlag && hasCompletedOnboarding)
@@ -64,7 +75,7 @@ export default function OnboardingTour({
 
         window.sessionStorage.setItem(activeKey, tourId);
         const timeout = window.setTimeout(() => {
-            const availableSteps = steps.filter((step) => document.querySelector(step.element));
+            const availableSteps = stepsRef.current.filter((step) => document.querySelector(step.element));
             if (availableSteps.length === 0) {
                 if (!startedRef.current && window.sessionStorage.getItem(activeKey) === tourId) {
                     window.sessionStorage.removeItem(activeKey);
@@ -131,7 +142,7 @@ export default function OnboardingTour({
         repeatUntilSkipped,
         resolvedSkipStorageKey,
         sessionSeenKey,
-        steps,
+        stepsLength,
         storageKey,
         tourId,
     ]);

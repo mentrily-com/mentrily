@@ -527,9 +527,14 @@ export default function CourseBuilder({
 
     return (
         <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.10)]">
+            {/* ignoreUserOnboardingFlag: keep this tour's completion
+                independent of the shared backend flag other creator/admin
+                tours used to write to — see dashboard/creator/page.tsx
+                for the full explanation. */}
             {!initialData?.id ? (
                 <OnboardingTour
                     tourId="creator_course_builder"
+                    ignoreUserOnboardingFlag
                     steps={[
                         {
                             element: '[data-element-id="course-builder-title"]',

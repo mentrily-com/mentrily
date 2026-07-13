@@ -182,8 +182,13 @@ export default function AdminDashboardView({ basePath = '/dashboard/creator', or
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
+            {/* ignoreUserOnboardingFlag: keep this tour's completion
+                independent of the shared backend flag other creator/admin
+                tours used to write to — see dashboard/creator/page.tsx
+                for the full explanation. */}
             <OnboardingTour
                 tourId="admin_dashboard"
+                ignoreUserOnboardingFlag
                 steps={[
                     {
                         element: '[data-element-id="admin-overview-header"]',
