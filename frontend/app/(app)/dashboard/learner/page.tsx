@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { StudentService, StudentModule } from '@/services/api/StudentService';
 import { useRequireAuth } from '@/hooks/requireAuthClient';
@@ -87,10 +87,15 @@ export default function DashboardPage() {
     const stats = dashboardData?.stats || null;
     const modules: StudentModule[] = dashboardData?.courses || [];
 
-    const visibleModules: StudentModule[] = hideGettingStarted ? modules : [gettingStartedCourse, ...modules];
-    const filteredModules = visibleModules.filter((m) =>
-        m.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()),
-    );
+    const visibleModules: StudentModule[] = useMemo(() => {
+        return hideGettingStarted ? modules : [gettingStartedCourse, ...modules];
+    }, [hideGettingStarted, modules]);
+
+    const filteredModules = useMemo(() => {
+        return visibleModules.filter((m) =>
+            m.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()),
+        );
+    }, [visibleModules, debouncedSearchQuery]);
 
     const handleHideGettingStarted = (event: React.MouseEvent) => {
         event.preventDefault();

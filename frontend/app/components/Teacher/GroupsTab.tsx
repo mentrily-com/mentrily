@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { TeacherService } from '@/services/api/TeacherService';
 import { useToast } from '@/app/components/Common/Toast';
@@ -293,11 +293,13 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
     const [searchQuery, setSearchQuery] = useState('');
     const debouncedSearch = useDebounce(searchQuery, 300);
 
-    const filteredStudents = students.filter(
-        (st) =>
-            st.name?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-            st.email?.toLowerCase().includes(debouncedSearch.toLowerCase()),
-    );
+    const filteredStudents = useMemo(() => {
+        return students.filter(
+            (st) =>
+                st.name?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+                st.email?.toLowerCase().includes(debouncedSearch.toLowerCase()),
+        );
+    }, [students, debouncedSearch]);
 
     const handleRenameSave = async () => {
         if (!groupName.trim()) return;

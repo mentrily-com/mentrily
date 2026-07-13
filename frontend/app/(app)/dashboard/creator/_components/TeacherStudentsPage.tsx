@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { TeacherService } from '@/services/api/TeacherService';
 import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
 import { useToast } from '@/app/components/Common/Toast';
@@ -41,11 +41,13 @@ export default function TeacherStudentsPage() {
         loadData();
     }, [toastError]);
 
-    const filteredStudents = students.filter(
-        (st) =>
-            st.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-            st.course.toLowerCase().includes(debouncedSearchQuery.toLowerCase()),
-    );
+    const filteredStudents = useMemo(() => {
+        return students.filter(
+            (st) =>
+                st.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+                st.course.toLowerCase().includes(debouncedSearchQuery.toLowerCase()),
+        );
+    }, [students, debouncedSearchQuery]);
 
     const handleUnenroll = async (courseId: string, studentId: string) => {
         if (!confirm('Are you sure you want to unenroll this student from the course?')) return;
