@@ -28,14 +28,14 @@ export const pricingTiers: PricingTier[] = [
         ctaHref: '/signup',
         highlighted: false,
         features: [
-            'MCQ + Reading content only',
+            'All question types',
             'Up to 2 exams per month',
             'Community support only',
             'Mentrily branding',
         ],
         limits: {
             courses: '2 courses',
-            students: '50 students',
+            students: 'Unlimited students',
             seats: '1 seat',
             storage: '500MB',
         },
@@ -59,7 +59,7 @@ export const pricingTiers: PricingTier[] = [
         ],
         limits: {
             courses: '15 courses',
-            students: '200 students',
+            students: 'Unlimited students',
             seats: '5 seats',
             storage: '5GB',
         },
@@ -85,7 +85,7 @@ export const pricingTiers: PricingTier[] = [
         ],
         limits: {
             courses: '30 courses',
-            students: '1,000 students',
+            students: 'Unlimited students',
             seats: '15 seats',
             storage: '50GB',
         },
@@ -194,7 +194,7 @@ export const faqItems = [
     },
     {
         question: 'What happens when I hit the student limit?',
-        answer: "You'll see a warning at 80%. At the limit, new student creation is blocked until you upgrade or remove students.",
+        answer: "There is no student limit — every plan, including Free, supports unlimited students. Courses, storage, and seats still scale with your plan, and you'll see a warning at 80% of those before you hit the cap.",
     },
     {
         question: 'Do my students pay anything?',

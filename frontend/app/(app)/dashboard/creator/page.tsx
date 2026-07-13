@@ -78,19 +78,20 @@ export default function TeacherDashboardPage() {
 
     const studentsUsed = Number(usageRecord.students || 0);
     const storageUsed = Number(usageRecord.storageMb || 0);
-    const studentsLimit = Number(limitsRecord.students || 0);
     const storageLimit = Number(limitsRecord.storageMb || 0);
+    const coursesUsed = Number(usageRecord.courses || 0);
+    const coursesLimit = Number(limitsRecord.courses || 0);
 
     const ratio = (used: number, limit: number) => {
         if (!Number.isFinite(limit) || limit <= 0) return 0;
         return Math.min(100, Math.round((used / limit) * 100));
     };
 
-    const studentsPercent = ratio(studentsUsed, studentsLimit);
+    const coursesPercent = ratio(coursesUsed, coursesLimit);
     const storagePercent = ratio(storageUsed, storageLimit);
-    const highestCapacityPercent = Math.max(studentsPercent, storagePercent);
+    const highestCapacityPercent = Math.max(coursesPercent, storagePercent);
     const hasHardLimitBreach =
-        (studentsLimit > 0 && studentsUsed > studentsLimit) || (storageLimit > 0 && storageUsed > storageLimit);
+        (coursesLimit > 0 && coursesUsed > coursesLimit) || (storageLimit > 0 && storageUsed > storageLimit);
     const nextPlan = plan === 'FREE' ? 'STARTER' : plan === 'STARTER' ? 'PRO' : 'ENTERPRISE';
 
     const statCards = [
@@ -132,8 +133,17 @@ export default function TeacherDashboardPage() {
 
     return (
         <div className="space-y-5 text-slate-900 selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
+            {/* ignoreUserOnboardingFlag: this tour must not share the backend
+                User.hasCompletedOnboarding flag with the other creator/admin
+                tours (course builder, admin org view) — that flag is a single
+                global boolean, so completing/skipping any one of them would
+                permanently suppress the others even on a genuine first visit.
+                Each tour tracks its own completion via its per-tourId
+                localStorage key instead (same fix already applied to the
+                learner tours — see dashboard/learner/page.tsx). */}
             <OnboardingTour
                 tourId="creator_dashboard"
+                ignoreUserOnboardingFlag
                 steps={[
                     {
                         element: '[data-element-id="creator-studio-hero"]',
@@ -303,9 +313,9 @@ export default function TeacherDashboardPage() {
 
             {/* ═══════════════ CAPACITY STRIP ═══════════════ */}
             <CapacityPanel
-                studentsUsed={studentsUsed}
-                studentsLimit={studentsLimit}
-                studentsPercent={studentsPercent}
+                coursesUsed={coursesUsed}
+                coursesLimit={coursesLimit}
+                coursesPercent={coursesPercent}
                 storageUsed={storageUsed}
                 storageLimit={storageLimit}
                 storagePercent={storagePercent}
@@ -473,7 +483,7 @@ export default function TeacherDashboardPage() {
                                 iconBg="bg-emerald-50"
                                 iconColor="text-emerald-600"
                                 title="Publishing guardrails"
-                                body={`${studentsLimit > 0 || storageLimit > 0 ? 'Plan usage tracked before limits become blockers.' : 'Usage guardrails appear once limits are configured.'}`}
+                                body={`${coursesLimit > 0 || storageLimit > 0 ? 'Plan usage tracked before limits become blockers.' : 'Usage guardrails appear once limits are configured.'}`}
                             />
                             <InsightTile
                                 icon={<TrendingUp size={15} />}
@@ -603,9 +613,9 @@ export default function TeacherDashboardPage() {
    ═══════════════════════════════════════════ */
 
 function CapacityPanel({
-    studentsUsed,
-    studentsLimit,
-    studentsPercent,
+    coursesUsed,
+    coursesLimit,
+    coursesPercent,
     storageUsed,
     storageLimit,
     storagePercent,
@@ -613,9 +623,9 @@ function CapacityPanel({
     hasHardLimitBreach,
     nextPlan,
 }: {
-    studentsUsed: number;
-    studentsLimit: number;
-    studentsPercent: number;
+    coursesUsed: number;
+    coursesLimit: number;
+    coursesPercent: number;
     storageUsed: number;
     storageLimit: number;
     storagePercent: number;
@@ -652,11 +662,11 @@ function CapacityPanel({
 
                     <div className="grid gap-4 sm:grid-cols-2">
                         <UsageMeter
-                            label="Student capacity"
-                            used={studentsUsed}
-                            limit={studentsLimit}
-                            percent={studentsPercent}
-                            suffix="learners"
+                            label="Course capacity"
+                            used={coursesUsed}
+                            limit={coursesLimit}
+                            percent={coursesPercent}
+                            suffix="courses"
                         />
                         <UsageMeter
                             label="Storage capacity"

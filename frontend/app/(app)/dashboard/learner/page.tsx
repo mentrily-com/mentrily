@@ -155,8 +155,9 @@ export default function DashboardPage() {
                 "completed" marker (set the first time it runs) instead of the
                 session-only flag that re-triggered it every login until the
                 user explicitly skipped. ignoreUserOnboardingFlag stays so this
-                tour keeps its own per-tour state and doesn't collide with the
-                shared global hasCompletedOnboarding flag used by other tours. */}
+                tour keeps its own per-tour state — every OnboardingTour in the
+                app now does the same, so no two tours ever collide on a
+                shared completion flag. */}
             <OnboardingTour
                 tourId="learner_dashboard_guided_v2"
                 ignoreUserOnboardingFlag

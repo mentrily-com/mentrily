@@ -78,7 +78,7 @@ const FEATURE_REQUIRED_PLAN: Record<string, PlanKey> = {
 
 export const PLAN_LIMITS: Record<PlanKey, PlanLimitConfig> = {
   FREE: {
-    students: 50,
+    students: UNLIMITED,
     courses: 2,
     examsPerMonth: 2,
     storageMb: 500,
@@ -88,10 +88,10 @@ export const PLAN_LIMITS: Record<PlanKey, PlanLimitConfig> = {
     modulesPerCourse: 3,
     examsPerCourse: 1,
     codeExecs: 100,
-    allowedQuestionTypes: ['mcq', 'multiselect', 'reading'],
+    allowedQuestionTypes: ['*'],
   },
   STARTER: {
-    students: 200,
+    students: UNLIMITED,
     courses: 15,
     examsPerMonth: 10,
     storageMb: 5120,
@@ -104,7 +104,7 @@ export const PLAN_LIMITS: Record<PlanKey, PlanLimitConfig> = {
     allowedQuestionTypes: ['*'],
   },
   PRO: {
-    students: 1000,
+    students: UNLIMITED,
     courses: 30,
     examsPerMonth: 20,
     storageMb: 51200,

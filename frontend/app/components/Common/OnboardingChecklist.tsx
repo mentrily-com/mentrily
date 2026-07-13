@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { useSession } from '@/hooks/useSession';
 
 type ChecklistStep = {
     id: string;
@@ -25,13 +24,6 @@ export default function OnboardingChecklist({
     onDismiss,
     showDismiss,
 }: OnboardingChecklistProps) {
-    const { data: session } = useSession();
-    const hasCompletedOnboarding = Boolean((session as any)?.hasCompletedOnboarding);
-
-    if (hasCompletedOnboarding) {
-        return null;
-    }
-
     const percent = totalSteps > 0 ? Math.round((completedCount / totalSteps) * 100) : 0;
 
     return (
@@ -45,7 +37,7 @@ export default function OnboardingChecklist({
                         Finish the key setup steps once so the workspace is ready for your team.
                     </p>
                 </div>
-                {!hasCompletedOnboarding && showDismiss && onDismiss && (
+                {showDismiss && onDismiss && (
                     <button
                         type="button"
                         onClick={onDismiss}

@@ -340,11 +340,6 @@ export default function AdminBillingPage() {
                 <h3 className="text-lg font-bold mb-6" style={{ color: 'var(--color-text-primary)' }}>Usage Overview</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <QuotaBar
-                        label="Students"
-                        used={Number(usageData?.usage?.students || 0)}
-                        limit={Number(usageData?.limits?.students || 0)}
-                    />
-                    <QuotaBar
                         label="Courses"
                         used={Number(usageData?.usage?.courses || 0)}
                         limit={Number(usageData?.limits?.courses || 0)}
