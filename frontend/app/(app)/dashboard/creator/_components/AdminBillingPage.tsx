@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
 import QuotaBar from '@/app/components/Common/QuotaBar';
+import UpgradeRequestModal from '@/app/components/Common/UpgradeRequestModal';
 import { useRoleGuard } from '@/hooks/useRoleGuard';
 import { BillingService } from '@/services/api/BillingService';
 import { useToast } from '@/app/components/Common/Toast';
@@ -98,6 +99,7 @@ export default function AdminBillingPage() {
     const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('monthly');
     const [usageData, setUsageData] = useState<BillingUsage | null>(null);
     const [plansData, setPlansData] = useState<PlansResponse['plans']>([]);
+    const [upgradeRequestPlan, setUpgradeRequestPlan] = useState<string | null>(null);
 
     useEffect(() => {
         if (!isAuthorized) return;
@@ -195,6 +197,26 @@ export default function AdminBillingPage() {
         }
     };
 
+    // BETA: self-serve Stripe checkout is disabled — clicking Upgrade opens
+    // the request-access modal instead of redirecting to Stripe. Restore
+    // the commented block below (and re-enable createCheckoutSession in
+    // billing.service.ts) to bring back live checkout.
+    const handleUpgrade = async (plan: string, _ids: string[]) => {
+        if (plan === 'FREE') return;
+        if (plan === 'ENTERPRISE') {
+            window.location.href = '/contact';
+            return;
+        }
+
+        posthog.capture('plan_upgrade_requested', {
+            source: 'creator_billing_admin',
+            targetPlan: plan,
+            interval: billingInterval,
+        });
+        setUpgradeRequestPlan(plan);
+    };
+
+    /* Original Stripe checkout trigger — restore verbatim to re-enable:
     const handleUpgrade = async (plan: string, ids: string[]) => {
         if (plan === 'FREE') return;
         if (plan === 'ENTERPRISE') {
@@ -229,6 +251,7 @@ export default function AdminBillingPage() {
             setBusyAction(null);
         }
     };
+    */
 
     if (!isReady || loading) {
         return <DashboardSkeleton type="main" userRole="admin" />;
@@ -493,9 +516,7 @@ export default function AdminBillingPage() {
                                                 e.currentTarget.style.backgroundColor = 'white';
                                             }}
                                         >
-                                            {busyAction === plan.plan
-                                                ? 'Redirecting...'
-                                                : `Upgrade to ${plan.plan}`}
+                                            {`Request ${plan.plan}`}
                                         </button>
                                     )}
                                 </div>
@@ -504,6 +525,14 @@ export default function AdminBillingPage() {
                     </div>
                 )}
             </section>
+
+            <UpgradeRequestModal
+                isOpen={Boolean(upgradeRequestPlan)}
+                onClose={() => setUpgradeRequestPlan(null)}
+                plan={upgradeRequestPlan}
+                billingInterval={billingInterval}
+                currentPlan={currentPlan}
+            />
         </div>
     );
 }

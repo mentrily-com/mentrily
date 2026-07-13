@@ -224,6 +224,25 @@ export class BillingService {
     return customer.id;
   }
 
+  // BETA: self-serve Stripe checkout is switched off while the product is
+  // in beta — upgrades go through requestPlanUpgrade() (an email to the
+  // team) instead of a live Stripe redirect. The real implementation is
+  // kept below, commented out, so re-enabling self-serve checkout later is
+  // a matter of restoring this body, not rewriting it.
+  async createCheckoutSession(
+    _orgId: string,
+    _priceId: string,
+    _successUrl?: string,
+    _cancelUrl?: string,
+  ): Promise<{ url: string; sessionId: string }> {
+    throw new ForbiddenException({
+      code: 'CHECKOUT_DISABLED_BETA',
+      message:
+        'Self-serve checkout is disabled during beta. Please use the upgrade request form instead.',
+    });
+  }
+
+  /* Original Stripe checkout implementation — restore verbatim to re-enable:
   async createCheckoutSession(
     orgId: string,
     priceId: string,
@@ -277,6 +296,51 @@ export class BillingService {
     }
 
     return { url: session.url, sessionId: session.id };
+  }
+  */
+
+  /**
+   * Beta stand-in for self-serve checkout: emails the team the requester's
+   * details, current/target plan, and a freeform message instead of
+   * charging anything. See createCheckoutSession() above for the disabled
+   * Stripe path this replaces.
+   */
+  async requestPlanUpgrade(
+    user: { id: string; name?: string; email: string; orgId?: string | null; plan?: string },
+    data: { requestedPlan?: string; billingInterval?: string; message?: string },
+  ) {
+    const requestedPlan = String(data.requestedPlan || '').trim().toUpperCase();
+    if (requestedPlan !== 'STARTER' && requestedPlan !== 'PRO') {
+      throw new BadRequestException(
+        'requestedPlan must be STARTER or PRO — Enterprise requests go through /contact',
+      );
+    }
+
+    const billingInterval =
+      String(data.billingInterval || '').trim().toLowerCase() === 'annual'
+        ? 'annual'
+        : 'monthly';
+    const message = String(data.message || '').trim().slice(0, 2000);
+
+    const orgId = String(user.orgId || '').trim();
+    const org = orgId
+      ? await this.prisma.organization.findUnique({
+          where: { id: orgId },
+          select: { name: true },
+        })
+      : null;
+
+    await this.mailService.sendUpgradeRequestEmail({
+      requesterName: user.name || user.email,
+      requesterEmail: user.email,
+      orgName: org?.name || null,
+      currentPlan: String(user.plan || 'FREE'),
+      requestedPlan,
+      billingInterval,
+      message,
+    });
+
+    return { success: true };
   }
 
   async createPortalSession(orgId: string, returnUrl?: string) {

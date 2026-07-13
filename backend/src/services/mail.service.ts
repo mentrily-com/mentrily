@@ -536,4 +536,95 @@ export class MailService {
       },
     );
   }
+
+  /**
+   * Beta upgrade-by-request flow: instead of a live Stripe checkout, a
+   * plan-upgrade click sends this notification so the team can decide
+   * whether/how to grant it manually. Reply-To is the requester so the
+   * team can just hit reply, same as the marketing contact form.
+   */
+  async sendUpgradeRequestEmail(params: {
+    requesterName: string;
+    requesterEmail: string;
+    orgName?: string | null;
+    currentPlan: string;
+    requestedPlan: string;
+    billingInterval?: string | null;
+    message?: string | null;
+  }) {
+    if (!this.apiKey || !this.apiSecret) {
+      this.logger.warn(
+        'Mailjet credentials not found. Skipping upgrade request email.',
+      );
+      return;
+    }
+
+    const recipient = String(
+      process.env.UPGRADE_REQUEST_RECIPIENT_EMAIL || 'admin@mentrily.com',
+    ).trim();
+
+    const name = this.escapeHtml(params.requesterName || params.requesterEmail);
+    const email = this.escapeHtml(params.requesterEmail);
+    const orgName = this.escapeHtml(params.orgName || 'No organization');
+    const currentPlan = this.escapeHtml(params.currentPlan);
+    const requestedPlan = this.escapeHtml(params.requestedPlan);
+    const billingInterval = this.escapeHtml(params.billingInterval || 'monthly');
+    const message = params.message?.trim()
+      ? this.escapeHtml(params.message).replace(/\n/g, '<br>')
+      : '<em>(no message provided)</em>';
+
+    const htmlPart = `
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 640px; margin: 0 auto; border: 1px solid #eef2f6; border-radius: 12px; overflow: hidden;">
+        <div style="background: #008D98; color: white; padding: 24px;">
+          <h2 style="margin: 0; font-size: 20px; font-weight: 800;">New Upgrade Request (Beta)</h2>
+        </div>
+        <div style="padding: 24px; color: #334155; font-size: 14px; line-height: 1.6;">
+          <p style="margin: 0 0 10px;"><strong>Name:</strong> ${name}</p>
+          <p style="margin: 0 0 10px;"><strong>Email:</strong> ${email}</p>
+          <p style="margin: 0 0 10px;"><strong>Organization:</strong> ${orgName}</p>
+          <p style="margin: 0 0 10px;"><strong>Current plan:</strong> ${currentPlan}</p>
+          <p style="margin: 0 0 20px;"><strong>Requested plan:</strong> ${requestedPlan} (${billingInterval})</p>
+          <p style="margin: 0 0 8px;"><strong>Message:</strong></p>
+          <div style="padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+            ${message}
+          </div>
+        </div>
+      </div>
+    `;
+
+    const textPart = [
+      'New upgrade request (beta)',
+      `Name: ${params.requesterName || params.requesterEmail}`,
+      `Email: ${params.requesterEmail}`,
+      `Organization: ${params.orgName || 'No organization'}`,
+      `Current plan: ${params.currentPlan}`,
+      `Requested plan: ${params.requestedPlan} (${params.billingInterval || 'monthly'})`,
+      '',
+      'Message:',
+      params.message?.trim() || '(no message provided)',
+    ].join('\n');
+
+    await axios.post(
+      'https://api.mailjet.com/v3.1/send',
+      {
+        Messages: [
+          {
+            From: { Email: this.senderEmail, Name: this.senderName },
+            To: [{ Email: recipient, Name: this.appName }],
+            ReplyTo: {
+              Email: params.requesterEmail,
+              Name: params.requesterName || params.requesterEmail,
+            },
+            Subject: `[Upgrade Request] ${params.requestedPlan} — ${params.orgName || params.requesterName}`,
+            HTMLPart: htmlPart,
+            TextPart: textPart,
+          },
+        ],
+      },
+      {
+        auth: { username: this.apiKey, password: this.apiSecret },
+        headers: { 'Content-Type': 'application/json' },
+      },
+    );
+  }
 }
