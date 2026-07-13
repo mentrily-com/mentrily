@@ -116,6 +116,18 @@ export class BillingController {
     );
   }
 
+  @Post('upgrade-request')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'TEACHER', 'SUPER_ADMIN')
+  async requestPlanUpgrade(
+    @User() user: any,
+    @Body()
+    body: { requestedPlan?: string; billingInterval?: string; message?: string },
+  ) {
+    await this.ensureBillingMutationAllowed(user);
+    return this.billingService.requestPlanUpgrade(user, body);
+  }
+
   @Post('portal-session')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN', 'TEACHER', 'SUPER_ADMIN')

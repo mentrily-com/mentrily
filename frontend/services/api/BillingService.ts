@@ -47,6 +47,19 @@ export const BillingService = {
         return handleResponse(res);
     },
 
+    async requestPlanUpgrade(payload: { requestedPlan: string; billingInterval?: string; message?: string }) {
+        const headers = await withClerkAuthorization(withCsrfHeader('POST', { 'Content-Type': 'application/json' }));
+
+        const res = await fetch(`${BASE_URL}/billing/upgrade-request`, {
+            method: 'POST',
+            headers,
+            credentials: 'include',
+            body: JSON.stringify(payload),
+        });
+
+        return handleResponse(res);
+    },
+
     async createPortalSession(payload?: { returnUrl?: string }) {
         const headers = await withClerkAuthorization(withCsrfHeader('POST', { 'Content-Type': 'application/json' }));
 
