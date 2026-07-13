@@ -26,6 +26,7 @@ export default function AdminUsersView({ basePath, organizationId }: AdminUsersV
         filteredUsers,
         handleToggleStatus,
         handleDelete,
+        handleRoleChange,
         loading,
     } = useAdminUsers(organizationId);
 
@@ -104,6 +105,7 @@ export default function AdminUsersView({ basePath, organizationId }: AdminUsersV
                 canManageUsers={canManageUsers}
                 onToggleStatus={handleToggleStatus}
                 onDeleteRequest={setUserToDelete}
+                onRoleChange={handleRoleChange}
             />
 
             <UserManagementModal

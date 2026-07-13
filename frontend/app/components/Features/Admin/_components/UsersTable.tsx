@@ -2,11 +2,20 @@
 import { CheckCircle, Trash2, UserMinus } from 'lucide-react';
 import RoleBadge from '@/app/components/Common/RoleBadge';
 
+const ROLE_OPTIONS = ['STUDENT', 'TEACHER', 'ADMIN'] as const;
+
+const ROLE_SELECT_STYLES: Record<string, string> = {
+    STUDENT: 'bg-[var(--brand-light)] text-[var(--brand)] border-[var(--brand-light)]',
+    TEACHER: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+    ADMIN: 'bg-rose-50 text-rose-600 border-rose-100',
+};
+
 interface UsersTableProps {
     users: any[];
     canManageUsers: boolean;
     onToggleStatus: (user: any) => void;
     onDeleteRequest: (user: any) => void;
+    onRoleChange: (user: any, role: string) => void;
 }
 
 export default function UsersTable({
@@ -14,6 +23,7 @@ export default function UsersTable({
     canManageUsers,
     onToggleStatus,
     onDeleteRequest,
+    onRoleChange,
 }: UsersTableProps) {
     const getDisplayName = (user: any) => {
         const name = String(user.name || '').trim();
@@ -115,7 +125,24 @@ export default function UsersTable({
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex flex-col items-start gap-1">
-                                            <RoleBadge role={user.role} />
+                                            {canActOnUser && ROLE_OPTIONS.includes(user.role) ? (
+                                                <select
+                                                    value={user.role}
+                                                    onChange={(e) => onRoleChange(user, e.target.value)}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    className={`px-2 py-0.5 rounded-lg border text-[9px] font-black uppercase tracking-widest cursor-pointer outline-none ${ROLE_SELECT_STYLES[user.role] || ROLE_SELECT_STYLES.STUDENT}`}
+                                                    title="Change role"
+                                                >
+                                                    {ROLE_OPTIONS.map((role) => (
+                                                        <option key={role} value={role}>
+                                                            {role.charAt(0)}
+                                                            {role.slice(1).toLowerCase()}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <RoleBadge role={user.role} />
+                                            )}
                                             <p className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
                                                 {user.department || user.dept || 'No'} Department
                                             </p>

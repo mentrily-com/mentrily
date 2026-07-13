@@ -25,6 +25,7 @@ import { User } from '../auth/user.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { CreateUsersBulkDto } from './dto/create-users-bulk.dto';
 import { InviteUserDto } from './dto/invite-user.dto';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 
 @Controller('admin')
 @UseGuards(JwtAuthGuard, RolesGuard, OrgRequiredGuard, OrgStatusGuard)
@@ -122,16 +123,36 @@ export class AdminController {
   @Patch('users/:id/status')
   @UseGuards(OrgFeaturesGuard)
   @RequireOrgFeature('canManageUsers')
-  async toggleUserStatus(@User() user: any, @Param('id') id: string) {
-    return this.adminService.toggleUserStatus(id, user);
+  async toggleUserStatus(
+    @User() user: any,
+    @Param('id') id: string,
+    @Query('orgId') orgId?: string,
+  ) {
+    return this.adminService.toggleUserStatus(id, user, orgId);
+  }
+
+  @Patch('users/:id/role')
+  @UseGuards(OrgFeaturesGuard)
+  @RequireOrgFeature('canManageUsers')
+  async updateUserRole(
+    @User() user: any,
+    @Param('id') id: string,
+    @Body() body: UpdateUserRoleDto,
+    @Query('orgId') orgId?: string,
+  ) {
+    return this.adminService.updateUserRole(id, body.role, user, orgId);
   }
 
   @Delete('users/:id')
   @UseGuards(OrgFeaturesGuard)
   @RequireOrgFeature('canManageUsers')
-  async deleteUser(@User() user: any, @Param('id') id: string) {
+  async deleteUser(
+    @User() user: any,
+    @Param('id') id: string,
+    @Query('orgId') orgId?: string,
+  ) {
     console.log('[AdminController] Deleting user:', id);
-    return this.adminService.deleteUser(id, user);
+    return this.adminService.deleteUser(id, user, orgId);
   }
 
   @Get('courses/:courseId/assignments')

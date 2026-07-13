@@ -112,13 +112,37 @@ export class MembershipService {
   ): Promise<ResolvedOrgContext> {
     await this.ensureHomeMembership(user);
 
+    // ensureHomeMembership guarantees a row exists for the home org too, so
+    // a suspension there (an admin restricting THIS person's access to
+    // THIS org) must be honored the same way an additive membership's
+    // status already is below — otherwise suspending someone's home org
+    // membership would have no effect, since the flat User.orgId/role
+    // columns are trusted unconditionally.
+    let homeMembershipIsActive: boolean | null = null;
+    const isHomeActive = async (): Promise<boolean> => {
+      if (homeMembershipIsActive !== null) return homeMembershipIsActive;
+      if (!user.orgId) {
+        homeMembershipIsActive = true;
+        return true;
+      }
+      const home = await this.prisma.orgMembership.findUnique({
+        where: { userId_orgId: { userId: user.id, orgId: user.orgId } },
+        select: { status: true },
+      });
+      homeMembershipIsActive = !home || home.status === 'ACTIVE';
+      return homeMembershipIsActive;
+    };
+
     const candidates = [requestedOrgId, user.lastActiveOrgId].filter(
       (orgId): orgId is string => Boolean(orgId && orgId.trim()),
     );
 
     for (const candidateOrgId of candidates) {
       if (candidateOrgId === user.orgId) {
-        return { orgId: user.orgId, role: user.role };
+        if (await isHomeActive()) {
+          return { orgId: user.orgId, role: user.role };
+        }
+        continue;
       }
 
       const membership = await this.prisma.orgMembership.findUnique({
@@ -131,7 +155,15 @@ export class MembershipService {
       }
     }
 
-    return { orgId: user.orgId, role: user.role };
+    if (await isHomeActive()) {
+      return { orgId: user.orgId, role: user.role };
+    }
+
+    // Home org access has been restricted and no other active membership
+    // matched a candidate — resolve org-less rather than silently trusting
+    // the suspended home org. OrgRequiredGuard then blocks workspace access
+    // on any org-scoped route.
+    return { orgId: null, role: user.role };
   }
 
   async listMemberships(user: {
@@ -173,6 +205,15 @@ export class MembershipService {
     }
 
     if (targetOrgId === user.orgId) {
+      const home = await this.prisma.orgMembership.findUnique({
+        where: { userId_orgId: { userId: user.id, orgId: targetOrgId } },
+        select: { status: true },
+      });
+
+      if (home && home.status !== 'ACTIVE') {
+        throw new ForbiddenException('You are not a member of that organization');
+      }
+
       await this.prisma.user.update({
         where: { id: user.id },
         data: { lastActiveOrgId: targetOrgId },

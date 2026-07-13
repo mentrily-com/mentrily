@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, User, KeyRound } from 'lucide-react';
 import Link from 'next/link';
 import { useOrganization } from '@/app/context/OrganizationContext';
-import { AuthenticateWithRedirectCallback, useSignUp, useUser } from '@clerk/nextjs';
+import { AuthenticateWithRedirectCallback, useSignIn, useSignUp, useUser } from '@clerk/nextjs';
 
 import { AuthService } from '@/services/api/AuthService';
 import { BrandLockup } from '@/components/brand/BrandLockup';
@@ -14,12 +14,22 @@ export default function SignupPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { isLoaded, signUp, setActive } = useSignUp();
+    const { isLoaded: isSignInLoaded, signIn, setActive: setActiveForSignIn } = useSignIn();
     const { isSignedIn } = useUser();
     const invitationTicket = String(searchParams.get('__clerk_ticket') || '').trim();
     const invitationStatus = String(searchParams.get('__clerk_status') || '')
         .trim()
         .toLowerCase();
     const isInvitationFlow = Boolean(invitationTicket) && invitationStatus === 'sign_up';
+    // Clerk sets __clerk_status=sign_in (instead of sign_up) when the
+    // invited email already has an account — e.g. inviting an existing
+    // teacher/admin into a second org. The plain signup form can't handle
+    // that identifier (Clerk rejects it as already taken), so the ticket
+    // used to just get silently dropped: the invitation stayed "pending"
+    // in Clerk forever even though our own PendingInvite-matching logic
+    // granted access anyway. Consume the ticket via sign-in instead.
+    const isInvitationSignInFlow = Boolean(invitationTicket) && invitationStatus === 'sign_in';
+    const hasHandledInvitationSignInRef = React.useRef(false);
     const oauthMode = searchParams.get('oauth');
     const oauthFlow = searchParams.get('flow') || 'signup';
     const oauthError = searchParams.get('error');
@@ -117,6 +127,65 @@ export default function SignupPage() {
 
         setIsRedirectingAuthenticatedUser(false);
     }, [isSignedIn, router, isOauthCallback]);
+
+    // Auto-consume the invitation ticket for an already-existing account.
+    // No form needed: the ticket alone proves identity, so we sign the
+    // user straight into their existing account instead of showing them a
+    // "create account" form their email would just get rejected from.
+    React.useEffect(() => {
+        if (!isInvitationSignInFlow) return;
+        if (!isSignInLoaded || !signIn) return;
+        if (isSignedIn) return;
+        if (hasHandledInvitationSignInRef.current) return;
+        hasHandledInvitationSignInRef.current = true;
+
+        const acceptExistingUserInvitation = async () => {
+            setError('');
+            try {
+                const result = await signIn.create({ strategy: 'ticket', ticket: invitationTicket });
+
+                if (result.status === 'complete') {
+                    if (!setActiveForSignIn) {
+                        throw new Error('Session activation is unavailable.');
+                    }
+                    await setActiveForSignIn({
+                        session: result.createdSessionId,
+                        navigate: async () => {},
+                    });
+
+                    let path = '/dashboard?flow=signup';
+                    try {
+                        let user = null;
+                        for (let attempt = 0; attempt < 3; attempt += 1) {
+                            user = await AuthService.checkSessionForSignup();
+                            if (user) break;
+                            await new Promise((resolve) => setTimeout(resolve, 120));
+                        }
+                        path = resolvePostSignupPath(user);
+                    } catch (e) {
+                        console.error('Failed to fetch invited user profile', e);
+                    }
+
+                    router.push(path);
+                    return;
+                }
+
+                setError('This invitation link could not be completed automatically. Please sign in with your existing account.');
+            } catch (err: unknown) {
+                console.error('Invitation sign-in error:', err);
+                const message =
+                    typeof err === 'object' && err !== null && 'errors' in err
+                        ? ((err as { errors?: Array<{ longMessage?: string }> }).errors?.[0]?.longMessage ??
+                          'Could not accept invitation')
+                        : err instanceof Error
+                          ? err.message
+                          : 'Could not accept invitation';
+                setError(message);
+            }
+        };
+
+        acceptExistingUserInvitation();
+    }, [isInvitationSignInFlow, isSignInLoaded, signIn, isSignedIn, invitationTicket, router, setActiveForSignIn]);
 
     React.useEffect(() => {
         if (searchParams.get('error') === 'oauth_cancelled') {
@@ -292,6 +361,10 @@ export default function SignupPage() {
     }
 
     if (!isLoaded || isSignedIn || isRedirectingAuthenticatedUser) {
+        return <BrandedPageLoader />;
+    }
+
+    if (isInvitationSignInFlow && !error) {
         return <BrandedPageLoader />;
     }
 

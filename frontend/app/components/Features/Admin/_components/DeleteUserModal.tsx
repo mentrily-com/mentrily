@@ -30,11 +30,12 @@ export default function DeleteUserModal({ user, onClose, onConfirm }: DeleteUser
                 </div>
                 <div className="p-8 pt-6">
                     <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-3">
-                        Permanent Deletion
+                        Remove from organization
                     </h2>
                     <p className="text-sm font-bold text-slate-400 mb-8">
-                        You are about to remove <span className="text-slate-900">{user.name}</span>. This action is
-                        irreversible and all associated data will be lost.
+                        You are about to remove <span className="text-slate-900">{user.name}</span> from this
+                        organization&apos;s workspace. If this is their only organization, their account is deleted
+                        entirely; if they belong to another organization, their account there is untouched.
                     </p>
                     <div className="space-y-4">
                         <div className="bg-slate-50 p-4 rounded-[24px] border border-slate-100">

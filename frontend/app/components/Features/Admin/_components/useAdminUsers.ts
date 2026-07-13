@@ -60,12 +60,30 @@ export function useAdminUsers(organizationId?: string) {
 
     const handleDelete = async (id: string) => {
         try {
-            await AdminService.deleteUser(id);
+            const result = await AdminService.deleteUser(id);
             setUsers((prev) => prev.filter((user) => user.id !== id));
             setUserToDelete(null);
-            success('User deleted successfully', 'Cleanup Process');
+            success(
+                result?.accountDeleted === false
+                    ? 'User removed from this organization'
+                    : 'User deleted successfully',
+                'Cleanup Process',
+            );
         } catch (error: any) {
             toastError(error.message || 'Failed to delete user', 'Error');
+        }
+    };
+
+    const handleRoleChange = async (user: any, role: string) => {
+        if (!canManageUsers || user.role === role) return;
+        const previousRole = user.role;
+        setUsers((prev) => prev.map((item) => (item.id === user.id ? { ...item, role } : item)));
+        try {
+            await AdminService.updateUserRole(user.id, role);
+            success(`Role updated to ${role.charAt(0)}${role.slice(1).toLowerCase()}`, 'Role Updated');
+        } catch (error: any) {
+            setUsers((prev) => prev.map((item) => (item.id === user.id ? { ...item, role: previousRole } : item)));
+            toastError(error.message || 'Failed to update role', 'Error');
         }
     };
 
@@ -82,6 +100,7 @@ export function useAdminUsers(organizationId?: string) {
         filteredUsers,
         handleToggleStatus,
         handleDelete,
+        handleRoleChange,
         loading,
     };
 }

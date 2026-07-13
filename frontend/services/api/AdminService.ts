@@ -206,6 +206,29 @@ export const AdminService = {
         }
     },
 
+    async updateUserRole(id: string, role: string) {
+        try {
+            const res = await authFetch(`/admin/users/${id}/role`, {
+                method: 'PATCH',
+                body: JSON.stringify({ role }),
+            });
+            if (!res.ok) {
+                const text = await res.text();
+                let errorData: any = {};
+                try {
+                    errorData = JSON.parse(text);
+                } catch (e) {
+                    errorData = { message: text };
+                }
+                throw new Error(errorData.message || 'Failed to update user role');
+            }
+            return await res.json();
+        } catch (error) {
+            console.error('[AdminService] Error updating user role', error);
+            throw error;
+        }
+    },
+
     async deleteUser(id: string) {
         try {
             const res = await authFetch(`/admin/users/${id}`, {
