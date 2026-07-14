@@ -302,7 +302,7 @@ export class ExamService {
           // 3. Course (Curriculum)
           const course = await this.prisma.course.findFirst({
             where: { slug },
-            select: { id: true, orgId: true, creatorId: true },
+            select: { id: true, orgId: true, creatorId: true, isVisible: true },
           });
           if (course) {
             foundData = { ...course, type: 'course' };
@@ -1176,7 +1176,13 @@ export class ExamService {
       return { quiz: null, error: 'Exam not found' };
     }
 
-    if (!(await this.canAccessPublicExamResource(found, requestOrgId, user))) {
+    if (
+      !(await this.canAccessPublicExamResource(
+        { ...found, linkedCourseId: found.data?.linkedCourseId ?? null },
+        requestOrgId,
+        user,
+      ))
+    ) {
       // Don't distinguish "exists but not yours" from "doesn't exist" to an
       // unauthorized requester — same response shape either way.
       return { quiz: null, error: 'Exam not found' };
@@ -1287,19 +1293,48 @@ export class ExamService {
    *    through that org's own subdomain (requestOrgId) OR an authenticated
    *    same-org user, OR the resource's own creator, OR SUPER_ADMIN.
    *  - Org-less/personal content (orgId: null — no org at all) stays
-   *    creator-only.
+   *    creator-only, UNLESS it's itself an `isVisible` platform-wide course
+   *    (or is linked to one) — the Browse tab already broadcasts those to
+   *    every learner regardless of org, so their exam must be reachable
+   *    too. This only grants *visibility*; enrollment + examUnlockThreshold
+   *    are still enforced downstream by validateCourseLinkedExamEntry.
    */
   private async canAccessPublicExamResource(
-    resource: { orgId?: string | null; creatorId?: string | null },
+    resource: {
+      orgId?: string | null;
+      creatorId?: string | null;
+      isVisible?: boolean;
+      linkedCourseId?: string | null;
+    },
     requestOrgId: string | null | undefined,
     user?: any,
   ): Promise<boolean> {
     if (String(user?.role || '').toUpperCase() === 'SUPER_ADMIN') return true;
     if (resource.creatorId && user?.id && resource.creatorId === user.id) return true;
-    if (!resource.orgId) return false;
+    if (!resource.orgId) {
+      return this.isPlatformWideOrglessResource(resource);
+    }
     if (requestOrgId && requestOrgId === resource.orgId) return true;
     if (user?.orgId && user.orgId === resource.orgId) return true;
     return this.isPublicOrgResource(resource.orgId);
+  }
+
+  /**
+   * True if an org-less resource is itself an `isVisible` platform-wide
+   * course, or an exam/course-test linked to one (see showcase courses
+   * seeded via course-demo/seed.ts: orgId:null + isVisible:true).
+   */
+  private async isPlatformWideOrglessResource(resource: {
+    isVisible?: boolean;
+    linkedCourseId?: string | null;
+  }): Promise<boolean> {
+    if (resource.isVisible === true) return true;
+    if (!resource.linkedCourseId) return false;
+    const course = await this.prisma.course.findUnique({
+      where: { id: resource.linkedCourseId },
+      select: { orgId: true, isVisible: true },
+    });
+    return !!course && course.orgId === null && course.isVisible === true;
   }
 
   /**
@@ -1314,7 +1349,11 @@ export class ExamService {
    * happens to be active for the request) to be STUDENT or ADMIN.
    */
   async assertCanEnterExam(
-    exam: { orgId?: string | null; creatorId?: string | null },
+    exam: {
+      orgId?: string | null;
+      creatorId?: string | null;
+      linkedCourseId?: string | null;
+    },
     user: any,
   ): Promise<void> {
     if (String(user?.role || '').toUpperCase() === 'SUPER_ADMIN') return;
@@ -1333,6 +1372,14 @@ export class ExamService {
       ) {
         return;
       }
+    } else if (await this.isPlatformWideOrglessResource(exam)) {
+      // Org-less exam linked to a platform-wide showcase course — same
+      // carve-out as canAccessPublicExamResource. Enrollment and the
+      // course's examUnlockThreshold are still enforced right after this,
+      // in validateCourseLinkedExamEntry, so this only lets a real student
+      // reach that check instead of being rejected before it runs.
+      const role = String(user?.role || '').toUpperCase();
+      if (role === 'STUDENT' || role === 'ADMIN') return;
     }
 
     throw new UnauthorizedException('Only Student accounts can access exams.');
