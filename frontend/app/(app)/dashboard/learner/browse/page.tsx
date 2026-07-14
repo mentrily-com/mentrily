@@ -114,6 +114,11 @@ export default function BrowseCoursesPage() {
                     </div>
                 </div>
 
+                <p className="mb-6 -mt-3 text-[11px] font-medium leading-relaxed text-white sm:mb-10">
+                    We don&apos;t claim ownership of the videos or content featured in these courses — they&apos;re
+                    included for demonstration purposes. A full course marketplace is a coming-soon feature.
+                </p>
+
                 {loading ? (
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                         {Array.from({ length: 6 }).map((_, i) => (
