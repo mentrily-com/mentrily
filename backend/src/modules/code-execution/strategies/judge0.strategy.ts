@@ -15,6 +15,7 @@ import {
 @Injectable()
 export class Judge0Strategy implements IExecutionStrategy {
   private readonly judge0Url: string;
+  private readonly judge0AuthToken: string | undefined;
   private readonly logger = new Logger(Judge0Strategy.name);
 
   // Mappings from frontend language strings to this deployment's Judge0 CE IDs.
@@ -81,6 +82,7 @@ export class Judge0Strategy implements IExecutionStrategy {
     this.judge0Url =
       this.configService.get<string>('JUDGE0_API_URL') ||
       'http://127.0.0.1:2358';
+    this.judge0AuthToken = this.configService.get<string>('JUDGE0_AUTH_TOKEN');
   }
 
   async execute(
@@ -114,6 +116,9 @@ export class Judge0Strategy implements IExecutionStrategy {
           {
             headers: {
               'Content-Type': 'application/json',
+              ...(this.judge0AuthToken
+                ? { 'X-Auth-Token': this.judge0AuthToken }
+                : {}),
             },
           },
         ),
