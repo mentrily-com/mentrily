@@ -62,7 +62,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
     }, []);
 
     const hasCreatorPersona = memberships.some(
-        (membership) => membership.role === 'TEACHER' || membership.role === 'ADMIN',
+        (membership) => membership.role === 'TEACHER' || membership.role === 'ADMIN' || membership.role === 'SUPER_ADMIN',
     );
     // Home persona is the flat account role, independent of whichever org is
     // currently active (homeRole/homeOrgId come straight from /auth/me).
@@ -78,7 +78,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
     // Legacy signup-creators (role TEACHER, zero membership rows) still need a
     // way back out of the learner persona — give their flat creator home a
     // synthetic entry wired to switch-home.
-    const isCreatorHome = homeRole === 'TEACHER' || homeRole === 'ADMIN';
+    const isCreatorHome = homeRole === 'TEACHER' || homeRole === 'ADMIN' || homeRole === 'SUPER_ADMIN';
     const needsCreatorHomeEntry = isCreatorHome && !hasCreatorPersona;
     const displayMemberships: WorkspaceMembership[] = [
         ...(needsLearnerEntry
@@ -96,9 +96,9 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
             ? [
                   {
                       orgId: CREATOR_HOME_SENTINEL,
-                      orgName: 'My Workspace',
+                      orgName: homeRole === 'SUPER_ADMIN' ? 'Super Admin' : 'My Workspace',
                       orgSlug: null,
-                      role: (homeRole === 'ADMIN' ? 'ADMIN' : 'TEACHER') as 'ADMIN' | 'TEACHER',
+                      role: (homeRole === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : homeRole === 'ADMIN' ? 'ADMIN' : 'TEACHER') as 'SUPER_ADMIN' | 'ADMIN' | 'TEACHER',
                       isHome: true,
                   },
               ]
