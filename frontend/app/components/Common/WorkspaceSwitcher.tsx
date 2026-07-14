@@ -79,7 +79,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
     // way back out of the learner persona — give their flat creator home a
     // synthetic entry wired to switch-home.
     const isCreatorHome = homeRole === 'TEACHER' || homeRole === 'ADMIN' || homeRole === 'SUPER_ADMIN';
-    const needsCreatorHomeEntry = isCreatorHome && !hasCreatorPersona;
+    const needsCreatorHomeEntry = (isCreatorHome && !hasCreatorPersona) || homeRole === 'SUPER_ADMIN';
     const displayMemberships: WorkspaceMembership[] = [
         ...(needsLearnerEntry
             ? [
