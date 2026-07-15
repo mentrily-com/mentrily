@@ -15,14 +15,17 @@ import { TeacherService } from './teacher.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OrgFeaturesGuard } from '../auth/guards/org-features.guard';
 import { OrgStatusGuard } from '../auth/guards/org-status.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { RequireOrgFeature } from '../auth/org-feature.decorator';
+import { Roles } from '../auth/roles.decorator';
 import { User } from '../auth/user.decorator';
 import { SendExamInviteDto } from './dto/send-exam-invite.dto';
 import { CourseMutationDto } from './dto/course-mutation.dto';
 import { ExamMutationDto } from './dto/exam-mutation.dto';
 
 @Controller('teacher')
-@UseGuards(JwtAuthGuard, OrgStatusGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, OrgStatusGuard)
+@Roles('TEACHER', 'ADMIN', 'SUPER_ADMIN')
 export class TeacherController {
   constructor(private readonly teacherService: TeacherService) {}
 
