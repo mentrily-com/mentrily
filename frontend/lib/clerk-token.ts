@@ -92,5 +92,9 @@ export async function withClerkAuthorization(headers: HeadersInit = {}): Promise
         (merged as Record<string, string>)['X-Active-Persona'] = activePersona;
     }
 
+    if (typeof window !== 'undefined') {
+        (merged as Record<string, string>)['X-Tenant-Host'] = window.location.host;
+    }
+
     return merged;
 }
