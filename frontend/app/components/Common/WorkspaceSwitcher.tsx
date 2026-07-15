@@ -6,6 +6,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Building2, ChevronsUpDown, Check, Loader2, Plus, GraduationCap, Presentation } from 'lucide-react';
 import { AuthService, WorkspaceMembership } from '@/services/api/AuthService';
 import { useSession } from '@/hooks/useSession';
+import { buildOrgUrl, getRootDomain } from '@/lib/domain';
 
 const ROLE_LABELS: Record<string, string> = {
     STUDENT: 'Learner',
@@ -117,17 +118,30 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
             return !isLearnerActive && membership.orgId === sessionUser?.orgId;
         }) || displayMemberships[0];
 
-    const landOnDashboard = async () => {
+    const landOnDashboard = async (membership?: WorkspaceMembership) => {
         // The memberships list changes on become-creator (new TEACHER row) and
         // must not be served stale (30s staleTime) — otherwise the creator
         // dashboard keeps showing "Become a Creator" until the cache expires.
         await queryClient.invalidateQueries({ queryKey: ['workspace-memberships'] });
         await refetch();
         setOpen(false);
-        // Role can differ per persona — route through the same
-        // role-resolving redirect the app already uses after login rather
-        // than assuming the current page still applies.
-        router.push('/dashboard');
+
+        let targetUrl = '/dashboard';
+        if (membership && membership.orgSlug) {
+            targetUrl = buildOrgUrl(membership.orgSlug, '/dashboard') || '/dashboard';
+        } else if (membership) {
+            const root = getRootDomain();
+            targetUrl = root === 'localhost' ? 'http://localhost:3000/dashboard' : `https://${root}/dashboard`;
+        }
+
+        if (targetUrl.startsWith('http') && !targetUrl.startsWith(window.location.origin)) {
+            window.location.href = targetUrl;
+        } else {
+            // Role can differ per persona — route through the same
+            // role-resolving redirect the app already uses after login rather
+            // than assuming the current page still applies.
+            router.push('/dashboard');
+        }
     };
 
     const handleSwitch = async (membership: WorkspaceMembership) => {
@@ -147,7 +161,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
             } else {
                 await AuthService.switchOrg(membership.orgId);
             }
-            await landOnDashboard();
+            await landOnDashboard(membership);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to switch workspace');
         } finally {
@@ -164,7 +178,13 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
         try {
             const persona = await AuthService.becomeCreator();
             await AuthService.switchOrg(persona.orgId);
-            await landOnDashboard();
+            const root = getRootDomain();
+            const targetUrl = root === 'localhost' ? 'http://localhost:3000/dashboard' : `https://${root}/dashboard`;
+            if (targetUrl.startsWith('http') && !targetUrl.startsWith(window.location.origin)) {
+                window.location.href = targetUrl;
+            } else {
+                await landOnDashboard();
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to set up your creator workspace');
         } finally {
