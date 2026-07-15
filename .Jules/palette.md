@@ -1,0 +1,3 @@
+## 2026-07-15 - Adding Accessible State to Custom Dropdowns and Menus
+**Learning:** Adding dynamic `aria-expanded` attributes tied to component state variables (e.g., `mobileOpen`, `profileOpen`) combined with `aria-haspopup="menu"` allows screen readers to accurately convey whether a custom dropdown or hamburger menu is currently collapsed or expanded. This significantly enhances the semantic understanding of interactive layout components for non-visual users.
+**Action:** Always include `aria-haspopup="menu"` and a dynamic `aria-expanded={isOpen}` property on custom dropdown toggles, hamburger menus, and collapsible sidebar elements.
