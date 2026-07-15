@@ -1,0 +1,619 @@
+{
+    "course": {
+        "title": "C++ Programming Foundations",
+        "slug": "cpp-programming-foundations",
+        "shortDescription": "Learn C++ from zero — variables, control flow, functions, pointers, and object-oriented programming — with real compiled code challenges graded automatically.",
+        "longDescription": "<p>This showcase course follows the freeCodeCamp <em>C++ Tutorial for Beginners</em> curriculum by Mike Dane, split into focused video segments. Between segments you will solve real C++ challenges that compile and run on the Mentrily judge — with public and hidden test cases, exactly like a technical interview platform.</p><p>You will finish able to read and write idiomatic beginner C++: typed variables, strings and numeric operations, conditionals and loops, functions with return values, pointers, and classes with constructors, getters/setters, and inheritance.</p>",
+        "difficulty": "Intermediate",
+        "tags": ["C++", "Programming", "Computer Science"],
+        "thumbnail": "https://i.ytimg.com/vi/vLnPwxZdW4Y/hqdefault.jpg",
+        "courseSummary": "C++ toolchain setup, variables and data types, strings and numbers, user input, arrays, functions, if/switch statements, while/for loops, 2D arrays, pointers, classes and objects, constructors, getters/setters, inheritance.",
+        "examUnlockThreshold": 80
+    },
+    "modules": [
+        {
+            "title": "Getting Started with C++",
+            "units": [
+                {
+                    "title": "Setup, Hello World & First Program",
+                    "type": "Reading",
+                    "content": {
+                        "description": "<p>Install a C++ toolchain, understand the anatomy of a C++ program, and print your first output.</p>",
+                        "problemStatement": "<p>Install a C++ toolchain, understand the anatomy of a C++ program, and print your first output.</p>",
+                        "readingConfig": {
+                            "contentBlocks": [
+                                {
+                                    "id": "cpp-m1-u1-b1",
+                                    "type": "text",
+                                    "content": "<h2>Why C++ still runs the world</h2><p>C++ is a <strong>compiled, statically-typed</strong> language: your source code is translated ahead of time into machine code, and every variable's type is checked before the program ever runs. That is why C++ powers game engines, operating systems, trading systems, and embedded devices — and why learning it teaches you how computers actually work.</p><p>Every C++ program you write in this course has the same skeleton:</p><pre><code>#include &lt;iostream&gt;\nusing namespace std;\n\nint main() {\n    cout &lt;&lt; \"Hello, Mentrily!\" &lt;&lt; endl;\n    return 0;\n}</code></pre><ul><li><strong>Watch for:</strong> what <code>#include</code> and <code>using namespace std</code> actually do</li><li><strong>Watch for:</strong> why execution always starts at <code>main()</code></li></ul><p><em>Note: you don't need to install anything locally — every challenge in this course compiles and runs right in your browser on the Mentrily judge.</em></p>"
+                                },
+                                {
+                                    "id": "cpp-m1-u1-b2",
+                                    "type": "video",
+                                    "videoSource": "youtube",
+                                    "youtube": {
+                                        "videoId": "vLnPwxZdW4Y",
+                                        "startTimeSeconds": 0,
+                                        "endTimeSeconds": 1195
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "title": "Variables, Types, Strings & Numbers",
+                    "type": "Reading",
+                    "content": {
+                        "description": "<p>The core data types, string operations, and the math toolkit.</p>",
+                        "problemStatement": "<p>The core data types, string operations, and the math toolkit.</p>",
+                        "readingConfig": {
+                            "contentBlocks": [
+                                {
+                                    "id": "cpp-m1-u2-b1",
+                                    "type": "text",
+                                    "content": "<h2>Types are promises</h2><p>In C++ a variable's type is a promise to the compiler: <code>int</code> holds whole numbers, <code>double</code> holds decimals, <code>char</code> holds a single character, <code>string</code> holds text, and <code>bool</code> holds true/false. Break the promise and the compiler refuses to build your program — which is a feature, not an annoyance: it catches bugs before they exist.</p><ul><li><strong>Watch for:</strong> integer division — <code>10 / 4</code> is <code>2</code>, not <code>2.5</code></li><li><strong>Watch for:</strong> string methods like <code>.length()</code>, <code>.find()</code>, and <code>.substr()</code></li><li><strong>Watch for:</strong> the <code>cmath</code> functions <code>pow</code>, <code>sqrt</code>, <code>round</code></li></ul>"
+                                },
+                                {
+                                    "id": "cpp-m1-u2-b2",
+                                    "type": "video",
+                                    "videoSource": "youtube",
+                                    "youtube": {
+                                        "videoId": "vLnPwxZdW4Y",
+                                        "startTimeSeconds": 1195,
+                                        "endTimeSeconds": 3581
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "title": "Quiz: Types & Operators",
+                    "type": "MCQ",
+                    "content": {
+                        "id": "cpp-q1",
+                        "title": "Integer division",
+                        "type": "MCQ",
+                        "marks": 5,
+                        "question": "What does cout << 7 / 2; print?",
+                        "description": "<p>Both operands are <code>int</code>. What does this print?</p><pre><code>cout &lt;&lt; 7 / 2;</code></pre>",
+                        "problemStatement": "<p>Both operands are <code>int</code>. What does this print?</p><pre><code>cout &lt;&lt; 7 / 2;</code></pre>",
+                        "options": [
+                            { "id": "cpp-q1-opt-1", "text": "3.5", "isCorrect": false },
+                            { "id": "cpp-q1-opt-2", "text": "3 — integer division truncates the remainder", "isCorrect": true },
+                            { "id": "cpp-q1-opt-3", "text": "4 — the result is rounded to nearest", "isCorrect": false },
+                            { "id": "cpp-q1-opt-4", "text": "A compile error — mixed division is not allowed", "isCorrect": false }
+                        ]
+                    }
+                },
+                {
+                    "title": "Challenge: Temperature Converter",
+                    "type": "Coding",
+                    "content": {
+                        "id": "cpp-code1",
+                        "title": "Challenge: Temperature Converter",
+                        "type": "Coding",
+                        "marks": 20,
+                        "question": "Read a Celsius temperature and print it in Fahrenheit with one decimal place.",
+                        "description": "<p>Read a single number (Celsius, possibly decimal) from standard input and print the Fahrenheit equivalent rounded to <strong>one decimal place</strong>.</p><p>Formula: <code>F = C × 9 / 5 + 32</code></p><p><strong>Example:</strong> input <code>25</code> → output <code>77.0</code></p><p><em>Hint: use <code>fixed</code> and <code>setprecision(1)</code> from <code>&lt;iomanip&gt;</code> — they are already included for you.</em></p>",
+                        "problemStatement": "<p>Read a Celsius value from stdin and print the Fahrenheit equivalent with exactly one decimal place. <code>F = C × 9 / 5 + 32</code>. Example: <code>25</code> → <code>77.0</code>.</p>",
+                        "codingConfig": {
+                            "languageId": "cpp",
+                            "allowedLanguages": ["cpp"],
+                            "templates": {
+                                "cpp": {
+                                    "head": "#include <iostream>\n#include <iomanip>\nusing namespace std;\n\n",
+                                    "body": "int main() {\n    double celsius;\n    cin >> celsius;\n\n    // TODO: compute fahrenheit and print it with one decimal place\n    // cout << fixed << setprecision(1) << ...;\n\n    return 0;\n}\n",
+                                    "tail": "",
+                                    "solution": "int main() {\n    double celsius;\n    cin >> celsius;\n    double fahrenheit = celsius * 9.0 / 5.0 + 32.0;\n    cout << fixed << setprecision(1) << fahrenheit << endl;\n    return 0;\n}\n"
+                                }
+                            },
+                            "testCases": [
+                                { "input": "25", "output": "77.0", "isPublic": true, "points": 5 },
+                                { "input": "0", "output": "32.0", "isPublic": true, "points": 5 },
+                                { "input": "-40", "output": "-40.0", "isPublic": false, "points": 5 },
+                                { "input": "36.6", "output": "97.9", "isPublic": false, "points": 5 }
+                            ],
+                            "showTestCases": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "title": "Control Flow & Functions",
+            "units": [
+                {
+                    "title": "Input, Arrays & Functions",
+                    "type": "Reading",
+                    "content": {
+                        "description": "<p>Reading user input, storing collections in arrays, and organizing code into functions with return values.</p>",
+                        "problemStatement": "<p>Reading user input, storing collections in arrays, and organizing code into functions with return values.</p>",
+                        "readingConfig": {
+                            "contentBlocks": [
+                                {
+                                    "id": "cpp-m2-u1-b1",
+                                    "type": "text",
+                                    "content": "<h2>Programs that respond</h2><p>Real programs consume input. <code>cin &gt;&gt;</code> reads whitespace-separated values; <code>getline()</code> reads whole lines. Arrays store fixed-size collections (<code>int scores[5]</code>), and functions carve programs into named, reusable pieces. The key discipline: a function should do <em>one thing</em>, take what it needs as parameters, and hand back its result with <code>return</code> — not print it.</p><ul><li><strong>Watch for:</strong> the calculator and Mad Libs projects — input in action</li><li><strong>Watch for:</strong> why functions must be declared before <code>main()</code> uses them (or prototyped)</li></ul>"
+                                },
+                                {
+                                    "id": "cpp-m2-u1-b2",
+                                    "type": "video",
+                                    "videoSource": "youtube",
+                                    "youtube": {
+                                        "videoId": "vLnPwxZdW4Y",
+                                        "startTimeSeconds": 3581,
+                                        "endTimeSeconds": 5722
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "title": "Conditionals, Switch & Loops",
+                    "type": "Reading",
+                    "content": {
+                        "description": "<p>if/else chains, comparison and logical operators, switch statements, while and for loops — the decision-making core of every program.</p>",
+                        "problemStatement": "<p>if/else chains, comparison and logical operators, switch statements, while and for loops — the decision-making core of every program.</p>",
+                        "readingConfig": {
+                            "contentBlocks": [
+                                {
+                                    "id": "cpp-m2-u3-b1",
+                                    "type": "text",
+                                    "content": "<h2>Decisions and repetition</h2><p>Everything a computer does reduces to <em>decide</em> and <em>repeat</em>. This segment covers <code>if / else if / else</code> with the comparison (<code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&lt;=</code>) and logical (<code>&amp;&amp;</code>, <code>||</code>, <code>!</code>) operators, <code>switch</code> for multi-way branches, and both loop styles: <code>while</code> (loop until a condition changes) and <code>for</code> (loop a known number of times).</p><ul><li><strong>Watch for:</strong> the guessing-game project combining a while loop with if statements</li><li><strong>Watch for:</strong> the classic bug — <code>=</code> (assignment) where <code>==</code> (comparison) was intended</li><li><strong>Watch for:</strong> why a missing <code>break</code> makes switch cases \"fall through\"</li></ul>"
+                                },
+                                {
+                                    "id": "cpp-m2-u3-b2",
+                                    "type": "video",
+                                    "videoSource": "youtube",
+                                    "youtube": {
+                                        "videoId": "vLnPwxZdW4Y",
+                                        "startTimeSeconds": 5722,
+                                        "endTimeSeconds": 9512
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "title": "Quiz: Control Flow",
+                    "type": "MCQ",
+                    "content": {
+                        "id": "cpp-q2",
+                        "title": "Loop trace",
+                        "type": "MCQ",
+                        "marks": 5,
+                        "question": "How many times does this loop body run? for (int i = 0; i < 10; i += 3)",
+                        "description": "<pre><code>for (int i = 0; i &lt; 10; i += 3) {\n    cout &lt;&lt; i &lt;&lt; \" \";\n}</code></pre><p>How many times does the loop body execute, and what is printed?</p>",
+                        "problemStatement": "<pre><code>for (int i = 0; i &lt; 10; i += 3) {\n    cout &lt;&lt; i &lt;&lt; \" \";\n}</code></pre><p>How many times does the loop body execute, and what is printed?</p>",
+                        "options": [
+                            { "id": "cpp-q2-opt-1", "text": "3 times — \"0 3 6\"", "isCorrect": false },
+                            { "id": "cpp-q2-opt-2", "text": "4 times — \"0 3 6 9\"", "isCorrect": true },
+                            { "id": "cpp-q2-opt-3", "text": "5 times — \"0 3 6 9 12\"", "isCorrect": false },
+                            { "id": "cpp-q2-opt-4", "text": "10 times — \"0 1 2 ... 9\"", "isCorrect": false }
+                        ]
+                    }
+                },
+                {
+                    "title": "Challenge: Grade Classifier",
+                    "type": "Coding",
+                    "content": {
+                        "id": "cpp-code2",
+                        "title": "Challenge: Grade Classifier",
+                        "type": "Coding",
+                        "marks": 20,
+                        "question": "Read an integer score (0–100) and print the letter grade.",
+                        "description": "<p>Read one integer score from standard input and print its letter grade:</p><ul><li>90–100 → <code>A</code></li><li>80–89 → <code>B</code></li><li>70–79 → <code>C</code></li><li>60–69 → <code>D</code></li><li>below 60 → <code>F</code></li></ul><p><strong>Example:</strong> input <code>84</code> → output <code>B</code></p>",
+                        "problemStatement": "<p>Read an integer score (0–100) from stdin and print the letter grade: A (90+), B (80+), C (70+), D (60+), otherwise F.</p>",
+                        "codingConfig": {
+                            "languageId": "cpp",
+                            "allowedLanguages": ["cpp"],
+                            "templates": {
+                                "cpp": {
+                                    "head": "#include <iostream>\nusing namespace std;\n\n",
+                                    "body": "int main() {\n    int score;\n    cin >> score;\n\n    // TODO: print A, B, C, D or F based on the score\n\n    return 0;\n}\n",
+                                    "tail": "",
+                                    "solution": "int main() {\n    int score;\n    cin >> score;\n    if (score >= 90) cout << \"A\" << endl;\n    else if (score >= 80) cout << \"B\" << endl;\n    else if (score >= 70) cout << \"C\" << endl;\n    else if (score >= 60) cout << \"D\" << endl;\n    else cout << \"F\" << endl;\n    return 0;\n}\n"
+                                }
+                            },
+                            "testCases": [
+                                { "input": "84", "output": "B", "isPublic": true, "points": 5 },
+                                { "input": "95", "output": "A", "isPublic": true, "points": 5 },
+                                { "input": "60", "output": "D", "isPublic": false, "points": 5 },
+                                { "input": "59", "output": "F", "isPublic": false, "points": 5 }
+                            ],
+                            "showTestCases": true
+                        }
+                    }
+                },
+                {
+                    "title": "Challenge: Sum of N Numbers",
+                    "type": "Coding",
+                    "content": {
+                        "id": "cpp-code3",
+                        "title": "Challenge: Sum of N Numbers",
+                        "type": "Coding",
+                        "marks": 20,
+                        "question": "Read N, then N integers, and print their sum — a loop plus an accumulator.",
+                        "description": "<p>The first line of input contains an integer <code>N</code>. The second line contains <code>N</code> space-separated integers. Print their sum.</p><p><strong>Example:</strong></p><pre><code>Input:\n4\n10 20 30 40\n\nOutput:\n100</code></pre>",
+                        "problemStatement": "<p>Read N, then N space-separated integers, and print their sum. Example: N=4, values 10 20 30 40 → 100.</p>",
+                        "codingConfig": {
+                            "languageId": "cpp",
+                            "allowedLanguages": ["cpp"],
+                            "templates": {
+                                "cpp": {
+                                    "head": "#include <iostream>\nusing namespace std;\n\n",
+                                    "body": "int main() {\n    int n;\n    cin >> n;\n\n    // TODO: loop n times, read each value, accumulate the sum, print it\n\n    return 0;\n}\n",
+                                    "tail": "",
+                                    "solution": "int main() {\n    int n;\n    cin >> n;\n    long long sum = 0;\n    for (int i = 0; i < n; i++) {\n        long long x;\n        cin >> x;\n        sum += x;\n    }\n    cout << sum << endl;\n    return 0;\n}\n"
+                                }
+                            },
+                            "testCases": [
+                                { "input": "4\n10 20 30 40", "output": "100", "isPublic": true, "points": 5 },
+                                { "input": "3\n-5 5 7", "output": "7", "isPublic": true, "points": 5 },
+                                { "input": "1\n42", "output": "42", "isPublic": false, "points": 5 },
+                                { "input": "5\n1000000 1000000 1000000 1000000 1000000", "output": "5000000", "isPublic": false, "points": 5 }
+                            ],
+                            "showTestCases": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "title": "Memory & Object-Oriented Programming",
+            "units": [
+                {
+                    "title": "2D Arrays & Pointers",
+                    "type": "Reading",
+                    "content": {
+                        "description": "<p>Grids of data with nested loops, then the concept that defines C++: pointers and memory addresses.</p>",
+                        "problemStatement": "<p>Grids of data with nested loops, then the concept that defines C++: pointers and memory addresses.</p>",
+                        "readingConfig": {
+                            "contentBlocks": [
+                                {
+                                    "id": "cpp-m3-u1-b1",
+                                    "type": "text",
+                                    "content": "<h2>Where variables actually live</h2><p>Every variable occupies a numbered slot in memory — its <strong>address</strong>. A <em>pointer</em> is simply a variable that stores an address. Two operators do all the work: <code>&amp;x</code> gives you the address of <code>x</code>, and <code>*p</code> <em>dereferences</em> a pointer to reach the value stored at that address.</p><pre><code>int age = 25;\nint *p = &amp;age;   // p holds the address of age\ncout &lt;&lt; *p;      // prints 25 — the value at that address</code></pre><p>Understanding pointers is understanding how arrays, strings, and objects are passed around under the hood — it is the concept interviewers probe hardest.</p><ul><li><strong>Watch for:</strong> nested loops walking a 2D array row by row</li><li><strong>Watch for:</strong> the difference between a pointer and the value it points to</li></ul>"
+                                },
+                                {
+                                    "id": "cpp-m3-u1-b2",
+                                    "type": "video",
+                                    "videoSource": "youtube",
+                                    "youtube": {
+                                        "videoId": "vLnPwxZdW4Y",
+                                        "startTimeSeconds": 9512,
+                                        "endTimeSeconds": 11606
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "title": "Quiz: Pointers",
+                    "type": "MCQ",
+                    "content": {
+                        "id": "cpp-q3",
+                        "title": "Dereference trace",
+                        "type": "MCQ",
+                        "marks": 5,
+                        "question": "int x = 10; int *p = &x; *p = 99; — what is x now?",
+                        "description": "<pre><code>int x = 10;\nint *p = &amp;x;\n*p = 99;\ncout &lt;&lt; x;</code></pre><p>What does this print?</p>",
+                        "problemStatement": "<pre><code>int x = 10;\nint *p = &amp;x;\n*p = 99;\ncout &lt;&lt; x;</code></pre><p>What does this print?</p>",
+                        "options": [
+                            { "id": "cpp-q3-opt-1", "text": "10 — p is a copy, x is unchanged", "isCorrect": false },
+                            { "id": "cpp-q3-opt-2", "text": "99 — writing through *p modifies x itself", "isCorrect": true },
+                            { "id": "cpp-q3-opt-3", "text": "The memory address of x", "isCorrect": false },
+                            { "id": "cpp-q3-opt-4", "text": "Undefined behavior — p was never allocated", "isCorrect": false }
+                        ]
+                    }
+                },
+                {
+                    "title": "Classes, Objects & Inheritance",
+                    "type": "Reading",
+                    "content": {
+                        "description": "<p>Bundling data and behavior: classes, constructors, object functions, getters/setters, and inheritance.</p>",
+                        "problemStatement": "<p>Bundling data and behavior: classes, constructors, object functions, getters/setters, and inheritance.</p>",
+                        "readingConfig": {
+                            "contentBlocks": [
+                                {
+                                    "id": "cpp-m3-u3-b1",
+                                    "type": "text",
+                                    "content": "<h2>Objects: data + behavior, together</h2><p>A <strong>class</strong> is a blueprint: it declares the data an object holds (attributes) and the operations it supports (methods). A <strong>constructor</strong> runs at creation to initialize state; <strong>getters and setters</strong> guard access to private attributes; and <strong>inheritance</strong> lets a derived class reuse and specialize a base class.</p><pre><code>class Book {\n  private:\n    string title;\n  public:\n    Book(string t) { title = t; }      // constructor\n    string getTitle() { return title; } // getter\n};</code></pre><ul><li><strong>Watch for:</strong> why attributes default to <code>private</code> and what <code>public:</code> changes</li><li><strong>Watch for:</strong> the inheritance example — a derived class overriding a base method</li></ul>"
+                                },
+                                {
+                                    "id": "cpp-m3-u3-b2",
+                                    "type": "video",
+                                    "videoSource": "youtube",
+                                    "youtube": {
+                                        "videoId": "vLnPwxZdW4Y",
+                                        "startTimeSeconds": 11606
+                                    }
+                                },
+                                {
+                                    "id": "cpp-m3-u3-b3",
+                                    "type": "text",
+                                    "content": "<h3>Course complete — exam ahead</h3><p>That covers the full four-hour curriculum. The final exam has 10 concept questions (types, control flow, pointers, OOP) and one compiled coding challenge with hidden test cases. You need 75% and have 2 attempts. Re-run the three challenges in this course before attempting it.</p>"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "title": "Quiz: Classes & Constructors",
+                    "type": "MCQ",
+                    "content": {
+                        "id": "cpp-q4",
+                        "title": "Constructor behavior",
+                        "type": "MCQ",
+                        "marks": 5,
+                        "question": "When does a class's constructor execute?",
+                        "description": "<p>When does a class's constructor execute?</p>",
+                        "problemStatement": "<p>When does a class's constructor execute?</p>",
+                        "options": [
+                            { "id": "cpp-q4-opt-1", "text": "Once, when the class is defined", "isCorrect": false },
+                            { "id": "cpp-q4-opt-2", "text": "Every time an object of the class is created", "isCorrect": true },
+                            { "id": "cpp-q4-opt-3", "text": "Only when explicitly called like a normal method", "isCorrect": false },
+                            { "id": "cpp-q4-opt-4", "text": "When the object is destroyed", "isCorrect": false }
+                        ]
+                    }
+                },
+                {
+                    "title": "Challenge: Bank Account Class",
+                    "type": "Coding",
+                    "content": {
+                        "id": "cpp-code4",
+                        "title": "Challenge: Bank Account Class",
+                        "type": "Coding",
+                        "marks": 25,
+                        "question": "Complete a BankAccount class with deposit/withdraw methods, then process a list of transactions.",
+                        "description": "<p>Complete the <code>BankAccount</code> class. Input format:</p><pre><code>starting_balance\nN\nop amount   (N lines: op is D for deposit or W for withdraw)</code></pre><p>Withdrawals that exceed the balance must be <strong>ignored</strong>. After processing all transactions, print the final balance (integer).</p><p><strong>Example:</strong> start 100, transactions <code>D 50</code>, <code>W 30</code>, <code>W 200</code> → prints <code>120</code> (the 200 withdrawal is ignored).</p>",
+                        "problemStatement": "<p>Complete the BankAccount class (deposit, withdraw that ignores overdrafts, getBalance), then read a starting balance and N transactions (D amount / W amount) and print the final balance.</p>",
+                        "codingConfig": {
+                            "languageId": "cpp",
+                            "allowedLanguages": ["cpp"],
+                            "templates": {
+                                "cpp": {
+                                    "head": "#include <iostream>\nusing namespace std;\n\n",
+                                    "body": "class BankAccount {\n  private:\n    long long balance;\n  public:\n    BankAccount(long long start) {\n        // TODO: initialize balance\n    }\n    void deposit(long long amount) {\n        // TODO\n    }\n    void withdraw(long long amount) {\n        // TODO: ignore the withdrawal if amount > balance\n    }\n    long long getBalance() {\n        // TODO\n        return 0;\n    }\n};\n",
+                                    "tail": "\nint main() {\n    long long start;\n    int n;\n    cin >> start >> n;\n    BankAccount account(start);\n    for (int i = 0; i < n; i++) {\n        char op;\n        long long amount;\n        cin >> op >> amount;\n        if (op == 'D') account.deposit(amount);\n        else account.withdraw(amount);\n    }\n    cout << account.getBalance() << endl;\n    return 0;\n}\n",
+                                    "solution": "class BankAccount {\n  private:\n    long long balance;\n  public:\n    BankAccount(long long start) {\n        balance = start;\n    }\n    void deposit(long long amount) {\n        balance += amount;\n    }\n    void withdraw(long long amount) {\n        if (amount <= balance) balance -= amount;\n    }\n    long long getBalance() {\n        return balance;\n    }\n};\n"
+                                }
+                            },
+                            "testCases": [
+                                { "input": "100\n3\nD 50\nW 30\nW 200", "output": "120", "isPublic": true, "points": 5 },
+                                { "input": "0\n2\nD 500\nW 500", "output": "0", "isPublic": true, "points": 5 },
+                                { "input": "250\n4\nW 100\nW 100\nW 100\nD 25", "output": "75", "isPublic": false, "points": 10 },
+                                { "input": "10\n1\nW 11", "output": "10", "isPublic": false, "points": 5 }
+                            ],
+                            "showTestCases": true
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "exam": {
+        "title": "C++ Programming Foundations — Final Exam",
+        "slug": "cpp-foundations-final-exam",
+        "shortDescription": "10 concept questions plus one compiled C++ challenge with hidden test cases.",
+        "longDescription": "<p>This exam certifies the C++ Programming Foundations showcase course. Sections: language fundamentals, control flow and functions, memory and OOP, plus one compiled coding challenge graded against hidden test cases. Passing score: 75%. Attempts allowed: 2.</p>",
+        "difficulty": "Intermediate",
+        "tags": ["C++", "Programming"],
+        "duration": 75,
+        "totalMarks": 75,
+        "passingPercentage": 75,
+        "maxAttempts": 2,
+        "attemptBufferMins": 30,
+        "questions": {
+            "sections": [
+                {
+                    "id": "cpp-exam-s1",
+                    "title": "Language Fundamentals",
+                    "questions": [
+                        {
+                            "id": "cpp-exam-q1",
+                            "title": "Compilation model",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "What distinguishes C++ from an interpreted language like Python?",
+                            "description": "<p>What distinguishes C++ from an interpreted language like Python?</p>",
+                            "problemStatement": "<p>What distinguishes C++ from an interpreted language like Python?</p>",
+                            "options": [
+                                { "id": "cpp-exam-q1-o1", "text": "C++ source is translated to machine code before execution; type errors are caught at compile time", "isCorrect": true },
+                                { "id": "cpp-exam-q1-o2", "text": "C++ code runs line by line inside a virtual machine", "isCorrect": false },
+                                { "id": "cpp-exam-q1-o3", "text": "C++ has no data types until runtime", "isCorrect": false },
+                                { "id": "cpp-exam-q1-o4", "text": "C++ cannot read user input without a web server", "isCorrect": false }
+                            ]
+                        },
+                        {
+                            "id": "cpp-exam-q2",
+                            "title": "Type selection",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "Which type is most appropriate for storing a product price like 19.99?",
+                            "description": "<p>Which type is most appropriate for storing a product price like <code>19.99</code>?</p>",
+                            "problemStatement": "<p>Which type is most appropriate for storing a product price like <code>19.99</code>?</p>",
+                            "options": [
+                                { "id": "cpp-exam-q2-o1", "text": "int", "isCorrect": false },
+                                { "id": "cpp-exam-q2-o2", "text": "char", "isCorrect": false },
+                                { "id": "cpp-exam-q2-o3", "text": "double", "isCorrect": true },
+                                { "id": "cpp-exam-q2-o4", "text": "bool", "isCorrect": false }
+                            ]
+                        },
+                        {
+                            "id": "cpp-exam-q3",
+                            "title": "Modulo operator",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "What does cout << 17 % 5; print?",
+                            "description": "<pre><code>cout &lt;&lt; 17 % 5;</code></pre><p>What is printed?</p>",
+                            "problemStatement": "<pre><code>cout &lt;&lt; 17 % 5;</code></pre><p>What is printed?</p>",
+                            "options": [
+                                { "id": "cpp-exam-q3-o1", "text": "3 — the division result rounded down", "isCorrect": false },
+                                { "id": "cpp-exam-q3-o2", "text": "2 — the remainder of 17 ÷ 5", "isCorrect": true },
+                                { "id": "cpp-exam-q3-o3", "text": "3.4", "isCorrect": false },
+                                { "id": "cpp-exam-q3-o4", "text": "85", "isCorrect": false }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "id": "cpp-exam-s2",
+                    "title": "Control Flow & Functions",
+                    "questions": [
+                        {
+                            "id": "cpp-exam-q4",
+                            "title": "Switch fall-through",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "In a switch statement, what happens if a matching case has no break?",
+                            "description": "<p>In a <code>switch</code> statement, what happens when a matching <code>case</code> block has no <code>break</code>?</p>",
+                            "problemStatement": "<p>In a <code>switch</code> statement, what happens when a matching <code>case</code> block has no <code>break</code>?</p>",
+                            "options": [
+                                { "id": "cpp-exam-q4-o1", "text": "The compiler rejects the program", "isCorrect": false },
+                                { "id": "cpp-exam-q4-o2", "text": "Execution falls through into the next case's statements", "isCorrect": true },
+                                { "id": "cpp-exam-q4-o3", "text": "The switch restarts from the first case", "isCorrect": false },
+                                { "id": "cpp-exam-q4-o4", "text": "Only the default case runs", "isCorrect": false }
+                            ]
+                        },
+                        {
+                            "id": "cpp-exam-q5",
+                            "title": "While loop trace",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "int i = 1; while (i < 100) { i *= 2; } — what is i afterwards?",
+                            "description": "<pre><code>int i = 1;\nwhile (i &lt; 100) {\n    i *= 2;\n}\ncout &lt;&lt; i;</code></pre><p>What is printed?</p>",
+                            "problemStatement": "<pre><code>int i = 1;\nwhile (i &lt; 100) {\n    i *= 2;\n}\ncout &lt;&lt; i;</code></pre><p>What is printed?</p>",
+                            "options": [
+                                { "id": "cpp-exam-q5-o1", "text": "64 — the last value below 100", "isCorrect": false },
+                                { "id": "cpp-exam-q5-o2", "text": "128 — the first value that breaks the condition", "isCorrect": true },
+                                { "id": "cpp-exam-q5-o3", "text": "100", "isCorrect": false },
+                                { "id": "cpp-exam-q5-o4", "text": "The loop never terminates", "isCorrect": false }
+                            ]
+                        },
+                        {
+                            "id": "cpp-exam-q6",
+                            "title": "Pass by value",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "void bump(int n) { n++; } int x = 5; bump(x); — what is x now?",
+                            "description": "<pre><code>void bump(int n) { n++; }\n\nint x = 5;\nbump(x);\ncout &lt;&lt; x;</code></pre><p>What is printed?</p>",
+                            "problemStatement": "<pre><code>void bump(int n) { n++; }\n\nint x = 5;\nbump(x);\ncout &lt;&lt; x;</code></pre><p>What is printed?</p>",
+                            "options": [
+                                { "id": "cpp-exam-q6-o1", "text": "6 — the function increments x", "isCorrect": false },
+                                { "id": "cpp-exam-q6-o2", "text": "5 — n is a copy; the original x is untouched", "isCorrect": true },
+                                { "id": "cpp-exam-q6-o3", "text": "0 — x is reset after the call", "isCorrect": false },
+                                { "id": "cpp-exam-q6-o4", "text": "Compile error — void functions cannot take parameters", "isCorrect": false }
+                            ]
+                        },
+                        {
+                            "id": "cpp-exam-q7",
+                            "title": "Array indexing",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "int nums[4] = {7, 8, 9, 10}; — which expression is undefined behavior?",
+                            "description": "<pre><code>int nums[4] = {7, 8, 9, 10};</code></pre><p>Which expression causes <em>undefined behavior</em>?</p>",
+                            "problemStatement": "<pre><code>int nums[4] = {7, 8, 9, 10};</code></pre><p>Which expression causes <em>undefined behavior</em>?</p>",
+                            "options": [
+                                { "id": "cpp-exam-q7-o1", "text": "nums[0]", "isCorrect": false },
+                                { "id": "cpp-exam-q7-o2", "text": "nums[3]", "isCorrect": false },
+                                { "id": "cpp-exam-q7-o3", "text": "nums[4] — one past the last valid index", "isCorrect": true },
+                                { "id": "cpp-exam-q7-o4", "text": "nums[1] + nums[2]", "isCorrect": false }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "id": "cpp-exam-s3",
+                    "title": "Memory & OOP",
+                    "questions": [
+                        {
+                            "id": "cpp-exam-q8",
+                            "title": "Address-of operator",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "Given int y = 3; which expression yields the memory address of y?",
+                            "description": "<p>Given <code>int y = 3;</code>, which expression yields the memory <em>address</em> of <code>y</code>?</p>",
+                            "problemStatement": "<p>Given <code>int y = 3;</code>, which expression yields the memory <em>address</em> of <code>y</code>?</p>",
+                            "options": [
+                                { "id": "cpp-exam-q8-o1", "text": "*y", "isCorrect": false },
+                                { "id": "cpp-exam-q8-o2", "text": "&y", "isCorrect": true },
+                                { "id": "cpp-exam-q8-o3", "text": "y*", "isCorrect": false },
+                                { "id": "cpp-exam-q8-o4", "text": "addr(y)", "isCorrect": false }
+                            ]
+                        },
+                        {
+                            "id": "cpp-exam-q9",
+                            "title": "Encapsulation",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "Why are class attributes typically declared private with public getters/setters?",
+                            "description": "<p>Why are class attributes typically declared <code>private</code> with public getters and setters?</p>",
+                            "problemStatement": "<p>Why are class attributes typically declared <code>private</code> with public getters and setters?</p>",
+                            "options": [
+                                { "id": "cpp-exam-q9-o1", "text": "Private members use less memory", "isCorrect": false },
+                                { "id": "cpp-exam-q9-o2", "text": "So the class controls and validates all access to its own state", "isCorrect": true },
+                                { "id": "cpp-exam-q9-o3", "text": "The compiler requires it for classes with constructors", "isCorrect": false },
+                                { "id": "cpp-exam-q9-o4", "text": "Private members are automatically thread-safe", "isCorrect": false }
+                            ]
+                        },
+                        {
+                            "id": "cpp-exam-q10",
+                            "title": "Inheritance",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "class Truck : public Vehicle { ... } — what does this declare?",
+                            "description": "<pre><code>class Truck : public Vehicle {\n    ...\n};</code></pre><p>What does this declaration mean?</p>",
+                            "problemStatement": "<pre><code>class Truck : public Vehicle {\n    ...\n};</code></pre><p>What does this declaration mean?</p>",
+                            "options": [
+                                { "id": "cpp-exam-q10-o1", "text": "Truck inherits Vehicle's public members and can add or override behavior", "isCorrect": true },
+                                { "id": "cpp-exam-q10-o2", "text": "Vehicle inherits from Truck", "isCorrect": false },
+                                { "id": "cpp-exam-q10-o3", "text": "Truck and Vehicle share all private state", "isCorrect": false },
+                                { "id": "cpp-exam-q10-o4", "text": "Truck is an instance (object) of the Vehicle class", "isCorrect": false }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "id": "cpp-exam-s4",
+                    "title": "Coding Challenge",
+                    "questions": [
+                        {
+                            "id": "cpp-exam-code1",
+                            "title": "Challenge: Vowel Census",
+                            "type": "Coding",
+                            "marks": 25,
+                            "question": "Count vowels in a line of text, case-insensitively.",
+                            "description": "<p>Read one line of text from standard input and print the number of vowels (<code>a e i o u</code>, case-insensitive) it contains.</p><p><strong>Example:</strong> input <code>Mentrily Exam Platform</code> → output <code>6</code></p><p><em>Hint: read the whole line with <code>getline(cin, s)</code> and lowercase each character with <code>tolower()</code>.</em></p>",
+                            "problemStatement": "<p>Read one line and print how many vowels (a, e, i, o, u — case-insensitive) it contains. Example: \"Mentrily Exam Platform\" → 6.</p>",
+                            "codingConfig": {
+                                "languageId": "cpp",
+                                "allowedLanguages": ["cpp"],
+                                "templates": {
+                                    "cpp": {
+                                        "head": "#include <iostream>\n#include <string>\n#include <cctype>\nusing namespace std;\n\n",
+                                        "body": "int main() {\n    string line;\n    getline(cin, line);\n\n    // TODO: count vowels (a, e, i, o, u) case-insensitively and print the count\n\n    return 0;\n}\n",
+                                        "tail": "",
+                                        "solution": "int main() {\n    string line;\n    getline(cin, line);\n    int count = 0;\n    for (char c : line) {\n        char lower = tolower(c);\n        if (lower == 'a' || lower == 'e' || lower == 'i' || lower == 'o' || lower == 'u') {\n            count++;\n        }\n    }\n    cout << count << endl;\n    return 0;\n}\n"
+                                    }
+                                },
+                                "testCases": [
+                                    { "input": "Mentrily Exam Platform", "output": "6", "isPublic": true, "points": 5 },
+                                    { "input": "AEIOU aeiou", "output": "10", "isPublic": true, "points": 5 },
+                                    { "input": "rhythm", "output": "0", "isPublic": false, "points": 5 },
+                                    { "input": "Programming Is Beautiful", "output": "9", "isPublic": false, "points": 10 }
+                                ],
+                                "showTestCases": true
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

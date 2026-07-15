@@ -31,6 +31,8 @@ export default function CreatorSettingsPage() {
                     name: data?.name || '',
                     subdomain: String(data?.domain || '').split('.')[0] || '',
                     email: data?.contact?.supportEmail || data?.contact?.adminEmail || '',
+                    primaryColor: data?.primaryColor || '#008D98',
+                    logo: data?.logo || null,
                     permissions: {
                         ...(data?.features || {}),
                         teacherSelfBilling: data?.features?.teacherSelfBilling !== false,
@@ -60,6 +62,10 @@ export default function CreatorSettingsPage() {
 
             const updated = await AdminService.updateSettings({
                 features: nextFeatures,
+                name: updatedData?.name,
+                primaryColor: updatedData?.primaryColor,
+                logo: updatedData?.logo,
+                contact: { supportEmail: updatedData?.email },
             });
 
             setSettingsData((prev: any) => ({

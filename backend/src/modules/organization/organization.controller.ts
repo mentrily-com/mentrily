@@ -71,18 +71,12 @@ export class OrganizationController {
       });
 
       if (!orgBySub) throw new NotFoundException('Organization not found');
-      const payload =
-        orgBySub.plan === Plan.ENTERPRISE
-          ? orgBySub
-          : this.getDefaultBranding(orgBySub.domain || domain);
+      const payload = orgBySub;
       await this.redis.set(cacheKey, JSON.stringify(payload), 'EX', 3600);
       return payload;
     }
 
-    const payload =
-      org.plan === Plan.ENTERPRISE
-        ? org
-        : this.getDefaultBranding(org.domain || domain);
+    const payload = org;
     await this.redis.set(cacheKey, JSON.stringify(payload), 'EX', 3600);
     return payload;
   }

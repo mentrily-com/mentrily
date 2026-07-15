@@ -95,6 +95,8 @@ export default function LoginPage() {
             setError('Your account has been suspended. Please contact the administrator.');
         } else if (searchParams.get('error') === 'account_not_found') {
             setError("Account doesn't exist. Please sign up first.");
+        } else if (searchParams.get('error') === 'forbidden') {
+            setError("You don't have access to this organization.");
         } else if (searchParams.get('error') === 'oauth_cancelled') {
             setError('Google sign-in was cancelled.');
         } else if (searchParams.get('error') === 'oauth_failed') {
@@ -124,7 +126,16 @@ export default function LoginPage() {
                         await redirectMissingAccount();
                         return;
                     }
-                } catch (e) {
+                } catch (e: any) {
+                    if (e.message === 'FORBIDDEN') {
+                        const rootDomain = window.location.hostname.split('.').slice(-2).join('.');
+                        if (window.location.hostname !== rootDomain) {
+                            window.location.href = `${window.location.protocol}//${rootDomain}/dashboard`;
+                            return;
+                        }
+                        router.replace('/login?error=forbidden');
+                        return;
+                    }
                     console.error('Sync error during auto-redirect', e);
                     await redirectMissingAccount();
                     return;

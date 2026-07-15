@@ -1052,11 +1052,26 @@ export class ClerkAuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
+    const tenantSubdomainFromHeader = String(
+      req?.headers?.['x-org-subdomain'] || '',
+    )
+      .trim()
+      .toLowerCase();
+    const tenantHost =
+      req?.headers?.['x-tenant-host'] || req?.headers?.host || null;
+    const tenantSubdomain =
+      tenantSubdomainFromHeader || this.parseSubdomainFromHost(tenantHost);
+
+    let orgIdForSubdomain: string | null = null;
+    if (tenantSubdomain) {
+      orgIdForSubdomain = await this.resolveOrganizationIdBySubdomain(tenantSubdomain);
+    }
+
     // Workspace switcher: which org this request should resolve role/orgId
     // against. Never trusted as-is — resolveActiveMembership() below only
     // honors it if the user actually has an ACTIVE membership there.
     const requestedOrgId =
-      String(req?.headers?.['x-active-org-id'] || '').trim() || null;
+      orgIdForSubdomain || String(req?.headers?.['x-active-org-id'] || '').trim() || null;
 
     // "Act as learner": any user (including a creator who was never a learner)
     // can drop into an org-less Student persona. Client-driven via header, same

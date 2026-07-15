@@ -284,17 +284,46 @@ export default function AdminSettingsView({
                                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
                                     Institution Logo
                                 </label>
-                                <div className="flex items-center gap-4 p-4 border-2 border-dashed border-slate-100 rounded-3xl bg-slate-50/50 hover:bg-slate-50 transition-all cursor-pointer group">
-                                    <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-slate-300 group-hover:text-[var(--brand)] shadow-sm transition-all">
-                                        <Camera size={24} />
-                                    </div>
-                                    <div>
-                                        <p className="text-[11px] font-black text-slate-800 uppercase tracking-widest">
-                                            Update Logo
-                                        </p>
-                                        <p className="text-[10px] font-bold text-slate-400">
-                                            SVG, PNG or JPG (Max 2MB)
-                                        </p>
+                                <div className="relative group">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                setBranding({ ...branding, logo: file });
+                                            }
+                                        }}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                    />
+                                    <div className={`flex items-center gap-4 p-4 border-2 border-dashed ${branding.logo ? 'border-[var(--brand)] bg-[var(--brand-light)]/10' : 'border-slate-100 bg-slate-50/50'} rounded-3xl hover:bg-slate-50 transition-all cursor-pointer`}>
+                                        <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-slate-300 group-hover:text-[var(--brand)] shadow-sm transition-all overflow-hidden">
+                                            {branding.logo ? (
+                                                typeof branding.logo === 'string' ? (
+                                                    <img
+                                                        src={branding.logo}
+                                                        alt="Preview"
+                                                        className="w-full h-full object-contain"
+                                                    />
+                                                ) : (
+                                                    <img
+                                                        src={URL.createObjectURL(branding.logo)}
+                                                        alt="Preview"
+                                                        className="w-full h-full object-contain"
+                                                    />
+                                                )
+                                            ) : (
+                                                <Camera size={24} />
+                                            )}
+                                        </div>
+                                        <div>
+                                            <p className="text-[11px] font-black text-slate-800 uppercase tracking-widest">
+                                                {branding.logo ? 'Change Logo' : 'Update Logo'}
+                                            </p>
+                                            <p className="text-[10px] font-bold text-slate-400">
+                                                {branding.logo ? 'Logo Selected' : 'SVG, PNG or JPG (Max 2MB)'}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

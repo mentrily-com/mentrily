@@ -103,11 +103,24 @@ export default function SignupPage() {
 
                 let user = null;
 
-                for (let attempt = 0; attempt < 3; attempt += 1) {
-                    user = await AuthService.checkSessionForSignup();
+                try {
+                    for (let attempt = 0; attempt < 3; attempt += 1) {
+                        user = await AuthService.checkSessionForSignup();
 
-                    if (user) break;
-                    await new Promise((resolve) => setTimeout(resolve, 80));
+                        if (user) break;
+                        await new Promise((resolve) => setTimeout(resolve, 80));
+                    }
+                } catch (e: any) {
+                    if (e.message === 'FORBIDDEN') {
+                        const rootDomain = window.location.hostname.split('.').slice(-2).join('.');
+                        if (window.location.hostname !== rootDomain) {
+                            window.location.href = `${window.location.protocol}//${rootDomain}/dashboard`;
+                            return;
+                        }
+                        router.replace('/signup?error=forbidden');
+                        return;
+                    }
+                    console.error('Sync error during auto-redirect', e);
                 }
 
                 if (cancelled) {
@@ -162,7 +175,16 @@ export default function SignupPage() {
                             await new Promise((resolve) => setTimeout(resolve, 120));
                         }
                         path = resolvePostSignupPath(user);
-                    } catch (e) {
+                    } catch (e: any) {
+                        if (e.message === 'FORBIDDEN') {
+                            const rootDomain = window.location.hostname.split('.').slice(-2).join('.');
+                            if (window.location.hostname !== rootDomain) {
+                                window.location.href = `${window.location.protocol}//${rootDomain}/dashboard`;
+                                return;
+                            }
+                            router.replace('/signup?error=forbidden');
+                            return;
+                        }
                         console.error('Failed to fetch invited user profile', e);
                     }
 
@@ -188,10 +210,12 @@ export default function SignupPage() {
     }, [isInvitationSignInFlow, isSignInLoaded, signIn, isSignedIn, invitationTicket, router, setActiveForSignIn]);
 
     React.useEffect(() => {
-        if (searchParams.get('error') === 'oauth_cancelled') {
-            setError('Google sign-up was cancelled.');
+        if (searchParams.get('error') === 'forbidden') {
+            setError("You don't have access to this organization.");
+        } else if (searchParams.get('error') === 'oauth_cancelled') {
+            setError('Google sign-in was cancelled.');
         } else if (searchParams.get('error') === 'oauth_failed') {
-            setError('Google sign-up failed. Please try again.');
+            setError('Google sign-in failed. Please try again.');
         }
     }, [searchParams]);
 
@@ -244,7 +268,16 @@ export default function SignupPage() {
                         }
 
                         path = resolvePostSignupPath(user);
-                    } catch (e) {
+                    } catch (e: any) {
+                        if (e.message === 'FORBIDDEN') {
+                            const rootDomain = window.location.hostname.split('.').slice(-2).join('.');
+                            if (window.location.hostname !== rootDomain) {
+                                window.location.href = `${window.location.protocol}//${rootDomain}/dashboard`;
+                                return;
+                            }
+                            router.replace('/signup?error=forbidden');
+                            return;
+                        }
                         console.error('Failed to fetch invited user profile', e);
                     }
 
@@ -313,7 +346,16 @@ export default function SignupPage() {
                     }
 
                     path = resolvePostSignupPath(user);
-                } catch (e) {
+                } catch (e: any) {
+                    if (e.message === 'FORBIDDEN') {
+                        const rootDomain = window.location.hostname.split('.').slice(-2).join('.');
+                        if (window.location.hostname !== rootDomain) {
+                            window.location.href = `${window.location.protocol}//${rootDomain}/dashboard`;
+                            return;
+                        }
+                        router.replace('/signup?error=forbidden');
+                        return;
+                    }
                     console.error('Failed to fetch user profile', e);
                 }
 

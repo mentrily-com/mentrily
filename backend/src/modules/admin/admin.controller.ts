@@ -114,7 +114,7 @@ export class AdminController {
   @Patch('settings')
   async updateOrganizationSettings(
     @User() user: any,
-    @Body() body: { features?: Record<string, unknown> },
+    @Body() body: any,
     @Query('orgId') orgId?: string,
   ) {
     return this.adminService.updateOrganizationSettings(user, body, orgId);

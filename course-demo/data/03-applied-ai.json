@@ -1,0 +1,618 @@
+{
+    "course": {
+        "title": "Applied Artificial Intelligence",
+        "slug": "applied-artificial-intelligence",
+        "shortDescription": "Understand how machine learning actually works — classification, regression, neural networks, and clustering — and compute the metrics yourself in Python.",
+        "longDescription": "<p>This showcase course follows the freeCodeCamp <em>Machine Learning for Everybody</em> curriculum by Kylie Ying, split into focused video segments with concept readings, scenario quizzes, and hands-on Python challenges where you implement the evaluation metrics — accuracy, mean squared error — that every ML engineer computes daily.</p><p>No prior ML experience needed; comfort with basic Python helps for the coding challenges. You will finish able to explain supervised vs. unsupervised learning, pick between classification models, describe how a neural network trains, and reason about model evaluation like a practitioner.</p>",
+        "difficulty": "Intermediate",
+        "tags": ["AI", "Machine Learning", "Python", "Data Science"],
+        "thumbnail": "https://i.ytimg.com/vi/i_LwzRVP7bg/hqdefault.jpg",
+        "courseSummary": "Features and labels, classification vs regression, train/validation/test splits, K-nearest neighbors, Naive Bayes, logistic regression, SVMs, neural networks and TensorFlow, linear regression, K-means clustering, PCA, and model evaluation metrics.",
+        "examUnlockThreshold": 80
+    },
+    "modules": [
+        {
+            "title": "Foundations of Machine Learning",
+            "units": [
+                {
+                    "title": "What Machine Learning Actually Is",
+                    "type": "Reading",
+                    "content": {
+                        "description": "<p>Features, labels, and the three flavors of machine learning — with a real dataset in Google Colab.</p>",
+                        "problemStatement": "<p>Features, labels, and the three flavors of machine learning — with a real dataset in Google Colab.</p>",
+                        "readingConfig": {
+                            "contentBlocks": [
+                                {
+                                    "id": "ai-m1-u1-b1",
+                                    "type": "text",
+                                    "content": "<h2>Programs that learn from examples</h2><p>Classic software encodes rules by hand. Machine learning flips this: you supply <strong>examples</strong> (data) and the desired <strong>answers</strong> (labels), and the algorithm finds the rules itself. Three flavors matter:</p><ul><li><strong>Supervised learning</strong> — labeled examples; predict a label for new data (spam detection, medical diagnosis)</li><li><strong>Unsupervised learning</strong> — no labels; find structure in the data (customer segmentation)</li><li><strong>Reinforcement learning</strong> — an agent learns by trial, error, and reward (game-playing AI)</li></ul><p>This segment introduces the vocabulary you will use for the rest of the course: <em>features</em> (the input columns), <em>labels</em> (the output to predict), and the difference between <em>classification</em> (predict a category) and <em>regression</em> (predict a number).</p>"
+                                },
+                                {
+                                    "id": "ai-m1-u1-b2",
+                                    "type": "video",
+                                    "videoSource": "youtube",
+                                    "youtube": {
+                                        "videoId": "i_LwzRVP7bg",
+                                        "startTimeSeconds": 0,
+                                        "endTimeSeconds": 1197
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "title": "Training Models & Preparing Data",
+                    "type": "Reading",
+                    "content": {
+                        "description": "<p>Train/validation/test splits, loss, and why data preparation decides whether your model works at all.</p>",
+                        "problemStatement": "<p>Train/validation/test splits, loss, and why data preparation decides whether your model works at all.</p>",
+                        "readingConfig": {
+                            "contentBlocks": [
+                                {
+                                    "id": "ai-m1-u2-b1",
+                                    "type": "text",
+                                    "content": "<h2>The golden rule: never grade on the training set</h2><p>A model that memorizes its training data can score 100% on it and still be useless — that failure mode is called <strong>overfitting</strong>. The defense is discipline about data splits:</p><ul><li><strong>Training set</strong> — the examples the model learns from</li><li><strong>Validation set</strong> — used during development to tune choices</li><li><strong>Test set</strong> — touched once, at the end, to estimate real-world performance</li></ul><p>This segment also covers <em>loss</em> (the number training tries to minimize) and practical preparation: scaling features so no column dominates, and rebalancing datasets where one class is rare.</p>"
+                                },
+                                {
+                                    "id": "ai-m1-u2-b2",
+                                    "type": "video",
+                                    "videoSource": "youtube",
+                                    "youtube": {
+                                        "videoId": "i_LwzRVP7bg",
+                                        "startTimeSeconds": 1197,
+                                        "endTimeSeconds": 2683
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "title": "Quiz: ML Foundations",
+                    "type": "MCQ",
+                    "content": {
+                        "id": "ai-q1",
+                        "title": "Classification or regression?",
+                        "type": "MCQ",
+                        "marks": 5,
+                        "question": "A hospital wants to predict the NUMBER OF DAYS a patient will stay. What kind of problem is this?",
+                        "description": "<p>A hospital wants to predict the <strong>number of days</strong> a patient will stay after surgery, using age, diagnosis, and vitals as inputs. What kind of ML problem is this?</p>",
+                        "problemStatement": "<p>A hospital wants to predict the <strong>number of days</strong> a patient will stay after surgery, using age, diagnosis, and vitals as inputs. What kind of ML problem is this?</p>",
+                        "options": [
+                            { "id": "ai-q1-opt-1", "text": "Supervised classification — days are categories", "isCorrect": false },
+                            { "id": "ai-q1-opt-2", "text": "Supervised regression — predicting a continuous numeric value from labeled examples", "isCorrect": true },
+                            { "id": "ai-q1-opt-3", "text": "Unsupervised clustering — grouping similar patients", "isCorrect": false },
+                            { "id": "ai-q1-opt-4", "text": "Reinforcement learning — the model is rewarded per patient", "isCorrect": false }
+                        ]
+                    }
+                },
+                {
+                    "title": "Quiz: Overfitting",
+                    "type": "MCQ",
+                    "content": {
+                        "id": "ai-q2",
+                        "title": "Diagnosing a suspicious score",
+                        "type": "MCQ",
+                        "marks": 5,
+                        "question": "A model scores 99% on training data but 62% on the test set. What is happening?",
+                        "description": "<p>Your model scores 99% accuracy on the training set but only 62% on the held-out test set. What is the most likely diagnosis?</p>",
+                        "problemStatement": "<p>Your model scores 99% accuracy on the training set but only 62% on the held-out test set. What is the most likely diagnosis?</p>",
+                        "options": [
+                            { "id": "ai-q2-opt-1", "text": "The test set is broken and should be regenerated from training data", "isCorrect": false },
+                            { "id": "ai-q2-opt-2", "text": "Overfitting — the model memorized training examples instead of learning general patterns", "isCorrect": true },
+                            { "id": "ai-q2-opt-3", "text": "Underfitting — the model is too simple for the data", "isCorrect": false },
+                            { "id": "ai-q2-opt-4", "text": "Nothing — a 37-point gap between train and test is expected", "isCorrect": false }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "title": "Classification Models",
+            "units": [
+                {
+                    "title": "K-Nearest Neighbors & Naive Bayes",
+                    "type": "Reading",
+                    "content": {
+                        "description": "<p>Two intuitive classifiers: vote among your neighbors, or reason with probabilities.</p>",
+                        "problemStatement": "<p>Two intuitive classifiers: vote among your neighbors, or reason with probabilities.</p>",
+                        "readingConfig": {
+                            "contentBlocks": [
+                                {
+                                    "id": "ai-m2-u1-b1",
+                                    "type": "text",
+                                    "content": "<h2>Two ways to classify</h2><p><strong>K-Nearest Neighbors (KNN)</strong> barely \"learns\" at all: to classify a new point, it finds the K most similar training examples and takes a majority vote. Simple, surprisingly strong, and a perfect first model — but the choice of K matters (K=1 overfits; huge K blurs everything).</p><p><strong>Naive Bayes</strong> instead reasons with probability: using Bayes' theorem, it asks \"given these features, which class is most probable?\" — assuming (naively) that features are independent. That naive assumption is usually false yet the classifier still works remarkably well, famously for spam filtering.</p><ul><li><strong>Watch for:</strong> distance as \"similarity\" in KNN</li><li><strong>Watch for:</strong> how both are implemented in a few lines of scikit-learn</li></ul>"
+                                },
+                                {
+                                    "id": "ai-m2-u1-b2",
+                                    "type": "video",
+                                    "videoSource": "youtube",
+                                    "youtube": {
+                                        "videoId": "i_LwzRVP7bg",
+                                        "startTimeSeconds": 2683,
+                                        "endTimeSeconds": 4762
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "title": "Logistic Regression & Support Vector Machines",
+                    "type": "Reading",
+                    "content": {
+                        "description": "<p>Drawing decision boundaries: probability curves with logistic regression, maximum margins with SVMs.</p>",
+                        "problemStatement": "<p>Drawing decision boundaries: probability curves with logistic regression, maximum margins with SVMs.</p>",
+                        "readingConfig": {
+                            "contentBlocks": [
+                                {
+                                    "id": "ai-m2-u2-b1",
+                                    "type": "text",
+                                    "content": "<h2>Boundaries, not neighborhoods</h2><p><strong>Logistic regression</strong> — despite the name — is a classifier: it fits an S-shaped (sigmoid) curve that outputs a <em>probability</em> between 0 and 1, then thresholds it (usually at 0.5) to decide the class. Because it outputs calibrated probabilities, it is the workhorse of risk scoring in finance and medicine.</p><p><strong>Support Vector Machines</strong> take a geometric view: among all lines (or hyperplanes) that separate the classes, choose the one with the <em>widest margin</em> to the nearest points — those nearest points are the \"support vectors\" that give the method its name.</p><ul><li><strong>Watch for:</strong> the sigmoid curve mapping any number into (0, 1)</li><li><strong>Watch for:</strong> why maximizing the margin improves generalization</li></ul>"
+                                },
+                                {
+                                    "id": "ai-m2-u2-b2",
+                                    "type": "video",
+                                    "videoSource": "youtube",
+                                    "youtube": {
+                                        "videoId": "i_LwzRVP7bg",
+                                        "startTimeSeconds": 4762,
+                                        "endTimeSeconds": 5984
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "title": "Quiz: Choosing a Classifier",
+                    "type": "MCQ",
+                    "content": {
+                        "id": "ai-q3",
+                        "title": "Which model outputs probabilities?",
+                        "type": "MCQ",
+                        "marks": 5,
+                        "question": "A bank must report the PROBABILITY that a loan defaults, not just yes/no. Which model is the most natural fit?",
+                        "description": "<p>A bank must report the <strong>probability</strong> that a loan will default — regulators require the score itself, not just a yes/no decision. Which model is the most natural fit?</p>",
+                        "problemStatement": "<p>A bank must report the <strong>probability</strong> that a loan will default — regulators require the score itself, not just a yes/no decision. Which model is the most natural fit?</p>",
+                        "options": [
+                            { "id": "ai-q3-opt-1", "text": "K-nearest neighbors with K=1", "isCorrect": false },
+                            { "id": "ai-q3-opt-2", "text": "Logistic regression — its sigmoid output is a calibrated probability", "isCorrect": true },
+                            { "id": "ai-q3-opt-3", "text": "A hard-margin SVM — margins are probabilities", "isCorrect": false },
+                            { "id": "ai-q3-opt-4", "text": "K-means clustering on the loan features", "isCorrect": false }
+                        ]
+                    }
+                },
+                {
+                    "title": "Challenge: Compute Model Accuracy",
+                    "type": "Coding",
+                    "content": {
+                        "id": "ai-code1",
+                        "title": "Challenge: Compute Model Accuracy",
+                        "type": "Coding",
+                        "marks": 20,
+                        "question": "Given true labels and predicted labels, compute the accuracy as a percentage.",
+                        "description": "<p>You evaluated a classifier. Input format:</p><pre><code>line 1: space-separated true labels\nline 2: space-separated predicted labels (same length)</code></pre><p>Print the accuracy — the fraction of positions where the prediction matches the truth — as a percentage with <strong>one decimal place</strong>.</p><p><strong>Example:</strong></p><pre><code>Input:\n1 0 1 1 0\n1 0 0 1 0\n\nOutput:\n80.0</code></pre>",
+                        "problemStatement": "<p>Read two lines of space-separated labels (true, then predicted) and print the match rate as a percentage with one decimal place. Example: 4 of 5 match → <code>80.0</code>.</p>",
+                        "codingConfig": {
+                            "languageId": "python",
+                            "allowedLanguages": ["python"],
+                            "templates": {
+                                "python": {
+                                    "head": "",
+                                    "body": "true_labels = input().split()\npredicted = input().split()\n\n# TODO: count matching positions and print the accuracy\n# as a percentage with one decimal place, e.g. 80.0\n",
+                                    "tail": "",
+                                    "solution": "true_labels = input().split()\npredicted = input().split()\n\nmatches = sum(1 for t, p in zip(true_labels, predicted) if t == p)\naccuracy = matches / len(true_labels) * 100\nprint(f\"{accuracy:.1f}\")\n"
+                                }
+                            },
+                            "testCases": [
+                                { "input": "1 0 1 1 0\n1 0 0 1 0", "output": "80.0", "isPublic": true, "points": 5 },
+                                { "input": "cat dog cat\ncat dog cat", "output": "100.0", "isPublic": true, "points": 5 },
+                                { "input": "1 1 1 1\n0 0 0 0", "output": "0.0", "isPublic": false, "points": 5 },
+                                { "input": "1 0 1 0 1 0 1 0\n1 0 1 0 1 0 0 1", "output": "75.0", "isPublic": false, "points": 5 }
+                            ],
+                            "showTestCases": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "title": "Neural Networks & Regression",
+            "units": [
+                {
+                    "title": "Neural Networks & TensorFlow",
+                    "type": "Reading",
+                    "content": {
+                        "description": "<p>Neurons, layers, activation functions, and backpropagation — then building a real classifier in TensorFlow.</p>",
+                        "problemStatement": "<p>Neurons, layers, activation functions, and backpropagation — then building a real classifier in TensorFlow.</p>",
+                        "readingConfig": {
+                            "contentBlocks": [
+                                {
+                                    "id": "ai-m3-u1-b1",
+                                    "type": "text",
+                                    "content": "<h2>Stacking simple units into deep intelligence</h2><p>A single artificial <strong>neuron</strong> is trivial: multiply each input by a weight, add them up, pass the result through an <em>activation function</em>. The power comes from stacking thousands of them in <strong>layers</strong> — each layer transforming the previous layer's output — and from <strong>backpropagation</strong>, the algorithm that nudges every weight in the direction that reduces the loss.</p><ul><li><strong>Watch for:</strong> why non-linear activations (ReLU, sigmoid) are what make depth useful</li><li><strong>Watch for:</strong> the training loop — forward pass, loss, backward pass, weight update</li><li><strong>Watch for:</strong> how few lines of TensorFlow it takes to define and train a network</li></ul><p>This architecture — scaled up massively — is the same family of models behind modern image recognition and language AI.</p>"
+                                },
+                                {
+                                    "id": "ai-m3-u1-b2",
+                                    "type": "video",
+                                    "videoSource": "youtube",
+                                    "youtube": {
+                                        "videoId": "i_LwzRVP7bg",
+                                        "startTimeSeconds": 5984,
+                                        "endTimeSeconds": 7812
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "title": "Linear Regression, Start to Finish",
+                    "type": "Reading",
+                    "content": {
+                        "description": "<p>The original ML model: fitting a line, measuring error, and rebuilding it as a neural network.</p>",
+                        "problemStatement": "<p>The original ML model: fitting a line, measuring error, and rebuilding it as a neural network.</p>",
+                        "readingConfig": {
+                            "contentBlocks": [
+                                {
+                                    "id": "ai-m3-u2-b1",
+                                    "type": "text",
+                                    "content": "<h2>Fitting the best line</h2><p><strong>Linear regression</strong> predicts a number as a weighted sum of the inputs: <code>y = w·x + b</code>. \"Best\" is defined by a loss — most commonly <strong>mean squared error (MSE)</strong>: average the squared differences between predictions and truth. Squaring punishes big misses hard, which is usually what you want.</p><p>The elegant finale of this segment: a linear regression <em>is</em> a neural network with one neuron and no activation — so the same TensorFlow machinery trains it. Seeing that connection demystifies deep learning more than anything else in the course.</p><ul><li><strong>Watch for:</strong> residuals — the vertical gaps between points and the fitted line</li><li><strong>Watch for:</strong> MSE as the average of squared residuals (you will implement it next)</li></ul>"
+                                },
+                                {
+                                    "id": "ai-m3-u2-b2",
+                                    "type": "video",
+                                    "videoSource": "youtube",
+                                    "youtube": {
+                                        "videoId": "i_LwzRVP7bg",
+                                        "startTimeSeconds": 7812,
+                                        "endTimeSeconds": 11593
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "title": "Quiz: Neural Networks",
+                    "type": "MCQ",
+                    "content": {
+                        "id": "ai-q4",
+                        "title": "The role of activation functions",
+                        "type": "MCQ",
+                        "marks": 5,
+                        "question": "What would happen if a deep network used NO non-linear activation functions?",
+                        "description": "<p>What would happen if a deep neural network used <strong>no</strong> non-linear activation functions between its layers?</p>",
+                        "problemStatement": "<p>What would happen if a deep neural network used <strong>no</strong> non-linear activation functions between its layers?</p>",
+                        "options": [
+                            { "id": "ai-q4-opt-1", "text": "It would train faster and perform the same", "isCorrect": false },
+                            { "id": "ai-q4-opt-2", "text": "The stacked layers would collapse into a single linear transformation — no more expressive than one layer", "isCorrect": true },
+                            { "id": "ai-q4-opt-3", "text": "Backpropagation would become impossible", "isCorrect": false },
+                            { "id": "ai-q4-opt-4", "text": "The network could only output negative numbers", "isCorrect": false }
+                        ]
+                    }
+                },
+                {
+                    "title": "Challenge: Mean Squared Error",
+                    "type": "Coding",
+                    "content": {
+                        "id": "ai-code2",
+                        "title": "Challenge: Mean Squared Error",
+                        "type": "Coding",
+                        "marks": 20,
+                        "question": "Implement the loss function used to train regression models.",
+                        "description": "<p>Input format:</p><pre><code>line 1: space-separated true values\nline 2: space-separated predicted values (same length)</code></pre><p>Print the <strong>mean squared error</strong> — the average of squared differences — with <strong>two decimal places</strong>.</p><p><strong>Example:</strong></p><pre><code>Input:\n3 5 2\n2 5 4\n\nOutput:\n1.67</code></pre><p>(differences 1, 0, −2 → squares 1, 0, 4 → mean 5/3 ≈ 1.67)</p>",
+                        "problemStatement": "<p>Read two lines of numbers (true, predicted) and print the mean of squared differences with two decimal places. Example: truths 3 5 2, predictions 2 5 4 → <code>1.67</code>.</p>",
+                        "codingConfig": {
+                            "languageId": "python",
+                            "allowedLanguages": ["python"],
+                            "templates": {
+                                "python": {
+                                    "head": "",
+                                    "body": "y_true = [float(v) for v in input().split()]\ny_pred = [float(v) for v in input().split()]\n\n# TODO: compute the mean squared error and print it\n# with two decimal places, e.g. 1.67\n",
+                                    "tail": "",
+                                    "solution": "y_true = [float(v) for v in input().split()]\ny_pred = [float(v) for v in input().split()]\n\nmse = sum((t - p) ** 2 for t, p in zip(y_true, y_pred)) / len(y_true)\nprint(f\"{mse:.2f}\")\n"
+                                }
+                            },
+                            "testCases": [
+                                { "input": "3 5 2\n2 5 4", "output": "1.67", "isPublic": true, "points": 5 },
+                                { "input": "10 20 30\n10 20 30", "output": "0.00", "isPublic": true, "points": 5 },
+                                { "input": "0 0\n3 4", "output": "12.50", "isPublic": false, "points": 5 },
+                                { "input": "1.5 2.5\n1.0 3.0", "output": "0.25", "isPublic": false, "points": 5 }
+                            ],
+                            "showTestCases": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "title": "Unsupervised Learning & AI in Practice",
+            "units": [
+                {
+                    "title": "K-Means Clustering & PCA",
+                    "type": "Reading",
+                    "content": {
+                        "description": "<p>Finding structure without labels: clustering with K-means and compressing dimensions with PCA.</p>",
+                        "problemStatement": "<p>Finding structure without labels: clustering with K-means and compressing dimensions with PCA.</p>",
+                        "readingConfig": {
+                            "contentBlocks": [
+                                {
+                                    "id": "ai-m4-u1-b1",
+                                    "type": "text",
+                                    "content": "<h2>Learning without answers</h2><p>Sometimes there are no labels — just data — and the question is \"what structure is in here?\" <strong>K-means</strong> answers by clustering: pick K center points, assign every example to its nearest center, move each center to the mean of its members, repeat until stable. <strong>Principal Component Analysis (PCA)</strong> answers by compression: find the directions along which the data varies most, and project onto them — turning 50 correlated columns into 2 or 3 you can actually plot.</p><ul><li><strong>Watch for:</strong> the assign-then-update loop of K-means converging step by step</li><li><strong>Watch for:</strong> PCA as \"the best flattening\" of high-dimensional data</li></ul>"
+                                },
+                                {
+                                    "id": "ai-m4-u1-b2",
+                                    "type": "video",
+                                    "videoSource": "youtube",
+                                    "youtube": {
+                                        "videoId": "i_LwzRVP7bg",
+                                        "startTimeSeconds": 11593
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "title": "Responsible AI: Bias, Limits & Deployment",
+                    "type": "Reading",
+                    "content": {
+                        "description": "<p>What the math cannot fix: dataset bias, evaluation pitfalls, and the questions to ask before shipping a model.</p>",
+                        "problemStatement": "<p>What the math cannot fix: dataset bias, evaluation pitfalls, and the questions to ask before shipping a model.</p>",
+                        "readingConfig": {
+                            "contentBlocks": [
+                                {
+                                    "id": "ai-m4-u2-b1",
+                                    "type": "text",
+                                    "content": "<h2>The model is only as fair as its data</h2><p>Every technique in this course optimizes a number — accuracy, MSE, margin. None of them can detect that the number is being optimized on <em>biased data</em>. A hiring model trained on historical decisions learns historical prejudices; a diagnosis model trained mostly on one demographic underperforms on others. Bias in, bias out — at scale, and with a veneer of objectivity.</p><h3>A practitioner's pre-launch checklist</h3><ul><li><strong>Provenance:</strong> where did the training data come from, and who is missing from it?</li><li><strong>Sliced evaluation:</strong> report accuracy per subgroup, not just overall — a 95% average can hide a 60% subgroup</li><li><strong>Failure cost:</strong> a false negative in cancer screening and a false positive in spam filtering have wildly different prices; choose metrics and thresholds accordingly</li><li><strong>Monitoring:</strong> data drifts after deployment — yesterday's accurate model quietly decays</li><li><strong>Recourse:</strong> can an affected person contest an automated decision?</li></ul><p>These questions — not the algorithms — are usually what separates AI that helps from AI that harms. Carry them into the final exam and into your work.</p>"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "title": "Quiz: Unsupervised & Responsible AI",
+                    "type": "MCQ",
+                    "content": {
+                        "id": "ai-q5",
+                        "title": "Segmenting without labels",
+                        "type": "MCQ",
+                        "marks": 5,
+                        "question": "A retailer wants to group customers into segments with NO predefined categories. Which technique fits?",
+                        "description": "<p>A retailer has purchase histories for a million customers and wants to discover natural customer segments — there are <strong>no predefined categories</strong>. Which technique fits?</p>",
+                        "problemStatement": "<p>A retailer has purchase histories for a million customers and wants to discover natural customer segments — there are <strong>no predefined categories</strong>. Which technique fits?</p>",
+                        "options": [
+                            { "id": "ai-q5-opt-1", "text": "Logistic regression trained on segment labels", "isCorrect": false },
+                            { "id": "ai-q5-opt-2", "text": "K-means clustering — unsupervised grouping by similarity", "isCorrect": true },
+                            { "id": "ai-q5-opt-3", "text": "A neural network classifier with softmax output", "isCorrect": false },
+                            { "id": "ai-q5-opt-4", "text": "KNN with the segment as the label", "isCorrect": false }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "exam": {
+        "title": "Applied Artificial Intelligence — Final Exam",
+        "slug": "applied-ai-final-exam",
+        "shortDescription": "10 scenario questions plus one Python data challenge covering the full ML curriculum.",
+        "longDescription": "<p>This exam certifies the Applied Artificial Intelligence showcase course. Sections: ML foundations, models and training, evaluation and responsible AI, plus one Python challenge parsing prediction logs. Passing score: 75%. Attempts allowed: 2.</p>",
+        "difficulty": "Intermediate",
+        "tags": ["AI", "Machine Learning", "Python"],
+        "duration": 75,
+        "totalMarks": 75,
+        "passingPercentage": 75,
+        "maxAttempts": 2,
+        "attemptBufferMins": 30,
+        "questions": {
+            "sections": [
+                {
+                    "id": "ai-exam-s1",
+                    "title": "Foundations",
+                    "questions": [
+                        {
+                            "id": "ai-exam-q1",
+                            "title": "Features and labels",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "In a spam filter trained on emails marked spam/not-spam, what are the LABELS?",
+                            "description": "<p>You train a spam filter on a dataset of emails, each marked spam or not-spam by users. In ML terms, what are the <strong>labels</strong>?</p>",
+                            "problemStatement": "<p>You train a spam filter on a dataset of emails, each marked spam or not-spam by users. In ML terms, what are the <strong>labels</strong>?</p>",
+                            "options": [
+                                { "id": "ai-exam-q1-o1", "text": "The words and metadata of each email", "isCorrect": false },
+                                { "id": "ai-exam-q1-o2", "text": "The spam / not-spam markings the model learns to predict", "isCorrect": true },
+                                { "id": "ai-exam-q1-o3", "text": "The email addresses of the senders", "isCorrect": false },
+                                { "id": "ai-exam-q1-o4", "text": "The parameters of the trained model", "isCorrect": false }
+                            ]
+                        },
+                        {
+                            "id": "ai-exam-q2",
+                            "title": "The test set",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "Why must the test set never influence training or model selection?",
+                            "description": "<p>Why must the test set never influence training or model selection decisions?</p>",
+                            "problemStatement": "<p>Why must the test set never influence training or model selection decisions?</p>",
+                            "options": [
+                                { "id": "ai-exam-q2-o1", "text": "Test data is stored in a slower format", "isCorrect": false },
+                                { "id": "ai-exam-q2-o2", "text": "Any leakage into training inflates the score, so it no longer estimates real-world performance", "isCorrect": true },
+                                { "id": "ai-exam-q2-o3", "text": "The test set is always too small to train on", "isCorrect": false },
+                                { "id": "ai-exam-q2-o4", "text": "Regulations forbid using test data twice", "isCorrect": false }
+                            ]
+                        },
+                        {
+                            "id": "ai-exam-q3",
+                            "title": "Problem framing",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "Which of these is an UNSUPERVISED learning problem?",
+                            "description": "<p>Which of these is an <strong>unsupervised</strong> learning problem?</p>",
+                            "problemStatement": "<p>Which of these is an <strong>unsupervised</strong> learning problem?</p>",
+                            "options": [
+                                { "id": "ai-exam-q3-o1", "text": "Predicting house prices from labeled sales records", "isCorrect": false },
+                                { "id": "ai-exam-q3-o2", "text": "Detecting tumors using scans annotated by radiologists", "isCorrect": false },
+                                { "id": "ai-exam-q3-o3", "text": "Grouping news articles by topic with no topic labels provided", "isCorrect": true },
+                                { "id": "ai-exam-q3-o4", "text": "Classifying reviews as positive or negative using rated examples", "isCorrect": false }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "id": "ai-exam-s2",
+                    "title": "Models & Training",
+                    "questions": [
+                        {
+                            "id": "ai-exam-q4",
+                            "title": "Choosing K in KNN",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "What happens to a KNN classifier as K grows very large (close to the dataset size)?",
+                            "description": "<p>What happens to a K-nearest-neighbors classifier as K grows very large — close to the size of the whole dataset?</p>",
+                            "problemStatement": "<p>What happens to a K-nearest-neighbors classifier as K grows very large — close to the size of the whole dataset?</p>",
+                            "options": [
+                                { "id": "ai-exam-q4-o1", "text": "It overfits, memorizing individual training points", "isCorrect": false },
+                                { "id": "ai-exam-q4-o2", "text": "It underfits — every prediction tends toward the overall majority class", "isCorrect": true },
+                                { "id": "ai-exam-q4-o3", "text": "Accuracy always improves with larger K", "isCorrect": false },
+                                { "id": "ai-exam-q4-o4", "text": "It becomes equivalent to logistic regression", "isCorrect": false }
+                            ]
+                        },
+                        {
+                            "id": "ai-exam-q5",
+                            "title": "Sigmoid output",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "A logistic regression model outputs 0.93 for a transaction. What does this mean?",
+                            "description": "<p>A logistic regression fraud model outputs <code>0.93</code> for a transaction. What does this number mean?</p>",
+                            "problemStatement": "<p>A logistic regression fraud model outputs <code>0.93</code> for a transaction. What does this number mean?</p>",
+                            "options": [
+                                { "id": "ai-exam-q5-o1", "text": "The transaction amount is 93% of the account limit", "isCorrect": false },
+                                { "id": "ai-exam-q5-o2", "text": "The model estimates a 93% probability that the transaction belongs to the positive (fraud) class", "isCorrect": true },
+                                { "id": "ai-exam-q5-o3", "text": "The model is 93% finished training", "isCorrect": false },
+                                { "id": "ai-exam-q5-o4", "text": "93% of similar transactions were legitimate", "isCorrect": false }
+                            ]
+                        },
+                        {
+                            "id": "ai-exam-q6",
+                            "title": "Backpropagation",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "What is the role of backpropagation in training a neural network?",
+                            "description": "<p>What is the role of backpropagation in training a neural network?</p>",
+                            "problemStatement": "<p>What is the role of backpropagation in training a neural network?</p>",
+                            "options": [
+                                { "id": "ai-exam-q6-o1", "text": "It computes how much each weight contributed to the loss so the weights can be adjusted to reduce it", "isCorrect": true },
+                                { "id": "ai-exam-q6-o2", "text": "It shuffles the training data between epochs", "isCorrect": false },
+                                { "id": "ai-exam-q6-o3", "text": "It removes neurons that fire too often", "isCorrect": false },
+                                { "id": "ai-exam-q6-o4", "text": "It converts the network's output into probabilities", "isCorrect": false }
+                            ]
+                        },
+                        {
+                            "id": "ai-exam-q7",
+                            "title": "MSE by hand",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "True values [2, 4], predictions [3, 6]. What is the MSE?",
+                            "description": "<p>True values <code>[2, 4]</code>, predictions <code>[3, 6]</code>. What is the mean squared error?</p>",
+                            "problemStatement": "<p>True values <code>[2, 4]</code>, predictions <code>[3, 6]</code>. What is the mean squared error?</p>",
+                            "options": [
+                                { "id": "ai-exam-q7-o1", "text": "1.5 — the mean of the absolute errors", "isCorrect": false },
+                                { "id": "ai-exam-q7-o2", "text": "2.5 — mean of 1² and 2²", "isCorrect": true },
+                                { "id": "ai-exam-q7-o3", "text": "5 — the sum of squared errors", "isCorrect": false },
+                                { "id": "ai-exam-q7-o4", "text": "3 — the largest single error squared minus one", "isCorrect": false }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "id": "ai-exam-s3",
+                    "title": "Evaluation & Responsible AI",
+                    "questions": [
+                        {
+                            "id": "ai-exam-q8",
+                            "title": "The accuracy trap",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "A disease affects 1% of patients. A model that predicts \"healthy\" for EVERYONE scores 99% accuracy. What is the lesson?",
+                            "description": "<p>A disease affects 1% of patients. A model that predicts \"healthy\" for <strong>everyone</strong> scores 99% accuracy. What is the lesson?</p>",
+                            "problemStatement": "<p>A disease affects 1% of patients. A model that predicts \"healthy\" for <strong>everyone</strong> scores 99% accuracy. What is the lesson?</p>",
+                            "options": [
+                                { "id": "ai-exam-q8-o1", "text": "The model is excellent and ready to deploy", "isCorrect": false },
+                                { "id": "ai-exam-q8-o2", "text": "Accuracy is misleading on imbalanced data — this model catches zero sick patients despite the high score", "isCorrect": true },
+                                { "id": "ai-exam-q8-o3", "text": "The disease rate must be raised to 50% in the data", "isCorrect": false },
+                                { "id": "ai-exam-q8-o4", "text": "99% accuracy is impossible, so the evaluation code is buggy", "isCorrect": false }
+                            ]
+                        },
+                        {
+                            "id": "ai-exam-q9",
+                            "title": "Bias in training data",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "A hiring model trained on a company's past decisions rejects qualified candidates from groups the company historically rejected. Why?",
+                            "description": "<p>A hiring model trained on ten years of a company's past decisions systematically rejects qualified candidates from groups the company historically rejected. What is the root cause?</p>",
+                            "problemStatement": "<p>A hiring model trained on ten years of a company's past decisions systematically rejects qualified candidates from groups the company historically rejected. What is the root cause?</p>",
+                            "options": [
+                                { "id": "ai-exam-q9-o1", "text": "The learning rate was set too high during training", "isCorrect": false },
+                                { "id": "ai-exam-q9-o2", "text": "The model faithfully learned the bias present in its training labels — historical decisions encoded historical prejudice", "isCorrect": true },
+                                { "id": "ai-exam-q9-o3", "text": "Neural networks are inherently random", "isCorrect": false },
+                                { "id": "ai-exam-q9-o4", "text": "The test set was too large", "isCorrect": false }
+                            ]
+                        },
+                        {
+                            "id": "ai-exam-q10",
+                            "title": "PCA purpose",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "What does Principal Component Analysis do?",
+                            "description": "<p>What does Principal Component Analysis (PCA) do?</p>",
+                            "problemStatement": "<p>What does Principal Component Analysis (PCA) do?</p>",
+                            "options": [
+                                { "id": "ai-exam-q10-o1", "text": "Projects high-dimensional data onto the directions of greatest variance, reducing dimensions while keeping the most information", "isCorrect": true },
+                                { "id": "ai-exam-q10-o2", "text": "Assigns each data point to one of K cluster centers", "isCorrect": false },
+                                { "id": "ai-exam-q10-o3", "text": "Predicts a continuous value from labeled examples", "isCorrect": false },
+                                { "id": "ai-exam-q10-o4", "text": "Balances classes by duplicating rare examples", "isCorrect": false }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "id": "ai-exam-s4",
+                    "title": "Python Challenge",
+                    "questions": [
+                        {
+                            "id": "ai-exam-code1",
+                            "title": "Challenge: Prediction Log Analyzer",
+                            "type": "Coding",
+                            "marks": 25,
+                            "question": "Parse a model's prediction log and report per-class correct counts plus overall accuracy.",
+                            "description": "<p>Each line of input is a log record: <code>true_label,predicted_label</code>. Input ends with a line containing only <code>END</code>.</p><p>Print two lines:</p><ol><li><code>correct=X total=Y</code> — the number of correct predictions and total records</li><li><code>accuracy=Z</code> — the accuracy percentage with one decimal place</li></ol><p><strong>Example:</strong></p><pre><code>Input:\ncat,cat\ndog,cat\ndog,dog\nEND\n\nOutput:\ncorrect=2 total=3\naccuracy=66.7</code></pre>",
+                            "problemStatement": "<p>Read lines of <code>true,predicted</code> pairs until <code>END</code>. Print <code>correct=X total=Y</code> then <code>accuracy=Z</code> (one decimal place).</p>",
+                            "codingConfig": {
+                                "languageId": "python",
+                                "allowedLanguages": ["python"],
+                                "templates": {
+                                    "python": {
+                                        "head": "",
+                                        "body": "# Read lines of \"true,predicted\" until a line equals END.\n# Print:  correct=X total=Y\n# Then:   accuracy=Z   (one decimal place)\n\nwhile True:\n    line = input().strip()\n    if line == \"END\":\n        break\n    # TODO: parse the pair and update your counters\n",
+                                        "tail": "",
+                                        "solution": "correct = 0\ntotal = 0\nwhile True:\n    line = input().strip()\n    if line == \"END\":\n        break\n    true_label, predicted = line.split(\",\")\n    total += 1\n    if true_label == predicted:\n        correct += 1\nprint(f\"correct={correct} total={total}\")\nprint(f\"accuracy={correct / total * 100:.1f}\")\n"
+                                    }
+                                },
+                                "testCases": [
+                                    { "input": "cat,cat\ndog,cat\ndog,dog\nEND", "output": "correct=2 total=3\naccuracy=66.7", "isPublic": true, "points": 5 },
+                                    { "input": "spam,spam\nham,ham\nEND", "output": "correct=2 total=2\naccuracy=100.0", "isPublic": true, "points": 5 },
+                                    { "input": "1,0\n1,0\n1,0\n1,1\nEND", "output": "correct=1 total=4\naccuracy=25.0", "isPublic": false, "points": 10 },
+                                    { "input": "yes,no\nEND", "output": "correct=0 total=1\naccuracy=0.0", "isPublic": false, "points": 5 }
+                                ],
+                                "showTestCases": true
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
