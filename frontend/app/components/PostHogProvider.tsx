@@ -25,6 +25,12 @@ export default function PostHogProvider({ children }: { children: React.ReactNod
             capture_pageview: true,
             capture_pageleave: true,
             person_profiles: 'identified_only',
+            loaded: (ph) => {
+                if (process.env.NODE_ENV === 'development') ph.opt_out_capturing();
+            },
+            // Suppress console noise from ad-blockers blocking PostHog requests
+            on_xhr_error: () => {},
+            bootstrap: {},
         });
 
         setIsReady(true);
