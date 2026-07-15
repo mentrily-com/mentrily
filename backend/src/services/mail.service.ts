@@ -656,8 +656,9 @@ export class MailService {
         );
       }
     } catch (error: any) {
-      this.logger.error('Failed to send upgrade request email', error?.response?.data || error.message);
-      throw error;
+      this.logger.error('Failed to send upgrade request email — request was still received', error?.response?.data || error.message);
+      // Do not re-throw: the upgrade request was received successfully.
+      // A mail delivery failure should not surface as a 500 to the user.
     }
   }
 }
