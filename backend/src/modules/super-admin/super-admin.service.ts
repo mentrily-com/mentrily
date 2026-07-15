@@ -344,14 +344,21 @@ export class SuperAdminService {
         });
 
         if (existingUser) {
-          // User exists, directly add them as an admin to the new org
-          await this.prisma.orgMembership.create({
-            data: {
-              userId: existingUser.id,
-              orgId: org.id,
-              role: Role.ADMIN,
-            },
-          });
+          try {
+            // User exists, directly add them as an admin to the new org
+            await this.prisma.orgMembership.create({
+              data: {
+                userId: existingUser.id,
+                orgId: org.id,
+                role: Role.ADMIN,
+              },
+            });
+          } catch (error: any) {
+            await this.prisma.organization
+              .delete({ where: { id: org.id } })
+              .catch(() => undefined);
+            throw error;
+          }
         } else {
           // User doesn't exist, send a Clerk invitation
           const clerkClient = this.getClerkClient();
