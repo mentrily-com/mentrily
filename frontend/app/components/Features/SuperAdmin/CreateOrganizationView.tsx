@@ -86,7 +86,7 @@ export default function CreateOrganizationView() {
                 logo: formData.logo,
                 maxUsers: formData.maxUsers,
                 maxCourses: 10, // Default or map if exists
-                storageLimit: formData.maxStorage,
+                storageLimit: Number(formData.maxStorage) * 1024,
                 status: 'Active',
                 // Branding
                 primaryColor: formData.primaryColor,
