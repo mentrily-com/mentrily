@@ -663,6 +663,13 @@ export class SuperAdminService {
       );
     }
 
+    // Find all courses created by this user to restrict CourseTest transfer
+    const userCourses = await this.prisma.course.findMany({
+      where: { orgId: sourceOrgId, creatorId: normalizedUserId },
+      select: { id: true },
+    });
+    const courseIds = userCourses.map((c) => c.id);
+
     const transferCounts = await this.prisma.$transaction(async (tx) => {
       const [courses, exams, courseTests, studentGroups, announcements, users] =
         await Promise.all([
@@ -681,15 +688,24 @@ export class SuperAdminService {
             data: { orgId: normalizedTargetOrgId },
           }),
           tx.courseTest.updateMany({
-            where: { orgId: sourceOrgId },
+            where: { 
+              orgId: sourceOrgId,
+              courseId: { in: courseIds }
+            },
             data: { orgId: normalizedTargetOrgId },
           }),
           tx.studentGroup.updateMany({
-            where: { orgId: sourceOrgId },
+            where: { 
+              orgId: sourceOrgId,
+              teacherId: normalizedUserId
+            },
             data: { orgId: normalizedTargetOrgId },
           }),
           tx.announcement.updateMany({
-            where: { orgId: sourceOrgId },
+            where: { 
+              orgId: sourceOrgId,
+              teacherId: normalizedUserId
+            },
             data: { orgId: normalizedTargetOrgId },
           }),
           tx.user.updateMany({
