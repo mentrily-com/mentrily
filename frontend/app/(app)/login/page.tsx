@@ -179,7 +179,16 @@ export default function LoginPage() {
                 return;
             }
             path = resolvePostLoginPath(user);
-        } catch (e) {
+        } catch (e: any) {
+            if (e.message === 'FORBIDDEN') {
+                const rootDomain = window.location.hostname.split('.').slice(-2).join('.');
+                if (window.location.hostname !== rootDomain) {
+                    window.location.href = `${window.location.protocol}//${rootDomain}/dashboard`;
+                    return;
+                }
+                router.replace('/login?error=forbidden');
+                return;
+            }
             console.error('Failed to fetch user profile', e);
             await redirectMissingAccount();
             return;

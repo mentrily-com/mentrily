@@ -112,7 +112,10 @@ export const AuthService = {
             })();
 
             return await inFlightSessionCheck;
-        } catch {
+        } catch (e: any) {
+            if (e?.message === 'FORBIDDEN') {
+                throw e;
+            }
             return null;
         } finally {
             inFlightSessionCheck = null;
