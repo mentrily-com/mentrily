@@ -650,7 +650,7 @@ export class MailService {
             ],
           },
           {
-            auth: { username: this.apiKey, password: this.apiSecret },
+            auth: { username: this.apiKey!, password: this.apiSecret! },
             headers: { 'Content-Type': 'application/json' },
           },
         );
