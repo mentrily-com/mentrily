@@ -7,7 +7,8 @@ export function normalizeDomain(value?: string | null): string {
     .trim()
     .toLowerCase()
     .replace(/^https?:\/\//, '')
-    .replace(/:\d+$/, '');
+    .replace(/:\d+$/, '')
+    .replace(/\/$/, '');
 }
 
 export function getAppName(): string {
@@ -82,6 +83,9 @@ export function getAllowedWebOrigins(includeDevOrigins: boolean): string[] {
 }
 
 export function isAllowedSubdomainOrigin(origin: string): boolean {
+  if (!origin) return false;
+  if (origin.endsWith('.mentrily.com')) return true;
+
   const configuredDomain = getAppDomain();
   const escapedDomain = configuredDomain.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const subdomainRegex = new RegExp(
