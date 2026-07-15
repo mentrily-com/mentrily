@@ -626,7 +626,7 @@ export class MailService {
           },
           {
             headers: {
-              Authorization: \`Bearer \${resendApiKey}\`,
+              Authorization: `Bearer ${resendApiKey}`,
               'Content-Type': 'application/json',
             },
           }
