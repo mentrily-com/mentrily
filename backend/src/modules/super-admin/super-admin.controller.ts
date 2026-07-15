@@ -60,7 +60,22 @@ export class SuperAdminController {
   }
 
   @Put('organizations/:id')
-  async updateOrganization(@Param('id') id: string, @Body() data: any) {
+  async updateOrganization(
+    @Param('id') id: string,
+    @User() user: any,
+    @Body() data: any,
+  ) {
+    if (data?.logo) {
+      // Allow the new upload (user-xxx) or the existing org namespace (org-xxx)
+      const allowedNamespaces = [user?.id ? `user-${user.id}` : null, `org-${id}`];
+      if (
+        !this.storageService.isOwnedByNamespace(data.logo, allowedNamespaces, {
+          allowUnnamespacedLegacy: true,
+        })
+      ) {
+        throw new ForbiddenException('You do not have access to this file');
+      }
+    }
     return this.superAdminService.updateOrganization(id, data);
   }
 
