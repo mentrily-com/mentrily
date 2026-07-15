@@ -428,9 +428,19 @@ export class SuperAdminService {
   }
 
   async updateOrganization(id: string, data: any) {
+    // Only allow specific updates to prevent mass assignment vulnerabilities
+    const safeData: any = {};
+    if (data.name !== undefined) safeData.name = data.name;
+    if (data.domain !== undefined) safeData.domain = data.domain;
+    if (data.slug !== undefined) safeData.slug = data.slug;
+    if (data.customDomain !== undefined) safeData.customDomain = data.customDomain;
+    if (data.logo !== undefined) safeData.logo = data.logo;
+    if (data.primaryColor !== undefined) safeData.primaryColor = data.primaryColor;
+    if (data.status !== undefined) safeData.status = data.status;
+
     return this.prisma.organization.update({
       where: { id },
-      data,
+      data: safeData,
     });
   }
 
