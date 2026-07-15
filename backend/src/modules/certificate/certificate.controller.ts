@@ -15,6 +15,8 @@ import type { FastifyRequest } from 'fastify';
 import { CertificateService } from './certificate.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OrgStatusGuard } from '../auth/guards/org-status.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/roles.decorator';
 import { User } from '../auth/user.decorator';
 import {
   CreateTemplateDto,
@@ -37,14 +39,16 @@ export class CertificateController {
   }
 
   @Get('teacher/certificate-templates')
-  @UseGuards(JwtAuthGuard, OrgStatusGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard, OrgStatusGuard)
+  @Roles('TEACHER', 'ADMIN', 'SUPER_ADMIN')
   async listTemplates(@User() user: any) {
     const orgId = this.resolveOrgId(user);
     return this.certificateService.listTemplates(orgId);
   }
 
   @Post('teacher/certificate-templates')
-  @UseGuards(JwtAuthGuard, OrgStatusGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard, OrgStatusGuard)
+  @Roles('TEACHER', 'ADMIN', 'SUPER_ADMIN')
   async createTemplate(
     @User() user: any,
     @Body(new ValidationPipe({ transform: true, whitelist: true }))
@@ -55,7 +59,8 @@ export class CertificateController {
   }
 
   @Put('teacher/certificate-templates/:id')
-  @UseGuards(JwtAuthGuard, OrgStatusGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard, OrgStatusGuard)
+  @Roles('TEACHER', 'ADMIN', 'SUPER_ADMIN')
   async updateTemplate(
     @Param('id') id: string,
     @User() user: any,
@@ -67,14 +72,16 @@ export class CertificateController {
   }
 
   @Delete('teacher/certificate-templates/:id')
-  @UseGuards(JwtAuthGuard, OrgStatusGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard, OrgStatusGuard)
+  @Roles('TEACHER', 'ADMIN', 'SUPER_ADMIN')
   async deleteTemplate(@Param('id') id: string, @User() user: any) {
     const orgId = this.resolveOrgId(user);
     return this.certificateService.deleteTemplate(orgId, id);
   }
 
   @Post('teacher/certificate-templates/:id/signature')
-  @UseGuards(JwtAuthGuard, OrgStatusGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard, OrgStatusGuard)
+  @Roles('TEACHER', 'ADMIN', 'SUPER_ADMIN')
   async uploadSignature(
     @Param('id') id: string,
     @User() user: any,
