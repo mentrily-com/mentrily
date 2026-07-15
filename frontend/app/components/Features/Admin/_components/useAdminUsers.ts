@@ -3,9 +3,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { AdminService } from '@/services/api/AdminService';
 import { AuthService } from '@/services/api/AuthService';
 import { useToast } from '@/app/components/Common/Toast';
+import { useDebounce } from '@/hooks/useDebounce';
 
 export function useAdminUsers(organizationId?: string) {
     const [searchQuery, setSearchQuery] = useState('');
+    const debouncedSearch = useDebounce(searchQuery, 300);
     const [isUserModalOpen, setIsUserModalOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState<any | null>(null);
     const [users, setUsers] = useState<any[]>([]);
@@ -32,18 +34,22 @@ export function useAdminUsers(organizationId?: string) {
     }, [organizationId]);
 
     const canManageUsers = userData?.features?.canManageUsers !== false;
-    const filteredUsers = useMemo(
-        () =>
-            users.filter(
-                (user) =>
-                    user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    user.id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    user.rollNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    user.department?.toLowerCase().includes(searchQuery.toLowerCase()),
-            ),
-        [users, searchQuery],
-    );
+
+    // ⚡ Bolt: Prevent unnecessary renders by debouncing search input
+    // ⚡ Bolt: Hoist toLowerCase() outside the loop and skip filtering for empty queries
+    const filteredUsers = useMemo(() => {
+        const query = debouncedSearch.trim().toLowerCase();
+        if (!query) return users;
+
+        return users.filter(
+            (user) =>
+                user.name?.toLowerCase().includes(query) ||
+                user.email?.toLowerCase().includes(query) ||
+                user.id?.toLowerCase().includes(query) ||
+                user.rollNumber?.toLowerCase().includes(query) ||
+                user.department?.toLowerCase().includes(query),
+        );
+    }, [users, debouncedSearch]);
 
     const handleToggleStatus = async (user: any) => {
         if (!canManageUsers) return;
