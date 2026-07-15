@@ -69,7 +69,10 @@ export const SuperAdminService = {
                 method: 'POST',
                 body: JSON.stringify({ ...data, logo }),
             });
-            if (!res.ok) throw new Error('Failed to create organization');
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(errorData.message || 'Failed to create organization');
+            }
             return await res.json();
         } catch (error) {
             console.error('[SuperAdminService] Error', error);

@@ -260,26 +260,9 @@ export class SuperAdminService {
     // 0. Pre-check: Admin Email Uniqueness
     const adminEmail = this.normalizeEmail(data.adminEmail);
     if (adminEmail) {
-      const existingUser = await this.prisma.user.findUnique({
-        where: { email: adminEmail },
-      });
-      if (existingUser) {
-        throw new BadRequestException(
-          `User with email ${adminEmail} already exists.`,
-        );
-      }
+      // We now allow existing users to be invited as admins to new organizations
+      // since multi-org memberships are supported and Clerk handles ignoreExisting: true.
 
-      // email is no longer globally unique on PendingInvite (a person can
-      // have separate outstanding invites at different orgs), so this is a
-      // soft "any invite anywhere" pre-flight check, not a constraint lookup.
-      const existingInvite = await this.prisma.pendingInvite.findFirst({
-        where: { email: adminEmail },
-      });
-      if (existingInvite && existingInvite.expiresAt > new Date()) {
-        throw new BadRequestException(
-          `An active invitation already exists for ${adminEmail}.`,
-        );
-      }
     }
 
     try {

@@ -109,9 +109,9 @@ export default function CreateOrganizationView() {
                 country: formData.country,
             });
             router.push('/dashboard/super-admin/organizations');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to create organization', error);
-            alert('Failed to create organization');
+            alert(error.message || 'Failed to create organization');
         } finally {
             setIsSaving(false);
         }
