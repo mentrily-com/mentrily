@@ -339,55 +339,70 @@ export class SuperAdminService {
       }
 
       if (adminEmail) {
-        const clerkClient = this.getClerkClient();
-        // Scoped to this org only — an unrelated pending invite for the same
-        // email at a different org must be left alone (multi-org invites).
-        const staleInvite = await this.prisma.pendingInvite.findUnique({
-          where: { email_orgId: { email: adminEmail, orgId: org.id } },
-        });
-        if (staleInvite) {
-          await this.prisma.pendingInvite.delete({
-            where: { id: staleInvite.id },
-          });
-        }
-
-        const pendingInvite = await this.prisma.pendingInvite.create({
-          data: {
-            email: adminEmail,
-            name: data.adminName || 'Admin',
-            role: Role.ADMIN,
-            orgId: org.id,
-            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-          } as any,
+        const existingUser = await this.prisma.user.findUnique({
+          where: { email: adminEmail },
         });
 
-        try {
-          const invitation = await clerkClient.invitations.createInvitation({
-            emailAddress: adminEmail,
-            redirectUrl: this.getOrganizationInvitationUrl(org.domain),
-            notify: true,
-            ignoreExisting: true,
-            expiresInDays: 7,
-            publicMetadata: {
-              appRole: Role.ADMIN,
+        if (existingUser) {
+          // User exists, directly add them as an admin to the new org
+          await this.prisma.orgMembership.create({
+            data: {
+              userId: existingUser.id,
               orgId: org.id,
-              name: data.adminName || 'Admin',
-              source: 'mentrily_org_bootstrap',
+              role: Role.ADMIN,
             },
-          } as any);
+          });
+        } else {
+          // User doesn't exist, send a Clerk invitation
+          const clerkClient = this.getClerkClient();
+          // Scoped to this org only
+          const staleInvite = await this.prisma.pendingInvite.findUnique({
+            where: { email_orgId: { email: adminEmail, orgId: org.id } },
+          });
+          if (staleInvite) {
+            await this.prisma.pendingInvite.delete({
+              where: { id: staleInvite.id },
+            });
+          }
 
-          await this.prisma.pendingInvite.update({
-            where: { id: pendingInvite.id },
-            data: { clerkInvitationId: invitation.id },
+          const pendingInvite = await this.prisma.pendingInvite.create({
+            data: {
+              email: adminEmail,
+              name: data.adminName || 'Admin',
+              role: Role.ADMIN,
+              orgId: org.id,
+              expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+            } as any,
           });
-        } catch (error: any) {
-          await this.prisma.pendingInvite.delete({
-            where: { id: pendingInvite.id },
-          });
-          await this.prisma.organization
-            .delete({ where: { id: org.id } })
-            .catch(() => undefined);
-          throw error;
+
+          try {
+            const invitation = await clerkClient.invitations.createInvitation({
+              emailAddress: adminEmail,
+              redirectUrl: this.getOrganizationInvitationUrl(org.domain),
+              notify: true,
+              ignoreExisting: true,
+              expiresInDays: 7,
+              publicMetadata: {
+                appRole: Role.ADMIN,
+                orgId: org.id,
+                name: data.adminName || 'Admin',
+                source: 'mentrily_org_bootstrap',
+              },
+            } as any);
+
+            await this.prisma.pendingInvite.update({
+              where: { id: pendingInvite.id },
+              data: { clerkInvitationId: invitation.id },
+            });
+          } catch (error: any) {
+            await this.prisma.pendingInvite.delete({
+              where: { id: pendingInvite.id },
+            });
+            await this.prisma.organization
+              .delete({ where: { id: org.id } })
+              .catch(() => undefined);
+            throw error;
+          }
         }
       }
 
