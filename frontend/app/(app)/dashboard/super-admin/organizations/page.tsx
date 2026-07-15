@@ -35,11 +35,32 @@ export default function SuperAdminOrganizationsPage() {
         fetchOrgs();
     }, []);
 
+    const [hideAutoFree, setHideAutoFree] = useState(true);
+    const [planFilter, setPlanFilter] = useState('ALL');
+
     const filteredOrgs = organizations.filter(
-        (org) =>
-            org.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            org.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (org.domain && org.domain.toLowerCase().includes(searchQuery.toLowerCase())),
+        (org) => {
+            const matchesSearch = org.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                org.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (org.domain && org.domain.toLowerCase().includes(searchQuery.toLowerCase()));
+
+            if (!matchesSearch) return false;
+
+            if (hideAutoFree) {
+                if ((!org.plan || org.plan === 'FREE') && org.provisionedFromUserId) {
+                    return false;
+                }
+            }
+
+            if (planFilter !== 'ALL') {
+                const orgPlan = (org.plan || 'FREE').toUpperCase();
+                if (orgPlan !== planFilter) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     );
 
     const [orgToDelete, setOrgToDelete] = useState<any | null>(null);
@@ -79,7 +100,7 @@ export default function SuperAdminOrganizationsPage() {
 
                 {/* Filters & Search */}
                 <div className="flex flex-col md:flex-row items-center gap-4 mb-8">
-                    <div className="relative flex-1">
+                    <div className="relative flex-1 w-full">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
                         <input
                             type="text"
@@ -89,6 +110,24 @@ export default function SuperAdminOrganizationsPage() {
                             className="w-full pl-12 pr-4 py-4 bg-white border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:border-[var(--brand)] shadow-sm transition-all"
                         />
                     </div>
+                    <select
+                        value={planFilter}
+                        onChange={(e) => setPlanFilter(e.target.value)}
+                        className="p-4 bg-white border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:border-[var(--brand)] shadow-sm transition-all w-full md:w-48 appearance-none cursor-pointer"
+                        style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E")', backgroundPosition: 'right 16px center', backgroundRepeat: 'no-repeat' }}
+                    >
+                        <option value="ALL">All Plans</option>
+                        <option value="FREE">Free</option>
+                        <option value="STARTER">Starter</option>
+                        <option value="PRO">Pro</option>
+                        <option value="ENTERPRISE">Enterprise</option>
+                    </select>
+                    <label className="flex items-center gap-3 cursor-pointer p-4 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-slate-200 transition-all w-full md:w-auto shrink-0 select-none">
+                        <div className={`w-10 h-6 rounded-full p-1 transition-colors duration-200 ${hideAutoFree ? 'bg-[var(--brand)]' : 'bg-slate-200'}`}>
+                            <div className={`w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-sm ${hideAutoFree ? 'translate-x-4' : 'translate-x-0'}`} />
+                        </div>
+                        <span className="text-sm font-bold text-slate-700">Hide auto-created free orgs</span>
+                    </label>
                 </div>
 
                 {/* Organizations Table */}

@@ -307,7 +307,7 @@ export class SuperAdminService {
               : null,
 
           // Config
-          plan: data.plan || 'Enterprise',
+          plan: data.plan || 'ENTERPRISE',
           primaryColor: data.primaryColor || '#008D98',
           features: {
             canCreateExams:

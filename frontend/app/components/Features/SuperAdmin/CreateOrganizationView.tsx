@@ -97,9 +97,16 @@ export default function CreateOrganizationView() {
                 canCreateCourses: formData.canCreateCourses,
                 allowCourseTests: formData.allowCourseTests,
                 canManageUsers: formData.canManageUsers,
+                // Configuration
+                plan: formData.plan.toUpperCase(),
                 // Contact (for future use)
                 adminName: formData.adminName,
                 adminEmail: formData.adminEmail,
+                phone: formData.phone,
+                supportEmail: formData.supportEmail,
+                address: formData.address,
+                city: formData.city,
+                country: formData.country,
             });
             router.push('/dashboard/super-admin/organizations');
         } catch (error) {

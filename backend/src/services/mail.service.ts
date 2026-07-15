@@ -552,15 +552,20 @@ export class MailService {
     billingInterval?: string | null;
     message?: string | null;
   }) {
-    if (!this.apiKey || !this.apiSecret) {
+    const resendApiKey = process.env.RESEND_API_KEY;
+    const mailjetHasKeys = Boolean(this.apiKey && this.apiSecret);
+
+    if (!resendApiKey && !mailjetHasKeys) {
       this.logger.warn(
-        'Mailjet credentials not found. Skipping upgrade request email.',
+        'Neither Resend nor Mailjet credentials found. Skipping upgrade request email.',
       );
       return;
     }
 
     const recipient = String(
-      process.env.UPGRADE_REQUEST_RECIPIENT_EMAIL || 'admin@mentrily.com',
+      process.env.UPGRADE_REQUEST_RECIPIENT_EMAIL ||
+        process.env.RESEND_CONTACT_RECIPIENT ||
+        'admin@mentrily.com',
     ).trim();
 
     const name = this.escapeHtml(params.requesterName || params.requesterEmail);
@@ -604,27 +609,55 @@ export class MailService {
       params.message?.trim() || '(no message provided)',
     ].join('\n');
 
-    await axios.post(
-      'https://api.mailjet.com/v3.1/send',
-      {
-        Messages: [
+    const subject = `[Upgrade Request] ${params.requestedPlan} — ${params.orgName || params.requesterName}`;
+
+    try {
+      if (resendApiKey) {
+        const sender = process.env.RESEND_SENDER_EMAIL || this.senderEmail;
+        await axios.post(
+          'https://api.resend.com/emails',
           {
-            From: { Email: this.senderEmail, Name: this.senderName },
-            To: [{ Email: recipient, Name: this.appName }],
-            ReplyTo: {
-              Email: params.requesterEmail,
-              Name: params.requesterName || params.requesterEmail,
-            },
-            Subject: `[Upgrade Request] ${params.requestedPlan} — ${params.orgName || params.requesterName}`,
-            HTMLPart: htmlPart,
-            TextPart: textPart,
+            from: `${this.appName} <${sender}>`,
+            to: [recipient],
+            reply_to: `${params.requesterName || params.requesterEmail} <${params.requesterEmail}>`,
+            subject: subject,
+            html: htmlPart,
+            text: textPart,
           },
-        ],
-      },
-      {
-        auth: { username: this.apiKey, password: this.apiSecret },
-        headers: { 'Content-Type': 'application/json' },
-      },
-    );
+          {
+            headers: {
+              Authorization: \`Bearer \${resendApiKey}\`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+      } else if (mailjetHasKeys) {
+        await axios.post(
+          'https://api.mailjet.com/v3.1/send',
+          {
+            Messages: [
+              {
+                From: { Email: this.senderEmail, Name: this.senderName },
+                To: [{ Email: recipient, Name: this.appName }],
+                ReplyTo: {
+                  Email: params.requesterEmail,
+                  Name: params.requesterName || params.requesterEmail,
+                },
+                Subject: subject,
+                HTMLPart: htmlPart,
+                TextPart: textPart,
+              },
+            ],
+          },
+          {
+            auth: { username: this.apiKey, password: this.apiSecret },
+            headers: { 'Content-Type': 'application/json' },
+          },
+        );
+      }
+    } catch (error: any) {
+      this.logger.error('Failed to send upgrade request email', error?.response?.data || error.message);
+      throw error;
+    }
   }
 }
