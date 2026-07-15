@@ -54,7 +54,7 @@ export const UPLOAD_KINDS: Record<UploadKind, UploadKindConfig> = {
     folder: 'organizations',
     maxSizeBytes: 5 * 1024 * 1024,
     allowedMime: IMAGE_TYPES,
-    allowedRoles: ['SUPER_ADMIN'],
+    allowedRoles: ['SUPER_ADMIN', 'ADMIN'],
     countsAgainstQuota: false,
   },
 };

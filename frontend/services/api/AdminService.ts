@@ -1,6 +1,7 @@
 import { API_BASE_URL } from '@/lib/api-base';
 import { withCsrfHeader } from '@/lib/csrf';
 import { withClerkAuthorization } from '@/lib/clerk-token';
+import { UploadService } from './UploadService';
 
 const BASE_URL = API_BASE_URL;
 
@@ -169,12 +170,13 @@ export const AdminService = {
         }
     },
 
-    async updateSettings(data: { features?: Record<string, unknown> }, orgId?: string) {
+    async updateSettings(data: any, orgId?: string) {
         try {
+            const logo = data.logo instanceof File ? (await UploadService.uploadFile('org-logo', data.logo)).url : data.logo;
             const query = orgId ? `?orgId=${orgId}` : '';
             const res = await authFetch(`/admin/settings${query}`, {
                 method: 'PATCH',
-                body: JSON.stringify(data),
+                body: JSON.stringify({ ...data, logo }),
             });
 
             if (!res.ok) {

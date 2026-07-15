@@ -93,6 +93,9 @@ export const AuthService = {
                 });
 
                 if (!res.ok) {
+                    if (res.status === 403) {
+                        throw new Error('FORBIDDEN');
+                    }
                     if (!strictExisting && !bypassCache && res.status === 401) {
                         unauthorizedCooldownUntil = Date.now() + 10000;
                     }

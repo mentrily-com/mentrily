@@ -380,7 +380,7 @@ export class AdminService {
 
   async updateOrganizationSettings(
     user: any,
-    data: { features?: Record<string, unknown> },
+    data: any,
     targetOrgId?: string,
   ) {
     const orgId = this.getEffectiveOrgId(user, targetOrgId);
@@ -390,6 +390,7 @@ export class AdminService {
       select: {
         id: true,
         features: true,
+        domain: true,
       },
     });
 
@@ -416,11 +417,16 @@ export class AdminService {
       ...incomingFeatures,
     };
 
+    const updateData: any = {};
+    if (data.features !== undefined) updateData.features = nextFeatures;
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.logo !== undefined) updateData.logo = data.logo;
+    if (data.primaryColor !== undefined) updateData.primaryColor = data.primaryColor;
+    if (data.contact !== undefined) updateData.contact = data.contact;
+
     const updated = await this.prisma.organization.update({
       where: { id: orgId },
-      data: {
-        features: nextFeatures as any,
-      },
+      data: updateData,
       select: {
         id: true,
         name: true,
@@ -430,6 +436,17 @@ export class AdminService {
       },
     });
 
+    if (org.domain) {
+      const cacheKey = `org:public:${org.domain.toLowerCase()}`;
+      await this.redis.del(cacheKey);
+      
+      const parts = org.domain.split('.');
+      if (parts.length > 1) {
+        const subCacheKey = `org:public:${parts[0].toLowerCase()}`;
+        await this.redis.del(subCacheKey);
+      }
+    }
+    
     await this.invalidateOrgFeatureCaches(orgId);
 
     return updated;

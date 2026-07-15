@@ -11,6 +11,8 @@ import { QuotaService } from '../billing/quota.service';
 import { PlanKey, getEffectivePlanLimits } from '../../config/plan-limits';
 import { Plan, Role } from '@prisma/client';
 import { randomUUID } from 'crypto';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import Redis from 'ioredis';
 import { UpdateOrganizationPlanDto } from './dto/update-organization-plan.dto';
 import { UpdateOrganizationLimitsDto } from './dto/update-organization-limits.dto';
 import { createClerkClient, type ClerkClient } from '@clerk/backend';
@@ -23,6 +25,7 @@ export class SuperAdminService {
     private storageService: StorageService,
     private billingService: BillingService,
     private readonly quotaService: QuotaService,
+    @InjectRedis() private readonly redis: Redis,
   ) {}
 
   private get prisma() {
@@ -438,10 +441,23 @@ export class SuperAdminService {
     if (data.primaryColor !== undefined) safeData.primaryColor = data.primaryColor;
     if (data.status !== undefined) safeData.status = data.status;
 
-    return this.prisma.organization.update({
+    const updated = await this.prisma.organization.update({
       where: { id },
       data: safeData,
     });
+
+    if (updated.domain) {
+      const cacheKey = `org:public:${updated.domain.toLowerCase()}`;
+      await this.redis.del(cacheKey);
+      
+      const parts = updated.domain.split('.');
+      if (parts.length > 1) {
+        const subCacheKey = `org:public:${parts[0].toLowerCase()}`;
+        await this.redis.del(subCacheKey);
+      }
+    }
+
+    return updated;
   }
 
   async updateOrganizationPlan(

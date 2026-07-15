@@ -66,14 +66,17 @@ export class SuperAdminController {
     @Body() data: any,
   ) {
     if (data?.logo) {
-      // Allow the new upload (user-xxx) or the existing org namespace (org-xxx)
-      const allowedNamespaces = [user?.id ? `user-${user.id}` : null, `org-${id}`];
-      if (
-        !this.storageService.isOwnedByNamespace(data.logo, allowedNamespaces, {
-          allowUnnamespacedLegacy: true,
-        })
-      ) {
-        throw new ForbiddenException('You do not have access to this file');
+      const existing = await this.superAdminService.getOrganization(id);
+      if (existing?.logo !== data.logo) {
+        // Allow the new upload (user-xxx) or the existing org namespace (id)
+        const allowedNamespaces = [user?.id ? `user-${user.id}` : null, id];
+        if (
+          !this.storageService.isOwnedByNamespace(data.logo, allowedNamespaces, {
+            allowUnnamespacedLegacy: true,
+          })
+        ) {
+          throw new ForbiddenException('You do not have access to this file');
+        }
       }
     }
     return this.superAdminService.updateOrganization(id, data);

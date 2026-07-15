@@ -1,0 +1,605 @@
+{
+    "course": {
+        "title": "Personal Finance & FinTech",
+        "slug": "personal-finance-fintech",
+        "shortDescription": "Master the money fundamentals — compound interest, markets, financial statements, and diversification — then see how FinTech is rebuilding all of it in software.",
+        "longDescription": "<p>This showcase course pairs the freeCodeCamp <em>Fundamentals of Finance &amp; Economics</em> curriculum with original readings on financial technology. Video segments cover money basics, financial markets, business strategy, financial statements, capital budgeting, macroeconomics, and portfolio management — interleaved with scenario quizzes and a Python challenge where you compute compound interest yourself, the calculation behind every savings account and loan.</p><p>The final module connects the theory to the FinTech industry: digital payments, neobanks, robo-advisors, and the risks and regulation that come with money-as-software.</p>",
+        "difficulty": "Beginner",
+        "tags": ["Finance", "FinTech", "Economics", "Investing"],
+        "thumbnail": "https://i.ytimg.com/vi/EJHPltmAULA/hqdefault.jpg",
+        "courseSummary": "Time value of money and compound interest, financial markets and instruments, business strategy, the three financial statements, capital budgeting (NPV), macroeconomics (GDP, inflation, interest rates), ESG, portfolio diversification, alternative investments, and the FinTech landscape.",
+        "examUnlockThreshold": 80
+    },
+    "modules": [
+        {
+            "title": "Money & Markets",
+            "units": [
+                {
+                    "title": "The Time Value of Money",
+                    "type": "Reading",
+                    "content": {
+                        "description": "<p>Key financial terms, why a dollar today beats a dollar tomorrow, and compound interest in action.</p>",
+                        "problemStatement": "<p>Key financial terms, why a dollar today beats a dollar tomorrow, and compound interest in action.</p>",
+                        "readingConfig": {
+                            "contentBlocks": [
+                                {
+                                    "id": "fin-m1-u1-b1",
+                                    "type": "text",
+                                    "content": "<h2>The most important formula in personal finance</h2><p>A dollar today is worth more than a dollar next year — because today's dollar can be invested and grow. That single idea, the <strong>time value of money</strong>, underlies every savings account, loan, pension, and stock valuation. Its engine is <strong>compound interest</strong>:</p><pre><code>A = P × (1 + r)ⁿ</code></pre><p>where <code>P</code> is the starting amount (principal), <code>r</code> the annual rate, and <code>n</code> the number of years. The \"compound\" part means each year's interest itself earns interest — which is why $1,000 at 8% becomes not $1,800 after 10 years (simple interest) but <strong>$2,159</strong>.</p><ul><li><strong>Watch for:</strong> the Excel compound-interest case study — you will re-implement it in Python later</li><li><strong>Watch for:</strong> inflation as compound interest working against you</li></ul>"
+                                },
+                                {
+                                    "id": "fin-m1-u1-b2",
+                                    "type": "video",
+                                    "videoSource": "youtube",
+                                    "youtube": {
+                                        "videoId": "EJHPltmAULA",
+                                        "startTimeSeconds": 0,
+                                        "endTimeSeconds": 612
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "title": "Financial Markets & Instruments",
+                    "type": "Reading",
+                    "content": {
+                        "description": "<p>Stocks, bonds, and the marketplaces where they trade — who participates and why.</p>",
+                        "problemStatement": "<p>Stocks, bonds, and the marketplaces where they trade — who participates and why.</p>",
+                        "readingConfig": {
+                            "contentBlocks": [
+                                {
+                                    "id": "fin-m1-u2-b1",
+                                    "type": "text",
+                                    "content": "<h2>Where capital meets ideas</h2><p>Financial markets exist to move money from people who have it (savers, investors) to people who can use it (companies, governments). The two instruments to understand first:</p><ul><li><strong>Stocks (equity)</strong> — you own a slice of the company; unlimited upside, real downside, no promises</li><li><strong>Bonds (debt)</strong> — you lend money for a fixed interest payment; capped upside, higher claim if things go wrong</li></ul><p>Everything else — ETFs, mutual funds, derivatives — is packaging around these two. This segment tours the marketplaces themselves: exchanges, brokers, and the participants from pension funds to day traders.</p><ul><li><strong>Watch for:</strong> the risk/return trade-off — higher expected return always prices in higher risk</li></ul>"
+                                },
+                                {
+                                    "id": "fin-m1-u2-b2",
+                                    "type": "video",
+                                    "videoSource": "youtube",
+                                    "youtube": {
+                                        "videoId": "EJHPltmAULA",
+                                        "startTimeSeconds": 612,
+                                        "endTimeSeconds": 1250
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "title": "Quiz: Compounding",
+                    "type": "MCQ",
+                    "content": {
+                        "id": "fin-q1",
+                        "title": "Simple vs compound growth",
+                        "type": "MCQ",
+                        "marks": 5,
+                        "question": "Why does $1,000 at 10% annual compound interest grow to $1,210 (not $1,200) after two years?",
+                        "description": "<p>Why does $1,000 at 10% annual <strong>compound</strong> interest grow to $1,210 — not $1,200 — after two years?</p>",
+                        "problemStatement": "<p>Why does $1,000 at 10% annual <strong>compound</strong> interest grow to $1,210 — not $1,200 — after two years?</p>",
+                        "options": [
+                            { "id": "fin-q1-opt-1", "text": "Banks round balances up at year end", "isCorrect": false },
+                            { "id": "fin-q1-opt-2", "text": "Year two's 10% applies to $1,100 — the first year's interest itself earns interest", "isCorrect": true },
+                            { "id": "fin-q1-opt-3", "text": "The rate automatically increases by 1% per year", "isCorrect": false },
+                            { "id": "fin-q1-opt-4", "text": "It doesn't — compound and simple interest give identical results", "isCorrect": false }
+                        ]
+                    }
+                },
+                {
+                    "title": "Quiz: Stocks vs Bonds",
+                    "type": "MCQ",
+                    "content": {
+                        "id": "fin-q2",
+                        "title": "Instrument selection",
+                        "type": "MCQ",
+                        "marks": 5,
+                        "question": "A retiree wants predictable income and low risk of losing principal. Which instrument aligns best?",
+                        "description": "<p>A retiree wants predictable income and a low risk of losing their principal. Which instrument aligns best with that goal?</p>",
+                        "problemStatement": "<p>A retiree wants predictable income and a low risk of losing their principal. Which instrument aligns best with that goal?</p>",
+                        "options": [
+                            { "id": "fin-q2-opt-1", "text": "Growth stocks in emerging technology companies", "isCorrect": false },
+                            { "id": "fin-q2-opt-2", "text": "High-grade bonds — fixed interest payments and a priority claim on repayment", "isCorrect": true },
+                            { "id": "fin-q2-opt-3", "text": "Cryptocurrency with staking rewards", "isCorrect": false },
+                            { "id": "fin-q2-opt-4", "text": "Leveraged options on a stock index", "isCorrect": false }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "title": "Reading the Numbers",
+            "units": [
+                {
+                    "title": "Business Strategy Essentials",
+                    "type": "Reading",
+                    "content": {
+                        "description": "<p>How companies compete and grow — the strategy concepts investors use to judge a business.</p>",
+                        "problemStatement": "<p>How companies compete and grow — the strategy concepts investors use to judge a business.</p>",
+                        "readingConfig": {
+                            "contentBlocks": [
+                                {
+                                    "id": "fin-m2-u1-b1",
+                                    "type": "text",
+                                    "content": "<h2>Numbers follow strategy</h2><p>Before reading a company's financials, understand its <em>strategy</em> — the choices about where to compete and how to win. A durable competitive advantage (a \"moat\") is what lets a company earn above-average returns for years: brand, network effects, switching costs, or cost leadership. This segment introduces the strategic lenses analysts apply before they ever open a spreadsheet.</p><ul><li><strong>Watch for:</strong> differentiation vs. cost leadership as the two basic ways to win</li><li><strong>Watch for:</strong> why growth without a moat gets competed away</li></ul>"
+                                },
+                                {
+                                    "id": "fin-m2-u1-b2",
+                                    "type": "video",
+                                    "videoSource": "youtube",
+                                    "youtube": {
+                                        "videoId": "EJHPltmAULA",
+                                        "startTimeSeconds": 1250,
+                                        "endTimeSeconds": 1702
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "title": "The Three Financial Statements",
+                    "type": "Reading",
+                    "content": {
+                        "description": "<p>Income statement, balance sheet, and cash flow statement — the three lenses on any business.</p>",
+                        "problemStatement": "<p>Income statement, balance sheet, and cash flow statement — the three lenses on any business.</p>",
+                        "readingConfig": {
+                            "contentBlocks": [
+                                {
+                                    "id": "fin-m2-u2-b1",
+                                    "type": "text",
+                                    "content": "<h2>Three statements, three questions</h2><p>Every public company reports the same three statements, and each answers a different question:</p><ul><li><strong>Income statement</strong> — <em>Is it profitable?</em> Revenue minus expenses over a period → net income</li><li><strong>Balance sheet</strong> — <em>What does it own and owe?</em> A snapshot obeying the iron equation: <code>Assets = Liabilities + Equity</code></li><li><strong>Cash flow statement</strong> — <em>Where did the cash actually go?</em> Profit is an opinion; cash is a fact</li></ul><p>The classic trap this segment defuses: a company can report positive net income while running out of cash (customers haven't paid yet), or report losses while gushing cash. Reading all three together is the skill.</p>"
+                                },
+                                {
+                                    "id": "fin-m2-u2-b2",
+                                    "type": "video",
+                                    "videoSource": "youtube",
+                                    "youtube": {
+                                        "videoId": "EJHPltmAULA",
+                                        "startTimeSeconds": 1702,
+                                        "endTimeSeconds": 2842
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "title": "Quiz: The Balance Sheet Equation",
+                    "type": "MCQ",
+                    "content": {
+                        "id": "fin-q3",
+                        "title": "Assets, liabilities, equity",
+                        "type": "MCQ",
+                        "marks": 5,
+                        "question": "A startup has $500k in assets and $200k in liabilities. What is its equity?",
+                        "description": "<p>A startup has $500,000 in assets and $200,000 in liabilities. What is its shareholders' equity?</p>",
+                        "problemStatement": "<p>A startup has $500,000 in assets and $200,000 in liabilities. What is its shareholders' equity?</p>",
+                        "options": [
+                            { "id": "fin-q3-opt-1", "text": "$700,000 — assets plus liabilities", "isCorrect": false },
+                            { "id": "fin-q3-opt-2", "text": "$300,000 — assets minus liabilities", "isCorrect": true },
+                            { "id": "fin-q3-opt-3", "text": "$500,000 — equity always equals assets", "isCorrect": false },
+                            { "id": "fin-q3-opt-4", "text": "It cannot be determined from the balance sheet", "isCorrect": false }
+                        ]
+                    }
+                },
+                {
+                    "title": "Quiz: Profit vs Cash",
+                    "type": "MCQ",
+                    "content": {
+                        "id": "fin-q4",
+                        "title": "The profitable company that died",
+                        "type": "MCQ",
+                        "marks": 5,
+                        "question": "How can a company report positive net income yet go bankrupt the same year?",
+                        "description": "<p>How can a company report positive net income on its income statement yet go bankrupt in the same year?</p>",
+                        "problemStatement": "<p>How can a company report positive net income on its income statement yet go bankrupt in the same year?</p>",
+                        "options": [
+                            { "id": "fin-q4-opt-1", "text": "It cannot — profitable companies never fail", "isCorrect": false },
+                            { "id": "fin-q4-opt-2", "text": "Revenue was booked before cash arrived; with bills due now and cash not collected, it became insolvent despite \"profits\"", "isCorrect": true },
+                            { "id": "fin-q4-opt-3", "text": "Net income is always negative for young companies", "isCorrect": false },
+                            { "id": "fin-q4-opt-4", "text": "Bankruptcy only depends on the stock price", "isCorrect": false }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "title": "Investment Decisions",
+            "units": [
+                {
+                    "title": "Capital Budgeting & NPV",
+                    "type": "Reading",
+                    "content": {
+                        "description": "<p>How businesses decide which projects deserve money — discounting future cash flows to today's value.</p>",
+                        "problemStatement": "<p>How businesses decide which projects deserve money — discounting future cash flows to today's value.</p>",
+                        "readingConfig": {
+                            "contentBlocks": [
+                                {
+                                    "id": "fin-m3-u1-b1",
+                                    "type": "text",
+                                    "content": "<h2>Time value of money, weaponized</h2><p><strong>Capital budgeting</strong> is compound interest run in reverse. A project promises cash flows in future years; to compare them fairly against the cost <em>today</em>, you <strong>discount</strong> each one back to present value and sum them up — the <strong>Net Present Value (NPV)</strong>:</p><pre><code>NPV = Σ  CFₙ / (1 + r)ⁿ  −  initial cost</code></pre><p>Positive NPV → the project creates value; negative → it destroys value even if it \"makes money\" on paper. The discount rate <code>r</code> encodes both the time value of money and the project's risk.</p><ul><li><strong>Watch for:</strong> how a higher discount rate shrinks distant cash flows the most</li></ul>"
+                                },
+                                {
+                                    "id": "fin-m3-u1-b2",
+                                    "type": "video",
+                                    "videoSource": "youtube",
+                                    "youtube": {
+                                        "videoId": "EJHPltmAULA",
+                                        "startTimeSeconds": 2842,
+                                        "endTimeSeconds": 3349
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "title": "Macroeconomics for Investors",
+                    "type": "Reading",
+                    "content": {
+                        "description": "<p>GDP, inflation, and interest rates — the weather system every portfolio lives inside.</p>",
+                        "problemStatement": "<p>GDP, inflation, and interest rates — the weather system every portfolio lives inside.</p>",
+                        "readingConfig": {
+                            "contentBlocks": [
+                                {
+                                    "id": "fin-m3-u2-b1",
+                                    "type": "text",
+                                    "content": "<h2>The macro weather system</h2><p>Three dials describe an economy's weather: <strong>GDP growth</strong> (is the economy expanding?), <strong>inflation</strong> (how fast are prices rising?), and <strong>interest rates</strong> (the price of money, steered by central banks). They interact constantly: when inflation runs hot, central banks raise rates; higher rates make borrowing expensive, cooling both the economy and — usually — stock prices.</p><ul><li><strong>Watch for:</strong> why bond prices fall when interest rates rise</li><li><strong>Watch for:</strong> inflation silently taxing cash — the reason \"safe\" savings can lose purchasing power</li></ul>"
+                                },
+                                {
+                                    "id": "fin-m3-u2-b2",
+                                    "type": "video",
+                                    "videoSource": "youtube",
+                                    "youtube": {
+                                        "videoId": "EJHPltmAULA",
+                                        "startTimeSeconds": 3349,
+                                        "endTimeSeconds": 4298
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "title": "Quiz: Rates & Prices",
+                    "type": "MCQ",
+                    "content": {
+                        "id": "fin-q5",
+                        "title": "Central bank moves",
+                        "type": "MCQ",
+                        "marks": 5,
+                        "question": "Inflation is running well above target. What does a central bank typically do, and what is the usual effect?",
+                        "description": "<p>Inflation is running well above the central bank's target. What does the central bank typically do, and what is the usual knock-on effect?</p>",
+                        "problemStatement": "<p>Inflation is running well above the central bank's target. What does the central bank typically do, and what is the usual knock-on effect?</p>",
+                        "options": [
+                            { "id": "fin-q5-opt-1", "text": "Cut interest rates, making stocks and borrowing cheaper", "isCorrect": false },
+                            { "id": "fin-q5-opt-2", "text": "Raise interest rates, making borrowing costlier and cooling demand — often pressuring stock and bond prices", "isCorrect": true },
+                            { "id": "fin-q5-opt-3", "text": "Print more money to help consumers keep up with prices", "isCorrect": false },
+                            { "id": "fin-q5-opt-4", "text": "Freeze all bank lending until prices fall", "isCorrect": false }
+                        ]
+                    }
+                },
+                {
+                    "title": "Challenge: Compound Interest Calculator",
+                    "type": "Coding",
+                    "content": {
+                        "id": "fin-code1",
+                        "title": "Challenge: Compound Interest Calculator",
+                        "type": "Coding",
+                        "marks": 20,
+                        "question": "Implement the calculation behind every savings account: A = P(1 + r)^n.",
+                        "description": "<p>Read three values from input (one per line):</p><pre><code>P — principal (e.g. 1000)\nr — annual rate as a percentage (e.g. 8 means 8%)\nn — number of years (integer)</code></pre><p>Print the final amount after <code>n</code> years of annual compounding, with <strong>two decimal places</strong>.</p><p><strong>Example:</strong> P=1000, r=8, n=10 → <code>2158.92</code></p>",
+                        "problemStatement": "<p>Read principal, annual rate (percent), and years; print P × (1 + r/100)^n with two decimal places. Example: 1000, 8, 10 → <code>2158.92</code>.</p>",
+                        "codingConfig": {
+                            "languageId": "python",
+                            "allowedLanguages": ["python"],
+                            "templates": {
+                                "python": {
+                                    "head": "",
+                                    "body": "principal = float(input())\nrate = float(input())      # percentage, e.g. 8 means 8%\nyears = int(input())\n\n# TODO: compute the compounded amount and print it\n# with two decimal places, e.g. 2158.92\n",
+                                    "tail": "",
+                                    "solution": "principal = float(input())\nrate = float(input())\nyears = int(input())\n\namount = principal * (1 + rate / 100) ** years\nprint(f\"{amount:.2f}\")\n"
+                                }
+                            },
+                            "testCases": [
+                                { "input": "1000\n8\n10", "output": "2158.92", "isPublic": true, "points": 5 },
+                                { "input": "5000\n5\n1", "output": "5250.00", "isPublic": true, "points": 5 },
+                                { "input": "100\n0\n30", "output": "100.00", "isPublic": false, "points": 5 },
+                                { "input": "2500\n7.5\n20", "output": "10619.63", "isPublic": false, "points": 5 }
+                            ],
+                            "showTestCases": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "title": "Modern Investing & FinTech",
+            "units": [
+                {
+                    "title": "ESG, Diversification & Alternatives",
+                    "type": "Reading",
+                    "content": {
+                        "description": "<p>Portfolio construction: why diversification is the only free lunch, plus ESG and alternative assets.</p>",
+                        "problemStatement": "<p>Portfolio construction: why diversification is the only free lunch, plus ESG and alternative assets.</p>",
+                        "readingConfig": {
+                            "contentBlocks": [
+                                {
+                                    "id": "fin-m4-u1-b1",
+                                    "type": "text",
+                                    "content": "<h2>\"Diversification is the only free lunch\"</h2><p>Harry Markowitz's famous line captures the one reliable trick in investing: assets that don't move together <em>cancel out</em> some of each other's risk. A portfolio of ten uncorrelated bets is far less volatile than any single one, without sacrificing expected return. This closing segment covers diversification and portfolio management, plus two modern threads: <strong>ESG investing</strong> (weighing environmental, social, and governance factors) and <strong>alternative investments</strong> (real estate, commodities, private equity).</p><ul><li><strong>Watch for:</strong> correlation as the mathematical heart of diversification</li><li><strong>Watch for:</strong> why \"don't put all eggs in one basket\" is about the <em>relationships</em> between baskets</li></ul>"
+                                },
+                                {
+                                    "id": "fin-m4-u1-b2",
+                                    "type": "video",
+                                    "videoSource": "youtube",
+                                    "youtube": {
+                                        "videoId": "EJHPltmAULA",
+                                        "startTimeSeconds": 4298
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "title": "The FinTech Landscape",
+                    "type": "Reading",
+                    "content": {
+                        "description": "<p>Money as software: digital payments, neobanks, robo-advisors, BNPL, and the risks that come with them.</p>",
+                        "problemStatement": "<p>Money as software: digital payments, neobanks, robo-advisors, BNPL, and the risks that come with them.</p>",
+                        "readingConfig": {
+                            "contentBlocks": [
+                                {
+                                    "id": "fin-m4-u2-b1",
+                                    "type": "text",
+                                    "content": "<h2>Everything you just learned, rebuilt in software</h2><p><strong>FinTech</strong> is the re-implementation of financial services as software — taking the concepts from this course and making them instant, mobile, and cheap. The map of the territory:</p><ul><li><strong>Digital payments</strong> — UPI, mobile wallets, and real-time payment rails moving money in seconds instead of days; the largest FinTech category by volume</li><li><strong>Neobanks</strong> — branchless, app-only banks with dramatically lower operating costs than incumbents</li><li><strong>Robo-advisors</strong> — algorithms that build diversified portfolios automatically (the Markowitz math from the last unit, as a product)</li><li><strong>Lending platforms &amp; BNPL</strong> — credit decisions in seconds using alternative data; \"buy now, pay later\" is an installment loan with better UX</li><li><strong>Blockchain &amp; digital assets</strong> — decentralized ledgers removing intermediaries entirely, with volatility and regulatory uncertainty to match</li></ul><h3>The permanent trade-off</h3><p>Every FinTech innovation trades convenience against new risk: instant payments enable instant fraud; algorithmic credit can encode bias (recall the AI course!); seamless BNPL makes over-borrowing frictionless. Regulation — KYC (know your customer), AML (anti-money-laundering), deposit insurance — exists to manage exactly these failure modes. A FinTech professional needs both halves: the finance to know what the product <em>is</em>, and the judgment to know how it breaks.</p>"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "title": "Quiz: Diversification & FinTech",
+                    "type": "MCQ",
+                    "content": {
+                        "id": "fin-q6",
+                        "title": "The point of diversification",
+                        "type": "MCQ",
+                        "marks": 5,
+                        "question": "Which portfolio is genuinely diversified?",
+                        "description": "<p>Which of these portfolios is <em>genuinely</em> diversified?</p>",
+                        "problemStatement": "<p>Which of these portfolios is <em>genuinely</em> diversified?</p>",
+                        "options": [
+                            { "id": "fin-q6-opt-1", "text": "Five different airline stocks", "isCorrect": false },
+                            { "id": "fin-q6-opt-2", "text": "A mix of stocks, bonds, and real estate whose returns are weakly correlated with each other", "isCorrect": true },
+                            { "id": "fin-q6-opt-3", "text": "One index fund bought through five different brokers", "isCorrect": false },
+                            { "id": "fin-q6-opt-4", "text": "Ten cryptocurrencies that all track Bitcoin's price", "isCorrect": false }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "exam": {
+        "title": "Personal Finance & FinTech — Final Exam",
+        "slug": "personal-finance-fintech-final-exam",
+        "shortDescription": "10 scenario questions plus a Python compound-interest challenge covering finance fundamentals and FinTech.",
+        "longDescription": "<p>This exam certifies the Personal Finance &amp; FinTech showcase course. Sections: money and markets, statements and investment decisions, FinTech, plus one Python coding challenge. Passing score: 75%. Attempts allowed: 2.</p>",
+        "difficulty": "Beginner",
+        "tags": ["Finance", "FinTech", "Investing"],
+        "duration": 60,
+        "totalMarks": 75,
+        "passingPercentage": 75,
+        "maxAttempts": 2,
+        "attemptBufferMins": 30,
+        "questions": {
+            "sections": [
+                {
+                    "id": "fin-exam-s1",
+                    "title": "Money & Markets",
+                    "questions": [
+                        {
+                            "id": "fin-exam-q1",
+                            "title": "Time value of money",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "Why is $100 today worth more than a guaranteed $100 one year from now?",
+                            "description": "<p>Why is $100 today worth more than a guaranteed $100 one year from now?</p>",
+                            "problemStatement": "<p>Why is $100 today worth more than a guaranteed $100 one year from now?</p>",
+                            "options": [
+                                { "id": "fin-exam-q1-o1", "text": "Because today's $100 can be invested to grow, and inflation erodes future purchasing power", "isCorrect": true },
+                                { "id": "fin-exam-q1-o2", "text": "Because currency physically wears out over time", "isCorrect": false },
+                                { "id": "fin-exam-q1-o3", "text": "It isn't — guaranteed amounts are always equal in value", "isCorrect": false },
+                                { "id": "fin-exam-q1-o4", "text": "Because banks charge a fee to hold future money", "isCorrect": false }
+                            ]
+                        },
+                        {
+                            "id": "fin-exam-q2",
+                            "title": "Compound growth estimate",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "Using the Rule of 72, roughly how long does money take to double at 9% annual return?",
+                            "description": "<p>Using the Rule of 72 (72 ÷ rate ≈ doubling time), roughly how long does money take to double at a 9% annual return?</p>",
+                            "problemStatement": "<p>Using the Rule of 72 (72 ÷ rate ≈ doubling time), roughly how long does money take to double at a 9% annual return?</p>",
+                            "options": [
+                                { "id": "fin-exam-q2-o1", "text": "About 8 years", "isCorrect": true },
+                                { "id": "fin-exam-q2-o2", "text": "About 11 years", "isCorrect": false },
+                                { "id": "fin-exam-q2-o3", "text": "About 18 years", "isCorrect": false },
+                                { "id": "fin-exam-q2-o4", "text": "About 72 years", "isCorrect": false }
+                            ]
+                        },
+                        {
+                            "id": "fin-exam-q3",
+                            "title": "Equity vs debt",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "A company goes bankrupt and its assets are liquidated. Who gets paid first?",
+                            "description": "<p>A company goes bankrupt and its assets are liquidated. Who has the higher-priority claim?</p>",
+                            "problemStatement": "<p>A company goes bankrupt and its assets are liquidated. Who has the higher-priority claim?</p>",
+                            "options": [
+                                { "id": "fin-exam-q3-o1", "text": "Shareholders — they own the company", "isCorrect": false },
+                                { "id": "fin-exam-q3-o2", "text": "Bondholders — lenders are repaid before owners receive anything", "isCorrect": true },
+                                { "id": "fin-exam-q3-o3", "text": "Both are paid proportionally at the same time", "isCorrect": false },
+                                { "id": "fin-exam-q3-o4", "text": "Whoever invested most recently", "isCorrect": false }
+                            ]
+                        },
+                        {
+                            "id": "fin-exam-q4",
+                            "title": "Inflation's effect",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "Your savings earn 3% while inflation runs at 6%. What is happening to your purchasing power?",
+                            "description": "<p>Your savings account earns 3% while inflation runs at 6%. What is happening to your purchasing power?</p>",
+                            "problemStatement": "<p>Your savings account earns 3% while inflation runs at 6%. What is happening to your purchasing power?</p>",
+                            "options": [
+                                { "id": "fin-exam-q4-o1", "text": "Growing by 3% — the account balance is rising", "isCorrect": false },
+                                { "id": "fin-exam-q4-o2", "text": "Shrinking by roughly 3% a year — prices rise faster than the balance grows", "isCorrect": true },
+                                { "id": "fin-exam-q4-o3", "text": "Growing by 9% — the rates add together", "isCorrect": false },
+                                { "id": "fin-exam-q4-o4", "text": "Unchanged — inflation only affects borrowers", "isCorrect": false }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "id": "fin-exam-s2",
+                    "title": "Statements & Investment Decisions",
+                    "questions": [
+                        {
+                            "id": "fin-exam-q5",
+                            "title": "Statement selection",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "Which statement tells you whether a company generated actual cash from its operations last quarter?",
+                            "description": "<p>Which financial statement tells you whether a company generated actual cash from its operations last quarter?</p>",
+                            "problemStatement": "<p>Which financial statement tells you whether a company generated actual cash from its operations last quarter?</p>",
+                            "options": [
+                                { "id": "fin-exam-q5-o1", "text": "The income statement", "isCorrect": false },
+                                { "id": "fin-exam-q5-o2", "text": "The balance sheet", "isCorrect": false },
+                                { "id": "fin-exam-q5-o3", "text": "The cash flow statement", "isCorrect": true },
+                                { "id": "fin-exam-q5-o4", "text": "The shareholder register", "isCorrect": false }
+                            ]
+                        },
+                        {
+                            "id": "fin-exam-q6",
+                            "title": "NPV decision",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "A project costs $10,000 today and its discounted future cash flows sum to $9,200. What should the firm do?",
+                            "description": "<p>A project costs $10,000 today, and the present value of all its future cash flows (discounted at the firm's required rate) is $9,200. What should the firm do?</p>",
+                            "problemStatement": "<p>A project costs $10,000 today, and the present value of all its future cash flows (discounted at the firm's required rate) is $9,200. What should the firm do?</p>",
+                            "options": [
+                                { "id": "fin-exam-q6-o1", "text": "Accept it — the cash flows are positive", "isCorrect": false },
+                                { "id": "fin-exam-q6-o2", "text": "Reject it — NPV is −$800, so it destroys value at the required rate of return", "isCorrect": true },
+                                { "id": "fin-exam-q6-o3", "text": "Accept it only if inflation is low", "isCorrect": false },
+                                { "id": "fin-exam-q6-o4", "text": "Flip a coin — NPV cannot compare money across time", "isCorrect": false }
+                            ]
+                        },
+                        {
+                            "id": "fin-exam-q7",
+                            "title": "Rates and bonds",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "Interest rates rise sharply. What happens to the market price of existing fixed-rate bonds?",
+                            "description": "<p>Interest rates rise sharply. What happens to the market price of <em>existing</em> fixed-rate bonds, and why?</p>",
+                            "problemStatement": "<p>Interest rates rise sharply. What happens to the market price of <em>existing</em> fixed-rate bonds, and why?</p>",
+                            "options": [
+                                { "id": "fin-exam-q7-o1", "text": "They rise — bonds always benefit from rate changes", "isCorrect": false },
+                                { "id": "fin-exam-q7-o2", "text": "They fall — their fixed coupons are now less attractive than newly issued bonds paying higher rates", "isCorrect": true },
+                                { "id": "fin-exam-q7-o3", "text": "Nothing — bond prices are fixed at issuance", "isCorrect": false },
+                                { "id": "fin-exam-q7-o4", "text": "They fall to exactly zero", "isCorrect": false }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "id": "fin-exam-s3",
+                    "title": "FinTech",
+                    "questions": [
+                        {
+                            "id": "fin-exam-q8",
+                            "title": "Robo-advisors",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "What does a robo-advisor automate?",
+                            "description": "<p>What does a robo-advisor primarily automate?</p>",
+                            "problemStatement": "<p>What does a robo-advisor primarily automate?</p>",
+                            "options": [
+                                { "id": "fin-exam-q8-o1", "text": "Building and rebalancing a diversified portfolio matched to the client's risk profile", "isCorrect": true },
+                                { "id": "fin-exam-q8-o2", "text": "Guaranteeing above-market returns via AI stock picking", "isCorrect": false },
+                                { "id": "fin-exam-q8-o3", "text": "Printing central bank money on demand", "isCorrect": false },
+                                { "id": "fin-exam-q8-o4", "text": "Eliminating all investment risk", "isCorrect": false }
+                            ]
+                        },
+                        {
+                            "id": "fin-exam-q9",
+                            "title": "KYC & AML",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "Why do payment apps and neobanks verify your identity before activating an account?",
+                            "description": "<p>Why do payment apps and neobanks verify your identity (KYC) before activating an account?</p>",
+                            "problemStatement": "<p>Why do payment apps and neobanks verify your identity (KYC) before activating an account?</p>",
+                            "options": [
+                                { "id": "fin-exam-q9-o1", "text": "To sell verified identities to advertisers", "isCorrect": false },
+                                { "id": "fin-exam-q9-o2", "text": "Regulation requires knowing the customer to prevent money laundering, fraud, and terrorist financing", "isCorrect": true },
+                                { "id": "fin-exam-q9-o3", "text": "To ensure users are wealthy enough to invest", "isCorrect": false },
+                                { "id": "fin-exam-q9-o4", "text": "It is optional branding with no legal basis", "isCorrect": false }
+                            ]
+                        },
+                        {
+                            "id": "fin-exam-q10",
+                            "title": "BNPL in disguise",
+                            "type": "MCQ",
+                            "marks": 5,
+                            "question": "Financially, what IS a \"buy now, pay later\" plan?",
+                            "description": "<p>Financially speaking, what <em>is</em> a \"buy now, pay later\" (BNPL) plan?</p>",
+                            "problemStatement": "<p>Financially speaking, what <em>is</em> a \"buy now, pay later\" (BNPL) plan?</p>",
+                            "options": [
+                                { "id": "fin-exam-q10-o1", "text": "A discount program that reduces the purchase price", "isCorrect": false },
+                                { "id": "fin-exam-q10-o2", "text": "An installment loan — credit extended at checkout, with late fees or interest if payments are missed", "isCorrect": true },
+                                { "id": "fin-exam-q10-o3", "text": "A savings account attached to the merchant", "isCorrect": false },
+                                { "id": "fin-exam-q10-o4", "text": "A form of equity in the retailer", "isCorrect": false }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "id": "fin-exam-s4",
+                    "title": "Coding Challenge",
+                    "questions": [
+                        {
+                            "id": "fin-exam-code1",
+                            "title": "Challenge: Savings Goal Planner",
+                            "type": "Coding",
+                            "marks": 25,
+                            "question": "Compute how many full years of compounding are needed to reach a savings goal.",
+                            "description": "<p>Read three values from input (one per line):</p><pre><code>P — starting amount\nr — annual rate as a percentage\nG — the goal amount</code></pre><p>Print the smallest whole number of years of annual compounding after which the balance is at least <code>G</code>.</p><p><strong>Example:</strong> P=1000, r=10, G=2000 → <code>8</code> (1000 × 1.1⁸ ≈ 2143.59 ≥ 2000, while year 7 gives ≈ 1948.72).</p><p>If the starting amount already meets the goal, print <code>0</code>.</p>",
+                            "problemStatement": "<p>Read principal, rate (percent), and goal; print the smallest integer n where P × (1 + r/100)^n ≥ G. Print 0 if P already meets the goal.</p>",
+                            "codingConfig": {
+                                "languageId": "python",
+                                "allowedLanguages": ["python"],
+                                "templates": {
+                                    "python": {
+                                        "head": "",
+                                        "body": "principal = float(input())\nrate = float(input())   # percentage\ngoal = float(input())\n\n# TODO: count the years of compounding needed to reach the goal\n# and print the count (print 0 if the goal is already met)\n",
+                                        "tail": "",
+                                        "solution": "principal = float(input())\nrate = float(input())\ngoal = float(input())\n\nyears = 0\nbalance = principal\nwhile balance < goal:\n    balance *= 1 + rate / 100\n    years += 1\nprint(years)\n"
+                                    }
+                                },
+                                "testCases": [
+                                    { "input": "1000\n10\n2000", "output": "8", "isPublic": true, "points": 5 },
+                                    { "input": "500\n5\n500", "output": "0", "isPublic": true, "points": 5 },
+                                    { "input": "1000\n8\n2158", "output": "10", "isPublic": false, "points": 10 },
+                                    { "input": "100\n50\n1000", "output": "6", "isPublic": false, "points": 5 }
+                                ],
+                                "showTestCases": true
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
