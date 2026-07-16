@@ -314,11 +314,17 @@ export const AuthService = {
     // cache and refetches /auth/me under the new org so callers get back a
     // fully up-to-date session in one round trip.
     async switchOrg(orgId: string, options?: { asLearner?: boolean }): Promise<any> {
-        // Eagerly wipe the localStorage snapshot BEFORE the API call so that
-        // even if the page navigates during the await the new load has no stale
-        // role. resetSessionCache() at the end does this too, but calling it
-        // here gives extra protection in case of navigation races.
+        // Eagerly set local storage state so optimistic UI navigation and any
+        // parallel /auth/me fetches immediately pick up the new headers.
         clearStoredSessionSnapshot();
+        setActiveOrgId(orgId);
+        if (options?.asLearner) {
+            setActivePersona('learner');
+        } else {
+            clearActivePersona();
+        }
+        resetSessionCache();
+
         const authHeaders = await withClerkAuthorization(
             withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
         );
@@ -330,17 +336,13 @@ export const AuthService = {
         });
 
         if (!res.ok) {
+            // Revert state if the switch failed
+            clearActiveOrgId();
+            clearActivePersona();
             const error = await res.json().catch(() => ({}));
             throw new Error(error.message || 'Failed to switch workspace');
         }
 
-        setActiveOrgId(orgId);
-        if (options?.asLearner) {
-            setActivePersona('learner');
-        } else {
-            clearActivePersona();
-        }
-        resetSessionCache();
         return await this.checkSession(true);
     },
 
@@ -350,6 +352,13 @@ export const AuthService = {
     // learner's home can be org-less, which switchOrg can't express.
     async switchToHome(): Promise<any> {
         clearStoredSessionSnapshot();
+        // Home can be any role (a signup-creator's home is TEACHER), so an
+        // active "act as learner" persona must be dropped too — otherwise the
+        // next request still resolves as an org-less Student.
+        clearActivePersona();
+        clearActiveOrgId();
+        resetSessionCache();
+
         const authHeaders = await withClerkAuthorization(
             withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
         );
@@ -365,12 +374,6 @@ export const AuthService = {
             throw new Error(error.message || 'Failed to switch to your learner workspace');
         }
 
-        // Home can be any role (a signup-creator's home is TEACHER), so an
-        // active "act as learner" persona must be dropped too — otherwise the
-        // next request still resolves as an org-less Student.
-        clearActivePersona();
-        clearActiveOrgId();
-        resetSessionCache();
         return await this.checkSession(true);
     },
 
