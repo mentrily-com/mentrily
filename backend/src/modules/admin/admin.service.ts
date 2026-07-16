@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Logger,
   BadRequestException,
   NotFoundException,
   ConflictException,
@@ -12,6 +13,7 @@ import Redis from 'ioredis';
 import { createClerkClient, type ClerkClient } from '@clerk/backend';
 import { Role } from '@prisma/client';
 import { QuotaService } from '../billing/quota.service';
+import { MailService } from '../../services/mail.service';
 import { getEffectivePlanLimits, type PlanKey } from '../../config/plan-limits';
 import { getPublicAppUrl } from '../../config/app-brand';
 
@@ -39,9 +41,12 @@ type InviteResult = {
 
 @Injectable()
 export class AdminService {
+  private readonly logger = new Logger(AdminService.name);
+
   constructor(
     private readonly supabase: SupabaseService,
     private quotaService: QuotaService,
+    private readonly mailService: MailService,
     @InjectRedis() private readonly redis: Redis,
   ) {}
 
@@ -998,6 +1003,9 @@ export class AdminService {
         domain: true,
         maxUsers: true,
         maxAdminSeats: true,
+        name: true,
+        logo: true,
+        primaryColor: true,
       } as any,
     });
 
@@ -1084,11 +1092,22 @@ export class AdminService {
       } as any,
     });
 
+    // Orgs flagged features.resendInvites (the beta/tester org) send their
+    // own branded email via MailService instead of Clerk's — the Clerk
+    // invitation is still created (notify: false) so the ticket URL and the
+    // whole PendingInvite/provisioning pipeline stay identical.
+    const useBrandedEmail =
+      org.features &&
+      typeof org.features === 'object' &&
+      !Array.isArray(org.features) &&
+      (org.features as Record<string, unknown>).resendInvites === true;
+
+    let invitation: any = null;
     try {
-      const invitation = await clerkClient.invitations.createInvitation({
+      const invitationArgs = {
         emailAddress: email,
         redirectUrl: this.getOrganizationInvitationUrl(org.domain),
-        notify: true,
+        notify: !useBrandedEmail,
         ignoreExisting: true,
         expiresInDays: 7,
         publicMetadata: this.buildInviteMetadata({
@@ -1099,7 +1118,39 @@ export class AdminService {
           rollNumber,
           invitedById: currentUser?.id,
         }),
-      } as any);
+      };
+      invitation = await clerkClient.invitations.createInvitation(
+        invitationArgs as any,
+      );
+
+      if (useBrandedEmail) {
+        if (!invitation?.url) {
+          // Clerk didn't return a ticket URL — fall back to Clerk's own
+          // email so the invite is still delivered, just unbranded.
+          this.logger.warn(
+            `[INVITE] Clerk invitation ${invitation?.id} has no url; falling back to Clerk-notified email for ${email}`,
+          );
+          await this.revokeClerkInvitationIfPossible(
+            clerkClient,
+            invitation?.id,
+          );
+          invitation = await clerkClient.invitations.createInvitation({
+            ...invitationArgs,
+            notify: true,
+          } as any);
+        } else {
+          await this.mailService.sendOrgInviteEmail({
+            to: email,
+            inviteUrl: invitation.url,
+            orgName: org.name || 'your organization',
+            orgLogo: org.logo,
+            orgPrimaryColor: org.primaryColor,
+            role,
+            inviteeName: name,
+            expiresInDays: 7,
+          });
+        }
+      }
 
       await this.prisma.pendingInvite.update({
         where: { id: pendingInvite.id },
@@ -1118,6 +1169,10 @@ export class AdminService {
         clerkInvitationId: invitation.id,
       };
     } catch (error: any) {
+      // Roll back everything created before the failure — with notify:false
+      // no email went out, so a lingering Clerk invitation would just block
+      // re-inviting this address.
+      await this.revokeClerkInvitationIfPossible(clerkClient, invitation?.id);
       await this.prisma.pendingInvite.delete({
         where: { id: pendingInvite.id },
       });

@@ -10,6 +10,7 @@ import { StorageModule } from '../../services/storage/storage.module';
 import { BullModule } from '@nestjs/bullmq';
 import { BillingModule } from '../billing/billing.module';
 import { WebhookModule } from '../webhook/webhook.module';
+import { OrganizationModule } from '../organization/organization.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { WebhookModule } from '../webhook/webhook.module';
     StorageModule,
     BillingModule,
     WebhookModule,
+    OrganizationModule,
     BullModule.registerQueue({
       name: 'exam-invite-email',
     }),

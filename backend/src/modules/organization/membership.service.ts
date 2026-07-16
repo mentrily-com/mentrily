@@ -7,6 +7,11 @@ import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Redis } from 'ioredis';
 import { PrismaService } from '../../services/prisma/prisma.service';
 import { Role } from '@prisma/client';
+import {
+  OrgKind,
+  getOrgKindFromRecord,
+  isOpenEnrollmentOrgRecord,
+} from './org-kind';
 
 export interface ResolvedOrgContext {
   orgId: string | null;
@@ -17,8 +22,21 @@ export interface MembershipSummary {
   orgId: string;
   orgName: string;
   orgSlug: string | null;
+  orgDomain: string | null;
+  orgKind: OrgKind;
   role: Role;
   isHome: boolean;
+}
+
+export interface ActiveMembershipOptions {
+  /**
+   * When set, STRICT orgs may only become the active workspace if they ARE
+   * the tenant org of the request's subdomain — candidates pointing at a
+   * strict org from any other host are skipped. Only the auth guard passes
+   * this; membership *checks* (e.g. exam entry) must not.
+   */
+  enforceStrictTenancy?: boolean;
+  tenantOrgId?: string | null;
 }
 
 /**
@@ -63,11 +81,50 @@ export class MembershipService {
 
     const org = await this.prisma.organization.findUnique({
       where: { id: orgId },
-      select: { provisionedFromUserId: true },
+      select: { provisionedFromUserId: true, features: true },
     });
-    const isPublic = Boolean(org?.provisionedFromUserId);
+    // Open-enrollment orgs (features.openEnrollment, e.g. the beta/tester
+    // org) expose their content to enrolled global users just like personal
+    // orgs do — enrollment, not membership, is their access gate.
+    const isPublic =
+      Boolean(org?.provisionedFromUserId) || isOpenEnrollmentOrgRecord(org);
     await this.redis.set(cacheKey, isPublic ? '1' : '0', 'EX', 300);
     return isPublic;
+  }
+
+  /**
+   * Derived kind of an org (see org-kind.ts). Redis-cached briefly since the
+   * auth guard may consult this on every request carrying X-Active-Org-Id.
+   */
+  async getOrgKind(
+    orgId: string | null | undefined,
+  ): Promise<{ kind: OrgKind; domain: string | null }> {
+    if (!orgId) return { kind: 'PERSONAL', domain: null };
+
+    const cacheKey = `org:kind:${orgId}`;
+    const cached = await this.redis.get(cacheKey);
+    if (cached) {
+      const [kind, ...domainParts] = cached.split('|');
+      return {
+        kind: kind as OrgKind,
+        domain: domainParts.join('|') || null,
+      };
+    }
+
+    const org = await this.prisma.organization.findUnique({
+      where: { id: orgId },
+      select: { domain: true, provisionedFromUserId: true, features: true },
+    });
+    const kind = getOrgKindFromRecord(org, {
+      isDefaultOrg: orgId === this.getDefaultOrgId(),
+    });
+    const domain = org?.domain || null;
+    await this.redis.set(cacheKey, `${kind}|${domain ?? ''}`, 'EX', 300);
+    return { kind, domain };
+  }
+
+  async isStrictOrg(orgId: string | null | undefined): Promise<boolean> {
+    return (await this.getOrgKind(orgId)).kind === 'STRICT';
   }
 
   /**
@@ -109,8 +166,20 @@ export class MembershipService {
       lastActiveOrgId?: string | null;
     },
     requestedOrgId?: string | null,
+    options?: ActiveMembershipOptions,
   ): Promise<ResolvedOrgContext> {
     await this.ensureHomeMembership(user);
+
+    // A STRICT org's workspace is only usable on its own subdomain. Skip
+    // strict candidates (header / lastActiveOrgId) when the request isn't
+    // on that org's host — they fall through to the home-org fallback,
+    // which stays unfiltered so a strict-home user logging in at the apex
+    // is never locked out.
+    const isCandidateAllowed = async (orgId: string): Promise<boolean> => {
+      if (!options?.enforceStrictTenancy) return true;
+      if (orgId === options.tenantOrgId) return true;
+      return (await this.getOrgKind(orgId)).kind !== 'STRICT';
+    };
 
     // ensureHomeMembership guarantees a row exists for the home org too, so
     // a suspension there (an admin restricting THIS person's access to
@@ -138,6 +207,10 @@ export class MembershipService {
     );
 
     for (const candidateOrgId of candidates) {
+      if (!(await isCandidateAllowed(candidateOrgId))) {
+        continue;
+      }
+
       if (candidateOrgId === user.orgId) {
         if (await isHomeActive()) {
           return { orgId: user.orgId, role: user.role };
@@ -178,18 +251,39 @@ export class MembershipService {
       select: {
         orgId: true,
         role: true,
-        organization: { select: { name: true, slug: true } },
+        organization: {
+          select: {
+            name: true,
+            slug: true,
+            domain: true,
+            provisionedFromUserId: true,
+            features: true,
+          },
+        },
       },
       orderBy: { joinedAt: 'asc' },
     });
 
-    return memberships.map((membership) => ({
-      orgId: membership.orgId,
-      orgName: membership.organization?.name || 'Untitled organization',
-      orgSlug: membership.organization?.slug || null,
-      role: membership.role,
-      isHome: membership.orgId === user.orgId,
-    }));
+    const defaultOrgId = this.getDefaultOrgId();
+    return memberships.map((membership) => {
+      const kind = getOrgKindFromRecord(membership.organization, {
+        isDefaultOrg: membership.orgId === defaultOrgId,
+      });
+      const domain = String(membership.organization?.domain || '')
+        .trim()
+        .toLowerCase();
+      return {
+        orgId: membership.orgId,
+        orgName: membership.organization?.name || 'Untitled organization',
+        orgSlug: membership.organization?.slug || null,
+        // The switcher navigates strict orgs by host; never expose the
+        // sentinel 'default' domain as a navigable host.
+        orgDomain: domain && domain !== 'default' ? domain : null,
+        orgKind: kind,
+        role: membership.role,
+        isHome: membership.orgId === user.orgId,
+      };
+    });
   }
 
   /**
@@ -199,9 +293,19 @@ export class MembershipService {
   async switchActiveOrg(
     user: { id: string; orgId: string | null; role: Role },
     targetOrgId: string,
+    tenantOrgId?: string | null,
   ): Promise<ResolvedOrgContext> {
     if (!targetOrgId || !targetOrgId.trim()) {
       throw new NotFoundException('Organization not specified');
+    }
+
+    // A STRICT org can only be entered on its own subdomain — reject
+    // switch attempts from the apex or another tenant's host outright,
+    // even though resolveActiveMembership would also ignore the result.
+    if (targetOrgId !== tenantOrgId && (await this.isStrictOrg(targetOrgId))) {
+      throw new ForbiddenException(
+        'This workspace is only available on its own domain',
+      );
     }
 
     if (targetOrgId === user.orgId) {
