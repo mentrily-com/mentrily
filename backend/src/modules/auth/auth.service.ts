@@ -59,20 +59,42 @@ export class AuthService {
     if (uniqueIds.length === 0) return;
 
     const keys: string[] = [];
+
+    const users = await this.db.user.findMany({
+      where: {
+        OR: [
+          { id: { in: uniqueIds } },
+          { clerkId: { in: uniqueIds } },
+        ],
+      },
+      select: { id: true, orgId: true, clerkId: true },
+    });
+
+    const internalUserIds = users.map((u) => u.id);
+    const memberships = await this.db.orgMembership.findMany({
+      where: { userId: { in: internalUserIds } },
+      select: { userId: true, orgId: true },
+    });
+
+    // Collect all orgIds associated with any of the resolved users
+    const allOrgIds = new Set<string>();
+    for (const m of memberships) {
+      allOrgIds.add(m.orgId);
+    }
+    for (const u of users) {
+      if (u.orgId) {
+        allOrgIds.add(u.orgId);
+      }
+    }
+
     for (const id of uniqueIds) {
       keys.push(`user:session:${id}`);
-      let cursor = '0';
-      do {
-        const [nextCursor, batch] = await this.redis.scan(
-          cursor,
-          'MATCH',
-          `user:session:${id}:*`,
-          'COUNT',
-          100,
-        );
-        cursor = nextCursor;
-        keys.push(...batch);
-      } while (cursor !== '0');
+      keys.push(`user:session:${id}:default`);
+      keys.push(`user:session:${id}:persona-learner`);
+      
+      for (const orgId of allOrgIds) {
+        keys.push(`user:session:${id}:${orgId}`);
+      }
     }
 
     if (keys.length > 0) {
