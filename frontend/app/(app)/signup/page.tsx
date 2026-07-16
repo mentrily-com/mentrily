@@ -228,13 +228,15 @@ export default function SignupPage() {
 
         try {
             if (isInvitationFlow) {
-                const result = await signUp.create({
+                const payload: any = {
                     strategy: 'ticket',
                     ticket: invitationTicket,
-                    firstName,
-                    lastName,
-                    password,
-                });
+                };
+                if (firstName) payload.firstName = firstName;
+                if (lastName) payload.lastName = lastName;
+                if (password) payload.password = password;
+
+                const result = await signUp.create(payload);
 
                 if (result.status === 'complete') {
                     if (!setActive) {
@@ -608,7 +610,7 @@ export default function SignupPage() {
                                                 </div>
                                                 <input
                                                     type="text"
-                                                    required
+                                                    required={!isInvitationFlow}
                                                     value={firstName}
                                                     onChange={(e) => setFirstName(e.target.value)}
                                                     placeholder="John"
@@ -639,7 +641,7 @@ export default function SignupPage() {
                                             </label>
                                             <input
                                                 type="text"
-                                                required
+                                                required={!isInvitationFlow}
                                                 value={lastName}
                                                 onChange={(e) => setLastName(e.target.value)}
                                                 placeholder="Doe"
@@ -720,7 +722,7 @@ export default function SignupPage() {
                                             </div>
                                             <input
                                                 type={showPassword ? 'text' : 'password'}
-                                                required
+                                                required={!isInvitationFlow}
                                                 value={password}
                                                 onChange={(e) => setPassword(e.target.value)}
                                                 placeholder="••••••••"

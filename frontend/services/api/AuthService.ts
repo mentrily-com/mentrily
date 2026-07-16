@@ -94,6 +94,7 @@ export const AuthService = {
                 const res = await fetch(`${BASE_URL}/auth/me${query ? `?${query}` : ''}`, {
                     headers: authHeaders,
                     credentials: 'include',
+                    cache: 'no-store',
                 });
 
                 if (!res.ok) {
@@ -284,6 +285,7 @@ export const AuthService = {
         const res = await fetch(`${BASE_URL}/auth/memberships`, {
             headers: authHeaders,
             credentials: 'include',
+            cache: 'no-store',
         });
 
         if (!res.ok) {
