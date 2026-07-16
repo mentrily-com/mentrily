@@ -212,8 +212,18 @@ export class MembershipService {
       }
 
       if (candidateOrgId === user.orgId) {
+        // If the home org is active, don't blindly return user.role. The user
+        // might have an overriding OrgMembership row for their home org (e.g.
+        // their flat role is STUDENT but they were granted TEACHER).
         if (await isHomeActive()) {
-          return { orgId: user.orgId, role: user.role };
+          const homeMembership = user.orgId ? await this.prisma.orgMembership.findUnique({
+            where: { userId_orgId: { userId: user.id, orgId: user.orgId } },
+            select: { role: true },
+          }) : null;
+          return {
+            orgId: user.orgId,
+            role: homeMembership?.role || user.role,
+          };
         }
         continue;
       }
@@ -229,7 +239,14 @@ export class MembershipService {
     }
 
     if (await isHomeActive()) {
-      return { orgId: user.orgId, role: user.role };
+      const homeMembership = user.orgId ? await this.prisma.orgMembership.findUnique({
+        where: { userId_orgId: { userId: user.id, orgId: user.orgId } },
+        select: { role: true },
+      }) : null;
+      return {
+        orgId: user.orgId,
+        role: homeMembership?.role || user.role,
+      };
     }
 
     // Home org access has been restricted and no other active membership
@@ -311,7 +328,7 @@ export class MembershipService {
     if (targetOrgId === user.orgId) {
       const home = await this.prisma.orgMembership.findUnique({
         where: { userId_orgId: { userId: user.id, orgId: targetOrgId } },
-        select: { status: true },
+        select: { status: true, role: true },
       });
 
       if (home && home.status !== 'ACTIVE') {
@@ -322,7 +339,7 @@ export class MembershipService {
         where: { id: user.id },
         data: { lastActiveOrgId: targetOrgId },
       });
-      return { orgId: user.orgId, role: user.role };
+      return { orgId: user.orgId, role: home?.role || user.role };
     }
 
     const membership = await this.prisma.orgMembership.findUnique({
