@@ -101,7 +101,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
     const needsCreatorHomeEntry = (isCreatorHome && !hasCreatorPersona) || homeRole === 'SUPER_ADMIN';
     const expandedMemberships = memberships.flatMap((m) => {
         if (m.role === 'TEACHER' || m.role === 'ADMIN' || m.role === 'SUPER_ADMIN') {
-            if (m.orgKind === 'STRICT') {
+            if (m.orgKind !== 'PERSONAL') {
                 return [
                     m,
                     { ...m, role: 'STUDENT' as const, isLearnerPreview: true }
