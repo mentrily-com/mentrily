@@ -39,11 +39,25 @@ let lastSessionSnapshot: any = null;
 let lastSessionAt = 0;
 let unauthorizedCooldownUntil = 0;
 
+// Key used by useSession to persist the session across page loads as a fast
+// placeholder. Must be wiped on every workspace switch so the new page never
+// shows the previous persona's role while the real session fetch is in flight.
+const SESSION_SNAPSHOT_STORAGE_KEY = 'bc-session-snapshot';
+
+const clearStoredSessionSnapshot = () => {
+    if (typeof window !== 'undefined') {
+        window.localStorage.removeItem(SESSION_SNAPSHOT_STORAGE_KEY);
+    }
+};
+
 const resetSessionCache = () => {
     inFlightSessionCheck = null;
     lastSessionSnapshot = null;
     lastSessionAt = 0;
     unauthorizedCooldownUntil = 0;
+    // Also wipe the localStorage snapshot so the next page load does not
+    // serve a stale role as placeholder data while the fresh fetch is in flight.
+    clearStoredSessionSnapshot();
 };
 
 export const AuthService = {
@@ -300,6 +314,11 @@ export const AuthService = {
     // cache and refetches /auth/me under the new org so callers get back a
     // fully up-to-date session in one round trip.
     async switchOrg(orgId: string, options?: { asLearner?: boolean }): Promise<any> {
+        // Eagerly wipe the localStorage snapshot BEFORE the API call so that
+        // even if the page navigates during the await the new load has no stale
+        // role. resetSessionCache() at the end does this too, but calling it
+        // here gives extra protection in case of navigation races.
+        clearStoredSessionSnapshot();
         const authHeaders = await withClerkAuthorization(
             withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
         );
@@ -330,6 +349,7 @@ export const AuthService = {
     // next /auth/me resolves back to the home org/role — needed because a
     // learner's home can be org-less, which switchOrg can't express.
     async switchToHome(): Promise<any> {
+        clearStoredSessionSnapshot();
         const authHeaders = await withClerkAuthorization(
             withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
         );
@@ -359,6 +379,7 @@ export const AuthService = {
     // backend resolves as an org-less Student. Lets a creator (even one who was
     // never a learner) use the learner experience and switch back anytime.
     async switchToLearner(): Promise<any> {
+        clearStoredSessionSnapshot();
         clearActiveOrgId();
         setActivePersona('learner');
         resetSessionCache();
