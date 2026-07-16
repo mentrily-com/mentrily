@@ -40,7 +40,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
     const { refetch } = useSession();
     const [open, setOpen] = useState(false);
     const [expandedOrgId, setExpandedOrgId] = useState<string | null>(null);
-    const [switchingOrgId, setSwitchingOrgId] = useState<string | null>(null);
+    const [switchingMembershipId, setSwitchingMembershipId] = useState<string | null>(null);
     const [becomingCreator, setBecomingCreator] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -176,25 +176,28 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
             targetUrl = root === 'localhost' ? 'http://localhost:3000/dashboard' : `https://${root}/dashboard`;
         }
 
-        // Always use a full navigation (window.location.href) rather than
-        // router.push. The problem: dashboard/page.tsx's useEffect only fires
-        // when its deps (isSignedIn, clerkLoaded, clerkSignedIn) change — if
-        // the user is already signed in and we router.push('/dashboard'), the
-        // component may already be mounted with the same deps, so the effect
-        // does NOT re-run, leaving the page stuck on the old persona/role.
-        // A hard navigation guarantees a full remount and a clean session
-        // resolution on every workspace switch.
-        window.location.href = targetUrl.startsWith('http') ? targetUrl : '/dashboard';
+        // If the target is on the same host, use client-side routing for a seamless
+        // transition without a white flash. We invalidate the session query so
+        // the new layout instantly receives the updated persona.
+        if (targetUrl.startsWith('http')) {
+            window.location.href = targetUrl;
+        } else {
+            await queryClient.invalidateQueries({ queryKey: ['session'] });
+            const isStudent = membership?.role === 'STUDENT' || (membership as any)?.isLearnerPreview;
+            const destination = isStudent ? '/dashboard/learner' : '/dashboard/creator';
+            router.push(destination);
+        }
     };
 
     const handleSwitch = async (membership: WorkspaceMembership) => {
         const isAlreadyActive = membership.orgId === activeMembership?.orgId && membership.role === activeMembership?.role;
-        if (isAlreadyActive || switchingOrgId) {
+        if (isAlreadyActive || switchingMembershipId) {
             setOpen(false);
             return;
         }
 
-        setSwitchingOrgId(membership.orgId);
+        const membershipId = `${membership.orgId}-${membership.role}`;
+        setSwitchingMembershipId(membershipId);
         setError(null);
 
         // A STRICT org's workspace only activates on its own subdomain — the
@@ -227,7 +230,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to switch workspace');
         } finally {
-            setSwitchingOrgId(null);
+            setSwitchingMembershipId(null);
         }
     };
 
@@ -285,20 +288,20 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
         <div ref={dropdownRef} className="relative">
             <button
                 onClick={() => setOpen((value) => !value)}
-                disabled={Boolean(switchingOrgId)}
+                disabled={Boolean(switchingMembershipId)}
                 className="flex items-center gap-2 px-3 py-2 bg-slate-50 hover:bg-slate-100 disabled:opacity-60 rounded-xl border border-slate-200/80 transition-colors max-w-[180px]"
                 title="Switch workspace"
             >
                 <div className="w-6 h-6 rounded-lg bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center shrink-0">
-                    {switchingOrgId ? (
+                    {switchingMembershipId ? (
                         <Loader2 size={13} className="animate-spin" />
                     ) : (
                         <Building2 size={13} />
                     )}
                 </div>
-                <span className="hidden sm:block text-left leading-tight min-w-0">
+                <span className="min-w-0 flex-1 text-left">
                     <span className="block text-[11px] font-black text-slate-800 truncate">
-                        {switchingOrgId
+                        {switchingMembershipId
                             ? 'Switching…'
                             : activeMembership?.orgName || 'Workspace'}
                     </span>
@@ -322,12 +325,12 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                         const org = group[0];
                         const isLearnerEntry = org.orgId === LEARNER_SENTINEL;
                         const isCreatorHomeEntry = org.orgId === CREATOR_HOME_SENTINEL;
-                        const isSwitchingThis = switchingOrgId === org.orgId;
                         const hasMultipleRoles = group.length > 1;
                         const isExpanded = expandedOrgId === org.orgId;
                         
-                        const renderIcon = (role?: string) => {
-                            if (isSwitchingThis) return <Loader2 size={14} className="animate-spin" />;
+                        const renderIcon = (role?: string, membershipId?: string) => {
+                            if (membershipId && switchingMembershipId === membershipId) return <Loader2 size={14} className="animate-spin" />;
+                            if (!membershipId && switchingMembershipId && switchingMembershipId.startsWith(org.orgId)) return <Loader2 size={14} className="animate-spin" />;
                             if (isLearnerEntry || role === 'STUDENT') return <GraduationCap size={14} />;
                             if (isCreatorHomeEntry) return <Presentation size={14} />;
                             return <Building2 size={14} />;
@@ -358,15 +361,16 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                                         <div className="bg-slate-50/50 py-1">
                                             {group.map((membership) => {
                                                 const isActive = membership.orgId === activeMembership?.orgId && membership.role === activeMembership?.role;
+                                                const membershipId = `${membership.orgId}-${membership.role}`;
                                                 return (
                                                     <button
-                                                        key={`${membership.orgId}-${membership.role}`}
+                                                        key={membershipId}
                                                         onClick={() => handleSwitch(membership)}
-                                                        disabled={Boolean(switchingOrgId)}
+                                                        disabled={Boolean(switchingMembershipId)}
                                                         className="w-full flex items-center gap-3 pl-12 pr-4 py-2 text-left disabled:opacity-60 hover:bg-slate-100 transition-colors"
                                                     >
                                                         <div className="w-5 h-5 rounded flex items-center justify-center bg-white border border-slate-200 text-slate-500 shrink-0">
-                                                            {renderIcon(membership.role)}
+                                                            {renderIcon(membership.role, membershipId)}
                                                         </div>
                                                         <span className="min-w-0 flex-1">
                                                             <span className="block text-[11px] font-bold text-slate-600 truncate">
@@ -385,16 +389,17 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
 
                         const membership = group[0];
                         const isActive = membership.orgId === activeMembership?.orgId && membership.role === activeMembership?.role;
+                        const membershipId = `${membership.orgId}-${membership.role}`;
 
                         return (
                             <button
-                                key={`${membership.orgId}-${membership.role}`}
+                                key={membershipId}
                                 onClick={() => handleSwitch(membership)}
-                                disabled={Boolean(switchingOrgId)}
+                                disabled={Boolean(switchingMembershipId)}
                                 className="w-full flex items-center gap-3 px-4 py-2.5 text-left disabled:opacity-60 hover:bg-slate-50 transition-colors"
                             >
                                 <div className="w-8 h-8 rounded-lg bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center shrink-0">
-                                    {renderIcon(membership.role)}
+                                    {renderIcon(membership.role, membershipId)}
                                 </div>
                                 <span className="min-w-0 flex-1">
                                     <span className="block text-[13px] font-bold text-slate-700 truncate">
