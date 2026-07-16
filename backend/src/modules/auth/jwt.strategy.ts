@@ -1105,9 +1105,11 @@ export class ClerkAuthGuard implements CanActivate {
         .trim()
         .toLowerCase() || null;
 
-    const cacheScope =
-      requestedOrgId ||
-      (requestedPersona === 'learner' ? 'persona-learner' : 'default');
+    const isLearner = requestedPersona === 'learner';
+    let cacheScope = requestedOrgId || (isLearner ? 'persona-learner' : 'default');
+    if (requestedOrgId && isLearner) {
+      cacheScope = `${requestedOrgId}:persona-learner`;
+    }
     const cacheKey = `user:session:${clerkId}:${cacheScope}`;
     const cached = await this.redis.get(cacheKey);
 
