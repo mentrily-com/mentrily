@@ -62,15 +62,10 @@ export function setActivePersona(persona: string | null): void {
     ensureInitialized();
     activePersona = persona;
 
-    if (persona) {
-        activeOrgId = null;
-    }
-
     if (typeof window === 'undefined') return;
 
     if (persona) {
         window.localStorage.setItem(ACTIVE_PERSONA_STORAGE_KEY, persona);
-        window.localStorage.removeItem(ACTIVE_ORG_STORAGE_KEY);
     } else {
         window.localStorage.removeItem(ACTIVE_PERSONA_STORAGE_KEY);
     }

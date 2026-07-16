@@ -357,6 +357,7 @@ export const AuthService = {
     // backend resolves as an org-less Student. Lets a creator (even one who was
     // never a learner) use the learner experience and switch back anytime.
     async switchToLearner(): Promise<any> {
+        clearActiveOrgId();
         setActivePersona('learner');
         resetSessionCache();
         return await this.checkSession(true);
