@@ -300,7 +300,7 @@ export class MembershipService {
         role: membership.role,
         isHome: membership.orgId === user.orgId,
       };
-    }).filter((m) => !(m.role === 'STUDENT' && m.orgKind !== 'STRICT'));
+    }).filter((m) => !(m.role === 'STUDENT' && m.orgKind === 'PERSONAL'));
   }
 
   /**
