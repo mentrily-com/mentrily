@@ -6,7 +6,9 @@ import { usePathname } from 'next/navigation';
 import { AuthService } from '@/services/api/AuthService';
 
 interface CrispWidgetProps {
-    role: 'ADMIN' | 'TEACHER';
+    role: 'ADMIN' | 'TEACHER' | 'STUDENT';
+    /** Org name for support triage (beta/tester org members). */
+    orgName?: string | null;
 }
 
 // Crisp is a global singleton (window.$crisp) — every API call besides
@@ -15,7 +17,7 @@ interface CrispWidgetProps {
 // it needs to survive remounts and be visible to every instance.
 let crispConfigured = false;
 
-export default function CrispWidget({ role }: CrispWidgetProps) {
+export default function CrispWidget({ role, orgName }: CrispWidgetProps) {
     const pathname = usePathname();
 
     useEffect(() => {
@@ -55,6 +57,7 @@ export default function CrispWidget({ role }: CrispWidgetProps) {
                 role,
                 plan: String(session.plan || 'FREE'),
                 orgId: String(session.orgId || ''),
+                orgName: String(orgName || session.organization?.name || ''),
             });
         };
 
@@ -65,7 +68,7 @@ export default function CrispWidget({ role }: CrispWidgetProps) {
             active = false;
             Crisp.chat.hide();
         };
-    }, [pathname, role]);
+    }, [pathname, role, orgName]);
 
     return null;
 }

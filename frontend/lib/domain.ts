@@ -68,6 +68,38 @@ export function parseSubdomain(hostOrUrl?: string | null): string | null {
     return firstSegment;
 }
 
+/**
+ * The org subdomain this browser tab is currently on, mirroring the
+ * resolution OrganizationContext uses: real host subdomain first, then (for
+ * localhost simulation) the `local_org_simulation`/`org_subdomain`
+ * fallbacks written by the `?org=` param. Null on the apex domain.
+ */
+export function getCurrentSubdomain(): string | null {
+    if (typeof window === 'undefined') return null;
+
+    const hostname = window.location.hostname;
+    const fromHost = parseSubdomain(hostname);
+    if (fromHost) return fromHost;
+
+    if (hostname.includes('localhost')) {
+        const simulated =
+            localStorage.getItem('local_org_simulation') ||
+            document.cookie
+                .split('; ')
+                .find((entry) => entry.startsWith('org_subdomain='))
+                ?.split('=')[1];
+        if (simulated) {
+            try {
+                return decodeURIComponent(simulated) || null;
+            } catch {
+                return simulated || null;
+            }
+        }
+    }
+
+    return null;
+}
+
 export function buildOrgUrl(subdomain: string, pathname = '/'): string | null {
     const normalizedSubdomain = String(subdomain || '')
         .trim()

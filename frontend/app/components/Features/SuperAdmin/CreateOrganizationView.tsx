@@ -41,6 +41,9 @@ export default function CreateOrganizationView() {
         canCreateCourses: boolean;
         allowCourseTests: boolean;
         canManageUsers: boolean;
+        openEnrollment: boolean;
+        resendInvites: boolean;
+        crispChat: boolean;
         primaryColor: string;
         logo: string | File; // Allow File object
     }>({
@@ -70,6 +73,11 @@ export default function CreateOrganizationView() {
         allowCourseTests: true,
         canManageUsers: true,
 
+        // Tenant behavior — default strict/isolated; opt-in per org
+        openEnrollment: false,
+        resendInvites: false,
+        crispChat: false,
+
         // Branding - default
         primaryColor: '#008D98',
         logo: '',
@@ -97,6 +105,9 @@ export default function CreateOrganizationView() {
                 canCreateCourses: formData.canCreateCourses,
                 allowCourseTests: formData.allowCourseTests,
                 canManageUsers: formData.canManageUsers,
+                openEnrollment: formData.openEnrollment,
+                resendInvites: formData.resendInvites,
+                crispChat: formData.crispChat,
                 // Configuration
                 plan: formData.plan.toUpperCase(),
                 // Contact (for future use)
@@ -516,6 +527,31 @@ export default function CreateOrganizationView() {
                                             active={formData.canManageUsers}
                                             onClick={() =>
                                                 setFormData({ ...formData, canManageUsers: !formData.canManageUsers })
+                                            }
+                                        />
+                                    </div>
+
+                                    {/* Tenant behavior (beta/tester orgs) */}
+                                    <div className="md:col-span-2 space-y-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                        <PermissionToggle
+                                            label="Open enrollment (teachers may enroll any Mentrily user)"
+                                            active={formData.openEnrollment}
+                                            onClick={() =>
+                                                setFormData({ ...formData, openEnrollment: !formData.openEnrollment })
+                                            }
+                                        />
+                                        <PermissionToggle
+                                            label="Branded invite emails (Resend)"
+                                            active={formData.resendInvites}
+                                            onClick={() =>
+                                                setFormData({ ...formData, resendInvites: !formData.resendInvites })
+                                            }
+                                        />
+                                        <PermissionToggle
+                                            label="Crisp support chat"
+                                            active={formData.crispChat}
+                                            onClick={() =>
+                                                setFormData({ ...formData, crispChat: !formData.crispChat })
                                             }
                                         />
                                     </div>
