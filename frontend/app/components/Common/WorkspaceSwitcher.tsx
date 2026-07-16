@@ -179,10 +179,25 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
         // If the target is on the same host, use client-side routing for a seamless
         // transition without a white flash. We invalidate the session query so
         // the new layout instantly receives the updated persona.
-        if (targetUrl.startsWith('http')) {
+        let isSameHost = false;
+        try {
+            if (targetUrl.startsWith('http')) {
+                const target = new URL(targetUrl);
+                if (target.host === window.location.host) {
+                    isSameHost = true;
+                }
+            } else {
+                isSameHost = true;
+            }
+        } catch (e) {
+            // fallback
+        }
+
+        if (!isSameHost) {
             window.location.href = targetUrl;
         } else {
-            await queryClient.invalidateQueries({ queryKey: ['session'] });
+            // Remove the await to make the UI response perfectly instant
+            queryClient.invalidateQueries({ queryKey: ['session'] });
             const isStudent = membership?.role === 'STUDENT' || (membership as any)?.isLearnerPreview;
             const destination = isStudent ? '/dashboard/learner' : '/dashboard/creator';
             router.push(destination);
@@ -217,19 +232,28 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
         }
 
         try {
-            if (membership.orgId === LEARNER_SENTINEL) {
-                await AuthService.switchToLearner();
-            } else if (membership.orgId === CREATOR_HOME_SENTINEL) {
-                await AuthService.switchToHome();
-            } else if ((membership as any).isLearnerPreview) {
-                await AuthService.switchOrg(membership.orgId, { asLearner: true });
-            } else {
-                await AuthService.switchOrg(membership.orgId);
-            }
-            await landOnDashboard(membership);
+            const switchPromise = (async () => {
+                if (membership.orgId === LEARNER_SENTINEL) {
+                    await AuthService.switchToLearner();
+                } else if (membership.orgId === CREATOR_HOME_SENTINEL) {
+                    await AuthService.switchToHome();
+                } else if ((membership as any).isLearnerPreview) {
+                    await AuthService.switchOrg(membership.orgId, { asLearner: true });
+                } else {
+                    await AuthService.switchOrg(membership.orgId);
+                }
+            })();
+
+            switchPromise.catch((err) => {
+                console.error('[WorkspaceSwitcher] background switch failed', err);
+                setError(err instanceof Error ? err.message : 'Failed to switch workspace');
+                setSwitchingMembershipId(null);
+            });
+
+            // Navigate instantly while the API requests happen in the background!
+            landOnDashboard(membership);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to switch workspace');
-        } finally {
             setSwitchingMembershipId(null);
         }
     };
