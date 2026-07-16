@@ -314,6 +314,12 @@ export class SuperAdminService {
                 : true,
             canManageUsers:
               data.canManageUsers !== undefined ? data.canManageUsers : true,
+            // Tenant behavior flags (see org-kind.ts): default false — a
+            // provisioned subdomain org is strictly isolated unless the
+            // super admin opts it into open enrollment (beta/tester orgs).
+            openEnrollment: data.openEnrollment === true,
+            resendInvites: data.resendInvites === true,
+            crispChat: data.crispChat === true,
           },
           contact: {
             adminName: data.adminName || null,
@@ -430,6 +436,32 @@ export class SuperAdminService {
     }
   }
 
+  /**
+   * Every derived-from-org redis entry that must not outlive an org
+   * settings change: public branding, subdomain→orgId resolution (jwt
+   * caches it 900s and it's never TTL-refreshed on change), and the
+   * org-kind/public-surface flags that gate isolation and exam entry.
+   */
+  private async clearOrgDerivedCaches(orgId: string, domain?: string | null) {
+    const keys = [`org:kind:${orgId}`, `org:is-public-surface:${orgId}`];
+    if (domain) {
+      const normalized = domain.toLowerCase();
+      keys.push(`org:public:${normalized}`);
+      const subPrefix = normalized.split('.')[0];
+      if (subPrefix && subPrefix !== normalized) {
+        keys.push(`org:public:${subPrefix}`);
+      }
+      keys.push(`org:subdomain:${subPrefix || normalized}`);
+    }
+    await this.redis.del(...keys);
+  }
+
+  private asRecord(value: unknown): Record<string, unknown> {
+    return value && typeof value === 'object' && !Array.isArray(value)
+      ? (value as Record<string, unknown>)
+      : {};
+  }
+
   async updateOrganization(id: string, data: any) {
     // Only allow specific updates to prevent mass assignment vulnerabilities
     const safeData: any = {};
@@ -440,21 +472,48 @@ export class SuperAdminService {
     if (data.logo !== undefined) safeData.logo = data.logo;
     if (data.primaryColor !== undefined) safeData.primaryColor = data.primaryColor;
     if (data.status !== undefined) safeData.status = data.status;
+    if (data.maxUsers !== undefined) safeData.maxUsers = Number(data.maxUsers);
+    if (data.maxAdminSeats !== undefined) {
+      safeData.maxAdminSeats =
+        data.maxAdminSeats === null ? null : Number(data.maxAdminSeats);
+    }
+    if (data.contact !== undefined) safeData.contact = data.contact;
+
+    const existing = await this.prisma.organization.findUnique({
+      where: { id },
+      select: { features: true, domain: true },
+    });
+    if (!existing) {
+      throw new NotFoundException('Organization not found');
+    }
+    const previousDomain = existing.domain;
+
+    // Merge features server-side: the settings form round-trips a partial
+    // features object, and a shallow overwrite would clobber keys it does
+    // not know about (limitsOverrides especially).
+    if (data.features !== undefined) {
+      const currentFeatures = this.asRecord(existing.features);
+      const incomingFeatures = this.asRecord(data.features);
+      safeData.features = {
+        ...currentFeatures,
+        ...incomingFeatures,
+        limitsOverrides: {
+          ...this.asRecord(currentFeatures.limitsOverrides),
+          ...this.asRecord(incomingFeatures.limitsOverrides),
+        },
+      };
+    }
 
     const updated = await this.prisma.organization.update({
       where: { id },
       data: safeData,
     });
 
-    if (updated.domain) {
-      const cacheKey = `org:public:${updated.domain.toLowerCase()}`;
-      await this.redis.del(cacheKey);
-      
-      const parts = updated.domain.split('.');
-      if (parts.length > 1) {
-        const subCacheKey = `org:public:${parts[0].toLowerCase()}`;
-        await this.redis.del(subCacheKey);
-      }
+    await this.clearOrgDerivedCaches(id, updated.domain);
+    // Domain renames must also drop the caches keyed by the OLD domain,
+    // or the stale subdomain keeps resolving for up to 15 minutes.
+    if (previousDomain && previousDomain !== updated.domain) {
+      await this.clearOrgDerivedCaches(id, previousDomain);
     }
 
     return updated;
@@ -562,6 +621,8 @@ export class SuperAdminService {
         maxAdminSeats: true,
       } as any,
     });
+
+    await this.clearOrgDerivedCaches(id);
 
     return {
       ...updated,

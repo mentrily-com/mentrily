@@ -1256,32 +1256,14 @@ export class ExamService {
   }
 
   /**
-   * A resource's org counts as "public" (open surface, not member-scoped)
-   * if it's DEFAULT_ORG_ID, or if it's a self-serve Creator's own
-   * auto-provisioned personal org (Organization.provisionedFromUserId is
-   * set — see org-provisioning.service.ts ensureCreatorPersona). Only an
-   * org a super-admin explicitly created through org management (no
-   * provisionedFromUserId) is a real, member-scoped tenant.
+   * Delegates to MembershipService.isPublicOrgResource — the single owner
+   * of the "open surface vs member-scoped tenant" rule (default org,
+   * personal orgs, and open-enrollment orgs like the beta/tester org).
    */
   private async isPublicOrgResource(
     resourceOrgId: string | null | undefined,
   ): Promise<boolean> {
-    if (!resourceOrgId) return false;
-
-    const defaultOrgId = this.getDefaultOrgId();
-    if (defaultOrgId && resourceOrgId === defaultOrgId) return true;
-
-    const cacheKey = `org:is-public-surface:${resourceOrgId}`;
-    const cached = await this.redis.get(cacheKey);
-    if (cached !== null) return cached === '1';
-
-    const org = await this.prisma.organization.findUnique({
-      where: { id: resourceOrgId },
-      select: { provisionedFromUserId: true },
-    });
-    const isPublic = Boolean(org?.provisionedFromUserId);
-    await this.redis.set(cacheKey, isPublic ? '1' : '0', 'EX', 300);
-    return isPublic;
+    return this.membershipService.isPublicOrgResource(resourceOrgId);
   }
 
   /**

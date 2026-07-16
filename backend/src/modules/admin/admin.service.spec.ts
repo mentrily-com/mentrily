@@ -4,6 +4,7 @@ import { createClerkClient } from '@clerk/backend';
 import { AdminService } from './admin.service';
 import { SupabaseService } from '../../services/supabase/supabase.service';
 import { QuotaService } from '../billing/quota.service';
+import { MailService } from '../../services/mail.service';
 
 jest.mock('@clerk/backend', () => ({
   createClerkClient: jest.fn(),
@@ -77,6 +78,10 @@ describe('AdminService invite flow', () => {
           },
         },
         { provide: QuotaService, useValue: quotaService },
+        {
+          provide: MailService,
+          useValue: { sendOrgInviteEmail: jest.fn().mockResolvedValue(undefined) },
+        },
         {
           provide: 'default_IORedisModuleConnectionToken',
           useValue: {

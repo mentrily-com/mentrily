@@ -661,4 +661,118 @@ export class MailService {
       // A mail delivery failure should not surface as a 500 to the user.
     }
   }
+
+  /**
+   * Org-branded invitation email, used instead of Clerk's own invite email
+   * for orgs flagged features.resendInvites (the beta/tester org). The
+   * inviteUrl is Clerk's ticket URL, so accepting still flows through the
+   * exact same PendingInvite/provisioning pipeline. THROWS on delivery
+   * failure — the caller rolls the invite back, since no other email will
+   * ever reach the invitee.
+   */
+  /**
+   * Hero graphic for the beta-tester invite (designed in Canva, on-brand:
+   * real Mentrily wordmark, Fraunces-style editorial serif headline, teal
+   * #008D98 accent — see project memory for the design session). Hosted
+   * permanently on the app's own CDN (not a Canva export link, which
+   * expires), same S3 bucket org logos use. 1200x1698 source, displayed at
+   * a contained width so it doesn't dominate the inbox.
+   */
+  private readonly betaTesterPosterUrl =
+    'https://dyp4wnn9yf27t.cloudfront.net/email-assets/beta-tester-invite-poster.png';
+
+  async sendOrgInviteEmail(params: {
+    to: string;
+    inviteUrl: string;
+    orgName: string;
+    orgLogo?: string | null;
+    orgPrimaryColor?: string | null;
+    role: string;
+    inviteeName?: string | null;
+    expiresInDays: number;
+  }): Promise<void> {
+    const resendApiKey = process.env.RESEND_API_KEY;
+    const mailjetHasKeys = Boolean(this.apiKey && this.apiSecret);
+
+    if (!resendApiKey && !mailjetHasKeys) {
+      throw new Error(
+        'No email provider configured (RESEND_API_KEY / Mailjet) for org invite email',
+      );
+    }
+
+    const brandColor = /^#[0-9a-fA-F]{3,8}$/.test(params.orgPrimaryColor || '')
+      ? params.orgPrimaryColor!
+      : '#008D98';
+    const inviteUrl = params.inviteUrl;
+
+    // The poster itself carries the "Accept Invitation" call to action and
+    // is the ONLY click target — no separate greeting/button block, so
+    // there's a single unambiguous thing to click.
+    const htmlPart = `
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 560px; margin: 0 auto; border: 1px solid #eef2f6; border-radius: 16px; overflow: hidden; background: #ffffff;">
+        <a href="${inviteUrl}" style="display: block; text-decoration: none;">
+          <img src="${this.betaTesterPosterUrl}" width="560" alt="You're invited to build early — Mentrily Beta Tester Program. Click to accept your invitation." style="display: block; width: 100%; max-width: 560px; height: auto; border: 0;" />
+        </a>
+        <div style="padding: 20px 28px 26px; text-align: center;">
+          <p style="margin: 0 0 8px; color: #94a3b8; font-size: 12px;">
+            This invitation expires in ${Number(params.expiresInDays) || 7} days.
+            If the button doesn't work, copy this link into your browser:
+          </p>
+          <p style="margin: 0; word-break: break-all; font-size: 12px;">
+            <a href="${inviteUrl}" style="color: ${brandColor};">${this.escapeHtml(inviteUrl)}</a>
+          </p>
+        </div>
+      </div>
+    `;
+
+    const textPart = [
+      `You're invited to build early — Mentrily Beta Tester Program.`,
+      '',
+      `Accept the invitation: ${params.inviteUrl}`,
+      '',
+      `This invitation expires in ${Number(params.expiresInDays) || 7} days.`,
+    ].join('\n');
+
+    const subject = `You're invited to join ${params.orgName}`;
+
+    if (resendApiKey) {
+      const sender = process.env.RESEND_SENDER_EMAIL || this.senderEmail;
+      await axios.post(
+        'https://api.resend.com/emails',
+        {
+          from: `Mentrily <${sender}>`,
+          to: [params.to],
+          subject,
+          html: htmlPart,
+          text: textPart,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${resendApiKey}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      return;
+    }
+
+    await axios.post(
+      'https://api.mailjet.com/v3.1/send',
+      {
+        Messages: [
+          {
+            From: { Email: this.senderEmail, Name: 'Mentrily' },
+            To: [{ Email: params.to, Name: params.inviteeName || params.to }],
+            Subject: subject,
+            HTMLPart: htmlPart,
+            TextPart: textPart,
+          },
+        ],
+      },
+      {
+        auth: { username: this.apiKey!, password: this.apiSecret! },
+        headers: { 'Content-Type': 'application/json' },
+      },
+    );
+  }
 }

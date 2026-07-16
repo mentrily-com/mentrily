@@ -1067,11 +1067,35 @@ export class ClerkAuthGuard implements CanActivate {
       orgIdForSubdomain = await this.resolveOrganizationIdBySubdomain(tenantSubdomain);
     }
 
+    // Expose the subdomain's org on the request for BOTH the cached and
+    // fresh paths — downstream handlers (switch-org, listMemberships) use
+    // it to scope tenant-only operations.
+    req.tenantOrgId = orgIdForSubdomain;
+
     // Workspace switcher: which org this request should resolve role/orgId
     // against. Never trusted as-is — resolveActiveMembership() below only
     // honors it if the user actually has an ACTIVE membership there.
-    const requestedOrgId =
+    let requestedOrgId =
       orgIdForSubdomain || String(req?.headers?.['x-active-org-id'] || '').trim() || null;
+
+    // A STRICT (fully isolated) org can only be the active workspace when
+    // the request arrives on its own subdomain. A header-requested
+    // activation from any other host is ignored — falls back to
+    // lastActive/home below. Must run BEFORE cacheScope is computed so a
+    // strict-org session is never cached under an apex scope.
+    if (
+      requestedOrgId &&
+      requestedOrgId !== orgIdForSubdomain &&
+      this.membershipService
+    ) {
+      try {
+        if (await this.membershipService.isStrictOrg(requestedOrgId)) {
+          requestedOrgId = null;
+        }
+      } catch {
+        // Fail open to the pre-existing behavior if the kind lookup errors.
+      }
+    }
 
     // "Act as learner": any user (including a creator who was never a learner)
     // can drop into an org-less Student persona. Client-driven via header, same
@@ -1226,15 +1250,7 @@ export class ClerkAuthGuard implements CanActivate {
     let effectiveRole = user.role;
     let effectiveOrganization = user.organization;
 
-    if (requestedPersona === 'learner') {
-      // Force an org-less Student persona regardless of the user's real (home)
-      // role. Powers the workspace switcher's "My Learning" entry so a creator
-      // can use the learner experience — their creator org/role are untouched
-      // and remain switchable. homeRole below still reports the real role.
-      effectiveOrgId = null;
-      effectiveRole = 'STUDENT';
-      effectiveOrganization = null;
-    } else if (this.membershipService) {
+    if (this.membershipService) {
       try {
         const resolved = await this.membershipService.resolveActiveMembership(
           {
@@ -1244,6 +1260,10 @@ export class ClerkAuthGuard implements CanActivate {
             lastActiveOrgId: user.lastActiveOrgId ?? null,
           },
           requestedOrgId,
+          // Workspace ACTIVATION is tenancy-scoped (strict orgs only on
+          // their own subdomain); membership CHECKS elsewhere (exam entry)
+          // must not pass this.
+          { enforceStrictTenancy: true, tenantOrgId: orgIdForSubdomain },
         );
         effectiveOrgId = resolved.orgId;
         effectiveRole = resolved.role;

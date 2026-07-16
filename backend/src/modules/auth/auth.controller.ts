@@ -135,10 +135,17 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('switch-org')
   @Throttle({ default: { limit: 30, ttl: 60000 } })
-  async switchOrg(@User() user: any, @Body() body: SwitchOrgDto) {
+  async switchOrg(
+    @User() user: any,
+    @Body() body: SwitchOrgDto,
+    @Req() req: any,
+  ) {
+    // req.tenantOrgId is stamped by the auth guard from the request's
+    // subdomain — strict orgs may only be switched to on their own host.
     const resolved = await this.membershipService.switchActiveOrg(
       user,
       body.orgId,
+      req?.tenantOrgId ?? null,
     );
     // lastActiveOrgId changed — cached sessions (especially the header-less
     // 'default' scope) would keep resolving the previous org until TTL.

@@ -21,6 +21,7 @@ import { SendExamInviteDto } from './dto/send-exam-invite.dto';
 import { QuotaService } from '../billing/quota.service';
 import { WebhookService } from '../webhook/webhook.service';
 import { generateRandomSlug, normalizeSlug } from '../common/slug.util';
+import { MembershipService } from '../organization/membership.service';
 
 @Injectable()
 export class TeacherService {
@@ -33,6 +34,7 @@ export class TeacherService {
     private courseService: CourseService,
     private quotaService: QuotaService,
     private webhookService: WebhookService,
+    private membershipService: MembershipService,
     @InjectRedis() private readonly redis: Redis,
     @InjectQueue('exam-invite-email') private readonly examInviteQueue: Queue,
   ) {}
@@ -1634,12 +1636,63 @@ export class TeacherService {
     return response;
   }
 
+  /**
+   * Of the given userIds, which are NOT members of orgId (neither an ACTIVE
+   * OrgMembership row nor their home User.orgId). Two indexed batch queries.
+   */
+  private async findNonMembers(
+    orgId: string,
+    userIds: string[],
+  ): Promise<Set<string>> {
+    if (userIds.length === 0) return new Set();
+
+    const [memberships, homeUsers] = await Promise.all([
+      this.prisma.orgMembership.findMany({
+        where: { orgId, status: 'ACTIVE', userId: { in: userIds } },
+        select: { userId: true },
+      }),
+      this.prisma.user.findMany({
+        where: { id: { in: userIds }, orgId },
+        select: { id: true },
+      }),
+    ]);
+
+    const members = new Set<string>([
+      ...memberships.map((m: any) => m.userId),
+      ...homeUsers.map((u: any) => u.id),
+    ]);
+    return new Set(userIds.filter((id) => !members.has(id)));
+  }
+
+  /**
+   * STRICT (isolated subdomain) orgs may only enroll their own members —
+   * see org-kind.ts. PERSONAL and OPEN (openEnrollment, e.g. the beta/
+   * tester org) courses can enroll any global user, as before. Returns the
+   * blocked subset so batch callers can report partial success.
+   */
+  private async getBlockedEnrollments(
+    course: { orgId: string | null },
+    studentIds: string[],
+  ): Promise<Set<string>> {
+    if (!course.orgId || studentIds.length === 0) return new Set();
+    const { kind } = await this.membershipService.getOrgKind(course.orgId);
+    if (kind !== 'STRICT') return new Set();
+    return this.findNonMembers(course.orgId, studentIds);
+  }
+
   async enrollStudent(courseId: string, studentId: string, user: any) {
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
     });
     if (!course) throw new Error('Course not found');
     await this.checkAccess(course, user);
+
+    const blocked = await this.getBlockedEnrollments(course, [studentId]);
+    if (blocked.has(studentId)) {
+      throw new ForbiddenException(
+        'This organization only allows enrolling its own members. Invite the student to the organization first.',
+      );
+    }
 
     const { error: enrollError } = await (this.supabase.client as any)
       .from('_CourseStudents')
@@ -1742,6 +1795,10 @@ export class TeacherService {
     const enrolledSet = new Set(
       (existingCourse?.students || []).map((s: any) => s.id),
     );
+    const blocked = await this.getBlockedEnrollments(
+      course,
+      students.map((s: any) => s.id),
+    );
 
     const results = [];
     let enrolledCount = 0;
@@ -1754,6 +1811,16 @@ export class TeacherService {
 
         if (!student) {
           results.push({ email, success: false, error: 'User not found' });
+          failedCount++;
+          continue;
+        }
+
+        if (blocked.has(student.id)) {
+          results.push({
+            email,
+            success: false,
+            error: 'Not a member of this organization',
+          });
           failedCount++;
           continue;
         }
@@ -3813,11 +3880,18 @@ export class TeacherService {
     const enrolledSet = new Set(
       (existingCourse?.students || []).map((s: any) => s.id),
     );
+    const blocked = await this.getBlockedEnrollments(
+      course,
+      group.students.map((s: any) => s.id),
+    );
     const toConnect: Array<{ id: string }> = [];
     let alreadyEnrolled = 0;
+    let skippedNonMembers = 0;
 
     for (const student of group.students) {
-      if (enrolledSet.has(student.id)) {
+      if (blocked.has(student.id)) {
+        skippedNonMembers++;
+      } else if (enrolledSet.has(student.id)) {
         alreadyEnrolled++;
       } else {
         enrolledSet.add(student.id);
@@ -3845,6 +3919,7 @@ export class TeacherService {
       totalStudents: group.students.length,
       enrolled: toConnect.length,
       alreadyEnrolled,
+      skippedNonMembers,
     };
   }
 
