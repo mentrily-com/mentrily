@@ -101,10 +101,13 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
     const needsCreatorHomeEntry = (isCreatorHome && !hasCreatorPersona) || homeRole === 'SUPER_ADMIN';
     const expandedMemberships = memberships.flatMap((m) => {
         if (m.role === 'TEACHER' || m.role === 'ADMIN' || m.role === 'SUPER_ADMIN') {
-            return [
-                m,
-                { ...m, role: 'STUDENT' as const, isLearnerPreview: true }
-            ];
+            if (m.orgKind === 'STRICT') {
+                return [
+                    m,
+                    { ...m, role: 'STUDENT' as const, isLearnerPreview: true }
+                ];
+            }
+            return [m];
         }
         return [m];
     });
