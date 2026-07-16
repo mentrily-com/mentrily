@@ -1268,6 +1268,19 @@ export class ClerkAuthGuard implements CanActivate {
         effectiveOrgId = resolved.orgId;
         effectiveRole = resolved.role;
 
+        if (requestedPersona === 'learner') {
+          // Force an org-less Student persona OR an in-org Student persona (Learner Preview)
+          // based on whether the client explicitly requested an org context.
+          effectiveRole = 'STUDENT';
+          
+          const headerOrgId = String(req?.headers?.['x-active-org-id'] || '').trim() || null;
+          if (!headerOrgId && !orgIdForSubdomain) {
+            // "My Learning": org-less learner
+            effectiveOrgId = null;
+            effectiveOrganization = null;
+          }
+        }
+
         if (effectiveOrgId && effectiveOrgId !== user.orgId) {
           effectiveOrganization = (await this.prisma.organization.findUnique({
             where: { id: effectiveOrgId },
@@ -1283,6 +1296,8 @@ export class ClerkAuthGuard implements CanActivate {
               provisionedFromUserId: true,
             } as any,
           })) as any;
+        } else if (!effectiveOrgId) {
+          effectiveOrganization = null;
         }
       } catch (error) {
         // OrgMembership may not exist yet if this migration hasn't been
