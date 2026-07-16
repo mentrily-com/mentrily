@@ -287,7 +287,8 @@ export class ExamService {
           select: {
             id: true,
             orgId: true,
-            course: { select: { orgId: true, creatorId: true } },
+            courseId: true,
+            course: { select: { id: true, orgId: true, creatorId: true } },
           },
         });
 
@@ -296,6 +297,7 @@ export class ExamService {
             id: test.id,
             orgId: test.course?.orgId,
             creatorId: test.course?.creatorId,
+            linkedCourseId: test.courseId || test.course?.id,
             type: 'test',
           };
         } else {
@@ -1362,6 +1364,18 @@ export class ExamService {
       // reach that check instead of being rejected before it runs.
       const role = String(user?.role || '').toUpperCase();
       if (role === 'STUDENT' || role === 'ADMIN') return;
+    }
+
+    // Fallback: If the user lacks an active STUDENT/ADMIN membership in this org,
+    // but the exam is linked to a course in which they are explicitly enrolled,
+    // bypass the strict membership check.
+    if (exam.linkedCourseId && user?.id) {
+      const enrolled = await this.prisma.course.count({
+        where: { id: exam.linkedCourseId, students: { some: { id: user.id } } },
+      });
+      if (enrolled > 0) {
+        return;
+      }
     }
 
     throw new UnauthorizedException('Only Student accounts can access exams.');

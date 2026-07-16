@@ -228,35 +228,22 @@ export default function SignupPage() {
 
         try {
             if (isInvitationFlow) {
-                const invitationSignUp = signUp as typeof signUp & {
-                    ticket: (params: {
-                        ticket: string;
-                        firstName?: string;
-                        lastName?: string;
-                        password?: string;
-                    }) => Promise<{ error: unknown | null }>;
-                    finalize: (params: { navigate: () => Promise<void> }) => Promise<{ error: unknown | null }>;
-                };
-
-                const result = await invitationSignUp.ticket({
+                const result = await signUp.create({
+                    strategy: 'ticket',
                     ticket: invitationTicket,
                     firstName,
                     lastName,
                     password,
                 });
 
-                if (result.error) {
-                    throw result.error;
-                }
-
-                if (signUp.status === 'complete') {
-                    const finalizeResult = await invitationSignUp.finalize({
+                if (result.status === 'complete') {
+                    if (!setActive) {
+                        throw new Error('Session activation is unavailable.');
+                    }
+                    await setActive({
+                        session: result.createdSessionId,
                         navigate: async () => {},
                     });
-
-                    if (finalizeResult.error) {
-                        throw finalizeResult.error;
-                    }
 
                     let path = '/dashboard?flow=signup';
                     try {
@@ -530,9 +517,8 @@ export default function SignupPage() {
                         {!pendingVerification ? (
                             <>
                                 {/* Google SSO */}
-                                {!isInvitationFlow && (
-                                    <button
-                                        type="button"
+                                <button
+                                    type="button"
                                         disabled={isGoogleLoading || isLoading}
                                         onClick={signUpWithGoogle}
                                         className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl text-sm font-medium border transition-all duration-150 cursor-pointer mb-6 disabled:opacity-70 disabled:cursor-not-allowed"
@@ -578,18 +564,15 @@ export default function SignupPage() {
                                         )}
                                         {isGoogleLoading ? 'Connecting...' : 'Continue with Google'}
                                     </button>
-                                )}
 
                                 {/* Divider */}
-                                {!isInvitationFlow && (
-                                    <div className="flex items-center gap-3 mb-6">
+                                <div className="flex items-center gap-3 mb-6">
                                         <div className="h-px flex-1" style={{ backgroundColor: '#E2E8F0' }} />
                                         <span className="text-xs font-medium" style={{ color: '#94A3B8' }}>
                                             or
                                         </span>
                                         <div className="h-px flex-1" style={{ backgroundColor: '#E2E8F0' }} />
                                     </div>
-                                )}
 
                                 {isInvitationFlow && (
                                     <div
