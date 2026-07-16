@@ -196,8 +196,11 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
         if (!isSameHost) {
             window.location.href = targetUrl;
         } else {
-            // Remove the await to make the UI response perfectly instant
-            queryClient.invalidateQueries({ queryKey: ['session'] });
+            // Remove the stale session data IMMEDIATELY. If we just invalidate,
+            // React Query keeps serving the old role (e.g. TEACHER) while fetching.
+            // When the new layout mounts, useRoleGuard sees the stale TEACHER role
+            // on the Learner dashboard and prematurely kicks the user back!
+            queryClient.resetQueries({ queryKey: ['session'] });
             const isStudent = membership?.role === 'STUDENT' || (membership as any)?.isLearnerPreview;
             const destination = isStudent ? '/dashboard/learner' : '/dashboard/creator';
             router.push(destination);

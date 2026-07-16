@@ -94,6 +94,7 @@ export class AuthService {
       
       for (const orgId of allOrgIds) {
         keys.push(`user:session:${id}:${orgId}`);
+        keys.push(`user:session:${id}:${orgId}:persona-learner`);
       }
     }
 
