@@ -22,6 +22,7 @@ import { StudentService } from '@/services/api/StudentService';
 import DOMPurify from 'isomorphic-dompurify';
 import { useSession } from '@/hooks/useSession';
 import CrispWidget from './CrispWidget';
+import { orgHasCrispChat } from '@/lib/crisp';
 import { BrandLockup } from '@/components/brand/BrandLockup';
 import WorkspaceSwitcher from './Common/WorkspaceSwitcher';
 
@@ -186,7 +187,12 @@ export default function Navbar({ basePath, userRole: roleOverride, examConfig }:
 
     return (
         <div className="w-full flex flex-col sticky top-0 z-[1000]">
-            {(isTeacher || isAdmin) && <CrispWidget role={isAdmin ? 'ADMIN' : 'TEACHER'} />}
+            {(isTeacher || isAdmin || orgHasCrispChat(sessionUser)) && (
+                <CrispWidget
+                    role={isAdmin ? 'ADMIN' : isTeacher ? 'TEACHER' : 'STUDENT'}
+                    orgName={sessionUser?.organization?.name}
+                />
+            )}
             <ImpersonationBanner />
             {showPaymentFailedBanner && <PaymentFailedBanner />}
             <header className="w-full bg-white/80 backdrop-blur-md border-b border-slate-100">

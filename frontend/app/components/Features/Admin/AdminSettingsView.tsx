@@ -203,6 +203,25 @@ export default function AdminSettingsView({
                                                 onClick={() => togglePermission('canManageUsers')}
                                             />
                                         </div>
+
+                                        {/* Tenant behavior (beta/tester orgs) */}
+                                        <div className="md:col-span-2 space-y-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                            <PermissionToggle
+                                                label="Open enrollment (teachers may enroll any Mentrily user)"
+                                                active={branding.permissions.openEnrollment === true}
+                                                onClick={() => togglePermission('openEnrollment')}
+                                            />
+                                            <PermissionToggle
+                                                label="Branded invite emails (Resend)"
+                                                active={branding.permissions.resendInvites === true}
+                                                onClick={() => togglePermission('resendInvites')}
+                                            />
+                                            <PermissionToggle
+                                                label="Crisp support chat"
+                                                active={branding.permissions.crispChat === true}
+                                                onClick={() => togglePermission('crispChat')}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -6,7 +6,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Building2, ChevronsUpDown, Check, Loader2, Plus, GraduationCap, Presentation } from 'lucide-react';
 import { AuthService, WorkspaceMembership } from '@/services/api/AuthService';
 import { useSession } from '@/hooks/useSession';
-import { buildOrgUrl, getRootDomain } from '@/lib/domain';
+import { buildOrgUrl, getRootDomain, getCurrentSubdomain } from '@/lib/domain';
 
 const ROLE_LABELS: Record<string, string> = {
     STUDENT: 'Learner',
@@ -43,6 +43,12 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
     const [becomingCreator, setBecomingCreator] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const dropdownRef = useRef<HTMLDivElement | null>(null);
+    // Which org subdomain (if any) this tab is on. Resolved in an effect so
+    // SSR and the first client paint agree (both render the apex view).
+    const [currentSubdomain, setCurrentSubdomain] = useState<string | null>(null);
+    useEffect(() => {
+        setCurrentSubdomain(getCurrentSubdomain());
+    }, []);
 
     const { data: memberships = [] } = useQuery({
         queryKey: ['workspace-memberships', sessionUser?.id],
@@ -62,13 +68,24 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
         return () => document.removeEventListener('mousedown', close);
     }, []);
 
+    // Prefix of an org's full subdomain host ("tester.mentrily.com" → "tester").
+    const orgSubPrefix = (membership: WorkspaceMembership): string | null =>
+        membership.orgDomain ? membership.orgDomain.split('.')[0] || null : null;
+    // On an org subdomain, only that org's workspaces are reachable
+    // (enforceTenantAccess 403s everything else) — the switcher must not
+    // offer workspaces the host can't serve.
+    const tenantMembership = currentSubdomain
+        ? memberships.find((m) => orgSubPrefix(m) === currentSubdomain)
+        : undefined;
+    const onTenantSubdomain = Boolean(currentSubdomain);
+
     const hasCreatorPersona = memberships.some(
         (membership) => membership.role === 'TEACHER' || membership.role === 'ADMIN' || membership.role === 'SUPER_ADMIN',
     );
     // Home persona is the flat account role, independent of whichever org is
     // currently active (homeRole/homeOrgId come straight from /auth/me).
     const homeRole: string | undefined = sessionUser?.homeRole ?? sessionUser?.role;
-    const canBecomeCreator = homeRole === 'STUDENT' && !hasCreatorPersona;
+    const canBecomeCreator = !onTenantSubdomain && homeRole === 'STUDENT' && !hasCreatorPersona;
 
     // Every account can act as a learner. If the user has no Student membership
     // of their own (a signup-creator who was never a learner, or an org-less
@@ -81,39 +98,63 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
     // synthetic entry wired to switch-home.
     const isCreatorHome = homeRole === 'TEACHER' || homeRole === 'ADMIN' || homeRole === 'SUPER_ADMIN';
     const needsCreatorHomeEntry = (isCreatorHome && !hasCreatorPersona) || homeRole === 'SUPER_ADMIN';
-    const displayMemberships: WorkspaceMembership[] = [
-        ...(needsLearnerEntry
-            ? [
-                  {
-                      orgId: LEARNER_SENTINEL,
-                      orgName: 'My Learning',
-                      orgSlug: null,
-                      role: 'STUDENT' as const,
-                      isHome: !isCreatorHome,
-                  },
-              ]
-            : []),
-        ...(needsCreatorHomeEntry
-            ? [
-                  {
-                      orgId: CREATOR_HOME_SENTINEL,
-                      orgName: homeRole === 'SUPER_ADMIN' ? 'Super Admin' : 'My Workspace',
-                      orgSlug: null,
-                      role: (homeRole === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : homeRole === 'ADMIN' ? 'ADMIN' : 'TEACHER') as 'SUPER_ADMIN' | 'ADMIN' | 'TEACHER',
-                      isHome: true,
-                  },
-              ]
-            : []),
-        ...memberships,
-    ];
+    const expandedMemberships = memberships.flatMap((m) => {
+        if (m.role === 'TEACHER' || m.role === 'ADMIN' || m.role === 'SUPER_ADMIN') {
+            return [
+                m,
+                { ...m, role: 'STUDENT' as const, isLearnerPreview: true }
+            ];
+        }
+        return [m];
+    });
+
+    const displayMemberships: WorkspaceMembership[] = onTenantSubdomain
+        ? // On an org subdomain: only this org's workspaces (its creator row
+          // plus the learner-preview expansion) — no sentinels, no other
+          // orgs. The whole subdomain reads as this org's own product.
+          expandedMemberships.filter(
+              (m) => orgSubPrefix(m) === currentSubdomain,
+          )
+        : [
+              ...(needsLearnerEntry
+                  ? [
+                        {
+                            orgId: LEARNER_SENTINEL,
+                            orgName: 'My Learning',
+                            orgSlug: null,
+                            role: 'STUDENT' as const,
+                            isHome: !isCreatorHome,
+                        },
+                    ]
+                  : []),
+              ...(needsCreatorHomeEntry
+                  ? [
+                        {
+                            orgId: CREATOR_HOME_SENTINEL,
+                            orgName: homeRole === 'SUPER_ADMIN' ? 'Super Admin' : 'My Workspace',
+                            orgSlug: null,
+                            role: (homeRole === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : homeRole === 'ADMIN' ? 'ADMIN' : 'TEACHER') as 'SUPER_ADMIN' | 'ADMIN' | 'TEACHER',
+                            isHome: true,
+                        },
+                    ]
+                  : []),
+              ...expandedMemberships,
+          ];
 
     // In learner mode the resolved role is STUDENT and there's no active org.
+    // However, if they are in a learner preview, they HAVE an active org but role is STUDENT.
     const isLearnerActive = String(sessionUser?.role || '').toUpperCase() === 'STUDENT';
+    const isLearnerPreviewActive = isLearnerActive && !!sessionUser?.orgId;
+    const isGlobalLearnerActive = isLearnerActive && !sessionUser?.orgId;
+
     const activeMembership =
         displayMemberships.find((membership) => {
-            if (membership.orgId === LEARNER_SENTINEL) return isLearnerActive;
+            if (membership.orgId === LEARNER_SENTINEL) return isGlobalLearnerActive;
             if (membership.orgId === CREATOR_HOME_SENTINEL) {
                 return !isLearnerActive && !sessionUser?.orgId;
+            }
+            if ((membership as any).isLearnerPreview) {
+                return isLearnerPreviewActive && membership.orgId === sessionUser?.orgId;
             }
             return !isLearnerActive && membership.orgId === sessionUser?.orgId;
         }) || displayMemberships[0];
@@ -127,7 +168,13 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
         setOpen(false);
 
         let targetUrl = '/dashboard';
-        if (membership && membership.orgSlug) {
+        const domainPrefix = membership ? orgSubPrefix(membership) : null;
+        if (membership && domainPrefix) {
+            // Real subdomain orgs navigate by their domain — orgSlug can be
+            // null for provisioned orgs, and the workspace only resolves on
+            // its own host anyway.
+            targetUrl = buildOrgUrl(domainPrefix, '/dashboard') || '/dashboard';
+        } else if (membership && membership.orgSlug) {
             targetUrl = buildOrgUrl(membership.orgSlug, '/dashboard') || '/dashboard';
         } else if (membership) {
             const root = getRootDomain();
@@ -153,11 +200,29 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
         setSwitchingOrgId(membership.orgId);
         setError(null);
 
+        // A STRICT org's workspace only activates on its own subdomain — the
+        // backend rejects switch-org from any other host. Navigate there
+        // instead; arrival on the subdomain forces the org resolution.
+        const strictPrefix = orgSubPrefix(membership);
+        if (
+            membership.orgKind === 'STRICT' &&
+            strictPrefix &&
+            strictPrefix !== currentSubdomain
+        ) {
+            const orgUrl = buildOrgUrl(strictPrefix, '/dashboard');
+            if (orgUrl) {
+                window.location.href = orgUrl;
+                return;
+            }
+        }
+
         try {
             if (membership.orgId === LEARNER_SENTINEL) {
                 await AuthService.switchToLearner();
             } else if (membership.orgId === CREATOR_HOME_SENTINEL) {
                 await AuthService.switchToHome();
+            } else if ((membership as any).isLearnerPreview) {
+                await AuthService.switchOrg(membership.orgId, { asLearner: true });
             } else {
                 await AuthService.switchOrg(membership.orgId);
             }

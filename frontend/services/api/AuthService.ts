@@ -8,6 +8,10 @@ export interface WorkspaceMembership {
     orgId: string;
     orgName: string;
     orgSlug: string | null;
+    /** Full subdomain host (e.g. "acme.mentrily.com"); null for personal orgs. */
+    orgDomain?: string | null;
+    /** STRICT orgs are only usable on their own subdomain (see backend org-kind.ts). */
+    orgKind?: 'PERSONAL' | 'OPEN' | 'STRICT';
     role: 'STUDENT' | 'TEACHER' | 'ADMIN' | 'SUPER_ADMIN';
     isHome: boolean;
 }
@@ -293,7 +297,7 @@ export const AuthService = {
     // which membership subsequent requests resolve against. Resets the
     // cache and refetches /auth/me under the new org so callers get back a
     // fully up-to-date session in one round trip.
-    async switchOrg(orgId: string): Promise<any> {
+    async switchOrg(orgId: string, options?: { asLearner?: boolean }): Promise<any> {
         const authHeaders = await withClerkAuthorization(
             withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
         );
@@ -310,6 +314,11 @@ export const AuthService = {
         }
 
         setActiveOrgId(orgId);
+        if (options?.asLearner) {
+            setActivePersona('learner');
+        } else {
+            clearActivePersona();
+        }
         resetSessionCache();
         return await this.checkSession(true);
     },

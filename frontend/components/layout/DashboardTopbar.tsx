@@ -9,7 +9,8 @@ import { BrandLockup } from '@/components/brand/BrandLockup';
 import ImpersonationBanner from '@/app/components/Common/ImpersonationBanner';
 import PaymentFailedBanner from '@/app/components/Common/PaymentFailedBanner';
 import WorkspaceSwitcher from '@/app/components/Common/WorkspaceSwitcher';
-// import CrispWidget from '@/app/components/CrispWidget';
+import CrispWidget from '@/app/components/CrispWidget';
+import { orgHasCrispChat } from '@/lib/crisp';
 import { LogOut, User, Settings, ChevronDown, Compass, Menu } from 'lucide-react';
 
 type NavbarRole = 'student' | 'teacher' | 'admin' | 'super-admin';
@@ -174,7 +175,15 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
 
     return (
         <>
-            {/* {(isTeacher || isAdmin) && !isCreatorSessionPending && <CrispWidget role={isAdmin ? 'ADMIN' : 'TEACHER'} />} */}
+            {/* Deliberately opt-in here (unlike the learner Navbar): only orgs
+                flagged features.crispChat — e.g. the beta/tester org — get
+                support chat in the creator dashboard. */}
+            {orgHasCrispChat(sessionUser) && !isCreatorSessionPending && (
+                <CrispWidget
+                    role={isAdmin ? 'ADMIN' : isTeacher ? 'TEACHER' : 'STUDENT'}
+                    orgName={sessionUser?.organization?.name}
+                />
+            )}
             <ImpersonationBanner />
             {showPaymentFailedBanner && <PaymentFailedBanner />}
 
