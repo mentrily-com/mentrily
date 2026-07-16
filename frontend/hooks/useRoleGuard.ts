@@ -34,13 +34,26 @@ function readPendingDashboardRole(): string {
 export function useRoleGuard(allowedRoles: string[]) {
     const router = useRouter();
     const { isLoaded, isSignedIn } = useAuth();
-    const { data: user, isLoading: isSessionLoading, error: sessionError } = useSession();
+    // isPlaceholderData = true while the real server session is still in flight.
+    // The localStorage snapshot (bc-session-snapshot) can carry the PREVIOUS
+    // persona's role (e.g. STUDENT after a switch to TEACHER), so we must
+    // never redirect or gate content on placeholder data — only on the real
+    // verified session from the server.
+    const { data: user, isLoading: isSessionLoading, isPlaceholderData, error: sessionError } = useSession();
     const role = user?.role;
     const pendingRole = readPendingDashboardRole();
     const isPendingAuthorized =
         Boolean(pendingRole) && (allowedRoles.length === 0 || allowedRoles.includes(String(pendingRole)));
 
-    const isSessionResolved = isLoaded && isSignedIn && !isSessionLoading && !sessionError && Boolean(user) && Boolean(role);
+    // A session is only trustworthy once it is NOT placeholder data AND fully resolved.
+    const isSessionResolved =
+        isLoaded &&
+        isSignedIn &&
+        !isSessionLoading &&
+        !isPlaceholderData &&
+        !sessionError &&
+        Boolean(user) &&
+        Boolean(role);
     const isAuthorized =
         isPendingAuthorized ||
         (isSessionResolved && (allowedRoles.length === 0 || allowedRoles.includes(String(role))));
@@ -57,6 +70,7 @@ export function useRoleGuard(allowedRoles: string[]) {
             return;
         }
 
+        // Never redirect based on placeholder data — wait for the real session.
         if (!isSessionResolved) {
             return;
         }
