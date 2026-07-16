@@ -39,6 +39,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
     const queryClient = useQueryClient();
     const { refetch } = useSession();
     const [open, setOpen] = useState(false);
+    const [expandedOrgId, setExpandedOrgId] = useState<string | null>(null);
     const [switchingOrgId, setSwitchingOrgId] = useState<string | null>(null);
     const [becomingCreator, setBecomingCreator] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -170,12 +171,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
         let targetUrl = '/dashboard';
         const domainPrefix = membership ? orgSubPrefix(membership) : null;
         if (membership && domainPrefix) {
-            // Real subdomain orgs navigate by their domain — orgSlug can be
-            // null for provisioned orgs, and the workspace only resolves on
-            // its own host anyway.
             targetUrl = buildOrgUrl(domainPrefix, '/dashboard') || '/dashboard';
-        } else if (membership && membership.orgSlug) {
-            targetUrl = buildOrgUrl(membership.orgSlug, '/dashboard') || '/dashboard';
         } else if (membership) {
             const root = getRootDomain();
             targetUrl = root === 'localhost' ? 'http://localhost:3000/dashboard' : `https://${root}/dashboard`;
@@ -192,7 +188,8 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
     };
 
     const handleSwitch = async (membership: WorkspaceMembership) => {
-        if (membership.orgId === activeMembership?.orgId || switchingOrgId) {
+        const isAlreadyActive = membership.orgId === activeMembership?.orgId && membership.role === activeMembership?.role;
+        if (isAlreadyActive || switchingOrgId) {
             setOpen(false);
             return;
         }
@@ -320,28 +317,87 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                     <p className="px-4 py-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
                         Your workspaces
                     </p>
-                    {displayMemberships.map((membership) => {
-                        const isActive = membership.orgId === activeMembership?.orgId;
-                        const isSwitchingThis = switchingOrgId === membership.orgId;
-                        const isLearnerEntry = membership.orgId === LEARNER_SENTINEL;
-                        const isCreatorHomeEntry = membership.orgId === CREATOR_HOME_SENTINEL;
+                    {Object.values(displayMemberships.reduce((acc, m) => {
+                        if (!acc[m.orgId]) acc[m.orgId] = [];
+                        acc[m.orgId].push(m);
+                        return acc;
+                    }, {} as Record<string, WorkspaceMembership[]>)).map((group) => {
+                        const org = group[0];
+                        const isLearnerEntry = org.orgId === LEARNER_SENTINEL;
+                        const isCreatorHomeEntry = org.orgId === CREATOR_HOME_SENTINEL;
+                        const isSwitchingThis = switchingOrgId === org.orgId;
+                        const hasMultipleRoles = group.length > 1;
+                        const isExpanded = expandedOrgId === org.orgId;
+                        
+                        const renderIcon = (role?: string) => {
+                            if (isSwitchingThis) return <Loader2 size={14} className="animate-spin" />;
+                            if (isLearnerEntry || role === 'STUDENT') return <GraduationCap size={14} />;
+                            if (isCreatorHomeEntry) return <Presentation size={14} />;
+                            return <Building2 size={14} />;
+                        };
+
+                        if (hasMultipleRoles) {
+                            return (
+                                <div key={org.orgId}>
+                                    <button
+                                        onClick={() => setExpandedOrgId(isExpanded ? null : org.orgId)}
+                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-slate-50 transition-colors"
+                                    >
+                                        <div className="w-8 h-8 rounded-lg bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center shrink-0">
+                                            {renderIcon()}
+                                        </div>
+                                        <span className="min-w-0 flex-1">
+                                            <span className="block text-[13px] font-bold text-slate-700 truncate">
+                                                {org.orgName}
+                                            </span>
+                                            <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide">
+                                                {group.length} Roles
+                                            </span>
+                                        </span>
+                                        <ChevronsUpDown size={13} className="text-slate-400 shrink-0" />
+                                    </button>
+                                    
+                                    {isExpanded && (
+                                        <div className="bg-slate-50/50 py-1">
+                                            {group.map((membership) => {
+                                                const isActive = membership.orgId === activeMembership?.orgId && membership.role === activeMembership?.role;
+                                                return (
+                                                    <button
+                                                        key={`${membership.orgId}-${membership.role}`}
+                                                        onClick={() => handleSwitch(membership)}
+                                                        disabled={Boolean(switchingOrgId)}
+                                                        className="w-full flex items-center gap-3 pl-12 pr-4 py-2 text-left disabled:opacity-60 hover:bg-slate-100 transition-colors"
+                                                    >
+                                                        <div className="w-5 h-5 rounded flex items-center justify-center bg-white border border-slate-200 text-slate-500 shrink-0">
+                                                            {renderIcon(membership.role)}
+                                                        </div>
+                                                        <span className="min-w-0 flex-1">
+                                                            <span className="block text-[11px] font-bold text-slate-600 truncate">
+                                                                {ROLE_LABELS[membership.role] || membership.role}
+                                                            </span>
+                                                        </span>
+                                                        {isActive && <Check size={13} className="text-[var(--brand)] shrink-0" />}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        }
+
+                        const membership = group[0];
+                        const isActive = membership.orgId === activeMembership?.orgId && membership.role === activeMembership?.role;
+
                         return (
                             <button
-                                key={membership.orgId}
+                                key={`${membership.orgId}-${membership.role}`}
                                 onClick={() => handleSwitch(membership)}
                                 disabled={Boolean(switchingOrgId)}
                                 className="w-full flex items-center gap-3 px-4 py-2.5 text-left disabled:opacity-60 hover:bg-slate-50 transition-colors"
                             >
                                 <div className="w-8 h-8 rounded-lg bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center shrink-0">
-                                    {isSwitchingThis ? (
-                                        <Loader2 size={14} className="animate-spin" />
-                                    ) : isLearnerEntry ? (
-                                        <GraduationCap size={14} />
-                                    ) : isCreatorHomeEntry ? (
-                                        <Presentation size={14} />
-                                    ) : (
-                                        <Building2 size={14} />
-                                    )}
+                                    {renderIcon(membership.role)}
                                 </div>
                                 <span className="min-w-0 flex-1">
                                     <span className="block text-[13px] font-bold text-slate-700 truncate">
