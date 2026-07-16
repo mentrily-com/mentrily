@@ -165,7 +165,6 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
         // must not be served stale (30s staleTime) — otherwise the creator
         // dashboard keeps showing "Become a Creator" until the cache expires.
         await queryClient.invalidateQueries({ queryKey: ['workspace-memberships'] });
-        await refetch();
         setOpen(false);
 
         let targetUrl = '/dashboard';
@@ -177,14 +176,15 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
             targetUrl = root === 'localhost' ? 'http://localhost:3000/dashboard' : `https://${root}/dashboard`;
         }
 
-        if (targetUrl.startsWith('http') && !targetUrl.startsWith(window.location.origin)) {
-            window.location.href = targetUrl;
-        } else {
-            // Role can differ per persona — route through the same
-            // role-resolving redirect the app already uses after login rather
-            // than assuming the current page still applies.
-            router.push('/dashboard');
-        }
+        // Always use a full navigation (window.location.href) rather than
+        // router.push. The problem: dashboard/page.tsx's useEffect only fires
+        // when its deps (isSignedIn, clerkLoaded, clerkSignedIn) change — if
+        // the user is already signed in and we router.push('/dashboard'), the
+        // component may already be mounted with the same deps, so the effect
+        // does NOT re-run, leaving the page stuck on the old persona/role.
+        // A hard navigation guarantees a full remount and a clean session
+        // resolution on every workspace switch.
+        window.location.href = targetUrl.startsWith('http') ? targetUrl : '/dashboard';
     };
 
     const handleSwitch = async (membership: WorkspaceMembership) => {
@@ -242,11 +242,8 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
             await AuthService.switchOrg(persona.orgId);
             const root = getRootDomain();
             const targetUrl = root === 'localhost' ? 'http://localhost:3000/dashboard' : `https://${root}/dashboard`;
-            if (targetUrl.startsWith('http') && !targetUrl.startsWith(window.location.origin)) {
-                window.location.href = targetUrl;
-            } else {
-                await landOnDashboard();
-            }
+            // Hard navigate to force a full remount of dashboard/page.tsx.
+            window.location.href = targetUrl;
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to set up your creator workspace');
         } finally {
