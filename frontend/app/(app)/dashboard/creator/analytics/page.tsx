@@ -40,6 +40,7 @@ import {
     GET_CREATOR_TEACHER_PERFORMANCE_MV,
 } from '@/services/graphql/queries';
 import MetricCard from './_components/MetricCard';
+import StorageLeaderboard from './_components/StorageLeaderboard';
 import {
     CourseRow,
     CreatorOverview,
@@ -714,6 +715,15 @@ export default function CreatorAnalyticsPage() {
                     </div>
                 </section>
             </PlanGate>
+
+            {role === 'ADMIN' && (
+                <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 md:p-8 mt-6">
+                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-600 mb-5">
+                        Storage Usage Leaderboard
+                    </h3>
+                    <StorageLeaderboard />
+                </section>
+            )}
 
             {!hasAccess && (
                 <div className="text-center">

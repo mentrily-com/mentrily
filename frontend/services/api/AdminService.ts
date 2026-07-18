@@ -254,4 +254,16 @@ export const AdminService = {
             throw error;
         }
     },
+
+    async getStorageUsers(orgId?: string) {
+        try {
+            const query = orgId ? `?orgId=${orgId}` : '';
+            const res = await authFetch(`/admin/storage/users${query}`);
+            if (!res.ok) throw new Error('Failed to fetch storage users');
+            return await res.json();
+        } catch (error) {
+            console.error('[AdminService] Error fetching storage users', error);
+            throw error;
+        }
+    },
 };
