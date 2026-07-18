@@ -662,6 +662,33 @@ export class AdminService {
     });
   }
 
+  async getUserStorage(user?: any, targetOrgId?: string) {
+    const orgId = this.getEffectiveOrgId(user, targetOrgId);
+
+    const assets = await this.prisma.asset.groupBy({
+      by: ['userId'],
+      where: { orgId, userId: { not: null } },
+      _sum: { sizeBytes: true },
+    });
+
+    const userIds = assets.map((a: any) => a.userId).filter(Boolean) as string[];
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: userIds } },
+      select: { id: true, name: true, email: true, role: true },
+    });
+
+    const userMap = new Map(users.map((u: any) => [u.id, u]));
+
+    const result = assets.map((a: any) => ({
+      userId: a.userId,
+      user: userMap.get(a.userId as string) || null,
+      totalBytes: a._sum.sizeBytes || 0,
+      totalMb: Number(((a._sum.sizeBytes || 0) / (1024 * 1024)).toFixed(2)),
+    }));
+
+    return result.sort((a, b) => b.totalBytes - a.totalBytes);
+  }
+
   async getAnalytics(user?: any, targetOrgId?: string) {
     const orgId = this.getEffectiveOrgId(user, targetOrgId);
 

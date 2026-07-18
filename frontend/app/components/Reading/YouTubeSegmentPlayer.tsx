@@ -37,8 +37,8 @@ export default function YouTubeSegmentPlayer({
 
     const params = new URLSearchParams({ rel: '0', modestbranding: '1', playsinline: '1' });
     const start = Math.max(0, Math.floor(startTimeSeconds || 0));
-    if (start > 0) params.set('start', String(start));
     const end = Math.floor(endTimeSeconds || 0);
+    if (start > 0 || end > start) params.set('start', String(start));
     if (end > start) params.set('end', String(end));
 
     const src = `https://www.youtube-nocookie.com/embed/${safeId}?${params.toString()}`;

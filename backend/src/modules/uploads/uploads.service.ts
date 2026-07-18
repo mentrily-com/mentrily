@@ -138,8 +138,26 @@ export class UploadsService {
       );
     }
 
+    const publicUrl = this.storageService.publicUrl(body.key);
+
+    if (user?.orgId) {
+      await this.prisma.asset.upsert({
+        where: { key: body.key },
+        update: {},
+        create: {
+          orgId: user.orgId,
+          userId: user.id || null,
+          key: body.key,
+          url: publicUrl,
+          sizeBytes: head.contentLength,
+          kind: body.kind,
+          mimeType: head.contentType,
+        },
+      });
+    }
+
     return {
-      url: this.storageService.publicUrl(body.key),
+      url: publicUrl,
       name: body.key.split('/').pop(),
       type: head.contentType,
       size: head.contentLength,

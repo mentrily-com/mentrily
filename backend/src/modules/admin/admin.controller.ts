@@ -44,6 +44,11 @@ export class AdminController {
     return this.adminService.getUsers(user, orgId);
   }
 
+  @Get('storage/users')
+  async getUserStorage(@User() user: any, @Query('orgId') orgId?: string) {
+    return this.adminService.getUserStorage(user, orgId);
+  }
+
   @Post('users')
   @UseGuards(OrgFeaturesGuard)
   @RequireOrgFeature('canManageUsers')

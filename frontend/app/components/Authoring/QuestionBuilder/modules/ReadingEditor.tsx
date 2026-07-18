@@ -139,9 +139,9 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
             setUploadStates((prev) => ({ ...prev, [blockId]: 'error' }));
             return;
         }
-        // Validate size (500MB)
-        if (file.size > 500 * 1024 * 1024) {
-            setUploadErrors((prev) => ({ ...prev, [blockId]: 'File size must be less than 500MB.' }));
+        // Validate size (100MB)
+        if (file.size > 100 * 1024 * 1024) {
+            setUploadErrors((prev) => ({ ...prev, [blockId]: 'File size must be less than 100MB.' }));
             setUploadStates((prev) => ({ ...prev, [blockId]: 'error' }));
             return;
         }
@@ -420,7 +420,7 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
                                                                 Click to upload video
                                                             </p>
                                                             <p className="text-[10px] font-medium text-slate-400 mt-1">
-                                                                MP4, WebM, OGG or MOV · Max 500MB
+                                                                MP4, WebM, OGG or MOV · Max 100MB
                                                             </p>
                                                         </div>
                                                     </button>

@@ -94,9 +94,9 @@ export class Judge0Strategy implements IExecutionStrategy {
     const languageId = this.languageMap[normalizedLanguage];
 
     if (!languageId) {
-      this.logger.warn(`Language not supported by Judge0 mapping: ${language}`);
+      this.logger.warn(`Language not supported by execution engine mapping: ${language}`);
       throw new BadRequestException(
-        `Language '${language}' is not supported by Judge0 on this deployment.`,
+        `Language '${language}' is not supported by the execution engine.`,
       );
     }
 
@@ -160,7 +160,7 @@ export class Judge0Strategy implements IExecutionStrategy {
       const status = error.response?.status;
       const data = error.response?.data;
       this.logger.error(
-        `Judge0 Execution Error [${status}]:`,
+        `Execution Error [${status}]:`,
         data || error.message,
       );
 
@@ -171,7 +171,7 @@ export class Judge0Strategy implements IExecutionStrategy {
       }
 
       throw new InternalServerErrorException(
-        'Failed to execute code via Judge0',
+        'Failed to execute code',
       );
     }
   }

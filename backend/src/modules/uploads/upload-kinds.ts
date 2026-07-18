@@ -32,7 +32,7 @@ const ANNOUNCEMENT_TYPES = [
 export const UPLOAD_KINDS: Record<UploadKind, UploadKindConfig> = {
   'course-video': {
     folder: 'courseVideos',
-    maxSizeBytes: 500 * 1024 * 1024,
+    maxSizeBytes: 100 * 1024 * 1024,
     allowedMime: VIDEO_TYPES,
     countsAgainstQuota: true,
   },

@@ -103,6 +103,7 @@ model User {
   createdCertificateTemplates CertificateTemplate[] @relation("CertificateTemplateCreator")
   assignedCourses     CourseAssignment[] @relation("CourseAssignmentTeacher")
   madeAssignments     CourseAssignment[] @relation("CourseAssignmentAssigner")
+  assets              Asset[]
 
   orgId        String?
   organization Organization? @relation(fields: [orgId], references: [id], onDelete: SetNull)
@@ -452,6 +453,7 @@ model Organization {
   webhookEndpoints   WebhookEndpoint[]
   certificates       Certificate[]
   certificateTemplates CertificateTemplate[]
+  assets             Asset[]
 
   // Groups & Announcements
   studentGroups StudentGroup[]
@@ -798,4 +800,22 @@ model AiUsage {
   @@index([userId, createdAt])
   @@index([provider])
   @@index([operation])
+}
+
+model Asset {
+  id        String   @id @default(uuid())
+  orgId     String
+  userId    String?
+  key       String   @unique
+  url       String
+  sizeBytes Int
+  kind      String
+  mimeType  String?
+  createdAt DateTime @default(now())
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([orgId, userId])
+  @@index([orgId, kind])
 }
