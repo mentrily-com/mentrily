@@ -94,6 +94,34 @@ jobs:
             docker run -d --name redis-server --restart unless-stopped -p 172.17.0.1:6379:6379 redis:alpine || true
           fi
           
+          # Ensure Datadog Agent is running alongside the backend
+          if ! docker ps | grep -q datadog-agent; then
+            docker run -d --name datadog-agent \
+              --restart unless-stopped \
+              --env-file /tmp/backend.env \
+              -v /var/run/docker.sock:/var/run/docker.sock:ro \
+              -v /proc/:/host/proc/:ro \
+              -v /sys/fs/cgroup/:/host/sys/fs/cgroup:ro \
+              -e DD_APM_ENABLED=true \
+              -e DD_APM_NON_LOCAL_TRAFFIC=true \
+              -p 172.17.0.1:8126:8126/tcp \
+              gcr.io/datadoghq/agent:latest || true
+          else
+            # Stop and restart it to pick up any environment variable changes
+            docker stop datadog-agent || true
+            docker rm datadog-agent || true
+            docker run -d --name datadog-agent \
+              --restart unless-stopped \
+              --env-file /tmp/backend.env \
+              -v /var/run/docker.sock:/var/run/docker.sock:ro \
+              -v /proc/:/host/proc/:ro \
+              -v /sys/fs/cgroup/:/host/sys/fs/cgroup:ro \
+              -e DD_APM_ENABLED=true \
+              -e DD_APM_NON_LOCAL_TRAFFIC=true \
+              -p 172.17.0.1:8126:8126/tcp \
+              gcr.io/datadoghq/agent:latest || true
+          fi
+
           docker login -u AWS -p "$ECR_PASSWORD" "$REGISTRY"
           docker pull "$IMAGE_URI"
           
