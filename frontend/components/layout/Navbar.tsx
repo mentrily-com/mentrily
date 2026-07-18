@@ -103,6 +103,8 @@ export default function Navbar() {
                         className="md:hidden p-2 rounded-lg cursor-pointer"
                         style={{ color: '#0F172A' }}
                         aria-label="Toggle menu"
+                        aria-expanded={mobileOpen}
+                        aria-haspopup="menu"
                     >
                         {mobileOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>

@@ -851,6 +851,8 @@ export default function DashboardSidebar({
                             e.currentTarget.style.color = 'var(--color-text-muted)';
                         }}
                         title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                        aria-expanded={!collapsed}
                     >
                         {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
                     </button>
