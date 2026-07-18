@@ -9,6 +9,7 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuidv4 } from 'uuid';
 import { QuotaService } from '../../modules/billing/quota.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class StorageService {
@@ -20,6 +21,7 @@ export class StorageService {
   constructor(
     private configService: ConfigService,
     private quotaService: QuotaService,
+    private prisma: PrismaService,
   ) {
     const region = this.configService.get<string>('S3_REGION') || 'ap-south-1';
     const accessKeyId = this.configService.get<string>('S3_ACCESS_KEY') || '';
@@ -206,6 +208,14 @@ export class StorageService {
           'storageUsedMb',
           deletionSizeMb,
         );
+      }
+
+      try {
+        await this.prisma.asset.deleteMany({
+          where: { key: key },
+        });
+      } catch (assetError) {
+        this.logger.error(`Failed to delete asset record: ${assetError.message}`, assetError.stack);
       }
     } catch (error) {
       this.logger.error(`Failed to delete file: ${error.message}`, error.stack);

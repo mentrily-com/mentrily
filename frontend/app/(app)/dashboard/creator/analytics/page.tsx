@@ -277,6 +277,23 @@ export default function CreatorAnalyticsPage() {
         return <DashboardSkeleton type="main" userRole={role === 'ADMIN' ? 'admin' : 'teacher'} />;
     }
 
+    if (role !== 'ADMIN') {
+        return (
+            <div className="flex flex-col items-center justify-center py-20 text-center space-y-4 font-sans animate-fade-in">
+                <h2 className="text-xl font-bold text-slate-800">Access Restricted</h2>
+                <p className="text-sm text-slate-500 max-w-sm">
+                    Only Organization Admins have access to the Analytics dashboard.
+                </p>
+                <Link
+                    href="/dashboard/creator"
+                    className="text-xs font-black uppercase tracking-widest text-[var(--brand)] hover:underline"
+                >
+                    Back to Dashboard
+                </Link>
+            </div>
+        );
+    }
+
     const source = data || EMPTY_PAYLOAD;
 
     const today = new Date();
