@@ -28,7 +28,7 @@ const useCaseCTAs = [
         title: 'For Sales',
         description: 'Book a 20-min demo call.',
         cta: 'Book a Demo',
-        href: 'https://calendly.com/sumanydv514/consult-with-mentrily',
+        href: 'https://calendly.com/mentrily/consult-with-mentrily',
         external: true,
     },
     {
