@@ -13,14 +13,16 @@ export type OnboardingTourStep = GuideStep & { element: string };
 // mount so there is zero flash between placeholder and real session data.
 const GLOBAL_ONBOARDING_COMPLETED_KEY = 'mentrily_onboarding_completed_v1';
 
-function markOnboardingCompleted() {
+function markOnboardingCompleted(userId?: string) {
     if (typeof window === 'undefined') return;
-    window.localStorage.setItem(GLOBAL_ONBOARDING_COMPLETED_KEY, 'true');
+    const key = userId ? `${GLOBAL_ONBOARDING_COMPLETED_KEY}_${userId}` : GLOBAL_ONBOARDING_COMPLETED_KEY;
+    window.localStorage.setItem(key, 'true');
 }
 
-function isOnboardingCompletedCached() {
+function isOnboardingCompletedCached(userId?: string) {
     if (typeof window === 'undefined') return false;
-    return window.localStorage.getItem(GLOBAL_ONBOARDING_COMPLETED_KEY) === 'true';
+    const key = userId ? `${GLOBAL_ONBOARDING_COMPLETED_KEY}_${userId}` : GLOBAL_ONBOARDING_COMPLETED_KEY;
+    return window.localStorage.getItem(key) === 'true';
 }
 
 export default function OnboardingTour({
@@ -62,15 +64,16 @@ export default function OnboardingTour({
     const stepsLength = steps.length;
 
     const hasCompletedOnboarding = Boolean((session as any)?.hasCompletedOnboarding);
+    const userId = (session as any)?.id;
 
     // Sync the localStorage fast-path cache as soon as the real session
     // confirms completion — so the NEXT page load suppresses the tour
     // immediately without waiting for the session fetch.
     useEffect(() => {
         if (!isPlaceholderData && hasCompletedOnboarding) {
-            markOnboardingCompleted();
+            markOnboardingCompleted(userId);
         }
-    }, [hasCompletedOnboarding, isPlaceholderData]);
+    }, [hasCompletedOnboarding, isPlaceholderData, userId]);
 
     useEffect(() => {
         if (
@@ -91,7 +94,7 @@ export default function OnboardingTour({
         // it), suppress every tour unconditionally — ignoreUserOnboardingFlag
         // no longer bypasses this because it caused tours to fire repeatedly
         // on every login across devices/incognito/hard-refresh.
-        if (hasCompletedOnboarding || isOnboardingCompletedCached()) {
+        if (hasCompletedOnboarding || isOnboardingCompletedCached(userId)) {
             // Keep per-tour localStorage in sync so the secondary gate also
             // suppresses without relying on a live session fetch.
             if (!repeatUntilSkipped) {
@@ -156,7 +159,7 @@ export default function OnboardingTour({
                         await AuthService.completeOnboarding();
                         // Cache the completion immediately so subsequent page
                         // loads don't wait for a session fetch to suppress the tour.
-                        markOnboardingCompleted();
+                        markOnboardingCompleted(userId);
                         await refetch();
                     } catch (error) {
                         console.error('Failed to persist onboarding completion', error);
@@ -189,6 +192,7 @@ export default function OnboardingTour({
         stepsLength,
         storageKey,
         tourId,
+        userId,
     ]);
 
     return null;

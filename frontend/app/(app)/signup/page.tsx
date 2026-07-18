@@ -495,12 +495,6 @@ export default function SignupPage() {
                     <div className="w-full rounded-3xl border border-white/70 bg-white/90 p-6 shadow-2xl shadow-slate-200/80 backdrop-blur sm:p-8">
                         {/* Heading */}
                         <div className="mb-8">
-                            <div className="inline-flex items-center justify-center gap-1.5 mb-4 px-3 py-1 text-xs font-semibold rounded-full border" style={{ backgroundColor: '#F0FDFA', borderColor: '#99F6E4', color: '#0F766E' }}>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#14B8A6" stroke="none" />
-                                </svg>
-                                Beta Tester
-                            </div>
                             <h1 className="text-2xl font-bold tracking-tight mb-1.5" style={{ color: '#0F172A' }}>
                                 {pendingVerification
                                     ? 'Verify your email'
