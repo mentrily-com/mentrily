@@ -8,7 +8,7 @@ import { z } from 'zod';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { siteConfig } from '../../config/site';
-import { Mail, MessageSquare, FileText, Handshake, Check, Loader2, ArrowRight } from 'lucide-react';
+import { MessageSquare, FileText, Handshake, Check, Loader2, ArrowRight } from 'lucide-react';
 
 
 const _contactSchema = z.object({
@@ -293,22 +293,7 @@ function ContactForm() {
                         transition={{ delay: 0.2, duration: 0.5 }}
                         className="space-y-8"
                     >
-                        {/* Email */}
-                        <div>
-                            <div className="flex items-center gap-2 mb-3">
-                                <Mail size={18} style={{ color: '#008D98' }} />
-                                <h3 className="text-sm font-semibold" style={{ color: '#0F172A' }}>
-                                    Email
-                                </h3>
-                            </div>
-                            <a
-                                href={`mailto:support@${siteConfig.domain}`}
-                                className="text-sm transition-colors duration-150 cursor-pointer"
-                                style={{ color: '#008D98' }}
-                            >
-                                support@{siteConfig.domain}
-                            </a>
-                        </div>
+
 
                         {/* Use-case CTA cards */}
                         <div className="space-y-3">
