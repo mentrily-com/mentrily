@@ -3,3 +3,13 @@
 __pycache__/
 *.py[cod]
 mentrily_mvp.xml
+
+# Ignore sensitive and temporary files
+clerk-prod.env
+docker-inspect.json
+judge0-ce-dc.yml
+judge0.zip
+new_judge0_ip.txt
+launch_judge0_ubuntu20.sh
+userdata.sh
+course-demo/
