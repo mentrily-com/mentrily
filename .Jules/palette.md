@@ -1,0 +1,3 @@
+## 2024-07-20 - Adding Accessibility Attributes to Topbar Dropdown Menus
+**Learning:** Custom interactive dropdown toggles and hamburger menus in this app often lack `aria-expanded` and `aria-haspopup` attributes, which are crucial for screen readers to properly understand and communicate the state of the dropdown menus (especially for screen readers processing interactive dropdown menus).
+**Action:** When creating or updating custom interactive dropdown toggles and hamburger menus in the frontend, ensure that `aria-haspopup="menu"` and a dynamic `aria-expanded` state tied to their open/close state is included for screen reader accessibility.
