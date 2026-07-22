@@ -1,0 +1,4 @@
+## 2026-07-22 - SSRF Vulnerability in Webhook Processing
+**Vulnerability:** Found a Server-Side Request Forgery (SSRF) vulnerability in `backend/src/modules/webhook/webhook.processor.ts` where unauthenticated HTTP requests are made to user-provided webhook URLs without validating internal IPs.
+**Learning:** This existed because the Webhook URLs weren't validated against forbidden hostnames or private IPv4 network ranges during creation or updates. Relying on simple string matching (like `startsWith('10.')`) is flawed since it can block valid external domains and be bypassed. Using `URL` parsing helps normalize IPs, preventing basic bypasses like hex/octal encodings.
+**Prevention:** Implement comprehensive URL validation for any user-provided URL that the server fetches. Ensure proper checks for localhost, loopbacks, and private IPv4 ranges (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, etc.) using parsed components rather than naive string prefixes.

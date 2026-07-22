@@ -35,13 +35,64 @@ export class WebhookService {
     return this.prisma as any;
   }
 
+  private validateWebhookUrl(url: string) {
+    let parsed: URL;
+    try {
+      parsed = new URL(url);
+    } catch {
+      throw new BadRequestException('Invalid webhook URL format');
+    }
+
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
+      throw new BadRequestException('Webhook URL must use HTTP or HTTPS');
+    }
+
+    const hostname = parsed.hostname;
+
+    // Check for IP address and deny any internal ranges and loopbacks
+    const isIPv4 = /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname);
+    if (isIPv4) {
+      const parts = hostname.split('.').map(Number);
+      if (
+        parts.length !== 4 ||
+        parts.some((p) => p < 0 || p > 255)
+      ) {
+        throw new BadRequestException('Invalid IPv4 address');
+      }
+
+      const [p1, p2] = parts;
+
+      if (
+        p1 === 0 || // 0.0.0.0/8
+        p1 === 10 || // 10.0.0.0/8
+        p1 === 127 || // 127.0.0.0/8 loopback
+        (p1 === 172 && p2 >= 16 && p2 <= 31) || // 172.16.0.0/12
+        (p1 === 192 && p2 === 168) || // 192.168.0.0/16
+        (p1 === 169 && p2 === 254) // 169.254.0.0/16 Link local
+      ) {
+        throw new BadRequestException('Webhook URL points to internal IP');
+      }
+    }
+
+    if (
+      hostname === 'localhost' ||
+      hostname.endsWith('.localhost') ||
+      hostname === '[::1]'
+    ) {
+      throw new BadRequestException('Webhook URL points to loopback');
+    }
+  }
+
   async create(user: any, dto: CreateWebhookDto) {
     const orgId = this.getOrgId(user);
+    const url = dto.url.trim();
+
+    this.validateWebhookUrl(url);
 
     const endpoint = await this.prismaAny.webhookEndpoint.create({
       data: {
         orgId,
-        url: dto.url.trim(),
+        url,
         secret: randomBytes(24).toString('hex'),
         events: dto.events,
         isActive: dto.isActive ?? true,
@@ -79,7 +130,11 @@ export class WebhookService {
     }
 
     const data: any = {};
-    if (typeof dto.url === 'string') data.url = dto.url.trim();
+    if (typeof dto.url === 'string') {
+      const url = dto.url.trim();
+      this.validateWebhookUrl(url);
+      data.url = url;
+    }
     if (Array.isArray(dto.events)) data.events = dto.events;
     if (typeof dto.isActive === 'boolean') data.isActive = dto.isActive;
 
