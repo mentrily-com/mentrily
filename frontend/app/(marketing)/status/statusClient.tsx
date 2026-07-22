@@ -3,7 +3,7 @@
 import { motion } from 'motion/react';
 import { useInView } from 'react-intersection-observer';
 import { MarketingPageHeader } from '@/components/layout/MarketingPageHeader';
-import { CheckCircle2, Clock, Globe } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 
 const systems = [
     { name: 'Marketing Website', status: 'Operational', uptime: '99.99%' },
