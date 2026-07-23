@@ -55,6 +55,10 @@ export function LandingNavbar() {
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
+                            aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+                            aria-expanded={isMobileMenuOpen}
+                            aria-haspopup="menu"
+                            aria-controls="mobile-menu"
                         >
                             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                         </button>
@@ -65,6 +69,7 @@ export function LandingNavbar() {
             {/* Mobile Menu */}
             {isMobileMenuOpen && (
                 <motion.div
+                    id="mobile-menu"
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
