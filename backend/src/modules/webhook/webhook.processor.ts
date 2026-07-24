@@ -1,3 +1,4 @@
+import { getSafeIPFromUrl } from '../../utils/security.util';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { createHmac } from 'crypto';
@@ -33,11 +34,23 @@ export class WebhookProcessor extends WorkerHost {
       .update(body)
       .digest('hex');
 
-    const response = await fetch(String(endpoint.url), {
+    const urlString = String(endpoint.url);
+    const safeIp = await getSafeIPFromUrl(urlString);
+    if (!safeIp) {
+      this.logger.warn(`Blocked SSRF attempt to URL: ${urlString}`);
+      throw new Error('Invalid or unsafe webhook URL');
+    }
+
+    const parsedUrl = new URL(urlString);
+    const targetUrl = new URL(urlString);
+    targetUrl.hostname = safeIp; // Prevent DNS rebinding TOCTOU
+
+    const response = await fetch(targetUrl.toString(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Webhook-Signature': signature,
+        Host: parsedUrl.host, // Preserve original host for routing
       },
       body,
     });
