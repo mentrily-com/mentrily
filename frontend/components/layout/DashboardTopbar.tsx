@@ -202,6 +202,8 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
                         <button
                             onClick={onMobileMenuClick}
                             className="p-1.5 -ml-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                            aria-label="Toggle mobile menu"
+                            aria-haspopup="menu"
                         >
                             <Menu size={20} />
                         </button>
@@ -318,6 +320,8 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
                             className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-semibold text-sm overflow-hidden cursor-pointer shrink-0"
                             style={{ backgroundColor: 'var(--brand, #008D98)' }}
                             aria-label="Profile menu"
+                            aria-expanded={profileOpen}
+                            aria-haspopup="menu"
                         >
                             {avatarUrl ? (
                                 // eslint-disable-next-line @next/next/no-img-element
@@ -332,7 +336,9 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
                             onClick={() => setProfileOpen(!profileOpen)}
                             className="hidden sm:flex w-5 h-5 items-center justify-center cursor-pointer"
                             style={{ color: 'var(--color-text-muted)' }}
-                            aria-label="Toggle profile"
+                            aria-label="Toggle profile menu"
+                            aria-expanded={profileOpen}
+                            aria-haspopup="menu"
                         >
                             <ChevronDown
                                 size={14}
