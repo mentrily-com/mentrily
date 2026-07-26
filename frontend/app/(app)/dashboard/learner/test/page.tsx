@@ -190,7 +190,11 @@ export default function TestAttemptsPage() {
                 {/* PAGINATION */}
                 <div className="mt-8 flex items-center justify-center gap-4">
                     <div className="flex items-center gap-2">
-                        <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                        <button
+                            className="p-2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] rounded-md transition-colors"
+                            aria-label="Previous page"
+                            title="Previous page"
+                        >
                             <svg
                                 width="18"
                                 height="18"
@@ -204,10 +208,17 @@ export default function TestAttemptsPage() {
                                 <path d="m15 18-6-6 6-6" />
                             </svg>
                         </button>
-                        <div className="w-8 h-8 rounded-lg bg-white border-2 border-[var(--brand)] flex items-center justify-center text-[var(--brand)] font-black text-sm">
+                        <div
+                            className="w-8 h-8 rounded-lg bg-white border-2 border-[var(--brand)] flex items-center justify-center text-[var(--brand)] font-black text-sm"
+                            aria-current="page"
+                        >
                             1
                         </div>
-                        <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                        <button
+                            className="p-2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] rounded-md transition-colors"
+                            aria-label="Next page"
+                            title="Next page"
+                        >
                             <svg
                                 width="18"
                                 height="18"
@@ -224,7 +235,13 @@ export default function TestAttemptsPage() {
                     </div>
 
                     <div className="flex items-center gap-2 ml-4">
-                        <div className="px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-slate-100 transition-colors">
+                        <button
+                            className="px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-lg flex items-center gap-2 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] transition-colors"
+                            aria-haspopup="listbox"
+                            aria-expanded="false"
+                            aria-label="Items per page"
+                            title="Items per page"
+                        >
                             <span className="text-xs font-bold text-slate-600">10 / page</span>
                             <svg
                                 width="12"
@@ -239,7 +256,7 @@ export default function TestAttemptsPage() {
                             >
                                 <path d="m6 9 6 6 6-6" />
                             </svg>
-                        </div>
+                        </button>
                     </div>
                 </div>
             </main>

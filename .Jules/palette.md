@@ -1,0 +1,3 @@
+## 2024-07-26 - Missing Aria Labels and Semantic HTML for Interactive Elements
+**Learning:** Found that custom dropdown toggles are sometimes implemented as `div`s with `cursor-pointer` instead of semantic `button`s. Also observed icon-only pagination buttons lacking `aria-label` attributes for screen readers.
+**Action:** Always replace interactive `div` elements with semantic `button` elements, ensuring `aria-haspopup` and `aria-expanded` attributes are used correctly for dropdowns. Add `aria-label` and `title` attributes to all icon-only interactive elements to improve accessibility and user experience. Ensure focus styles for keyboard navigation are included via `focus-visible`.
