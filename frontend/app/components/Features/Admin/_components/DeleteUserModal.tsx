@@ -24,7 +24,11 @@ export default function DeleteUserModal({ user, onClose, onConfirm }: DeleteUser
                     <div className="w-16 h-16 rounded-[24px] bg-rose-50 flex items-center justify-center text-rose-500">
                         <AlertTriangle size={32} />
                     </div>
-                    <button onClick={onClose} className="p-2 text-slate-300 hover:text-slate-900 transition-colors">
+                    <button
+                        onClick={onClose}
+                        aria-label="Close modal"
+                        className="p-2 text-slate-300 hover:text-slate-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 rounded-md"
+                    >
                         <X size={24} />
                     </button>
                 </div>

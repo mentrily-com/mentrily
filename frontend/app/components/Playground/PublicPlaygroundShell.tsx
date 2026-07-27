@@ -93,13 +93,19 @@ export default function PublicPlaygroundShell({
                             <PublicPlaygroundProfile />
                         </div>
 
-                        <button onClick={() => setOpen(!open)} className="rounded-lg p-2 text-slate-500 md:hidden">
+                        <button
+                            onClick={() => setOpen(!open)}
+                            aria-expanded={open}
+                            aria-controls="playground-mobile-menu"
+                            aria-label="Toggle playground menu"
+                            className="rounded-lg p-2 text-slate-500 md:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                        >
                             {open ? <X size={22} /> : <Menu size={22} />}
                         </button>
                     </div>
 
                     {open && (
-                        <div className="border-t border-slate-100 bg-white px-4 py-3 md:hidden">
+                        <div id="playground-mobile-menu" className="border-t border-slate-100 bg-white px-4 py-3 md:hidden">
                             <div className="grid gap-2">
                                 {playgroundItems.map((item) => {
                                     const Icon = item.icon;
@@ -266,7 +272,9 @@ function PublicPlaygroundProfile({ mobile = false }: { mobile?: boolean }) {
             <button
                 type="button"
                 onClick={() => setOpen((value) => !value)}
-                className="flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-left shadow-sm transition hover:border-slate-300"
+                aria-haspopup="menu"
+                aria-expanded={open}
+                className="flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-left shadow-sm transition hover:border-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
             >
                 <span className="flex min-w-0 items-center gap-2.5">
                     <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[var(--brand)] text-xs font-black text-white">

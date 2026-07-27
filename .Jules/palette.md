@@ -1,0 +1,3 @@
+## 2026-07-27 - Custom Toggles & Dropdowns Accessibility
+**Learning:** Custom interactive elements (like custom hamburger menus and user profile dropdowns) often lack native accessibility attributes that indicate their state or purpose.
+**Action:** Always ensure that icon-only buttons have an `aria-label`, and interactive toggles/dropdowns use `aria-expanded` (tied to their open state) and `aria-haspopup="menu"`. Ensure keyboard navigation is properly supported by using `focus-visible` styling (e.g., `focus-visible:ring-2 focus-visible:outline-none`).
