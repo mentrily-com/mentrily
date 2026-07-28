@@ -2,6 +2,7 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { createHmac } from 'crypto';
 import { Injectable, Logger } from '@nestjs/common';
+import * as dns from 'dns/promises';
 
 @Processor('webhook-dispatch', {
   stalledInterval: 300000,
@@ -33,13 +34,61 @@ export class WebhookProcessor extends WorkerHost {
       .update(body)
       .digest('hex');
 
-    const response = await fetch(String(endpoint.url), {
+    const urlStr = String(endpoint.url);
+    let urlObj;
+    try {
+      urlObj = new URL(urlStr);
+    } catch (e) {
+      throw new Error(`Invalid webhook URL`);
+    }
+
+    // SSRF Protection: Resolve hostname to IP to check against private/internal ranges
+    let lookupResult;
+    try {
+      lookupResult = await dns.lookup(urlObj.hostname);
+    } catch (e) {
+      throw new Error(`Invalid webhook hostname: unable to resolve`);
+    }
+    const ip = lookupResult.address;
+
+    const isPrivateIp = (ipAddr: string) => {
+      return (
+        ipAddr === '127.0.0.1' ||
+        ipAddr === '::1' ||
+        ipAddr.startsWith('10.') ||
+        ipAddr.startsWith('192.168.') ||
+        /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(ipAddr) ||
+        ipAddr.startsWith('169.254.') ||
+        ipAddr.startsWith('fd') ||
+        ipAddr.startsWith('fe80')
+      );
+    };
+
+    if (isPrivateIp(ip)) {
+      throw new Error('Blocked: Attempted to access internal network');
+    }
+
+    // Prevent TOCTOU (DNS Rebinding) by fetching via the resolved IP
+    // Since node doesn't natively expose DNS override in global fetch easily for HTTPS (SNI issues)
+    // we use `undici` dynamically which is Node.js's underlying fetch engine.
+    const { fetch: undiciFetch, Agent } = await import('undici');
+
+    const agent = new Agent({
+      connect: {
+        lookup: (hostname, options, callback) => {
+          callback(null, [{ address: ip, family: lookupResult.family || 4 }]);
+        }
+      }
+    });
+
+    const response = await undiciFetch(urlStr, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Webhook-Signature': signature,
       },
       body,
+      dispatcher: agent,
     });
 
     if (!response.ok) {
