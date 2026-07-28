@@ -100,9 +100,11 @@ export default function Navbar() {
                     {/* Mobile Hamburger */}
                     <button
                         onClick={() => setMobileOpen(!mobileOpen)}
-                        className="md:hidden p-2 rounded-lg cursor-pointer"
+                        className="md:hidden p-2 rounded-lg cursor-pointer focus-visible:ring-2 focus-visible:outline-none"
                         style={{ color: '#0F172A' }}
                         aria-label="Toggle menu"
+                        aria-expanded={mobileOpen}
+                        aria-haspopup="menu"
                     >
                         {mobileOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>

@@ -54,7 +54,10 @@ export function LandingNavbar() {
                     <div className="md:hidden">
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
+                            className="p-2 text-gray-600 hover:text-blue-600 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:outline-none"
+                            aria-label="Toggle menu"
+                            aria-expanded={isMobileMenuOpen}
+                            aria-haspopup="menu"
                         >
                             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                         </button>

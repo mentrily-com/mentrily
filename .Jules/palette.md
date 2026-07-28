@@ -1,0 +1,3 @@
+## 2024-05-18 - Icon-Only Button Accessibility Pattern
+**Learning:** Found a common pattern in the layout components (`Navbar`, `DashboardTopbar`, `DashboardSidebar`) where interactive icon-only buttons (like hamburger menus, profile dropdown toggles, and sidebar collapse buttons) lacked screen reader context and proper keyboard navigation visual feedback.
+**Action:** When implementing or modifying custom interactive elements (buttons that don't have text), always ensure they have an `aria-label` or `aria-labelledby`, an `aria-expanded` state if they control a collapsible region, an `aria-haspopup="menu"` if they open a menu, and `focus-visible:ring-2 focus-visible:outline-none` classes to provide clear keyboard focus indicators.

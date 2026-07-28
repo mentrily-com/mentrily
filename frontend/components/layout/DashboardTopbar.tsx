@@ -201,7 +201,9 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
                     <div className="lg:hidden flex min-w-0 items-center gap-2">
                         <button
                             onClick={onMobileMenuClick}
-                            className="p-1.5 -ml-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                            className="p-1.5 -ml-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer focus-visible:ring-2 focus-visible:outline-none"
+                            aria-label="Toggle mobile menu"
+                            aria-haspopup="menu"
                         >
                             <Menu size={20} />
                         </button>
@@ -315,9 +317,11 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
                         {/* Avatar */}
                         <button
                             onClick={() => setProfileOpen(!profileOpen)}
-                            className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-semibold text-sm overflow-hidden cursor-pointer shrink-0"
+                            className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-semibold text-sm overflow-hidden cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:outline-none"
                             style={{ backgroundColor: 'var(--brand, #008D98)' }}
                             aria-label="Profile menu"
+                            aria-expanded={profileOpen}
+                            aria-haspopup="menu"
                         >
                             {avatarUrl ? (
                                 // eslint-disable-next-line @next/next/no-img-element

@@ -836,7 +836,9 @@ export default function DashboardSidebar({
                 <div className="shrink-0 px-2.5 pb-3 hidden lg:block">
                     <button
                         onClick={() => setCollapsed(!collapsed)}
-                        className="w-full flex items-center justify-center rounded-lg transition-all duration-150 cursor-pointer"
+                        className="w-full flex items-center justify-center rounded-lg transition-all duration-150 cursor-pointer focus-visible:ring-2 focus-visible:outline-none"
+                        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                        aria-expanded={!collapsed}
                         style={{
                             height: 36,
                             backgroundColor: 'var(--color-bg-muted)',
