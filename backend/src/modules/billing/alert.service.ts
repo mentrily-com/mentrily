@@ -23,7 +23,7 @@ export class AlertService {
         storageAlertSent: true,
         billingEmail: true,
       },
-    } as any)) as any;
+    })) as any;
 
     if (!org) return;
     if (org.storageAlertSent) return;
@@ -38,7 +38,7 @@ export class AlertService {
     const reserved = await this.prisma.organization.updateMany({
       where: { id: org.id, storageAlertSent: false },
       data: { storageAlertSent: true },
-    } as any);
+    });
 
     if (!reserved.count) return;
 
@@ -56,7 +56,7 @@ export class AlertService {
       await this.prisma.organization.update({
         where: { id: org.id },
         data: { storageAlertSent: false },
-      } as any);
+      });
     }
   }
 
@@ -71,7 +71,7 @@ export class AlertService {
         studentAlertSent: true,
         billingEmail: true,
       },
-    } as any)) as any;
+    })) as any;
 
     if (!org) return;
     if (org.studentAlertSent) return;
@@ -86,7 +86,7 @@ export class AlertService {
     const reserved = await this.prisma.organization.updateMany({
       where: { id: org.id, studentAlertSent: false },
       data: { studentAlertSent: true },
-    } as any);
+    });
 
     if (!reserved.count) return;
 
@@ -104,7 +104,7 @@ export class AlertService {
       await this.prisma.organization.update({
         where: { id: org.id },
         data: { studentAlertSent: false },
-      } as any);
+      });
     }
   }
 }

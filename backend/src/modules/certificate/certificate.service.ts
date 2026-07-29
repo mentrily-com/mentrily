@@ -11,6 +11,8 @@ import { randomUUID } from 'crypto';
 import QRCode from 'qrcode';
 import sharp from 'sharp';
 import { nanoid } from 'nanoid';
+import * as dns from 'dns';
+import { promisify } from 'util';
 import {
   CreateTemplateDto,
   UpdateTemplateDto,
@@ -31,6 +33,94 @@ export class CertificateService {
 
   private get prisma() {
     return this.supabase.legacyPrisma;
+  }
+
+  private isPrivateIP(ip: string): boolean {
+    const parts = ip.split('.').map(Number);
+    if (parts.length !== 4 || parts.some(isNaN)) return false;
+
+    return (
+      parts[0] === 10 ||
+      (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) ||
+      (parts[0] === 192 && parts[1] === 168) ||
+      parts[0] === 127 ||
+      parts[0] === 0 ||
+      (parts[0] === 169 && parts[1] === 254)
+    );
+  }
+
+  private async safeGetBuffer(url: string, timeoutMs: number): Promise<Buffer> {
+    const parsedUrl = new URL(url);
+    if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+      throw new Error('Invalid protocol');
+    }
+
+    const lookup = promisify(dns.lookup);
+    const { address, family } = await lookup(parsedUrl.hostname);
+
+    if (
+      family === 6 &&
+      (address === '::1' ||
+        address.toLowerCase().startsWith('fc') ||
+        address.toLowerCase().startsWith('fd') ||
+        address.toLowerCase().startsWith('fe80'))
+    ) {
+      throw new Error('Access to private IPv6 is denied');
+    }
+
+    if (family === 4 && this.isPrivateIP(address)) {
+      throw new Error('Access to private IP is denied');
+    }
+
+    const safeUrlString = url;
+    if (parsedUrl.protocol === 'https:') {
+      // In Node/Axios, replacing the hostname with an IP address in the URL will cause SNI (Server Name Indication)
+      // matching to fail if we don't also override the `servername` in httpsAgent.
+      // Easiest is to stick to using the original hostname in the URL and override `lookup` instead,
+      // but Axios doesn't provide a clean `lookup` override in its config.
+      // Wait, we can supply a custom httpsAgent.
+      const https = require('https');
+      const agent = new https.Agent({
+        lookup: (hostname: string, options: any, callback: any) => {
+          if (hostname === parsedUrl.hostname) {
+            callback(null, address, family);
+          } else {
+            dns.lookup(hostname, options, callback);
+          }
+        },
+      });
+
+      const response = await axios.get(url, {
+        responseType: 'arraybuffer',
+        timeout: timeoutMs,
+        maxRedirects: 0,
+        httpsAgent: agent,
+      });
+
+      return Buffer.from(response.data);
+    } else {
+      const http = require('http');
+      const agent = new http.Agent({
+        lookup: (hostname: string, options: any, callback: any) => {
+          if (hostname === parsedUrl.hostname) {
+            callback(null, address, family);
+          } else {
+            dns.lookup(hostname, options, callback);
+          }
+        },
+      });
+
+      const response = await axios.get(url, {
+        responseType: 'arraybuffer',
+        timeout: timeoutMs,
+        maxRedirects: 0,
+        httpAgent: agent,
+      });
+
+      return Buffer.from(response.data);
+    }
+
+    return Buffer.from(response.data);
   }
 
   private requireOrgId(orgId?: string | null): string {
@@ -142,14 +232,14 @@ export class CertificateService {
       ? Number(block.width)
       : fallback.width;
     const align =
-      typeof block?.align === 'string' ? block.align : (fallback.align ?? 'left');
+      typeof block?.align === 'string'
+        ? block.align
+        : (fallback.align ?? 'left');
     const fontSize = Number.isFinite(Number(block?.fontSize))
       ? Number(block.fontSize)
       : 14;
     const color =
-      typeof block?.color === 'string' && block.color
-        ? block.color
-        : '#0F172A';
+      typeof block?.color === 'string' && block.color ? block.color : '#0F172A';
 
     doc.fontSize(fontSize).fillColor(color);
     if (width) {
@@ -183,11 +273,10 @@ export class CertificateService {
 
       if (params.template?.backgroundUrl) {
         try {
-          const backgroundResp = await axios.get(params.template.backgroundUrl, {
-            responseType: 'arraybuffer',
-            timeout: 8000,
-          });
-          const background = Buffer.from(backgroundResp.data);
+          const background = await this.safeGetBuffer(
+            params.template.backgroundUrl,
+            8000,
+          );
           doc.image(background, 0, 0, {
             fit: [doc.page.width, doc.page.height],
           });
@@ -206,11 +295,7 @@ export class CertificateService {
 
       if (params.orgLogo) {
         try {
-          const response = await axios.get(params.orgLogo, {
-            responseType: 'arraybuffer',
-            timeout: 6000,
-          });
-          const imageBuffer = Buffer.from(response.data);
+          const imageBuffer = await this.safeGetBuffer(params.orgLogo, 6000);
           const logoBlock = {
             ...layout.logo,
             ...(params.template?.logoPosition || {}),
@@ -262,17 +347,12 @@ export class CertificateService {
         },
       );
 
-      this.drawText(
-        doc,
-        params.studentName || 'Student',
-        layout.studentName,
-        {
-          x: 0,
-          y: 238,
-          width: 595,
-          align: 'center',
-        },
-      );
+      this.drawText(doc, params.studentName || 'Student', layout.studentName, {
+        x: 0,
+        y: 238,
+        width: 595,
+        align: 'center',
+      });
 
       const descriptor =
         params.type === 'course'
@@ -318,11 +398,10 @@ export class CertificateService {
 
       if (params.template?.signatureUrl && layout.signature) {
         try {
-          const signatureResp = await axios.get(params.template.signatureUrl, {
-            responseType: 'arraybuffer',
-            timeout: 6000,
-          });
-          const signatureBuffer = Buffer.from(signatureResp.data);
+          const signatureBuffer = await this.safeGetBuffer(
+            params.template.signatureUrl,
+            6000,
+          );
           const sigX = Number.isFinite(Number(layout.signature?.x))
             ? Number(layout.signature.x)
             : 438;
@@ -396,7 +475,11 @@ export class CertificateService {
     return template;
   }
 
-  async createTemplate(orgId: string, creatorId: string, dto: CreateTemplateDto) {
+  async createTemplate(
+    orgId: string,
+    creatorId: string,
+    dto: CreateTemplateDto,
+  ) {
     const resolvedOrgId = this.requireOrgId(orgId);
 
     if (!dto?.name?.trim()) {

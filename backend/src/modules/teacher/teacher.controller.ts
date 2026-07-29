@@ -190,18 +190,13 @@ export class TeacherController {
     },
     @User() user: any,
   ) {
-    return this.teacherService.linkExamToCourse(
-      id,
-      data.examId,
-      user,
-      {
-        examPassThreshold: data.examPassThreshold,
-        examUnlockThreshold: data.examUnlockThreshold,
-        passingPercentage: data.passingPercentage,
-        maxAttempts: data.maxAttempts,
-        attemptBufferMins: data.attemptBufferMins,
-      },
-    );
+    return this.teacherService.linkExamToCourse(id, data.examId, user, {
+      examPassThreshold: data.examPassThreshold,
+      examUnlockThreshold: data.examUnlockThreshold,
+      passingPercentage: data.passingPercentage,
+      maxAttempts: data.maxAttempts,
+      attemptBufferMins: data.attemptBufferMins,
+    });
   }
 
   @Delete('courses/:id/unlink-exam')
@@ -438,5 +433,4 @@ export class TeacherController {
   async deleteAnnouncement(@Param('id') id: string, @User() user: any) {
     return this.teacherService.deleteAnnouncement(id, user);
   }
-
 }

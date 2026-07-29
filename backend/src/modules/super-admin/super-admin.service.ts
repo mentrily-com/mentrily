@@ -182,10 +182,7 @@ export class SuperAdminService {
     });
 
     return organizations.map((org) => {
-      const limits = getEffectivePlanLimits(
-        (org.plan as PlanKey) || 'FREE',
-        org.features,
-      );
+      const limits = getEffectivePlanLimits(org.plan || 'FREE', org.features);
 
       const studentLimit = Number(limits.students || 0);
       const storageLimit = Number(limits.storageMb || 0);
@@ -251,7 +248,7 @@ export class SuperAdminService {
     return {
       ...organization,
       limits: getEffectivePlanLimits(
-        (organization.plan as PlanKey) || 'FREE',
+        organization.plan || 'FREE',
         organization.features,
       ),
       adminCount,
@@ -265,7 +262,6 @@ export class SuperAdminService {
     if (adminEmail) {
       // We now allow existing users to be invited as admins to new organizations
       // since multi-org memberships are supported and Clerk handles ignoreExisting: true.
-
     }
 
     try {
@@ -404,7 +400,7 @@ export class SuperAdminService {
                 name: data.adminName || 'Admin',
                 source: 'mentrily_org_bootstrap',
               },
-            } as any);
+            });
 
             await this.prisma.pendingInvite.update({
               where: { id: pendingInvite.id },
@@ -468,9 +464,11 @@ export class SuperAdminService {
     if (data.name !== undefined) safeData.name = data.name;
     if (data.domain !== undefined) safeData.domain = data.domain;
     if (data.slug !== undefined) safeData.slug = data.slug;
-    if (data.customDomain !== undefined) safeData.customDomain = data.customDomain;
+    if (data.customDomain !== undefined)
+      safeData.customDomain = data.customDomain;
     if (data.logo !== undefined) safeData.logo = data.logo;
-    if (data.primaryColor !== undefined) safeData.primaryColor = data.primaryColor;
+    if (data.primaryColor !== undefined)
+      safeData.primaryColor = data.primaryColor;
     if (data.status !== undefined) safeData.status = data.status;
     if (data.maxUsers !== undefined) safeData.maxUsers = Number(data.maxUsers);
     if (data.maxAdminSeats !== undefined) {
@@ -765,23 +763,23 @@ export class SuperAdminService {
             data: { orgId: normalizedTargetOrgId },
           }),
           tx.courseTest.updateMany({
-            where: { 
+            where: {
               orgId: sourceOrgId,
-              courseId: { in: courseIds }
+              courseId: { in: courseIds },
             },
             data: { orgId: normalizedTargetOrgId },
           }),
           tx.studentGroup.updateMany({
-            where: { 
+            where: {
               orgId: sourceOrgId,
-              teacherId: normalizedUserId
+              teacherId: normalizedUserId,
             },
             data: { orgId: normalizedTargetOrgId },
           }),
           tx.announcement.updateMany({
-            where: { 
+            where: {
               orgId: sourceOrgId,
-              teacherId: normalizedUserId
+              teacherId: normalizedUserId,
             },
             data: { orgId: normalizedTargetOrgId },
           }),

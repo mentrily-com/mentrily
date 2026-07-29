@@ -13,7 +13,6 @@ import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Redis } from 'ioredis';
 import { SubmissionService } from '../submission/submission.service';
 import { SupabaseService } from '../../services/supabase/supabase.service';
-import { WsException } from '@nestjs/websockets';
 import { verifyToken } from '@clerk/backend';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { OnModuleDestroy } from '@nestjs/common';
@@ -217,8 +216,8 @@ export class MonitoringGateway
 
     return Boolean(
       membership &&
-        membership.status === 'ACTIVE' &&
-        (membership.role === 'TEACHER' || membership.role === 'ADMIN'),
+      membership.status === 'ACTIVE' &&
+      (membership.role === 'TEACHER' || membership.role === 'ADMIN'),
     );
   }
 

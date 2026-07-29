@@ -306,10 +306,22 @@ export class BillingService {
    * Stripe path this replaces.
    */
   async requestPlanUpgrade(
-    user: { id: string; name?: string; email: string; orgId?: string | null; plan?: string },
-    data: { requestedPlan?: string; billingInterval?: string; message?: string },
+    user: {
+      id: string;
+      name?: string;
+      email: string;
+      orgId?: string | null;
+      plan?: string;
+    },
+    data: {
+      requestedPlan?: string;
+      billingInterval?: string;
+      message?: string;
+    },
   ) {
-    const requestedPlan = String(data.requestedPlan || '').trim().toUpperCase();
+    const requestedPlan = String(data.requestedPlan || '')
+      .trim()
+      .toUpperCase();
     if (requestedPlan !== 'STARTER' && requestedPlan !== 'PRO') {
       throw new BadRequestException(
         'requestedPlan must be STARTER or PRO — Enterprise requests go through /contact',
@@ -317,10 +329,14 @@ export class BillingService {
     }
 
     const billingInterval =
-      String(data.billingInterval || '').trim().toLowerCase() === 'annual'
+      String(data.billingInterval || '')
+        .trim()
+        .toLowerCase() === 'annual'
         ? 'annual'
         : 'monthly';
-    const message = String(data.message || '').trim().slice(0, 2000);
+    const message = String(data.message || '')
+      .trim()
+      .slice(0, 2000);
 
     const orgId = String(user.orgId || '').trim();
     const org = orgId
@@ -650,10 +666,9 @@ export class BillingService {
     }
 
     const isUpgrade =
-      this.getPlanRank(nextPlan) >
-      this.getPlanRank((org.plan as PlanKey) || 'FREE');
+      this.getPlanRank(nextPlan) > this.getPlanRank(org.plan || 'FREE');
     const isUpgradeFromFree =
-      (org.plan as PlanKey) === 'FREE' && nextPlan !== 'FREE' && isUpgrade;
+      org.plan === 'FREE' && nextPlan !== 'FREE' && isUpgrade;
 
     const updated = await this.prisma.organization.update({
       where: { id: org.id },
@@ -720,7 +735,7 @@ export class BillingService {
         stripeEventId,
         eventType,
         orgId: org.id,
-        previousPlan: org.plan as PlanKey,
+        previousPlan: org.plan,
         newPlan: nextPlan,
         metadata: {
           subscriptionId: subscription.id,
@@ -825,7 +840,7 @@ export class BillingService {
               stripeEventId: event.id,
               eventType: event.type,
               orgId: org.id,
-              previousPlan: org.plan as PlanKey,
+              previousPlan: org.plan,
               newPlan: 'FREE',
               metadata: {
                 subscriptionId: subscription.id,
@@ -931,8 +946,8 @@ export class BillingService {
                 stripeEventId: event.id,
                 eventType: event.type,
                 orgId: org.id,
-                previousPlan: org.plan as PlanKey,
-                newPlan: org.plan as PlanKey,
+                previousPlan: org.plan,
+                newPlan: org.plan,
                 metadata: {
                   invoiceId: invoice.id,
                   amountPaid: invoice.amount_paid,
@@ -966,8 +981,8 @@ export class BillingService {
               stripeEventId: event.id,
               eventType: event.type,
               orgId: org.id,
-              previousPlan: org.plan as PlanKey,
-              newPlan: org.plan as PlanKey,
+              previousPlan: org.plan,
+              newPlan: org.plan,
               metadata: { ignored: true },
             });
           }
@@ -1132,7 +1147,7 @@ export class BillingService {
       }
     }
 
-    const plan = (org.plan as PlanKey) || 'FREE';
+    const plan = org.plan || 'FREE';
     const baseFeatures = PLAN_FEATURES[plan] || PLAN_FEATURES.FREE;
     const overrides =
       org.features &&

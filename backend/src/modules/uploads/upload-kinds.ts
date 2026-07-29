@@ -1,8 +1,5 @@
 export type UploadKind =
-  | 'course-video'
-  | 'bug-report'
-  | 'announcement'
-  | 'org-logo';
+  'course-video' | 'bug-report' | 'announcement' | 'org-logo';
 
 export interface UploadKindConfig {
   folder: string;

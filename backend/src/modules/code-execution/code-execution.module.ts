@@ -9,7 +9,7 @@ import { Judge0Strategy } from './strategies/judge0.strategy';
 import { HttpModule } from '@nestjs/axios';
 import { BullModule } from '@nestjs/bullmq';
 import { CodeExecutionProcessor } from './code-execution.processor';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { PrismaModule } from '../../services/prisma/prisma.module';
 import { AuthModule } from '../auth/auth.module';
 

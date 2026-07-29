@@ -14,10 +14,7 @@ import { AlertService } from './alert.service';
 import { Role } from '@prisma/client';
 
 type CounterField =
-  | 'studentCount'
-  | 'courseCount'
-  | 'storageUsedMb'
-  | 'teacherSeatCount';
+  'studentCount' | 'courseCount' | 'storageUsedMb' | 'teacherSeatCount';
 
 type OrgPlanShape = {
   plan: PlanKey;
@@ -95,7 +92,7 @@ export class QuotaService {
     }
 
     return {
-      plan: ((org.plan as PlanKey) || 'FREE') as PlanKey,
+      plan: org.plan || 'FREE',
       features: org.features,
     };
   }
@@ -113,7 +110,9 @@ export class QuotaService {
     };
   }
 
-  async getEffectiveFeatures(orgId?: string | null): Promise<Record<string, boolean>> {
+  async getEffectiveFeatures(
+    orgId?: string | null,
+  ): Promise<Record<string, boolean>> {
     if (!orgId) {
       return this.getPlanDefaults('FREE').features;
     }
@@ -127,7 +126,7 @@ export class QuotaService {
       throw new NotFoundException('Organization not found');
     }
 
-    const plan = (org.plan as PlanKey) || 'FREE';
+    const plan = org.plan || 'FREE';
     const baseFeatures = PLAN_FEATURES[plan] || PLAN_FEATURES.FREE;
     const overrides =
       org.features &&
@@ -142,7 +141,10 @@ export class QuotaService {
     };
   }
 
-  async ensureFeatureEnabled(orgId: string | null | undefined, feature: string): Promise<void> {
+  async ensureFeatureEnabled(
+    orgId: string | null | undefined,
+    feature: string,
+  ): Promise<void> {
     const effective = await this.getEffectiveFeatures(orgId);
     if (effective[feature] === true) {
       return;
@@ -171,7 +173,10 @@ export class QuotaService {
     }
   }
 
-  async checkStudentQuotaForUser(userId: string, additional = 1): Promise<void> {
+  async checkStudentQuotaForUser(
+    userId: string,
+    additional = 1,
+  ): Promise<void> {
     const limits = this.getPlanDefaults('FREE').limits;
     const current = await this.prisma.user.count({
       where: {
@@ -230,7 +235,7 @@ export class QuotaService {
     if (!org) throw new NotFoundException('Organization not found');
 
     const limit = getEffectivePlanLimits(
-      (org.plan as PlanKey) || 'FREE',
+      org.plan || 'FREE',
       org.features,
     ).storageMb;
     const current = Number(org.storageUsedMb || 0);
@@ -414,7 +419,11 @@ export class QuotaService {
     const normalizedTypes = Array.from(
       new Set(
         (input.types || [])
-          .map((value) => String(value || '').trim().toLowerCase())
+          .map((value) =>
+            String(value || '')
+              .trim()
+              .toLowerCase(),
+          )
           .filter(Boolean),
       ),
     );

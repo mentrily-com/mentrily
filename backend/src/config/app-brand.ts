@@ -12,7 +12,9 @@ export function normalizeDomain(value?: string | null): string {
 }
 
 export function getAppName(): string {
-  return process.env.APP_NAME || process.env.NEXT_PUBLIC_APP_NAME || DEFAULT_APP_NAME;
+  return (
+    process.env.APP_NAME || process.env.NEXT_PUBLIC_APP_NAME || DEFAULT_APP_NAME
+  );
 }
 
 export function getAppDomain(): string {
@@ -52,7 +54,11 @@ export function getPublicAppUrl(): string {
     process.env.NEXT_PUBLIC_APP_URL,
     DEFAULT_APP_URL,
   ]
-    .map((value) => String(value || '').trim().replace(/\/$/, ''))
+    .map((value) =>
+      String(value || '')
+        .trim()
+        .replace(/\/$/, ''),
+    )
     .filter(Boolean);
 
   const nonLocalCandidate = candidates.find((value) => !isLocalOrigin(value));

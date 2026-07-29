@@ -52,7 +52,9 @@ export class SuperAdminController {
       // namespaced under the calling admin's own user id since the org
       // doesn't exist yet) — verify this caller actually uploaded it.
       const allowedNamespaces = [user?.id ? `user-${user.id}` : null];
-      if (!this.storageService.isOwnedByNamespace(body.logo, allowedNamespaces)) {
+      if (
+        !this.storageService.isOwnedByNamespace(body.logo, allowedNamespaces)
+      ) {
         throw new ForbiddenException('You do not have access to this file');
       }
     }
@@ -71,9 +73,13 @@ export class SuperAdminController {
         // Allow the new upload (user-xxx) or the existing org namespace (id)
         const allowedNamespaces = [user?.id ? `user-${user.id}` : null, id];
         if (
-          !this.storageService.isOwnedByNamespace(data.logo, allowedNamespaces, {
-            allowUnnamespacedLegacy: true,
-          })
+          !this.storageService.isOwnedByNamespace(
+            data.logo,
+            allowedNamespaces,
+            {
+              allowUnnamespacedLegacy: true,
+            },
+          )
         ) {
           throw new ForbiddenException('You do not have access to this file');
         }
@@ -88,7 +94,11 @@ export class SuperAdminController {
     @Body() data: UpdateOrganizationPlanDto,
     @Req() req: any,
   ) {
-    return this.superAdminService.updateOrganizationPlan(id, data, req.user?.id);
+    return this.superAdminService.updateOrganizationPlan(
+      id,
+      data,
+      req.user?.id,
+    );
   }
 
   @Patch('organizations/:id/limits')

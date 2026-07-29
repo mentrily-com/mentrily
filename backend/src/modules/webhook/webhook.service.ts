@@ -162,7 +162,7 @@ export class WebhookService {
           removeOnComplete: 50,
           removeOnFail: 100,
         },
-      })) as any,
+      })),
     );
   }
 }

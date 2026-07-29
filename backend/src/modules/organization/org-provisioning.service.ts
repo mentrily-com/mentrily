@@ -25,7 +25,9 @@ export class OrgProvisioningService {
     return slug || 'organization';
   }
 
-  private async generateUniqueOrganizationSlug(baseSlug: string): Promise<string> {
+  private async generateUniqueOrganizationSlug(
+    baseSlug: string,
+  ): Promise<string> {
     let candidate = baseSlug;
 
     for (let suffix = 0; suffix < 2000; suffix += 1) {
@@ -43,7 +45,9 @@ export class OrgProvisioningService {
       }
     }
 
-    throw new ConflictException('Unable to generate a unique organization slug');
+    throw new ConflictException(
+      'Unable to generate a unique organization slug',
+    );
   }
 
   private async createPersonalOrganization(user: {
@@ -203,8 +207,8 @@ export class OrgProvisioningService {
 
     const hasStripeSubscription = Boolean(
       String(org.stripeCustomerId || '').trim() ||
-        String(org.stripeSubscriptionId || '').trim() ||
-        String(org.stripePriceId || '').trim(),
+      String(org.stripeSubscriptionId || '').trim() ||
+      String(org.stripePriceId || '').trim(),
     );
 
     if (
@@ -285,7 +289,10 @@ export class OrgProvisioningService {
     return true;
   }
 
-  async migratePersonalResourcesToOrg(userId: string, orgId: string): Promise<void> {
+  async migratePersonalResourcesToOrg(
+    userId: string,
+    orgId: string,
+  ): Promise<void> {
     const normalizedUserId = String(userId || '').trim();
     const normalizedOrgId = String(orgId || '').trim();
     if (!normalizedUserId || !normalizedOrgId) {

@@ -4,7 +4,6 @@ import { SubmissionService } from './submission.service';
 import { SubmissionProcessor } from './submission.processor';
 import { SubmissionController } from './submission.controller';
 import { PrismaModule } from '../../services/prisma/prisma.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CertificateModule } from '../certificate/certificate.module';
 import { WebhookModule } from '../webhook/webhook.module';
 import { ExamModule } from '../exam/exam.module';

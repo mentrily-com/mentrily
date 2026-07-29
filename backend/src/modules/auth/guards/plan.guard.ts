@@ -10,7 +10,6 @@ import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
 import {
   PLAN_FEATURES,
-  PlanKey,
   getRequiredPlanForFeature,
 } from '../../../config/plan-limits';
 import { REQUIRED_PLAN_FEATURE_KEY } from '../plan.decorator';
@@ -69,7 +68,7 @@ export class PlanGuard implements CanActivate {
         throw new ForbiddenException('Organization not found');
       }
 
-      const plan = (org.plan as PlanKey) || 'FREE';
+      const plan = org.plan || 'FREE';
       const baseFeatures = PLAN_FEATURES[plan] || PLAN_FEATURES.FREE;
       const overrides =
         org.features &&

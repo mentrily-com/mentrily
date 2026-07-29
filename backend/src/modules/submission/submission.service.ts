@@ -113,7 +113,10 @@ export class SubmissionService {
    * anyone holding a session UUID could overwrite answers or force-submit
    * another student's exam.
    */
-  async assertSessionOwnership(sessionId: string, userId: string): Promise<void> {
+  async assertSessionOwnership(
+    sessionId: string,
+    userId: string,
+  ): Promise<void> {
     if (!sessionId || !userId) {
       throw new ForbiddenException('Session ownership could not be verified');
     }
@@ -193,7 +196,7 @@ export class SubmissionService {
     // Idempotency: a double-click or an auto-submit racing a manual submit
     // must not re-run scoring, webhooks, or certificate issuance.
     if (session.status === 'COMPLETED') {
-      const existingScore = (dbAnswers as any)?._internal_score || {};
+      const existingScore = dbAnswers?._internal_score || {};
       return {
         status: 'submitted',
         score: Number(existingScore.percentage ?? 0),
@@ -209,7 +212,7 @@ export class SubmissionService {
       ...redisAnswers,
       ...(finalAnswers || {}),
     };
-    delete (mergedAnswers as any)._final_sync;
+    delete mergedAnswers._final_sync;
 
     const scoreDetails = this.examService.calculateScoreDetails(
       mergedAnswers,

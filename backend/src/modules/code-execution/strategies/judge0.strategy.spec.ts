@@ -56,7 +56,9 @@ describe('Judge0Strategy', () => {
     const post = jest.fn();
     const strategy = makeStrategy(post);
 
-    await expect(strategy.execute('dart', 'void main() {}', '')).rejects.toThrow(
+    await expect(
+      strategy.execute('dart', 'void main() {}', ''),
+    ).rejects.toThrow(
       "Language 'dart' is not supported by Judge0 on this deployment.",
     );
     expect(post).not.toHaveBeenCalled();

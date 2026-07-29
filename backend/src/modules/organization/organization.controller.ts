@@ -2,7 +2,6 @@ import { Controller, Get, Query, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../services/prisma/prisma.service';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
-import { Plan } from '@prisma/client';
 import { getAppName } from '../../config/app-brand';
 
 @Controller('organization')

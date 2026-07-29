@@ -7,7 +7,6 @@ import {
   Patch,
   Post,
   Body,
-  UnauthorizedException,
   Query,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';

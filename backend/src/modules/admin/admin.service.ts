@@ -383,11 +383,7 @@ export class AdminService {
     return org;
   }
 
-  async updateOrganizationSettings(
-    user: any,
-    data: any,
-    targetOrgId?: string,
-  ) {
+  async updateOrganizationSettings(user: any, data: any, targetOrgId?: string) {
     const orgId = this.getEffectiveOrgId(user, targetOrgId);
 
     const org = await this.prisma.organization.findUnique({
@@ -426,7 +422,8 @@ export class AdminService {
     if (data.features !== undefined) updateData.features = nextFeatures;
     if (data.name !== undefined) updateData.name = data.name;
     if (data.logo !== undefined) updateData.logo = data.logo;
-    if (data.primaryColor !== undefined) updateData.primaryColor = data.primaryColor;
+    if (data.primaryColor !== undefined)
+      updateData.primaryColor = data.primaryColor;
     if (data.contact !== undefined) updateData.contact = data.contact;
 
     const updated = await this.prisma.organization.update({
@@ -444,14 +441,14 @@ export class AdminService {
     if (org.domain) {
       const cacheKey = `org:public:${org.domain.toLowerCase()}`;
       await this.redis.del(cacheKey);
-      
+
       const parts = org.domain.split('.');
       if (parts.length > 1) {
         const subCacheKey = `org:public:${parts[0].toLowerCase()}`;
         await this.redis.del(subCacheKey);
       }
     }
-    
+
     await this.invalidateOrgFeatureCaches(orgId);
 
     return updated;
@@ -671,7 +668,9 @@ export class AdminService {
       _sum: { sizeBytes: true },
     });
 
-    const userIds = assets.map((a: any) => a.userId).filter(Boolean) as string[];
+    const userIds = assets
+      .map((a: any) => a.userId)
+      .filter(Boolean) as string[];
     const users = await this.prisma.user.findMany({
       where: { id: { in: userIds } },
       select: { id: true, name: true, email: true, role: true },
@@ -897,7 +896,8 @@ export class AdminService {
       throw new NotFoundException('User is not a member of this organization');
     }
 
-    const nextStatus = membership?.status === 'SUSPENDED' ? 'ACTIVE' : 'SUSPENDED';
+    const nextStatus =
+      membership?.status === 'SUSPENDED' ? 'ACTIVE' : 'SUSPENDED';
 
     await this.prisma.orgMembership.upsert({
       where: { userId_orgId: { userId: id, orgId } },
@@ -1146,9 +1146,8 @@ export class AdminService {
           invitedById: currentUser?.id,
         }),
       };
-      invitation = await clerkClient.invitations.createInvitation(
-        invitationArgs as any,
-      );
+      invitation =
+        await clerkClient.invitations.createInvitation(invitationArgs);
 
       if (useBrandedEmail) {
         if (!invitation?.url) {
@@ -1164,7 +1163,7 @@ export class AdminService {
           invitation = await clerkClient.invitations.createInvitation({
             ...invitationArgs,
             notify: true,
-          } as any);
+          });
         } else {
           await this.mailService.sendOrgInviteEmail({
             to: email,
@@ -1308,9 +1307,13 @@ export class AdminService {
 
   private async decrementSeatCounter(orgId: string, role: Role): Promise<void> {
     if (role === Role.STUDENT) {
-      await this.quotaService.decrementCounter(orgId, 'studentCount', 1).catch(() => {});
+      await this.quotaService
+        .decrementCounter(orgId, 'studentCount', 1)
+        .catch(() => {});
     } else if (role === Role.ADMIN || role === Role.TEACHER) {
-      await this.quotaService.decrementCounter(orgId, 'teacherSeatCount', 1).catch(() => {});
+      await this.quotaService
+        .decrementCounter(orgId, 'teacherSeatCount', 1)
+        .catch(() => {});
     }
   }
 
@@ -1414,7 +1417,12 @@ export class AdminService {
    * existing member into TEACHER/ADMIN can't overflow the org's plan tier
    * any more than inviting a brand-new one could.
    */
-  async updateUserRole(id: string, role: string, caller: any, targetOrgId?: string) {
+  async updateUserRole(
+    id: string,
+    role: string,
+    caller: any,
+    targetOrgId?: string,
+  ) {
     if (id === caller?.id) {
       throw new BadRequestException('You cannot change your own role');
     }
@@ -1475,11 +1483,19 @@ export class AdminService {
     const wasStudent = currentRole === Role.STUDENT;
     const willBeStudent = normalizedRole === Role.STUDENT;
     if (wasStudent && !willBeStudent) {
-      await this.quotaService.decrementCounter(orgId, 'studentCount', 1).catch(() => {});
-      await this.quotaService.incrementCounter(orgId, 'teacherSeatCount', 1).catch(() => {});
+      await this.quotaService
+        .decrementCounter(orgId, 'studentCount', 1)
+        .catch(() => {});
+      await this.quotaService
+        .incrementCounter(orgId, 'teacherSeatCount', 1)
+        .catch(() => {});
     } else if (!wasStudent && willBeStudent) {
-      await this.quotaService.decrementCounter(orgId, 'teacherSeatCount', 1).catch(() => {});
-      await this.quotaService.incrementCounter(orgId, 'studentCount', 1).catch(() => {});
+      await this.quotaService
+        .decrementCounter(orgId, 'teacherSeatCount', 1)
+        .catch(() => {});
+      await this.quotaService
+        .incrementCounter(orgId, 'studentCount', 1)
+        .catch(() => {});
     }
 
     await this.invalidateOrgFeatureCaches(orgId);
