@@ -1,0 +1,4 @@
+## 2024-05-18 - SSRF Vulnerability in Webhook Dispatch
+**Vulnerability:** The webhook processor used `fetch(endpoint.url)` to dispatch events without validating the resolved IP address, allowing an attacker to request internal endpoints (e.g., AWS Metadata, localhost redis) by providing URLs like `http://169.254.169.254` or domains that resolve to internal IPs (e.g., `localtest.me`).
+**Learning:** Even modern fetch implementations are susceptible to SSRF if the user controls the URL. Furthermore, simple URL string checking can be bypassed via DNS resolution tricks, and `undici` DNS override implementations must validate all resolved IP addresses, not just the first one, to prevent bypasses via DNS multi-A-record fallbacks.
+**Prevention:** Always validate all resolved IP addresses returned by DNS lookups against a robust list of private/internal IP ranges before initiating an outbound connection to a user-provided URL.
