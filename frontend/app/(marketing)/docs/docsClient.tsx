@@ -1,7 +1,6 @@
 'use client';
 
 import { motion } from 'motion/react';
-import { useInView } from 'react-intersection-observer';
 import { MarketingPageHeader } from '@/components/layout/MarketingPageHeader';
 import CTASection from '@/components/sections/CTASection';
 import { Book, Code2, Terminal, Zap, Puzzle, Lock } from 'lucide-react';

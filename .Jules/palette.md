@@ -1,0 +1,3 @@
+## 2024-07-30 - Enhancing Mobile Menu Accessibility
+**Learning:** Mobile-only interactive elements hidden on desktop often lack critical accessibility attributes and keyboard focus states, making them difficult for screen reader and keyboard-only users to navigate. Ensuring custom drawer toggles link their trigger to their container via `aria-controls` and manage dynamic `aria-expanded` states is vital.
+**Action:** When creating or updating custom mobile navigation menus (e.g., hamburger toggles), always explicitly add `aria-haspopup`, `aria-expanded`, and `aria-controls`, matching an `id` on the drawer element, and apply `focus-visible` utility classes for clear keyboard focus states.
