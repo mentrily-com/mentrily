@@ -1,0 +1,3 @@
+## 2025-03-08 - Link Dropdown Triggers and Drawers with ARIA Controls
+**Learning:** Custom dropdown toggles and hamburger menus in React/Next.js lack inherent accessibility structures. Without explicit ARIA attributes, screen readers cannot properly associate the trigger button with the resulting content drawer, nor understand its state.
+**Action:** Always explicitly link the trigger button to the drawer container via `id` and `aria-controls`, include `aria-haspopup="menu"`, and manage a dynamic `aria-expanded` state tied to their open/close state for screen reader accessibility. Ensure focus states are styled using Tailwind's `focus-visible` classes.
