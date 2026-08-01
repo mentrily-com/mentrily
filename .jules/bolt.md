@@ -1,0 +1,3 @@
+## 2026-08-01 - Avoid fetching massive arrays to memory for aggregate calculations
+**Learning:** The previous code fetched all published exam sessions for a student using `findMany` into Node memory just to use `.reduce` for calculating the average score. This represents a typical ORM anti-pattern (O(N) memory scaling). Prisma provides direct aggregate functionality (`.aggregate({ _avg: { ... } })`) to calculate values securely and fast on the PostgreSQL engine side.
+**Action:** When finding loops like `.reduce` over query outputs just to calculate counts, sums, or averages, always check whether database engine functions via Prisma `.aggregate` or `.count` can do it instead. Handle potential `null` results gracefully.
