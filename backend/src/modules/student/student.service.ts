@@ -302,22 +302,19 @@ export class StudentService {
     if (!user) throw new Error('User not found');
 
     // Calculate average score - only from published results
-    const sessionsWithScore = await this.prisma.examSession.findMany({
+    // PERFORMANCE ⚡ Bolt: Replace fetching all rows with database-level aggregation
+    const sessionAgg = await this.prisma.examSession.aggregate({
       where: {
         userId,
         score: { not: null },
         exam: { resultsPublished: true },
       },
-      select: { score: true },
+      _avg: { score: true },
     });
 
-    const totalScore = sessionsWithScore.reduce(
-      (acc: number, curr: any) => acc + (curr.score || 0),
-      0,
-    );
     const averageScore =
-      sessionsWithScore.length > 0
-        ? Math.round(totalScore / sessionsWithScore.length)
+      sessionAgg._avg.score !== null
+        ? Math.round(sessionAgg._avg.score)
         : 0;
 
     const stats = {
