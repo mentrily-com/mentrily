@@ -1,0 +1,3 @@
+## 2026-08-03 - Database-level Aggregation Instead of In-Memory Reduce
+**Learning:** Using Prisma's `findMany` to fetch large datasets merely to calculate an aggregate (like a sum or average via `.reduce()`) pulls all records into Node.js memory, which scales poorly as the number of records increases. This pattern degrades performance significantly when students have numerous exam attempts.
+**Action:** When calculating statistics over a set of database records, always use Prisma's native aggregation functions (e.g., `aggregate({ _avg: { score: true } })`) instead of performing the calculation in-memory. This offloads the computation to the database, drastically reducing memory footprint and network transfer.
