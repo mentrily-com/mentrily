@@ -2,6 +2,63 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { createHmac } from 'crypto';
 import { Injectable, Logger } from '@nestjs/common';
+import { Agent, fetch } from 'undici';
+import * as dns from 'dns';
+import * as ipaddr from 'ipaddr.js';
+import * as tls from 'tls';
+import * as net from 'net';
+
+// 🛡️ Sentinel: Implement SSRF protection using a custom undici Agent.
+// Defines the agent outside the class to prevent memory/connection leaks.
+const safeAgent = new Agent({
+  connect: (opts, callback) => {
+    const host = opts.hostname || opts.host;
+    dns.lookup(host, { all: true }, (err, addresses) => {
+      if (err) return callback(err, null);
+
+      for (const addr of addresses) {
+        try {
+          const ip = ipaddr.parse(addr.address);
+          // Only allow unicast addresses (blocks loopback, private, multicast, etc.)
+          if (ip.range() !== 'unicast') {
+            return callback(new Error(`SSRF Blocked: IP ${addr.address} is not allowed`), null);
+          }
+        } catch (e) {
+          return callback(new Error('Invalid IP'), null);
+        }
+      }
+
+      // Use the first resolved and validated IP to prevent DNS rebinding attacks (TOCTOU)
+      const ip = addresses[0].address;
+      const port = opts.port || (opts.protocol === 'https:' ? 443 : 80);
+
+      let called = false;
+      const done = (err: Error | null, socket: tls.TLSSocket | net.Socket | null) => {
+        if (!called) {
+          called = true;
+          callback(err, socket);
+        }
+      };
+
+      if (opts.protocol === 'https:') {
+        const socket = tls.connect({
+          host: ip,
+          port: port,
+          servername: opts.servername || host,
+        });
+        socket.on('secureConnect', () => done(null, socket));
+        socket.on('error', (err) => done(err, null));
+      } else {
+        const socket = net.connect({
+          host: ip,
+          port: port,
+        });
+        socket.on('connect', () => done(null, socket));
+        socket.on('error', (err) => done(err, null));
+      }
+    });
+  }
+});
 
 @Processor('webhook-dispatch', {
   stalledInterval: 300000,
@@ -33,6 +90,7 @@ export class WebhookProcessor extends WorkerHost {
       .update(body)
       .digest('hex');
 
+    // 🛡️ Sentinel: Use custom fetch with safeAgent dispatcher for SSRF mitigation
     const response = await fetch(String(endpoint.url), {
       method: 'POST',
       headers: {
@@ -40,6 +98,7 @@ export class WebhookProcessor extends WorkerHost {
         'X-Webhook-Signature': signature,
       },
       body,
+      dispatcher: safeAgent,
     });
 
     if (!response.ok) {
