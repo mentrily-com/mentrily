@@ -1,0 +1,3 @@
+## 2026-08-04 - Missing ARIA Attributes on Custom Dropdowns
+**Learning:** Custom interactive elements like hamburger toggles and profile dropdowns in Next.js layouts often lack proper ARIA linkage (e.g., `aria-controls`, `aria-expanded`, `aria-haspopup`) and distinct keyboard focus indicators (`focus-visible`), which are critical for screen reader users to understand state and context.
+**Action:** Always map trigger buttons to their respective popovers/drawers using `id` and `aria-controls`, dynamically bind `aria-expanded`, and apply Tailwind `focus-visible` utility classes to ensure accessible interactive states.
