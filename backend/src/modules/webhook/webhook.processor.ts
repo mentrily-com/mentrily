@@ -2,6 +2,57 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { createHmac } from 'crypto';
 import { Injectable, Logger } from '@nestjs/common';
+import { Agent, fetch as undiciFetch } from 'undici';
+import * as dns from 'dns/promises';
+import * as ipaddr from 'ipaddr.js';
+import * as net from 'net';
+import * as tls from 'tls';
+
+const ssrfAgent = new Agent({
+  connect: async (opts: any, callback: any) => {
+    let called = false;
+    const done = (err: Error | null, socket?: net.Socket | tls.TLSSocket) => {
+      if (!called) {
+        called = true;
+        callback(err, socket);
+      }
+    };
+
+    try {
+      const hostname = opts.hostname || opts.host;
+      const addresses = await dns.lookup(hostname, { all: true });
+
+      for (const addr of addresses) {
+        const parsed = ipaddr.parse(addr.address);
+        if (parsed.range() !== 'unicast') {
+          throw new Error(`SSRF Blocked: Forbidden IP range ${parsed.range()}`);
+        }
+      }
+
+      const validIp = addresses[0].address;
+
+      const socketOpts = {
+        host: validIp,
+        port: opts.port,
+      };
+
+      if (opts.protocol === 'https:') {
+        const socket = tls.connect({
+          ...socketOpts,
+          servername: opts.servername || opts.hostname,
+        });
+        socket.on('secureConnect', () => done(null, socket));
+        socket.on('error', (err) => done(err));
+      } else {
+        const socket = net.connect(socketOpts);
+        socket.on('connect', () => done(null, socket));
+        socket.on('error', (err) => done(err));
+      }
+    } catch (err) {
+      done(err instanceof Error ? err : new Error(String(err)));
+    }
+  },
+});
 
 @Processor('webhook-dispatch', {
   stalledInterval: 300000,
@@ -33,13 +84,14 @@ export class WebhookProcessor extends WorkerHost {
       .update(body)
       .digest('hex');
 
-    const response = await fetch(String(endpoint.url), {
+    const response = await undiciFetch(String(endpoint.url), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Webhook-Signature': signature,
       },
       body,
+      dispatcher: ssrfAgent,
     });
 
     if (!response.ok) {
