@@ -100,9 +100,12 @@ export default function Navbar() {
                     {/* Mobile Hamburger */}
                     <button
                         onClick={() => setMobileOpen(!mobileOpen)}
-                        className="md:hidden p-2 rounded-lg cursor-pointer"
+                        className="md:hidden p-2 rounded-lg cursor-pointer focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-[#008D98]"
                         style={{ color: '#0F172A' }}
                         aria-label="Toggle menu"
+                        aria-expanded={mobileOpen}
+                        aria-haspopup="menu"
+                        aria-controls="mobile-menu"
                     >
                         {mobileOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>
@@ -113,6 +116,8 @@ export default function Navbar() {
             <AnimatePresence>
                 {mobileOpen && (
                     <motion.div
+                        id="mobile-menu"
+                        role="menu"
                         initial={{ opacity: 0, x: '100%' }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: '100%' }}
@@ -124,7 +129,7 @@ export default function Navbar() {
                             <BrandLogo className="h-8 max-w-[160px]" priority />
                             <button
                                 onClick={() => setMobileOpen(false)}
-                                className="p-2 rounded-lg cursor-pointer"
+                                className="p-2 rounded-lg cursor-pointer focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-[#008D98]"
                                 style={{ color: '#0F172A' }}
                                 aria-label="Close menu"
                             >
