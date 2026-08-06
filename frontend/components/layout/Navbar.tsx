@@ -103,6 +103,9 @@ export default function Navbar() {
                         className="md:hidden p-2 rounded-lg cursor-pointer"
                         style={{ color: '#0F172A' }}
                         aria-label="Toggle menu"
+                        aria-expanded={mobileOpen}
+                        aria-controls="mobile-menu-drawer"
+                        aria-haspopup="menu"
                     >
                         {mobileOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>
@@ -113,6 +116,8 @@ export default function Navbar() {
             <AnimatePresence>
                 {mobileOpen && (
                     <motion.div
+                        id="mobile-menu-drawer"
+                        role="menu"
                         initial={{ opacity: 0, x: '100%' }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: '100%' }}
