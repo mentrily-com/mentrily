@@ -99,10 +99,14 @@ export default function Navbar() {
 
                     {/* Mobile Hamburger */}
                     <button
+                        id="mobile-menu-trigger"
                         onClick={() => setMobileOpen(!mobileOpen)}
-                        className="md:hidden p-2 rounded-lg cursor-pointer"
+                        className="md:hidden p-2 rounded-lg cursor-pointer focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-slate-400"
                         style={{ color: '#0F172A' }}
                         aria-label="Toggle menu"
+                        aria-expanded={mobileOpen}
+                        aria-haspopup="dialog"
+                        aria-controls="mobile-menu"
                     >
                         {mobileOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>
@@ -113,6 +117,7 @@ export default function Navbar() {
             <AnimatePresence>
                 {mobileOpen && (
                     <motion.div
+                        id="mobile-menu"
                         initial={{ opacity: 0, x: '100%' }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: '100%' }}
