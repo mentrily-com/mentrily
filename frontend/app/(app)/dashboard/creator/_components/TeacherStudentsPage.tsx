@@ -203,6 +203,7 @@ export default function TeacherStudentsPage() {
                                         borderColor: 'var(--color-border-subtle)',
                                         color: 'var(--color-text-muted)',
                                     }}
+                                    aria-label="Filter Students"
                                     onMouseEnter={(e) => {
                                         e.currentTarget.style.backgroundColor = 'var(--color-bg-subtle)';
                                         e.currentTarget.style.color = 'var(--brand)';

@@ -128,6 +128,7 @@ export default function BookmarksPage() {
                                                 onClick={() => handleRemoveBookmark(b.id)}
                                                 className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                                                 title="Remove Bookmark"
+                                                aria-label="Remove Bookmark"
                                             >
                                                 <Trash2 size={18} />
                                             </button>
@@ -156,6 +157,7 @@ export default function BookmarksPage() {
                                             onClick={() => handleRemoveBookmark(b.id)}
                                             className="rounded-lg p-2 text-slate-300 transition-all hover:bg-red-50 hover:text-red-500"
                                             title="Remove Bookmark"
+                                            aria-label="Remove Bookmark"
                                         >
                                             <Trash2 size={18} />
                                         </button>

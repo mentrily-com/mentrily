@@ -190,7 +190,10 @@ export default function TestAttemptsPage() {
                 {/* PAGINATION */}
                 <div className="mt-8 flex items-center justify-center gap-4">
                     <div className="flex items-center gap-2">
-                        <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                        <button
+                            className="p-2 text-slate-400 hover:text-slate-600 transition-colors"
+                            aria-label="Previous Page"
+                        >
                             <svg
                                 width="18"
                                 height="18"
@@ -207,7 +210,10 @@ export default function TestAttemptsPage() {
                         <div className="w-8 h-8 rounded-lg bg-white border-2 border-[var(--brand)] flex items-center justify-center text-[var(--brand)] font-black text-sm">
                             1
                         </div>
-                        <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                        <button
+                            className="p-2 text-slate-400 hover:text-slate-600 transition-colors"
+                            aria-label="Next Page"
+                        >
                             <svg
                                 width="18"
                                 height="18"
