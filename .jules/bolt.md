@@ -1,0 +1,3 @@
+## 2023-10-27 - [Prisma Aggregation over in-memory Reduce]
+**Learning:** For database aggregations like calculating the average, fetching all elements and using `.reduce` inside Node.js can cause significant memory pressure. When Prisma's `aggregate` feature calculates averages (e.g., `_avg: { score: true }`), if no results match the filter, it returns `null` for the aggregated field rather than `0` or an empty object.
+**Action:** When migrating from JS-based array `reduce` to Prisma's `.aggregate`, explicitly verify and coalesce potential `null` results from the `_avg`/`_sum` properties to maintain existing default value logic.
