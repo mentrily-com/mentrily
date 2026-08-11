@@ -315,9 +315,12 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
                         {/* Avatar */}
                         <button
                             onClick={() => setProfileOpen(!profileOpen)}
-                            className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-semibold text-sm overflow-hidden cursor-pointer shrink-0"
+                            className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-semibold text-sm overflow-hidden cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                             style={{ backgroundColor: 'var(--brand, #008D98)' }}
                             aria-label="Profile menu"
+                            aria-expanded={profileOpen}
+                            aria-controls="profile-menu"
+                            aria-haspopup="menu"
                         >
                             {avatarUrl ? (
                                 // eslint-disable-next-line @next/next/no-img-element
@@ -330,9 +333,12 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
                         {/* Chevron */}
                         <button
                             onClick={() => setProfileOpen(!profileOpen)}
-                            className="hidden sm:flex w-5 h-5 items-center justify-center cursor-pointer"
+                            className="hidden sm:flex w-5 h-5 items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                             style={{ color: 'var(--color-text-muted)' }}
                             aria-label="Toggle profile"
+                            aria-expanded={profileOpen}
+                            aria-controls="profile-menu"
+                            aria-haspopup="menu"
                         >
                             <ChevronDown
                                 size={14}
@@ -343,6 +349,7 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
                         {/* Dropdown */}
                         {profileOpen && (
                             <div
+                                id="profile-menu"
                                 className="absolute right-0 top-full mt-2 w-[calc(100vw-1.5rem)] max-w-64 rounded-xl bg-white border overflow-hidden animate-fade-in z-50"
                                 style={{
                                     borderColor: 'var(--color-border-subtle)',
