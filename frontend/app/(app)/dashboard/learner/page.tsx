@@ -10,7 +10,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { useNotificationSocket } from '@/hooks/useNotificationSocket';
 import { useToast } from '@/app/components/Common/Toast';
 import { Award, Megaphone, X, FileText, ImageIcon, File, Download, EyeOff, Sparkles, Target, BarChart3, Bookmark } from 'lucide-react';
-import DOMPurify from 'isomorphic-dompurify';
+import DOMPurify from '@/lib/dompurify';
 import {
     gettingStartedCourse,
     isOnboardingCourseHidden,

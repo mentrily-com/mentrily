@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import DOMPurify from 'isomorphic-dompurify';
+import DOMPurify from '@/lib/dompurify';
 
 interface ProblemStatementProps {
     title: string;

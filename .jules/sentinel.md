@@ -1,0 +1,4 @@
+## 2024-05-24 - [DOMPurify Race Condition Vulnerability]
+**Vulnerability:** DOMPurify hooks (e.g., `DOMPurify.addHook`) are defined inside a specific React component (`UnitRenderer.tsx`), making the sanitization rules active *only* when that component is rendered.
+**Learning:** `isomorphic-dompurify` acts as a global singleton. Defining hooks in local components creates a race condition where the security rules (like iframe filtering) can be bypassed if the component is not currently rendered or rendered after other components that use `DOMPurify.sanitize`.
+**Prevention:** Always centralize `DOMPurify` configuration (e.g., in a dedicated file like `frontend/lib/dompurify.ts`) and import it wherever sanitization is needed to ensure consistent and secure sanitization across the entire application.
