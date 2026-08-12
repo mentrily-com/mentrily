@@ -2481,20 +2481,32 @@ export class TeacherService {
         m.units.map((u: any) => u.id),
       );
       const totalUnits = allUnitIds.length;
+      const studentIds = updatedCourse.students.map((s: any) => s.id);
+
+      // PERFORMANCE ⚡ Bolt: Replace N+1 queries in the loop with a single batch fetch
+      const allCompletedSubmissions = await this.prisma.unitSubmission.findMany({
+        where: {
+          userId: { in: studentIds },
+          unitId: { in: allUnitIds },
+          status: 'COMPLETED',
+        },
+        select: { userId: true, unitId: true },
+      });
+
+      const submissionsByUser = new Map<string, string[]>();
+      for (const sub of allCompletedSubmissions as any[]) {
+        if (!submissionsByUser.has(sub.userId)) {
+          submissionsByUser.set(sub.userId, []);
+        }
+        submissionsByUser.get(sub.userId)!.push(sub.unitId);
+      }
+
+      const progressUpserts = [];
+      const pipeline = this.redis.pipeline();
 
       for (const student of updatedCourse.students) {
-        const completedSubmissions = await this.prisma.unitSubmission.findMany({
-          where: {
-            userId: student.id,
-            unitId: { in: allUnitIds },
-            status: 'COMPLETED',
-          },
-          select: { unitId: true },
-        });
-
-        const completedUnitIds = [
-          ...new Set(completedSubmissions.map((s: any) => s.unitId)),
-        ];
+        const studentSubmissions = submissionsByUser.get(student.id) || [];
+        const completedUnitIds = [...new Set(studentSubmissions)];
         const completedCount = completedUnitIds.length;
         const percent =
           totalUnits > 0 ? Math.round((completedCount / totalUnits) * 100) : 0;
@@ -2506,30 +2518,38 @@ export class TeacherService {
               : 'Not Started';
 
         // @ts-ignore
-        await this.prisma.courseProgress.upsert({
-          where: { userId_courseId: { userId: student.id, courseId: id } },
-          update: {
-            completedUnits: completedUnitIds,
-            totalUnits,
-            completedCount,
-            percent,
-            status,
-          },
-          create: {
-            userId: student.id,
-            courseId: id,
-            completedUnits: completedUnitIds,
-            totalUnits,
-            completedCount,
-            percent,
-            status,
-          },
-        });
+        progressUpserts.push(
+          this.prisma.courseProgress.upsert({
+            where: { userId_courseId: { userId: student.id, courseId: id } },
+            update: {
+              completedUnits: completedUnitIds,
+              totalUnits,
+              completedCount,
+              percent,
+              status,
+            },
+            create: {
+              userId: student.id,
+              courseId: id,
+              completedUnits: completedUnitIds,
+              totalUnits,
+              completedCount,
+              percent,
+              status,
+            },
+          }),
+        );
 
         // Invalidate student stats caches
-        await this.redis.del(`student:stats:${student.id}`);
-        await this.redis.del(`student:analytics:${student.id}`);
+        pipeline.del(`student:stats:${student.id}`);
+        pipeline.del(`student:analytics:${student.id}`);
       }
+
+      // Execute all DB writes and Redis commands in parallel
+      await Promise.all([
+        this.prisma.$transaction(progressUpserts),
+        pipeline.exec(),
+      ]);
     }
 
     const finalCourse = await this.prisma.course.update({
