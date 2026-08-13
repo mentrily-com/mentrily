@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { API_BASE_URL } from '@/lib/api-base';
+import { API_BASE_URL, apiFetch } from '@/lib/api-base';
 
 export interface NetworkStatus {
     isOnline: boolean;
@@ -35,7 +35,7 @@ export function useNetworkMonitor() {
 
             try {
                 const startedAt = performance.now();
-                const res = await fetch(`${API_BASE_URL}/exam/app-config?ts=${Date.now()}`, {
+                const res = await apiFetch(`${API_BASE_URL}/exam/app-config?ts=${Date.now()}`, {
                     method: 'GET',
                     cache: 'no-store',
                 });
@@ -44,8 +44,15 @@ export function useNetworkMonitor() {
                 if (cancelled) return;
 
                 const durationSec = Math.max((endedAt - startedAt) / 1000, 0.05);
-                const bytes = new TextEncoder().encode(text).length;
-                const calculatedMbps = Number(((bytes * 8) / (durationSec * 1_000_000)).toFixed(2));
+                
+                // Estimate a simulated "Mbps" purely based on latency (RTT)
+                // since the app-config payload is too small to measure true bandwidth.
+                // Thresholds in UI are: [0, 2, 5, 10]
+                let calculatedMbps = 0;
+                if (durationSec <= 0.1) calculatedMbps = 25;      // 4 bars (Fast)
+                else if (durationSec <= 0.25) calculatedMbps = 8; // 3 bars (Good)
+                else if (durationSec <= 0.5) calculatedMbps = 4;  // 2 bars (Fair)
+                else calculatedMbps = 1;                          // 1 bar (Slow)
 
                 if (calculatedMbps > 0) {
                     setStatus((prev) => ({
