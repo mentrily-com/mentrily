@@ -1,0 +1,4 @@
+## 2025-02-24 - Centralize DOMPurify configuration
+**Vulnerability:** A local `DOMPurify.addHook` configuration inside `UnitRenderer.tsx` created a race condition where specific strict sanitization rules (e.g., stripping non-YouTube iframes to prevent clickjacking/phishing) were only active globally *if* the `UnitRenderer` component happened to render during that user session. Other content rendering areas (like problem statements or announcements) could be exposed to arbitrary <iframe> embeds.
+**Learning:** `isomorphic-dompurify` hooks mutate the global singleton instance. Defining global hooks inside local React components is dangerous and can lead to inconsistent sanitization.
+**Prevention:** Always centralize `DOMPurify` configuration (and its hooks) into a single library file (e.g., `lib/dompurify.ts`) and import that specific instance throughout the application.

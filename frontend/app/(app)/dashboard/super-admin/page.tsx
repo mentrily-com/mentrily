@@ -20,7 +20,7 @@ import {
 import { SuperAdminService } from '@/services/api/SuperAdminService';
 import { useRequireAuth } from '@/hooks/requireAuthClient';
 import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
-import DOMPurify from 'isomorphic-dompurify';
+import DOMPurify from '@/lib/dompurify';
 
 export default function SuperAdminDashboardPage() {
     const [statsData, setStatsData] = useState<any>(null);

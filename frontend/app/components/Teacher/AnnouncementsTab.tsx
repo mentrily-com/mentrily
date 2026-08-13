@@ -5,7 +5,7 @@ import { TeacherService } from '@/services/api/TeacherService';
 import { useToast } from '@/app/components/Common/Toast';
 import { Megaphone, Plus, X, Trash2, Paperclip, FileText, ImageIcon, File, Send, Check, Pencil } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import DOMPurify from 'isomorphic-dompurify';
+import DOMPurify from '@/lib/dompurify';
 
 // Lazy load RichTextEditor to avoid SSR issues
 const RichTextEditor = dynamic(() => import('@/app/components/Authoring/RichTextEditor'), { ssr: false });

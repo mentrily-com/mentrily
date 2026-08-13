@@ -19,7 +19,7 @@ import {
     LifeBuoy,
 } from 'lucide-react';
 import { StudentService } from '@/services/api/StudentService';
-import DOMPurify from 'isomorphic-dompurify';
+import DOMPurify from '@/lib/dompurify';
 import { useSession } from '@/hooks/useSession';
 import CrispWidget from './CrispWidget';
 import { orgHasCrispChat } from '@/lib/crisp';
