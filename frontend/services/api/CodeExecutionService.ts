@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '@/lib/api-base';
+import { API_BASE_URL, apiFetch } from '@/lib/api-base';
 import { withCsrfHeader } from '@/lib/csrf';
 import { withClerkAuthorization } from '@/lib/clerk-token';
 
@@ -56,7 +56,7 @@ const authFetch = async (endpoint: string, options: RequestInit = {}) => {
 
     const authHeaders = await withClerkAuthorization(withCsrfHeader(options.method, headers));
 
-    const response = await fetch(url, {
+    const response = await apiFetch(url, {
         ...options,
         credentials: 'include', // Ensure cookies are sent
         headers: authHeaders,
@@ -116,7 +116,7 @@ export const CodeExecutionService = {
     },
 
     publicRun: async (language: string, code: string, input?: string): Promise<PublicExecutionResult> => {
-        const response = await fetch(`${BASE_URL}/code/public-run`, {
+        const response = await apiFetch(`${BASE_URL}/code/public-run`, {
             method: 'POST',
             credentials: 'include',
             headers: withCsrfHeader('POST', {
@@ -142,7 +142,7 @@ export const CodeExecutionService = {
         language: string,
         code: string,
     ): Promise<PublicSubmissionResult> => {
-        const response = await fetch(`${BASE_URL}/code/public-submit`, {
+        const response = await apiFetch(`${BASE_URL}/code/public-submit`, {
             method: 'POST',
             credentials: 'include',
             headers: withCsrfHeader('POST', {
@@ -169,7 +169,7 @@ export const CodeExecutionService = {
                 'Content-Type': 'application/json',
             }),
         );
-        const response = await fetch(`${BASE_URL}/playground/questions`, {
+        const response = await apiFetch(`${BASE_URL}/playground/questions`, {
             method: 'POST',
             credentials: 'include',
             headers,
@@ -185,7 +185,7 @@ export const CodeExecutionService = {
     },
 
     getPublicQuestion: async (slug: string): Promise<any> => {
-        const response = await fetch(`${BASE_URL}/playground/questions/${encodeURIComponent(slug)}`, {
+        const response = await apiFetch(`${BASE_URL}/playground/questions/${encodeURIComponent(slug)}`, {
             cache: 'no-store',
         });
 

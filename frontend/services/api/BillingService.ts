@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '@/lib/api-base';
+import { API_BASE_URL, apiFetch } from '@/lib/api-base';
 import { withCsrfHeader } from '@/lib/csrf';
 import { withClerkAuthorization } from '@/lib/clerk-token';
 
@@ -15,7 +15,7 @@ async function handleResponse(res: Response) {
 
 export const BillingService = {
     async getPlans() {
-        const res = await fetch(`${BASE_URL}/billing/plans`, {
+        const res = await apiFetch(`${BASE_URL}/billing/plans`, {
             method: 'GET',
             credentials: 'include',
         });
@@ -25,7 +25,7 @@ export const BillingService = {
 
     async getUsage() {
         const headers = await withClerkAuthorization({ 'Content-Type': 'application/json' });
-        const res = await fetch(`${BASE_URL}/billing/usage`, {
+        const res = await apiFetch(`${BASE_URL}/billing/usage`, {
             method: 'GET',
             headers,
             credentials: 'include',
@@ -37,7 +37,7 @@ export const BillingService = {
     async createCheckoutSession(payload: { priceId: string; successUrl?: string; cancelUrl?: string }) {
         const headers = await withClerkAuthorization(withCsrfHeader('POST', { 'Content-Type': 'application/json' }));
 
-        const res = await fetch(`${BASE_URL}/billing/checkout-session`, {
+        const res = await apiFetch(`${BASE_URL}/billing/checkout-session`, {
             method: 'POST',
             headers,
             credentials: 'include',
@@ -50,7 +50,7 @@ export const BillingService = {
     async requestPlanUpgrade(payload: { requestedPlan: string; billingInterval?: string; message?: string }) {
         const headers = await withClerkAuthorization(withCsrfHeader('POST', { 'Content-Type': 'application/json' }));
 
-        const res = await fetch(`${BASE_URL}/billing/upgrade-request`, {
+        const res = await apiFetch(`${BASE_URL}/billing/upgrade-request`, {
             method: 'POST',
             headers,
             credentials: 'include',
@@ -63,7 +63,7 @@ export const BillingService = {
     async createPortalSession(payload?: { returnUrl?: string }) {
         const headers = await withClerkAuthorization(withCsrfHeader('POST', { 'Content-Type': 'application/json' }));
 
-        const res = await fetch(`${BASE_URL}/billing/portal-session`, {
+        const res = await apiFetch(`${BASE_URL}/billing/portal-session`, {
             method: 'POST',
             headers,
             credentials: 'include',
@@ -76,7 +76,7 @@ export const BillingService = {
     async syncCheckoutSession(sessionId: string) {
         const headers = await withClerkAuthorization(withCsrfHeader('POST', { 'Content-Type': 'application/json' }));
 
-        const res = await fetch(`${BASE_URL}/billing/sync-checkout-session`, {
+        const res = await apiFetch(`${BASE_URL}/billing/sync-checkout-session`, {
             method: 'POST',
             headers,
             credentials: 'include',

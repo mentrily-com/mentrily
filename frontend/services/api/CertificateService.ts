@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '@/lib/api-base';
+import { API_BASE_URL, apiFetch } from '@/lib/api-base';
 import { withCsrfHeader } from '@/lib/csrf';
 import { withClerkAuthorization } from '@/lib/clerk-token';
 
@@ -86,7 +86,7 @@ const authFetch = async (endpoint: string, options: RequestInit = {}) => {
 
     const authHeaders = await getAuthHeaders(options.method, headers);
 
-    return fetch(`${BASE_URL}${endpoint}`, {
+    return apiFetch(`${BASE_URL}${endpoint}`, {
         ...options,
         credentials: 'include',
         headers: authHeaders,
@@ -173,7 +173,7 @@ export const CertificateService = {
     },
 
     async verifyCertificate(code: string): Promise<CertificateVerificationResponse> {
-        const res = await fetch(`${BASE_URL}/certificate/verify/${code}`, {
+        const res = await apiFetch(`${BASE_URL}/certificate/verify/${code}`, {
             method: 'GET',
             cache: 'no-store',
         });

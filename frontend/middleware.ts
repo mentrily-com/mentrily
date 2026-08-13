@@ -32,6 +32,7 @@ async function resolveOrganization(subdomain: string) {
             cache: 'no-store',
             headers: {
                 'x-middleware-org-lookup': '1',
+                'ngrok-skip-browser-warning': '69420',
             },
         });
 

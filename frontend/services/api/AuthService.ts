@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '@/lib/api-base';
+import { API_BASE_URL, apiFetch } from '@/lib/api-base';
 import { withCsrfHeader } from '@/lib/csrf';
 import { getClerkToken, withClerkAuthorization } from '@/lib/clerk-token';
 import { setActiveOrgId, clearActiveOrgId, setActivePersona, clearActivePersona } from '@/lib/active-org';
@@ -27,7 +27,7 @@ const ensureCsrfCookie = async () => {
     if (hasCsrfCookie()) return;
 
     try {
-        await fetch(`${BASE_URL}/exam/app-config`, {
+        await apiFetch(`${BASE_URL}/exam/app-config`, {
             method: 'GET',
             credentials: 'include',
         });
@@ -105,7 +105,7 @@ export const AuthService = {
                 if (allowProvisioning) params.set('allowProvisioning', '1');
                 const query = params.toString();
 
-                const res = await fetch(`${BASE_URL}/auth/me${query ? `?${query}` : ''}`, {
+                const res = await apiFetch(`${BASE_URL}/auth/me${query ? `?${query}` : ''}`, {
                     headers: authHeaders,
                     credentials: 'include',
                     cache: 'no-store',
@@ -157,7 +157,7 @@ export const AuthService = {
                 withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
             );
 
-            const res = await fetch(`${BASE_URL}/auth/exam-login`, {
+            const res = await apiFetch(`${BASE_URL}/auth/exam-login`, {
                 method: 'POST',
                 headers: authHeaders,
                 credentials: 'include',
@@ -169,7 +169,7 @@ export const AuthService = {
                 const retryHeaders = await withClerkAuthorization(
                     withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
                 );
-                const retryRes = await fetch(`${BASE_URL}/auth/exam-login`, {
+                const retryRes = await apiFetch(`${BASE_URL}/auth/exam-login`, {
                     method: 'POST',
                     headers: retryHeaders,
                     credentials: 'include',
@@ -198,7 +198,7 @@ export const AuthService = {
 
     async verifyExamTestCode(testCode: string, slug?: string): Promise<any> {
         try {
-            const res = await fetch(`${BASE_URL}/auth/exam-login/verify-code`, {
+            const res = await apiFetch(`${BASE_URL}/auth/exam-login/verify-code`, {
                 method: 'POST',
                 headers: withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
                 credentials: 'include',
@@ -221,7 +221,7 @@ export const AuthService = {
         const authHeaders = await withClerkAuthorization(
             withCsrfHeader('PATCH', { 'Content-Type': 'application/json' }),
         );
-        const res = await fetch(`${BASE_URL}/auth/profile`, {
+        const res = await apiFetch(`${BASE_URL}/auth/profile`, {
             method: 'PATCH',
             headers: authHeaders,
             credentials: 'include',
@@ -240,7 +240,7 @@ export const AuthService = {
 
     async removeProfilePicture(): Promise<any> {
         const authHeaders = await withClerkAuthorization(withCsrfHeader('DELETE'));
-        const res = await fetch(`${BASE_URL}/auth/profile/picture`, {
+        const res = await apiFetch(`${BASE_URL}/auth/profile/picture`, {
             method: 'DELETE',
             headers: authHeaders,
             credentials: 'include',
@@ -296,7 +296,7 @@ export const AuthService = {
 
     async listMemberships(): Promise<WorkspaceMembership[]> {
         const authHeaders = await withClerkAuthorization({ 'Content-Type': 'application/json' });
-        const res = await fetch(`${BASE_URL}/auth/memberships`, {
+        const res = await apiFetch(`${BASE_URL}/auth/memberships`, {
             headers: authHeaders,
             credentials: 'include',
             cache: 'no-store',
@@ -328,7 +328,7 @@ export const AuthService = {
         const authHeaders = await withClerkAuthorization(
             withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
         );
-        const res = await fetch(`${BASE_URL}/auth/switch-org`, {
+        const res = await apiFetch(`${BASE_URL}/auth/switch-org`, {
             method: 'POST',
             headers: authHeaders,
             credentials: 'include',
@@ -362,7 +362,7 @@ export const AuthService = {
         const authHeaders = await withClerkAuthorization(
             withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
         );
-        const res = await fetch(`${BASE_URL}/auth/switch-home`, {
+        const res = await apiFetch(`${BASE_URL}/auth/switch-home`, {
             method: 'POST',
             headers: authHeaders,
             credentials: 'include',
@@ -397,7 +397,7 @@ export const AuthService = {
         const authHeaders = await withClerkAuthorization(
             withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
         );
-        const res = await fetch(`${BASE_URL}/auth/become-creator`, {
+        const res = await apiFetch(`${BASE_URL}/auth/become-creator`, {
             method: 'POST',
             headers: authHeaders,
             credentials: 'include',
@@ -429,7 +429,7 @@ export const AuthService = {
         const authHeaders = await withClerkAuthorization(
             withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
         );
-        const res = await fetch(`${BASE_URL}/auth/bug-reports`, {
+        const res = await apiFetch(`${BASE_URL}/auth/bug-reports`, {
             method: 'POST',
             headers: authHeaders,
             credentials: 'include',
@@ -448,7 +448,7 @@ export const AuthService = {
         const authHeaders = await withClerkAuthorization(
             withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
         );
-        const res = await fetch(`${BASE_URL}/auth/select-role`, {
+        const res = await apiFetch(`${BASE_URL}/auth/select-role`, {
             method: 'POST',
             headers: authHeaders,
             credentials: 'include',
@@ -469,7 +469,7 @@ export const AuthService = {
         const authHeaders = await withClerkAuthorization(
             withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
         );
-        const res = await fetch(`${BASE_URL}/auth/select-role-creator`, {
+        const res = await apiFetch(`${BASE_URL}/auth/select-role-creator`, {
             method: 'POST',
             headers: authHeaders,
             credentials: 'include',
@@ -498,7 +498,7 @@ export const AuthService = {
         const authHeaders = await withClerkAuthorization(
             withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
         );
-        const res = await fetch(`${BASE_URL}/auth/onboarding/complete`, {
+        const res = await apiFetch(`${BASE_URL}/auth/onboarding/complete`, {
             method: 'POST',
             headers: authHeaders,
             credentials: 'include',

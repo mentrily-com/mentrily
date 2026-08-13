@@ -1,5 +1,5 @@
 import { MonitoringEvent, ViolationEvent } from '@/types/monitoring';
-import { API_BASE_URL } from '@/lib/api-base';
+import { API_BASE_URL, apiFetch } from '@/lib/api-base';
 import { withCsrfHeader } from '@/lib/csrf';
 import { withClerkAuthorization } from '@/lib/clerk-token';
 
@@ -13,7 +13,7 @@ const authFetch = async (endpoint: string, options: RequestInit = {}) => {
     });
     const authHeaders = await withClerkAuthorization(headers);
 
-    return fetch(`${BASE_URL}${endpoint}`, {
+    return apiFetch(`${BASE_URL}${endpoint}`, {
         ...options,
         credentials: 'include',
         headers: authHeaders,
@@ -70,7 +70,7 @@ export const MonitoringService = {
 
     async checkHealth(): Promise<boolean> {
         try {
-            const res = await fetch(`${BASE_URL}/exam/isDOUp`);
+            const res = await apiFetch(`${BASE_URL}/exam/isDOUp`);
             const data = await res.json();
             return data.status === 'up';
         } catch (e) {

@@ -1,5 +1,5 @@
 import { LRUCache } from 'lru-cache';
-import { API_BASE_URL } from '@/lib/api-base';
+import { API_BASE_URL, apiFetch } from '@/lib/api-base';
 import { withCsrfHeader } from '@/lib/csrf';
 import { withClerkAuthorization } from '@/lib/clerk-token';
 
@@ -29,7 +29,7 @@ export const ExamService = {
 
         try {
             const authHeaders = await withClerkAuthorization(getHeaders());
-            const res = await fetch(`${BASE_URL}/exam/${slug}?json=1`, {
+            const res = await apiFetch(`${BASE_URL}/exam/${slug}?json=1`, {
                 headers: authHeaders,
                 credentials: 'include',
             });
@@ -52,7 +52,7 @@ export const ExamService = {
 
     async getExamPublicStatus(slug: string): Promise<any> {
         try {
-            const res = await fetch(`${BASE_URL}/exam/${slug}/public-status`);
+            const res = await apiFetch(`${BASE_URL}/exam/${slug}/public-status`);
 
             if (!res.ok) {
                 let errorMessage = 'Failed to fetch status';
@@ -81,7 +81,7 @@ export const ExamService = {
 
     async checkExamStatus(slug: string): Promise<any> {
         try {
-            const res = await fetch(`${BASE_URL}/exam/${slug}/check?json=1`);
+            const res = await apiFetch(`${BASE_URL}/exam/${slug}/check?json=1`);
             return await res.json();
         } catch (error) {
             console.error('[ExamService] checkExamStatus failed', error);
@@ -95,7 +95,7 @@ export const ExamService = {
             const authHeaders = await withClerkAuthorization(
                 withCsrfHeader('POST', getHeaders()),
             );
-            const res = await fetch(`${BASE_URL}/exam/${slug}/enter`, {
+            const res = await apiFetch(`${BASE_URL}/exam/${slug}/enter`, {
                 method: 'POST',
                 headers: authHeaders,
                 credentials: 'include',
@@ -141,7 +141,7 @@ export const ExamService = {
 
     async getAppConfig(): Promise<any> {
         try {
-            const res = await fetch(`${BASE_URL}/exam/app-config`, {
+            const res = await apiFetch(`${BASE_URL}/exam/app-config`, {
                 headers: getHeaders(),
             });
             if (!res.ok) throw new Error('Config API not available');
@@ -154,7 +154,7 @@ export const ExamService = {
 
     async getStrictness(examId: string): Promise<any> {
         try {
-            const res = await fetch(`${BASE_URL}/exam/getCurrentTypeOfExecution?quizId=${examId}`, {
+            const res = await apiFetch(`${BASE_URL}/exam/getCurrentTypeOfExecution?quizId=${examId}`, {
                 headers: getHeaders(),
             });
             if (!res.ok) throw new Error('Strictness API not available');
@@ -174,7 +174,7 @@ export const ExamService = {
             // Clerk bearer token explicitly, same as every other authenticated
             // call (see lib/clerk-token.ts).
             const authHeaders = await withClerkAuthorization(withCsrfHeader('POST', getHeaders()));
-            const res = await fetch(`${BASE_URL}/submission/section`, {
+            const res = await apiFetch(`${BASE_URL}/submission/section`, {
                 method: 'POST',
                 headers: authHeaders,
                 credentials: 'include',
@@ -191,7 +191,7 @@ export const ExamService = {
     async submitExam(sessionId: string, answers?: Record<string, any>): Promise<any> {
         try {
             const authHeaders = await withClerkAuthorization(withCsrfHeader('POST', getHeaders()));
-            const res = await fetch(`${BASE_URL}/submission/submit`, {
+            const res = await apiFetch(`${BASE_URL}/submission/submit`, {
                 // Assuming endpoint
                 method: 'POST',
                 headers: authHeaders,
@@ -208,7 +208,7 @@ export const ExamService = {
 
     async getSessionVerdict(sessionId: string): Promise<any> {
         const authHeaders = await withClerkAuthorization(getHeaders());
-        const res = await fetch(`${BASE_URL}/exam/session/${sessionId}/verdict`, {
+        const res = await apiFetch(`${BASE_URL}/exam/session/${sessionId}/verdict`, {
             headers: authHeaders,
             credentials: 'include',
         });
@@ -219,7 +219,7 @@ export const ExamService = {
     async saveFeedback(slug: string, userId: string, rating: number, comment: string): Promise<any> {
         try {
             const authHeaders = await withClerkAuthorization(withCsrfHeader('POST', getHeaders()));
-            const res = await fetch(`${BASE_URL}/exam/${slug}/feedback`, {
+            const res = await apiFetch(`${BASE_URL}/exam/${slug}/feedback`, {
                 method: 'POST',
                 headers: authHeaders,
                 credentials: 'include',

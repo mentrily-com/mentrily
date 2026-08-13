@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '@/lib/api-base';
+import { API_BASE_URL, apiFetch } from '@/lib/api-base';
 import { withCsrfHeader } from '@/lib/csrf';
 import { withClerkAuthorization } from '@/lib/clerk-token';
 import { UploadService } from './UploadService';
@@ -15,7 +15,7 @@ const authFetch = async (endpoint: string, options: RequestInit = {}) => {
     } as any);
     const authHeaders = await withClerkAuthorization(headers);
 
-    return fetch(url, {
+    return apiFetch(url, {
         ...options,
         credentials: 'include',
         headers: authHeaders,
@@ -310,7 +310,7 @@ export const CourseService = {
     },
 
     async deleteCourseVideo(url: string): Promise<void> {
-        const res = await fetch(`${BASE_URL}/course/video`, {
+        const res = await apiFetch(`${BASE_URL}/course/video`, {
             method: 'DELETE',
             headers: withCsrfHeader('DELETE', { 'Content-Type': 'application/json' }),
             credentials: 'include',

@@ -1,5 +1,5 @@
 import { LRUCache } from 'lru-cache';
-import { API_BASE_URL } from '@/lib/api-base';
+import { API_BASE_URL, apiFetch } from '@/lib/api-base';
 import { withCsrfHeader } from '@/lib/csrf';
 import { withClerkAuthorization } from '@/lib/clerk-token';
 
@@ -45,7 +45,7 @@ const authFetch = async (endpoint: string, options: RequestInit = {}) => {
         }),
     );
 
-    return fetch(url, {
+    return apiFetch(url, {
         ...options,
         credentials: 'include', // Ensure cookies are sent
         headers: authHeaders,

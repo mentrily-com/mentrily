@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '@/lib/api-base';
+import { API_BASE_URL, apiFetch } from '@/lib/api-base';
 import { withCsrfHeader } from '@/lib/csrf';
 import { withClerkAuthorization } from '@/lib/clerk-token';
 import { UploadService } from './UploadService';
@@ -12,7 +12,7 @@ const authFetch = async (endpoint: string, options: RequestInit = {}) => {
     });
     const authHeaders = await withClerkAuthorization(headers);
 
-    return fetch(`${BASE_URL}${endpoint}`, {
+    return apiFetch(`${BASE_URL}${endpoint}`, {
         ...options,
         credentials: 'include',
         headers: authHeaders,

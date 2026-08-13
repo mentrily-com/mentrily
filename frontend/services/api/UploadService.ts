@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '@/lib/api-base';
+import { API_BASE_URL, apiFetch } from '@/lib/api-base';
 import { withCsrfHeader } from '@/lib/csrf';
 import { withClerkAuthorization } from '@/lib/clerk-token';
 
@@ -23,7 +23,7 @@ async function presign(kind: UploadKind, file: File): Promise<PresignResponse> {
     const headers = await withClerkAuthorization(
         withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
     );
-    const res = await fetch(`${BASE_URL}/uploads/presign`, {
+    const res = await apiFetch(`${BASE_URL}/uploads/presign`, {
         method: 'POST',
         headers,
         credentials: 'include',
@@ -76,7 +76,7 @@ async function confirm(kind: UploadKind, key: string): Promise<UploadedFile> {
     const headers = await withClerkAuthorization(
         withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
     );
-    const res = await fetch(`${BASE_URL}/uploads/confirm`, {
+    const res = await apiFetch(`${BASE_URL}/uploads/confirm`, {
         method: 'POST',
         headers,
         credentials: 'include',
