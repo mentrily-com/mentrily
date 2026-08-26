@@ -248,7 +248,7 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(process.env.PORT ?? 3000, '0.0.0.0', (err, address) => {
+  await app.listen(Number(process.env.PORT || 3000), '0.0.0.0', (err, address) => {
     if (err) {
       console.error(err);
       process.exit(1);

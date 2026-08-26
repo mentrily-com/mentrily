@@ -1,4 +1,4 @@
-name: Deploy Backend
+name: Deploy Backend to OCI
 
 on:
   push:
@@ -9,189 +9,75 @@ on:
       - '.github/workflows/backend-deploy.yml'
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 env:
-  AWS_REGION: ap-south-1
-  EB_APPLICATION_NAME: blockscode-backend
-  EB_ENVIRONMENT_NAME: blockscode-backend-prod-v2
-  EB_CNAME_PREFIX: blockscode-backend-prod-v2
-  EB_SOLUTION_STACK: 64bit Amazon Linux 2023 v4.12.1 running Docker
-  ECR_REPOSITORY: blockscode-backend
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/backend
 
 jobs:
-  deploy:
-    name: Build and deploy backend
+  build-and-push:
+    name: Build & Push Multi-Arch Docker Image
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    permissions:
+      contents: read
+      packages: write
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Set up QEMU for ARM64 Emulation
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log into GitHub Container Registry (GHCR)
+        uses: docker/login-action@v3
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Ensure ECR repository exists
-        run: |
-          aws ecr describe-repositories --repository-names "$ECR_REPOSITORY" >/dev/null 2>&1 \
-            || aws ecr create-repository --repository-name "$ECR_REPOSITORY" >/dev/null
-          echo "AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)" >> "$GITHUB_ENV"
+      - name: Build and Push Multi-Arch Image (linux/arm64)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          platforms: linux/arm64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      - name: Login to ECR
-        id: ecr
-        uses: aws-actions/amazon-ecr-login@v2
+  deploy:
+    name: Deploy to OCI VM & Prune Old Builds
+    needs: build-and-push
+    runs-on: ubuntu-latest
 
-      - name: Build and push image
-        id: image
-        working-directory: backend
-        env:
-          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          IMAGE_URI="$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          docker build -t "$IMAGE_URI" .
-          docker push "$IMAGE_URI"
-          echo "uri=$IMAGE_URI" >> "$GITHUB_OUTPUT"
+    steps:
+      - name: Deploy via SSH and Clean Storage
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.OCI_VM_PUBLIC_IP }}
+          username: ubuntu
+          key: ${{ secrets.OCI_SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            cd /opt/blockscode
 
-      - name: Deploy to VPS via SSM
-        env:
-          IMAGE_URI: ${{ steps.image.outputs.uri }}
-          BACKEND_ENV_FILE_B64: ${{ secrets.BACKEND_ENV_FILE_B64 }}
-          JUDGE0_API_URL: ${{ secrets.JUDGE0_API_URL }}
-          JUDGE0_AUTH_TOKEN: ${{ secrets.JUDGE0_AUTH_TOKEN }}
-          INSTANCE_ID: "i-0d5a5dd315aba5853"
-        run: |
-          ECR_PASSWORD=$(aws ecr get-login-password --region ${{ env.AWS_REGION }})
-          REGISTRY="${{ steps.ecr.outputs.registry }}"
-          
-          # Create deployment script
-          cat << 'EOF' > deploy.sh
-          #!/bin/bash
-          set -e
-          
-          # Base64 decode environment variables
-          echo "$BACKEND_ENV_FILE_B64" | base64 -d > /tmp/backend.env
-          
-          # Fix Redis host to use Docker bridge and strip double quotes from values
-          sed -i 's/"//g' /tmp/backend.env
-          sed -i 's/REDIS_HOST=localhost/REDIS_HOST=172.17.0.1/g' /tmp/backend.env
+            echo "=== 1. Logging into GHCR on VM ==="
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-          # Judge0 connection is managed via its own dedicated GH secrets
-          # (not the big BACKEND_ENV_FILE_B64 blob), so it stays current
-          # every deploy regardless of what's baked into that blob.
-          sed -i '/^JUDGE0_API_URL=/d; /^JUDGE0_AUTH_TOKEN=/d' /tmp/backend.env
-          echo "JUDGE0_API_URL=$JUDGE0_API_URL" >> /tmp/backend.env
-          echo "JUDGE0_AUTH_TOKEN=$JUDGE0_AUTH_TOKEN" >> /tmp/backend.env
+            echo "=== 2. Pulling latest backend image ==="
+            docker compose pull backend
 
-          # Ensure Redis is running alongside the backend
-          if ! docker ps | grep -q redis-server; then
-            docker run -d --name redis-server --restart unless-stopped -p 172.17.0.1:6379:6379 redis:alpine || true
-          fi
-          
-          # Ensure Datadog Agent is running alongside the backend
-          if ! docker ps | grep -q datadog-agent; then
-            docker run -d --name datadog-agent \
-              --restart unless-stopped \
-              --env-file /tmp/backend.env \
-              -v /var/run/docker.sock:/var/run/docker.sock:ro \
-              -v /proc/:/host/proc/:ro \
-              -v /sys/fs/cgroup/:/host/sys/fs/cgroup:ro \
-              -e DD_APM_ENABLED=true \
-              -e DD_APM_NON_LOCAL_TRAFFIC=true \
-              -p 172.17.0.1:8126:8126/tcp \
-              gcr.io/datadoghq/agent:latest || true
-          else
-            # Stop and restart it to pick up any environment variable changes
-            docker stop datadog-agent || true
-            docker rm datadog-agent || true
-            docker run -d --name datadog-agent \
-              --restart unless-stopped \
-              --env-file /tmp/backend.env \
-              -v /var/run/docker.sock:/var/run/docker.sock:ro \
-              -v /proc/:/host/proc/:ro \
-              -v /sys/fs/cgroup/:/host/sys/fs/cgroup:ro \
-              -e DD_APM_ENABLED=true \
-              -e DD_APM_NON_LOCAL_TRAFFIC=true \
-              -p 172.17.0.1:8126:8126/tcp \
-              gcr.io/datadoghq/agent:latest || true
-          fi
+            echo "=== 3. Restarting backend service ==="
+            docker compose up -d --no-deps backend
 
-          docker login -u AWS -p "$ECR_PASSWORD" "$REGISTRY"
-          docker pull "$IMAGE_URI"
-          
-          docker stop blockscode-backend || true
-          docker rm blockscode-backend || true
-          
-          # Extract the expected container port from the env file (fallback to 3000 if not found)
-          CONTAINER_PORT=$(grep -E "^PORT=" /tmp/backend.env | cut -d= -f2 | tr -d '"' || true)
-          CONTAINER_PORT=${CONTAINER_PORT:-3000}
-          
-          docker run -d --name blockscode-backend --restart unless-stopped --env-file /tmp/backend.env -p 3000:$CONTAINER_PORT "$IMAGE_URI"
-          
-          # Clean up old unused images to prevent running out of disk space
-          docker image prune -af
-          EOF
-          
-          # Inject variables into the script locally before encoding
-          sed -i "s|\$BACKEND_ENV_FILE_B64|${BACKEND_ENV_FILE_B64}|g" deploy.sh
-          sed -i "s|\$ECR_PASSWORD|${ECR_PASSWORD}|g" deploy.sh
-          sed -i "s|\$REGISTRY|${REGISTRY}|g" deploy.sh
-          sed -i "s|\$IMAGE_URI|${IMAGE_URI}|g" deploy.sh
-          sed -i "s|\$JUDGE0_API_URL|${JUDGE0_API_URL}|g" deploy.sh
-          sed -i "s|\$JUDGE0_AUTH_TOKEN|${JUDGE0_AUTH_TOKEN}|g" deploy.sh
-          
-          # Base64 encode the script to pass it safely through SSM
-          SCRIPT_B64=$(cat deploy.sh | base64 -w 0)
-          
-          echo "Sending SSM command to instance $INSTANCE_ID..."
-          COMMAND_ID=$(aws ssm send-command \
-            --instance-ids "$INSTANCE_ID" \
-            --document-name "AWS-RunShellScript" \
-            --parameters commands=["echo $SCRIPT_B64 | base64 -d | sudo bash"] \
-            --region ${{ env.AWS_REGION }} \
-            --query "Command.CommandId" \
-            --output text)
-            
-          echo "Command ID: $COMMAND_ID"
-          
-          # Wait for command to complete
-          echo "Waiting for command execution to complete..."
-          aws ssm wait command-executed \
-            --command-id "$COMMAND_ID" \
-            --instance-id "$INSTANCE_ID" \
-            --region ${{ env.AWS_REGION }} || true
-            
-          # Check status
-          STATUS=$(aws ssm get-command-invocation \
-            --command-id "$COMMAND_ID" \
-            --instance-id "$INSTANCE_ID" \
-            --region ${{ env.AWS_REGION }} \
-            --query "Status" \
-            --output text)
-            
-          if [ "$STATUS" != "Success" ]; then
-            echo "Deployment failed with status: $STATUS"
-            echo "Error output:"
-            aws ssm get-command-invocation \
-              --command-id "$COMMAND_ID" \
-              --instance-id "$INSTANCE_ID" \
-              --region ${{ env.AWS_REGION }} \
-              --query "StandardErrorContent" \
-              --output text
-            exit 1
-          fi
-          
-          echo "Deployment successful!"
-          echo "Standard Output:"
-          aws ssm get-command-invocation \
-            --command-id "$COMMAND_ID" \
-            --instance-id "$INSTANCE_ID" \
-            --region ${{ env.AWS_REGION }} \
-            --query "StandardOutputContent" \
-            --output text
+            echo "=== 4. Removing old dangling & unreferenced images (Zero-Storage-Leak) ==="
+            docker image prune -af
+
+            echo "=== 5. Disk status ==="
+            df -h /
