@@ -293,9 +293,7 @@ export class StudentService {
       this.findUserCompat({
         where: { id: userId },
         select: {
-          // @ts-ignore
           dailyStreak: true,
-          // @ts-ignore
           totalXP: true,
           _count: {
             select: {

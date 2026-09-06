@@ -81,8 +81,7 @@
     "sharp": "^0.34.5",
     "socket.io": "^4.8.3",
     "stripe": "^22.0.0",
-    "svix": "^1.56.0",
-    "uuid": "^13.0.0"
+    "svix": "^1.56.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.18.0",

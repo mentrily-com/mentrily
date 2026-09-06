@@ -1,8 +1,8 @@
-export const DEFAULT_APP_NAME = 'Mentrily';
+const DEFAULT_APP_NAME = 'Mentrily';
 export const DEFAULT_APP_DOMAIN = 'mentrily.com';
 export const DEFAULT_APP_URL = `https://${DEFAULT_APP_DOMAIN}`;
 
-export function normalizeDomain(value?: string | null): string {
+function normalizeDomain(value?: string | null): string {
   return String(value || '')
     .trim()
     .toLowerCase()
@@ -15,7 +15,7 @@ export function getAppName(): string {
   return process.env.APP_NAME || process.env.NEXT_PUBLIC_APP_NAME || DEFAULT_APP_NAME;
 }
 
-export function getAppDomain(): string {
+function getAppDomain(): string {
   return normalizeDomain(
     process.env.APP_DOMAIN ||
       process.env.NEXT_PUBLIC_APP_DOMAIN ||

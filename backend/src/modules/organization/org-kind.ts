@@ -44,10 +44,3 @@ export function getOrgKindFromRecord(
 
   return isOpenEnrollmentOrgRecord(org) ? 'OPEN' : 'STRICT';
 }
-
-export function isStrictOrgRecord(
-  org: OrgKindSource | null | undefined,
-  opts?: { isDefaultOrg?: boolean },
-): boolean {
-  return getOrgKindFromRecord(org, opts) === 'STRICT';
-}

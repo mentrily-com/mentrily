@@ -86,8 +86,6 @@ async function bootstrap() {
   });
 
   // Register plugin to allow Authorization header for CORS
-  // @ts-ignore
-  // Force reload
   await app.register(require('./fastify-cors-auth-header.plugin').default);
 
   // Register multipart support for file uploads. Only the certificate

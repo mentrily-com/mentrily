@@ -2529,7 +2529,6 @@ export class TeacherService {
           status,
         };
 
-        // @ts-ignore
         return this.prisma.courseProgress.upsert({
           where: { userId_courseId: { userId: student.id, courseId: id } },
           update: fields,
