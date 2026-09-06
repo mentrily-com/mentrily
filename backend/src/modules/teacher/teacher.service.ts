@@ -3892,7 +3892,17 @@ export class TeacherService {
 
     const [students, groupMembers] = await Promise.all([
       this.prisma.user.findMany({
-        where: { email: { in: normalizedEmails } },
+        // Scoped to the group's own org (when it has one) so a teacher
+        // can't pull a student from a different organization into their
+        // group just by knowing their email -- that student would then
+        // be exposed to this org's group-scoped announcements/exams, and
+        // the lookup itself doubles as an email-existence oracle across
+        // every org on the platform. Personal/org-less groups (orgId
+        // null) keep their existing, unscoped lookup unchanged.
+        where: {
+          email: { in: normalizedEmails },
+          ...(group.orgId ? { orgId: group.orgId } : {}),
+        },
         select: { id: true, email: true, name: true, role: true },
       }),
       this.prisma.studentGroup.findUnique({
