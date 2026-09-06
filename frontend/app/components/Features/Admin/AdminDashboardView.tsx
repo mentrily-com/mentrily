@@ -68,7 +68,10 @@ import { useQuery } from '@tanstack/react-query';
 
 // ... (keep interface)
 
-export default function AdminDashboardView({ basePath = '/dashboard/creator', organizationId }: AdminDashboardViewProps) {
+export default function AdminDashboardView({
+    basePath = '/dashboard/creator',
+    organizationId,
+}: AdminDashboardViewProps) {
     const { limits, usage, plan } = usePlan();
     const [showUpgradeBanner, setShowUpgradeBanner] = useState(true);
     const [dismissOnboarding, setDismissOnboarding] = useState(false);
@@ -87,9 +90,7 @@ export default function AdminDashboardView({ basePath = '/dashboard/creator', or
 
     const statsData = dashboardData?.stats;
     const analyticsData = dashboardData?.analytics;
-    const lastUpdatedLabel = statsData?.generatedAt
-        ? new Date(statsData.generatedAt).toLocaleString()
-        : null;
+    const lastUpdatedLabel = statsData?.generatedAt ? new Date(statsData.generatedAt).toLocaleString() : null;
 
     // Show loading ONLY if no data exists (first load)
     if (loading && !statsData) return <DashboardSkeleton type="main" userRole="admin" noNavbar />;
@@ -261,7 +262,10 @@ export default function AdminDashboardView({ basePath = '/dashboard/creator', or
                     ))}
                 </div>
 
-                <div className="bg-white rounded-[32px] border border-slate-100 p-6 shadow-sm mb-8" data-element-id="admin-usage-panel">
+                <div
+                    className="bg-white rounded-[32px] border border-slate-100 p-6 shadow-sm mb-8"
+                    data-element-id="admin-usage-panel"
+                >
                     <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest mb-5">Plan Usage</h3>
                     <div className="space-y-5">
                         {[

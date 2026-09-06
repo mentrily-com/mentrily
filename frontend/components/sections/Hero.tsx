@@ -168,7 +168,10 @@ export default function Hero() {
                                 }}
                             >
                                 Start for Free
-                                <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5" />
+                                <ArrowRight
+                                    size={16}
+                                    className="transition-transform duration-200 group-hover:translate-x-0.5"
+                                />
                             </Link>
                             <Link
                                 href="/pricing"
@@ -212,17 +215,20 @@ export default function Hero() {
                             className="relative w-[min(56vw,880px)] overflow-hidden rounded-2xl text-left transition-all duration-500 xl:w-[min(57vw,920px)]"
                             style={{
                                 border: '1px solid rgba(226,232,240,0.8)',
-                                boxShadow: '0 32px 80px rgba(15,23,42,0.12), 0 12px 32px rgba(15,23,42,0.08), 0 0 0 1px rgba(255,255,255,0.5) inset',
+                                boxShadow:
+                                    '0 32px 80px rgba(15,23,42,0.12), 0 12px 32px rgba(15,23,42,0.08), 0 0 0 1px rgba(255,255,255,0.5) inset',
                                 transformStyle: 'preserve-3d',
                             }}
                             onClick={() => setPreviewImage(heroImage)}
                             onMouseEnter={(e) => {
                                 e.currentTarget.style.transform = 'rotateY(-2deg) rotateX(1deg) translateY(-4px)';
-                                e.currentTarget.style.boxShadow = '0 40px 100px rgba(0,141,152,0.15), 0 16px 40px rgba(15,23,42,0.1), 0 0 0 1px rgba(0,141,152,0.1) inset';
+                                e.currentTarget.style.boxShadow =
+                                    '0 40px 100px rgba(0,141,152,0.15), 0 16px 40px rgba(15,23,42,0.1), 0 0 0 1px rgba(0,141,152,0.1) inset';
                             }}
                             onMouseLeave={(e) => {
                                 e.currentTarget.style.transform = 'rotateY(0) rotateX(0) translateY(0)';
-                                e.currentTarget.style.boxShadow = '0 32px 80px rgba(15,23,42,0.12), 0 12px 32px rgba(15,23,42,0.08), 0 0 0 1px rgba(255,255,255,0.5) inset';
+                                e.currentTarget.style.boxShadow =
+                                    '0 32px 80px rgba(15,23,42,0.12), 0 12px 32px rgba(15,23,42,0.08), 0 0 0 1px rgba(255,255,255,0.5) inset';
                             }}
                         >
                             {/* Screenshot */}

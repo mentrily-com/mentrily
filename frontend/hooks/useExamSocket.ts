@@ -497,7 +497,6 @@ export const useExamSocket = (
         hasEverConnected.current = false;
         setConnectionStatus('connecting');
         initSocket();
-         
     }, [initSocket]);
 
     return {

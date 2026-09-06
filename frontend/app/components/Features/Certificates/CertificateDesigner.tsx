@@ -73,7 +73,9 @@ export default function CertificateDesigner({
                 <h1 className="text-base font-black text-slate-900 mb-6">Template Designer</h1>
 
                 <div className="mb-6">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Choose Template</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">
+                        Choose Template
+                    </p>
                     <div className="grid grid-cols-2 gap-2">
                         {PRESETS.map((preset) => (
                             <button
@@ -90,7 +92,9 @@ export default function CertificateDesigner({
                 </div>
 
                 <div className="mb-6">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Template Info</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">
+                        Template Info
+                    </p>
                     <div className="space-y-3">
                         <label className="block">
                             <span className="block text-xs font-bold text-slate-700 mb-1">Template Name</span>
@@ -140,7 +144,9 @@ export default function CertificateDesigner({
                 </div>
 
                 <div className="mb-6">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">QR Code Position</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">
+                        QR Code Position
+                    </p>
                     <select
                         value={value.qrPosition}
                         onChange={(e) => setValue((prev) => ({ ...prev, qrPosition: e.target.value as any }))}

@@ -13,11 +13,7 @@ const FOCUSABLE_SELECTOR =
  * widely used dialog, so its own copy stays put); every other custom
  * overlay should use this hook rather than re-implement it.
  */
-export function useModalA11y(
-    panelRef: React.RefObject<HTMLElement | null>,
-    isOpen: boolean,
-    onClose?: () => void,
-) {
+export function useModalA11y(panelRef: React.RefObject<HTMLElement | null>, isOpen: boolean, onClose?: () => void) {
     const triggerRef = useRef<HTMLElement | null>(null);
 
     useEffect(() => {

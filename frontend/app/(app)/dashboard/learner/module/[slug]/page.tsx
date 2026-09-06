@@ -275,7 +275,9 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                         completedUnitIds:
                             typeof window === 'undefined'
                                 ? []
-                                : JSON.parse(window.localStorage.getItem('mentrily_getting_started_completed_units') || '[]'),
+                                : JSON.parse(
+                                      window.localStorage.getItem('mentrily_getting_started_completed_units') || '[]',
+                                  ),
                         attempts: {},
                     });
                     return;
@@ -439,7 +441,9 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                             {/* COMPACT TAB SWITCHER */}
                             <div
                                 className="flex items-center gap-4 mt-1.5 overflow-x-auto no-scrollbar sm:gap-6"
-                                data-element-id={slug === MENTRILY_ONBOARDING_COURSE_SLUG ? 'starter-course-tabs' : undefined}
+                                data-element-id={
+                                    slug === MENTRILY_ONBOARDING_COURSE_SLUG ? 'starter-course-tabs' : undefined
+                                }
                             >
                                 <TabLink
                                     active={activeTab === 'learning'}
@@ -601,9 +605,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                         }
                                     >
                                         <div
-                                            onMouseEnter={() =>
-                                                router.prefetch(`/dashboard/learner/unit/${u.id}`)
-                                            }
+                                            onMouseEnter={() => router.prefetch(`/dashboard/learner/unit/${u.id}`)}
                                             className={`px-4 py-4 rounded-[22px] border transition-all cursor-pointer flex items-center justify-between bg-white border-slate-100/80 hover:border-slate-300/50 sm:px-8 sm:py-5 sm:rounded-[24px]`}
                                         >
                                             <div

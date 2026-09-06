@@ -10,7 +10,6 @@ import { useSearchParams } from 'next/navigation';
 import { siteConfig } from '../../config/site';
 import { MessageSquare, FileText, Handshake, Check, Loader2, ArrowRight } from 'lucide-react';
 
-
 const _contactSchema = z.object({
     name: z.string().min(1, 'Name is required'),
     email: z.string().email('Please enter a valid email'),
@@ -293,8 +292,6 @@ function ContactForm() {
                         transition={{ delay: 0.2, duration: 0.5 }}
                         className="space-y-8"
                     >
-
-
                         {/* Use-case CTA cards */}
                         <div className="space-y-3">
                             {useCaseCTAs.map((card) => {
@@ -305,43 +302,51 @@ function ContactForm() {
                                         className="p-5 rounded-2xl transition-all duration-300 cursor-pointer group"
                                         style={{
                                             backgroundColor: card.title.includes('Partnership') ? '#F0FDFA' : '#FFFFFF',
-                                            border: card.title.includes('Partnership') ? '1px solid #99F6E4' : '1px solid #E2E8F0',
+                                            border: card.title.includes('Partnership')
+                                                ? '1px solid #99F6E4'
+                                                : '1px solid #E2E8F0',
                                             boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
                                         }}
                                         onMouseEnter={(e) => {
                                             e.currentTarget.style.transform = 'translateY(-4px)';
                                             e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.06)';
-                                            if (!card.title.includes('Partnership')) e.currentTarget.style.borderColor = '#CBD5E1';
+                                            if (!card.title.includes('Partnership'))
+                                                e.currentTarget.style.borderColor = '#CBD5E1';
                                         }}
                                         onMouseLeave={(e) => {
                                             e.currentTarget.style.transform = 'translateY(0)';
                                             e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
-                                            if (!card.title.includes('Partnership')) e.currentTarget.style.borderColor = '#E2E8F0';
+                                            if (!card.title.includes('Partnership'))
+                                                e.currentTarget.style.borderColor = '#E2E8F0';
                                         }}
                                     >
                                         <div className="flex items-start gap-4">
                                             <div
                                                 className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110"
-                                                style={{ backgroundColor: card.title.includes('Partnership') ? '#CCFBF1' : '#E6F7F8' }}
+                                                style={{
+                                                    backgroundColor: card.title.includes('Partnership')
+                                                        ? '#CCFBF1'
+                                                        : '#E6F7F8',
+                                                }}
                                             >
                                                 <Icon size={20} style={{ color: '#008D98' }} />
                                             </div>
                                             <div className="flex-1">
                                                 <div className="flex items-center justify-between mb-1">
-                                                    <h4
-                                                        className="text-sm font-bold"
-                                                        style={{ color: '#0F172A' }}
-                                                    >
+                                                    <h4 className="text-sm font-bold" style={{ color: '#0F172A' }}>
                                                         {card.title}
                                                     </h4>
                                                 </div>
-                                                <p className="text-xs mb-3 leading-relaxed" style={{ color: '#475569' }}>
+                                                <p
+                                                    className="text-xs mb-3 leading-relaxed"
+                                                    style={{ color: '#475569' }}
+                                                >
                                                     {card.description}
                                                 </p>
                                                 <Link
                                                     href={card.href}
-                                                    target={card.external ? "_blank" : undefined}
-                                                    rel={card.external ? "noopener noreferrer" : undefined}
+                                                    target={card.external ? '_blank' : undefined}
+                                                    rel={card.external ? 'noopener noreferrer' : undefined}
                                                     className="inline-flex items-center gap-1.5 text-xs font-bold transition-all duration-200 group-hover:gap-2"
                                                     style={{ color: '#008D98' }}
                                                 >
@@ -362,11 +367,13 @@ function ContactForm() {
 
 export default function ContactPage() {
     return (
-        <Suspense fallback={
-            <div className="pt-32 pb-20 text-center">
-                <Loader2 className="w-8 h-8 animate-spin mx-auto text-teal-600" />
-            </div>
-        }>
+        <Suspense
+            fallback={
+                <div className="pt-32 pb-20 text-center">
+                    <Loader2 className="w-8 h-8 animate-spin mx-auto text-teal-600" />
+                </div>
+            }
+        >
             <ContactForm />
         </Suspense>
     );

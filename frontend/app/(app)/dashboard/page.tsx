@@ -62,7 +62,9 @@ export default function DashboardPage() {
         router.replace('/login?error=account_not_found');
     }, [router]);
 
-    const getDestinationByRole = (role?: string): '/dashboard/creator' | '/dashboard/super-admin' | '/dashboard/learner' | null => {
+    const getDestinationByRole = (
+        role?: string,
+    ): '/dashboard/creator' | '/dashboard/super-admin' | '/dashboard/learner' | null => {
         if (role === 'TEACHER' || role === 'ADMIN') return '/dashboard/creator';
         if (role === 'SUPER_ADMIN') return '/dashboard/super-admin';
         if (role === 'STUDENT') return '/dashboard/learner';
@@ -128,22 +130,21 @@ export default function DashboardPage() {
         };
     }, [isSignedIn, clerkLoaded, clerkSignedIn, redirectMissingAccount, router, shouldProvisionSignup]);
 
-    const redirectByRole = (
-        user: { role?: string } | null,
-        preferredDestination?: string,
-    ): boolean => {
+    const redirectByRole = (user: { role?: string } | null, preferredDestination?: string): boolean => {
         const destination = getDestinationByRole(user?.role);
         if (!destination) return false;
         persistRoleHint(user?.role);
-        const normalizedRole = String(user?.role || '').trim().toUpperCase();
+        const normalizedRole = String(user?.role || '')
+            .trim()
+            .toUpperCase();
         setRedirectingRole(
             normalizedRole === 'STUDENT'
                 ? 'student'
                 : normalizedRole === 'SUPER_ADMIN'
-                    ? 'super-admin'
-                    : normalizedRole === 'ADMIN'
-                        ? 'admin'
-                        : 'teacher',
+                  ? 'super-admin'
+                  : normalizedRole === 'ADMIN'
+                    ? 'admin'
+                    : 'teacher',
         );
         setIsRedirectingToRoleDashboard(true);
         router.replace(preferredDestination || destination);
@@ -181,17 +182,18 @@ export default function DashboardPage() {
             setRedirectingRole('student');
             setIsRedirectingToRoleDashboard(true);
             const updatedUser = await AuthService.selectRole(role);
-            const redirected = redirectByRole(
-                (updatedUser as { role?: string }) || { role },
-                '/dashboard/learner',
-            );
+            const redirected = redirectByRole((updatedUser as { role?: string }) || { role }, '/dashboard/learner');
             if (!redirected) {
                 await resolveAndRedirect('/dashboard/learner');
             }
         } catch (error) {
             setIsRedirectingToRoleDashboard(false);
             const message = String((error as Error)?.message || '').toLowerCase();
-            if (message.includes('already been selected') || message.includes('unauthorized') || message.includes('bad request')) {
+            if (
+                message.includes('already been selected') ||
+                message.includes('unauthorized') ||
+                message.includes('bad request')
+            ) {
                 setRedirectingRole('student');
                 setIsRedirectingToRoleDashboard(true);
                 await resolveAndRedirect('/dashboard/learner');
@@ -220,7 +222,11 @@ export default function DashboardPage() {
         } catch (error) {
             setIsRedirectingToRoleDashboard(false);
             const message = String((error as Error)?.message || '').toLowerCase();
-            if (message.includes('already been selected') || message.includes('unauthorized') || message.includes('bad request')) {
+            if (
+                message.includes('already been selected') ||
+                message.includes('unauthorized') ||
+                message.includes('bad request')
+            ) {
                 persistRoleHint('TEACHER');
                 setRedirectingRole('teacher');
                 setIsRedirectingToRoleDashboard(true);

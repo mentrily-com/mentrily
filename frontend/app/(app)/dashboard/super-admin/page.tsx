@@ -125,7 +125,8 @@ export default function SuperAdminDashboardPage() {
                                 System infrastructure and multi-tenant management.
                             </h1>
                             <p className="max-w-2xl text-sm leading-7 text-slate-600 lg:text-base">
-                                Monitor organizations, review billing health, and manage platform-wide operations from one unified control center.
+                                Monitor organizations, review billing health, and manage platform-wide operations from
+                                one unified control center.
                             </p>
                         </div>
 
@@ -144,7 +145,9 @@ export default function SuperAdminDashboardPage() {
                             {globalStats.map((card) => (
                                 <div key={card.label} className="rounded-2xl border border-slate-200 bg-white p-4">
                                     <div className="flex items-center justify-between gap-3">
-                                        <div className={`inline-flex h-10 w-10 items-center justify-center rounded-xl ${card.chipClass}`}>
+                                        <div
+                                            className={`inline-flex h-10 w-10 items-center justify-center rounded-xl ${card.chipClass}`}
+                                        >
                                             {card.icon}
                                         </div>
                                         <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
@@ -154,7 +157,9 @@ export default function SuperAdminDashboardPage() {
                                     <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
                                         {card.label}
                                     </p>
-                                    <p className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">{card.value}</p>
+                                    <p className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">
+                                        {card.value}
+                                    </p>
                                 </div>
                             ))}
                         </div>
@@ -164,7 +169,9 @@ export default function SuperAdminDashboardPage() {
                     <div className="rounded-[24px] border border-slate-200 bg-slate-950 p-5 text-white shadow-[0_18px_40px_rgba(15,23,42,0.28)]">
                         <div className="flex items-start justify-between gap-3">
                             <div>
-                                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Plan Distribution</p>
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                                    Plan Distribution
+                                </p>
                                 <h2 className="mt-2 text-2xl font-semibold tracking-tight">Organization tiers</h2>
                             </div>
                         </div>
@@ -176,7 +183,9 @@ export default function SuperAdminDashboardPage() {
                                     <div key={plan} className="space-y-2">
                                         <div className="flex items-center justify-between gap-3 text-xs font-medium text-slate-300">
                                             <span>{plan}</span>
-                                            <span>{String(count)} ({percent}%)</span>
+                                            <span>
+                                                {String(count)} ({percent}%)
+                                            </span>
                                         </div>
                                         <div className="h-2 rounded-full bg-white/10">
                                             <div
@@ -225,7 +234,9 @@ export default function SuperAdminDashboardPage() {
                 <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.06)]">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                         <div>
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Directory</p>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                                Directory
+                            </p>
                             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
                                 Manage every organization from one board.
                             </h2>
@@ -265,9 +276,7 @@ export default function SuperAdminDashboardPage() {
                                                 status: newStatus,
                                             });
                                             setOrganizations((prev) =>
-                                                prev.map((o) =>
-                                                    o.id === org.id ? { ...o, status: newStatus } : o,
-                                                ),
+                                                prev.map((o) => (o.id === org.id ? { ...o, status: newStatus } : o)),
                                             );
                                         } catch (e) {
                                             alert('Failed to update status');
@@ -299,7 +308,9 @@ export default function SuperAdminDashboardPage() {
                 <div className="space-y-6">
                     <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_14px_40px_rgba(15,23,42,0.06)]">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Billing</p>
-                        <h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">Recent Billing Events</h2>
+                        <h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">
+                            Recent Billing Events
+                        </h2>
                         <div className="mt-5 space-y-3">
                             {(statsData?.recentEvents || []).slice(0, 6).map((event: any) => (
                                 <div key={event.id} className="rounded-xl border border-slate-200 bg-slate-50 p-3.5">
@@ -329,7 +340,9 @@ export default function SuperAdminDashboardPage() {
             <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.06)]">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Issue tracker</p>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                            Issue tracker
+                        </p>
                         <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">Reported Bugs</h2>
                         <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
                             User-submitted issues from student, teacher, and organization admin profiles.
@@ -374,7 +387,9 @@ export default function SuperAdminDashboardPage() {
                                     <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                                         <div className="min-w-0">
                                             <div className="flex flex-wrap items-center gap-2">
-                                                <h3 className="truncate text-base font-semibold text-slate-950">{bug.title}</h3>
+                                                <h3 className="truncate text-base font-semibold text-slate-950">
+                                                    {bug.title}
+                                                </h3>
                                                 <span
                                                     className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${bug.status === 'FIXED' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}
                                                 >
@@ -412,7 +427,11 @@ export default function SuperAdminDashboardPage() {
                                                             setBugReports((prev) =>
                                                                 prev.map((b) =>
                                                                     b.id === bug.id
-                                                                        ? { ...b, status: 'FIXED', fixedAt: new Date().toISOString() }
+                                                                        ? {
+                                                                              ...b,
+                                                                              status: 'FIXED',
+                                                                              fixedAt: new Date().toISOString(),
+                                                                          }
                                                                         : b,
                                                                 ),
                                                             );
@@ -457,7 +476,9 @@ export default function SuperAdminDashboardPage() {
                         <div className="flex items-start justify-between gap-4 mb-6">
                             <div className="min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                    <h3 className="text-2xl font-semibold tracking-tight text-slate-950">{selectedBug.title}</h3>
+                                    <h3 className="text-2xl font-semibold tracking-tight text-slate-950">
+                                        {selectedBug.title}
+                                    </h3>
                                     <span
                                         className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${selectedBug.status === 'FIXED' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}
                                     >
@@ -599,7 +620,9 @@ function OrgRow({ org, onDelete, onToggleStatus }: any) {
                             {usageBars.map((bar) => (
                                 <div key={bar.label}>
                                     <div className="flex items-center justify-between mb-0.5">
-                                        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">{bar.label}</span>
+                                        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                                            {bar.label}
+                                        </span>
                                         <span className="text-[10px] font-semibold text-slate-500">{bar.value}%</span>
                                     </div>
                                     <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">

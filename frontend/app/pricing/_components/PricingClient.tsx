@@ -77,9 +77,7 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
         const loadSession = async () => {
             const session = await AuthService.checkSession();
             if (!mounted) return;
-            setCanOpenCreatorBilling(
-                Boolean(session?.role === 'ADMIN' || session?.role === 'TEACHER'),
-            );
+            setCanOpenCreatorBilling(Boolean(session?.role === 'ADMIN' || session?.role === 'TEACHER'));
         };
 
         void loadSession();
@@ -100,7 +98,10 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
                 <div className="text-center">
                     <h1 className="text-4xl font-black text-white tracking-tight">Simple pricing for every stage</h1>
                     <p className="text-slate-400 font-bold mt-3">Start free, scale as your academy grows.</p>
-                    <p className="text-slate-500 text-sm mt-2">Free is personal. Starter and Pro are org-backed. Branding and custom domains are Enterprise only.</p>
+                    <p className="text-slate-500 text-sm mt-2">
+                        Free is personal. Starter and Pro are org-backed. Branding and custom domains are Enterprise
+                        only.
+                    </p>
                 </div>
 
                 <div className="flex justify-center mt-8">
@@ -219,54 +220,56 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
                                 </tr>
                             </thead>
                             <tbody className="text-xs font-bold text-slate-200">
-                                {([
-                                    {
-                                        category: 'Content',
-                                        key: 'coding',
-                                        fallback: [
-                                            'MCQ + Multi-select + Reading',
-                                            'All question types',
-                                            'All question types',
-                                            'All content types',
-                                        ],
-                                    },
-                                    {
-                                        category: 'Students',
-                                        key: 'students',
-                                        limits: true,
-                                        limitKey: 'students',
-                                    },
-                                    {
-                                        category: 'Monthly exams',
-                                        key: 'examsPerMonth',
-                                        limitKey: 'examsPerMonth',
-                                    },
-                                    {
-                                        category: 'Exams',
-                                        key: 'proctoring',
-                                        fallback: [
-                                            'Basic timed exams',
-                                            'Proctoring enabled',
-                                            'Advanced proctoring',
-                                            'Advanced proctoring',
-                                        ],
-                                    },
-                                    {
-                                        category: 'Branding',
-                                        key: 'whiteLabel',
-                                        fallback: [
-                                            'Mentrily branding',
-                                            'Mentrily branding',
-                                            'Mentrily branding',
-                                            'Full white-label',
-                                        ],
-                                    },
-                                    {
-                                        category: 'Analytics',
-                                        key: 'advancedAnalytics',
-                                        fallback: ['Basic', 'Basic', 'Advanced', 'Advanced'],
-                                    },
-                                ] as ComparisonRow[]).map((row) => (
+                                {(
+                                    [
+                                        {
+                                            category: 'Content',
+                                            key: 'coding',
+                                            fallback: [
+                                                'MCQ + Multi-select + Reading',
+                                                'All question types',
+                                                'All question types',
+                                                'All content types',
+                                            ],
+                                        },
+                                        {
+                                            category: 'Students',
+                                            key: 'students',
+                                            limits: true,
+                                            limitKey: 'students',
+                                        },
+                                        {
+                                            category: 'Monthly exams',
+                                            key: 'examsPerMonth',
+                                            limitKey: 'examsPerMonth',
+                                        },
+                                        {
+                                            category: 'Exams',
+                                            key: 'proctoring',
+                                            fallback: [
+                                                'Basic timed exams',
+                                                'Proctoring enabled',
+                                                'Advanced proctoring',
+                                                'Advanced proctoring',
+                                            ],
+                                        },
+                                        {
+                                            category: 'Branding',
+                                            key: 'whiteLabel',
+                                            fallback: [
+                                                'Mentrily branding',
+                                                'Mentrily branding',
+                                                'Mentrily branding',
+                                                'Full white-label',
+                                            ],
+                                        },
+                                        {
+                                            category: 'Analytics',
+                                            key: 'advancedAnalytics',
+                                            fallback: ['Basic', 'Basic', 'Advanced', 'Advanced'],
+                                        },
+                                    ] as ComparisonRow[]
+                                ).map((row) => (
                                     <tr key={row.category} className="border-b border-slate-800">
                                         <td className="py-3 text-slate-300">{row.category}</td>
                                         {normalizedPlans.map((plan, index) => {

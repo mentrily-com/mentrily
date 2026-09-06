@@ -9,13 +9,7 @@ export type PreviewImage = {
     alt: string;
 };
 
-export default function ImagePreviewModal({
-    image,
-    onClose,
-}: {
-    image: PreviewImage | null;
-    onClose: () => void;
-}) {
+export default function ImagePreviewModal({ image, onClose }: { image: PreviewImage | null; onClose: () => void }) {
     useEffect(() => {
         if (!image) return;
 
@@ -42,14 +36,7 @@ export default function ImagePreviewModal({
                 <X size={20} />
             </button>
             <div className="relative h-full max-h-[88vh] w-full max-w-7xl" onClick={(event) => event.stopPropagation()}>
-                <Image
-                    src={image.src}
-                    alt={image.alt}
-                    fill
-                    sizes="100vw"
-                    className="object-contain"
-                    priority
-                />
+                <Image src={image.src} alt={image.alt} fill sizes="100vw" className="object-contain" priority />
             </div>
         </div>
     );

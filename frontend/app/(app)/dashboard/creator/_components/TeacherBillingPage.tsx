@@ -300,7 +300,6 @@ export default function TeacherBillingPage() {
 
     return (
         <div className="animate-fade-in font-sans pb-10">
-
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>
@@ -314,18 +313,25 @@ export default function TeacherBillingPage() {
                 </div>
 
                 {!isOrgBilling && (
-                    <div className="flex items-center gap-1 rounded-lg p-1 self-start lg:self-auto border shadow-sm bg-white" style={{ borderColor: 'var(--color-border-subtle)' }}>
+                    <div
+                        className="flex items-center gap-1 rounded-lg p-1 self-start lg:self-auto border shadow-sm bg-white"
+                        style={{ borderColor: 'var(--color-border-subtle)' }}
+                    >
                         <button
                             onClick={() => setBillingInterval('monthly')}
                             className={`px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${billingInterval === 'monthly' ? 'bg-[var(--color-bg-subtle)]' : 'hover:bg-[var(--color-bg-muted)]'}`}
-                            style={{ color: billingInterval === 'monthly' ? 'var(--brand)' : 'var(--color-text-secondary)' }}
+                            style={{
+                                color: billingInterval === 'monthly' ? 'var(--brand)' : 'var(--color-text-secondary)',
+                            }}
                         >
                             Monthly
                         </button>
                         <button
                             onClick={() => setBillingInterval('annual')}
                             className={`px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${billingInterval === 'annual' ? 'bg-[var(--color-bg-subtle)]' : 'hover:bg-[var(--color-bg-muted)]'}`}
-                            style={{ color: billingInterval === 'annual' ? 'var(--brand)' : 'var(--color-text-secondary)' }}
+                            style={{
+                                color: billingInterval === 'annual' ? 'var(--brand)' : 'var(--color-text-secondary)',
+                            }}
                         >
                             Annual
                         </button>
@@ -333,15 +339,27 @@ export default function TeacherBillingPage() {
                 )}
             </div>
 
-            <section className="bg-white rounded-xl border shadow-sm p-6 md:p-8 mb-6" style={{ borderColor: 'var(--color-border-subtle)' }}>
+            <section
+                className="bg-white rounded-xl border shadow-sm p-6 md:p-8 mb-6"
+                style={{ borderColor: 'var(--color-border-subtle)' }}
+            >
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                     <div>
-                        <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
+                        <p
+                            className="text-[10px] font-semibold uppercase tracking-wider"
+                            style={{ color: 'var(--color-text-muted)' }}
+                        >
                             Current Plan
                         </p>
                         <div className="flex items-center gap-3 mt-2">
-                            <span className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider rounded border"
-                                style={{ backgroundColor: 'var(--color-bg-blue-tint)', color: 'var(--brand)', borderColor: 'var(--color-border-brand)' }}>
+                            <span
+                                className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider rounded border"
+                                style={{
+                                    backgroundColor: 'var(--color-bg-blue-tint)',
+                                    color: 'var(--brand)',
+                                    borderColor: 'var(--color-border-brand)',
+                                }}
+                            >
                                 {currentPlan}
                             </span>
                             <h2 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
@@ -366,7 +384,11 @@ export default function TeacherBillingPage() {
                                     document.getElementById('plan-comparison')?.scrollIntoView({ behavior: 'smooth' })
                                 }
                                 className="px-5 py-2.5 rounded-lg border text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer shadow-sm"
-                                style={{ backgroundColor: 'white', borderColor: 'var(--color-border-subtle)', color: 'var(--color-text-secondary)' }}
+                                style={{
+                                    backgroundColor: 'white',
+                                    borderColor: 'var(--color-border-subtle)',
+                                    color: 'var(--color-text-secondary)',
+                                }}
                                 onMouseEnter={(e) => {
                                     e.currentTarget.style.backgroundColor = 'var(--color-bg-subtle)';
                                     e.currentTarget.style.color = 'var(--color-text-primary)';
@@ -397,21 +419,26 @@ export default function TeacherBillingPage() {
                 </div>
 
                 {canManageBilling && (
-                <div className="mt-4 pt-4 border-t" style={{ borderColor: 'var(--color-border-subtle)' }}>
-                    <button
-                        onClick={handlePortal}
-                        disabled={busyAction === 'portal'}
-                        className="text-xs font-semibold uppercase tracking-wider hover:underline disabled:opacity-50 disabled:no-underline cursor-pointer"
-                        style={{ color: 'var(--brand)' }}
-                    >
-                        {busyAction === 'portal' ? 'Opening invoices...' : 'View invoices'}
-                    </button>
-                </div>
+                    <div className="mt-4 pt-4 border-t" style={{ borderColor: 'var(--color-border-subtle)' }}>
+                        <button
+                            onClick={handlePortal}
+                            disabled={busyAction === 'portal'}
+                            className="text-xs font-semibold uppercase tracking-wider hover:underline disabled:opacity-50 disabled:no-underline cursor-pointer"
+                            style={{ color: 'var(--brand)' }}
+                        >
+                            {busyAction === 'portal' ? 'Opening invoices...' : 'View invoices'}
+                        </button>
+                    </div>
                 )}
             </section>
 
-            <section className="bg-white rounded-xl border shadow-sm p-6 md:p-8 mb-6" style={{ borderColor: 'var(--color-border-subtle)' }}>
-                <h3 className="text-lg font-bold mb-6" style={{ color: 'var(--color-text-primary)' }}>Usage Overview</h3>
+            <section
+                className="bg-white rounded-xl border shadow-sm p-6 md:p-8 mb-6"
+                style={{ borderColor: 'var(--color-border-subtle)' }}
+            >
+                <h3 className="text-lg font-bold mb-6" style={{ color: 'var(--color-text-primary)' }}>
+                    Usage Overview
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <QuotaBar
                         label="Courses"
@@ -443,130 +470,221 @@ export default function TeacherBillingPage() {
             </section>
 
             {!isOrgBilling && (
-            <section id="plan-comparison" className="bg-white rounded-xl border shadow-sm p-6 md:p-8 mb-6" style={{ borderColor: 'var(--color-border-subtle)' }}>
-                <h3 className="text-lg font-bold mb-6" style={{ color: 'var(--color-text-primary)' }}>Plan Comparison</h3>
-                {sortedPlans.length === 0 ? (
-                    <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-sm font-medium text-slate-500 text-center">
-                        Plan data is temporarily unavailable. Please refresh this page.
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                        {sortedPlans.map((plan) => {
-                            const isCurrent = plan.plan === currentPlan;
-                            const isEnterprise = plan.plan === 'ENTERPRISE';
-                            const isUpgradeable =
-                                ['FREE', 'STARTER', 'PRO', 'ENTERPRISE'].indexOf(plan.plan) >
-                                ['FREE', 'STARTER', 'PRO', 'ENTERPRISE'].indexOf(currentPlan);
+                <section
+                    id="plan-comparison"
+                    className="bg-white rounded-xl border shadow-sm p-6 md:p-8 mb-6"
+                    style={{ borderColor: 'var(--color-border-subtle)' }}
+                >
+                    <h3 className="text-lg font-bold mb-6" style={{ color: 'var(--color-text-primary)' }}>
+                        Plan Comparison
+                    </h3>
+                    {sortedPlans.length === 0 ? (
+                        <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-sm font-medium text-slate-500 text-center">
+                            Plan data is temporarily unavailable. Please refresh this page.
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                            {sortedPlans.map((plan) => {
+                                const isCurrent = plan.plan === currentPlan;
+                                const isEnterprise = plan.plan === 'ENTERPRISE';
+                                const isUpgradeable =
+                                    ['FREE', 'STARTER', 'PRO', 'ENTERPRISE'].indexOf(plan.plan) >
+                                    ['FREE', 'STARTER', 'PRO', 'ENTERPRISE'].indexOf(currentPlan);
 
-                            return (
-                                <div
-                                    key={plan.plan}
-                                    className={`rounded-xl border p-5 transition-all ${isCurrent ? 'bg-[var(--color-bg-blue-tint)]' : 'bg-white hover:border-[var(--color-border-brand)] hover:shadow-md'}`}
-                                    style={{ borderColor: isCurrent ? 'var(--brand)' : 'var(--color-border-subtle)' }}
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
-                                            {plan.plan}
+                                return (
+                                    <div
+                                        key={plan.plan}
+                                        className={`rounded-xl border p-5 transition-all ${isCurrent ? 'bg-[var(--color-bg-blue-tint)]' : 'bg-white hover:border-[var(--color-border-brand)] hover:shadow-md'}`}
+                                        style={{
+                                            borderColor: isCurrent ? 'var(--brand)' : 'var(--color-border-subtle)',
+                                        }}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <p
+                                                className="text-[10px] font-semibold uppercase tracking-wider"
+                                                style={{ color: 'var(--color-text-muted)' }}
+                                            >
+                                                {plan.plan}
+                                            </p>
+                                            {isCurrent && (
+                                                <span
+                                                    className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full"
+                                                    style={{
+                                                        backgroundColor: 'white',
+                                                        color: 'var(--brand)',
+                                                        border: '1px solid var(--color-border-brand)',
+                                                    }}
+                                                >
+                                                    Current
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <p
+                                            className="text-2xl font-bold mt-2"
+                                            style={{ color: 'var(--color-text-primary)' }}
+                                        >
+                                            {PRICE_LABELS[plan.plan][billingInterval]}
                                         </p>
-                                        {isCurrent && (
-                                            <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full" style={{ backgroundColor: 'white', color: 'var(--brand)', border: '1px solid var(--color-border-brand)' }}>
-                                                Current
-                                            </span>
+
+                                        <ul
+                                            className="mt-5 space-y-2.5 text-xs font-medium"
+                                            style={{ color: 'var(--color-text-secondary)' }}
+                                        >
+                                            <li
+                                                className="flex justify-between border-b pb-1.5"
+                                                style={{ borderColor: 'var(--color-border-subtle)' }}
+                                            >
+                                                <span>Students:</span>
+                                                <span
+                                                    className="font-semibold"
+                                                    style={{ color: 'var(--color-text-primary)' }}
+                                                >
+                                                    {plan.limits.students < 0 ? 'Unlimited' : plan.limits.students}
+                                                </span>
+                                            </li>
+                                            <li
+                                                className="flex justify-between border-b pb-1.5"
+                                                style={{ borderColor: 'var(--color-border-subtle)' }}
+                                            >
+                                                <span>Courses:</span>
+                                                <span
+                                                    className="font-semibold"
+                                                    style={{ color: 'var(--color-text-primary)' }}
+                                                >
+                                                    {plan.limits.courses < 0 ? 'Unlimited' : plan.limits.courses}
+                                                </span>
+                                            </li>
+                                            <li
+                                                className="flex justify-between border-b pb-1.5"
+                                                style={{ borderColor: 'var(--color-border-subtle)' }}
+                                            >
+                                                <span>Storage:</span>
+                                                <span
+                                                    className="font-semibold"
+                                                    style={{ color: 'var(--color-text-primary)' }}
+                                                >
+                                                    {plan.limits.storageMb < 0
+                                                        ? 'Unlimited'
+                                                        : `${plan.limits.storageMb} MB`}
+                                                </span>
+                                            </li>
+                                            <li
+                                                className="flex justify-between border-b pb-1.5"
+                                                style={{ borderColor: 'var(--color-border-subtle)' }}
+                                            >
+                                                <span>Seats:</span>
+                                                <span
+                                                    className="font-semibold"
+                                                    style={{ color: 'var(--color-text-primary)' }}
+                                                >
+                                                    {formatLimit(plan.limits.seats)}
+                                                </span>
+                                            </li>
+                                            <li
+                                                className="flex justify-between border-b pb-1.5"
+                                                style={{ borderColor: 'var(--color-border-subtle)' }}
+                                            >
+                                                <span>Monthly exams:</span>
+                                                <span
+                                                    className="font-semibold"
+                                                    style={{ color: 'var(--color-text-primary)' }}
+                                                >
+                                                    {formatLimit(plan.limits.examsPerMonth)}
+                                                </span>
+                                            </li>
+                                            <li
+                                                className="flex justify-between border-b pb-1.5"
+                                                style={{ borderColor: 'var(--color-border-subtle)' }}
+                                            >
+                                                <span>Admin seats:</span>
+                                                <span
+                                                    className="font-semibold"
+                                                    style={{ color: 'var(--color-text-primary)' }}
+                                                >
+                                                    {formatLimit(plan.limits.adminSeats)}
+                                                </span>
+                                            </li>
+                                            <li
+                                                className="flex justify-between border-b pb-1.5"
+                                                style={{ borderColor: 'var(--color-border-subtle)' }}
+                                            >
+                                                <span>Teacher seats:</span>
+                                                <span
+                                                    className="font-semibold"
+                                                    style={{ color: 'var(--color-text-primary)' }}
+                                                >
+                                                    {formatLimit(plan.limits.teacherSeats)}
+                                                </span>
+                                            </li>
+                                        </ul>
+
+                                        <p
+                                            className="mt-4 text-[11px] font-medium leading-5"
+                                            style={{ color: 'var(--color-text-secondary)' }}
+                                        >
+                                            {formatQuestionTypes(plan.limits.allowedQuestionTypes)}
+                                        </p>
+
+                                        {isEnterprise ? (
+                                            <button
+                                                onClick={() => {
+                                                    posthog.capture('plan_upgrade_clicked', {
+                                                        source: 'creator_billing_teacher',
+                                                        targetPlan: 'ENTERPRISE',
+                                                        interval: billingInterval,
+                                                    });
+                                                    window.location.href = '/contact';
+                                                }}
+                                                className="w-full mt-6 py-2.5 rounded-lg text-white text-[10px] font-semibold uppercase tracking-wider transition-all cursor-pointer shadow-sm"
+                                                style={{ backgroundColor: 'var(--color-text-primary)' }}
+                                                onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
+                                                onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+                                            >
+                                                Contact Sales
+                                            </button>
+                                        ) : isCurrent ? (
+                                            <button
+                                                disabled
+                                                className="w-full mt-6 py-2.5 rounded-lg text-[10px] font-semibold uppercase tracking-wider cursor-not-allowed border"
+                                                style={{
+                                                    backgroundColor: 'var(--color-bg-muted)',
+                                                    color: 'var(--color-text-muted)',
+                                                    borderColor: 'var(--color-border-subtle)',
+                                                }}
+                                            >
+                                                Current Plan
+                                            </button>
+                                        ) : (
+                                            <button
+                                                disabled={!isUpgradeable || busyAction !== null}
+                                                onClick={() => handleUpgrade(plan.plan, plan.prices.all)}
+                                                className="w-full mt-6 py-2.5 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer border shadow-sm"
+                                                style={{
+                                                    backgroundColor: isUpgradeable ? 'white' : 'var(--color-bg-muted)',
+                                                    color: isUpgradeable ? 'var(--brand)' : 'var(--color-text-muted)',
+                                                    borderColor: isUpgradeable
+                                                        ? 'var(--color-border-brand)'
+                                                        : 'var(--color-border-subtle)',
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    if (!isUpgradeable) return;
+                                                    e.currentTarget.style.backgroundColor = 'var(--color-bg-blue-tint)';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    if (!isUpgradeable) return;
+                                                    e.currentTarget.style.backgroundColor = 'white';
+                                                }}
+                                            >
+                                                {`Request ${plan.plan}`}
+                                            </button>
                                         )}
                                     </div>
-
-                                    <p className="text-2xl font-bold mt-2" style={{ color: 'var(--color-text-primary)' }}>
-                                        {PRICE_LABELS[plan.plan][billingInterval]}
-                                    </p>
-
-                                    <ul className="mt-5 space-y-2.5 text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>
-                                        <li className="flex justify-between border-b pb-1.5" style={{ borderColor: 'var(--color-border-subtle)' }}>
-                                            <span>Students:</span>
-                                            <span className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>{plan.limits.students < 0 ? 'Unlimited' : plan.limits.students}</span>
-                                        </li>
-                                        <li className="flex justify-between border-b pb-1.5" style={{ borderColor: 'var(--color-border-subtle)' }}>
-                                            <span>Courses:</span>
-                                            <span className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>{plan.limits.courses < 0 ? 'Unlimited' : plan.limits.courses}</span>
-                                        </li>
-                                        <li className="flex justify-between border-b pb-1.5" style={{ borderColor: 'var(--color-border-subtle)' }}>
-                                            <span>Storage:</span>
-                                            <span className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>{plan.limits.storageMb < 0 ? 'Unlimited' : `${plan.limits.storageMb} MB`}</span>
-                                        </li>
-                                        <li className="flex justify-between border-b pb-1.5" style={{ borderColor: 'var(--color-border-subtle)' }}>
-                                            <span>Seats:</span>
-                                            <span className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>{formatLimit(plan.limits.seats)}</span>
-                                        </li>
-                                        <li className="flex justify-between border-b pb-1.5" style={{ borderColor: 'var(--color-border-subtle)' }}>
-                                            <span>Monthly exams:</span>
-                                            <span className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>{formatLimit(plan.limits.examsPerMonth)}</span>
-                                        </li>
-                                        <li className="flex justify-between border-b pb-1.5" style={{ borderColor: 'var(--color-border-subtle)' }}>
-                                            <span>Admin seats:</span>
-                                            <span className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>{formatLimit(plan.limits.adminSeats)}</span>
-                                        </li>
-                                        <li className="flex justify-between border-b pb-1.5" style={{ borderColor: 'var(--color-border-subtle)' }}>
-                                            <span>Teacher seats:</span>
-                                            <span className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>{formatLimit(plan.limits.teacherSeats)}</span>
-                                        </li>
-                                    </ul>
-
-                                    <p className="mt-4 text-[11px] font-medium leading-5" style={{ color: 'var(--color-text-secondary)' }}>
-                                        {formatQuestionTypes(plan.limits.allowedQuestionTypes)}
-                                    </p>
-
-                                    {isEnterprise ? (
-                                        <button
-                                            onClick={() => {
-                                                posthog.capture('plan_upgrade_clicked', {
-                                                    source: 'creator_billing_teacher',
-                                                    targetPlan: 'ENTERPRISE',
-                                                    interval: billingInterval,
-                                                });
-                                                window.location.href = '/contact';
-                                            }}
-                                            className="w-full mt-6 py-2.5 rounded-lg text-white text-[10px] font-semibold uppercase tracking-wider transition-all cursor-pointer shadow-sm"
-                                            style={{ backgroundColor: 'var(--color-text-primary)' }}
-                                            onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
-                                            onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
-                                        >
-                                            Contact Sales
-                                        </button>
-                                    ) : isCurrent ? (
-                                        <button
-                                            disabled
-                                            className="w-full mt-6 py-2.5 rounded-lg text-[10px] font-semibold uppercase tracking-wider cursor-not-allowed border"
-                                            style={{ backgroundColor: 'var(--color-bg-muted)', color: 'var(--color-text-muted)', borderColor: 'var(--color-border-subtle)' }}
-                                        >
-                                            Current Plan
-                                        </button>
-                                    ) : (
-                                        <button
-                                            disabled={!isUpgradeable || busyAction !== null}
-                                            onClick={() => handleUpgrade(plan.plan, plan.prices.all)}
-                                            className="w-full mt-6 py-2.5 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer border shadow-sm"
-                                            style={{
-                                                backgroundColor: isUpgradeable ? 'white' : 'var(--color-bg-muted)',
-                                                color: isUpgradeable ? 'var(--brand)' : 'var(--color-text-muted)',
-                                                borderColor: isUpgradeable ? 'var(--color-border-brand)' : 'var(--color-border-subtle)',
-                                            }}
-                                            onMouseEnter={(e) => {
-                                                if (!isUpgradeable) return;
-                                                e.currentTarget.style.backgroundColor = 'var(--color-bg-blue-tint)';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                if (!isUpgradeable) return;
-                                                e.currentTarget.style.backgroundColor = 'white';
-                                            }}
-                                        >
-                                            {`Request ${plan.plan}`}
-                                        </button>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
-            </section>
+                                );
+                            })}
+                        </div>
+                    )}
+                </section>
             )}
 
             <UpgradeRequestModal

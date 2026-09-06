@@ -16,7 +16,9 @@ function readPendingDashboardRole(): string {
 
     try {
         const parsed = JSON.parse(raw) as { role?: string; expiresAt?: number };
-        const role = String(parsed?.role || '').trim().toUpperCase();
+        const role = String(parsed?.role || '')
+            .trim()
+            .toUpperCase();
         const expiresAt = Number(parsed?.expiresAt || 0);
 
         if (!role || !Number.isFinite(expiresAt) || expiresAt <= Date.now()) {
@@ -81,7 +83,6 @@ export function useRoleGuard(allowedRoles: string[]) {
             else if (role === 'SUPER_ADMIN') router.replace('/dashboard/super-admin');
             return;
         }
-
     }, [allowedRoles, router, isLoaded, isSignedIn, isSessionResolved, role, isPendingAuthorized]);
 
     return { isAuthorized, isReady, isPendingAuthorized };

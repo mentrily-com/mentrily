@@ -36,10 +36,7 @@ export default function OnlineCompilersPage() {
 
     return (
         <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6 lg:px-8">
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
-            />
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }} />
             <h1 className="text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
                 Free Online Compilers &amp; Code Playgrounds
             </h1>

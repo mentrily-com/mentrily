@@ -148,9 +148,7 @@ export default async function PublicCoursePage({
                 </section>
 
                 {showPoweredBy && (
-                    <footer className="mt-6 text-center text-xs font-bold text-slate-400">
-                        Powered by Mentrily
-                    </footer>
+                    <footer className="mt-6 text-center text-xs font-bold text-slate-400">Powered by Mentrily</footer>
                 )}
             </main>
         </div>

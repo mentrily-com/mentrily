@@ -143,7 +143,9 @@ export class StorageService {
     });
 
     try {
-      this.logger.log(`Uploading file ${filename} to S3: ${this.bucketName}/${key}`);
+      this.logger.log(
+        `Uploading file ${filename} to S3: ${this.bucketName}/${key}`,
+      );
       await this.s3Client.send(command);
       this.logger.log(`File uploaded successfully: ${key}`);
 
@@ -215,7 +217,10 @@ export class StorageService {
           where: { key: key },
         });
       } catch (assetError) {
-        this.logger.error(`Failed to delete asset record: ${assetError.message}`, assetError.stack);
+        this.logger.error(
+          `Failed to delete asset record: ${assetError.message}`,
+          assetError.stack,
+        );
       }
     } catch (error) {
       this.logger.error(`Failed to delete file: ${error.message}`, error.stack);

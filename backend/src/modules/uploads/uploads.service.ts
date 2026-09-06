@@ -46,7 +46,12 @@ export class UploadsService {
 
   async presign(
     user: any,
-    body: { kind: UploadKind; filename: string; mimeType: string; sizeBytes: number },
+    body: {
+      kind: UploadKind;
+      filename: string;
+      mimeType: string;
+      sizeBytes: number;
+    },
   ) {
     const config = UPLOAD_KINDS[body.kind];
     if (!config) throw new BadRequestException('Unknown upload kind');

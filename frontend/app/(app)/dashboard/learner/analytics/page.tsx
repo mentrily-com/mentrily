@@ -342,7 +342,14 @@ export default function AnalyticsPage() {
         });
 
         const activeDays = counts.size;
-        return { weeks, monthLabels, max, activeDays, busiest: busiest as { date: Date; count: number } | null, thisWeek };
+        return {
+            weeks,
+            monthLabels,
+            max,
+            activeDays,
+            busiest: busiest as { date: Date; count: number } | null,
+            thisWeek,
+        };
     }, [allAttempts]);
 
     // Sequential brand ramp for the heatmap: one hue, light -> dark.
@@ -525,7 +532,9 @@ export default function AnalyticsPage() {
                                     label="Success Rate"
                                     value={`${stats.successRate}%`}
                                     sub="of all attempts"
-                                    tone={stats.successRate >= 60 ? 'emerald' : stats.successRate >= 30 ? 'amber' : 'rose'}
+                                    tone={
+                                        stats.successRate >= 60 ? 'emerald' : stats.successRate >= 30 ? 'amber' : 'rose'
+                                    }
                                 />
                                 <StatTile
                                     icon={Sparkles}

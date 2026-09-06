@@ -106,7 +106,14 @@ export default function BrowseCoursesPage() {
                             className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[var(--brand)] transition-all shadow-sm sm:w-72"
                         />
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <svg
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2.5"
+                            >
                                 <circle cx="11" cy="11" r="8" />
                                 <path d="m21 21-4.3-4.3" />
                             </svg>
@@ -122,7 +129,10 @@ export default function BrowseCoursesPage() {
                 {loading ? (
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                         {Array.from({ length: 6 }).map((_, i) => (
-                            <div key={i} className="rounded-3xl border border-slate-100 bg-white p-0 shadow-sm overflow-hidden">
+                            <div
+                                key={i}
+                                className="rounded-3xl border border-slate-100 bg-white p-0 shadow-sm overflow-hidden"
+                            >
                                 <div className="h-40 w-full bg-slate-100 animate-pulse" />
                                 <div className="p-5 space-y-3">
                                     <div className="h-4 w-2/3 bg-slate-100 rounded animate-pulse" />
@@ -180,7 +190,9 @@ export default function BrowseCoursesPage() {
 
                                     {/* Body */}
                                     <div className="flex flex-1 flex-col p-5">
-                                        <h3 className="mb-1 text-lg font-black leading-snug text-slate-800">{course.title}</h3>
+                                        <h3 className="mb-1 text-lg font-black leading-snug text-slate-800">
+                                            {course.title}
+                                        </h3>
                                         {course.shortDescription && (
                                             <p className="mb-3 text-sm font-semibold leading-6 text-slate-500 line-clamp-2">
                                                 {course.shortDescription}
@@ -222,7 +234,14 @@ export default function BrowseCoursesPage() {
                                                     </div>
                                                     <span className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[var(--brand)]/20 bg-[var(--brand-lighter)] px-4 py-2.5 text-xs font-black uppercase tracking-widest text-[var(--brand-dark)] transition-colors hover:bg-[var(--brand-light)]">
                                                         {percent > 0 ? 'Continue Learning' : 'Start Learning'}
-                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5">
+                                                        <svg
+                                                            width="12"
+                                                            height="12"
+                                                            viewBox="0 0 24 24"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            strokeWidth="3.5"
+                                                        >
                                                             <path d="M9 18l6-6-6-6" />
                                                         </svg>
                                                     </span>

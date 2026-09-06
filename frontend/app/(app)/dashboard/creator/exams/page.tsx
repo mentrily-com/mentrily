@@ -98,12 +98,42 @@ export default function TeacherExamsPage() {
             </div>
 
             <div className="mb-8 grid grid-cols-2 gap-2 rounded-3xl border border-slate-200 bg-white p-2 shadow-sm sm:mb-10 sm:flex sm:items-center sm:gap-3 sm:overflow-x-auto sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
-                <TabItem active={activeTab === 'all'} onClick={() => setActiveTab('all')} label="All Exams" count={exams.length} />
-                <TabItem active={activeTab === 'standalone'} onClick={() => setActiveTab('standalone')} label="Live Exams" count={exams.filter((exam) => !exam.linkedCourseId && !exam.linkedCourse).length} />
-                <TabItem active={activeTab === 'course-linked'} onClick={() => setActiveTab('course-linked')} label="Course Linked" count={exams.filter((exam) => exam.linkedCourseId || exam.linkedCourse).length} />
-                <TabItem active={activeTab === 'live'} onClick={() => setActiveTab('live')} label="Live Now" count={exams.filter((exam) => exam.isActive).length} />
-                <TabItem active={activeTab === 'draft'} onClick={() => setActiveTab('draft')} label="Drafts" count={exams.filter((exam) => !exam.isActive).length} />
-                <TabItem active={activeTab === 'calendar'} onClick={() => setActiveTab('calendar')} label="Calendar" count={scheduledExams.length} />
+                <TabItem
+                    active={activeTab === 'all'}
+                    onClick={() => setActiveTab('all')}
+                    label="All Exams"
+                    count={exams.length}
+                />
+                <TabItem
+                    active={activeTab === 'standalone'}
+                    onClick={() => setActiveTab('standalone')}
+                    label="Live Exams"
+                    count={exams.filter((exam) => !exam.linkedCourseId && !exam.linkedCourse).length}
+                />
+                <TabItem
+                    active={activeTab === 'course-linked'}
+                    onClick={() => setActiveTab('course-linked')}
+                    label="Course Linked"
+                    count={exams.filter((exam) => exam.linkedCourseId || exam.linkedCourse).length}
+                />
+                <TabItem
+                    active={activeTab === 'live'}
+                    onClick={() => setActiveTab('live')}
+                    label="Live Now"
+                    count={exams.filter((exam) => exam.isActive).length}
+                />
+                <TabItem
+                    active={activeTab === 'draft'}
+                    onClick={() => setActiveTab('draft')}
+                    label="Drafts"
+                    count={exams.filter((exam) => !exam.isActive).length}
+                />
+                <TabItem
+                    active={activeTab === 'calendar'}
+                    onClick={() => setActiveTab('calendar')}
+                    label="Calendar"
+                    count={scheduledExams.length}
+                />
             </div>
 
             {activeTab === 'calendar' ? (
@@ -168,12 +198,16 @@ function ExamSection({
     onInvite: (exam: any) => void;
 }) {
     return (
-        <section className={`overflow-hidden rounded-3xl border shadow-sm ${linked ? 'border-emerald-200 bg-emerald-50/40' : 'border-slate-200 bg-white'}`}>
+        <section
+            className={`overflow-hidden rounded-3xl border shadow-sm ${linked ? 'border-emerald-200 bg-emerald-50/40' : 'border-slate-200 bg-white'}`}
+        >
             <div className="flex flex-col justify-between gap-3 border-b border-black/5 px-6 py-5 sm:flex-row sm:items-center sm:px-8">
                 <div>
                     <div className="flex items-center gap-3">
                         <h2 className="text-lg font-black text-slate-900">{title}</h2>
-                        <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-widest ${linked ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+                        <span
+                            className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-widest ${linked ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}
+                        >
                             {exams.length}
                         </span>
                     </div>
@@ -182,27 +216,49 @@ function ExamSection({
             </div>
 
             {exams.length === 0 ? (
-                <div className="p-10 text-center text-xs font-black uppercase tracking-widest text-slate-400">{emptyLabel}</div>
+                <div className="p-10 text-center text-xs font-black uppercase tracking-widest text-slate-400">
+                    {emptyLabel}
+                </div>
             ) : (
                 <>
                     <table className="hidden w-full text-left md:table">
                         <thead>
                             <tr className="border-b border-slate-100 bg-white/60">
-                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Exam Details</th>
-                                <th className="px-8 py-5 text-center text-[10px] font-black uppercase tracking-widest text-slate-400">Questions</th>
-                                <th className="px-8 py-5 text-center text-[10px] font-black uppercase tracking-widest text-slate-400">Status</th>
-                                <th className="px-8 py-5 text-right text-[10px] font-black uppercase tracking-widest text-slate-400">Actions</th>
+                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                    Exam Details
+                                </th>
+                                <th className="px-8 py-5 text-center text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                    Questions
+                                </th>
+                                <th className="px-8 py-5 text-center text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                    Status
+                                </th>
+                                <th className="px-8 py-5 text-right text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                    Actions
+                                </th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                             {exams.map((exam) => (
-                                <ExamRow key={exam.id} exam={exam} linked={linked} onView={onView} onInvite={onInvite} />
+                                <ExamRow
+                                    key={exam.id}
+                                    exam={exam}
+                                    linked={linked}
+                                    onView={onView}
+                                    onInvite={onInvite}
+                                />
                             ))}
                         </tbody>
                     </table>
                     <div className="divide-y divide-slate-100 md:hidden">
                         {exams.map((exam) => (
-                            <ExamMobileCard key={exam.id} exam={exam} linked={linked} onView={onView} onInvite={onInvite} />
+                            <ExamMobileCard
+                                key={exam.id}
+                                exam={exam}
+                                linked={linked}
+                                onView={onView}
+                                onInvite={onInvite}
+                            />
                         ))}
                     </div>
                 </>
@@ -211,7 +267,17 @@ function ExamSection({
     );
 }
 
-function ExamRow({ exam, linked, onView, onInvite }: { exam: any; linked: boolean; onView: (exam: any) => void; onInvite: (exam: any) => void }) {
+function ExamRow({
+    exam,
+    linked,
+    onView,
+    onInvite,
+}: {
+    exam: any;
+    linked: boolean;
+    onView: (exam: any) => void;
+    onInvite: (exam: any) => void;
+}) {
     return (
         <tr className="group transition-colors hover:bg-white/70">
             <td className="px-8 py-6">
@@ -232,7 +298,17 @@ function ExamRow({ exam, linked, onView, onInvite }: { exam: any; linked: boolea
     );
 }
 
-function ExamMobileCard({ exam, linked, onView, onInvite }: { exam: any; linked: boolean; onView: (exam: any) => void; onInvite: (exam: any) => void }) {
+function ExamMobileCard({
+    exam,
+    linked,
+    onView,
+    onInvite,
+}: {
+    exam: any;
+    linked: boolean;
+    onView: (exam: any) => void;
+    onInvite: (exam: any) => void;
+}) {
     return (
         <article className="p-4">
             <div className="flex items-start justify-between gap-3">
@@ -267,7 +343,9 @@ function ExamIdentity({ exam, linked }: { exam: any; linked: boolean }) {
                     </span>
                 ) : null}
                 {exam.examMode && !linked ? (
-                    <span className={`rounded px-1.5 py-0.5 text-[9px] font-black uppercase ${exam.examMode === 'App' ? 'bg-indigo-50 text-indigo-500' : 'bg-blue-50 text-blue-500'}`}>
+                    <span
+                        className={`rounded px-1.5 py-0.5 text-[9px] font-black uppercase ${exam.examMode === 'App' ? 'bg-indigo-50 text-indigo-500' : 'bg-blue-50 text-blue-500'}`}
+                    >
                         {exam.examMode}
                     </span>
                 ) : null}
@@ -284,26 +362,53 @@ function ExamMeta({ exam }: { exam: any }) {
             </div>
             <div className="mt-0.5 flex items-center justify-center gap-2">
                 <span className="text-[10px] font-bold text-slate-400">{exam.duration ?? '-'} mins</span>
-                {exam.totalMarks ? <span className="text-[10px] font-black text-[var(--brand)]">{exam.totalMarks} Marks</span> : null}
+                {exam.totalMarks ? (
+                    <span className="text-[10px] font-black text-[var(--brand)]">{exam.totalMarks} Marks</span>
+                ) : null}
             </div>
         </div>
     );
 }
 
-function ExamActions({ exam, linked, mobile = false, onView, onInvite }: { exam: any; linked: boolean; mobile?: boolean; onView: (exam: any) => void; onInvite: (exam: any) => void }) {
-    const editHref = linked && exam.linkedCourseId
-        ? `/dashboard/creator/exams/${exam.id}/edit?courseId=${exam.linkedCourseId}`
-        : `/dashboard/creator/exams/${exam.id}/edit`;
+function ExamActions({
+    exam,
+    linked,
+    mobile = false,
+    onView,
+    onInvite,
+}: {
+    exam: any;
+    linked: boolean;
+    mobile?: boolean;
+    onView: (exam: any) => void;
+    onInvite: (exam: any) => void;
+}) {
+    const editHref =
+        linked && exam.linkedCourseId
+            ? `/dashboard/creator/exams/${exam.id}/edit?courseId=${exam.linkedCourseId}`
+            : `/dashboard/creator/exams/${exam.id}/edit`;
 
     return (
         <div className={`grid gap-2 ${mobile ? 'grid-cols-2' : 'grid-cols-4 md:flex md:items-center md:justify-end'}`}>
             <ExamAction onClick={() => onView(exam)} label="View" icon={<Eye size={14} strokeWidth={2.5} />} />
-            {!linked ? <ExamAction onClick={() => onInvite(exam)} label="Invite" variant="brand" icon={<Send size={14} strokeWidth={2.5} />} /> : null}
+            {!linked ? (
+                <ExamAction
+                    onClick={() => onInvite(exam)}
+                    label="Invite"
+                    variant="brand"
+                    icon={<Send size={14} strokeWidth={2.5} />}
+                />
+            ) : null}
             <Link href={editHref}>
                 <ExamAction label="Edit" variant="brand" icon={<Pencil size={14} strokeWidth={2.5} />} />
             </Link>
             <Link href={`/dashboard/creator/exams/${exam.id}/monitor`}>
-                <ExamAction label="Monitor" variant="accent" active={exam.isActive} icon={<Activity size={14} strokeWidth={2.5} />} />
+                <ExamAction
+                    label="Monitor"
+                    variant="accent"
+                    active={exam.isActive}
+                    icon={<Activity size={14} strokeWidth={2.5} />}
+                />
             </Link>
             <Link className={mobile ? 'col-span-2' : ''} href={`/dashboard/creator/exams/${exam.id}/results`}>
                 <ExamAction label="Results" variant="success" icon={<BarChart3 size={14} strokeWidth={2.5} />} />
@@ -319,7 +424,9 @@ function TabItem({ active, onClick, label, count }: any) {
             className={`relative flex cursor-pointer items-center justify-between gap-2 whitespace-nowrap rounded-2xl px-3 py-3 transition-all sm:justify-start sm:border-b-[3px] sm:rounded-none sm:px-0 sm:pb-4 sm:pt-0 sm:gap-3 ${active ? 'bg-[var(--brand-light)] text-slate-900 sm:border-[var(--brand)] sm:bg-transparent' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600 sm:border-transparent sm:hover:bg-transparent'}`}
         >
             <span className="text-xs font-black uppercase tracking-widest sm:text-sm">{label}</span>
-            <span className={`rounded-lg px-2 py-0.5 text-[10px] font-black ${active ? 'bg-white text-[var(--brand)] sm:bg-[var(--brand-light)]' : 'bg-slate-50 text-slate-400'}`}>
+            <span
+                className={`rounded-lg px-2 py-0.5 text-[10px] font-black ${active ? 'bg-white text-[var(--brand)] sm:bg-[var(--brand-light)]' : 'bg-slate-50 text-slate-400'}`}
+            >
                 {count}
             </span>
         </button>
@@ -332,7 +439,9 @@ function StatusBadge({ status }: { status: string }) {
         Draft: 'bg-slate-50 text-slate-400 border-slate-100',
     };
     return (
-        <span className={`rounded-full border px-4 py-1.5 text-[10px] font-black uppercase tracking-widest ${styles[status]}`}>
+        <span
+            className={`rounded-full border px-4 py-1.5 text-[10px] font-black uppercase tracking-widest ${styles[status]}`}
+        >
             {status}
         </span>
     );

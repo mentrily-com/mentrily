@@ -15,15 +15,10 @@ import { CodeExecutionService } from '@/services/api/CodeExecutionService';
 // rendered) coding-question authoring panel — defer it so the playground shell
 // paints without pulling the editor bundle up front. No ref is passed and it's
 // interactive-only, so ssr:false is safe.
-const RichTextEditor = dynamic(
-    () => import('@/app/components/Authoring/RichTextEditor'),
-    {
-        ssr: false,
-        loading: () => (
-            <div className="min-h-[160px] rounded-[28px] bg-slate-50 animate-pulse" />
-        ),
-    },
-);
+const RichTextEditor = dynamic(() => import('@/app/components/Authoring/RichTextEditor'), {
+    ssr: false,
+    loading: () => <div className="min-h-[160px] rounded-[28px] bg-slate-50 animate-pulse" />,
+});
 
 interface Tab {
     id: number;

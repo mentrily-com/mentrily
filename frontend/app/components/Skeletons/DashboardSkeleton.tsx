@@ -10,9 +10,7 @@ interface DashboardSkeletonProps {
 export default function DashboardSkeleton({ type = 'main', userRole, noNavbar = false }: DashboardSkeletonProps) {
     return (
         <div className="h-screen overflow-hidden bg-[#F8FAFC] text-slate-900 font-sans">
-            <main
-                className="max-w-[1440px] mx-auto px-6 lg:px-12 py-10 overflow-hidden h-screen"
-            >
+            <main className="max-w-[1440px] mx-auto px-6 lg:px-12 py-10 overflow-hidden h-screen">
                 {/* Header Skeleton */}
                 <div className="flex items-center justify-between mb-10">
                     <div className="w-48 h-8 bg-slate-200 rounded-lg animate-pulse"></div>

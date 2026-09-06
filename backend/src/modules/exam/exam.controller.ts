@@ -105,7 +105,11 @@ export class ExamController {
 
   @UseGuards(OptionalJwtAuthGuard)
   @Get(':slug/public-status')
-  async getPublicStatus(@Param('slug') slug: string, @User() user: any, @Req() req: any) {
+  async getPublicStatus(
+    @Param('slug') slug: string,
+    @User() user: any,
+    @Req() req: any,
+  ) {
     // See checkExamWithOrg — a missing subdomain is not an error, the
     // per-resource access rule in getPublicStatus decides reachability.
     const resolvedOrgId = await this.examService.resolveOrgIdForPublicRequest({
@@ -251,7 +255,10 @@ export class ExamController {
   @Get(':examId/monitoring')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('TEACHER', 'ADMIN', 'SUPER_ADMIN')
-  async getMonitoredStudents(@Param('examId') examId: string, @User() user: any) {
+  async getMonitoredStudents(
+    @Param('examId') examId: string,
+    @User() user: any,
+  ) {
     await this.examService.assertExamOrgAccess(examId, user);
     return this.examService.getMonitoredStudents(examId);
   }

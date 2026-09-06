@@ -86,15 +86,10 @@ export class AuthController {
     @Body() data: { testCode: string; slug?: string },
     @Req() req: any,
   ) {
-    return this.authService.examLogin(
-      req.user.id,
-      data.testCode,
-      data.slug,
-      {
-        userAgent: req?.headers?.['user-agent'],
-        clientPlatform: req?.headers?.['x-client-platform'],
-      },
-    );
+    return this.authService.examLogin(req.user.id, data.testCode, data.slug, {
+      userAgent: req?.headers?.['user-agent'],
+      clientPlatform: req?.headers?.['x-client-platform'],
+    });
   }
 
   @Post('exam-login/verify-code')

@@ -25,8 +25,8 @@ export default function NotFound() {
                                 page not <br /> found.
                             </h1>
                             <p className="text-lg text-slate-500 font-medium max-w-md leading-relaxed">
-                                We can&apos;t find the page you&apos;re looking for. It might have been moved, renamed, or doesn&apos;t
-                                exist.
+                                We can&apos;t find the page you&apos;re looking for. It might have been moved, renamed,
+                                or doesn&apos;t exist.
                             </p>
                         </div>
 

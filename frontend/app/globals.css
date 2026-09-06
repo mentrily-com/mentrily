@@ -491,12 +491,7 @@ html.dark .glass-card {
 }
 
 .animate-badge-shimmer {
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.3) 50%,
-        transparent 100%
-    );
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
     background-size: 200% 100%;
     animation: badge-shimmer 3s ease-in-out infinite;
 }

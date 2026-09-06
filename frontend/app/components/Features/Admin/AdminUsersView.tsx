@@ -39,7 +39,9 @@ export default function AdminUsersView({ basePath, organizationId }: AdminUsersV
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>User Management</h1>
+                    <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>
+                        User Management
+                    </h1>
                     <p className="text-sm font-medium mt-1" style={{ color: 'var(--color-text-secondary)' }}>
                         Manage institutional users and their platform access.
                     </p>
@@ -78,7 +80,11 @@ export default function AdminUsersView({ basePath, organizationId }: AdminUsersV
                 style={{ borderColor: 'var(--color-border-subtle)' }}
             >
                 <div className="relative flex-1 w-full">
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2" size={16} style={{ color: 'var(--color-text-muted)' }} />
+                    <Search
+                        className="absolute left-3.5 top-1/2 -translate-y-1/2"
+                        size={16}
+                        style={{ color: 'var(--color-text-muted)' }}
+                    />
                     <input
                         type="text"
                         placeholder="Search by name, email or ID..."
@@ -87,7 +93,7 @@ export default function AdminUsersView({ basePath, organizationId }: AdminUsersV
                         className="w-full pl-10 pr-4 py-2 bg-white rounded-lg text-sm font-medium outline-none transition-all flex-1"
                         style={{
                             border: '1px solid var(--color-border-subtle)',
-                            color: 'var(--color-text-primary)'
+                            color: 'var(--color-text-primary)',
                         }}
                         onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--brand)')}
                         onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border-subtle)')}
@@ -117,7 +123,10 @@ export default function AdminUsersView({ basePath, organizationId }: AdminUsersV
                         const incomingEmails = new Set(
                             data.map((item) => String(item.email || '').toLowerCase()).filter(Boolean),
                         );
-                        return [...data, ...prev.filter((item) => !incomingEmails.has(String(item.email || '').toLowerCase()))];
+                        return [
+                            ...data,
+                            ...prev.filter((item) => !incomingEmails.has(String(item.email || '').toLowerCase())),
+                        ];
                     })
                 }
             />

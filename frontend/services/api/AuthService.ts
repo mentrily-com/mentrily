@@ -261,17 +261,19 @@ export const AuthService = {
             throw new Error('Password update is only available in the browser');
         }
 
-        const clerk = (window as Window & {
-            Clerk?: {
-                user?: {
-                    updatePassword?: (params: {
-                        currentPassword?: string;
-                        newPassword: string;
-                        signOutOfOtherSessions?: boolean;
-                    }) => Promise<unknown>;
+        const clerk = (
+            window as Window & {
+                Clerk?: {
+                    user?: {
+                        updatePassword?: (params: {
+                            currentPassword?: string;
+                            newPassword: string;
+                            signOutOfOtherSessions?: boolean;
+                        }) => Promise<unknown>;
+                    };
                 };
-            };
-        }).Clerk;
+            }
+        ).Clerk;
 
         const updatePassword = clerk?.user?.updatePassword;
         if (!updatePassword) {

@@ -15,8 +15,8 @@ const changes = [
             'Added AI-driven exam generation from course content.',
             'Implemented webcam monitoring for proctored exams.',
             'Enhanced sandboxed execution for Python and Node.js.',
-            'New certificate templates with dynamic branding.'
-        ]
+            'New certificate templates with dynamic branding.',
+        ],
     },
     {
         version: 'v2.3.5',
@@ -27,8 +27,8 @@ const changes = [
             'Improved dashboard load times by 40%.',
             'Fixed an issue with certificate downloads on mobile.',
             'Updated Lucide icon library to the latest version.',
-            'Resolved edge case in time-limited exams.'
-        ]
+            'Resolved edge case in time-limited exams.',
+        ],
     },
     {
         version: 'v2.3.0',
@@ -39,9 +39,9 @@ const changes = [
             'Added support for 12 new languages in certificates.',
             'New custom domain integration for Pro users.',
             'Improved learner progress dashboard with heatmaps.',
-            'Direct export of student results to CSV/JSON.'
-        ]
-    }
+            'Direct export of student results to CSV/JSON.',
+        ],
+    },
 ];
 
 function ChangelogList() {
@@ -61,11 +61,9 @@ function ChangelogList() {
                         >
                             {/* Dot on line */}
                             <div className="absolute -left-[41px] sm:left-[151px] top-1.5 w-4 h-4 rounded-full bg-white border-4 border-teal-500 z-10" />
-                            
+
                             <div className="mb-4 sm:mb-0">
-                                <time className="text-sm font-semibold text-teal-600 block mb-1">
-                                    {change.date}
-                                </time>
+                                <time className="text-sm font-semibold text-teal-600 block mb-1">{change.date}</time>
                                 <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500">
                                     {change.type}
                                 </span>
@@ -73,7 +71,8 @@ function ChangelogList() {
 
                             <div>
                                 <h3 className="text-xl font-bold text-slate-900 mb-4">
-                                    {change.title} <span className="text-slate-400 font-normal ml-2">{change.version}</span>
+                                    {change.title}{' '}
+                                    <span className="text-slate-400 font-normal ml-2">{change.version}</span>
                                 </h3>
                                 <ul className="space-y-3">
                                     {change.items.map((item, idx) => (
@@ -95,7 +94,7 @@ function ChangelogList() {
 export default function ChangelogPage() {
     return (
         <main className="min-h-screen bg-white">
-            <MarketingPageHeader 
+            <MarketingPageHeader
                 title="What's new in Mentrily"
                 description="Stay up to date with the latest features, improvements, and fixes we've shipped to help you run a better school."
             />

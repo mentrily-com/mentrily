@@ -119,9 +119,12 @@ export default function AiGenerateModal({
                             </p>
                         </div>
                         <div className="rounded-2xl border border-slate-200/80 bg-slate-50/90 p-4">
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Workaround</p>
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
+                                Workaround
+                            </p>
                             <p className="mt-2 text-sm font-semibold text-slate-800">
-                                Copy a ready-made prompt, paste it into your AI chat, then paste the JSON reply back here.
+                                Copy a ready-made prompt, paste it into your AI chat, then paste the JSON reply back
+                                here.
                             </p>
                         </div>
                         <div className="rounded-2xl border border-slate-200/80 bg-slate-50/90 p-4">
@@ -149,7 +152,8 @@ export default function AiGenerateModal({
                                     Step 1 — Copy prompt
                                 </p>
                                 <p className="mt-1.5 text-xs leading-5 text-slate-500">
-                                    Paste this into ChatGPT, Claude, or any AI chat, fill in your topic, then copy its JSON reply.
+                                    Paste this into ChatGPT, Claude, or any AI chat, fill in your topic, then copy its
+                                    JSON reply.
                                 </p>
                                 <button
                                     type="button"

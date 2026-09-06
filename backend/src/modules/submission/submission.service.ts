@@ -113,7 +113,10 @@ export class SubmissionService {
    * anyone holding a session UUID could overwrite answers or force-submit
    * another student's exam.
    */
-  async assertSessionOwnership(sessionId: string, userId: string): Promise<void> {
+  async assertSessionOwnership(
+    sessionId: string,
+    userId: string,
+  ): Promise<void> {
     if (!sessionId || !userId) {
       throw new ForbiddenException('Session ownership could not be verified');
     }

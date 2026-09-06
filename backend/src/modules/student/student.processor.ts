@@ -247,7 +247,10 @@ export class StudentProcessor extends WorkerHost {
         orderBy: { createdAt: 'desc' },
         select: { content: true },
       });
-      if (recentDuplicate && JSON.stringify(recentDuplicate.content) === JSON.stringify(content)) {
+      if (
+        recentDuplicate &&
+        JSON.stringify(recentDuplicate.content) === JSON.stringify(content)
+      ) {
         return;
       }
     }

@@ -1431,11 +1431,7 @@ export default function PublicExamPage() {
             const open = widthGrew > OPEN_DELTA || heightGrew > OPEN_DELTA;
             if (open && !devtoolsFlagged) {
                 devtoolsFlagged = true;
-                warning(
-                    'Developer tools appear to be open. This has been recorded.',
-                    'Proctoring Alert',
-                    5000,
-                );
+                warning('Developer tools appear to be open. This has been recorded.', 'Proctoring Alert', 5000);
                 socketLogViolation('DEVTOOLS_OPENED', 'Developer tools detected open during exam');
             } else if (!open) {
                 devtoolsFlagged = false;

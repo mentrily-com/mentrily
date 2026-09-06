@@ -150,11 +150,15 @@ export default function SuperAdminOrganizationDashboard({ params }: { params: Pr
                                 <p className="text-sm font-black text-slate-700">{usage.users}</p>
                             </div>
                             <div className="bg-slate-50 rounded-xl px-3 py-2">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Admins</p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    Admins
+                                </p>
                                 <p className="text-sm font-black text-slate-700">{usage.admins}</p>
                             </div>
                             <div className="bg-slate-50 rounded-xl px-3 py-2">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Courses</p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    Courses
+                                </p>
                                 <p className="text-sm font-black text-slate-700">{usage.courses}</p>
                             </div>
                             <div className="bg-slate-50 rounded-xl px-3 py-2">

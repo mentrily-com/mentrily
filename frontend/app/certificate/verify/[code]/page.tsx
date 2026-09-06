@@ -36,7 +36,9 @@ export default async function VerifyCertificatePage({ params }: { params: Promis
                 <section className="w-full max-w-xl rounded-3xl bg-white border border-rose-100 shadow-sm overflow-hidden">
                     <header className="bg-rose-500 text-white px-8 py-10 text-center">
                         <h1 className="text-2xl font-black">Certificate Not Found</h1>
-                        <p className="text-sm mt-2 font-semibold opacity-90">The verification code is invalid or expired.</p>
+                        <p className="text-sm mt-2 font-semibold opacity-90">
+                            The verification code is invalid or expired.
+                        </p>
                     </header>
                     <div className="px-8 py-6 text-center text-slate-500 font-medium">Code: {code}</div>
                 </section>
@@ -50,7 +52,9 @@ export default async function VerifyCertificatePage({ params }: { params: Promis
         <main className="min-h-screen bg-slate-100 flex items-center justify-center px-4 py-10">
             <section className="w-full max-w-xl rounded-3xl bg-white border border-slate-100 shadow-xl overflow-hidden">
                 <header className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white px-8 py-10 text-center">
-                    <div className="w-14 h-14 rounded-full bg-white/20 mx-auto mb-3 flex items-center justify-center text-2xl">✓</div>
+                    <div className="w-14 h-14 rounded-full bg-white/20 mx-auto mb-3 flex items-center justify-center text-2xl">
+                        ✓
+                    </div>
                     <h1 className="text-2xl font-black">Certificate Verified</h1>
                     <p className="text-sm mt-1 font-semibold opacity-90">This certificate is authentic and valid.</p>
                 </header>
@@ -76,7 +80,9 @@ function Row({ label, value, mono }: { label: string; value: string; mono?: bool
     return (
         <div className="flex items-center justify-between py-3 border-b border-slate-100 last:border-none gap-6">
             <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">{label}</span>
-            <span className={`text-sm font-bold text-slate-800 text-right ${mono ? 'font-mono text-xs' : ''}`}>{value}</span>
+            <span className={`text-sm font-bold text-slate-800 text-right ${mono ? 'font-mono text-xs' : ''}`}>
+                {value}
+            </span>
         </div>
     );
 }

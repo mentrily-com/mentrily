@@ -101,7 +101,8 @@ export default function RoleSelectionModal({ onSelectRole, onSelectCreator }: Ro
                         </p>
                     )}
                     <p className="text-[11px] font-semibold text-slate-400">
-                        A role is required to continue. Learners can become creators later — and creators can always learn.
+                        A role is required to continue. Learners can become creators later — and creators can always
+                        learn.
                     </p>
                 </div>
             </div>
@@ -148,9 +149,7 @@ function Door({
                 {verb}
             </span>
 
-            <span className="mt-3 text-[13px] leading-relaxed text-slate-500 flex-1">
-                {body}
-            </span>
+            <span className="mt-3 text-[13px] leading-relaxed text-slate-500 flex-1">{body}</span>
 
             <span
                 className={`mt-6 inline-flex items-center gap-1.5 text-[12px] font-black uppercase tracking-widest transition-colors ${

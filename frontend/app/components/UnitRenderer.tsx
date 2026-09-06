@@ -457,102 +457,104 @@ export function UnitRendererComponent({
                 const correctOptionIds = (question.mcqOptions || []).filter((o) => o.isCorrect).map((o) => o.id);
                 return (
                     <div className="h-full" data-element-id="starter-answer-workspace">
-                    <MCQOptions
-                        key={`mcq-${question.id}`}
-                        options={question.mcqOptions || []}
-                        multiSelect={question.type === 'MultiSelect'}
-                        // Cap selection count at the number of correct answers
-                        // this question actually has — previously MultiSelect
-                        // had no cap at all, so a student could select every
-                        // option. The exact-match scoring already rejects an
-                        // over-selection as wrong, but letting the UI accept
-                        // it in the first place invites exactly the "select
-                        // everything and see what sticks" behavior it should
-                        // prevent outright.
-                        maxSelections={question.type === 'MCQ' ? 1 : Math.max(correctOptionIds.length, 1)}
-                        correctIds={correctOptionIds}
-                        selectedIds={hasAttemptSelected ? attemptAnswer : currentAnswer}
-                        onSubmit={onSubmit || ((ids) => console.log('Submitted MCQ:', ids))}
-                        onChange={onAnswerChange}
-                        onReset={() => console.log('Reset MCQ')}
-                        readOnly={hasAttemptSelected}
-                        fontSize={contentFontSize}
-                    />
+                        <MCQOptions
+                            key={`mcq-${question.id}`}
+                            options={question.mcqOptions || []}
+                            multiSelect={question.type === 'MultiSelect'}
+                            // Cap selection count at the number of correct answers
+                            // this question actually has — previously MultiSelect
+                            // had no cap at all, so a student could select every
+                            // option. The exact-match scoring already rejects an
+                            // over-selection as wrong, but letting the UI accept
+                            // it in the first place invites exactly the "select
+                            // everything and see what sticks" behavior it should
+                            // prevent outright.
+                            maxSelections={question.type === 'MCQ' ? 1 : Math.max(correctOptionIds.length, 1)}
+                            correctIds={correctOptionIds}
+                            selectedIds={hasAttemptSelected ? attemptAnswer : currentAnswer}
+                            onSubmit={onSubmit || ((ids) => console.log('Submitted MCQ:', ids))}
+                            onChange={onAnswerChange}
+                            onReset={() => console.log('Reset MCQ')}
+                            readOnly={hasAttemptSelected}
+                            fontSize={contentFontSize}
+                        />
                     </div>
                 );
             case 'Coding':
                 return (
                     <div className="h-full" data-element-id="starter-answer-workspace">
-                    <CodingQuestionRenderer
-                        key={`coding-${question.id}`}
-                        question={question}
-                        hasAttemptSelected={hasAttemptSelected}
-                        attemptAnswer={attemptAnswer}
-                        currentAnswer={currentAnswer}
-                        onAnswerChange={onAnswerChange}
-                        onSubmit={onSubmit}
-                        contentFontSize={contentFontSize || 16}
-                        selectedCodingLang={selectedCodingLang}
-                        onLanguageChange={handleLanguageChange}
-                        isRunning={isRunning}
-                        setIsRunning={setIsRunning}
-                        terminalLogs={terminalLogs}
-                        setTerminalLogs={setTerminalLogs}
-                        executionResults={executionResults}
-                        setExecutionResults={setExecutionResults}
-                        examId={examId}
-                        hideSubmit={hideSubmit}
-                        isExamMode={isExamMode}
-                        onCheatDetected={onCheatDetected}
-                    />
+                        <CodingQuestionRenderer
+                            key={`coding-${question.id}`}
+                            question={question}
+                            hasAttemptSelected={hasAttemptSelected}
+                            attemptAnswer={attemptAnswer}
+                            currentAnswer={currentAnswer}
+                            onAnswerChange={onAnswerChange}
+                            onSubmit={onSubmit}
+                            contentFontSize={contentFontSize || 16}
+                            selectedCodingLang={selectedCodingLang}
+                            onLanguageChange={handleLanguageChange}
+                            isRunning={isRunning}
+                            setIsRunning={setIsRunning}
+                            terminalLogs={terminalLogs}
+                            setTerminalLogs={setTerminalLogs}
+                            executionResults={executionResults}
+                            setExecutionResults={setExecutionResults}
+                            examId={examId}
+                            hideSubmit={hideSubmit}
+                            isExamMode={isExamMode}
+                            onCheatDetected={onCheatDetected}
+                        />
                     </div>
                 );
             case 'Web':
                 return (
                     <div className="h-full" data-element-id="starter-answer-workspace">
-                    <WebEditor
-                        key={`web-${question.id}`}
-                        initialHTML={
-                            hasAttemptSelected
-                                ? attemptAnswer?.html || ''
-                                : (currentAnswer?.html ?? question.webConfig?.initialHTML)
-                        }
-                        initialCSS={
-                            hasAttemptSelected
-                                ? attemptAnswer?.css || ''
-                                : (currentAnswer?.css ?? question.webConfig?.initialCSS)
-                        }
-                        initialJS={
-                            hasAttemptSelected
-                                ? attemptAnswer?.js || ''
-                                : (currentAnswer?.js ?? question.webConfig?.initialJS)
-                        }
-                        showFiles={question.webConfig?.showFiles}
-                        hideTestCases={true}
-                        fontSize={contentFontSize}
-                        testCases={question.webConfig?.testCases}
-                        onChange={onAnswerChange}
-                        onSubmit={onSubmit}
-                        readOnly={hasAttemptSelected}
-                        isExamMode={isExamMode}
-                        onCheatDetected={onCheatDetected}
-                    />
+                        <WebEditor
+                            key={`web-${question.id}`}
+                            initialHTML={
+                                hasAttemptSelected
+                                    ? attemptAnswer?.html || ''
+                                    : (currentAnswer?.html ?? question.webConfig?.initialHTML)
+                            }
+                            initialCSS={
+                                hasAttemptSelected
+                                    ? attemptAnswer?.css || ''
+                                    : (currentAnswer?.css ?? question.webConfig?.initialCSS)
+                            }
+                            initialJS={
+                                hasAttemptSelected
+                                    ? attemptAnswer?.js || ''
+                                    : (currentAnswer?.js ?? question.webConfig?.initialJS)
+                            }
+                            showFiles={question.webConfig?.showFiles}
+                            hideTestCases={true}
+                            fontSize={contentFontSize}
+                            testCases={question.webConfig?.testCases}
+                            onChange={onAnswerChange}
+                            onSubmit={onSubmit}
+                            readOnly={hasAttemptSelected}
+                            isExamMode={isExamMode}
+                            onCheatDetected={onCheatDetected}
+                        />
                     </div>
                 );
             case 'Notebook':
                 return (
                     <div className="h-full" data-element-id="starter-answer-workspace">
-                    <PythonNotebook
-                        key={`notebook-${question.id}`}
-                        initialCode={
-                            hasAttemptSelected ? attemptAnswer : (currentAnswer ?? question.notebookConfig?.initialCode)
-                        }
-                        fontSize={contentFontSize}
-                        onChange={onAnswerChange}
-                        onSubmit={onSubmit}
-                        readOnly={hasAttemptSelected}
-                        isExamMode={isExamMode}
-                    />
+                        <PythonNotebook
+                            key={`notebook-${question.id}`}
+                            initialCode={
+                                hasAttemptSelected
+                                    ? attemptAnswer
+                                    : (currentAnswer ?? question.notebookConfig?.initialCode)
+                            }
+                            fontSize={contentFontSize}
+                            onChange={onAnswerChange}
+                            onSubmit={onSubmit}
+                            readOnly={hasAttemptSelected}
+                            isExamMode={isExamMode}
+                        />
                     </div>
                 );
             // Reading case removed from here as it's handled at top level
@@ -646,8 +648,8 @@ export function UnitRendererComponent({
                                                 !isExamMode && (question.type === 'Coding' || question.type === 'Web')
                                                     ? undefined
                                                     : question.type === 'Coding' || question.type === 'Web'
-                                                    ? 'Implement the solution based on the requirements.'
-                                                    : 'Choose the correct option(s).'
+                                                      ? 'Implement the solution based on the requirements.'
+                                                      : 'Choose the correct option(s).'
                                             }
                                             onPrevious={onPrevious}
                                             onNext={onNext}

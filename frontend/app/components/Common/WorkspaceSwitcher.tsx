@@ -81,7 +81,8 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
     const onTenantSubdomain = Boolean(currentSubdomain);
 
     const hasCreatorPersona = memberships.some(
-        (membership) => membership.role === 'TEACHER' || membership.role === 'ADMIN' || membership.role === 'SUPER_ADMIN',
+        (membership) =>
+            membership.role === 'TEACHER' || membership.role === 'ADMIN' || membership.role === 'SUPER_ADMIN',
     );
     // Home persona is the flat account role, independent of whichever org is
     // currently active (homeRole/homeOrgId come straight from /auth/me).
@@ -102,10 +103,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
     const expandedMemberships = memberships.flatMap((m) => {
         if (m.role === 'TEACHER' || m.role === 'ADMIN' || m.role === 'SUPER_ADMIN') {
             if (m.orgKind !== 'PERSONAL') {
-                return [
-                    m,
-                    { ...m, role: 'STUDENT' as const, isLearnerPreview: true }
-                ];
+                return [m, { ...m, role: 'STUDENT' as const, isLearnerPreview: true }];
             }
             return [m];
         }
@@ -116,9 +114,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
         ? // On an org subdomain: only this org's workspaces (its creator row
           // plus the learner-preview expansion) — no sentinels, no other
           // orgs. The whole subdomain reads as this org's own product.
-          expandedMemberships.filter(
-              (m) => orgSubPrefix(m) === currentSubdomain,
-          )
+          expandedMemberships.filter((m) => orgSubPrefix(m) === currentSubdomain)
         : [
               ...(needsLearnerEntry
                   ? [
@@ -137,7 +133,11 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                             orgId: CREATOR_HOME_SENTINEL,
                             orgName: homeRole === 'SUPER_ADMIN' ? 'Super Admin' : 'My Workspace',
                             orgSlug: null,
-                            role: (homeRole === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : homeRole === 'ADMIN' ? 'ADMIN' : 'TEACHER') as 'SUPER_ADMIN' | 'ADMIN' | 'TEACHER',
+                            role: (homeRole === 'SUPER_ADMIN'
+                                ? 'SUPER_ADMIN'
+                                : homeRole === 'ADMIN'
+                                  ? 'ADMIN'
+                                  : 'TEACHER') as 'SUPER_ADMIN' | 'ADMIN' | 'TEACHER',
                             isHome: true,
                         },
                     ]
@@ -211,7 +211,8 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
     };
 
     const handleSwitch = async (membership: WorkspaceMembership) => {
-        const isAlreadyActive = membership.orgId === activeMembership?.orgId && membership.role === activeMembership?.role;
+        const isAlreadyActive =
+            membership.orgId === activeMembership?.orgId && membership.role === activeMembership?.role;
         if (isAlreadyActive || switchingMembershipId) {
             setOpen(false);
             return;
@@ -225,11 +226,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
         // backend rejects switch-org from any other host. Navigate there
         // instead; arrival on the subdomain forces the org resolution.
         const strictPrefix = orgSubPrefix(membership);
-        if (
-            membership.orgKind === 'STRICT' &&
-            strictPrefix &&
-            strictPrefix !== currentSubdomain
-        ) {
+        if (membership.orgKind === 'STRICT' && strictPrefix && strictPrefix !== currentSubdomain) {
             const orgUrl = buildOrgUrl(strictPrefix, '/dashboard');
             if (orgUrl) {
                 window.location.href = orgUrl;
@@ -297,11 +294,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                     aria-label={becomingCreator ? 'Setting up creator workspace' : 'Become a Creator'}
                     className="flex items-center gap-2 px-3 py-2 bg-[var(--brand-light)] hover:bg-[var(--brand-light)]/70 disabled:opacity-60 rounded-xl border border-[var(--brand-light)] transition-colors text-[var(--brand)]"
                 >
-                    {becomingCreator ? (
-                        <Loader2 size={13} className="animate-spin" />
-                    ) : (
-                        <Plus size={13} />
-                    )}
+                    {becomingCreator ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
                     <span className="hidden sm:block text-[11px] font-black">
                         {becomingCreator ? 'Setting up…' : 'Become a Creator'}
                     </span>
@@ -324,17 +317,11 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                 title="Switch workspace"
             >
                 <div className="w-6 h-6 rounded-lg bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center shrink-0">
-                    {switchingMembershipId ? (
-                        <Loader2 size={13} className="animate-spin" />
-                    ) : (
-                        <Building2 size={13} />
-                    )}
+                    {switchingMembershipId ? <Loader2 size={13} className="animate-spin" /> : <Building2 size={13} />}
                 </div>
                 <span className="min-w-0 flex-1 text-left">
                     <span className="block text-[11px] font-black text-slate-800 truncate">
-                        {switchingMembershipId
-                            ? 'Switching…'
-                            : activeMembership?.orgName || 'Workspace'}
+                        {switchingMembershipId ? 'Switching…' : activeMembership?.orgName || 'Workspace'}
                     </span>
                     <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wide">
                         {ROLE_LABELS[activeMembership?.role || ''] || 'Workspace'}
@@ -348,20 +335,27 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                     <p className="px-4 py-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
                         Your workspaces
                     </p>
-                    {Object.values(displayMemberships.reduce((acc, m) => {
-                        if (!acc[m.orgId]) acc[m.orgId] = [];
-                        acc[m.orgId].push(m);
-                        return acc;
-                    }, {} as Record<string, WorkspaceMembership[]>)).map((group) => {
+                    {Object.values(
+                        displayMemberships.reduce(
+                            (acc, m) => {
+                                if (!acc[m.orgId]) acc[m.orgId] = [];
+                                acc[m.orgId].push(m);
+                                return acc;
+                            },
+                            {} as Record<string, WorkspaceMembership[]>,
+                        ),
+                    ).map((group) => {
                         const org = group[0];
                         const isLearnerEntry = org.orgId === LEARNER_SENTINEL;
                         const isCreatorHomeEntry = org.orgId === CREATOR_HOME_SENTINEL;
                         const hasMultipleRoles = group.length > 1;
                         const isExpanded = expandedOrgId === org.orgId;
-                        
+
                         const renderIcon = (role?: string, membershipId?: string) => {
-                            if (membershipId && switchingMembershipId === membershipId) return <Loader2 size={14} className="animate-spin" />;
-                            if (!membershipId && switchingMembershipId && switchingMembershipId.startsWith(org.orgId)) return <Loader2 size={14} className="animate-spin" />;
+                            if (membershipId && switchingMembershipId === membershipId)
+                                return <Loader2 size={14} className="animate-spin" />;
+                            if (!membershipId && switchingMembershipId && switchingMembershipId.startsWith(org.orgId))
+                                return <Loader2 size={14} className="animate-spin" />;
                             if (isLearnerEntry || role === 'STUDENT') return <GraduationCap size={14} />;
                             if (isCreatorHomeEntry) return <Presentation size={14} />;
                             return <Building2 size={14} />;
@@ -387,11 +381,13 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                                         </span>
                                         <ChevronsUpDown size={13} className="text-slate-400 shrink-0" />
                                     </button>
-                                    
+
                                     {isExpanded && (
                                         <div className="bg-slate-50/50 py-1">
                                             {group.map((membership) => {
-                                                const isActive = membership.orgId === activeMembership?.orgId && membership.role === activeMembership?.role;
+                                                const isActive =
+                                                    membership.orgId === activeMembership?.orgId &&
+                                                    membership.role === activeMembership?.role;
                                                 const membershipId = `${membership.orgId}-${membership.role}`;
                                                 return (
                                                     <button
@@ -408,7 +404,9 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                                                                 {ROLE_LABELS[membership.role] || membership.role}
                                                             </span>
                                                         </span>
-                                                        {isActive && <Check size={13} className="text-[var(--brand)] shrink-0" />}
+                                                        {isActive && (
+                                                            <Check size={13} className="text-[var(--brand)] shrink-0" />
+                                                        )}
                                                     </button>
                                                 );
                                             })}
@@ -419,7 +417,8 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                         }
 
                         const membership = group[0];
-                        const isActive = membership.orgId === activeMembership?.orgId && membership.role === activeMembership?.role;
+                        const isActive =
+                            membership.orgId === activeMembership?.orgId && membership.role === activeMembership?.role;
                         const membershipId = `${membership.orgId}-${membership.role}`;
 
                         return (
@@ -466,9 +465,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                             </button>
                         </>
                     )}
-                    {error && (
-                        <p className="px-4 pt-2 text-[11px] font-bold text-rose-500">{error}</p>
-                    )}
+                    {error && <p className="px-4 pt-2 text-[11px] font-bold text-rose-500">{error}</p>}
                 </div>
             )}
         </div>

@@ -37,12 +37,8 @@ export default function StudioRecentActivity({ activities }: StudioRecentActivit
         >
             <div className="flex items-start justify-between gap-3">
                 <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
-                        Live activity
-                    </p>
-                    <h3 className="mt-1.5 text-lg font-semibold tracking-tight text-slate-950">
-                        Learner signals
-                    </h3>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Live activity</p>
+                    <h3 className="mt-1.5 text-lg font-semibold tracking-tight text-slate-950">Learner signals</h3>
                 </div>
                 <span className="rounded-full bg-slate-100/80 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
                     {activities.length} items
@@ -135,11 +131,11 @@ function mapActivity(activity: {
     const time =
         createdAt && !Number.isNaN(createdAt.getTime())
             ? createdAt.toLocaleString(undefined, {
-                month: 'short',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit',
-            })
+                  month: 'short',
+                  day: 'numeric',
+                  hour: 'numeric',
+                  minute: '2-digit',
+              })
             : 'Just now';
 
     if (type === 'certificate_issued') {

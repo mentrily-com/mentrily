@@ -107,9 +107,7 @@ export default function ExamBuilder({
 
     // Full global IANA zone list (every country/continent), computed once.
     const [timeZoneOptions] = useState<string[]>(() => getAllTimeZones());
-    const [scheduleTz, setScheduleTz] = useState<string>(
-        (initialData as any)?.timeZone || detectTimeZone(),
-    );
+    const [scheduleTz, setScheduleTz] = useState<string>((initialData as any)?.timeZone || detectTimeZone());
 
     // Changing the zone keeps the wall-clock the creator typed and reinterprets
     // it in the new zone (so "3:00 PM" stays "3:00 PM", the stored UTC instant
@@ -143,7 +141,7 @@ export default function ExamBuilder({
         message: string;
         type?: 'danger' | 'warning' | 'info';
         onConfirm: () => void;
-    }>({ isOpen: false, title: '', message: '', onConfirm: () => { } });
+    }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
     const [showComingSoon, setShowComingSoon] = useState(false);
     const [upgradeConfig, setUpgradeConfig] = useState<{ isOpen: boolean; title: string; message: string }>({
         isOpen: false,
@@ -169,9 +167,9 @@ export default function ExamBuilder({
                     const draftData = isEditMode
                         ? parsed
                         : (() => {
-                            const { id, slug, inviteToken, ...rest } = parsed || {};
-                            return rest;
-                        })();
+                              const { id, slug, inviteToken, ...rest } = parsed || {};
+                              return rest;
+                          })();
 
                     setExam((prev) => ({ ...prev, ...draftData }));
                     success('Restored exam draft from local storage', 'Draft Restored');
@@ -190,9 +188,9 @@ export default function ExamBuilder({
                 const draftToSave = isEditMode
                     ? exam
                     : (() => {
-                        const { id, ...rest } = exam as any;
-                        return rest;
-                    })();
+                          const { id, ...rest } = exam as any;
+                          return rest;
+                      })();
 
                 localStorage.setItem(key, JSON.stringify(draftToSave));
             }, 1000); // Debounce 1s
@@ -220,7 +218,6 @@ export default function ExamBuilder({
         }));
     };
 
-
     const addQuestion = (type: Question['type']) => {
         if (!activeSection) return;
         const newQuestion: Question = {
@@ -234,40 +231,40 @@ export default function ExamBuilder({
             options:
                 type === 'MCQ' || type === 'MultiSelect'
                     ? [
-                        { id: `opt-1`, text: 'Option 1', isCorrect: true },
-                        { id: `opt-2`, text: 'Option 2', isCorrect: false },
-                    ]
+                          { id: `opt-1`, text: 'Option 1', isCorrect: true },
+                          { id: `opt-2`, text: 'Option 2', isCorrect: false },
+                      ]
                     : [],
             codingConfig:
                 type === 'Coding'
                     ? {
-                        templates: {
-                            javascript: { head: '', body: '// Write your code here', tail: '', solution: '' },
-                            python: { head: '', body: '# Write your code here', tail: '', solution: '' },
-                        },
-                        testCases: [],
-                        showTestCases: false,
-                    }
+                          templates: {
+                              javascript: { head: '', body: '// Write your code here', tail: '', solution: '' },
+                              python: { head: '', body: '# Write your code here', tail: '', solution: '' },
+                          },
+                          testCases: [],
+                          showTestCases: false,
+                      }
                     : undefined,
             webConfig:
                 type === 'Web'
                     ? {
-                        html: '<h1>Hello World</h1>',
-                        css: 'body { color: blue; }',
-                        js: '',
-                        showFiles: { html: true, css: true, js: true },
-                        testCases: [],
-                    }
+                          html: '<h1>Hello World</h1>',
+                          css: 'body { color: blue; }',
+                          js: '',
+                          showFiles: { html: true, css: true, js: true },
+                          testCases: [],
+                      }
                     : undefined,
             notebookConfig:
                 type === 'Notebook'
                     ? {
-                        initialCode:
-                            '# Write your Python code here\\nimport numpy as np\\nimport matplotlib.pyplot as plt\\n\\nprint("Hello from Python Notebook!")',
-                        language: 'python',
-                        maxExecutionTime: 10,
-                        allowedLibraries: ['numpy', 'matplotlib'],
-                    }
+                          initialCode:
+                              '# Write your Python code here\\nimport numpy as np\\nimport matplotlib.pyplot as plt\\n\\nprint("Hello from Python Notebook!")',
+                          language: 'python',
+                          maxExecutionTime: 10,
+                          allowedLibraries: ['numpy', 'matplotlib'],
+                      }
                     : undefined,
         };
 
@@ -470,7 +467,13 @@ export default function ExamBuilder({
                             onClick={() => setPreviewMode(previewMode ? null : 'desktop')}
                             disabled={!activeQuestion}
                             className={`cursor-pointer rounded-xl p-2.5 transition-colors disabled:opacity-30 ${previewMode ? 'bg-[var(--brand)] text-white' : 'text-slate-400 hover:bg-slate-50 hover:text-[var(--brand)]'}`}
-                            title={activeQuestion ? (previewMode ? 'Close preview' : 'Preview question') : 'Select a question first'}
+                            title={
+                                activeQuestion
+                                    ? previewMode
+                                        ? 'Close preview'
+                                        : 'Preview question'
+                                    : 'Select a question first'
+                            }
                         >
                             {previewMode ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
@@ -525,11 +528,7 @@ export default function ExamBuilder({
                                     }
                                 } catch (e) {
                                     console.error(e);
-                                    alert(
-                                        e instanceof Error && e.message
-                                            ? e.message
-                                            : 'Failed to save exam',
-                                    );
+                                    alert(e instanceof Error && e.message ? e.message : 'Failed to save exam');
                                 } finally {
                                     setIsSaving(false);
                                 }
@@ -562,13 +561,21 @@ export default function ExamBuilder({
                 >
                     <div className="border-b border-slate-200 bg-white px-4 py-3">
                         <div className="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                            <span><span className="text-slate-900 font-bold">{totalSections}</span> sec</span>
+                            <span>
+                                <span className="text-slate-900 font-bold">{totalSections}</span> sec
+                            </span>
                             <span className="h-3 w-px bg-slate-200" />
-                            <span><span className="text-slate-900 font-bold">{totalQuestions}</span> qs</span>
+                            <span>
+                                <span className="text-slate-900 font-bold">{totalQuestions}</span> qs
+                            </span>
                             <span className="h-3 w-px bg-slate-200" />
-                            <span><span className="text-slate-900 font-bold">{accessRulesCount}</span> rules</span>
+                            <span>
+                                <span className="text-slate-900 font-bold">{accessRulesCount}</span> rules
+                            </span>
                             <span className="h-3 w-px bg-slate-200" />
-                            <span><span className="text-[var(--brand)] font-bold">{activeQuestionCount}</span> active</span>
+                            <span>
+                                <span className="text-[var(--brand)] font-bold">{activeQuestionCount}</span> active
+                            </span>
                         </div>
                     </div>
 
@@ -626,9 +633,7 @@ export default function ExamBuilder({
                                                     onDeleteQuestion={(id) => deleteQuestion(section.id, id)}
                                                     showAddMenu={showAddMenu === section.id}
                                                     onToggleAddMenu={() =>
-                                                        setShowAddMenu(
-                                                            showAddMenu === section.id ? null : section.id,
-                                                        )
+                                                        setShowAddMenu(showAddMenu === section.id ? null : section.id)
                                                     }
                                                     onAddQuestion={addQuestion}
                                                     canUse={canUse}
@@ -729,14 +734,21 @@ export default function ExamBuilder({
                                                         readOnly={!canCustomSlug}
                                                         onClick={() => {
                                                             if (!canCustomSlug) {
-                                                                openUpgrade('Custom exam URLs are available on Enterprise.');
+                                                                openUpgrade(
+                                                                    'Custom exam URLs are available on Enterprise.',
+                                                                );
                                                             }
                                                         }}
                                                         className={`w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-[var(--brand)] outline-none transition-all ${canCustomSlug ? 'focus:border-[var(--brand-light)]' : 'cursor-pointer'}`}
-                                                        placeholder={exam.id ? exam.slug || 'Auto-generated after save' : 'Auto-generated on save'}
+                                                        placeholder={
+                                                            exam.id
+                                                                ? exam.slug || 'Auto-generated after save'
+                                                                : 'Auto-generated on save'
+                                                        }
                                                         value={exam.slug}
                                                         onChange={(e) =>
-                                                            canCustomSlug && setExam((prev) => ({ ...prev, slug: e.target.value }))
+                                                            canCustomSlug &&
+                                                            setExam((prev) => ({ ...prev, slug: e.target.value }))
                                                         }
                                                     />
                                                 </div>
@@ -789,9 +801,8 @@ export default function ExamBuilder({
                                                 ))}
                                             </select>
                                             <p className="text-[10px] font-semibold text-slate-400">
-                                                Start &amp; end times below are in this timezone. Learners
-                                                anywhere see the exam open at the same moment, labeled in
-                                                their own zone.
+                                                Start &amp; end times below are in this timezone. Learners anywhere see
+                                                the exam open at the same moment, labeled in their own zone.
                                             </p>
                                         </div>
 
@@ -844,7 +855,10 @@ export default function ExamBuilder({
                                                     placeholder="60"
                                                     value={exam.duration}
                                                     onChange={(e) =>
-                                                        setExam((prev) => ({ ...prev, duration: parseInt(e.target.value) }))
+                                                        setExam((prev) => ({
+                                                            ...prev,
+                                                            duration: parseInt(e.target.value),
+                                                        }))
                                                     }
                                                 />
                                             </div>
@@ -890,7 +904,10 @@ export default function ExamBuilder({
                                                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-black text-slate-700 outline-none focus:border-[var(--brand-light)] transition-all"
                                                     value={exam.passingPercentage ?? 70}
                                                     onChange={(e) =>
-                                                        setExam((prev) => ({ ...prev, passingPercentage: Number(e.target.value || 70) }))
+                                                        setExam((prev) => ({
+                                                            ...prev,
+                                                            passingPercentage: Number(e.target.value || 70),
+                                                        }))
                                                     }
                                                 />
                                             </div>
@@ -904,7 +921,10 @@ export default function ExamBuilder({
                                                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-black text-slate-700 outline-none focus:border-[var(--brand-light)] transition-all"
                                                     value={exam.maxAttempts ?? 1}
                                                     onChange={(e) =>
-                                                        setExam((prev) => ({ ...prev, maxAttempts: Number(e.target.value || 1) }))
+                                                        setExam((prev) => ({
+                                                            ...prev,
+                                                            maxAttempts: Number(e.target.value || 1),
+                                                        }))
                                                     }
                                                 />
                                             </div>
@@ -918,7 +938,10 @@ export default function ExamBuilder({
                                                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-black text-slate-700 outline-none focus:border-[var(--brand-light)] transition-all"
                                                     value={exam.attemptBufferMins ?? 0}
                                                     onChange={(e) =>
-                                                        setExam((prev) => ({ ...prev, attemptBufferMins: Number(e.target.value || 0) }))
+                                                        setExam((prev) => ({
+                                                            ...prev,
+                                                            attemptBufferMins: Number(e.target.value || 0),
+                                                        }))
                                                     }
                                                 />
                                                 <p className="text-[9px] font-medium text-slate-400">
@@ -969,7 +992,10 @@ export default function ExamBuilder({
                                                             <button
                                                                 key={t}
                                                                 onClick={() =>
-                                                                    setExam((prev) => ({ ...prev, testCodeType: t as any }))
+                                                                    setExam((prev) => ({
+                                                                        ...prev,
+                                                                        testCodeType: t as any,
+                                                                    }))
                                                                 }
                                                                 className={`flex-1 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${exam.testCodeType === t ? 'bg-white text-[var(--brand)] shadow-sm ring-1 ring-slate-100' : 'text-slate-400 hover:text-slate-600'}`}
                                                             >
@@ -1001,7 +1027,9 @@ export default function ExamBuilder({
 
                                                 <p className="text-[9px] font-bold text-slate-400">
                                                     Current Code:{' '}
-                                                    <span className="text-[var(--brand)]">{exam.testCode || '00000'}</span>
+                                                    <span className="text-[var(--brand)]">
+                                                        {exam.testCode || '00000'}
+                                                    </span>
                                                 </p>
                                             </div>
                                         </div>
@@ -1255,11 +1283,11 @@ export default function ExamBuilder({
                                     sections: prev.sections?.map((s) =>
                                         s.id === activeSectionId
                                             ? {
-                                                ...s,
-                                                questions: s.questions.map((q) =>
-                                                    q.id === activeQuestionId ? { ...q, ...updates } : q,
-                                                ),
-                                            }
+                                                  ...s,
+                                                  questions: s.questions.map((q) =>
+                                                      q.id === activeQuestionId ? { ...q, ...updates } : q,
+                                                  ),
+                                              }
                                             : s,
                                     ),
                                 }));
@@ -1450,10 +1478,7 @@ function SectionRow({
 
             {isActive && (
                 <div className="pl-8 space-y-1 py-1">
-                    <SortableContext
-                        items={section.questions.map((q) => q.id)}
-                        strategy={verticalListSortingStrategy}
-                    >
+                    <SortableContext items={section.questions.map((q) => q.id)} strategy={verticalListSortingStrategy}>
                         {section.questions.map((q) => (
                             <QuestionRow
                                 key={q.id}

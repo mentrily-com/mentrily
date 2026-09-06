@@ -4,8 +4,16 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useInView } from 'react-intersection-observer';
 import {
-    Palette, Globe, Shield, Award, BarChart3, BookOpen,
-    Users, GraduationCap, CheckCircle, Layers,
+    Palette,
+    Globe,
+    Shield,
+    Award,
+    BarChart3,
+    BookOpen,
+    Users,
+    GraduationCap,
+    CheckCircle,
+    Layers,
 } from 'lucide-react';
 
 const creatorBenefits = [
@@ -29,7 +37,7 @@ const learnerBenefits = [
 const personas = [
     {
         id: 'creator' as const,
-        title: 'I\'m a Creator',
+        title: "I'm a Creator",
         subtitle: 'Educators, trainers & institutions',
         description: 'Build your branded school with courses, exams, and certificates.',
         benefits: creatorBenefits,
@@ -37,7 +45,7 @@ const personas = [
     },
     {
         id: 'learner' as const,
-        title: 'I\'m a Learner',
+        title: "I'm a Learner",
         subtitle: 'Students, professionals & self-learners',
         description: 'Enroll in courses, take exams, and earn verified certificates.',
         benefits: learnerBenefits,
@@ -110,9 +118,10 @@ export default function RoleSelector() {
                             style={{
                                 backgroundColor: role === persona.id ? '#FFFFFF' : 'rgba(255,255,255,0.5)',
                                 border: role === persona.id ? `2px solid ${persona.accent}` : '2px solid #E2E8F0',
-                                boxShadow: role === persona.id
-                                    ? `0 4px 20px ${persona.accent}22, 0 2px 8px rgba(0,0,0,0.04)`
-                                    : '0 1px 3px rgba(0,0,0,0.06)',
+                                boxShadow:
+                                    role === persona.id
+                                        ? `0 4px 20px ${persona.accent}22, 0 2px 8px rgba(0,0,0,0.04)`
+                                        : '0 1px 3px rgba(0,0,0,0.06)',
                             }}
                         >
                             {role === persona.id && (

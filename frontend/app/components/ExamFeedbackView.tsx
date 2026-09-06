@@ -61,7 +61,9 @@ export default function ExamFeedbackView({ onSubmitFeedback, verdict }: ExamFeed
                                 verdict.passed ? 'border-emerald-200 bg-emerald-50' : 'border-rose-200 bg-rose-50'
                             }`}
                         >
-                            <p className={`text-sm font-black ${verdict.passed ? 'text-emerald-700' : 'text-rose-700'}`}>
+                            <p
+                                className={`text-sm font-black ${verdict.passed ? 'text-emerald-700' : 'text-rose-700'}`}
+                            >
                                 {verdict.passed ? 'Passed' : 'Failed'}
                                 {typeof verdict.score === 'number' ? ` - ${Math.round(verdict.score)}%` : ''}
                             </p>

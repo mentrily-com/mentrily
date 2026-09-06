@@ -142,14 +142,14 @@ export class CertificateService {
       ? Number(block.width)
       : fallback.width;
     const align =
-      typeof block?.align === 'string' ? block.align : (fallback.align ?? 'left');
+      typeof block?.align === 'string'
+        ? block.align
+        : (fallback.align ?? 'left');
     const fontSize = Number.isFinite(Number(block?.fontSize))
       ? Number(block.fontSize)
       : 14;
     const color =
-      typeof block?.color === 'string' && block.color
-        ? block.color
-        : '#0F172A';
+      typeof block?.color === 'string' && block.color ? block.color : '#0F172A';
 
     doc.fontSize(fontSize).fillColor(color);
     if (width) {
@@ -262,17 +262,12 @@ export class CertificateService {
         },
       );
 
-      this.drawText(
-        doc,
-        params.studentName || 'Student',
-        layout.studentName,
-        {
-          x: 0,
-          y: 238,
-          width: 595,
-          align: 'center',
-        },
-      );
+      this.drawText(doc, params.studentName || 'Student', layout.studentName, {
+        x: 0,
+        y: 238,
+        width: 595,
+        align: 'center',
+      });
 
       const descriptor =
         params.type === 'course'
@@ -396,7 +391,11 @@ export class CertificateService {
     return template;
   }
 
-  async createTemplate(orgId: string, creatorId: string, dto: CreateTemplateDto) {
+  async createTemplate(
+    orgId: string,
+    creatorId: string,
+    dto: CreateTemplateDto,
+  ) {
     const resolvedOrgId = this.requireOrgId(orgId);
 
     if (!dto?.name?.trim()) {
