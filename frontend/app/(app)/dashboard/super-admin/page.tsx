@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { SuperAdminService } from '@/services/api/SuperAdminService';
 import { useRequireAuth } from '@/hooks/requireAuthClient';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import SuperAdminDashboardSkeleton from '@/app/components/Skeletons/SuperAdminDashboardSkeleton';
 import { sanitizeProse } from '@/lib/sanitize';
 
 export default function SuperAdminDashboardPage() {
@@ -105,7 +105,7 @@ export default function SuperAdminDashboardPage() {
     const anyCriticalOrg = organizations.some((org: any) => org.hasCriticalUsage);
     const showHealthAlert = Number(statsData?.failedPayments30d || 0) > 0 || anyCriticalOrg;
 
-    if (!authChecked || loading) return <DashboardSkeleton type="main" userRole="super-admin" />;
+    if (!authChecked || loading) return <SuperAdminDashboardSkeleton />;
 
     return (
         <div className="space-y-6 text-slate-900 selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)] animate-fade-in">
