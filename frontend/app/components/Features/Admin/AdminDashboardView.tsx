@@ -59,7 +59,7 @@ interface AdminDashboardViewProps {
 
 import { AdminService } from '@/services/api/AdminService';
 import { useState } from 'react';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import AdminDashboardViewSkeleton from '@/app/components/Skeletons/AdminDashboardViewSkeleton';
 import { usePlan } from '@/hooks/usePlan';
 import OnboardingChecklist from '@/app/components/Common/OnboardingChecklist';
 import OnboardingTour from '@/app/components/Common/OnboardingTour';
@@ -93,7 +93,7 @@ export default function AdminDashboardView({
     const lastUpdatedLabel = statsData?.generatedAt ? new Date(statsData.generatedAt).toLocaleString() : null;
 
     // Show loading ONLY if no data exists (first load)
-    if (loading && !statsData) return <DashboardSkeleton type="main" userRole="admin" noNavbar />;
+    if (loading && !statsData) return <AdminDashboardViewSkeleton />;
 
     const studentsUsed = Number((usage as any)?.students || 0);
     const storageUsed = Number((usage as any)?.storageMb || 0);

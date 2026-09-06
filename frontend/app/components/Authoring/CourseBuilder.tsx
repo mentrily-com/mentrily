@@ -48,7 +48,7 @@ import QuestionBuilder from './QuestionBuilder/QuestionBuilder';
 import StudentPreview from './StudentPreview';
 import AlertModal from '../Common/AlertModal';
 import { useToast } from '../Common/Toast';
-import DashboardSkeleton from '../Skeletons/DashboardSkeleton';
+import RichTextEditorSkeleton from '../Skeletons/RichTextEditorSkeleton';
 import { usePlan } from '@/hooks/usePlan';
 import UpgradeModal from '../Common/UpgradeModal';
 import CourseExamSection from '../Features/Courses/CourseExamSection';
@@ -58,7 +58,7 @@ import { getAvailableImportTypes } from './aiImport';
 
 const RichTextEditor = dynamic(() => import('./RichTextEditor'), {
     ssr: false,
-    loading: () => <DashboardSkeleton type="form" noNavbar />,
+    loading: () => <RichTextEditorSkeleton />,
 });
 
 const createDefaultCourse = (): Course => ({

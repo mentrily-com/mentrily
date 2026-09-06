@@ -50,7 +50,7 @@ import { siteConfig } from '@/app/config/site';
 import StudentPreview from './StudentPreview';
 import AlertModal from '../Common/AlertModal';
 import { useToast } from '../Common/Toast';
-import DashboardSkeleton from '../Skeletons/DashboardSkeleton';
+import RichTextEditorSkeleton from '../Skeletons/RichTextEditorSkeleton';
 import { usePlan } from '@/hooks/usePlan';
 import UpgradeModal from '../Common/UpgradeModal';
 import AiGenerateModal from './AiGenerateModal';
@@ -65,7 +65,7 @@ import {
 
 const RichTextEditor = dynamic(() => import('./RichTextEditor'), {
     ssr: false,
-    loading: () => <DashboardSkeleton type="form" noNavbar />,
+    loading: () => <RichTextEditorSkeleton />,
 });
 
 const createDefaultExam = (): Partial<Exam> => ({

@@ -11,7 +11,7 @@ import ExamInviteModal from '@/app/components/Features/Exams/ExamInviteModal';
 import { AdminService } from '@/services/api/AdminService';
 import { AuthService } from '@/services/api/AuthService';
 import { useEffect } from 'react';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import AdminExamsViewSkeleton from '@/app/components/Skeletons/AdminExamsViewSkeleton';
 
 interface AdminExamsViewProps {
     basePath?: string;
@@ -99,7 +99,7 @@ export default function AdminExamsView({ basePath = '/dashboard/creator', organi
     };
 
     if (loading) {
-        return <DashboardSkeleton type="list" />;
+        return <AdminExamsViewSkeleton />;
     }
 
     return (

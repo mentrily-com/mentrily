@@ -19,11 +19,11 @@ import CodeMirrorEditor from '../../CodeMirrorEditor';
 import YouTubeSegmentPlayer from '@/app/components/Reading/YouTubeSegmentPlayer';
 import { CourseService } from '@/services/api/CourseService';
 import AlertModal from '../../../Common/AlertModal';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import RichTextEditorSkeleton from '@/app/components/Skeletons/RichTextEditorSkeleton';
 
 const RichTextEditor = dynamic(() => import('../../RichTextEditor'), {
     ssr: false,
-    loading: () => <DashboardSkeleton type="form" noNavbar />,
+    loading: () => <RichTextEditorSkeleton />,
 });
 
 interface ReadingEditorProps {

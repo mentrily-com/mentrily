@@ -6,7 +6,7 @@ import UserManagementModal from '@/app/components/Common/UserManagementModal';
 import UsersTable from './_components/UsersTable';
 import DeleteUserModal from './_components/DeleteUserModal';
 import { useAdminUsers } from './_components/useAdminUsers';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import AdminUsersViewSkeleton from '@/app/components/Skeletons/AdminUsersViewSkeleton';
 
 interface AdminUsersViewProps {
     basePath?: string;
@@ -31,7 +31,7 @@ export default function AdminUsersView({ basePath, organizationId }: AdminUsersV
     } = useAdminUsers(organizationId);
 
     if (loading) {
-        return <DashboardSkeleton type="list" />;
+        return <AdminUsersViewSkeleton />;
     }
 
     return (
