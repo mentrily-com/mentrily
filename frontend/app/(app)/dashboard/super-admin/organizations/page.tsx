@@ -4,7 +4,7 @@ import { SuperAdminService } from '@/services/api/SuperAdminService';
 import Link from 'next/link';
 import { Search, Building2, Plus, Globe, Users, Settings2, Trash2, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/app/components/Common/Toast';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import OrganizationsRegistrySkeleton from '@/app/components/Skeletons/OrganizationsRegistrySkeleton';
 
 export default function SuperAdminOrganizationsPage() {
     const [searchQuery, setSearchQuery] = useState('');
@@ -67,7 +67,7 @@ export default function SuperAdminOrganizationsPage() {
         }
     };
 
-    if (loading) return <DashboardSkeleton type="list" userRole="super-admin" />;
+    if (loading) return <OrganizationsRegistrySkeleton />;
 
     return (
         <div className="max-w-[1440px] mx-auto animate-fade-in">

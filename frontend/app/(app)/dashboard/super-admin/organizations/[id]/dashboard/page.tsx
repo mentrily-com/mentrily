@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import AdminDashboardView from '@/app/components/Features/Admin/AdminDashboardView';
 import { SuperAdminService } from '@/services/api/SuperAdminService';
 import { AdminService } from '@/services/api/AdminService';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import OrgControlsSkeleton from '@/app/components/Skeletons/OrgControlsSkeleton';
 
 type PlanType = 'FREE' | 'STARTER' | 'PRO' | 'ENTERPRISE';
 
@@ -132,7 +132,7 @@ export default function SuperAdminOrganizationDashboard({ params }: { params: Pr
     };
 
     if (loading) {
-        return <DashboardSkeleton type="main" userRole="super-admin" />;
+        return <OrgControlsSkeleton />;
     }
 
     return (
