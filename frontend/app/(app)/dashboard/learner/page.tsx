@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { StudentService, StudentModule } from '@/services/api/StudentService';
 import { useRequireAuth } from '@/hooks/requireAuthClient';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import LearnerDashboardSkeleton from '@/app/components/Skeletons/LearnerDashboardSkeleton';
 import OnboardingTour from '@/app/components/Common/OnboardingTour';
 import { useQuery } from '@/hooks/useQuery';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -154,11 +154,7 @@ export default function DashboardPage() {
 
     // Show loading only if no data at all (first load)
     if (loading && !stats) {
-        return (
-            <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans">
-                <DashboardSkeleton type="main" userRole="student" noNavbar />
-            </div>
-        );
+        return <LearnerDashboardSkeleton />;
     }
 
     return (

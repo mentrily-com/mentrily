@@ -5,7 +5,8 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, KeyRound, ArrowLeft } fro
 import Link from 'next/link';
 import { AuthService } from '@/services/api/AuthService';
 import { useOrganization } from '@/app/context/OrganizationContext';
-import { AuthenticateWithRedirectCallback, useClerk, useSignIn, useUser } from '@clerk/nextjs';
+import { AuthenticateWithRedirectCallback, useAuth, useClerk, useSignIn, useUser } from '@clerk/nextjs';
+import { useQueryClient } from '@tanstack/react-query';
 import { BrandLockup } from '@/components/brand/BrandLockup';
 import BrandedPageLoader from '@/app/components/Common/BrandedPageLoader';
 
@@ -15,6 +16,18 @@ export default function LoginPage() {
     const { isLoaded, signIn, setActive } = useSignIn();
     const { isSignedIn } = useUser();
     const { signOut } = useClerk();
+    const { sessionId, userId } = useAuth();
+    const queryClient = useQueryClient();
+    // Mirrors useSession()'s own query key exactly, so pre-warming the
+    // cache here is actually visible to it -- see the comment at the call
+    // sites below for why this matters. Memoized on the primitive values,
+    // not just recomputed inline, so it has a stable reference across
+    // renders -- a fresh array literal here would make the effect below
+    // that depends on it re-run on every render.
+    const sessionQueryKey = React.useMemo(
+        () => ['session', sessionId || userId || 'anonymous'],
+        [sessionId, userId],
+    );
     const oauthMode = searchParams.get('oauth');
     const oauthFlow = searchParams.get('flow') || 'signin';
     const oauthError = searchParams.get('error');
@@ -121,6 +134,14 @@ export default function LoginPage() {
                 try {
                     const user = await AuthService.checkSession(true);
                     if (user) {
+                        // The dashboard layout this redirect lands on calls
+                        // useSession(), which reads from this exact query
+                        // cache entry. Without this, that hook has no way to
+                        // know a /auth/me call already just happened here and
+                        // fires a second one -- a fully redundant network
+                        // round trip stacked sequentially after this one,
+                        // directly on the critical path of every login.
+                        queryClient.setQueryData(sessionQueryKey, user);
                         path = resolvePostLoginPath(user);
                     } else {
                         await redirectMissingAccount();
@@ -156,6 +177,8 @@ export default function LoginPage() {
         redirectMissingAccount,
         getSafeRedirectPath,
         resolvePostLoginPath,
+        queryClient,
+        sessionQueryKey,
     ]);
 
     const completeSignIn = async (createdSessionId?: string | null) => {
@@ -178,6 +201,10 @@ export default function LoginPage() {
                 await redirectMissingAccount();
                 return;
             }
+            // See the matching comment in the auto-redirect effect above --
+            // this pre-warms useSession()'s cache for the dashboard we're
+            // about to navigate to, so it doesn't re-fetch what we just got.
+            queryClient.setQueryData(sessionQueryKey, user);
             path = resolvePostLoginPath(user);
         } catch (e: any) {
             if (e.message === 'FORBIDDEN') {
