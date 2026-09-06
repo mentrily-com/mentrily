@@ -57,7 +57,7 @@ describe('Judge0Strategy', () => {
     const strategy = makeStrategy(post);
 
     await expect(strategy.execute('dart', 'void main() {}', '')).rejects.toThrow(
-      "Language 'dart' is not supported by Judge0 on this deployment.",
+      "Language 'dart' is not supported by the execution engine.",
     );
     expect(post).not.toHaveBeenCalled();
   });

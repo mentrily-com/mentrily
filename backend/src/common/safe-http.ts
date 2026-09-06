@@ -1,6 +1,6 @@
 import { Agent as HttpAgent } from 'http';
 import { Agent as HttpsAgent } from 'https';
-import { isIP } from 'net';
+import { isIP, type LookupFunction } from 'net';
 import { lookup as dnsLookup, LookupAddress } from 'dns';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
@@ -116,7 +116,7 @@ function expandIpv6(ip: string): number[] | null {
 
   const gap = 8 - head.length - rear.length;
   if (gap < 0) return null;
-  return [...head, ...new Array(gap).fill(0), ...rear];
+  return [...head, ...Array<number>(gap).fill(0), ...rear];
 }
 
 function isBlockedIpv6(ip: string): boolean {
@@ -189,15 +189,26 @@ export class BlockedAddressError extends Error {
  * address returned here, an attacker-controlled DNS record cannot swap in an
  * internal IP after validation.
  */
+interface LookupOptions {
+  all?: boolean;
+  family?: number;
+  hints?: number;
+  verbatim?: boolean;
+}
+
+type LookupCallback = (
+  err: NodeJS.ErrnoException | null,
+  address?: string | LookupAddress[],
+  family?: number,
+) => void;
+
 function safeLookup(
   hostname: string,
-  options: any,
-  callback: (
-    err: NodeJS.ErrnoException | null,
-    address?: any,
-    family?: number,
-  ) => void,
+  options: number | LookupOptions,
+  callback: LookupCallback,
 ): void {
+  const opts: LookupOptions =
+    typeof options === 'number' ? { family: options } : (options ?? {});
   // A bare IP literal never reaches DNS — check it directly.
   const literal = isIP(hostname);
   if (literal) {
@@ -205,7 +216,7 @@ function safeLookup(
       callback(new BlockedAddressError(hostname, hostname));
       return;
     }
-    if (options?.all) {
+    if (opts.all) {
       callback(null, [{ address: hostname, family: literal }]);
     } else {
       callback(null, hostname, literal);
@@ -213,7 +224,7 @@ function safeLookup(
     return;
   }
 
-  dnsLookup(hostname, { ...options, all: true }, (err, addresses) => {
+  dnsLookup(hostname, { ...opts, all: true }, (err, addresses) => {
     if (err) {
       callback(err);
       return;
@@ -227,7 +238,7 @@ function safeLookup(
       return;
     }
 
-    if (options?.all) {
+    if (opts.all) {
       callback(null, allowed);
     } else {
       callback(null, allowed[0].address, allowed[0].family);
@@ -239,11 +250,11 @@ function safeLookup(
 // a connection validated for one destination be reused for another.
 const safeHttpAgent = new HttpAgent({
   keepAlive: false,
-  lookup: safeLookup as any,
+  lookup: safeLookup as unknown as LookupFunction,
 });
 const safeHttpsAgent = new HttpsAgent({
   keepAlive: false,
-  lookup: safeLookup as any,
+  lookup: safeLookup as unknown as LookupFunction,
 });
 
 /**
@@ -279,6 +290,15 @@ export function assertSafeUrl(rawUrl: string): URL {
   return url;
 }
 
+/** The subset of follow-redirects' options we need to rebuild the next hop. */
+interface RedirectTarget {
+  href?: string;
+  protocol?: string;
+  host?: string;
+  hostname?: string;
+  path?: string;
+}
+
 /**
  * Axios config that pins the request to the SSRF-filtered agents. Redirects are
  * capped but remain safe to follow: each hop dials through the same agent, so
@@ -292,11 +312,11 @@ export function safeRequestConfig(
     httpAgent: safeHttpAgent,
     httpsAgent: safeHttpsAgent,
     maxRedirects: config.maxRedirects ?? 3,
-    beforeRedirect: (options: any) => {
-      assertSafeUrl(
-        options.href ||
-          `${String(options.protocol || 'https:')}//${String(options.host || options.hostname || '')}${String(options.path || '')}`,
-      );
+    beforeRedirect: (redirect: RedirectTarget) => {
+      const href =
+        redirect.href ??
+        `${redirect.protocol ?? 'https:'}//${redirect.host ?? redirect.hostname ?? ''}${redirect.path ?? ''}`;
+      assertSafeUrl(href);
     },
   };
 }

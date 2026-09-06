@@ -285,43 +285,46 @@ export class StudentService {
       return JSON.parse(cached);
     }
 
-    const user = await this.findUserCompat({
-      where: { id: userId },
-      select: {
-        // @ts-ignore
-        dailyStreak: true,
-        // @ts-ignore
-        totalXP: true,
-        unitSubmissions: {
-          where: { status: 'COMPLETED' },
-          select: { id: true },
+    // Both figures below are aggregates, so they are computed in the database
+    // rather than by materialising rows in the Node heap: a learner with many
+    // completed units previously pulled one row per unit just to read
+    // `.length`, and one row per scored session just to average it.
+    const [user, scoreAggregate] = await Promise.all([
+      this.findUserCompat({
+        where: { id: userId },
+        select: {
+          // @ts-ignore
+          dailyStreak: true,
+          // @ts-ignore
+          totalXP: true,
+          _count: {
+            select: {
+              unitSubmissions: { where: { status: 'COMPLETED' } },
+            },
+          },
         },
-      },
-    });
+      }),
+      // Average over published results only, matching the previous filter.
+      this.prisma.examSession.aggregate({
+        _avg: { score: true },
+        where: {
+          userId,
+          score: { not: null },
+          exam: { resultsPublished: true },
+        },
+      }),
+    ]);
 
     if (!user) throw new Error('User not found');
 
-    // Calculate average score - only from published results
-    const sessionsWithScore = await this.prisma.examSession.findMany({
-      where: {
-        userId,
-        score: { not: null },
-        exam: { resultsPublished: true },
-      },
-      select: { score: true },
-    });
-
-    const totalScore = sessionsWithScore.reduce(
-      (acc: number, curr: any) => acc + (curr.score || 0),
-      0,
-    );
+    const averageScoreRaw = scoreAggregate._avg.score;
     const averageScore =
-      sessionsWithScore.length > 0
-        ? Math.round(totalScore / sessionsWithScore.length)
-        : 0;
+      averageScoreRaw === null || averageScoreRaw === undefined
+        ? 0
+        : Math.round(averageScoreRaw);
 
     const stats = {
-      completedModules: (user as any).unitSubmissions.length,
+      completedModules: (user as any)._count?.unitSubmissions ?? 0,
       averageScore,
       streak: (user as any).dailyStreak,
       totalXP: (user as any).totalXP,

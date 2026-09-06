@@ -2482,18 +2482,34 @@ export class TeacherService {
       );
       const totalUnits = allUnitIds.length;
 
-      for (const student of updatedCourse.students) {
-        const completedSubmissions = await this.prisma.unitSubmission.findMany({
-          where: {
-            userId: student.id,
-            unitId: { in: allUnitIds },
-            status: 'COMPLETED',
-          },
-          select: { unitId: true },
-        });
+      const studentIds = updatedCourse.students.map((s: any) => s.id);
 
+      // One query for the whole cohort instead of one per student. Course
+      // saves used to cost 4 round-trips per enrolled learner (submissions
+      // read, progress upsert, two cache deletes), so a 500-learner course
+      // issued ~2000 sequential round-trips on every save from the builder.
+      const completedSubmissions = await this.prisma.unitSubmission.findMany({
+        where: {
+          userId: { in: studentIds },
+          unitId: { in: allUnitIds },
+          status: 'COMPLETED',
+        },
+        select: { userId: true, unitId: true },
+      });
+
+      const completedByStudent = new Map<string, Set<string>>();
+      for (const submission of completedSubmissions) {
+        let units = completedByStudent.get(submission.userId);
+        if (!units) {
+          units = new Set<string>();
+          completedByStudent.set(submission.userId, units);
+        }
+        units.add(submission.unitId);
+      }
+
+      const progressWrites = updatedCourse.students.map((student: any) => {
         const completedUnitIds = [
-          ...new Set(completedSubmissions.map((s: any) => s.unitId)),
+          ...(completedByStudent.get(student.id) ?? new Set<string>()),
         ];
         const completedCount = completedUnitIds.length;
         const percent =
@@ -2505,30 +2521,39 @@ export class TeacherService {
               ? 'In Progress'
               : 'Not Started';
 
-        // @ts-ignore
-        await this.prisma.courseProgress.upsert({
-          where: { userId_courseId: { userId: student.id, courseId: id } },
-          update: {
-            completedUnits: completedUnitIds,
-            totalUnits,
-            completedCount,
-            percent,
-            status,
-          },
-          create: {
-            userId: student.id,
-            courseId: id,
-            completedUnits: completedUnitIds,
-            totalUnits,
-            completedCount,
-            percent,
-            status,
-          },
-        });
+        const fields = {
+          completedUnits: completedUnitIds,
+          totalUnits,
+          completedCount,
+          percent,
+          status,
+        };
 
-        // Invalidate student stats caches
-        await this.redis.del(`student:stats:${student.id}`);
-        await this.redis.del(`student:analytics:${student.id}`);
+        // @ts-ignore
+        return this.prisma.courseProgress.upsert({
+          where: { userId_courseId: { userId: student.id, courseId: id } },
+          update: fields,
+          create: { userId: student.id, courseId: id, ...fields },
+        });
+      });
+
+      // Chunked so a large cohort does not open one long-running transaction
+      // that holds row locks across the whole course roster.
+      const PROGRESS_WRITE_CHUNK = 100;
+      for (let i = 0; i < progressWrites.length; i += PROGRESS_WRITE_CHUNK) {
+        await this.prisma.$transaction(
+          progressWrites.slice(i, i + PROGRESS_WRITE_CHUNK),
+        );
+      }
+
+      // Invalidate student stats caches in as few round-trips as possible.
+      const cacheKeys = studentIds.flatMap((studentId: string) => [
+        `student:stats:${studentId}`,
+        `student:analytics:${studentId}`,
+      ]);
+      const CACHE_DEL_CHUNK = 500;
+      for (let i = 0; i < cacheKeys.length; i += CACHE_DEL_CHUNK) {
+        await this.redis.del(...cacheKeys.slice(i, i + CACHE_DEL_CHUNK));
       }
     }
 
@@ -3215,9 +3240,12 @@ export class TeacherService {
     }
 
     // Invalidate caches
-    for (const session of sessions) {
-      await this.redis.del(`session:status:${session.id}`);
-      await this.redis.del(`session:meta:${session.id}`);
+    const sessionCacheKeys = sessions.flatMap((session: any) => [
+      `session:status:${session.id}`,
+      `session:meta:${session.id}`,
+    ]);
+    if (sessionCacheKeys.length > 0) {
+      await this.redis.del(...sessionCacheKeys);
     }
 
     // Force kick via websocket - broadcast to both slug and ID rooms for maximum robustness
@@ -3260,9 +3288,12 @@ export class TeacherService {
     });
 
     // Invalidate caches to allow re-entry/re-processing
-    for (const session of sessions) {
-      await this.redis.del(`session:status:${session.id}`);
-      await this.redis.del(`session:meta:${session.id}`);
+    const sessionCacheKeys = sessions.flatMap((session: any) => [
+      `session:status:${session.id}`,
+      `session:meta:${session.id}`,
+    ]);
+    if (sessionCacheKeys.length > 0) {
+      await this.redis.del(...sessionCacheKeys);
     }
 
     return { success: true };

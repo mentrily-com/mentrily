@@ -22,6 +22,10 @@ describe('SuperAdminService', () => {
         { provide: StorageService, useValue: {} },
         { provide: BillingService, useValue: {} },
         { provide: QuotaService, useValue: {} },
+        {
+          provide: 'default_IORedisModuleConnectionToken',
+          useValue: { get: jest.fn(), set: jest.fn(), del: jest.fn() },
+        },
       ],
     }).compile();
 

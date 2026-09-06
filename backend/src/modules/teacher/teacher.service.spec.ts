@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { MembershipService } from '../organization/membership.service';
 import { getQueueToken } from '@nestjs/bullmq';
 import { TeacherService } from './teacher.service';
 import { SupabaseService } from '../../services/supabase/supabase.service';
@@ -16,6 +17,7 @@ describe('TeacherService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
+        { provide: MembershipService, useValue: {} },
         TeacherService,
         {
           provide: SupabaseService,
