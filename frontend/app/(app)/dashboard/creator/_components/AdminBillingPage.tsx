@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import AdminBillingSkeleton from '@/app/components/Skeletons/AdminBillingSkeleton';
 import QuotaBar from '@/app/components/Common/QuotaBar';
 import UpgradeRequestModal from '@/app/components/Common/UpgradeRequestModal';
 import { useRoleGuard } from '@/hooks/useRoleGuard';
@@ -254,11 +254,11 @@ export default function AdminBillingPage() {
     */
 
     if (!isReady || loading) {
-        return <DashboardSkeleton type="main" userRole="admin" />;
+        return <AdminBillingSkeleton />;
     }
 
     if (!isAuthorized) {
-        return <DashboardSkeleton type="main" userRole="admin" />;
+        return <AdminBillingSkeleton />;
     }
 
     return (

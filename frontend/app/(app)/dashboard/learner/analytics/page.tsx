@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useMemo, useEffect } from 'react';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import LearnerAnalyticsSkeleton from '@/app/components/Skeletons/LearnerAnalyticsSkeleton';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { StudentService } from '@/services/api/StudentService';
 import {
@@ -428,11 +428,7 @@ export default function AnalyticsPage() {
     };
 
     if (loading) {
-        return (
-            <div className="min-h-screen bg-[#F8FAFC] font-sans selection:bg-[var(--brand-light)]">
-                <DashboardSkeleton type="main" userRole={studentNameParam ? 'teacher' : 'student'} noNavbar />
-            </div>
-        );
+        return <LearnerAnalyticsSkeleton />;
     }
 
     return (

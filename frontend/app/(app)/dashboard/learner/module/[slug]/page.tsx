@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import ModulePageSkeleton from '@/app/components/Skeletons/ModulePageSkeleton';
 import OnboardingTour from '@/app/components/Common/OnboardingTour';
 import { CourseService } from '@/services/api/CourseService';
 import { StudentService } from '@/services/api/StudentService';
@@ -317,11 +317,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
     }, [router]);
 
     if (loading) {
-        return (
-            <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans">
-                <DashboardSkeleton type="list" userRole="student" noNavbar />
-            </div>
-        );
+        return <ModulePageSkeleton />;
     }
     if (error) {
         const is404 = typeof error === 'string' && error.includes('status: 404');

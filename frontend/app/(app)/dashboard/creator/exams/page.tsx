@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import CreatorExamsSkeleton from '@/app/components/Skeletons/CreatorExamsSkeleton';
 import { BookOpen, Eye, Lock, Pencil, Send, Activity, BarChart3 } from 'lucide-react';
 import ExamDetailsModal from '@/app/components/Features/Exams/ExamDetailsModal';
 import ExamInviteModal from '@/app/components/Features/Exams/ExamInviteModal';
@@ -139,9 +139,7 @@ export default function TeacherExamsPage() {
             {activeTab === 'calendar' ? (
                 <ExamCalendarView exams={scheduledExams} />
             ) : loading ? (
-                <div className="rounded-3xl border border-slate-200 bg-white shadow-sm">
-                    <DashboardSkeleton type="list" userRole={dashboardRole} noNavbar />
-                </div>
+                <CreatorExamsSkeleton />
             ) : filteredExams.length === 0 ? (
                 <div className="rounded-3xl border border-slate-200 bg-white p-12 text-center font-black uppercase tracking-widest text-slate-400 shadow-sm">
                     No Exams Found

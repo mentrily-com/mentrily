@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import PlanGate from '@/app/components/Common/PlanGate';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import CreatorAnalyticsSkeleton from '@/app/components/Skeletons/CreatorAnalyticsSkeleton';
 import { usePlan } from '@/hooks/usePlan';
 import { useApolloClient } from '@apollo/client/react';
 import { useQuery } from '@tanstack/react-query';
@@ -274,7 +274,7 @@ export default function CreatorAnalyticsPage() {
     });
 
     if (loading) {
-        return <DashboardSkeleton type="main" userRole={role === 'ADMIN' ? 'admin' : 'teacher'} />;
+        return <CreatorAnalyticsSkeleton />;
     }
 
     if (role !== 'ADMIN') {
