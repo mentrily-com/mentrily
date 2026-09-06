@@ -5,7 +5,7 @@ import { TeacherService } from '@/services/api/TeacherService';
 import { useToast } from '@/app/components/Common/Toast';
 import { Megaphone, Plus, X, Trash2, Paperclip, FileText, ImageIcon, File, Send, Check, Pencil } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import DOMPurify from 'isomorphic-dompurify';
+import { sanitizeProse } from '@/lib/sanitize';
 
 // Lazy load RichTextEditor to avoid SSR issues
 const RichTextEditor = dynamic(() => import('@/app/components/Authoring/RichTextEditor'), { ssr: false });
@@ -130,7 +130,7 @@ export default function AnnouncementsTab() {
                                         <div
                                             className="text-xs font-bold text-slate-500 line-clamp-2 prose prose-sm max-w-none"
                                             dangerouslySetInnerHTML={{
-                                                __html: DOMPurify.sanitize(String(ann.content || '')),
+                                                __html: sanitizeProse(ann.content),
                                             }}
                                         />
 

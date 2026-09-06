@@ -10,7 +10,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { useNotificationSocket } from '@/hooks/useNotificationSocket';
 import { useToast } from '@/app/components/Common/Toast';
 import { Award, Megaphone, X, FileText, ImageIcon, File, Download, EyeOff, Sparkles, Target, BarChart3, Bookmark } from 'lucide-react';
-import DOMPurify from 'isomorphic-dompurify';
+import { sanitizeProse } from '@/lib/sanitize';
 import {
     gettingStartedCourse,
     isOnboardingCourseHidden,
@@ -487,7 +487,7 @@ export default function DashboardPage() {
                         <div
                             className="prose prose-sm max-w-none text-slate-700 mb-8 [&_p]:mb-3 [&_h1]:text-xl [&_h1]:font-black [&_h2]:text-lg [&_h2]:font-black [&_ul]:list-disc [&_ol]:list-decimal [&_li]:ml-4 [&_a]:text-[var(--brand)] [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-[var(--brand-light)] [&_blockquote]:pl-4 [&_blockquote]:italic [&_img]:rounded-2xl [&_img]:max-w-full"
                             dangerouslySetInnerHTML={{
-                                __html: DOMPurify.sanitize(String(selectedAnnouncement.content || '')),
+                                __html: sanitizeProse(selectedAnnouncement.content),
                             }}
                         />
 

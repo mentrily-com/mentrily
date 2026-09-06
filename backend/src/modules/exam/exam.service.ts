@@ -6,6 +6,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRedis } from '@nestjs-modules/ioredis';
+import { randomBytes } from 'crypto';
 import { Redis } from 'ioredis';
 import { SupabaseService } from '../../services/supabase/supabase.service';
 import {
@@ -879,7 +880,7 @@ export class ExamService {
     metadata?: any,
   ) {
     const lockKey = `examstart:lock:${userId}:${examId}`;
-    const lockToken = `${Date.now()}:${Math.random().toString(36).slice(2)}`;
+    const lockToken = `${Date.now()}:${randomBytes(9).toString('hex')}`;
     let acquired = false;
 
     for (let attempt = 0; attempt < 25; attempt += 1) {

@@ -19,7 +19,7 @@ import {
     LifeBuoy,
 } from 'lucide-react';
 import { StudentService } from '@/services/api/StudentService';
-import DOMPurify from 'isomorphic-dompurify';
+import { sanitizeProse } from '@/lib/sanitize';
 import { useSession } from '@/hooks/useSession';
 import CrispWidget from './CrispWidget';
 import { orgHasCrispChat } from '@/lib/crisp';
@@ -1523,7 +1523,7 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                             <div
                                 className="prose prose-sm max-w-none text-slate-700 mb-8 [&_p]:mb-3 [&_h1]:text-xl [&_h1]:font-black [&_h2]:text-lg [&_h2]:font-black [&_ul]:list-disc [&_ol]:list-decimal [&_li]:ml-4 [&_a]:text-[var(--brand)] [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-[var(--brand-light)] [&_blockquote]:pl-4 [&_blockquote]:italic [&_img]:rounded-2xl [&_img]:max-w-full"
                                 dangerouslySetInnerHTML={{
-                                    __html: DOMPurify.sanitize(String(selectedAnn.content || '')),
+                                    __html: sanitizeProse(selectedAnn.content),
                                 }}
                             />
 

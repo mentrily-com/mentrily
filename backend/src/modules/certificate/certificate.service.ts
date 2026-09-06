@@ -6,7 +6,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { SupabaseService } from '../../services/supabase/supabase.service';
 import { StorageService } from '../../services/storage/storage.service';
-import axios from 'axios';
+import { safeGet } from '../../common/safe-http';
 import { randomUUID } from 'crypto';
 import QRCode from 'qrcode';
 import sharp from 'sharp';
@@ -183,7 +183,7 @@ export class CertificateService {
 
       if (params.template?.backgroundUrl) {
         try {
-          const backgroundResp = await axios.get(params.template.backgroundUrl, {
+          const backgroundResp = await safeGet(params.template.backgroundUrl, {
             responseType: 'arraybuffer',
             timeout: 8000,
           });
@@ -206,7 +206,7 @@ export class CertificateService {
 
       if (params.orgLogo) {
         try {
-          const response = await axios.get(params.orgLogo, {
+          const response = await safeGet(params.orgLogo, {
             responseType: 'arraybuffer',
             timeout: 6000,
           });
@@ -318,7 +318,7 @@ export class CertificateService {
 
       if (params.template?.signatureUrl && layout.signature) {
         try {
-          const signatureResp = await axios.get(params.template.signatureUrl, {
+          const signatureResp = await safeGet(params.template.signatureUrl, {
             responseType: 'arraybuffer',
             timeout: 6000,
           });

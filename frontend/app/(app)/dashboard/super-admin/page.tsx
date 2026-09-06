@@ -20,7 +20,7 @@ import {
 import { SuperAdminService } from '@/services/api/SuperAdminService';
 import { useRequireAuth } from '@/hooks/requireAuthClient';
 import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
-import DOMPurify from 'isomorphic-dompurify';
+import { sanitizeProse } from '@/lib/sanitize';
 
 export default function SuperAdminDashboardPage() {
     const [statsData, setStatsData] = useState<any>(null);
@@ -487,7 +487,7 @@ export default function SuperAdminDashboardPage() {
                         <div
                             className="prose prose-slate max-w-none text-sm font-medium text-slate-700"
                             dangerouslySetInnerHTML={{
-                                __html: DOMPurify.sanitize(String(selectedBug.description || '')),
+                                __html: sanitizeProse(selectedBug.description),
                             }}
                         />
 

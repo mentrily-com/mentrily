@@ -1,28 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
-import DOMPurify from 'isomorphic-dompurify';
-
-// The only authoring feature that produces <iframe> in question content is
-// the YouTube embed block (RichTextEditor's @tiptap/extension-youtube) —
-// ADD_TAGS: ['iframe'] below has to allow the tag, but without this hook any
-// Teacher/Admin account (self-serve obtainable) could embed an arbitrary
-// third-party iframe into a question shown inside a monitored, timed exam —
-// a phishing/clickjacking surface aimed straight at students. Strip any
-// iframe whose src isn't a YouTube embed URL.
-const ALLOWED_IFRAME_HOSTS = new Set(['www.youtube.com', 'youtube.com', 'www.youtube-nocookie.com', 'youtube-nocookie.com']);
-DOMPurify.addHook('uponSanitizeElement', (node, data) => {
-    if (data.tagName !== 'iframe') return;
-    const el = node as unknown as HTMLIFrameElement;
-    const src = el.getAttribute?.('src') || '';
-    try {
-        const url = new URL(src, 'https://invalid.local');
-        if (url.protocol === 'https:' && ALLOWED_IFRAME_HOSTS.has(url.hostname)) return;
-    } catch {
-        // fall through to removal
-    }
-    el.remove?.();
-});
+import { sanitizeRichText } from '@/lib/sanitize';
 import SplitPane from './SplitPane';
 import ProblemStatement from './ProblemStatement';
 import MCQOptions from './MCQOptions';
@@ -142,8 +121,6 @@ export function UnitRendererComponent({
     hideSubmit = false,
     onCheatDetected,
 }: UnitRendererProps) {
-    const purifyConfig = { ADD_TAGS: ['iframe'], ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling'] };
-
     const [isReadingFullScreen, setIsReadingFullScreen] = useState(false);
     const containerRef = React.useRef<HTMLDivElement>(null);
 
@@ -342,7 +319,7 @@ export function UnitRendererComponent({
                             >
                                 <div
                                     dangerouslySetInnerHTML={{
-                                        __html: DOMPurify.sanitize(question.description, purifyConfig),
+                                        __html: sanitizeRichText(question.description),
                                     }}
                                 />
 
@@ -379,10 +356,7 @@ export function UnitRendererComponent({
                                                 {block.type === 'text' ? (
                                                     <div
                                                         dangerouslySetInnerHTML={{
-                                                            __html: DOMPurify.sanitize(
-                                                                block.content || '',
-                                                                purifyConfig,
-                                                            ),
+                                                            __html: sanitizeRichText(block.content),
                                                         }}
                                                     />
                                                 ) : block.type === 'video' ? (
@@ -696,10 +670,7 @@ export function UnitRendererComponent({
                                                         {block.type === 'text' ? (
                                                             <div
                                                                 dangerouslySetInnerHTML={{
-                                                                    __html: DOMPurify.sanitize(
-                                                                        block.content || '',
-                                                                        purifyConfig,
-                                                                    ),
+                                                                    __html: sanitizeRichText(block.content),
                                                                 }}
                                                             />
                                                         ) : (

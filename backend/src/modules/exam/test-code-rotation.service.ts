@@ -7,6 +7,7 @@ import {
 import { SupabaseService } from '../../services/supabase/supabase.service';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Redis } from 'ioredis';
+import { randomBytes, randomInt } from 'crypto';
 
 @Injectable()
 export class TestCodeRotationService implements OnModuleInit, OnModuleDestroy {
@@ -74,18 +75,25 @@ export class TestCodeRotationService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  /**
+   * Rotating test codes are the sole credential `verifyExamTestCode` checks
+   * before granting exam access, so they must be unguessable. `Math.random`
+   * is a seeded PRNG whose internal state can be recovered from a handful of
+   * observed outputs — meaning a candidate who legitimately receives one code
+   * could predict later ones. `randomInt` draws from the CSPRNG instead.
+   */
   private generateRandomNumericCode(length: number): string {
     const normalizedLength = Math.min(10, Math.max(4, length));
     let value = '';
     for (let i = 0; i < normalizedLength; i += 1) {
-      value += Math.floor(Math.random() * 10).toString();
+      value += randomInt(0, 10).toString();
     }
     return value;
   }
 
   private async tryAcquireLock(): Promise<boolean> {
     const lockKey = 'exam:test-code-rotation:lock';
-    const lockValue = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const lockValue = `${Date.now()}-${randomBytes(9).toString('hex')}`;
     const result = await this.redis.set(
       lockKey,
       lockValue,
