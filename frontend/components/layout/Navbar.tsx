@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X } from 'lucide-react';
 import { BrandLogo } from '@/components/brand/BrandLogo';
+import { useModalA11y } from '@/hooks/useModalA11y';
 
 const navLinks = [
     { label: 'Features', href: '/#features' },
@@ -16,20 +17,16 @@ const navLinks = [
 export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
+    const drawerRef = useRef<HTMLDivElement>(null);
+    // Escape-to-close, focus trap, scroll lock, and focus restoration —
+    // this drawer previously only handled the scroll lock itself.
+    useModalA11y(drawerRef, mobileOpen, () => setMobileOpen(false));
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 16);
         window.addEventListener('scroll', onScroll, { passive: true });
         return () => window.removeEventListener('scroll', onScroll);
     }, []);
-
-    // Lock body scroll when mobile menu is open
-    useEffect(() => {
-        document.body.style.overflow = mobileOpen ? 'hidden' : '';
-        return () => {
-            document.body.style.overflow = '';
-        };
-    }, [mobileOpen]);
 
     return (
         <>
@@ -102,7 +99,9 @@ export default function Navbar() {
                         onClick={() => setMobileOpen(!mobileOpen)}
                         className="md:hidden p-2 rounded-lg cursor-pointer"
                         style={{ color: '#0F172A' }}
-                        aria-label="Toggle menu"
+                        aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+                        aria-haspopup="true"
+                        aria-expanded={mobileOpen}
                     >
                         {mobileOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>
@@ -113,11 +112,16 @@ export default function Navbar() {
             <AnimatePresence>
                 {mobileOpen && (
                     <motion.div
+                        ref={drawerRef}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Mobile navigation"
+                        tabIndex={-1}
                         initial={{ opacity: 0, x: '100%' }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: '100%' }}
                         transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-                        className="fixed inset-0 z-[60] md:hidden"
+                        className="fixed inset-0 z-[60] md:hidden focus:outline-none"
                         style={{ backgroundColor: '#FFFFFF' }}
                     >
                         <div className="flex items-center justify-between px-4 h-16">

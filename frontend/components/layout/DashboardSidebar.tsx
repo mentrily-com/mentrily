@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useRef, useState, useCallback } from 'react';
+import { useModalA11y } from '@/hooks/useModalA11y';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import {
@@ -500,6 +501,13 @@ export default function DashboardSidebar({
             : null;
     });
     const collapsed = collapsedProp ?? localCollapsed;
+    const panelRef = useRef<HTMLElement>(null);
+    // This <aside> is always mounted: on lg+ it's persistent page chrome, and
+    // only on mobile does `mobileOpen` turn it into an overlay drawer. That
+    // flag can only become true from the mobile-only hamburger button, so
+    // gating the trap on it (rather than a viewport check) is exactly the
+    // condition we want — never armed on desktop, never skipped on mobile.
+    useModalA11y(panelRef, mobileOpen, onMobileClose);
 
     const setCollapsed = useCallback(
         (next: boolean) => {
@@ -575,6 +583,7 @@ export default function DashboardSidebar({
             {/* Mobile Overlay */}
             {mobileOpen && (
                 <div
+                    aria-hidden="true"
                     className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[998] lg:hidden animate-in fade-in"
                     onClick={onMobileClose}
                 />
@@ -582,7 +591,12 @@ export default function DashboardSidebar({
 
             {/* Sidebar */}
             <aside
-                className={`fixed top-0 left-0 h-full bg-white border-r z-[999] flex flex-col transition-transform duration-250 ease-in-out lg:translate-x-0 ${mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'} ${collapsed ? '' : ''}`}
+                ref={panelRef}
+                role={mobileOpen ? 'dialog' : undefined}
+                aria-modal={mobileOpen || undefined}
+                aria-label="Navigation"
+                tabIndex={-1}
+                className={`fixed top-0 left-0 h-full bg-white border-r z-[999] flex flex-col transition-transform duration-250 ease-in-out lg:translate-x-0 ${mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'} ${collapsed ? '' : ''} focus:outline-none`}
                 style={{
                     width: collapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)',
                     borderColor: 'var(--color-border-subtle)',
