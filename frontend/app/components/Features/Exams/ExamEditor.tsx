@@ -6,11 +6,11 @@ import Loading from '@/app/(app)/loading';
 import AlertModal from '@/app/components/Common/AlertModal';
 import { useState } from 'react';
 import { AuthService } from '@/services/api/AuthService';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import ExamEditorSkeleton from '@/app/components/Skeletons/ExamEditorSkeleton';
 
 const ExamBuilder = dynamic(() => import('@/app/components/Authoring/ExamBuilder'), {
     ssr: false,
-    loading: () => <DashboardSkeleton type="form" userRole="teacher" noNavbar />,
+    loading: () => <ExamEditorSkeleton />,
 });
 
 interface ExamEditorProps {
