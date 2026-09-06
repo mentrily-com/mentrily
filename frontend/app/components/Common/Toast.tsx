@@ -72,13 +72,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             position: 'top-right' | 'top-center' = 'top-right',
         ) => {
             const id = Math.random().toString(36).substring(2, 9);
-            // console.log("[Toast] showToast called:", { id, message, type, title, duration, undismissible, position });
             setToasts((prev) => [...prev, { id, message, type, title, undismissible, position }]);
 
             // Auto remove after duration if duration > 0
             if (duration > 0) {
                 setTimeout(() => {
-                    // console.log("[Toast] Auto-removing toast:", id);
                     removeToast(id);
                 }, duration);
             }
@@ -130,7 +128,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
     const dismiss = useCallback(
         (id: string) => {
-            console.log('[Toast] dismiss called:', id);
             removeToast(id);
         },
         [removeToast],
@@ -188,8 +185,19 @@ function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
         warning: 'border-amber-100 bg-amber-50/50 shadow-amber-500/5',
     };
 
+    // Errors interrupt (assertive) since they're often actionable and time
+    // -sensitive; everything else waits for a pause in speech (polite) so a
+    // string of success toasts doesn't talk over whatever the screen reader
+    // user is already doing. Without this, toasts were entirely silent to
+    // screen reader users -- the DOM node just appears, with nothing to
+    // trigger an announcement.
+    const isAssertive = toast.type === 'error';
+
     return (
         <div
+            role={isAssertive ? 'alert' : 'status'}
+            aria-live={isAssertive ? 'assertive' : 'polite'}
+            aria-atomic="true"
             className={`pointer-events-auto flex items-start gap-4 p-4 rounded-2xl border bg-white/80 backdrop-blur-md shadow-xl animate-fade-in ${styles[toast.type]}`}
         >
             <div className="shrink-0 mt-0.5">{icons[toast.type]}</div>

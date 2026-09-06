@@ -162,6 +162,7 @@ export default function SuperAdminOrganizationsPage() {
                                                     {org.logo ? (
                                                         <img
                                                             src={org.logo}
+                                                            alt=""
                                                             className="w-full h-full object-cover rounded-2xl"
                                                         />
                                                     ) : (
