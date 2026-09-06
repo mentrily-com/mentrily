@@ -1082,22 +1082,14 @@ export default function PublicExamPage() {
         [user, slug, logEvent, info, setElectronStrictMode, sessionId, examVerdict, router, getCourseReturnHref],
     );
 
-    // Timer Logic
+    // Timer tick. This interval is created once per exam (not once per
+    // second): the previous version depended on `timeLeft` itself, so every
+    // tick tore down and recreated a new setInterval, needlessly running
+    // thousands of timer allocations over the course of an exam. The
+    // countdown value only ever needs the functional setState form, so the
+    // interval has no reason to depend on the value it's decrementing.
     useEffect(() => {
         if (timeLeft === null || isFeedbackMode || isSuccessMode) return;
-
-        // AUTO-SUBMIT when time is up
-        if (timeLeft <= 0) {
-            console.log('Time is up! Auto-submitting...');
-            submitFullExam();
-            return;
-        }
-
-        // Show 5-minute warning (only once)
-        if (timeLeft === 300 && !fiveMinWarningShownRef.current) {
-            fiveMinWarningShownRef.current = true;
-            warning('Only 5 minutes remaining! Please review and submit your answers.', 'Time Warning', 8000);
-        }
 
         const timer = setInterval(() => {
             setTimeLeft((prev) => {
@@ -1110,6 +1102,24 @@ export default function PublicExamPage() {
         }, 1000);
 
         return () => clearInterval(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [timeLeft === null, isFeedbackMode, isSuccessMode]);
+
+    // Auto-submit and the 5-minute warning are side effects of the *value*,
+    // so they stay in their own effect and don't need to touch the interval.
+    useEffect(() => {
+        if (timeLeft === null || isFeedbackMode || isSuccessMode) return;
+
+        if (timeLeft <= 0) {
+            console.log('Time is up! Auto-submitting...');
+            submitFullExam();
+            return;
+        }
+
+        if (timeLeft === 300 && !fiveMinWarningShownRef.current) {
+            fiveMinWarningShownRef.current = true;
+            warning('Only 5 minutes remaining! Please review and submit your answers.', 'Time Warning', 8000);
+        }
     }, [timeLeft, isFeedbackMode, isSuccessMode, submitFullExam, warning]);
 
     const formatTime = (seconds: number) => {

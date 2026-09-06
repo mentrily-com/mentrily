@@ -540,6 +540,7 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
                             </div>
                             <button
                                 onClick={onClose}
+                                aria-label="Close dialog"
                                 className="rounded-lg p-2 text-slate-400 hover:bg-slate-50 hover:text-slate-700"
                             >
                                 <X size={18} />

@@ -786,9 +786,16 @@ const ContentDropdown = React.memo(function ContentDropdown({
                 setOpen(false);
             }
         }
+        function closeOnEscape(event: KeyboardEvent) {
+            if (event.key === 'Escape') setOpen(false);
+        }
 
         document.addEventListener('mousedown', closeOnOutsideClick);
-        return () => document.removeEventListener('mousedown', closeOnOutsideClick);
+        document.addEventListener('keydown', closeOnEscape);
+        return () => {
+            document.removeEventListener('mousedown', closeOnOutsideClick);
+            document.removeEventListener('keydown', closeOnEscape);
+        };
     }, []);
 
     return (
@@ -797,6 +804,8 @@ const ContentDropdown = React.memo(function ContentDropdown({
                 type="button"
                 data-element-id="nav-content-dropdown"
                 onClick={() => setOpen((prev) => !prev)}
+                aria-haspopup="true"
+                aria-expanded={open}
                 className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 ${
                     active ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-slate-400 hover:text-slate-600'
                 }`}
@@ -865,8 +874,15 @@ const AppsMenu = React.memo(function AppsMenu({ isTeacher }: { isTeacher: boolea
         function close(e: any) {
             if (ref.current && !ref.current.contains(e.target)) setOpen(false);
         }
+        function closeOnEscape(e: KeyboardEvent) {
+            if (e.key === 'Escape') setOpen(false);
+        }
         document.addEventListener('mousedown', close);
-        return () => document.removeEventListener('mousedown', close);
+        document.addEventListener('keydown', closeOnEscape);
+        return () => {
+            document.removeEventListener('mousedown', close);
+            document.removeEventListener('keydown', closeOnEscape);
+        };
     }, []);
 
     const apps = isTeacher
@@ -985,6 +1001,9 @@ const AppsMenu = React.memo(function AppsMenu({ isTeacher }: { isTeacher: boolea
         <div ref={ref} className="relative">
             <button
                 onClick={() => setOpen(!open)}
+                aria-haspopup="true"
+                aria-expanded={open}
+                aria-label="Apps"
                 className="w-10 h-10 rounded-xl border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-50 transition-colors"
             >
                 <svg
@@ -1055,9 +1074,16 @@ function ProfileMenu({
                 setOpen(false);
             }
         }
+        function closeOnEscape(e: KeyboardEvent) {
+            if (e.key === 'Escape') setOpen(false);
+        }
 
         document.addEventListener('mousedown', close);
-        return () => document.removeEventListener('mousedown', close);
+        document.addEventListener('keydown', closeOnEscape);
+        return () => {
+            document.removeEventListener('mousedown', close);
+            document.removeEventListener('keydown', closeOnEscape);
+        };
     }, []);
 
     const getLabel = () => {
@@ -1116,6 +1142,9 @@ function ProfileMenu({
                 <>
                     <button
                         onClick={() => setOpen((value) => !value)}
+                        aria-haspopup="true"
+                        aria-expanded={open}
+                        aria-label={`Account menu for ${displayName}`}
                         className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white font-black text-sm overflow-hidden relative"
                     >
                         {avatarUrl ? (
@@ -1180,6 +1209,9 @@ function ProfileMenu({
                 <>
                     <button
                         onClick={() => setOpen((value) => !value)}
+                        aria-haspopup="true"
+                        aria-expanded={open}
+                        aria-label={`Account menu for ${displayName}`}
                         className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white font-black text-sm overflow-hidden relative"
                     >
                         {avatarUrl ? (
@@ -1334,8 +1366,15 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
         function close(e: any) {
             if (ref.current && !ref.current.contains(e.target)) setOpen(false);
         }
+        function closeOnEscape(e: KeyboardEvent) {
+            if (e.key === 'Escape') setOpen(false);
+        }
         document.addEventListener('mousedown', close);
-        return () => document.removeEventListener('mousedown', close);
+        document.addEventListener('keydown', closeOnEscape);
+        return () => {
+            document.removeEventListener('mousedown', close);
+            document.removeEventListener('keydown', closeOnEscape);
+        };
     }, []);
 
     const load = async () => {
@@ -1391,6 +1430,9 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
             <div ref={ref} className="relative">
                 <button
                     onClick={() => setOpen(!open)}
+                    aria-haspopup="true"
+                    aria-expanded={open}
+                    aria-label="Announcements"
                     className="hidden sm:flex w-10 h-10 rounded-xl border border-slate-100 items-center justify-center text-slate-400 hover:bg-slate-50 hover:text-[var(--brand)] transition-all relative"
                     title="Announcements"
                 >

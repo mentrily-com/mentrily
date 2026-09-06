@@ -852,6 +852,7 @@ export default function CourseBuilder({
                                     {activeTab === 'unit' ? 'Learning Modules' : 'Exam Modules'}
                                     <button
                                         onClick={addSection}
+                                        aria-label={activeTab === 'unit' ? 'Add learning module' : 'Add exam module'}
                                         className="text-[var(--brand)] hover:scale-110 transition-transform"
                                     >
                                         <Plus size={16} strokeWidth={3} />

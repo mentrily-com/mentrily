@@ -262,7 +262,11 @@ function DeleteOrganizationModal({
                     <div className="w-16 h-16 rounded-[24px] bg-rose-50 flex items-center justify-center text-rose-500">
                         <Trash2 size={32} />
                     </div>
-                    <button onClick={onClose} className="p-2 text-slate-300 hover:text-slate-900 transition-colors">
+                    <button
+                        onClick={onClose}
+                        aria-label="Close dialog"
+                        className="p-2 text-slate-300 hover:text-slate-900 transition-colors"
+                    >
                         <Settings2 size={24} className="rotate-45" />
                     </button>
                 </div>

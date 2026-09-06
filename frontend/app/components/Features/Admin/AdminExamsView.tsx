@@ -323,7 +323,11 @@ export default function AdminExamsView({ basePath = '/dashboard/creator', organi
                                                         Invite
                                                     </button>
                                                     <Link href={`${basePath}/exams/${ex.id}/edit`}>
-                                                        <button className="p-2 text-slate-300 hover:text-[var(--brand)] hover:bg-slate-50 rounded-xl transition-all">
+                                                        <button
+                                                            aria-label="Edit exam"
+                                                            title="Edit Exam"
+                                                            className="p-2 text-slate-300 hover:text-[var(--brand)] hover:bg-slate-50 rounded-xl transition-all"
+                                                        >
                                                             <Edit3 size={18} />
                                                         </button>
                                                     </Link>

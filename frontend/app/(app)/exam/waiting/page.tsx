@@ -25,13 +25,6 @@ export default function ExamWaitingRoom() {
 
         const fetchStatus = async () => {
             try {
-                // Determine API URL based on environment or import AuthService/ExamService
-                // Assuming ExamService is available in global scope or imported.
-                // We need to import ExamService.
-                // Since I cannot change imports in this chunk easily without context,
-                // I will assume I can add the import at the top or use fetch directly.
-                // using fetch directly for safety if imports are tricky in replace_block
-
                 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
                 const res = await fetch(`${BASE_URL}/exam/${slug}/public-status`);
                 if (res.ok) {
@@ -51,11 +44,6 @@ export default function ExamWaitingRoom() {
                 }
             } catch (e) {
                 console.error(e);
-            } finally {
-                // If we are redirecting, we don't want to set loading to false
-                // because it might cause a flicker before the next page loads.
-                // However, router.push is async-ish in terms of effect.
-                // In waiting room, it's safer to just let it be if it's already loading.
             }
             setLoading(false);
         };
@@ -63,21 +51,32 @@ export default function ExamWaitingRoom() {
         fetchStatus();
     }, [slug, router]);
 
+    // Redirect is a side effect of the value and stays keyed to `timeLeft`,
+    // but the interval itself only needs to exist once countdown starts —
+    // see the identical fix on the main exam page for why depending on the
+    // ticking value here would recreate the timer every second.
     useEffect(() => {
         if (timeLeft === null) return;
         if (timeLeft <= 0) {
             router.push(`/exam/login?slug=${slug}`);
-            return;
         }
+    }, [timeLeft, router, slug]);
+
+    useEffect(() => {
+        if (timeLeft === null || timeLeft <= 0) return;
 
         const timer = setInterval(() => {
             setTimeLeft((prev) => {
-                if (prev === null || prev <= 0) return 0;
+                if (prev === null || prev <= 0) {
+                    clearInterval(timer);
+                    return 0;
+                }
                 return prev - 1;
             });
         }, 1000);
         return () => clearInterval(timer);
-    }, [timeLeft, router, slug]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [timeLeft === null]);
 
     const formatTime = (seconds: number) => {
         if (seconds < 0) return '00:00:00';

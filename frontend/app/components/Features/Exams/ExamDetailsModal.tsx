@@ -263,6 +263,7 @@ function DetailCard({ icon, label, value, onAlert, brandTextClass, canCopy = tru
                 <button
                     onClick={handleCopy}
                     disabled={!canCopy}
+                    aria-label={`Copy ${label}`}
                     className={`p-1.5 text-slate-300 transition-colors ${canCopy ? `hover:${brandTextClass}` : 'opacity-40 cursor-not-allowed'}`}
                 >
                     <Copy size={14} />

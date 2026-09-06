@@ -294,6 +294,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                 <button
                     onClick={handleBecomeCreator}
                     disabled={becomingCreator}
+                    aria-label={becomingCreator ? 'Setting up creator workspace' : 'Become a Creator'}
                     className="flex items-center gap-2 px-3 py-2 bg-[var(--brand-light)] hover:bg-[var(--brand-light)]/70 disabled:opacity-60 rounded-xl border border-[var(--brand-light)] transition-colors text-[var(--brand)]"
                 >
                     {becomingCreator ? (

@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import posthog from 'posthog-js';
 import { ArrowRight, Loader2 } from 'lucide-react';
+import { useModalA11y } from '@/hooks/useModalA11y';
 
 type Role = 'STUDENT';
 
@@ -22,6 +23,9 @@ export default function RoleSelectionModal({ onSelectRole, onSelectCreator }: Ro
     const [error, setError] = useState<string | null>(null);
 
     const busy = selectedRole !== null;
+    const panelRef = useRef<HTMLDivElement>(null);
+    // No onClose: this is a mandatory first-run choice with no dismiss path.
+    useModalA11y(panelRef, true);
 
     const choose = async (choice: Role | 'CREATOR') => {
         if (busy) return;
@@ -44,10 +48,12 @@ export default function RoleSelectionModal({ onSelectRole, onSelectCreator }: Ro
     return (
         <div className="fixed inset-0 z-[2100] bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
             <div
+                ref={panelRef}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="role-selection-title"
-                className="w-full max-w-[640px] bg-white rounded-[28px] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300 max-h-[calc(100dvh-32px)] overflow-y-auto"
+                tabIndex={-1}
+                className="w-full max-w-[640px] bg-white rounded-[28px] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300 max-h-[calc(100dvh-32px)] overflow-y-auto focus:outline-none"
             >
                 {/* Header */}
                 <div className="px-6 pt-9 pb-7 text-center sm:px-10">

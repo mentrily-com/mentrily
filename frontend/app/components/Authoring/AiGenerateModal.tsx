@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { AlertTriangle, Check, Clock3, Copy, Rocket, Sparkles, Wand2, X } from 'lucide-react';
+import { useModalA11y } from '@/hooks/useModalA11y';
 import { Section } from './types';
 import {
     AiImportKind,
@@ -27,6 +28,8 @@ export default function AiGenerateModal({
     const [copied, setCopied] = useState(false);
     const [pasteText, setPasteText] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const panelRef = useRef<HTMLDivElement>(null);
+    useModalA11y(panelRef, true, onClose);
 
     const noun = kind === 'exam' ? 'Exam' : 'Course';
     const prompt = buildAiPrompt(kind, availableTypes);
@@ -66,7 +69,14 @@ export default function AiGenerateModal({
 
     return (
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/55 px-4 py-8 backdrop-blur-sm">
-            <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[32px] border border-slate-200 bg-white p-7 shadow-[0_24px_80px_rgba(15,23,42,0.12)] md:p-9">
+            <div
+                ref={panelRef}
+                role="dialog"
+                aria-modal="true"
+                aria-label={`AI ${noun} Generation`}
+                tabIndex={-1}
+                className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[32px] border border-slate-200 bg-white p-7 shadow-[0_24px_80px_rgba(15,23,42,0.12)] md:p-9 focus:outline-none"
+            >
                 <div className="pointer-events-none absolute inset-0 rounded-[32px] bg-[radial-gradient(circle_at_top_right,rgba(26,86,219,0.14),transparent_33%),radial-gradient(circle_at_bottom_left,rgba(56,189,248,0.12),transparent_38%),linear-gradient(180deg,rgba(248,250,252,0.8),rgba(255,255,255,1))]" />
 
                 <div className="relative">

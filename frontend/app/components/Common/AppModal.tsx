@@ -34,6 +34,9 @@ const sizeClasses: Record<AppModalSize, string> = {
     xl: 'max-w-4xl',
 };
 
+const FOCUSABLE_SELECTOR =
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 export default function AppModal({
     isOpen,
     onClose,
@@ -54,10 +57,72 @@ export default function AppModal({
     ariaLabel,
 }: AppModalProps) {
     const [mounted, setMounted] = React.useState(false);
+    const panelRef = React.useRef<HTMLElement>(null);
+    // Restore keyboard/AT focus to whatever launched the dialog once it
+    // closes, instead of silently dropping it back to <body>.
+    const triggerRef = React.useRef<HTMLElement | null>(null);
 
     React.useEffect(() => {
         setMounted(true);
     }, []);
+
+    React.useEffect(() => {
+        if (!isOpen) return;
+
+        triggerRef.current = document.activeElement as HTMLElement | null;
+
+        // Move focus into the dialog once it has mounted into the portal.
+        const raf = requestAnimationFrame(() => {
+            const panel = panelRef.current;
+            if (!panel) return;
+            const focusable = panel.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
+            (focusable || panel).focus();
+        });
+
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                event.stopPropagation();
+                onClose();
+                return;
+            }
+
+            if (event.key !== 'Tab') return;
+
+            const panel = panelRef.current;
+            if (!panel) return;
+            const focusables = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+                (el) => el.offsetParent !== null,
+            );
+            if (focusables.length === 0) return;
+
+            const first = focusables[0];
+            const last = focusables[focusables.length - 1];
+            const active = document.activeElement;
+
+            // Wrap Tab/Shift+Tab at the dialog edges instead of letting focus
+            // escape into the page behind the backdrop.
+            if (event.shiftKey && active === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && active === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown, true);
+
+        return () => {
+            cancelAnimationFrame(raf);
+            document.removeEventListener('keydown', handleKeyDown, true);
+            document.body.style.overflow = previousOverflow;
+            triggerRef.current?.focus?.();
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen]);
 
     if (!isOpen) return null;
     if (!mounted) return null;
@@ -71,11 +136,13 @@ export default function AppModal({
                 onClick={closeOnBackdrop ? onClose : undefined}
             />
             <section
+                ref={panelRef}
                 role="dialog"
                 aria-modal="true"
                 aria-label={ariaLabel || (typeof title === 'string' ? title : 'Dialog')}
+                tabIndex={-1}
                 className={cn(
-                    'relative z-10 flex max-h-[min(760px,calc(100dvh-48px))] w-full flex-col overflow-hidden rounded-[20px] bg-[#f4f6f9] shadow-[0_28px_90px_rgba(15,23,42,0.36)] animate-in zoom-in-95 duration-200',
+                    'relative z-10 flex max-h-[min(760px,calc(100dvh-48px))] w-full flex-col overflow-hidden rounded-[20px] bg-[#f4f6f9] shadow-[0_28px_90px_rgba(15,23,42,0.36)] animate-in zoom-in-95 duration-200 focus:outline-none',
                     sizeClasses[size],
                     panelClassName,
                 )}
