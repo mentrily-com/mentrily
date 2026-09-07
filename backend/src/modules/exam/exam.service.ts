@@ -363,6 +363,15 @@ export class ExamService {
     const cached = await this.redis.get(cacheKey);
 
     const entity = cached ? JSON.parse(cached) : null;
+    const includeSensitive = !shouldSanitizeSensitiveContent(user);
+    // transformExam walks every section and question (normalizing types,
+    // building the questions map, sanitizing each one) -- real CPU work
+    // that was previously redone on every request even when the raw exam
+    // row was served from cache. The transform's shape only depends on the
+    // exam row and the includeSensitive flag (teacher/proctor vs student
+    // view), so it's safe to cache per (slug, sensitivity) pair with the
+    // same TTL as the raw row, invalidated together in invalidateExamCaches.
+    const transformedCacheKey = `exam:content:transformed:${slug}:${includeSensitive ? 'sensitive' : 'public'}`;
 
     if (entity) {
       if (
@@ -370,7 +379,16 @@ export class ExamService {
       ) {
         throw new NotFoundException('Assessment not found or access denied');
       }
-      return this.transformExam(entity, !shouldSanitizeSensitiveContent(user));
+      const cachedTransformed = await this.redis.get(transformedCacheKey);
+      if (cachedTransformed) return JSON.parse(cachedTransformed);
+      const transformed = this.transformExam(entity, includeSensitive);
+      await this.redis.set(
+        transformedCacheKey,
+        JSON.stringify(transformed),
+        'EX',
+        3600,
+      );
+      return transformed;
     }
 
     // 1. Try finding all at once using Promise.all to reduce latency
@@ -400,7 +418,14 @@ export class ExamService {
       if (!(await this.canAccessPublicExamResource(exam, requestOrgId, user))) {
         throw new NotFoundException('Assessment not found or access denied');
       }
-      return this.transformExam(exam, !shouldSanitizeSensitiveContent(user));
+      const transformed = this.transformExam(exam, includeSensitive);
+      await this.redis.set(
+        transformedCacheKey,
+        JSON.stringify(transformed),
+        'EX',
+        3600,
+      );
+      return transformed;
     }
 
     if (courseTest) {
@@ -1575,7 +1600,7 @@ export class ExamService {
   async getFeedbacks(examId: string) {
     return await this.prisma.feedback.findMany({
       where: { examId },
-      include: { user: true },
+      include: { user: { select: { name: true, email: true } } },
       orderBy: { timestamp: 'desc' },
     });
   }

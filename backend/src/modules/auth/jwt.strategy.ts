@@ -1332,31 +1332,42 @@ export class ClerkAuthGuard implements CanActivate {
     };
 
     const orgUsage = effectiveOrgId
-      ? {
-          students: Number(effectiveOrganization?.studentCount || 0),
-          courses: Number(effectiveOrganization?.courseCount || 0),
-          storageMb: Number(effectiveOrganization?.storageUsedMb || 0),
-          seats: Number(effectiveOrganization?.teacherSeatCount || 0),
-          adminSeats: await this.prisma.user.count({
-            where: { orgId: effectiveOrgId, role: 'ADMIN' },
-          }),
-          teacherSeats: await this.prisma.user.count({
-            where: { orgId: effectiveOrgId, role: 'TEACHER' },
-          }),
-          monthlyExams: await this.prisma.usageLedger.count({
-            where: {
-              orgId: effectiveOrgId,
-              eventType: 'exam.created',
-              createdAt: {
-                gte: new Date(
-                  new Date().getFullYear(),
-                  new Date().getMonth(),
-                  1,
-                ),
+      ? await (async () => {
+          // These three counts are independent of each other -- running them
+          // sequentially stacked three extra DB round trips onto every
+          // cache-miss session resolution (i.e. every login). Promise.all
+          // collapses that to the cost of the single slowest query.
+          const [adminSeats, teacherSeats, monthlyExams] = await Promise.all([
+            this.prisma.user.count({
+              where: { orgId: effectiveOrgId, role: 'ADMIN' },
+            }),
+            this.prisma.user.count({
+              where: { orgId: effectiveOrgId, role: 'TEACHER' },
+            }),
+            this.prisma.usageLedger.count({
+              where: {
+                orgId: effectiveOrgId,
+                eventType: 'exam.created',
+                createdAt: {
+                  gte: new Date(
+                    new Date().getFullYear(),
+                    new Date().getMonth(),
+                    1,
+                  ),
+                },
               },
-            },
-          }),
-        }
+            }),
+          ]);
+          return {
+            students: Number(effectiveOrganization?.studentCount || 0),
+            courses: Number(effectiveOrganization?.courseCount || 0),
+            storageMb: Number(effectiveOrganization?.storageUsedMb || 0),
+            seats: Number(effectiveOrganization?.teacherSeatCount || 0),
+            adminSeats,
+            teacherSeats,
+            monthlyExams,
+          };
+        })()
       : this.quotaService
         ? await this.quotaService.getPersonalUsage(user.id)
         : {

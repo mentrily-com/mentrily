@@ -3125,6 +3125,12 @@ export class TeacherService {
   private async invalidateExamCaches(slug: string): Promise<void> {
     await Promise.all([
       this.redis.del(`exam:content:${slug}`),
+      // getExamBySlug additionally caches the transformed/sanitized
+      // response per sensitivity variant -- both must go too, or a
+      // teacher's edit could keep serving the pre-edit transform for up
+      // to its TTL even after the raw row cache is cleared.
+      this.redis.del(`exam:content:transformed:${slug}:sensitive`),
+      this.redis.del(`exam:content:transformed:${slug}:public`),
       this.redis.del(`exam:lookup:${slug}`),
       this.redis.del(`exam:public-status:${slug}`),
       this.redis.del(`exam:check-status:${slug}`),
