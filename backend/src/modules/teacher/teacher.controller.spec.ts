@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TeacherController } from './teacher.controller';
 import { TeacherService } from './teacher.service';
+import { TeacherGroupsService } from './teacher-groups.service';
+import { TeacherAnnouncementsService } from './teacher-announcements.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OrgStatusGuard } from '../auth/guards/org-status.guard';
 import { OrgFeaturesGuard } from '../auth/guards/org-features.guard';
@@ -11,7 +13,11 @@ describe('TeacherController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TeacherController],
-      providers: [{ provide: TeacherService, useValue: {} }],
+      providers: [
+        { provide: TeacherService, useValue: {} },
+        { provide: TeacherGroupsService, useValue: {} },
+        { provide: TeacherAnnouncementsService, useValue: {} },
+      ],
     })
       .overrideGuard(JwtAuthGuard)
       .useValue({ canActivate: jest.fn().mockReturnValue(true) })

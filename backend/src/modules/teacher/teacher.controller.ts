@@ -12,6 +12,8 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { TeacherService } from './teacher.service';
+import { TeacherGroupsService } from './teacher-groups.service';
+import { TeacherAnnouncementsService } from './teacher-announcements.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OrgFeaturesGuard } from '../auth/guards/org-features.guard';
 import { OrgStatusGuard } from '../auth/guards/org-status.guard';
@@ -27,7 +29,11 @@ import { ExamMutationDto } from './dto/exam-mutation.dto';
 @UseGuards(JwtAuthGuard, RolesGuard, OrgStatusGuard)
 @Roles('TEACHER', 'ADMIN', 'SUPER_ADMIN')
 export class TeacherController {
-  constructor(private readonly teacherService: TeacherService) {}
+  constructor(
+    private readonly teacherService: TeacherService,
+    private readonly teacherGroupsService: TeacherGroupsService,
+    private readonly teacherAnnouncementsService: TeacherAnnouncementsService,
+  ) {}
 
   @Get('stats')
   async getStats(@User() user: any) {
@@ -336,12 +342,12 @@ export class TeacherController {
 
   @Get('groups')
   async getGroups(@User() user: any) {
-    return this.teacherService.getGroups(user);
+    return this.teacherGroupsService.getGroups(user);
   }
 
   @Get('groups/:id')
   async getGroup(@Param('id') id: string, @User() user: any) {
-    return this.teacherService.getGroup(id, user);
+    return this.teacherGroupsService.getGroup(id, user);
   }
 
   @Post('groups')
@@ -349,7 +355,7 @@ export class TeacherController {
     @Body() data: { name: string; emails?: string[] },
     @User() user: any,
   ) {
-    return this.teacherService.createGroup(user, data);
+    return this.teacherGroupsService.createGroup(user, data);
   }
 
   @Put('groups/:id')
@@ -358,12 +364,12 @@ export class TeacherController {
     @Body() data: { name: string },
     @User() user: any,
   ) {
-    return this.teacherService.updateGroup(id, user, data);
+    return this.teacherGroupsService.updateGroup(id, user, data);
   }
 
   @Delete('groups/:id')
   async deleteGroup(@Param('id') id: string, @User() user: any) {
-    return this.teacherService.deleteGroup(id, user);
+    return this.teacherGroupsService.deleteGroup(id, user);
   }
 
   @Post('groups/:id/students')
@@ -372,7 +378,7 @@ export class TeacherController {
     @Body() data: { emails: string[] },
     @User() user: any,
   ) {
-    return this.teacherService.addGroupStudents(id, data.emails, user);
+    return this.teacherGroupsService.addGroupStudents(id, data.emails, user);
   }
 
   @Delete('groups/:id/students/:studentId')
@@ -381,7 +387,7 @@ export class TeacherController {
     @Param('studentId') studentId: string,
     @User() user: any,
   ) {
-    return this.teacherService.removeGroupStudent(id, studentId, user);
+    return this.teacherGroupsService.removeGroupStudent(id, studentId, user);
   }
 
   @Post('courses/:courseId/enroll-group/:groupId')
@@ -390,14 +396,14 @@ export class TeacherController {
     @Param('groupId') groupId: string,
     @User() user: any,
   ) {
-    return this.teacherService.enrollGroupInCourse(courseId, groupId, user);
+    return this.teacherGroupsService.enrollGroupInCourse(courseId, groupId, user);
   }
 
   // ─── ANNOUNCEMENTS ─────────────────────────────────────────────────────────
 
   @Get('announcements')
   async getAnnouncements(@User() user: any) {
-    return this.teacherService.getAnnouncements(user);
+    return this.teacherAnnouncementsService.getAnnouncements(user);
   }
 
   @Post('announcements')
@@ -411,7 +417,7 @@ export class TeacherController {
     },
     @User() user: any,
   ) {
-    return this.teacherService.createAnnouncement(user, data);
+    return this.teacherAnnouncementsService.createAnnouncement(user, data);
   }
 
   @Put('announcements/:id')
@@ -426,11 +432,11 @@ export class TeacherController {
     },
     @User() user: any,
   ) {
-    return this.teacherService.updateAnnouncement(id, user, data);
+    return this.teacherAnnouncementsService.updateAnnouncement(id, user, data);
   }
 
   @Delete('announcements/:id')
   async deleteAnnouncement(@Param('id') id: string, @User() user: any) {
-    return this.teacherService.deleteAnnouncement(id, user);
+    return this.teacherAnnouncementsService.deleteAnnouncement(id, user);
   }
 }
