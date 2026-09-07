@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useMemo, useEffect } from 'react';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import LearnerAnalyticsSkeleton from '@/app/components/Skeletons/LearnerAnalyticsSkeleton';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { StudentService } from '@/services/api/StudentService';
 import {
@@ -342,7 +342,14 @@ export default function AnalyticsPage() {
         });
 
         const activeDays = counts.size;
-        return { weeks, monthLabels, max, activeDays, busiest: busiest as { date: Date; count: number } | null, thisWeek };
+        return {
+            weeks,
+            monthLabels,
+            max,
+            activeDays,
+            busiest: busiest as { date: Date; count: number } | null,
+            thisWeek,
+        };
     }, [allAttempts]);
 
     // Sequential brand ramp for the heatmap: one hue, light -> dark.
@@ -421,11 +428,7 @@ export default function AnalyticsPage() {
     };
 
     if (loading) {
-        return (
-            <div className="min-h-screen bg-[#F8FAFC] font-sans selection:bg-[var(--brand-light)]">
-                <DashboardSkeleton type="main" userRole={studentNameParam ? 'teacher' : 'student'} noNavbar />
-            </div>
-        );
+        return <LearnerAnalyticsSkeleton />;
     }
 
     return (
@@ -525,7 +528,9 @@ export default function AnalyticsPage() {
                                     label="Success Rate"
                                     value={`${stats.successRate}%`}
                                     sub="of all attempts"
-                                    tone={stats.successRate >= 60 ? 'emerald' : stats.successRate >= 30 ? 'amber' : 'rose'}
+                                    tone={
+                                        stats.successRate >= 60 ? 'emerald' : stats.successRate >= 30 ? 'amber' : 'rose'
+                                    }
                                 />
                                 <StatTile
                                     icon={Sparkles}

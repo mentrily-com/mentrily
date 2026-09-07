@@ -11,20 +11,20 @@ const jobs = [
         title: 'Senior Full Stack Engineer',
         department: 'Engineering',
         location: 'Remote',
-        type: 'Full-time'
+        type: 'Full-time',
     },
     {
         title: 'Product Designer',
         department: 'Product',
         location: 'Remote',
-        type: 'Full-time'
+        type: 'Full-time',
     },
     {
         title: 'Customer Success Manager',
         department: 'Operations',
         location: 'Remote',
-        type: 'Full-time'
-    }
+        type: 'Full-time',
+    },
 ];
 
 function JobBoard() {
@@ -37,7 +37,7 @@ function JobBoard() {
                     <h2 className="text-2xl font-bold text-slate-900 mb-4">Open Positions</h2>
                     <p className="text-slate-600">Join our mission to democratize technical education worldwide.</p>
                 </div>
-                
+
                 <div className="space-y-4">
                     {jobs.map((job, i) => (
                         <motion.a
@@ -61,9 +61,7 @@ function JobBoard() {
                                     <span className="flex items-center gap-1">
                                         <MapPin size={12} /> {job.location}
                                     </span>
-                                    <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600">
-                                        {job.type}
-                                    </span>
+                                    <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600">{job.type}</span>
                                 </div>
                             </div>
                             <div className="flex items-center justify-end">
@@ -78,9 +76,11 @@ function JobBoard() {
                 <div className="mt-16 p-8 rounded-3xl bg-slate-50 border border-slate-200 text-center">
                     <Heart className="mx-auto text-rose-500 mb-4" size={32} />
                     <h3 className="text-lg font-bold text-slate-900 mb-2">Don&apos;t see a fit?</h3>
-                    <p className="text-sm text-slate-600 mb-6">We&apos;re always looking for talented people who share our passion for education.</p>
-                    <a 
-                        href="https://forms.gle/mTR3Rv5ZQGejrQndA" 
+                    <p className="text-sm text-slate-600 mb-6">
+                        We&apos;re always looking for talented people who share our passion for education.
+                    </p>
+                    <a
+                        href="https://forms.gle/mTR3Rv5ZQGejrQndA"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-sm font-bold text-teal-600 hover:text-teal-700 transition-colors"
@@ -96,7 +96,7 @@ function JobBoard() {
 export default function CareersPage() {
     return (
         <main className="min-h-screen bg-white">
-            <MarketingPageHeader 
+            <MarketingPageHeader
                 title="Join the team building the future of learning"
                 description="Mentrily is a fully remote team of educators, designers, and engineers dedicated to making technical education accessible and effective."
             />

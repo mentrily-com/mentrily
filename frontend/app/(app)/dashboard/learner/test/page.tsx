@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import LearnerTestAttemptsSkeleton from '@/app/components/Skeletons/LearnerTestAttemptsSkeleton';
 import { StudentService } from '@/services/api/StudentService';
 
 export default function TestAttemptsPage() {
@@ -22,11 +22,7 @@ export default function TestAttemptsPage() {
     }, []);
 
     if (loading) {
-        return (
-            <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
-                <DashboardSkeleton type="list" userRole="student" noNavbar />
-            </div>
-        );
+        return <LearnerTestAttemptsSkeleton />;
     }
     return (
         <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">

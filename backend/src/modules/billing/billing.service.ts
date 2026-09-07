@@ -306,10 +306,22 @@ export class BillingService {
    * Stripe path this replaces.
    */
   async requestPlanUpgrade(
-    user: { id: string; name?: string; email: string; orgId?: string | null; plan?: string },
-    data: { requestedPlan?: string; billingInterval?: string; message?: string },
+    user: {
+      id: string;
+      name?: string;
+      email: string;
+      orgId?: string | null;
+      plan?: string;
+    },
+    data: {
+      requestedPlan?: string;
+      billingInterval?: string;
+      message?: string;
+    },
   ) {
-    const requestedPlan = String(data.requestedPlan || '').trim().toUpperCase();
+    const requestedPlan = String(data.requestedPlan || '')
+      .trim()
+      .toUpperCase();
     if (requestedPlan !== 'STARTER' && requestedPlan !== 'PRO') {
       throw new BadRequestException(
         'requestedPlan must be STARTER or PRO — Enterprise requests go through /contact',
@@ -317,10 +329,14 @@ export class BillingService {
     }
 
     const billingInterval =
-      String(data.billingInterval || '').trim().toLowerCase() === 'annual'
+      String(data.billingInterval || '')
+        .trim()
+        .toLowerCase() === 'annual'
         ? 'annual'
         : 'monthly';
-    const message = String(data.message || '').trim().slice(0, 2000);
+    const message = String(data.message || '')
+      .trim()
+      .slice(0, 2000);
 
     const orgId = String(user.orgId || '').trim();
     const org = orgId

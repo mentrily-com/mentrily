@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { TeacherService, Student } from '@/services/api/TeacherService';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import ExamMonitorSkeleton from '@/app/components/Skeletons/ExamMonitorSkeleton';
 import { useToast } from '@/app/components/Common/Toast';
 import AppModal from '@/app/components/Common/AppModal';
 import { io, Socket } from 'socket.io-client';
@@ -235,7 +235,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
     const buttonHoverClass = 'hover:text-[var(--brand)] hover:border-[var(--brand-light)]';
 
     if (isLoading && students.length === 0) {
-        return <DashboardSkeleton type="list" userRole={userRole} noNavbar />;
+        return <ExamMonitorSkeleton />;
     }
 
     return (

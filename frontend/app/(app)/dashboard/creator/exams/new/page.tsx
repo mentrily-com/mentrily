@@ -2,13 +2,13 @@
 import React, { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import NewExamSkeleton from '@/app/components/Skeletons/NewExamSkeleton';
 import { AuthService } from '@/services/api/AuthService';
 import { usePlan } from '@/hooks/usePlan';
 
 const ExamBuilder = dynamic(() => import('@/app/components/Authoring/ExamBuilder'), {
     ssr: false,
-    loading: () => <DashboardSkeleton type="form" userRole="teacher" noNavbar />,
+    loading: () => <NewExamSkeleton />,
 });
 
 export default function CreateExamPage() {
@@ -28,7 +28,7 @@ export default function CreateExamPage() {
     }, []);
 
     return (
-        <Suspense fallback={<DashboardSkeleton type="form" userRole={dashboardRole} />}>
+        <Suspense fallback={<NewExamSkeleton />}>
             <div className="animate-fade-in h-[calc(100vh-var(--topbar-height)-36px)]">
                 <ExamBuilder
                     basePath="/dashboard/creator"

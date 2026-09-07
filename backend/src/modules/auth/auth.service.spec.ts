@@ -4,6 +4,8 @@ import { SupabaseService } from '../../services/supabase/supabase.service';
 import { MailService } from '../../services/mail.service';
 import { StorageService } from '../../services/storage/storage.service';
 import { QuotaService } from '../billing/quota.service';
+import { OrgProvisioningService } from '../organization/org-provisioning.service';
+import { MembershipService } from '../organization/membership.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -32,6 +34,14 @@ describe('AuthService', () => {
           useValue: { deleteFile: jest.fn(), uploadFile: jest.fn() },
         },
         { provide: QuotaService, useValue: { recalculateCounters: jest.fn() } },
+        {
+          provide: OrgProvisioningService,
+          useValue: { provisionOrganization: jest.fn() },
+        },
+        {
+          provide: MembershipService,
+          useValue: { ensureMembership: jest.fn() },
+        },
       ],
     }).compile();
 

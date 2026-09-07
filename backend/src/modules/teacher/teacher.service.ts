@@ -103,14 +103,18 @@ export class TeacherService {
 
     const plan = (org?.plan as PlanKey) || 'FREE';
     const overrides =
-      org?.features && typeof org.features === 'object' && !Array.isArray(org.features)
+      org?.features &&
+      typeof org.features === 'object' &&
+      !Array.isArray(org.features)
         ? (org.features as Record<string, unknown>)
         : {};
 
-    return Boolean({
-      ...(PLAN_FEATURES[plan] || PLAN_FEATURES.FREE),
-      ...overrides,
-    }.customSlug);
+    return Boolean(
+      {
+        ...(PLAN_FEATURES[plan] || PLAN_FEATURES.FREE),
+        ...overrides,
+      }.customSlug,
+    );
   }
 
   private async createUniqueSlug(
@@ -119,13 +123,25 @@ export class TeacherService {
     orgId?: string | null,
   ) {
     for (let attempt = 0; attempt < 3; attempt += 1) {
-      const slug = generateRandomSlug(title, model === 'courseTest' ? 'test' : model);
+      const slug = generateRandomSlug(
+        title,
+        model === 'courseTest' ? 'test' : model,
+      );
       const exists =
         model === 'course'
-          ? await this.prisma.course.findFirst({ where: { slug, orgId: orgId || null }, select: { id: true } })
+          ? await this.prisma.course.findFirst({
+              where: { slug, orgId: orgId || null },
+              select: { id: true },
+            })
           : model === 'exam'
-            ? await this.prisma.exam.findFirst({ where: { slug, orgId: orgId || null }, select: { id: true } })
-            : await this.prisma.courseTest.findFirst({ where: { slug, orgId: orgId || null }, select: { id: true } });
+            ? await this.prisma.exam.findFirst({
+                where: { slug, orgId: orgId || null },
+                select: { id: true },
+              })
+            : await this.prisma.courseTest.findFirst({
+                where: { slug, orgId: orgId || null },
+                select: { id: true },
+              });
 
       if (!exists) {
         return slug;
@@ -149,13 +165,20 @@ export class TeacherService {
     return this.createUniqueSlug('course', title, orgId);
   }
 
-  private async createCourseRecordWithRetry(data: Prisma.CourseCreateInput, title: string, orgId?: string | null) {
+  private async createCourseRecordWithRetry(
+    data: Prisma.CourseCreateInput,
+    title: string,
+    orgId?: string | null,
+  ) {
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
         return await this.prisma.course.create({
           data: {
             ...data,
-            slug: attempt === 0 ? data.slug : await this.createUniqueSlug('course', title, orgId),
+            slug:
+              attempt === 0
+                ? data.slug
+                : await this.createUniqueSlug('course', title, orgId),
           },
           include: {
             modules: { include: { units: true } },
@@ -182,7 +205,10 @@ export class TeacherService {
         return await this.prisma.exam.create({
           data: {
             ...data,
-            slug: attempt === 0 ? data.slug : await this.createUniqueSlug('exam', title, orgId),
+            slug:
+              attempt === 0
+                ? data.slug
+                : await this.createUniqueSlug('exam', title, orgId),
           } as any,
           select: this.legacyExamSelect as any,
         });
@@ -499,7 +525,9 @@ export class TeacherService {
         }),
       ]);
 
-      const courseIds = teacherCourses.map((course: { id: string }) => course.id);
+      const courseIds = teacherCourses.map(
+        (course: { id: string }) => course.id,
+      );
       const examIds = teacherExams.map((exam: { id: string }) => exam.id);
 
       if (orgId && (courseIds.length > 0 || examIds.length > 0)) {
@@ -508,10 +536,20 @@ export class TeacherService {
             orgId,
             OR: [
               ...(courseIds.length
-                ? [{ type: this.certificateTypeFilter('course'), resourceId: { in: courseIds } }]
+                ? [
+                    {
+                      type: this.certificateTypeFilter('course'),
+                      resourceId: { in: courseIds },
+                    },
+                  ]
                 : []),
               ...(examIds.length
-                ? [{ type: this.certificateTypeFilter('exam'), resourceId: { in: examIds } }]
+                ? [
+                    {
+                      type: this.certificateTypeFilter('exam'),
+                      resourceId: { in: examIds },
+                    },
+                  ]
                 : []),
             ],
           },
@@ -689,7 +727,9 @@ export class TeacherService {
         }),
       ]);
 
-      const courseIds = teacherCourses.map((course: { id: string }) => course.id);
+      const courseIds = teacherCourses.map(
+        (course: { id: string }) => course.id,
+      );
       const examIds = teacherExams.map((exam: { id: string }) => exam.id);
 
       if (orgId && (courseIds.length > 0 || examIds.length > 0)) {
@@ -697,10 +737,20 @@ export class TeacherService {
           orgId,
           OR: [
             ...(courseIds.length
-              ? [{ type: this.certificateTypeFilter('course'), resourceId: { in: courseIds } }]
+              ? [
+                  {
+                    type: this.certificateTypeFilter('course'),
+                    resourceId: { in: courseIds },
+                  },
+                ]
               : []),
             ...(examIds.length
-              ? [{ type: this.certificateTypeFilter('exam'), resourceId: { in: examIds } }]
+              ? [
+                  {
+                    type: this.certificateTypeFilter('exam'),
+                    resourceId: { in: examIds },
+                  },
+                ]
               : []),
           ],
         };
@@ -944,7 +994,10 @@ export class TeacherService {
         { orgId: user.orgId },
         { courses: { some: { orgId: user.orgId } } },
       ];
-      courseFilter.OR = [{ orgId: user.orgId }, { creatorId: user.id, orgId: null }];
+      courseFilter.OR = [
+        { orgId: user.orgId },
+        { creatorId: user.id, orgId: null },
+      ];
     } else if (user.role === 'TEACHER') {
       whereClause.courses = {
         some: {
@@ -1231,7 +1284,10 @@ export class TeacherService {
       const student = await this.prisma.user.findFirst({
         where: {
           id: studentId,
-          OR: [{ orgId: user.orgId }, { courses: { some: { orgId: user.orgId } } }],
+          OR: [
+            { orgId: user.orgId },
+            { courses: { some: { orgId: user.orgId } } },
+          ],
         },
       });
       if (!student)
@@ -1979,10 +2035,7 @@ export class TeacherService {
     if (typeof user === 'string') {
       where.creatorId = user;
     } else if (user?.role === 'ADMIN') {
-      where.OR = [
-        { orgId: user.orgId },
-        { creatorId: user.id, orgId: null },
-      ];
+      where.OR = [{ orgId: user.orgId }, { creatorId: user.id, orgId: null }];
     } else if (user?.role === 'TEACHER') {
       where.OR = [
         { creatorId: user.id },
@@ -2097,7 +2150,9 @@ export class TeacherService {
       attemptBufferMins?: number;
     },
   ) {
-    const course = await this.prisma.course.findUnique({ where: { id: courseId } });
+    const course = await this.prisma.course.findUnique({
+      where: { id: courseId },
+    });
     if (!course) throw new Error('Course not found');
     await this.checkAccess(course, user);
 
@@ -2196,7 +2251,9 @@ export class TeacherService {
   }
 
   async unlinkExamFromCourse(courseId: string, user: any) {
-    const course = await this.prisma.course.findUnique({ where: { id: courseId } });
+    const course = await this.prisma.course.findUnique({
+      where: { id: courseId },
+    });
     if (!course) throw new Error('Course not found');
     await this.checkAccess(course, user);
 
@@ -2446,7 +2503,11 @@ export class TeacherService {
           title: test.title,
           slug:
             normalizeSlug(String(test.slug || '')) ||
-            (await this.createUniqueSlug('courseTest', test.title, existing.orgId || null)),
+            (await this.createUniqueSlug(
+              'courseTest',
+              test.title,
+              existing.orgId || null,
+            )),
           questions: test.questions || [],
           startDate: this.parseOptionalDate(test.startDate),
           endDate: this.parseOptionalDate(test.endDate),
@@ -2482,18 +2543,34 @@ export class TeacherService {
       );
       const totalUnits = allUnitIds.length;
 
-      for (const student of updatedCourse.students) {
-        const completedSubmissions = await this.prisma.unitSubmission.findMany({
-          where: {
-            userId: student.id,
-            unitId: { in: allUnitIds },
-            status: 'COMPLETED',
-          },
-          select: { unitId: true },
-        });
+      const studentIds = updatedCourse.students.map((s: any) => s.id);
 
+      // One query for the whole cohort instead of one per student. Course
+      // saves used to cost 4 round-trips per enrolled learner (submissions
+      // read, progress upsert, two cache deletes), so a 500-learner course
+      // issued ~2000 sequential round-trips on every save from the builder.
+      const completedSubmissions = await this.prisma.unitSubmission.findMany({
+        where: {
+          userId: { in: studentIds },
+          unitId: { in: allUnitIds },
+          status: 'COMPLETED',
+        },
+        select: { userId: true, unitId: true },
+      });
+
+      const completedByStudent = new Map<string, Set<string>>();
+      for (const submission of completedSubmissions) {
+        let units = completedByStudent.get(submission.userId);
+        if (!units) {
+          units = new Set<string>();
+          completedByStudent.set(submission.userId, units);
+        }
+        units.add(submission.unitId);
+      }
+
+      const progressWrites = updatedCourse.students.map((student: any) => {
         const completedUnitIds = [
-          ...new Set(completedSubmissions.map((s: any) => s.unitId)),
+          ...(completedByStudent.get(student.id) ?? new Set<string>()),
         ];
         const completedCount = completedUnitIds.length;
         const percent =
@@ -2505,30 +2582,38 @@ export class TeacherService {
               ? 'In Progress'
               : 'Not Started';
 
-        // @ts-ignore
-        await this.prisma.courseProgress.upsert({
-          where: { userId_courseId: { userId: student.id, courseId: id } },
-          update: {
-            completedUnits: completedUnitIds,
-            totalUnits,
-            completedCount,
-            percent,
-            status,
-          },
-          create: {
-            userId: student.id,
-            courseId: id,
-            completedUnits: completedUnitIds,
-            totalUnits,
-            completedCount,
-            percent,
-            status,
-          },
-        });
+        const fields = {
+          completedUnits: completedUnitIds,
+          totalUnits,
+          completedCount,
+          percent,
+          status,
+        };
 
-        // Invalidate student stats caches
-        await this.redis.del(`student:stats:${student.id}`);
-        await this.redis.del(`student:analytics:${student.id}`);
+        return this.prisma.courseProgress.upsert({
+          where: { userId_courseId: { userId: student.id, courseId: id } },
+          update: fields,
+          create: { userId: student.id, courseId: id, ...fields },
+        });
+      });
+
+      // Chunked so a large cohort does not open one long-running transaction
+      // that holds row locks across the whole course roster.
+      const PROGRESS_WRITE_CHUNK = 100;
+      for (let i = 0; i < progressWrites.length; i += PROGRESS_WRITE_CHUNK) {
+        await this.prisma.$transaction(
+          progressWrites.slice(i, i + PROGRESS_WRITE_CHUNK),
+        );
+      }
+
+      // Invalidate student stats caches in as few round-trips as possible.
+      const cacheKeys = studentIds.flatMap((studentId: string) => [
+        `student:stats:${studentId}`,
+        `student:analytics:${studentId}`,
+      ]);
+      const CACHE_DEL_CHUNK = 500;
+      for (let i = 0; i < cacheKeys.length; i += CACHE_DEL_CHUNK) {
+        await this.redis.del(...cacheKeys.slice(i, i + CACHE_DEL_CHUNK));
       }
     }
 
@@ -2591,7 +2676,11 @@ export class TeacherService {
     await this.enforceQuestionTypeAccess(user, inputTypes, orgId);
     if (orgId) {
       await this.quotaService.checkCourseQuota(orgId, 1);
-      await this.quotaService.checkModuleQuota(orgId, undefined, modules.length);
+      await this.quotaService.checkModuleQuota(
+        orgId,
+        undefined,
+        modules.length,
+      );
     } else {
       await this.quotaService.checkCourseQuotaForUser(user.id, 1);
     }
@@ -2621,7 +2710,8 @@ export class TeacherService {
           ? false
           : !!data.isVisible;
 
-    const course = await this.createCourseRecordWithRetry({
+    const course = await this.createCourseRecordWithRetry(
+      {
         title: data.title,
         slug: await this.resolveIncomingSlug(data.slug, data.title, orgId),
         creator: {
@@ -2664,7 +2754,9 @@ export class TeacherService {
         tests: {
           create: (data.tests || []).map((t: any) => ({
             title: t.title,
-            slug: normalizeSlug(String(t.slug || '')) || generateRandomSlug(t.title, 'test'),
+            slug:
+              normalizeSlug(String(t.slug || '')) ||
+              generateRandomSlug(t.title, 'test'),
             questions: t.questions || [],
             startDate: this.parseOptionalDate(t.startDate),
             endDate: this.parseOptionalDate(t.endDate),
@@ -2777,63 +2869,78 @@ export class TeacherService {
         : undefined;
 
     const examPayload: Prisma.ExamCreateInput = {
-        title: data.title,
-        slug: (await this.canUseCustomSlug(orgId))
-          ? normalizeSlug(String(data.slug || '')) || (await this.createUniqueSlug('exam', data.title, orgId))
-          : await this.createUniqueSlug('exam', data.title, orgId),
-        creator: {
-          connect: {
-            id: user.id,
-          },
+      title: data.title,
+      slug: (await this.canUseCustomSlug(orgId))
+        ? normalizeSlug(String(data.slug || '')) ||
+          (await this.createUniqueSlug('exam', data.title, orgId))
+        : await this.createUniqueSlug('exam', data.title, orgId),
+      creator: {
+        connect: {
+          id: user.id,
         },
-        shortDescription: data.shortDescription,
-        longDescription: data.longDescription,
-        difficulty: data.difficulty,
-        tags: data.tags || [],
-        duration: linkedCourseId ? 60 : Number(data.duration) || 60,
-        totalMarks: linkedCourseId ? null : data.totalMarks ? Number(data.totalMarks) : 0,
-        testCode: linkedCourseId ? null : data.testCode,
-        testCodeType: data.testCodeType,
-        rotationInterval: data.rotationInterval
-          ? Number(data.rotationInterval)
+      },
+      shortDescription: data.shortDescription,
+      longDescription: data.longDescription,
+      difficulty: data.difficulty,
+      tags: data.tags || [],
+      duration: linkedCourseId ? 60 : Number(data.duration) || 60,
+      totalMarks: linkedCourseId
+        ? null
+        : data.totalMarks
+          ? Number(data.totalMarks)
+          : 0,
+      testCode: linkedCourseId ? null : data.testCode,
+      testCodeType: data.testCodeType,
+      rotationInterval: data.rotationInterval
+        ? Number(data.rotationInterval)
+        : null,
+      inviteToken: linkedCourseId ? null : data.inviteToken,
+      allowedIPs: linkedCourseId ? null : data.allowedIPs,
+      examMode: data.examMode,
+      aiProctoring: !!data.aiProctoring,
+      tabSwitchLimit: data.tabSwitchLimit ? Number(data.tabSwitchLimit) : null,
+      startTime: linkedCourseId
+        ? null
+        : data.startTime
+          ? new Date(data.startTime)
           : null,
-        inviteToken: linkedCourseId ? null : data.inviteToken,
-        allowedIPs: linkedCourseId ? null : data.allowedIPs,
-        examMode: data.examMode,
-        aiProctoring: !!data.aiProctoring,
-        tabSwitchLimit: data.tabSwitchLimit
-          ? Number(data.tabSwitchLimit)
+      endTime: linkedCourseId
+        ? null
+        : data.endTime
+          ? new Date(data.endTime)
           : null,
-        startTime: linkedCourseId ? null : data.startTime ? new Date(data.startTime) : null,
-        endTime: linkedCourseId ? null : data.endTime ? new Date(data.endTime) : null,
-        timeZone: linkedCourseId ? null : data.timeZone || null,
-        questions: data.sections || data.questions || [],
-        aiTokensUsed: data.aiTokensUsed ? Number(data.aiTokensUsed) : undefined,
-        isActive: data.isActive ?? data.isVisible ?? true,
-        passingPercentage,
-        maxAttempts,
-        attemptBufferMins,
-        ...(orgId
-          ? {
-              organization: {
-                connect: {
-                  id: orgId,
-                },
+      timeZone: linkedCourseId ? null : data.timeZone || null,
+      questions: data.sections || data.questions || [],
+      aiTokensUsed: data.aiTokensUsed ? Number(data.aiTokensUsed) : undefined,
+      isActive: data.isActive ?? data.isVisible ?? true,
+      passingPercentage,
+      maxAttempts,
+      attemptBufferMins,
+      ...(orgId
+        ? {
+            organization: {
+              connect: {
+                id: orgId,
               },
-            }
-          : {}),
-        ...(linkedCourseId
-          ? {
-              linkedCourse: {
-                connect: {
-                  id: linkedCourseId,
-                },
+            },
+          }
+        : {}),
+      ...(linkedCourseId
+        ? {
+            linkedCourse: {
+              connect: {
+                id: linkedCourseId,
               },
-            }
-          : {}),
-      };
+            },
+          }
+        : {}),
+    };
 
-    const exam = await this.createExamRecordWithRetry(examPayload, data.title, orgId);
+    const exam = await this.createExamRecordWithRetry(
+      examPayload,
+      data.title,
+      orgId,
+    );
 
     if (linkedCourseId) {
       await this.linkExamToCourse(linkedCourseId, exam.id, user, {
@@ -2862,7 +2969,9 @@ export class TeacherService {
     await this.checkAccess(existing, user);
     await this.enforceQuestionTypeAccess(
       user,
-      this.collectQuestionTypesFromExamContent(data.sections || data.questions || []),
+      this.collectQuestionTypesFromExamContent(
+        data.sections || data.questions || [],
+      ),
       existing.orgId || user.orgId,
     );
 
@@ -2921,7 +3030,11 @@ export class TeacherService {
       longDescription: data.longDescription ?? data.description,
       difficulty: data.difficulty,
       tags: data.tags,
-      duration: isCourseLinked ? undefined : data.duration ? Number(data.duration) : undefined,
+      duration: isCourseLinked
+        ? undefined
+        : data.duration
+          ? Number(data.duration)
+          : undefined,
       totalMarks: finalTotalMarks,
       testCode: isCourseLinked ? null : data.testCode,
       testCodeType: data.testCodeType,
@@ -2932,12 +3045,18 @@ export class TeacherService {
       allowedIPs: isCourseLinked ? null : data.allowedIPs,
       examMode: data.examMode,
       aiProctoring: data.aiProctoring,
-      tabSwitchLimit: data.tabSwitchLimit
-        ? Number(data.tabSwitchLimit)
-        : null,
-      startTime: isCourseLinked ? null : data.startTime ? new Date(data.startTime) : null,
-      endTime: isCourseLinked ? null : data.endTime ? new Date(data.endTime) : null,
-      timeZone: isCourseLinked ? null : data.timeZone ?? undefined,
+      tabSwitchLimit: data.tabSwitchLimit ? Number(data.tabSwitchLimit) : null,
+      startTime: isCourseLinked
+        ? null
+        : data.startTime
+          ? new Date(data.startTime)
+          : null,
+      endTime: isCourseLinked
+        ? null
+        : data.endTime
+          ? new Date(data.endTime)
+          : null,
+      timeZone: isCourseLinked ? null : (data.timeZone ?? undefined),
       questions: data.sections || data.questions,
       aiTokensUsed: data.aiTokensUsed ? Number(data.aiTokensUsed) : undefined,
       isActive: data.isActive ?? data.isVisible,
@@ -2948,17 +3067,17 @@ export class TeacherService {
       passingPercentage: Number.isFinite(Number(data.passingPercentage))
         ? Number(data.passingPercentage)
         : isCourseLinked
-          ? existing.passingPercentage ?? 70
+          ? (existing.passingPercentage ?? 70)
           : undefined,
       maxAttempts: Number.isFinite(Number(data.maxAttempts))
         ? Number(data.maxAttempts)
         : isCourseLinked
-          ? existing.maxAttempts ?? 1
+          ? (existing.maxAttempts ?? 1)
           : undefined,
       attemptBufferMins: Number.isFinite(Number(data.attemptBufferMins))
         ? Number(data.attemptBufferMins)
         : isCourseLinked
-          ? existing.attemptBufferMins ?? 0
+          ? (existing.attemptBufferMins ?? 0)
           : undefined,
     };
 
@@ -3006,6 +3125,12 @@ export class TeacherService {
   private async invalidateExamCaches(slug: string): Promise<void> {
     await Promise.all([
       this.redis.del(`exam:content:${slug}`),
+      // getExamBySlug additionally caches the transformed/sanitized
+      // response per sensitivity variant -- both must go too, or a
+      // teacher's edit could keep serving the pre-edit transform for up
+      // to its TTL even after the raw row cache is cleared.
+      this.redis.del(`exam:content:transformed:${slug}:sensitive`),
+      this.redis.del(`exam:content:transformed:${slug}:public`),
       this.redis.del(`exam:lookup:${slug}`),
       this.redis.del(`exam:public-status:${slug}`),
       this.redis.del(`exam:check-status:${slug}`),
@@ -3215,9 +3340,12 @@ export class TeacherService {
     }
 
     // Invalidate caches
-    for (const session of sessions) {
-      await this.redis.del(`session:status:${session.id}`);
-      await this.redis.del(`session:meta:${session.id}`);
+    const sessionCacheKeys = sessions.flatMap((session: any) => [
+      `session:status:${session.id}`,
+      `session:meta:${session.id}`,
+    ]);
+    if (sessionCacheKeys.length > 0) {
+      await this.redis.del(...sessionCacheKeys);
     }
 
     // Force kick via websocket - broadcast to both slug and ID rooms for maximum robustness
@@ -3260,9 +3388,12 @@ export class TeacherService {
     });
 
     // Invalidate caches to allow re-entry/re-processing
-    for (const session of sessions) {
-      await this.redis.del(`session:status:${session.id}`);
-      await this.redis.del(`session:meta:${session.id}`);
+    const sessionCacheKeys = sessions.flatMap((session: any) => [
+      `session:status:${session.id}`,
+      `session:meta:${session.id}`,
+    ]);
+    if (sessionCacheKeys.length > 0) {
+      await this.redis.del(...sessionCacheKeys);
     }
 
     return { success: true };
@@ -3767,7 +3898,17 @@ export class TeacherService {
 
     const [students, groupMembers] = await Promise.all([
       this.prisma.user.findMany({
-        where: { email: { in: normalizedEmails } },
+        // Scoped to the group's own org (when it has one) so a teacher
+        // can't pull a student from a different organization into their
+        // group just by knowing their email -- that student would then
+        // be exposed to this org's group-scoped announcements/exams, and
+        // the lookup itself doubles as an email-existence oracle across
+        // every org on the platform. Personal/org-less groups (orgId
+        // null) keep their existing, unscoped lookup unchanged.
+        where: {
+          email: { in: normalizedEmails },
+          ...(group.orgId ? { orgId: group.orgId } : {}),
+        },
         select: { id: true, email: true, name: true, role: true },
       }),
       this.prisma.studentGroup.findUnique({

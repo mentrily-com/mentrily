@@ -550,9 +550,7 @@ export default function CreateOrganizationView() {
                                         <PermissionToggle
                                             label="Crisp support chat"
                                             active={formData.crispChat}
-                                            onClick={() =>
-                                                setFormData({ ...formData, crispChat: !formData.crispChat })
-                                            }
+                                            onClick={() => setFormData({ ...formData, crispChat: !formData.crispChat })}
                                         />
                                     </div>
                                 </div>

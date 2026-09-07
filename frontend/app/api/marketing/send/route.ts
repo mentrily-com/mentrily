@@ -16,8 +16,8 @@ export async function POST(request: Request) {
         const LOGO_URL = new URL('/android-chrome-512x512.png', siteConfig.url).toString();
         const brandColor = '#008D98';
 
-        const fromEmail = process.env.RESEND_SENDER_EMAIL?.includes('mentrily.com') 
-            ? `Mentrily <noreply@mentrily.com>` 
+        const fromEmail = process.env.RESEND_SENDER_EMAIL?.includes('mentrily.com')
+            ? `Mentrily <noreply@mentrily.com>`
             : `Mentrily <onboarding@resend.dev>`;
 
         const result = await resend.emails.send({

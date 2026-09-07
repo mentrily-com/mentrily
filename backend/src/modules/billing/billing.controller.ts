@@ -122,7 +122,11 @@ export class BillingController {
   async requestPlanUpgrade(
     @User() user: any,
     @Body()
-    body: { requestedPlan?: string; billingInterval?: string; message?: string },
+    body: {
+      requestedPlan?: string;
+      billingInterval?: string;
+      message?: string;
+    },
   ) {
     await this.ensureBillingMutationAllowed(user);
     return this.billingService.requestPlanUpgrade(user, body);

@@ -20,6 +20,7 @@ type InitialOrgBranding = {
     logo: string | null;
     primaryColor: string;
     domain: string;
+    subdomain: string;
 } | null;
 
 type InitialSessionHint = {
@@ -85,6 +86,7 @@ async function getInitialOrganization(): Promise<InitialOrgBranding> {
             logo: headerLogo || null,
             primaryColor: headerPrimaryColor || '#008D98',
             domain: headerDomain,
+            subdomain,
         };
     }
 
@@ -112,6 +114,7 @@ async function getInitialOrganization(): Promise<InitialOrgBranding> {
             logo: data.logo,
             primaryColor: data.primaryColor || '#008D98',
             domain: data.domain,
+            subdomain,
         };
     } catch {
         return null;
@@ -131,8 +134,14 @@ async function getInitialSessionHint(): Promise<InitialSessionHint> {
 }
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-    const initialOrganization = await getInitialOrganization();
-    const initialSessionHint = await getInitialSessionHint();
+    // getInitialSessionHint is pure header reads with no I/O of its own, but
+    // getInitialOrganization can still hit the network on a cache miss (no
+    // x-org-domain header) -- awaiting them sequentially added that fetch's
+    // full latency on top of nothing, for no reason.
+    const [initialOrganization, initialSessionHint] = await Promise.all([
+        getInitialOrganization(),
+        getInitialSessionHint(),
+    ]);
     const initialBrand = initialOrganization?.primaryColor || '#008D98';
 
     return (

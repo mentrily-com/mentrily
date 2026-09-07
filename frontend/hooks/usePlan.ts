@@ -50,12 +50,7 @@ const FEATURE_MIN_PLAN: Record<string, string> = {
     customSlug: 'ENTERPRISE',
 };
 
-function readHintRole():
-    | 'STUDENT'
-    | 'TEACHER'
-    | 'ADMIN'
-    | 'SUPER_ADMIN'
-    | null {
+function readHintRole(): 'STUDENT' | 'TEACHER' | 'ADMIN' | 'SUPER_ADMIN' | null {
     if (typeof document === 'undefined') {
         return null;
     }

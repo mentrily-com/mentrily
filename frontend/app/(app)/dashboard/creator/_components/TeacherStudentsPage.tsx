@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { TeacherService } from '@/services/api/TeacherService';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import TeacherStudentsSkeleton from '@/app/components/Skeletons/TeacherStudentsSkeleton';
 import { useToast } from '@/app/components/Common/Toast';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Users, GraduationCap, Search, Filter, Mail, Calendar, Trash2, ClipboardList, Megaphone } from 'lucide-react';
@@ -72,7 +72,7 @@ export default function TeacherStudentsPage() {
         setSelectedStudent(student);
     };
 
-    if (isLoading) return <DashboardSkeleton type="list" userRole="teacher" />;
+    if (isLoading) return <TeacherStudentsSkeleton />;
 
     return (
         <div className="animate-fade-in font-sans">

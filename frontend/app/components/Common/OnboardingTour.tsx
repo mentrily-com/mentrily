@@ -44,10 +44,7 @@ export default function OnboardingTour({
     const { data: session, isLoading, isPlaceholderData, refetch } = useSession();
     const storageKey = useMemo(() => `tour_${tourId}_completed`, [tourId]);
     const sessionSeenKey = useMemo(() => `tour_${tourId}_seen_this_session`, [tourId]);
-    const resolvedSkipStorageKey = useMemo(
-        () => skipStorageKey || `tour_${tourId}_skipped`,
-        [skipStorageKey, tourId],
-    );
+    const resolvedSkipStorageKey = useMemo(() => skipStorageKey || `tour_${tourId}_skipped`, [skipStorageKey, tourId]);
     const activeKey = 'mentrily_active_tour';
     const startedRef = useRef(false);
     const completionInFlightRef = useRef(false);

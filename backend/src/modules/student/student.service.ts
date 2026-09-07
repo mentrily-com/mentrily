@@ -44,7 +44,9 @@ export class StudentService {
       (String((error as any)?.meta?.column || '').includes(
         'Exam.passingPercentage',
       ) ||
-        String((error as any)?.meta?.column || '').includes('Exam.maxAttempts') ||
+        String((error as any)?.meta?.column || '').includes(
+          'Exam.maxAttempts',
+        ) ||
         String((error as any)?.meta?.column || '').includes(
           'Exam.attemptBufferMins',
         ))
@@ -62,15 +64,16 @@ export class StudentService {
     );
   }
 
-  private readonly finalExamSessionStatuses = ['COMPLETED', 'TERMINATED'] as const;
+  private readonly finalExamSessionStatuses = [
+    'COMPLETED',
+    'TERMINATED',
+  ] as const;
 
-  private async findUserCompat<T>(
-    args: {
-      where: Record<string, unknown>;
-      select?: T;
-      include?: T;
-    },
-  ): Promise<any> {
+  private async findUserCompat<T>(args: {
+    where: Record<string, unknown>;
+    select?: T;
+    include?: T;
+  }): Promise<any> {
     try {
       return await this.prisma.user.findUnique(args as any);
     } catch (error) {
@@ -117,7 +120,10 @@ export class StudentService {
     return Math.min(max, Math.max(min, Math.floor(numeric)));
   }
 
-  private async computeCourseCompletionSummary(courseId: string, userId: string) {
+  private async computeCourseCompletionSummary(
+    courseId: string,
+    userId: string,
+  ) {
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
       select: {
@@ -235,7 +241,8 @@ export class StudentService {
     const nextAttemptAvailableAt =
       latestAttempt?.endTime && attemptBufferMins > 0
         ? new Date(
-            new Date(latestAttempt.endTime).getTime() + attemptBufferMins * 60 * 1000,
+            new Date(latestAttempt.endTime).getTime() +
+              attemptBufferMins * 60 * 1000,
           ).toISOString()
         : null;
 
@@ -246,9 +253,8 @@ export class StudentService {
         : hasFinishedAttempt
           ? false
           : null;
-    const attemptsRemaining = passed === true
-      ? 0
-      : Math.max(0, maxAttempts - attemptsUsed);
+    const attemptsRemaining =
+      passed === true ? 0 : Math.max(0, maxAttempts - attemptsUsed);
 
     return {
       id: course.linkedExam.id,
@@ -266,7 +272,9 @@ export class StudentService {
         ? {
             status: latestAttempt.status,
             score: latestAttempt.score,
-            attemptNumber: Number(latestAttempt.attemptNumber || attemptsUsed || 1),
+            attemptNumber: Number(
+              latestAttempt.attemptNumber || attemptsUsed || 1,
+            ),
             endedAt: latestAttempt.endTime,
           }
         : null,
@@ -285,43 +293,44 @@ export class StudentService {
       return JSON.parse(cached);
     }
 
-    const user = await this.findUserCompat({
-      where: { id: userId },
-      select: {
-        // @ts-ignore
-        dailyStreak: true,
-        // @ts-ignore
-        totalXP: true,
-        unitSubmissions: {
-          where: { status: 'COMPLETED' },
-          select: { id: true },
+    // Both figures below are aggregates, so they are computed in the database
+    // rather than by materialising rows in the Node heap: a learner with many
+    // completed units previously pulled one row per unit just to read
+    // `.length`, and one row per scored session just to average it.
+    const [user, scoreAggregate] = await Promise.all([
+      this.findUserCompat({
+        where: { id: userId },
+        select: {
+          dailyStreak: true,
+          totalXP: true,
+          _count: {
+            select: {
+              unitSubmissions: { where: { status: 'COMPLETED' } },
+            },
+          },
         },
-      },
-    });
+      }),
+      // Average over published results only, matching the previous filter.
+      this.prisma.examSession.aggregate({
+        _avg: { score: true },
+        where: {
+          userId,
+          score: { not: null },
+          exam: { resultsPublished: true },
+        },
+      }),
+    ]);
 
     if (!user) throw new Error('User not found');
 
-    // Calculate average score - only from published results
-    const sessionsWithScore = await this.prisma.examSession.findMany({
-      where: {
-        userId,
-        score: { not: null },
-        exam: { resultsPublished: true },
-      },
-      select: { score: true },
-    });
-
-    const totalScore = sessionsWithScore.reduce(
-      (acc: number, curr: any) => acc + (curr.score || 0),
-      0,
-    );
+    const averageScoreRaw = scoreAggregate._avg.score;
     const averageScore =
-      sessionsWithScore.length > 0
-        ? Math.round(totalScore / sessionsWithScore.length)
-        : 0;
+      averageScoreRaw === null || averageScoreRaw === undefined
+        ? 0
+        : Math.round(averageScoreRaw);
 
     const stats = {
-      completedModules: (user as any).unitSubmissions.length,
+      completedModules: (user as any)._count?.unitSubmissions ?? 0,
       averageScore,
       streak: (user as any).dailyStreak,
       totalXP: (user as any).totalXP,
@@ -489,46 +498,48 @@ export class StudentService {
 
     const completedSet = new Set(completedSubs.map((s: any) => s.unitId));
 
-    const courses = await Promise.all((user as any).courses.map(async (course: any) => {
-      const totalUnits = course.modules.reduce(
-        (sum: number, mod: any) => sum + mod.units.length,
-        0,
-      );
-      const courseUnitIds = course.modules.flatMap((mod: any) =>
-        mod.units.map((u: any) => u.id),
-      );
-      const completedCount = courseUnitIds.filter((uid: string) =>
-        completedSet.has(uid),
-      ).length;
-      const percent =
-        totalUnits > 0 ? Math.round((completedCount / totalUnits) * 100) : 0;
-      const status =
-        completedCount === totalUnits && totalUnits > 0
-          ? 'Completed'
-          : completedCount > 0
-            ? 'In Progress'
-            : 'Not Started';
+    const courses = await Promise.all(
+      (user as any).courses.map(async (course: any) => {
+        const totalUnits = course.modules.reduce(
+          (sum: number, mod: any) => sum + mod.units.length,
+          0,
+        );
+        const courseUnitIds = course.modules.flatMap((mod: any) =>
+          mod.units.map((u: any) => u.id),
+        );
+        const completedCount = courseUnitIds.filter((uid: string) =>
+          completedSet.has(uid),
+        ).length;
+        const percent =
+          totalUnits > 0 ? Math.round((completedCount / totalUnits) * 100) : 0;
+        const status =
+          completedCount === totalUnits && totalUnits > 0
+            ? 'Completed'
+            : completedCount > 0
+              ? 'In Progress'
+              : 'Not Started';
 
-      const linkedExam = await this.buildLinkedExamAttemptSummary(
-        userId,
-        course,
-        percent,
-      );
+        const linkedExam = await this.buildLinkedExamAttemptSummary(
+          userId,
+          course,
+          percent,
+        );
 
-      return {
-        id: course.id,
-        slug: course.slug,
-        title: course.title,
-        description: course.shortDescription,
-        sections: course.modules.length,
-        totalUnits,
-        testCount: course.tests?.length || 0,
-        tests: course.tests || [],
-        status,
-        percent,
-        linkedExam,
-      };
-    }));
+        return {
+          id: course.id,
+          slug: course.slug,
+          title: course.title,
+          description: course.shortDescription,
+          sections: course.modules.length,
+          totalUnits,
+          testCount: course.tests?.length || 0,
+          tests: course.tests || [],
+          status,
+          percent,
+          linkedExam,
+        };
+      }),
+    );
 
     await this.redis.set(cacheKey, JSON.stringify(courses), 'EX', 60);
     return courses;
@@ -613,33 +624,34 @@ export class StudentService {
   }
 
   async getCourseExamStatus(userId: string, courseSlug: string) {
-    const buildQuery = () => ({
-      where: {
-        slug: courseSlug,
-        students: {
-          some: { id: userId },
-        },
-      },
-      select: {
-        id: true,
-        slug: true,
-        title: true,
-        examUnlockThreshold: true,
-        linkedExam: {
-          select: {
-            id: true,
-            slug: true,
-            title: true,
-            duration: true,
-            totalMarks: true,
-            isActive: true,
-            passingPercentage: true,
-            maxAttempts: true,
-            attemptBufferMins: true,
+    const buildQuery = () =>
+      ({
+        where: {
+          slug: courseSlug,
+          students: {
+            some: { id: userId },
           },
         },
-      },
-    }) as any;
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          examUnlockThreshold: true,
+          linkedExam: {
+            select: {
+              id: true,
+              slug: true,
+              title: true,
+              duration: true,
+              totalMarks: true,
+              isActive: true,
+              passingPercentage: true,
+              maxAttempts: true,
+              attemptBufferMins: true,
+            },
+          },
+        },
+      }) as any;
 
     const courseQuery = buildQuery();
     let course: any;
@@ -676,7 +688,11 @@ export class StudentService {
         title: course.title,
       },
       progressPercent: currentPercent,
-      linkedExam: await this.buildLinkedExamAttemptSummary(userId, course, currentPercent),
+      linkedExam: await this.buildLinkedExamAttemptSummary(
+        userId,
+        course,
+        currentPercent,
+      ),
     };
   }
 
@@ -1258,7 +1274,10 @@ export class StudentService {
       correctIds.length === selectedIds.length &&
       correctIds.every((id: string, i: number) => id === selectedIds[i]);
 
-    return { status: isCorrect ? 'COMPLETED' : 'IN_PROGRESS', score: isCorrect ? 100 : 0 };
+    return {
+      status: isCorrect ? 'COMPLETED' : 'IN_PROGRESS',
+      score: isCorrect ? 100 : 0,
+    };
   }
 
   async submitUnit(
@@ -1279,7 +1298,11 @@ export class StudentService {
         data.content,
       );
       if (authoritative) {
-        data = { ...data, status: authoritative.status, score: authoritative.score };
+        data = {
+          ...data,
+          status: authoritative.status,
+          score: authoritative.score,
+        };
       }
     }
 

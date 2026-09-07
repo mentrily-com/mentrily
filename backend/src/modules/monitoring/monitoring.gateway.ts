@@ -217,8 +217,8 @@ export class MonitoringGateway
 
     return Boolean(
       membership &&
-        membership.status === 'ACTIVE' &&
-        (membership.role === 'TEACHER' || membership.role === 'ADMIN'),
+      membership.status === 'ACTIVE' &&
+      (membership.role === 'TEACHER' || membership.role === 'ADMIN'),
     );
   }
 

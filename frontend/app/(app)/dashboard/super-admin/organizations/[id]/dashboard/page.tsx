@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import AdminDashboardView from '@/app/components/Features/Admin/AdminDashboardView';
 import { SuperAdminService } from '@/services/api/SuperAdminService';
 import { AdminService } from '@/services/api/AdminService';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import OrgControlsSkeleton from '@/app/components/Skeletons/OrgControlsSkeleton';
 
 type PlanType = 'FREE' | 'STARTER' | 'PRO' | 'ENTERPRISE';
 
@@ -132,7 +132,7 @@ export default function SuperAdminOrganizationDashboard({ params }: { params: Pr
     };
 
     if (loading) {
-        return <DashboardSkeleton type="main" userRole="super-admin" />;
+        return <OrgControlsSkeleton />;
     }
 
     return (
@@ -150,11 +150,15 @@ export default function SuperAdminOrganizationDashboard({ params }: { params: Pr
                                 <p className="text-sm font-black text-slate-700">{usage.users}</p>
                             </div>
                             <div className="bg-slate-50 rounded-xl px-3 py-2">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Admins</p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    Admins
+                                </p>
                                 <p className="text-sm font-black text-slate-700">{usage.admins}</p>
                             </div>
                             <div className="bg-slate-50 rounded-xl px-3 py-2">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Courses</p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    Courses
+                                </p>
                                 <p className="text-sm font-black text-slate-700">{usage.courses}</p>
                             </div>
                             <div className="bg-slate-50 rounded-xl px-3 py-2">

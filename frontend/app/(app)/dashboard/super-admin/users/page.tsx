@@ -14,7 +14,7 @@ import {
     Shield,
 } from 'lucide-react';
 import { SuperAdminService } from '@/services/api/SuperAdminService';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import GlobalUsersSkeleton from '@/app/components/Skeletons/GlobalUsersSkeleton';
 import { useToast } from '@/app/components/Common/Toast';
 import AlertModal from '@/app/components/Common/AlertModal';
 
@@ -157,7 +157,7 @@ export default function SuperAdminUsersPage() {
     // Removed client-side filtering
     // const filteredUsers = ...
 
-    if (loading && users.length === 0) return <DashboardSkeleton type="list" userRole="super-admin" />;
+    if (loading && users.length === 0) return <GlobalUsersSkeleton />;
 
     return (
         <div className="max-w-[1440px] mx-auto animate-fade-in">

@@ -201,6 +201,7 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
                     <div className="lg:hidden flex min-w-0 items-center gap-2">
                         <button
                             onClick={onMobileMenuClick}
+                            aria-label="Open menu"
                             className="p-1.5 -ml-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                         >
                             <Menu size={20} />

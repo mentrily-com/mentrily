@@ -1,8 +1,8 @@
-"use client";
-import React from "react";
-import { useRoleGuard } from "@/hooks/useRoleGuard";
-import DashboardSkeleton from "@/app/components/Skeletons/DashboardSkeleton";
-import Navbar from "@/app/components/Navbar";
+'use client';
+import React from 'react';
+import { useRoleGuard } from '@/hooks/useRoleGuard';
+import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import Navbar from '@/app/components/Navbar';
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
     const { isAuthorized, isReady } = useRoleGuard(['STUDENT']);

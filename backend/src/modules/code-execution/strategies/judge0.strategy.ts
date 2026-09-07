@@ -90,11 +90,15 @@ export class Judge0Strategy implements IExecutionStrategy {
     code: string,
     stdin: string = '',
   ): Promise<ExecutionResult> {
-    const normalizedLanguage = String(language || '').trim().toLowerCase();
+    const normalizedLanguage = String(language || '')
+      .trim()
+      .toLowerCase();
     const languageId = this.languageMap[normalizedLanguage];
 
     if (!languageId) {
-      this.logger.warn(`Language not supported by execution engine mapping: ${language}`);
+      this.logger.warn(
+        `Language not supported by execution engine mapping: ${language}`,
+      );
       throw new BadRequestException(
         `Language '${language}' is not supported by the execution engine.`,
       );
@@ -159,10 +163,7 @@ export class Judge0Strategy implements IExecutionStrategy {
     } catch (error: any) {
       const status = error.response?.status;
       const data = error.response?.data;
-      this.logger.error(
-        `Execution Error [${status}]:`,
-        data || error.message,
-      );
+      this.logger.error(`Execution Error [${status}]:`, data || error.message);
 
       if (status === 429) {
         throw new InternalServerErrorException(
@@ -170,9 +171,7 @@ export class Judge0Strategy implements IExecutionStrategy {
         );
       }
 
-      throw new InternalServerErrorException(
-        'Failed to execute code',
-      );
+      throw new InternalServerErrorException('Failed to execute code');
     }
   }
 }

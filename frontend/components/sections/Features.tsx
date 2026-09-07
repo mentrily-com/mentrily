@@ -155,7 +155,17 @@ function FeatureRow({
                 <ul className="space-y-2">
                     {highlights.map((item) => (
                         <li key={item} className="flex items-center gap-2.5 text-sm" style={{ color: '#475569' }}>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={badgeColor} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                            <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke={badgeColor}
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="shrink-0"
+                            >
                                 <polyline points="20 6 9 17 4 12" />
                             </svg>
                             {item}

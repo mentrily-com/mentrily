@@ -11,7 +11,7 @@ import { SupabaseService } from '../../services/supabase/supabase.service';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
 import { createClerkClient, type ClerkClient } from '@clerk/backend';
-import { Role } from '@prisma/client';
+import { Prisma, Role } from '@prisma/client';
 import { QuotaService } from '../billing/quota.service';
 import { MailService } from '../../services/mail.service';
 import { getEffectivePlanLimits, type PlanKey } from '../../config/plan-limits';
@@ -383,11 +383,7 @@ export class AdminService {
     return org;
   }
 
-  async updateOrganizationSettings(
-    user: any,
-    data: any,
-    targetOrgId?: string,
-  ) {
+  async updateOrganizationSettings(user: any, data: any, targetOrgId?: string) {
     const orgId = this.getEffectiveOrgId(user, targetOrgId);
 
     const org = await this.prisma.organization.findUnique({
@@ -426,7 +422,8 @@ export class AdminService {
     if (data.features !== undefined) updateData.features = nextFeatures;
     if (data.name !== undefined) updateData.name = data.name;
     if (data.logo !== undefined) updateData.logo = data.logo;
-    if (data.primaryColor !== undefined) updateData.primaryColor = data.primaryColor;
+    if (data.primaryColor !== undefined)
+      updateData.primaryColor = data.primaryColor;
     if (data.contact !== undefined) updateData.contact = data.contact;
 
     const updated = await this.prisma.organization.update({
@@ -444,14 +441,14 @@ export class AdminService {
     if (org.domain) {
       const cacheKey = `org:public:${org.domain.toLowerCase()}`;
       await this.redis.del(cacheKey);
-      
+
       const parts = org.domain.split('.');
       if (parts.length > 1) {
         const subCacheKey = `org:public:${parts[0].toLowerCase()}`;
         await this.redis.del(subCacheKey);
       }
     }
-    
+
     await this.invalidateOrgFeatureCaches(orgId);
 
     return updated;
@@ -671,7 +668,9 @@ export class AdminService {
       _sum: { sizeBytes: true },
     });
 
-    const userIds = assets.map((a: any) => a.userId).filter(Boolean) as string[];
+    const userIds = assets
+      .map((a: any) => a.userId)
+      .filter(Boolean) as string[];
     const users = await this.prisma.user.findMany({
       where: { id: { in: userIds } },
       select: { id: true, name: true, email: true, role: true },
@@ -705,22 +704,36 @@ export class AdminService {
       return d;
     });
 
-    const activityData = await Promise.all(
-      last7Days.map(async (date) => {
-        const nextDay = new Date(date);
-        nextDay.setDate(nextDay.getDate() + 1);
+    // One grouped query rather than seven parallel COUNTs. The counts were
+    // cheap individually but each took a pool connection, so a single admin
+    // dashboard load occupied seven at once. Day boundaries stay computed in
+    // JS and are passed as parameters, so bucketing is identical to before
+    // and independent of the database session timezone.
+    const dayRanges = last7Days.map((date) => {
+      const nextDay = new Date(date);
+      nextDay.setDate(nextDay.getDate() + 1);
+      return { start: date, end: nextDay };
+    });
 
-        const count = await this.prisma.examSession.count({
-          where: {
-            startTime: {
-              gte: date,
-              lt: nextDay,
-            },
-            exam: { orgId }, // ISOLATION
-          },
-        });
-        return count;
-      }),
+    const activityRows = await this.prisma.$queryRaw<
+      Record<string, bigint | number>[]
+    >(Prisma.sql`
+      SELECT ${Prisma.join(
+        dayRanges.map(
+          ({ start, end }, index) =>
+            Prisma.sql`COUNT(*) FILTER (
+              WHERE s."startTime" >= ${start} AND s."startTime" < ${end}
+            ) AS ${Prisma.raw(`"day_${index}"`)}`,
+        ),
+        ', ',
+      )}
+      FROM "ExamSession" s
+      JOIN "Exam" e ON e."id" = s."examId"
+      WHERE e."orgId" = ${orgId}
+    `);
+
+    const activityData = dayRanges.map((_, index) =>
+      Number(activityRows[0]?.[`day_${index}`] ?? 0),
     );
 
     const dayLabels = last7Days.map((d) =>
@@ -897,7 +910,8 @@ export class AdminService {
       throw new NotFoundException('User is not a member of this organization');
     }
 
-    const nextStatus = membership?.status === 'SUSPENDED' ? 'ACTIVE' : 'SUSPENDED';
+    const nextStatus =
+      membership?.status === 'SUSPENDED' ? 'ACTIVE' : 'SUSPENDED';
 
     await this.prisma.orgMembership.upsert({
       where: { userId_orgId: { userId: id, orgId } },
@@ -1308,9 +1322,13 @@ export class AdminService {
 
   private async decrementSeatCounter(orgId: string, role: Role): Promise<void> {
     if (role === Role.STUDENT) {
-      await this.quotaService.decrementCounter(orgId, 'studentCount', 1).catch(() => {});
+      await this.quotaService
+        .decrementCounter(orgId, 'studentCount', 1)
+        .catch(() => {});
     } else if (role === Role.ADMIN || role === Role.TEACHER) {
-      await this.quotaService.decrementCounter(orgId, 'teacherSeatCount', 1).catch(() => {});
+      await this.quotaService
+        .decrementCounter(orgId, 'teacherSeatCount', 1)
+        .catch(() => {});
     }
   }
 
@@ -1414,7 +1432,12 @@ export class AdminService {
    * existing member into TEACHER/ADMIN can't overflow the org's plan tier
    * any more than inviting a brand-new one could.
    */
-  async updateUserRole(id: string, role: string, caller: any, targetOrgId?: string) {
+  async updateUserRole(
+    id: string,
+    role: string,
+    caller: any,
+    targetOrgId?: string,
+  ) {
     if (id === caller?.id) {
       throw new BadRequestException('You cannot change your own role');
     }
@@ -1475,11 +1498,19 @@ export class AdminService {
     const wasStudent = currentRole === Role.STUDENT;
     const willBeStudent = normalizedRole === Role.STUDENT;
     if (wasStudent && !willBeStudent) {
-      await this.quotaService.decrementCounter(orgId, 'studentCount', 1).catch(() => {});
-      await this.quotaService.incrementCounter(orgId, 'teacherSeatCount', 1).catch(() => {});
+      await this.quotaService
+        .decrementCounter(orgId, 'studentCount', 1)
+        .catch(() => {});
+      await this.quotaService
+        .incrementCounter(orgId, 'teacherSeatCount', 1)
+        .catch(() => {});
     } else if (!wasStudent && willBeStudent) {
-      await this.quotaService.decrementCounter(orgId, 'teacherSeatCount', 1).catch(() => {});
-      await this.quotaService.incrementCounter(orgId, 'studentCount', 1).catch(() => {});
+      await this.quotaService
+        .decrementCounter(orgId, 'teacherSeatCount', 1)
+        .catch(() => {});
+      await this.quotaService
+        .incrementCounter(orgId, 'studentCount', 1)
+        .catch(() => {});
     }
 
     await this.invalidateOrgFeatureCaches(orgId);

@@ -86,8 +86,6 @@ async function bootstrap() {
   });
 
   // Register plugin to allow Authorization header for CORS
-  // @ts-ignore
-  // Force reload
   await app.register(require('./fastify-cors-auth-header.plugin').default);
 
   // Register multipart support for file uploads. Only the certificate
@@ -248,20 +246,24 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(Number(process.env.PORT || 3000), '0.0.0.0', (err, address) => {
-    if (err) {
-      console.error(err);
-      process.exit(1);
-    }
-    console.log(`Application is listening on ${address}`);
+  await app.listen(
+    Number(process.env.PORT || 3000),
+    '0.0.0.0',
+    (err, address) => {
+      if (err) {
+        console.error(err);
+        process.exit(1);
+      }
+      console.log(`Application is listening on ${address}`);
 
-    // Initialize PeerServer
-    if (process.env.ENABLE_LOCAL_PEER_SERVER === 'true') {
-      // Using require to avoid potential type issues if @types/peer is missing
-      const { PeerServer } = require('peer');
-      const peerServer = PeerServer({ port: 9001, path: '/peer' });
-      console.log('PeerServer running on port 9001, path /peer');
-    }
-  });
+      // Initialize PeerServer
+      if (process.env.ENABLE_LOCAL_PEER_SERVER === 'true') {
+        // Using require to avoid potential type issues if @types/peer is missing
+        const { PeerServer } = require('peer');
+        const peerServer = PeerServer({ port: 9001, path: '/peer' });
+        console.log('PeerServer running on port 9001, path /peer');
+      }
+    },
+  );
 }
 bootstrap();

@@ -5,7 +5,7 @@ import { TeacherService } from '@/services/api/TeacherService';
 import { useToast } from '@/app/components/Common/Toast';
 import { Megaphone, Plus, X, Trash2, Paperclip, FileText, ImageIcon, File, Send, Check, Pencil } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import DOMPurify from 'isomorphic-dompurify';
+import { sanitizeProse } from '@/lib/sanitize';
 
 // Lazy load RichTextEditor to avoid SSR issues
 const RichTextEditor = dynamic(() => import('@/app/components/Authoring/RichTextEditor'), { ssr: false });
@@ -130,7 +130,7 @@ export default function AnnouncementsTab() {
                                         <div
                                             className="text-xs font-bold text-slate-500 line-clamp-2 prose prose-sm max-w-none"
                                             dangerouslySetInnerHTML={{
-                                                __html: DOMPurify.sanitize(String(ann.content || '')),
+                                                __html: sanitizeProse(ann.content),
                                             }}
                                         />
 
@@ -329,6 +329,7 @@ function ComposeAnnouncementModal({
             <div className="bg-white w-full max-w-3xl rounded-[48px] p-12 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[85vh] overflow-y-auto custom-scrollbar">
                 <button
                     onClick={onClose}
+                    aria-label="Close dialog"
                     className="absolute top-10 right-10 w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all hover:scale-110 active:scale-95"
                 >
                     <X size={20} strokeWidth={3} />

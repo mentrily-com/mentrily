@@ -3,7 +3,7 @@ import React, { useState, useEffect, use } from 'react';
 import AdminSettingsView from '@/app/components/Features/Admin/AdminSettingsView';
 import { SuperAdminService } from '@/services/api/SuperAdminService';
 import { siteConfig } from '@/app/config/site';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import OrgSettingsSkeleton from '@/app/components/Skeletons/OrgSettingsSkeleton';
 
 export default function SuperAdminOrganizationSettings({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = use(params);
@@ -90,7 +90,7 @@ export default function SuperAdminOrganizationSettings({ params }: { params: Pro
         }
     };
 
-    if (loading) return <DashboardSkeleton type="form" userRole="super-admin" />;
+    if (loading) return <OrgSettingsSkeleton />;
 
     if (error) {
         return (

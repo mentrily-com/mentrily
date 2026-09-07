@@ -113,7 +113,9 @@ export class QuotaService {
     };
   }
 
-  async getEffectiveFeatures(orgId?: string | null): Promise<Record<string, boolean>> {
+  async getEffectiveFeatures(
+    orgId?: string | null,
+  ): Promise<Record<string, boolean>> {
     if (!orgId) {
       return this.getPlanDefaults('FREE').features;
     }
@@ -142,7 +144,10 @@ export class QuotaService {
     };
   }
 
-  async ensureFeatureEnabled(orgId: string | null | undefined, feature: string): Promise<void> {
+  async ensureFeatureEnabled(
+    orgId: string | null | undefined,
+    feature: string,
+  ): Promise<void> {
     const effective = await this.getEffectiveFeatures(orgId);
     if (effective[feature] === true) {
       return;
@@ -171,7 +176,10 @@ export class QuotaService {
     }
   }
 
-  async checkStudentQuotaForUser(userId: string, additional = 1): Promise<void> {
+  async checkStudentQuotaForUser(
+    userId: string,
+    additional = 1,
+  ): Promise<void> {
     const limits = this.getPlanDefaults('FREE').limits;
     const current = await this.prisma.user.count({
       where: {
@@ -414,7 +422,11 @@ export class QuotaService {
     const normalizedTypes = Array.from(
       new Set(
         (input.types || [])
-          .map((value) => String(value || '').trim().toLowerCase())
+          .map((value) =>
+            String(value || '')
+              .trim()
+              .toLowerCase(),
+          )
           .filter(Boolean),
       ),
     );

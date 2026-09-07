@@ -63,7 +63,8 @@ export const SuperAdminService = {
         try {
             // Logo uploads directly to S3 (browser -> S3) first; the org is
             // then created with the resulting URL, as plain JSON.
-            const logo = data.logo instanceof File ? (await UploadService.uploadFile('org-logo', data.logo)).url : data.logo;
+            const logo =
+                data.logo instanceof File ? (await UploadService.uploadFile('org-logo', data.logo)).url : data.logo;
 
             const res = await authFetch(`/super-admin/organizations`, {
                 method: 'POST',

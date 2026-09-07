@@ -186,24 +186,24 @@ export default function Footer() {
                                 onFocus={(e) => (e.currentTarget.style.borderColor = '#008D98')}
                                 onBlur={(e) => (e.currentTarget.style.borderColor = '#E2E8F0')}
                             />
-                                <button
-                                    type="submit"
-                                    disabled={status === 'loading'}
-                                    className="px-3 py-2 text-sm font-medium text-white rounded-lg transition-colors duration-150 cursor-pointer flex items-center gap-1 shrink-0 disabled:opacity-70"
-                                    style={{ backgroundColor: '#008D98' }}
-                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#006F78')}
-                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#008D98')}
-                                >
-                                    {status === 'loading' ? (
-                                        'Joining...'
-                                    ) : status === 'success' ? (
-                                        'Subscribed!'
-                                    ) : (
-                                        <>
-                                            Subscribe <ArrowRight size={14} />
-                                        </>
-                                    )}
-                                </button>
+                            <button
+                                type="submit"
+                                disabled={status === 'loading'}
+                                className="px-3 py-2 text-sm font-medium text-white rounded-lg transition-colors duration-150 cursor-pointer flex items-center gap-1 shrink-0 disabled:opacity-70"
+                                style={{ backgroundColor: '#008D98' }}
+                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#006F78')}
+                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#008D98')}
+                            >
+                                {status === 'loading' ? (
+                                    'Joining...'
+                                ) : status === 'success' ? (
+                                    'Subscribed!'
+                                ) : (
+                                    <>
+                                        Subscribe <ArrowRight size={14} />
+                                    </>
+                                )}
+                            </button>
                         </form>
                     </div>
                 </div>

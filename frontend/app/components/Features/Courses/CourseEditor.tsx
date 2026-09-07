@@ -6,11 +6,11 @@ import { useRouter } from 'next/navigation';
 import AlertModal from '@/app/components/Common/AlertModal';
 import { useState } from 'react';
 import { AuthService } from '@/services/api/AuthService';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import CourseBuilderShellSkeleton from '@/app/components/Skeletons/CourseBuilderShellSkeleton';
 
 const CourseBuilder = dynamic(() => import('@/app/components/Authoring/CourseBuilder'), {
     ssr: false,
-    loading: () => <DashboardSkeleton type="form" userRole="teacher" noNavbar />,
+    loading: () => <CourseBuilderShellSkeleton />,
 });
 
 interface CourseEditorProps {

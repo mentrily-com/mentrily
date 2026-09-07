@@ -109,8 +109,14 @@ export default function ExamLoginPage() {
                     setIsCheckingStatus(false);
                 } catch (err: any) {
                     if (err.message?.includes('IP address is not whitelisted')) {
-                        setError('Your network is not allowed to access this exam. Ask your teacher to add your IP to the allowed list.');
-                    } else if (err.status === 401 || err.message?.includes('401') || err.message?.includes('Access denied')) {
+                        setError(
+                            'Your network is not allowed to access this exam. Ask your teacher to add your IP to the allowed list.',
+                        );
+                    } else if (
+                        err.status === 401 ||
+                        err.message?.includes('401') ||
+                        err.message?.includes('Access denied')
+                    ) {
                         setError('This exam is not accessible right now. Please try again or contact your teacher.');
                     } else {
                         setError('Failed to load exam information. Please check the URL or try again later.');
@@ -137,7 +143,9 @@ export default function ExamLoginPage() {
         } else if (errorType === 'terminated') {
             setError('Your exam session has been terminated by the administrator. Contact your teacher.');
         } else if (errorType === 'ip_blocked') {
-            setError('Your network is not allowed to access this exam. Ask your teacher to add your IP to the allowed list.');
+            setError(
+                'Your network is not allowed to access this exam. Ask your teacher to add your IP to the allowed list.',
+            );
         } else if (errorType === 'app_required') {
             setError('APP_REQUIRED');
         } else if (errorType === 'not_student') {
@@ -714,8 +722,7 @@ export default function ExamLoginPage() {
                     <div
                         className="absolute inset-0 opacity-[0.07]"
                         style={{
-                            backgroundImage:
-                                'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
+                            backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
                             backgroundSize: '28px 28px',
                         }}
                     />
@@ -772,7 +779,10 @@ export default function ExamLoginPage() {
                                     'Use a stable internet connection and close other tabs.',
                                     'Once you start, the timer runs until you submit.',
                                 ].map((tip) => (
-                                    <li key={tip} className="flex items-start gap-2.5 text-sm text-indigo-50 font-medium">
+                                    <li
+                                        key={tip}
+                                        className="flex items-start gap-2.5 text-sm text-indigo-50 font-medium"
+                                    >
                                         <CheckCircle2 size={15} className="mt-0.5 shrink-0 text-emerald-300" />
                                         {tip}
                                     </li>

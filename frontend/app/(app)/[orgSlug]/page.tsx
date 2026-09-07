@@ -101,10 +101,7 @@ export default async function PublicPlaygroundPage({ params }: PageProps) {
         >
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
-            />
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
             {entry.kind === 'code' && <PlaygroundCore initialLangId={entry.langId} publicMode />}
             {entry.kind === 'web' && <WebPlaygroundPage embeddedShell={false} />}
             {entry.kind === 'notebook' && <PythonNotebookPage embeddedShell={false} />}

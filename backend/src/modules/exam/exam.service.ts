@@ -6,6 +6,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRedis } from '@nestjs-modules/ioredis';
+import { randomBytes } from 'crypto';
 import { Redis } from 'ioredis';
 import { SupabaseService } from '../../services/supabase/supabase.service';
 import {
@@ -42,7 +43,9 @@ export class ExamService {
       (String((error as any)?.meta?.column || '').includes(
         'Exam.passingPercentage',
       ) ||
-        String((error as any)?.meta?.column || '').includes('Exam.maxAttempts') ||
+        String((error as any)?.meta?.column || '').includes(
+          'Exam.maxAttempts',
+        ) ||
         String((error as any)?.meta?.column || '').includes(
           'Exam.attemptBufferMins',
         ))
@@ -60,7 +63,10 @@ export class ExamService {
     );
   }
 
-  private async calculateCourseCompletionPercent(courseId: string, userId: string) {
+  private async calculateCourseCompletionPercent(
+    courseId: string,
+    userId: string,
+  ) {
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
       select: {
@@ -78,7 +84,9 @@ export class ExamService {
 
     if (!course) return null;
 
-    const unitIds = course.modules.flatMap((module) => module.units.map((unit) => unit.id));
+    const unitIds = course.modules.flatMap((module) =>
+      module.units.map((unit) => unit.id),
+    );
     const completedRows =
       unitIds.length > 0
         ? await this.prisma.unitSubmission.findMany({
@@ -92,7 +100,10 @@ export class ExamService {
           })
         : [];
 
-    const percent = unitIds.length > 0 ? Math.round((completedRows.length / unitIds.length) * 100) : 0;
+    const percent =
+      unitIds.length > 0
+        ? Math.round((completedRows.length / unitIds.length) * 100)
+        : 0;
     return {
       percent,
       course: {
@@ -332,7 +343,9 @@ export class ExamService {
         foundData.examMode = examModeRecord?.examMode;
       }
 
-      if (!(await this.canAccessPublicExamResource(foundData, user?.orgId, user))) {
+      if (
+        !(await this.canAccessPublicExamResource(foundData, user?.orgId, user))
+      ) {
         throw new NotFoundException('Exam not found');
       }
 
@@ -350,12 +363,32 @@ export class ExamService {
     const cached = await this.redis.get(cacheKey);
 
     const entity = cached ? JSON.parse(cached) : null;
+    const includeSensitive = !shouldSanitizeSensitiveContent(user);
+    // transformExam walks every section and question (normalizing types,
+    // building the questions map, sanitizing each one) -- real CPU work
+    // that was previously redone on every request even when the raw exam
+    // row was served from cache. The transform's shape only depends on the
+    // exam row and the includeSensitive flag (teacher/proctor vs student
+    // view), so it's safe to cache per (slug, sensitivity) pair with the
+    // same TTL as the raw row, invalidated together in invalidateExamCaches.
+    const transformedCacheKey = `exam:content:transformed:${slug}:${includeSensitive ? 'sensitive' : 'public'}`;
 
     if (entity) {
-      if (!(await this.canAccessPublicExamResource(entity, requestOrgId, user))) {
+      if (
+        !(await this.canAccessPublicExamResource(entity, requestOrgId, user))
+      ) {
         throw new NotFoundException('Assessment not found or access denied');
       }
-      return this.transformExam(entity, !shouldSanitizeSensitiveContent(user));
+      const cachedTransformed = await this.redis.get(transformedCacheKey);
+      if (cachedTransformed) return JSON.parse(cachedTransformed);
+      const transformed = this.transformExam(entity, includeSensitive);
+      await this.redis.set(
+        transformedCacheKey,
+        JSON.stringify(transformed),
+        'EX',
+        3600,
+      );
+      return transformed;
     }
 
     // 1. Try finding all at once using Promise.all to reduce latency
@@ -385,7 +418,14 @@ export class ExamService {
       if (!(await this.canAccessPublicExamResource(exam, requestOrgId, user))) {
         throw new NotFoundException('Assessment not found or access denied');
       }
-      return this.transformExam(exam, !shouldSanitizeSensitiveContent(user));
+      const transformed = this.transformExam(exam, includeSensitive);
+      await this.redis.set(
+        transformedCacheKey,
+        JSON.stringify(transformed),
+        'EX',
+        3600,
+      );
+      return transformed;
     }
 
     if (courseTest) {
@@ -397,7 +437,13 @@ export class ExamService {
       // Cache
       await this.redis.set(cacheKey, JSON.stringify(mappedTest), 'EX', 3600);
 
-      if (!(await this.canAccessPublicExamResource(mappedTest, requestOrgId, user))) {
+      if (
+        !(await this.canAccessPublicExamResource(
+          mappedTest,
+          requestOrgId,
+          user,
+        ))
+      ) {
         throw new NotFoundException('Assessment not found');
       }
 
@@ -412,7 +458,9 @@ export class ExamService {
     }
 
     if (course) {
-      if (!(await this.canAccessPublicExamResource(course, requestOrgId, user))) {
+      if (
+        !(await this.canAccessPublicExamResource(course, requestOrgId, user))
+      ) {
         throw new NotFoundException('Assessment not found');
       }
       return this.transformCourse(
@@ -556,7 +604,9 @@ export class ExamService {
       throw new NotFoundException(`Exam not found for slug: ${slug}`);
     }
 
-    if (!(await this.canAccessPublicExamResource(payload, requestOrgId, user))) {
+    if (
+      !(await this.canAccessPublicExamResource(payload, requestOrgId, user))
+    ) {
       throw new NotFoundException(`Exam not found for slug: ${slug}`);
     }
 
@@ -879,7 +929,7 @@ export class ExamService {
     metadata?: any,
   ) {
     const lockKey = `examstart:lock:${userId}:${examId}`;
-    const lockToken = `${Date.now()}:${Math.random().toString(36).slice(2)}`;
+    const lockToken = `${Date.now()}:${randomBytes(9).toString('hex')}`;
     let acquired = false;
 
     for (let attempt = 0; attempt < 25; attempt += 1) {
@@ -898,7 +948,14 @@ export class ExamService {
       console.warn(
         `[ExamService] startSession lock contended for ${lockKey}, proceeding without it`,
       );
-      return this.startSessionUnlocked(userId, examId, ip, deviceId, tabId, metadata);
+      return this.startSessionUnlocked(
+        userId,
+        examId,
+        ip,
+        deviceId,
+        tabId,
+        metadata,
+      );
     }
 
     try {
@@ -941,19 +998,23 @@ export class ExamService {
 
       let latestSession: any;
       try {
-        latestSession = activeSession || await this.prisma.examSession.findFirst({
-          where: { userId, examId },
-          orderBy: [{ attemptNumber: 'desc' }, { createdAt: 'desc' }],
-        });
+        latestSession =
+          activeSession ||
+          (await this.prisma.examSession.findFirst({
+            where: { userId, examId },
+            orderBy: [{ attemptNumber: 'desc' }, { createdAt: 'desc' }],
+          }));
       } catch (error) {
         if (!this.isMissingExamSessionAttemptNumberError(error)) {
           throw error;
         }
 
-        latestSession = activeSession || await this.prisma.examSession.findFirst({
-          where: { userId, examId },
-          orderBy: [{ createdAt: 'desc' }],
-        });
+        latestSession =
+          activeSession ||
+          (await this.prisma.examSession.findFirst({
+            where: { userId, examId },
+            orderBy: [{ createdAt: 'desc' }],
+          }));
       }
 
       if (exam?.linkedCourseId) {
@@ -988,7 +1049,10 @@ export class ExamService {
                 typeof latestSession.answers === 'string'
                   ? JSON.parse(latestSession.answers)
                   : latestSession.answers || {};
-              (latestSession as any).answers = { ...dbAnswers, ...redisAnswers };
+              (latestSession as any).answers = {
+                ...dbAnswers,
+                ...redisAnswers,
+              };
             }
           } catch (e) {
             console.error(
@@ -1013,7 +1077,10 @@ export class ExamService {
                 AND "status" = 'IN_PROGRESS'
             `;
             (latestSession as any).score = null;
-            if ((latestSession as any).answers && typeof (latestSession as any).answers === 'object') {
+            if (
+              (latestSession as any).answers &&
+              typeof (latestSession as any).answers === 'object'
+            ) {
               delete (latestSession as any).answers._internal_marks;
               delete (latestSession as any).answers._internal_score;
             }
@@ -1035,13 +1102,13 @@ export class ExamService {
 
         const nextAttemptNumber = Number(latestSession?.attemptNumber || 0) + 1;
         const createData: Record<string, unknown> = {
-            userId,
-            examId,
-            ipAddress: ip,
-            deviceId,
-            startTime: new Date(),
-            attemptNumber: nextAttemptNumber,
-            answers: metadata ? { _internal_metadata: metadata } : {},
+          userId,
+          examId,
+          ipAddress: ip,
+          deviceId,
+          startTime: new Date(),
+          attemptNumber: nextAttemptNumber,
+          answers: metadata ? { _internal_metadata: metadata } : {},
         };
 
         try {
@@ -1168,7 +1235,9 @@ export class ExamService {
       orgId: string | null;
       creatorId: string | null;
       data: any;
-    } | null = cached ? JSON.parse(cached) : await this.findExamOrTestBySlugForStatus(slug);
+    } | null = cached
+      ? JSON.parse(cached)
+      : await this.findExamOrTestBySlugForStatus(slug);
 
     if (!cached && found) {
       await this.redis.set(cacheKey, JSON.stringify(found), 'EX', 30);
@@ -1294,7 +1363,8 @@ export class ExamService {
     user?: any,
   ): Promise<boolean> {
     if (String(user?.role || '').toUpperCase() === 'SUPER_ADMIN') return true;
-    if (resource.creatorId && user?.id && resource.creatorId === user.id) return true;
+    if (resource.creatorId && user?.id && resource.creatorId === user.id)
+      return true;
     if (!resource.orgId) {
       return this.isPlatformWideOrglessResource(resource);
     }
@@ -1390,7 +1460,10 @@ export class ExamService {
    * another person's personal exam/course by slug or id. SUPER_ADMIN exempt.
    */
   private assertTenantOrOwnerAccess(
-    resource: { orgId?: string | null; creatorId?: string | null } | null | undefined,
+    resource:
+      | { orgId?: string | null; creatorId?: string | null }
+      | null
+      | undefined,
     user: any,
     message = 'Not found or access denied',
   ): void {
@@ -1527,7 +1600,7 @@ export class ExamService {
   async getFeedbacks(examId: string) {
     return await this.prisma.feedback.findMany({
       where: { examId },
-      include: { user: true },
+      include: { user: { select: { name: true, email: true } } },
       orderBy: { timestamp: 'desc' },
     });
   }
@@ -1559,7 +1632,12 @@ export class ExamService {
 
   public calculateScoreDetails(answers: any, questionsData: any) {
     if (!answers || !questionsData) {
-      return { earnedMarks: 0, totalMarks: 0, percentage: 0, marksByQuestion: {} };
+      return {
+        earnedMarks: 0,
+        totalMarks: 0,
+        percentage: 0,
+        marksByQuestion: {},
+      };
     }
 
     let earnedMarks = 0;
@@ -1601,9 +1679,9 @@ export class ExamService {
             .filter((opt: any) => opt.isCorrect)
             .map((opt: any) => String(opt.id))
             .sort();
-          const selectedIds = (Array.isArray(studentAnswer)
-            ? studentAnswer
-            : [studentAnswer])
+          const selectedIds = (
+            Array.isArray(studentAnswer) ? studentAnswer : [studentAnswer]
+          )
             .filter((value: any) => value !== undefined && value !== null)
             .map((value: any) => String(value))
             .sort();
@@ -1611,7 +1689,9 @@ export class ExamService {
           if (
             correctIds.length > 0 &&
             correctIds.length === selectedIds.length &&
-            correctIds.every((id: string, index: number) => id === selectedIds[index])
+            correctIds.every(
+              (id: string, index: number) => id === selectedIds[index],
+            )
           ) {
             questionScore = questionMarks;
           }
@@ -1850,7 +1930,8 @@ export class ExamService {
     const attemptBufferMins = Number(exam.attemptBufferMins ?? 0);
     if (latestAttempt?.endTime && attemptBufferMins > 0) {
       const resumesAt = new Date(
-        new Date(latestAttempt.endTime).getTime() + attemptBufferMins * 60 * 1000,
+        new Date(latestAttempt.endTime).getTime() +
+          attemptBufferMins * 60 * 1000,
       );
       if (resumesAt.getTime() > Date.now()) {
         throw new ConflictException({

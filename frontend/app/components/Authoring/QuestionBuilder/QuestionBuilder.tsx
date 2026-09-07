@@ -7,16 +7,16 @@ import MCQEditor from './modules/MCQEditor';
 import CodingEditor from './modules/CodingEditor';
 import ReadingEditor from './modules/ReadingEditor';
 import NotebookEditor from './modules/NotebookEditor';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import RichEditorFieldSkeleton from '@/app/components/Skeletons/RichEditorFieldSkeleton';
 
 const RichTextEditor = dynamic(() => import('../RichTextEditor'), {
     ssr: false,
-    loading: () => <DashboardSkeleton type="form" noNavbar />,
+    loading: () => <RichEditorFieldSkeleton />,
 });
 
 const WebEditor = dynamic(() => import('./modules/WebEditor'), {
     ssr: false,
-    loading: () => <DashboardSkeleton type="form" noNavbar />,
+    loading: () => <RichEditorFieldSkeleton />,
 });
 
 interface QuestionBuilderProps {

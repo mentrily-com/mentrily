@@ -87,7 +87,8 @@ export default function PricingTeaser() {
                         Clear limits, clean upgrade path
                     </h2>
                     <p className="mt-3 text-sm max-w-lg mx-auto" style={{ color: '#64748B' }}>
-                        Free works personally. Starter and Pro add team seats. Enterprise unlocks custom domains and white-label branding.
+                        Free works personally. Starter and Pro add team seats. Enterprise unlocks custom domains and
+                        white-label branding.
                     </p>
                 </motion.div>
 
@@ -107,16 +108,12 @@ export default function PricingTeaser() {
                             }`}
                             style={{
                                 backgroundColor: tier.highlighted ? '#FFFFFF' : '#FFFFFF',
-                                border: tier.highlighted
-                                    ? '2px solid transparent'
-                                    : '1px solid #E2E8F0',
+                                border: tier.highlighted ? '2px solid transparent' : '1px solid #E2E8F0',
                                 backgroundImage: tier.highlighted
                                     ? 'linear-gradient(#FFFFFF, #FFFFFF), linear-gradient(135deg, #008D98, #10B981)'
                                     : 'none',
                                 backgroundOrigin: 'border-box',
-                                backgroundClip: tier.highlighted
-                                    ? 'padding-box, border-box'
-                                    : 'border-box',
+                                backgroundClip: tier.highlighted ? 'padding-box, border-box' : 'border-box',
                                 boxShadow: tier.highlighted
                                     ? '0 8px 32px rgba(0,141,152,0.12), 0 2px 8px rgba(0,0,0,0.04)'
                                     : '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.03)',
@@ -124,7 +121,8 @@ export default function PricingTeaser() {
                             onMouseEnter={(e) => {
                                 if (!tier.highlighted) {
                                     e.currentTarget.style.transform = 'translateY(-3px)';
-                                    e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04)';
+                                    e.currentTarget.style.boxShadow =
+                                        '0 8px 24px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04)';
                                 } else {
                                     e.currentTarget.style.transform = 'translateY(-4px) scale(1.01)';
                                 }
@@ -132,7 +130,8 @@ export default function PricingTeaser() {
                             onMouseLeave={(e) => {
                                 if (!tier.highlighted) {
                                     e.currentTarget.style.transform = 'translateY(0)';
-                                    e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.03)';
+                                    e.currentTarget.style.boxShadow =
+                                        '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.03)';
                                 } else {
                                     e.currentTarget.style.transform = 'translateY(0) scale(1)';
                                 }
@@ -170,7 +169,11 @@ export default function PricingTeaser() {
 
                             <ul className="space-y-2.5 mb-6">
                                 {tier.features.map((f) => (
-                                    <li key={f} className="flex items-center gap-2.5 text-sm" style={{ color: '#475569' }}>
+                                    <li
+                                        key={f}
+                                        className="flex items-center gap-2.5 text-sm"
+                                        style={{ color: '#475569' }}
+                                    >
                                         <div
                                             className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
                                             style={{ backgroundColor: '#ECFDF5' }}
@@ -212,7 +215,10 @@ export default function PricingTeaser() {
                         style={{ color: '#008D98' }}
                     >
                         See full pricing & Enterprise plan
-                        <ArrowRight size={15} className="transition-transform duration-200 group-hover:translate-x-0.5" />
+                        <ArrowRight
+                            size={15}
+                            className="transition-transform duration-200 group-hover:translate-x-0.5"
+                        />
                     </Link>
                 </motion.div>
             </div>

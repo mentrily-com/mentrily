@@ -96,8 +96,7 @@ export default clerkMiddleware(async (auth, request) => {
         (sessionClaims?.metadata as Record<string, unknown> | undefined) ||
         (sessionClaims?.public_metadata as Record<string, unknown> | undefined) ||
         (sessionClaims?.unsafe_metadata as Record<string, unknown> | undefined);
-    const claimRole =
-        getStringValue(sessionClaims, 'role') || getStringValue(metadata, 'role');
+    const claimRole = getStringValue(sessionClaims, 'role') || getStringValue(metadata, 'role');
     const claimOrgId =
         String(authSnapshot.orgId || '').trim() ||
         getStringValue(sessionClaims, 'org_id') ||

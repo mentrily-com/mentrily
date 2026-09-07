@@ -48,7 +48,7 @@ import QuestionBuilder from './QuestionBuilder/QuestionBuilder';
 import StudentPreview from './StudentPreview';
 import AlertModal from '../Common/AlertModal';
 import { useToast } from '../Common/Toast';
-import DashboardSkeleton from '../Skeletons/DashboardSkeleton';
+import RichTextEditorSkeleton from '../Skeletons/RichTextEditorSkeleton';
 import { usePlan } from '@/hooks/usePlan';
 import UpgradeModal from '../Common/UpgradeModal';
 import CourseExamSection from '../Features/Courses/CourseExamSection';
@@ -58,7 +58,7 @@ import { getAvailableImportTypes } from './aiImport';
 
 const RichTextEditor = dynamic(() => import('./RichTextEditor'), {
     ssr: false,
-    loading: () => <DashboardSkeleton type="form" noNavbar />,
+    loading: () => <RichTextEditorSkeleton />,
 });
 
 const createDefaultCourse = (): Course => ({
@@ -125,11 +125,11 @@ const normalizeCourse = (raw?: Course): Course => {
         sections: normalizeSections(base.sections),
         tests: Array.isArray(base.tests)
             ? base.tests.map((section, index) => ({
-                ...section,
-                id: section.id || `test-${index + 1}`,
-                title: section.title || `Test ${index + 1}`,
-                questions: Array.isArray(section.questions) ? section.questions.map(normalizeQuestion) : [],
-            }))
+                  ...section,
+                  id: section.id || `test-${index + 1}`,
+                  title: section.title || `Test ${index + 1}`,
+                  questions: Array.isArray(section.questions) ? section.questions.map(normalizeQuestion) : [],
+              }))
             : [],
     };
 };
@@ -170,7 +170,7 @@ export default function CourseBuilder({
         message: string;
         type?: 'danger' | 'warning' | 'info';
         onConfirm: () => void;
-    }>({ isOpen: false, title: '', message: '', onConfirm: () => { } });
+    }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
     const [showComingSoon, setShowComingSoon] = useState(false);
     const [certificateTemplates, setCertificateTemplates] = useState<Array<{ id: string; name: string }>>([]);
     const [upgradeConfig, setUpgradeConfig] = useState<{ isOpen: boolean; title: string; message: string }>({
@@ -317,46 +317,46 @@ export default function CourseBuilder({
             options:
                 type === 'MCQ' || type === 'MultiSelect'
                     ? [
-                        { id: `opt-1`, text: 'Option 1', isCorrect: true },
-                        { id: `opt-2`, text: 'Option 2', isCorrect: false },
-                    ]
+                          { id: `opt-1`, text: 'Option 1', isCorrect: true },
+                          { id: `opt-2`, text: 'Option 2', isCorrect: false },
+                      ]
                     : [],
             codingConfig:
                 type === 'Coding'
                     ? {
-                        templates: {
-                            javascript: { head: '', body: '// Write your code here', tail: '', solution: '' },
-                            python: { head: '', body: '# Write your code here', tail: '', solution: '' },
-                        },
-                        testCases: [],
-                        showTestCases: true,
-                    }
+                          templates: {
+                              javascript: { head: '', body: '// Write your code here', tail: '', solution: '' },
+                              python: { head: '', body: '# Write your code here', tail: '', solution: '' },
+                          },
+                          testCases: [],
+                          showTestCases: true,
+                      }
                     : undefined,
             webConfig:
                 type === 'Web'
                     ? {
-                        html: '<h1>Hello World</h1>',
-                        css: 'body { color: blue; }',
-                        js: '',
-                        showFiles: { html: true, css: true, js: true },
-                        testCases: [],
-                    }
+                          html: '<h1>Hello World</h1>',
+                          css: 'body { color: blue; }',
+                          js: '',
+                          showFiles: { html: true, css: true, js: true },
+                          testCases: [],
+                      }
                     : undefined,
             readingConfig:
                 type === 'Reading'
                     ? {
-                        contentBlocks: [{ id: '1', type: 'text', content: '<p>Start writing your content...</p>' }],
-                    }
+                          contentBlocks: [{ id: '1', type: 'text', content: '<p>Start writing your content...</p>' }],
+                      }
                     : undefined,
             notebookConfig:
                 type === 'Notebook'
                     ? {
-                        initialCode:
-                            '# Write your Python code here\nimport numpy as np\nimport matplotlib.pyplot as plt\n\nprint("Hello from Python Notebook!")',
-                        language: 'python',
-                        maxExecutionTime: 10,
-                        allowedLibraries: ['numpy', 'matplotlib'],
-                    }
+                          initialCode:
+                              '# Write your Python code here\nimport numpy as np\nimport matplotlib.pyplot as plt\n\nprint("Hello from Python Notebook!")',
+                          language: 'python',
+                          maxExecutionTime: 10,
+                          allowedLibraries: ['numpy', 'matplotlib'],
+                      }
                     : undefined,
         };
 
@@ -512,10 +512,10 @@ export default function CourseBuilder({
         activeStep === 'metadata'
             ? 'Course settings'
             : activeQuestion
-                ? 'Question editor'
-                : activeTab === 'unit'
-                    ? 'Curriculum builder'
-                    : 'Assessment builder';
+              ? 'Question editor'
+              : activeTab === 'unit'
+                ? 'Curriculum builder'
+                : 'Assessment builder';
     const courseStatus = course.status === 'Published' ? 'Published' : 'Draft';
     const activeQuestionCount = activeSection?.questions?.length || 0;
     const builderStats = [
@@ -539,17 +539,20 @@ export default function CourseBuilder({
                         {
                             element: '[data-element-id="course-builder-title"]',
                             title: 'Name the course first',
-                            description: 'Set the course title before you build so modules, tests, and linked outcomes stay organized.',
+                            description:
+                                'Set the course title before you build so modules, tests, and linked outcomes stay organized.',
                         },
                         {
                             element: '[data-element-id="course-builder-units"]',
                             title: 'Build the learning flow here',
-                            description: 'Add sections and questions to shape the course path your learners will move through.',
+                            description:
+                                'Add sections and questions to shape the course path your learners will move through.',
                         },
                         {
                             element: '[data-element-id="course-builder-linked-exam"]',
                             title: 'Finish with a linked exam',
-                            description: 'After saving the course, link an exam to control unlock %, pass %, retries, and buffers.',
+                            description:
+                                'After saving the course, link an exam to control unlock %, pass %, retries, and buffers.',
                         },
                     ]}
                 />
@@ -625,7 +628,13 @@ export default function CourseBuilder({
                             onClick={() => setPreviewMode(previewMode ? null : 'desktop')}
                             disabled={!activeQuestion}
                             className={`cursor-pointer rounded-xl p-2.5 transition-colors disabled:opacity-30 ${previewMode ? 'bg-[var(--brand)] text-white' : 'text-slate-400 hover:bg-slate-50 hover:text-[var(--brand)]'}`}
-                            title={activeQuestion ? (previewMode ? 'Close preview' : 'Preview question') : 'Select a question first'}
+                            title={
+                                activeQuestion
+                                    ? previewMode
+                                        ? 'Close preview'
+                                        : 'Preview question'
+                                    : 'Select a question first'
+                            }
                         >
                             {previewMode ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
@@ -673,12 +682,12 @@ export default function CourseBuilder({
                                         rawStatus === 'Published' || rawStatus === 'Draft' || rawStatus === 'Archived'
                                             ? rawStatus
                                             : typeof sanitized.isVisible === 'boolean'
-                                                ? sanitized.isVisible
-                                                    ? 'Published'
-                                                    : 'Draft'
-                                                : isNewCourse
-                                                    ? 'Published'
-                                                    : 'Draft';
+                                              ? sanitized.isVisible
+                                                  ? 'Published'
+                                                  : 'Draft'
+                                              : isNewCourse
+                                                ? 'Published'
+                                                : 'Draft';
 
                                     if (isNewCourse && normalizedStatus !== 'Published') {
                                         normalizedStatus = 'Published';
@@ -783,7 +792,9 @@ export default function CourseBuilder({
                             ) : (
                                 <Save size={16} />
                             )}
-                            <span className="hidden sm:inline">{course.id && !course.id.startsWith('course-') ? 'Update Course' : 'Publish Course'}</span>
+                            <span className="hidden sm:inline">
+                                {course.id && !course.id.startsWith('course-') ? 'Update Course' : 'Publish Course'}
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -803,13 +814,21 @@ export default function CourseBuilder({
                 >
                     <div className="border-b border-slate-200 bg-white px-4 py-3">
                         <div className="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                            <span><span className="text-slate-900 font-bold">{totalUnits}</span> units</span>
+                            <span>
+                                <span className="text-slate-900 font-bold">{totalUnits}</span> units
+                            </span>
                             <span className="h-3 w-px bg-slate-200" />
-                            <span><span className="text-slate-900 font-bold">{totalQuestions}</span> qs</span>
+                            <span>
+                                <span className="text-slate-900 font-bold">{totalQuestions}</span> qs
+                            </span>
                             <span className="h-3 w-px bg-slate-200" />
-                            <span><span className="text-slate-900 font-bold">{totalTests}</span> tests</span>
+                            <span>
+                                <span className="text-slate-900 font-bold">{totalTests}</span> tests
+                            </span>
                             <span className="h-3 w-px bg-slate-200" />
-                            <span><span className="text-[var(--brand)] font-bold">{activeQuestionCount}</span> active</span>
+                            <span>
+                                <span className="text-[var(--brand)] font-bold">{activeQuestionCount}</span> active
+                            </span>
                         </div>
                     </div>
 
@@ -852,6 +871,7 @@ export default function CourseBuilder({
                                     {activeTab === 'unit' ? 'Learning Modules' : 'Exam Modules'}
                                     <button
                                         onClick={addSection}
+                                        aria-label={activeTab === 'unit' ? 'Add learning module' : 'Add exam module'}
                                         className="text-[var(--brand)] hover:scale-110 transition-transform"
                                     >
                                         <Plus size={16} strokeWidth={3} />
@@ -1228,11 +1248,11 @@ export default function CourseBuilder({
                                         list.map((s) =>
                                             s.id === activeSectionId
                                                 ? {
-                                                    ...s,
-                                                    questions: (s.questions || []).map((q: any) =>
-                                                        q.id === activeQuestionId ? { ...q, ...updates } : q,
-                                                    ),
-                                                }
+                                                      ...s,
+                                                      questions: (s.questions || []).map((q: any) =>
+                                                          q.id === activeQuestionId ? { ...q, ...updates } : q,
+                                                      ),
+                                                  }
                                                 : s,
                                         );
 

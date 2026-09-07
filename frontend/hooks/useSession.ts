@@ -31,7 +31,10 @@ const ALLOWED_ROLES = new Set(['STUDENT', 'TEACHER', 'ADMIN', 'SUPER_ADMIN']);
 const SESSION_CACHE_KEY = 'bc-session-snapshot';
 
 function normalizeRole(value?: string | null): string {
-    return String(value || '').trim().toUpperCase().replace('-', '_');
+    return String(value || '')
+        .trim()
+        .toUpperCase()
+        .replace('-', '_');
 }
 
 function readSessionHint(): SessionHint | null {
@@ -135,7 +138,9 @@ function readPendingDashboardRole(): PendingDashboardRole | null {
 
     try {
         const parsed = JSON.parse(raw) as PendingDashboardRole;
-        const role = String(parsed?.role || '').trim().toUpperCase();
+        const role = String(parsed?.role || '')
+            .trim()
+            .toUpperCase();
         const expiresAt = Number(parsed?.expiresAt || 0);
 
         if (!role || !ALLOWED_ROLES.has(role) || !Number.isFinite(expiresAt) || expiresAt <= Date.now()) {
@@ -173,8 +178,7 @@ export function useSession() {
         (pathname?.startsWith('/dashboard/creator') && (storedRole === 'ADMIN' || storedRole === 'TEACHER')
             ? storedRole
             : '');
-    const isWorkspaceRoute =
-        pathname?.startsWith('/dashboard') || pathname?.startsWith('/playground');
+    const isWorkspaceRoute = pathname?.startsWith('/dashboard') || pathname?.startsWith('/playground');
     const isHintCompatibleWithRoute =
         !pathname ||
         !effectiveHintRole ||
@@ -183,8 +187,7 @@ export function useSession() {
             !pathname.startsWith('/dashboard/learner')) ||
         (pathname.startsWith('/dashboard/creator') &&
             (effectiveHintRole === 'TEACHER' || effectiveHintRole === 'ADMIN')) ||
-        (pathname.startsWith('/dashboard/super-admin') &&
-            effectiveHintRole === 'SUPER_ADMIN') ||
+        (pathname.startsWith('/dashboard/super-admin') && effectiveHintRole === 'SUPER_ADMIN') ||
         (pathname.startsWith('/dashboard/learner') && effectiveHintRole === 'STUDENT');
     const placeholderSession =
         isLoaded && isSignedIn && cachedSession?.id && isHintCompatibleWithRoute
@@ -193,11 +196,11 @@ export function useSession() {
                   role: pendingRole || cachedSession.role,
               }
             : isLoaded && isSignedIn && sessionHint?.id && isHintCompatibleWithRoute
-            ? {
-                  ...sessionHint,
-                  role: effectiveHintRole || sessionHint.role,
-              }
-            : undefined;
+              ? {
+                    ...sessionHint,
+                    role: effectiveHintRole || sessionHint.role,
+                }
+              : undefined;
 
     const { data, isLoading, isPlaceholderData, error, refetch } = useQuery({
         queryKey: ['session', sessionId || userId || hintedUserId || 'anonymous'],

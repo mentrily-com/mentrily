@@ -1,18 +1,18 @@
-"use client";
-import React from "react";
-import UnitSidebar from "@/app/components/UnitSidebar";
-import UnitRenderer from "@/app/components/UnitRenderer";
+'use client';
+import React from 'react';
+import UnitSidebar from '@/app/components/UnitSidebar';
+import UnitRenderer from '@/app/components/UnitRenderer';
 
 const sidebarUnits = [
-    { id: "1", type: "Reading", title: "Introduction to Web development", done: true, active: true },
-    { id: "2", type: "Coding", title: "JS: Object Methods", done: false, active: false },
-    { id: "3", type: "Coding", title: "CSS Display: Float and Clear", done: false, active: false },
+    { id: '1', type: 'Reading', title: 'Introduction to Web development', done: true, active: true },
+    { id: '2', type: 'Coding', title: 'JS: Object Methods', done: false, active: false },
+    { id: '3', type: 'Coding', title: 'CSS Display: Float and Clear', done: false, active: false },
 ];
 
 export default function ReadingUnitPage() {
     const [showSidebar, setShowSidebar] = React.useState(false);
 
-    const sidebarUnitsMapped = sidebarUnits.map(u => ({ ...u, done: u.done, active: u.active }));
+    const sidebarUnitsMapped = sidebarUnits.map((u) => ({ ...u, done: u.done, active: u.active }));
 
     return (
         <div className="h-screen flex flex-col bg-white overflow-hidden font-sans">
@@ -35,14 +35,14 @@ export default function ReadingUnitPage() {
                             <h2 class="text-xl font-black text-slate-800 mt-12 mb-4">Code Demonstration</h2>
                             <p>Below is an example of a simple function in C++ that demonstrates logic execution. You can run this directly to see the output.</p>
                         `,
-                        topic: "Basics",
-                        difficulty: "Easy",
+                        topic: 'Basics',
+                        difficulty: 'Easy',
                         codingConfig: {
-                            languageId: "cpp",
+                            languageId: 'cpp',
                             initialCode: `int addNumbers(int a, int b)\n{\n    // function definition\n    int result;\n    result = a + b;\n    return result;\n}\n\n// Main logic to test\n#include <iostream>\nint main() {\n    std::cout << "Sum = " << addNumbers(20, 20) << std::endl;\n    return 0;\n}`,
                             header: '',
-                            footer: ''
-                        }
+                            footer: '',
+                        },
                     }}
                     showSidebar={showSidebar}
                     onToggleSidebar={() => setShowSidebar(!showSidebar)}

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, X, ChevronRight, Loader2, CheckCircle2, RefreshCw, BarChart3 } from 'lucide-react';
 import { TeacherService } from '@/services/api/TeacherService';
+import { useModalA11y } from '@/hooks/useModalA11y';
 import { useToast } from '../Common/Toast';
 
 interface AiCourseBuilderModalProps {
@@ -18,6 +19,8 @@ export default function AiCourseBuilderModal({ isOpen, onClose, onGenerateFull }
     const [step, setStep] = useState<1 | 2 | 3>(1);
     const [isLoading, setIsLoading] = useState(false);
     const [outline, setOutline] = useState<any>(null);
+    const panelRef = useRef<HTMLDivElement>(null);
+    useModalA11y(panelRef, isOpen, onClose);
 
     // Step 1 State
     const [config, setConfig] = useState({
@@ -154,10 +157,15 @@ export default function AiCourseBuilderModal({ isOpen, onClose, onGenerateFull }
                         className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50"
                     />
                     <motion.div
+                        ref={panelRef}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="AI Course Generator"
+                        tabIndex={-1}
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="fixed left-1/2 top-1/2 z-50 mt-0 flex max-h-[calc(100dvh-1rem)] w-[calc(100%-1rem)] max-w-4xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-slate-100/50 bg-white shadow-2xl sm:mt-4 sm:max-h-[85vh] sm:w-[calc(100%-2rem)] sm:rounded-3xl"
+                        className="fixed left-1/2 top-1/2 z-50 mt-0 flex max-h-[calc(100dvh-1rem)] w-[calc(100%-1rem)] max-w-4xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-slate-100/50 bg-white shadow-2xl sm:mt-4 sm:max-h-[85vh] sm:w-[calc(100%-2rem)] sm:rounded-3xl focus:outline-none"
                     >
                         {/* Ambient Background Glows */}
                         <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-[var(--brand)]/5 to-transparent pointer-events-none" />
@@ -177,6 +185,7 @@ export default function AiCourseBuilderModal({ isOpen, onClose, onGenerateFull }
                             </div>
                             <button
                                 onClick={onClose}
+                                aria-label="Close dialog"
                                 className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all"
                             >
                                 <X size={20} />

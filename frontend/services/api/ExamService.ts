@@ -92,9 +92,7 @@ export const ExamService = {
 
     async startExam(slug: string, deviceId?: string, userId?: string, tabId?: string, metadata?: any): Promise<any> {
         try {
-            const authHeaders = await withClerkAuthorization(
-                withCsrfHeader('POST', getHeaders()),
-            );
+            const authHeaders = await withClerkAuthorization(withCsrfHeader('POST', getHeaders()));
             const res = await apiFetch(`${BASE_URL}/exam/${slug}/enter`, {
                 method: 'POST',
                 headers: authHeaders,

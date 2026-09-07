@@ -6,7 +6,11 @@ export default function SuperAdminOrganizationCourseNew({ params }: { params: Pr
     const { id } = React.use(params);
     return (
         <div className="h-[calc(100vh-var(--topbar-height)-36px)]">
-            <CourseEditor userRole="admin" basePath={`/dashboard/super-admin/organizations/${id}`} organizationId={id} />
+            <CourseEditor
+                userRole="admin"
+                basePath={`/dashboard/super-admin/organizations/${id}`}
+                organizationId={id}
+            />
         </div>
     );
 }

@@ -144,11 +144,11 @@ export default function ExamResultsView({
     const pieData = !hasResults
         ? [{ name: 'No Data', value: 1, color: neutralColor }]
         : classifiedCount > 0
-            ? [
+          ? [
                 { name: 'Passed', value: stats.passedCount || 0, color: passedColor },
                 { name: 'Failed', value: stats.failedCount || 0, color: failedColor },
             ]
-            : [{ name: 'Pending', value: results.length, color: neutralColor }];
+          : [{ name: 'Pending', value: results.length, color: neutralColor }];
 
     const pieChartData = pieData.filter((segment) => segment.value > 0);
     const piePaddingAngle = pieChartData.length > 1 ? 8 : 0;
@@ -200,8 +200,8 @@ export default function ExamResultsView({
     const backLink = basePath
         ? `${basePath}/exams`
         : userRole === 'admin'
-            ? '/dashboard/creator/exams'
-            : '/dashboard/creator/exams';
+          ? '/dashboard/creator/exams'
+          : '/dashboard/creator/exams';
 
     if (loading)
         return (
@@ -245,11 +245,7 @@ export default function ExamResultsView({
                             boxShadow: isResultsPublished ? 'none' : `0 10px 15px -3px ${brandColor}40`,
                         }}
                     >
-                        {isPublishing
-                            ? 'Publishing...'
-                            : isResultsPublished
-                                ? 'Results Published'
-                                : 'Publish Results'}
+                        {isPublishing ? 'Publishing...' : isResultsPublished ? 'Results Published' : 'Publish Results'}
                     </button>
                 </div>
             </div>
@@ -286,9 +282,7 @@ export default function ExamResultsView({
                             </PieChart>
                         </ResponsiveContainer>
                         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                            <span className="text-2xl font-black text-slate-800 leading-none">
-                                {results.length}
-                            </span>
+                            <span className="text-2xl font-black text-slate-800 leading-none">{results.length}</span>
                             <span className="text-[8px] font-black text-slate-300 uppercase">Total</span>
                         </div>
                     </div>
@@ -325,10 +319,7 @@ export default function ExamResultsView({
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-1.5">
-                                <div
-                                    className="w-1.5 h-1.5 rounded-full"
-                                    style={{ backgroundColor: brandColor }}
-                                ></div>
+                                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: brandColor }}></div>
                                 <span className="text-[9px] font-black text-slate-400 uppercase">Count</span>
                             </div>
                         </div>
@@ -336,10 +327,7 @@ export default function ExamResultsView({
 
                     <div className="flex-1 w-full min-h-[160px]">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                                data={stats.distribution}
-                                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-                            >
+                            <BarChart data={stats.distribution} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id={`barGradient-${userRole}`} x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="0%" stopColor={brandColor} stopOpacity={1} />
@@ -409,9 +397,7 @@ export default function ExamResultsView({
                                 </div>
                             )}
                         </div>
-                        <span className="text-[10px] font-black text-slate-400 uppercase">
-                            Total {results.length}
-                        </span>
+                        <span className="text-[10px] font-black text-slate-400 uppercase">Total {results.length}</span>
                     </div>
                 </div>
                 <div className="overflow-x-auto">
@@ -497,8 +483,8 @@ export default function ExamResultsView({
                                                 basePath
                                                     ? `${basePath}/exams/${examId}/submission/${r.sessionId}/preview`
                                                     : userRole === 'admin'
-                                                        ? `/dashboard/creator/exams/${examId}/submission/${r.sessionId}/preview`
-                                                        : `/dashboard/creator/exams/${examId}/submission/${r.sessionId}/preview`
+                                                      ? `/dashboard/creator/exams/${examId}/submission/${r.sessionId}/preview`
+                                                      : `/dashboard/creator/exams/${examId}/submission/${r.sessionId}/preview`
                                             }
                                         >
                                             <button className="text-[9px] font-black uppercase text-slate-400 hover:text-[var(--brand)] transition-colors">
@@ -547,7 +533,6 @@ export default function ExamResultsView({
                 onConfirm={() => setAlertConfig((prev) => ({ ...prev, isOpen: false }))}
                 onCancel={() => setAlertConfig((prev) => ({ ...prev, isOpen: false }))}
             />
-
         </div>
     );
 }

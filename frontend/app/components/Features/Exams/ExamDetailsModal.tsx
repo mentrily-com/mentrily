@@ -208,7 +208,9 @@ export default function ExamDetailsModal({ exam, onClose }: ExamDetailsModalProp
                             </div>
                             <div>
                                 <p className="text-[9px] font-black text-slate-300 uppercase">Starts At</p>
-                                <p className="text-xs font-black text-slate-700">{formatInZone(exam.startTime, exam.timeZone)}</p>
+                                <p className="text-xs font-black text-slate-700">
+                                    {formatInZone(exam.startTime, exam.timeZone)}
+                                </p>
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
@@ -217,7 +219,9 @@ export default function ExamDetailsModal({ exam, onClose }: ExamDetailsModalProp
                             </div>
                             <div>
                                 <p className="text-[9px] font-black text-slate-300 uppercase">Ends At</p>
-                                <p className="text-xs font-black text-slate-700">{formatInZone(exam.endTime, exam.timeZone)}</p>
+                                <p className="text-xs font-black text-slate-700">
+                                    {formatInZone(exam.endTime, exam.timeZone)}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -263,6 +267,7 @@ function DetailCard({ icon, label, value, onAlert, brandTextClass, canCopy = tru
                 <button
                     onClick={handleCopy}
                     disabled={!canCopy}
+                    aria-label={`Copy ${label}`}
                     className={`p-1.5 text-slate-300 transition-colors ${canCopy ? `hover:${brandTextClass}` : 'opacity-40 cursor-not-allowed'}`}
                 >
                     <Copy size={14} />
