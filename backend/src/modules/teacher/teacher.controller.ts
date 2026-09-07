@@ -11,11 +11,12 @@ import {
   Query,
   ValidationPipe,
 } from '@nestjs/common';
-import { TeacherService } from './teacher.service';
 import { TeacherGroupsService } from './teacher-groups.service';
 import { TeacherAnnouncementsService } from './teacher-announcements.service';
 import { TeacherStudentsService } from './teacher-students.service';
 import { TeacherStatsService } from './teacher-stats.service';
+import { TeacherCoursesService } from './teacher-courses.service';
+import { TeacherExamsService } from './teacher-exams.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OrgFeaturesGuard } from '../auth/guards/org-features.guard';
 import { OrgStatusGuard } from '../auth/guards/org-status.guard';
@@ -32,11 +33,12 @@ import { ExamMutationDto } from './dto/exam-mutation.dto';
 @Roles('TEACHER', 'ADMIN', 'SUPER_ADMIN')
 export class TeacherController {
   constructor(
-    private readonly teacherService: TeacherService,
     private readonly teacherGroupsService: TeacherGroupsService,
     private readonly teacherAnnouncementsService: TeacherAnnouncementsService,
     private readonly teacherStudentsService: TeacherStudentsService,
     private readonly teacherStatsService: TeacherStatsService,
+    private readonly teacherCoursesService: TeacherCoursesService,
+    private readonly teacherExamsService: TeacherExamsService,
   ) {}
 
   @Get('stats')
@@ -96,10 +98,14 @@ export class TeacherController {
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
   ) {
-    return this.teacherStudentsService.getStudentUnitSubmissions(studentId, user, {
-      limit,
-      offset,
-    });
+    return this.teacherStudentsService.getStudentUnitSubmissions(
+      studentId,
+      user,
+      {
+        limit,
+        offset,
+      },
+    );
   }
 
   @Post('courses/:courseId/enroll/:studentId')
@@ -118,7 +124,11 @@ export class TeacherController {
     @User() user: any,
   ) {
     console.log('Unenroll request:', { courseId, studentId, userId: user.id });
-    return this.teacherStudentsService.unenrollStudent(courseId, studentId, user);
+    return this.teacherStudentsService.unenrollStudent(
+      courseId,
+      studentId,
+      user,
+    );
   }
 
   @Post('courses/:courseId/enroll')
@@ -127,7 +137,11 @@ export class TeacherController {
     @Body() data: { emails: string[] },
     @User() user: any,
   ) {
-    return this.teacherStudentsService.enrollByEmails(courseId, data.emails, user);
+    return this.teacherStudentsService.enrollByEmails(
+      courseId,
+      data.emails,
+      user,
+    );
   }
 
   @Get('exams/:examId/submissions/:identifier')
@@ -141,7 +155,7 @@ export class TeacherController {
 
   @Get('courses')
   async getCourses(@User() user: any) {
-    return this.teacherService.getCourses(user);
+    return this.teacherCoursesService.getCourses(user);
   }
 
   @Get('courses/:idOrSlug')
@@ -157,7 +171,7 @@ export class TeacherController {
     data: CourseMutationDto,
     @User() user: any,
   ) {
-    return this.teacherService.createCourse(user, data);
+    return this.teacherCoursesService.createCourse(user, data);
   }
 
   @Put('courses/:id')
@@ -169,7 +183,7 @@ export class TeacherController {
     data: CourseMutationDto,
     @User() user: any,
   ) {
-    return this.teacherService.updateCourse(id, user, data);
+    return this.teacherCoursesService.updateCourse(id, user, data);
   }
 
   @Delete('courses/:id')
@@ -177,7 +191,7 @@ export class TeacherController {
   @RequireOrgFeature('canCreateCourses')
   async deleteCourse(@Param('id') id: string, @User() user: any) {
     try {
-      return await this.teacherService.deleteCourse(id, user);
+      return await this.teacherCoursesService.deleteCourse(id, user);
     } catch (e) {
       console.error(`[TeacherController] Delete Course Failed:`, e);
       throw new BadRequestException(e.message || 'Failed to delete course');
@@ -200,7 +214,7 @@ export class TeacherController {
     },
     @User() user: any,
   ) {
-    return this.teacherService.linkExamToCourse(id, data.examId, user, {
+    return this.teacherCoursesService.linkExamToCourse(id, data.examId, user, {
       examPassThreshold: data.examPassThreshold,
       examUnlockThreshold: data.examUnlockThreshold,
       passingPercentage: data.passingPercentage,
@@ -213,17 +227,17 @@ export class TeacherController {
   @UseGuards(OrgFeaturesGuard)
   @RequireOrgFeature('canCreateExams')
   async unlinkExamFromCourse(@Param('id') id: string, @User() user: any) {
-    return this.teacherService.unlinkExamFromCourse(id, user);
+    return this.teacherCoursesService.unlinkExamFromCourse(id, user);
   }
 
   @Get('exams')
   async getExams(@User() user: any) {
-    return this.teacherService.getExams(user);
+    return this.teacherExamsService.getExams(user);
   }
 
   @Get('exams/scheduled')
   async getScheduledExams(@User() user: any) {
-    return this.teacherService.getScheduledExams(user);
+    return this.teacherExamsService.getScheduledExams(user);
   }
 
   @Get('exams/:idOrSlug')
@@ -239,7 +253,7 @@ export class TeacherController {
     data: ExamMutationDto,
     @User() user: any,
   ) {
-    return this.teacherService.createExam(user, data);
+    return this.teacherExamsService.createExam(user, data);
   }
 
   @Put('exams/:id')
@@ -251,7 +265,7 @@ export class TeacherController {
     data: ExamMutationDto,
     @User() user: any,
   ) {
-    return this.teacherService.updateExam(id, user, data);
+    return this.teacherExamsService.updateExam(id, user, data);
   }
 
   @Delete('exams/:id')
@@ -259,7 +273,7 @@ export class TeacherController {
   @RequireOrgFeature('canCreateExams')
   async deleteExam(@Param('id') id: string, @User() user: any) {
     try {
-      return await this.teacherService.deleteExam(id, user);
+      return await this.teacherExamsService.deleteExam(id, user);
     } catch (e) {
       console.error(`[TeacherController] Delete Exam Failed:`, e);
       throw new BadRequestException(e.message || 'Failed to delete exam');
@@ -271,7 +285,7 @@ export class TeacherController {
     @Param('examId') examId: string,
     @User() user: any,
   ) {
-    return this.teacherService.getMonitoredStudents(examId, user);
+    return this.teacherExamsService.getMonitoredStudents(examId, user);
   }
 
   @Get('exams/:examId/results')
@@ -282,7 +296,7 @@ export class TeacherController {
     @Query('limit') limit: string = '50',
     @Query('search') search: string = '',
   ) {
-    return this.teacherService.getExamResults(
+    return this.teacherExamsService.getExamResults(
       examId,
       user,
       Number(page),
@@ -297,7 +311,7 @@ export class TeacherController {
     @Body() data: { score: number; internalMarks?: Record<string, number> },
     @User() user: any,
   ) {
-    return this.teacherService.updateSubmissionScore(
+    return this.teacherExamsService.updateSubmissionScore(
       sessionId,
       data.score,
       user,
@@ -307,12 +321,12 @@ export class TeacherController {
 
   @Post('exams/:examId/publish')
   async publishResults(@Param('examId') examId: string, @User() user: any) {
-    return this.teacherService.publishResults(examId, user);
+    return this.teacherExamsService.publishResults(examId, user);
   }
 
   @Get('exams/:examId/feedbacks')
   async getFeedbacks(@Param('examId') examId: string, @User() user: any) {
-    return this.teacherService.getFeedbacks(examId, user);
+    return this.teacherExamsService.getFeedbacks(examId, user);
   }
 
   @Post('exams/:examId/terminate/:userId')
@@ -321,7 +335,7 @@ export class TeacherController {
     @Param('userId') userId: string,
     @User() user: any,
   ) {
-    return this.teacherService.terminateExamSession(examId, userId, user);
+    return this.teacherExamsService.terminateExamSession(examId, userId, user);
   }
 
   @Post('exams/:examId/unterminate/:userId')
@@ -330,7 +344,11 @@ export class TeacherController {
     @Param('userId') userId: string,
     @User() user: any,
   ) {
-    return this.teacherService.unterminateExamSession(examId, userId, user);
+    return this.teacherExamsService.unterminateExamSession(
+      examId,
+      userId,
+      user,
+    );
   }
 
   @Post('exams/:examId/invite')
@@ -339,7 +357,7 @@ export class TeacherController {
     @Body() data: SendExamInviteDto,
     @User() user: any,
   ) {
-    return this.teacherService.sendExamInvites(examId, data, user);
+    return this.teacherExamsService.sendExamInvites(examId, data, user);
   }
 
   // ─── GROUPS ────────────────────────────────────────────────────────────────
@@ -400,7 +418,11 @@ export class TeacherController {
     @Param('groupId') groupId: string,
     @User() user: any,
   ) {
-    return this.teacherGroupsService.enrollGroupInCourse(courseId, groupId, user);
+    return this.teacherGroupsService.enrollGroupInCourse(
+      courseId,
+      groupId,
+      user,
+    );
   }
 
   // ─── ANNOUNCEMENTS ─────────────────────────────────────────────────────────

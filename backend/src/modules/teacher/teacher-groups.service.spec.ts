@@ -16,7 +16,10 @@ describe('TeacherGroupsService', () => {
         },
         {
           provide: TeacherService,
-          useValue: { checkAccess: jest.fn(), getBlockedEnrollments: jest.fn() },
+          useValue: {
+            checkAccess: jest.fn(),
+            getBlockedEnrollments: jest.fn(),
+          },
         },
         {
           provide: 'default_IORedisModuleConnectionToken',

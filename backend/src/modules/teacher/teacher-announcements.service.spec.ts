@@ -15,7 +15,10 @@ describe('TeacherAnnouncementsService', () => {
           provide: SupabaseService,
           useValue: { client: { from: jest.fn() }, legacyPrisma: {} },
         },
-        { provide: NotificationGateway, useValue: { broadcastAnnouncement: jest.fn() } },
+        {
+          provide: NotificationGateway,
+          useValue: { broadcastAnnouncement: jest.fn() },
+        },
         {
           provide: StorageService,
           useValue: { uploadFile: jest.fn(), deleteFile: jest.fn() },
@@ -27,7 +30,9 @@ describe('TeacherAnnouncementsService', () => {
       ],
     }).compile();
 
-    service = module.get<TeacherAnnouncementsService>(TeacherAnnouncementsService);
+    service = module.get<TeacherAnnouncementsService>(
+      TeacherAnnouncementsService,
+    );
   });
 
   it('should be defined', () => {
