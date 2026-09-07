@@ -3,6 +3,7 @@ import { TeacherController } from './teacher.controller';
 import { TeacherService } from './teacher.service';
 import { TeacherGroupsService } from './teacher-groups.service';
 import { TeacherAnnouncementsService } from './teacher-announcements.service';
+import { TeacherStudentsService } from './teacher-students.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OrgStatusGuard } from '../auth/guards/org-status.guard';
 import { OrgFeaturesGuard } from '../auth/guards/org-features.guard';
@@ -17,6 +18,7 @@ describe('TeacherController', () => {
         { provide: TeacherService, useValue: {} },
         { provide: TeacherGroupsService, useValue: {} },
         { provide: TeacherAnnouncementsService, useValue: {} },
+        { provide: TeacherStudentsService, useValue: {} },
       ],
     })
       .overrideGuard(JwtAuthGuard)

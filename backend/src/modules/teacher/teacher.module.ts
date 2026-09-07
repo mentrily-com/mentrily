@@ -3,6 +3,7 @@ import { TeacherController } from './teacher.controller';
 import { TeacherService } from './teacher.service';
 import { TeacherGroupsService } from './teacher-groups.service';
 import { TeacherAnnouncementsService } from './teacher-announcements.service';
+import { TeacherStudentsService } from './teacher-students.service';
 import { PrismaModule } from '../../services/prisma/prisma.module';
 import { MonitoringModule } from '../monitoring/monitoring.module';
 import { ExamModule } from '../exam/exam.module';
@@ -34,6 +35,7 @@ import { OrganizationModule } from '../organization/organization.module';
     TeacherService,
     TeacherGroupsService,
     TeacherAnnouncementsService,
+    TeacherStudentsService,
   ],
 })
 export class TeacherModule {}

@@ -14,6 +14,7 @@ import {
 import { TeacherService } from './teacher.service';
 import { TeacherGroupsService } from './teacher-groups.service';
 import { TeacherAnnouncementsService } from './teacher-announcements.service';
+import { TeacherStudentsService } from './teacher-students.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OrgFeaturesGuard } from '../auth/guards/org-features.guard';
 import { OrgStatusGuard } from '../auth/guards/org-status.guard';
@@ -33,6 +34,7 @@ export class TeacherController {
     private readonly teacherService: TeacherService,
     private readonly teacherGroupsService: TeacherGroupsService,
     private readonly teacherAnnouncementsService: TeacherAnnouncementsService,
+    private readonly teacherStudentsService: TeacherStudentsService,
   ) {}
 
   @Get('stats')
@@ -61,7 +63,7 @@ export class TeacherController {
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
   ) {
-    return this.teacherService.getStudents(user, { limit, offset });
+    return this.teacherStudentsService.getStudents(user, { limit, offset });
   }
 
   @Get('students/:studentId/analytics')
@@ -69,7 +71,7 @@ export class TeacherController {
     @Param('studentId') studentId: string,
     @User() user: any,
   ) {
-    return this.teacherService.getStudentAnalytics(studentId, user);
+    return this.teacherStudentsService.getStudentAnalytics(studentId, user);
   }
 
   @Get('students/:studentId/attempts')
@@ -79,7 +81,7 @@ export class TeacherController {
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
   ) {
-    return this.teacherService.getStudentAttempts(studentId, user, {
+    return this.teacherStudentsService.getStudentAttempts(studentId, user, {
       limit,
       offset,
     });
@@ -92,7 +94,7 @@ export class TeacherController {
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
   ) {
-    return this.teacherService.getStudentUnitSubmissions(studentId, user, {
+    return this.teacherStudentsService.getStudentUnitSubmissions(studentId, user, {
       limit,
       offset,
     });
@@ -104,7 +106,7 @@ export class TeacherController {
     @Param('studentId') studentId: string,
     @User() user: any,
   ) {
-    return this.teacherService.enrollStudent(courseId, studentId, user);
+    return this.teacherStudentsService.enrollStudent(courseId, studentId, user);
   }
 
   @Delete('courses/:courseId/enroll/:studentId')
@@ -114,7 +116,7 @@ export class TeacherController {
     @User() user: any,
   ) {
     console.log('Unenroll request:', { courseId, studentId, userId: user.id });
-    return this.teacherService.unenrollStudent(courseId, studentId, user);
+    return this.teacherStudentsService.unenrollStudent(courseId, studentId, user);
   }
 
   @Post('courses/:courseId/enroll')
@@ -123,7 +125,7 @@ export class TeacherController {
     @Body() data: { emails: string[] },
     @User() user: any,
   ) {
-    return this.teacherService.enrollByEmails(courseId, data.emails, user);
+    return this.teacherStudentsService.enrollByEmails(courseId, data.emails, user);
   }
 
   @Get('exams/:examId/submissions/:identifier')
@@ -132,7 +134,7 @@ export class TeacherController {
     @Param('identifier') identifier: string,
     @User() user: any,
   ) {
-    return this.teacherService.getSubmission(examId, identifier, user);
+    return this.teacherStudentsService.getSubmission(examId, identifier, user);
   }
 
   @Get('courses')
