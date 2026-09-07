@@ -86,7 +86,15 @@ export default function PublicExamPage() {
     const [questionsMap, setQuestionsMap] = useState<Record<string, UnitQuestion>>({});
     const [currentSectionId, setCurrentSectionId] = useState('s1');
     const [currentQuestionId, setCurrentQuestionId] = useState<string | number>('q1-1');
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    // Defaults to collapsed on narrow viewports -- the sidebar's expanded
+    // width (min(16rem, 100vw-24px)) already caps itself to fit small
+    // screens without overflowing, but starting collapsed on a phone-width
+    // viewport leaves more room for the actual question up front; the
+    // student can still expand it via the existing toggle. Desktop is
+    // unaffected (starts expanded, same as before).
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(
+        () => typeof window !== 'undefined' && window.innerWidth < 640,
+    );
     const [sidebarHidden, setSidebarHidden] = useState(false);
     const [navbarVisible, setNavbarVisible] = useState(true);
     const [fontSize, setFontSize] = useState(15);
@@ -1758,7 +1766,11 @@ export default function PublicExamPage() {
         hideBrandName: true,
         onRefresh: () => window.location.reload(),
         leftContent: (
-            <div className="flex items-center gap-4 ml-4">
+            // Hidden below sm: supplementary focus-tracking info, not
+            // essential to answering questions -- on a narrow viewport the
+            // timer, submit button, and question navigator matter far more
+            // than this readout, so it's the first thing to give up space.
+            <div className="hidden items-center gap-4 ml-4 sm:flex">
                 <div
                     className={`
                     bg-white border border-slate-100 rounded-xl px-3 py-1.5 flex items-center gap-3 transition-shadow duration-300
@@ -1841,7 +1853,7 @@ export default function PublicExamPage() {
                 </button>
             ),
         rightContent: (
-            <div className="flex items-center gap-4">
+            <div className="flex shrink-0 items-center gap-2 sm:gap-4">
                 <div
                     className={`
                     flex items-center gap-2 px-3.5 py-1.5 rounded-xl border font-black text-sm transition-all duration-500
@@ -1859,7 +1871,10 @@ export default function PublicExamPage() {
                     {timeLeft !== null ? formatTime(timeLeft) : 'Loading...'}
                 </div>
 
-                <div className="flex items-center gap-1 bg-white border border-slate-100 rounded-xl p-1">
+                {/* Font-size stepper: a convenience, not essential -- hidden on
+                    narrow viewports so the timer and Submit button (which
+                    are) always have room. */}
+                <div className="hidden items-center gap-1 bg-white border border-slate-100 rounded-xl p-1 sm:flex">
                     <button
                         onClick={() => setFontSize((prev) => Math.max(12, prev - 1))}
                         className="w-7 h-7 flex items-center justify-center hover:bg-slate-50 rounded-lg text-slate-500 hover:text-[var(--brand)] transition-colors"
@@ -1893,8 +1908,9 @@ export default function PublicExamPage() {
                     </button>
                 </div>
 
-                {/* WiFi Signal Icon with Tooltip */}
-                <div className="relative group flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-help border border-slate-100">
+                {/* WiFi Signal Icon with Tooltip -- hidden on narrow viewports
+                    for the same reason as the font-size stepper above. */}
+                <div className="relative group hidden items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-help border border-slate-100 sm:flex">
                     <div className="flex items-end gap-0.5 h-3.5 mb-0.5">
                         {[1, 2, 3, 4].map((bar) => {
                             const barThresholds = [0, 2, 5, 10];
@@ -2204,8 +2220,8 @@ export default function PublicExamPage() {
 
             {/* AI Proctoring Webcam (Clean Preview) */}
             {!isFeedbackMode && !isSuccessMode && isAiProctoringEnabled && (
-                <div className="fixed bottom-24 right-6 z-[90] pointer-events-none">
-                    <div className="w-40 h-28 bg-black rounded-2xl overflow-hidden relative">
+                <div className="fixed bottom-20 right-4 z-[90] pointer-events-none sm:bottom-24 sm:right-6">
+                    <div className="w-32 h-24 bg-black rounded-2xl overflow-hidden relative shadow-[0_12px_32px_rgba(0,0,0,0.35)] sm:w-40 sm:h-28">
                         <video
                             ref={videoRef}
                             autoPlay
@@ -2213,11 +2229,21 @@ export default function PublicExamPage() {
                             muted
                             className="w-full h-full object-cover transform scale-x-[-1]"
                         />
-                        {!isModelLoaded && (
-                            <div className="absolute inset-0 flex items-center justify-center text-[9px] text-white font-mono bg-black/80">
-                                Loading...
-                            </div>
-                        )}
+                        {/* Status badge -- this feature is telling the student they are
+                            being watched, so a proper labeled state (not a tiny 9px
+                            mono "Loading...") makes it read as an intentional, working
+                            part of the product rather than a broken placeholder. */}
+                        <div
+                            className={`absolute top-1.5 left-1.5 flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wide backdrop-blur-sm ${
+                                isModelLoaded ? 'bg-emerald-500/90 text-white' : 'bg-black/70 text-white/90'
+                            }`}
+                        >
+                            <span
+                                className={`h-1.5 w-1.5 rounded-full ${isModelLoaded ? 'bg-white animate-pulse' : 'bg-amber-300 animate-pulse'}`}
+                            />
+                            {isModelLoaded ? 'Proctoring' : 'Initializing'}
+                        </div>
+                        {!isModelLoaded && <div className="absolute inset-0 bg-black/40" />}
                     </div>
                 </div>
             )}

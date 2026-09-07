@@ -196,7 +196,19 @@ export default function Navbar({ basePath, userRole: roleOverride, examConfig }:
             <ImpersonationBanner />
             {showPaymentFailedBanner && <PaymentFailedBanner />}
             <header className="w-full bg-white/80 backdrop-blur-md border-b border-slate-100">
-                <div className="w-full px-4 py-2.5 lg:px-6 sm:py-3 flex items-center justify-between">
+                <div
+                    className={`w-full px-4 py-2.5 lg:px-6 sm:py-3 flex items-center justify-between ${
+                        // The exam header packs several extra control groups (focus
+                        // counters, timer, font-size stepper, wifi indicator) into
+                        // this same row that the default dashboard navbar doesn't
+                        // carry -- on narrow viewports that combination can exceed
+                        // the row's width. Falling back to horizontal scroll here
+                        // keeps every control reachable instead of silently
+                        // clipping/overlapping; the default navbar never overflows
+                        // in the first place, so this is a no-op for it.
+                        examConfig ? 'overflow-x-auto no-scrollbar' : ''
+                    }`}
+                >
                     {/* Left - Brand & Primary Nav */}
                     <div className="flex items-center gap-8 z-10">
                         <div
