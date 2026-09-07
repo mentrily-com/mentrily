@@ -9,6 +9,7 @@ import { AuthenticateWithRedirectCallback, useAuth, useClerk, useSignIn, useUser
 import { useQueryClient } from '@tanstack/react-query';
 import { BrandLockup } from '@/components/brand/BrandLockup';
 import BrandedPageLoader from '@/app/components/Common/BrandedPageLoader';
+import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -47,6 +48,30 @@ export default function LoginPage() {
     const [error, setError] = useState('');
     const [isRedirectingAuthenticatedUser, setIsRedirectingAuthenticatedUser] = useState(false);
     const { organization: orgContext } = useOrganization();
+    // Set right before completeSignIn() runs its own /auth/me check, so the
+    // auto-redirect effect below (which also watches isSignedIn) doesn't
+    // fire a second, fully redundant /auth/me request for the same login --
+    // isSignedIn flips true as soon as setActive() resolves, which races
+    // ahead of completeSignIn's own in-flight session check.
+    const isHandlingManualAuthRef = React.useRef(false);
+    // Best-guess role for the skeleton shown while redirecting post-login --
+    // read once from the hint the dashboard persists on every visit, so a
+    // returning user sees their own dashboard shape rather than a generic
+    // one. Wrong guesses just fall back to the generic "main" layout; the
+    // real page replaces this the instant it mounts.
+    const [redirectingRoleHint] = useState<'student' | 'teacher' | 'admin' | 'super-admin' | undefined>(() => {
+        if (typeof window === 'undefined') return undefined;
+        const stored = window.localStorage.getItem('user-role');
+        if (
+            stored === 'student' ||
+            stored === 'teacher' ||
+            stored === 'admin' ||
+            stored === 'super-admin'
+        ) {
+            return stored;
+        }
+        return undefined;
+    });
 
     const getSafeRedirectPath = React.useCallback(() => {
         const redirect = searchParams.get('redirect');
@@ -127,6 +152,7 @@ export default function LoginPage() {
 
     React.useEffect(() => {
         if (isOauthCallback) return;
+        if (isHandlingManualAuthRef.current) return;
         if (isSignedIn) {
             const handleRedirect = async () => {
                 setIsRedirectingAuthenticatedUser(true);
@@ -189,6 +215,7 @@ export default function LoginPage() {
             throw new Error('Session activation is unavailable.');
         }
 
+        isHandlingManualAuthRef.current = true;
         await setActive({
             session: createdSessionId,
             navigate: async () => {},
@@ -335,8 +362,16 @@ export default function LoginPage() {
         return <AuthenticateWithRedirectCallback transferable={false} signInUrl="/login" signUpUrl="/signup" />;
     }
 
-    if (!isLoaded || isSignedIn || isRedirectingAuthenticatedUser) {
+    if (!isLoaded) {
         return <BrandedPageLoader />;
+    }
+
+    // Once Clerk confirms a session (fresh login or an already-authenticated
+    // visitor landing here), we're heading straight to a dashboard-shaped
+    // page -- render its skeleton instead of a blank-white spinner screen so
+    // the transition feels continuous rather than a jarring flash-to-white.
+    if (isSignedIn || isRedirectingAuthenticatedUser) {
+        return <DashboardSkeleton type="main" userRole={redirectingRoleHint} noNavbar />;
     }
 
     return (

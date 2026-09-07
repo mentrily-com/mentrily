@@ -9,6 +9,7 @@ import { AuthenticateWithRedirectCallback, useSignIn, useSignUp, useUser } from 
 import { AuthService } from '@/services/api/AuthService';
 import { BrandLockup } from '@/components/brand/BrandLockup';
 import BrandedPageLoader from '@/app/components/Common/BrandedPageLoader';
+import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
 
 export default function SignupPage() {
     const router = useRouter();
@@ -398,8 +399,16 @@ export default function SignupPage() {
         return <AuthenticateWithRedirectCallback />;
     }
 
-    if (!isLoaded || isSignedIn || isRedirectingAuthenticatedUser) {
+    if (!isLoaded) {
         return <BrandedPageLoader />;
+    }
+
+    // Account created (or an already-authenticated visitor landed here) --
+    // we're heading to either the role-selection modal or a dashboard.
+    // A skeleton keeps the transition feeling continuous instead of
+    // flashing to a blank white spinner screen for the round trip.
+    if (isSignedIn || isRedirectingAuthenticatedUser) {
+        return <DashboardSkeleton type="main" noNavbar />;
     }
 
     if (isInvitationSignInFlow && !error) {

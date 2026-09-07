@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthService } from '@/services/api/AuthService';
 import RoleSelectionModal from '@/app/components/RoleSelectionModal';
 import { useAuth } from '@clerk/nextjs';
-import BrandedPageLoader from '@/app/components/Common/BrandedPageLoader';
 
 export default function DashboardPage() {
     const [authChecked, setAuthChecked] = useState(false);
@@ -238,7 +237,11 @@ export default function DashboardPage() {
     };
 
     if (!authChecked) {
-        return <BrandedPageLoader />;
+        // Destination is still unknown here (role modal vs. an existing
+        // dashboard) -- a skeleton keeps the post-login/post-signup
+        // transition feeling continuous instead of flashing to a blank
+        // white spinner screen for the round trip.
+        return <DashboardSkeleton type="main" noNavbar />;
     }
 
     if (needsRoleSelection) {
