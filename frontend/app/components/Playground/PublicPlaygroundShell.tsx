@@ -93,7 +93,11 @@ export default function PublicPlaygroundShell({
                             <PublicPlaygroundProfile />
                         </div>
 
-                        <button onClick={() => setOpen(!open)} className="rounded-lg p-2 text-slate-500 md:hidden">
+                        <button
+                            onClick={() => setOpen(!open)}
+                            aria-label={open ? 'Close menu' : 'Open menu'}
+                            className="rounded-lg p-2 text-slate-500 md:hidden"
+                        >
                             {open ? <X size={22} /> : <Menu size={22} />}
                         </button>
                     </div>

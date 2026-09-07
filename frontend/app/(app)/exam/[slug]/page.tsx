@@ -1844,7 +1844,7 @@ export default function PublicExamPage() {
             <div className="flex items-center gap-4">
                 <div
                     className={`
-                    flex items-center gap-2 px-3 py-1.5 rounded-xl border font-black text-xs transition-all duration-500
+                    flex items-center gap-2 px-3.5 py-1.5 rounded-xl border font-black text-sm transition-all duration-500
                     ${
                         timeLeft !== null && timeLeft <= 300
                             ? 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'
@@ -1852,7 +1852,7 @@ export default function PublicExamPage() {
                     }
                 `}
                 >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                         <circle cx="12" cy="12" r="10" />
                         <polyline points="12 6 12 12 16 14" />
                     </svg>
@@ -1987,7 +1987,7 @@ export default function PublicExamPage() {
                     </p>
                     <button
                         onClick={() => router.push('/dashboard')}
-                        className="mt-8 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
+                        className="mt-8 px-6 py-3 bg-[var(--brand)] text-white font-semibold rounded-lg hover:brightness-110 transition"
                     >
                         Go Back to Dashboard
                     </button>
@@ -2083,7 +2083,7 @@ export default function PublicExamPage() {
                     <div className="flex gap-3 justify-center pt-2">
                         <button
                             onClick={retryConnection}
-                            className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition"
+                            className="px-6 py-3 bg-[var(--brand)] hover:brightness-110 text-white font-semibold rounded-lg transition"
                         >
                             Retry Connection
                         </button>

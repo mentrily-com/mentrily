@@ -187,7 +187,8 @@ export default function ReportProblemModal({ isOpen, onClose, onSubmitted }: Rep
                                     <img src={att.url} alt={att.name} className="w-full h-28 object-cover" />
                                     <button
                                         onClick={() => removeAttachment(index)}
-                                        className="absolute top-2 right-2 w-6 h-6 rounded-lg bg-black/60 text-white flex items-center justify-center"
+                                        aria-label={`Remove ${att.name || 'attachment'}`}
+                                        className="absolute top-2 right-2 w-6 h-6 rounded-lg bg-black/60 text-white flex items-center justify-center transition-colors hover:bg-black/80"
                                     >
                                         <X size={12} />
                                     </button>

@@ -250,7 +250,7 @@ export default function TeacherDashboardPage() {
                         <Link
                             href="/dashboard/creator/courses/create"
                             data-element-id="create-course-btn"
-                            className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(26,86,219,0.22)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(26,86,219,0.3)]"
+                            className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(0,141,152,0.22)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(0,141,152,0.3)]"
                         >
                             <Plus size={15} />
                             Create course

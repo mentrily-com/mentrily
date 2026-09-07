@@ -211,6 +211,7 @@ export default function PlaygroundCore({
                                                             event.stopPropagation();
                                                             setShowDeleteConfirm(tab.id);
                                                         }}
+                                                        aria-label={`Close ${tab.name || 'tab'}`}
                                                         className="ml-2 opacity-0 group-hover:opacity-100 p-1 hover:text-red-500 transition-all"
                                                     >
                                                         <X size={10} strokeWidth={3} />

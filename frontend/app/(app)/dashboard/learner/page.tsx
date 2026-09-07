@@ -158,7 +158,7 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-orange-100 selection:text-orange-900">
+        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
             {/* Show the guided dashboard tour ONCE on first login. Dropping
                 repeatUntilSkipped switches to the per-tour localStorage
                 "completed" marker (set the first time it runs) instead of the
@@ -554,8 +554,13 @@ export default function DashboardPage() {
 }
 
 function QuickLink({ icon, label, sub }: { icon: React.ReactNode; label: string; sub: string }) {
+    // Rendered as a plain <div>, not a <button> -- every call site already
+    // wraps this in a <Link> (an <a>), and nesting an interactive <button>
+    // inside an <a> is invalid HTML that leaves two elements competing for
+    // the same click/Enter keypress instead of one clean, keyboard-focusable
+    // link.
     return (
-        <button className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all text-left group">
+        <div className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all text-left group">
             <div className="w-10 h-10 rounded-xl bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                 {icon}
             </div>
@@ -563,7 +568,7 @@ function QuickLink({ icon, label, sub }: { icon: React.ReactNode; label: string;
                 <p className="text-sm font-black text-slate-800 leading-none mb-1">{label}</p>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{sub}</p>
             </div>
-        </button>
+        </div>
     );
 }
 

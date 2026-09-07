@@ -112,10 +112,15 @@ export default function SocialProof() {
                                 initial={{ opacity: 0, y: 12 }}
                                 animate={inView ? { opacity: 1, y: 0 } : {}}
                                 transition={{ delay: 0.1 + i * 0.08, duration: 0.4 }}
-                                className="flex flex-col items-center px-2 sm:px-8 py-3 text-center group cursor-default"
-                                style={{
-                                    borderRight: i < stats.length - 1 ? '1px solid transparent' : 'none',
-                                }}
+                                className={`flex flex-col items-center px-2 sm:px-8 py-3 text-center group cursor-default ${
+                                    // The grid is 2 columns on mobile and 4 from `sm:` up, so a
+                                    // right-hand divider only makes sense at the wider breakpoint
+                                    // (every 2-col row's second item is already at the row edge) --
+                                    // this used to be applied unconditionally as `1px solid
+                                    // transparent`, an invisible border that rendered nothing at
+                                    // any width instead of the intended column dividers.
+                                    i < stats.length - 1 ? 'sm:border-r sm:border-slate-200' : ''
+                                }`}
                             >
                                 {/* Icon */}
                                 <div

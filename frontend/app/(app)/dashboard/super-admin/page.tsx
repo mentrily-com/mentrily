@@ -133,7 +133,7 @@ export default function SuperAdminDashboardPage() {
                         <div className="flex flex-wrap items-center gap-3">
                             <Link
                                 href="/dashboard/super-admin/organizations/new"
-                                className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-[0_14px_30px_rgba(26,86,219,0.24)] transition-all duration-200 hover:brightness-110"
+                                className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-[0_14px_30px_rgba(0,141,152,0.24)] transition-all duration-200 hover:brightness-110"
                             >
                                 <Plus size={15} />
                                 Deploy New Organization

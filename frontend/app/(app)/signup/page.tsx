@@ -831,7 +831,7 @@ export default function SignupPage() {
                                     style={{
                                         backgroundColor: '#E6F7F8',
                                         border: '1px solid #E6F7F8',
-                                        color: '#1E40AF',
+                                        color: 'var(--brand-dark)',
                                     }}
                                 >
                                     We sent a verification code to <br />

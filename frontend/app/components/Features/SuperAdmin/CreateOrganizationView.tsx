@@ -651,11 +651,40 @@ function SettingsSection({ icon, title, desc, children }: any) {
     );
 }
 
+const FORM_CONTROL_TAGS = new Set(['input', 'select', 'textarea']);
+
+// Finds the actual form control inside `children` (which is sometimes the
+// control directly, sometimes wrapped one level in an icon `<div>`) and
+// clones it with the given id, so the <label> below can reference it via
+// htmlFor -- without that, every field in this form was visually labeled
+// but not programmatically associated, so a screen reader announces them
+// as unlabeled inputs. Recurses up to 2 levels since that covers every
+// shape used in this file; falls back to rendering children unmodified
+// (no crash, just no aria wiring) if nothing matches.
+function withControlId(node: React.ReactNode, id: string, depth = 2): React.ReactNode {
+    if (depth < 0 || !React.isValidElement(node)) return node;
+    const element = node as React.ReactElement<any>;
+    if (typeof element.type === 'string' && FORM_CONTROL_TAGS.has(element.type)) {
+        return React.cloneElement(element, { id: element.props.id || id });
+    }
+    const kids = element.props?.children;
+    if (!kids) return node;
+    return React.cloneElement(
+        element,
+        {},
+        React.Children.map(kids, (child) => withControlId(child, id, depth - 1)),
+    );
+}
+
 function InputGroup({ label, children }: any) {
+    const reactId = React.useId();
+    const controlId = `input-group-${reactId}`;
     return (
         <div className="space-y-2 w-full">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{label}</label>
-            {children}
+            <label htmlFor={controlId} className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                {label}
+            </label>
+            {withControlId(children, controlId)}
         </div>
     );
 }

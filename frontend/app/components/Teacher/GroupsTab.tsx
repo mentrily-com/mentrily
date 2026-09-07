@@ -231,6 +231,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                         if (step === 'students') onCreated();
                         else onClose();
                     }}
+                    aria-label="Close"
                     className="absolute top-10 right-10 w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all hover:scale-110 active:scale-95"
                 >
                     <X size={20} strokeWidth={3} />
@@ -333,6 +334,7 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
                     onClick={() => {
                         onUpdated();
                     }}
+                    aria-label="Close"
                     className="absolute top-10 right-10 w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all hover:scale-110 active:scale-95"
                 >
                     <X size={20} strokeWidth={3} />

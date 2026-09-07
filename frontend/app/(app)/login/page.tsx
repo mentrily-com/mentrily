@@ -610,23 +610,6 @@ export default function LoginPage() {
                                     </div>
                                 </div>
 
-                                {/* Remember me */}
-                                <div className="flex items-center gap-2.5">
-                                    <input
-                                        type="checkbox"
-                                        id="remember"
-                                        className="w-4 h-4 rounded border cursor-pointer accent-[var(--brand)]"
-                                        style={{ borderColor: '#E2E8F0' }}
-                                    />
-                                    <label
-                                        htmlFor="remember"
-                                        className="text-sm cursor-pointer"
-                                        style={{ color: '#64748B' }}
-                                    >
-                                        Keep me signed in
-                                    </label>
-                                </div>
-
                                 {/* Submit */}
                                 <button
                                     type="submit"
