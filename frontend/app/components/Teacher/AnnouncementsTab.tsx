@@ -6,6 +6,7 @@ import { useToast } from '@/app/components/Common/Toast';
 import { Megaphone, Plus, X, Trash2, Paperclip, FileText, ImageIcon, File, Send, Check, Pencil } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { sanitizeProse } from '@/lib/sanitize';
+import AlertModal from '@/app/components/Common/AlertModal';
 
 // Lazy load RichTextEditor to avoid SSR issues
 const RichTextEditor = dynamic(() => import('@/app/components/Authoring/RichTextEditor'), { ssr: false });
@@ -17,6 +18,13 @@ export default function AnnouncementsTab() {
     const [isLoading, setIsLoading] = useState(true);
     const [showComposeModal, setShowComposeModal] = useState(false);
     const [editingAnnouncement, setEditingAnnouncement] = useState<any | null>(null);
+    const [alertConfig, setAlertConfig] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        type?: 'danger' | 'warning' | 'info';
+        onConfirm: () => void;
+    }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
 
     const loadData = async () => {
         try {
@@ -38,15 +46,23 @@ export default function AnnouncementsTab() {
         loadData();
     }, []);
 
-    const handleDelete = async (id: string) => {
-        if (!confirm('Delete this announcement? Students will no longer see it.')) return;
-        try {
-            await TeacherService.deleteAnnouncement(id);
-            success('Announcement deleted');
-            loadData();
-        } catch (err) {
-            toastError('Failed to delete announcement');
-        }
+    const handleDelete = (id: string) => {
+        setAlertConfig({
+            isOpen: true,
+            title: 'Delete Announcement?',
+            message: 'Delete this announcement? Students will no longer see it.',
+            type: 'danger',
+            onConfirm: async () => {
+                setAlertConfig((prev) => ({ ...prev, isOpen: false }));
+                try {
+                    await TeacherService.deleteAnnouncement(id);
+                    success('Announcement deleted');
+                    loadData();
+                } catch (err) {
+                    toastError('Failed to delete announcement');
+                }
+            },
+        });
     };
 
     if (isLoading) {
@@ -213,6 +229,16 @@ export default function AnnouncementsTab() {
                     />,
                     document.body,
                 )}
+
+            <AlertModal
+                isOpen={alertConfig.isOpen}
+                title={alertConfig.title}
+                message={alertConfig.message}
+                type={alertConfig.type || 'danger'}
+                confirmLabel="Delete"
+                onConfirm={alertConfig.onConfirm}
+                onCancel={() => setAlertConfig((prev) => ({ ...prev, isOpen: false }))}
+            />
         </>
     );
 }

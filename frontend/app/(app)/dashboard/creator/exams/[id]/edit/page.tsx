@@ -52,7 +52,12 @@ export default function EditExamPage({ params }: { params: Promise<{ id: string 
             setTimeout(() => router.push('/dashboard/creator/exams'), 1000);
         } catch (e) {
             console.error('Delete failed', e);
-            alert('Delete failed');
+            setAlertConfig({
+                isOpen: true,
+                title: 'Error',
+                message: 'Delete failed',
+                type: 'danger',
+            });
         }
     };
 

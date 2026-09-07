@@ -8,6 +8,8 @@ import { Users, GraduationCap, Search, Filter, Mail, Calendar, Trash2, Clipboard
 import GroupsTab from '@/app/components/Teacher/GroupsTab';
 import AnnouncementsTab from '@/app/components/Teacher/AnnouncementsTab';
 import AppModal from '@/app/components/Common/AppModal';
+import EmptyState from '@/app/components/Common/EmptyState';
+import AlertModal from '@/app/components/Common/AlertModal';
 
 type Tab = 'roster' | 'groups' | 'announcements';
 
@@ -25,6 +27,13 @@ export default function TeacherStudentsPage() {
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
     const [selectedStudent, setSelectedStudent] = useState<any>(null);
     const [activeTab, setActiveTab] = useState<Tab>('roster');
+    const [alertConfig, setAlertConfig] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        type?: 'danger' | 'warning' | 'info';
+        onConfirm: () => void;
+    }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
 
     useEffect(() => {
         async function loadData() {
@@ -47,25 +56,32 @@ export default function TeacherStudentsPage() {
             st.course.toLowerCase().includes(debouncedSearchQuery.toLowerCase()),
     );
 
-    const handleUnenroll = async (courseId: string, studentId: string) => {
-        if (!confirm('Are you sure you want to unenroll this student from the course?')) return;
+    const handleUnenroll = (courseId: string, studentId: string) => {
+        setAlertConfig({
+            isOpen: true,
+            title: 'Unenroll Student?',
+            message: 'Are you sure you want to unenroll this student from the course?',
+            type: 'danger',
+            onConfirm: async () => {
+                setAlertConfig((prev) => ({ ...prev, isOpen: false }));
+                try {
+                    await TeacherService.unenrollStudent(courseId, studentId);
 
-        try {
-            await TeacherService.unenrollStudent(courseId, studentId);
+                    // Update selected student state immediately
+                    if (selectedStudent) {
+                        const updatedCourses = selectedStudent.courses.filter((c: any) => c.id !== courseId);
+                        setSelectedStudent({ ...selectedStudent, courses: updatedCourses });
+                    }
 
-            // Update selected student state immediately
-            if (selectedStudent) {
-                const updatedCourses = selectedStudent.courses.filter((c: any) => c.id !== courseId);
-                setSelectedStudent({ ...selectedStudent, courses: updatedCourses });
-            }
-
-            // Refresh the main list
-            const data = await TeacherService.getStudents();
-            setStudents(data);
-        } catch (error) {
-            console.error('Failed to unenroll', error);
-            toastError('Failed to unenroll student');
-        }
+                    // Refresh the main list
+                    const data = await TeacherService.getStudents();
+                    setStudents(data);
+                } catch (error) {
+                    console.error('Failed to unenroll', error);
+                    toastError('Failed to unenroll student');
+                }
+            },
+        });
     };
 
     const handlePreviewProgress = (student: any) => {
@@ -256,12 +272,21 @@ export default function TeacherStudentsPage() {
                                 <tbody className="divide-y divide-slate-100">
                                     {filteredStudents.length === 0 ? (
                                         <tr>
-                                            <td
-                                                colSpan={5}
-                                                className="px-6 py-12 text-center text-sm"
-                                                style={{ color: 'var(--color-text-muted)' }}
-                                            >
-                                                No students found.
+                                            <td colSpan={5} className="p-0">
+                                                <EmptyState
+                                                    icon={<Users size={26} />}
+                                                    title={
+                                                        students.length === 0
+                                                            ? 'No students yet'
+                                                            : 'No students match your search'
+                                                    }
+                                                    description={
+                                                        students.length === 0
+                                                            ? 'Once students enroll in your courses, they will show up here.'
+                                                            : 'Try a different name, email, or filter.'
+                                                    }
+                                                    className="border-0 rounded-none bg-transparent py-12"
+                                                />
                                             </td>
                                         </tr>
                                     ) : (
@@ -515,6 +540,16 @@ export default function TeacherStudentsPage() {
                     </div>
                 </AppModal>
             )}
+
+            <AlertModal
+                isOpen={alertConfig.isOpen}
+                title={alertConfig.title}
+                message={alertConfig.message}
+                type={alertConfig.type || 'danger'}
+                confirmLabel="Unenroll"
+                onConfirm={alertConfig.onConfirm}
+                onCancel={() => setAlertConfig((prev) => ({ ...prev, isOpen: false }))}
+            />
         </div>
     );
 }

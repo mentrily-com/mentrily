@@ -528,7 +528,10 @@ export default function ExamBuilder({
                                     }
                                 } catch (e) {
                                     console.error(e);
-                                    alert(e instanceof Error && e.message ? e.message : 'Failed to save exam');
+                                    error(
+                                        e instanceof Error && e.message ? e.message : 'Failed to save exam',
+                                        'Save Failed',
+                                    );
                                 } finally {
                                     setIsSaving(false);
                                 }
@@ -1068,7 +1071,10 @@ export default function ExamBuilder({
                                                                 success('IP Address copied and added!', 'Success');
                                                             } catch (err) {
                                                                 console.error('Failed to fetch IP', err);
-                                                                alert('Failed to fetch your IP address');
+                                                                error(
+                                                                    'Failed to fetch your IP address',
+                                                                    'Error',
+                                                                );
                                                             }
                                                         }}
                                                         className="text-[8px] font-black uppercase text-[var(--brand)] hover:underline"

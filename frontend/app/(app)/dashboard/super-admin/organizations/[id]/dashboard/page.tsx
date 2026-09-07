@@ -4,6 +4,7 @@ import AdminDashboardView from '@/app/components/Features/Admin/AdminDashboardVi
 import { SuperAdminService } from '@/services/api/SuperAdminService';
 import { AdminService } from '@/services/api/AdminService';
 import OrgControlsSkeleton from '@/app/components/Skeletons/OrgControlsSkeleton';
+import { useToast } from '@/app/components/Common/Toast';
 
 type PlanType = 'FREE' | 'STARTER' | 'PRO' | 'ENTERPRISE';
 
@@ -36,6 +37,7 @@ const getErrorMessage = (error: unknown) => {
 
 export default function SuperAdminOrganizationDashboard({ params }: { params: Promise<{ id: string }> }) {
     const { id } = React.use(params);
+    const { success, error: toastError } = useToast();
     const [loading, setLoading] = useState(true);
     const [savingPlan, setSavingPlan] = useState(false);
     const [savingLimits, setSavingLimits] = useState(false);
@@ -105,9 +107,9 @@ export default function SuperAdminOrganizationDashboard({ params }: { params: Pr
         try {
             setSavingPlan(true);
             await SuperAdminService.updateOrganizationPlan(id, selectedPlan);
-            alert('Plan updated successfully');
+            success('Plan updated successfully');
         } catch (error: unknown) {
-            alert(getErrorMessage(error) || 'Failed to update plan');
+            toastError(getErrorMessage(error) || 'Failed to update plan');
         } finally {
             setSavingPlan(false);
         }
@@ -123,9 +125,9 @@ export default function SuperAdminOrganizationDashboard({ params }: { params: Pr
                 seats: Number(limits.seats),
                 maxAdminSeats: Number(limits.maxAdminSeats),
             });
-            alert('Limits updated successfully');
+            success('Limits updated successfully');
         } catch (error: unknown) {
-            alert(getErrorMessage(error) || 'Failed to update limits');
+            toastError(getErrorMessage(error) || 'Failed to update limits');
         } finally {
             setSavingLimits(false);
         }

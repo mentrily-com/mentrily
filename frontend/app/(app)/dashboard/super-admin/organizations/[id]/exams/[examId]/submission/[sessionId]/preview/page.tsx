@@ -7,6 +7,7 @@ import ExamSidebar from '@/app/components/ExamSidebar';
 // submission details and questions are now fetched from API
 
 import { TeacherService } from '@/services/api/TeacherService';
+import { useToast } from '@/app/components/Common/Toast';
 
 export default function SuperAdminSubmissionPreviewPage({
     params,
@@ -14,6 +15,7 @@ export default function SuperAdminSubmissionPreviewPage({
     params: Promise<{ id: string; examId: string; sessionId: string }>;
 }) {
     const { id, examId, sessionId } = React.use(params);
+    const { success, error: toastError } = useToast();
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [activeTab, setActiveTab] = useState<'question' | 'attempts'>('question');
     const [selectedAttemptId, setSelectedAttemptId] = useState<string | undefined>(undefined);
@@ -108,10 +110,10 @@ export default function SuperAdminSubmissionPreviewPage({
                 ...prev,
                 details: { ...prev.details, score: totalCalculated },
             }));
-            alert(`Grades saved! Total Score: ${totalCalculated}`);
+            success(`Grades saved! Total Score: ${totalCalculated}`);
         } catch (error) {
             console.error('Failed to save grades', error);
-            alert('Failed to save grades');
+            toastError('Failed to save grades');
         }
     };
 

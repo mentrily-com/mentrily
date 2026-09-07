@@ -4,6 +4,7 @@ import { TeacherService, Student } from '@/services/api/TeacherService';
 import ExamMonitorSkeleton from '@/app/components/Skeletons/ExamMonitorSkeleton';
 import { useToast } from '@/app/components/Common/Toast';
 import AppModal from '@/app/components/Common/AppModal';
+import AlertModal from '@/app/components/Common/AlertModal';
 import { io, Socket } from 'socket.io-client';
 import { getClerkToken } from '@/lib/clerk-token';
 
@@ -36,6 +37,13 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
     const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
     const [students, setStudents] = useState<Student[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [alertConfig, setAlertConfig] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        type?: 'danger' | 'warning' | 'info';
+        onConfirm: () => void;
+    }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
 
     useEffect(() => {
         const loadData = async () => {
@@ -698,39 +706,56 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                     footer={
                         <div className="flex justify-end">
                             <button
-                                onClick={async () => {
+                                onClick={() => {
                                     if (selectedStudent.status === 'Terminated') {
-                                        if (
-                                            confirm(
+                                        setAlertConfig({
+                                            isOpen: true,
+                                            title: 'Un-terminate Session?',
+                                            message:
                                                 'Are you sure you want to un-terminate this session? The student will be able to log in again.',
-                                            )
-                                        ) {
-                                            try {
-                                                await TeacherService.unterminateSession(examId, selectedStudent.id);
-                                                success(`Session for ${selectedStudent.name} restored successfully`);
-                                                setSelectedStudent(null);
-                                                const studentData = await TeacherService.getMonitoredStudents(examId);
-                                                setStudents(studentData);
-                                            } catch {
-                                                error('Failed to un-terminate session');
-                                            }
-                                        }
+                                            type: 'warning',
+                                            onConfirm: async () => {
+                                                setAlertConfig((prev) => ({ ...prev, isOpen: false }));
+                                                try {
+                                                    await TeacherService.unterminateSession(
+                                                        examId,
+                                                        selectedStudent.id,
+                                                    );
+                                                    success(
+                                                        `Session for ${selectedStudent.name} restored successfully`,
+                                                    );
+                                                    setSelectedStudent(null);
+                                                    const studentData =
+                                                        await TeacherService.getMonitoredStudents(examId);
+                                                    setStudents(studentData);
+                                                } catch {
+                                                    error('Failed to un-terminate session');
+                                                }
+                                            },
+                                        });
                                     } else {
-                                        if (
-                                            confirm(
+                                        setAlertConfig({
+                                            isOpen: true,
+                                            title: 'Terminate Session?',
+                                            message:
                                                 'Are you sure you want to terminate this student session? They will be logged out immediately.',
-                                            )
-                                        ) {
-                                            try {
-                                                await TeacherService.terminateSession(examId, selectedStudent.id);
-                                                success(`Session for ${selectedStudent.name} terminated successfully`);
-                                                setSelectedStudent(null);
-                                                const studentData = await TeacherService.getMonitoredStudents(examId);
-                                                setStudents(studentData);
-                                            } catch {
-                                                error('Failed to terminate session');
-                                            }
-                                        }
+                                            type: 'danger',
+                                            onConfirm: async () => {
+                                                setAlertConfig((prev) => ({ ...prev, isOpen: false }));
+                                                try {
+                                                    await TeacherService.terminateSession(examId, selectedStudent.id);
+                                                    success(
+                                                        `Session for ${selectedStudent.name} terminated successfully`,
+                                                    );
+                                                    setSelectedStudent(null);
+                                                    const studentData =
+                                                        await TeacherService.getMonitoredStudents(examId);
+                                                    setStudents(studentData);
+                                                } catch {
+                                                    error('Failed to terminate session');
+                                                }
+                                            },
+                                        });
                                     }
                                 }}
                                 className={`w-full px-6 py-3.5 text-white font-black text-[11px] uppercase tracking-[0.1em] rounded-2xl hover:scale-105 transition-all shadow-xl active:scale-95 sm:w-auto sm:px-10 ${selectedStudent.status === 'Terminated' ? 'bg-emerald-600 shadow-emerald-200' : 'bg-rose-600 shadow-rose-200'}`}
@@ -888,6 +913,16 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                     </div>
                 </AppModal>
             )}
+
+            <AlertModal
+                isOpen={alertConfig.isOpen}
+                title={alertConfig.title}
+                message={alertConfig.message}
+                type={alertConfig.type || 'danger'}
+                confirmLabel={alertConfig.type === 'warning' ? 'Restore' : 'Terminate'}
+                onConfirm={alertConfig.onConfirm}
+                onCancel={() => setAlertConfig((prev) => ({ ...prev, isOpen: false }))}
+            />
         </div>
     );
 }

@@ -18,9 +18,11 @@ import {
 import { useRouter } from 'next/navigation';
 
 import { SuperAdminService } from '@/services/api/SuperAdminService';
+import { useToast } from '@/app/components/Common/Toast';
 
 export default function CreateOrganizationView() {
     const router = useRouter();
+    const { error: toastError } = useToast();
     const [isSaving, setIsSaving] = useState(false);
     const [formData, setFormData] = useState<{
         name: string;
@@ -84,7 +86,7 @@ export default function CreateOrganizationView() {
     });
 
     const handleSave = async () => {
-        if (!formData.name) return alert('Organization name is required');
+        if (!formData.name) return toastError('Organization name is required');
 
         setIsSaving(true);
         try {
@@ -120,9 +122,9 @@ export default function CreateOrganizationView() {
                 country: formData.country,
             });
             router.push('/dashboard/super-admin/organizations');
-        } catch (error: any) {
-            console.error('Failed to create organization', error);
-            alert(error.message || 'Failed to create organization');
+        } catch (err: any) {
+            console.error('Failed to create organization', err);
+            toastError(err.message || 'Failed to create organization');
         } finally {
             setIsSaving(false);
         }

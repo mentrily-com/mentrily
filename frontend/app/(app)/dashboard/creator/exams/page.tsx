@@ -7,6 +7,7 @@ import { BookOpen, Eye, Lock, Pencil, Send, Activity, BarChart3 } from 'lucide-r
 import ExamDetailsModal from '@/app/components/Features/Exams/ExamDetailsModal';
 import ExamInviteModal from '@/app/components/Features/Exams/ExamInviteModal';
 import ExamCalendarView from '@/app/components/Features/Exams/ExamCalendarView';
+import EmptyState from '@/app/components/Common/EmptyState';
 import { TeacherService } from '@/services/api/TeacherService';
 import { AuthService } from '@/services/api/AuthService';
 import { usePlan } from '@/hooks/usePlan';
@@ -214,9 +215,12 @@ function ExamSection({
             </div>
 
             {exams.length === 0 ? (
-                <div className="p-10 text-center text-xs font-black uppercase tracking-widest text-slate-400">
-                    {emptyLabel}
-                </div>
+                <EmptyState
+                    icon={<BookOpen size={26} />}
+                    title={emptyLabel}
+                    action={{ label: 'Create Exam', href: '/dashboard/creator/exams/new' }}
+                    className="rounded-none border-0 bg-transparent py-10"
+                />
             ) : (
                 <>
                     <table className="hidden w-full text-left md:table">

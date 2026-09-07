@@ -17,7 +17,7 @@ const CourseBuilder = dynamic(() => import('@/app/components/Authoring/CourseBui
 export default function EditCoursePage({ params }: { params: Promise<{ id: string }> }) {
     const { role } = usePlan();
     const router = useRouter();
-    const { success } = useToast();
+    const { error: toastError } = useToast();
     const [alertConfig, setAlertConfig] = useState<{
         isOpen: boolean;
         title: string;
@@ -59,7 +59,7 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
             setTimeout(() => router.push('/dashboard/creator'), 1000);
         } catch (e) {
             console.error('Delete failed', e);
-            alert('Delete failed');
+            toastError('Delete failed');
         }
     };
 

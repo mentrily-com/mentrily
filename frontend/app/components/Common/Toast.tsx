@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { CheckCircle2, AlertCircle, Info, X, AlertTriangle } from 'lucide-react';
 
-type ToastType = 'success' | 'error' | 'info' | 'warning';
+type ToastType = 'success' | 'error' | 'info' | 'warning' | 'violation';
 
 interface Toast {
     id: string;
@@ -176,6 +176,9 @@ function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
         error: <AlertCircle className="text-rose-500" size={20} />,
         info: <Info className="text-[var(--brand)]" size={20} />,
         warning: <AlertTriangle className="text-amber-500" size={20} />,
+        // Solid white icon on the toast's own solid background, matching the
+        // "alarming" weight this variant is for -- see the style entry below.
+        violation: <AlertTriangle className="text-white" size={20} />,
     };
 
     const styles = {
@@ -183,6 +186,14 @@ function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
         error: 'border-rose-100 bg-rose-50/50 shadow-rose-500/5',
         info: 'border-[var(--brand-light)] bg-[var(--brand-light)] shadow-[var(--brand)]/5',
         warning: 'border-amber-100 bg-amber-50/50 shadow-amber-500/5',
+        // Exam proctoring violations (tab switch, devtools, paste/copy
+        // attempts) previously used the same soft, translucent `warning`
+        // style as routine notices like "network lost" -- for something
+        // that can lead to exam disqualification, that read as no more
+        // urgent than an FYI. This variant is solid (not `/50`
+        // translucent), rose instead of amber, with white text for
+        // contrast, so it visibly reads as a different severity tier.
+        violation: 'border-rose-600 bg-rose-600 shadow-rose-900/20',
     };
 
     // Errors interrupt (assertive) since they're often actionable and time
@@ -190,30 +201,38 @@ function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
     // string of success toasts doesn't talk over whatever the screen reader
     // user is already doing. Without this, toasts were entirely silent to
     // screen reader users -- the DOM node just appears, with nothing to
-    // trigger an announcement.
-    const isAssertive = toast.type === 'error';
+    // trigger an announcement. Violations are just as time-sensitive as
+    // errors, so they interrupt too.
+    const isAssertive = toast.type === 'error' || toast.type === 'violation';
+    const isViolation = toast.type === 'violation';
 
     return (
         <div
             role={isAssertive ? 'alert' : 'status'}
             aria-live={isAssertive ? 'assertive' : 'polite'}
             aria-atomic="true"
-            className={`pointer-events-auto flex items-start gap-4 p-4 rounded-2xl border bg-white/80 backdrop-blur-md shadow-xl animate-fade-in ${styles[toast.type]}`}
+            className={`pointer-events-auto flex items-start gap-4 p-4 rounded-2xl border backdrop-blur-md shadow-xl animate-fade-in ${isViolation ? '' : 'bg-white/80'} ${styles[toast.type]}`}
         >
             <div className="shrink-0 mt-0.5">{icons[toast.type]}</div>
             <div className="flex-1 min-w-0">
                 {toast.title && (
-                    <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-800 mb-1">
+                    <h4
+                        className={`text-[11px] font-black uppercase tracking-widest mb-1 ${isViolation ? 'text-white' : 'text-slate-800'}`}
+                    >
                         {toast.title}
                     </h4>
                 )}
-                <p className="text-xs font-bold text-slate-600 leading-relaxed">{toast.message}</p>
+                <p className={`text-xs font-bold leading-relaxed ${isViolation ? 'text-white/90' : 'text-slate-600'}`}>
+                    {toast.message}
+                </p>
             </div>
             {!toast.undismissible && (
                 <button
                     onClick={onClose}
                     aria-label="Dismiss notification"
-                    className="shrink-0 p-1 text-slate-400 hover:text-slate-600 transition-colors"
+                    className={`shrink-0 p-1 transition-colors ${
+                        isViolation ? 'text-white/70 hover:text-white' : 'text-slate-400 hover:text-slate-600'
+                    }`}
                 >
                     <X size={14} />
                 </button>

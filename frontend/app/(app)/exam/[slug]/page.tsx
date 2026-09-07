@@ -129,7 +129,7 @@ export default function PublicExamPage() {
     const [finalSubmitTime, setFinalSubmitTime] = useState<string | null>(null);
     const [isNotFound, setIsNotFound] = useState(false);
 
-    const { warning, info, error: toastError, dismiss } = useToast();
+    const { warning, info, error: toastError, dismiss, toast } = useToast();
     const fullscreenToastIdRef = useRef<string | null>(null);
     const hasInteractedRef = useRef(false);
     const debouncedSaveRef = useRef<any>(null);
@@ -1347,7 +1347,7 @@ export default function PublicExamPage() {
             // Let CodeMirror handle paste internally (it uses internal clipboard)
             if (isFromCodeEditor(e.target)) return;
             e.preventDefault();
-            warning('Pasting is not allowed during the exam.', 'Paste Blocked', 4000);
+            toast('Pasting is not allowed during the exam.', 'violation', 'Paste Blocked', 4000);
             socketLogViolation('PASTE_ATTEMPT', 'Student attempted to paste content');
         };
         const handleCopy = (e: ClipboardEvent) => {
@@ -1378,7 +1378,7 @@ export default function PublicExamPage() {
             document.removeEventListener('cut', handleCut, true);
             document.removeEventListener('contextmenu', handleContextMenu, true);
         };
-    }, [isFeedbackMode, isSuccessMode, warning, socketLogViolation]);
+    }, [isFeedbackMode, isSuccessMode, toast, socketLogViolation]);
 
     // === DEVTOOLS / INSPECT DETERRENCE ===
     // IMPORTANT: this is a client-side DETERRENT, not a security boundary. A
@@ -1414,7 +1414,7 @@ export default function PublicExamPage() {
             if (!combo) return;
             e.preventDefault();
             e.stopPropagation();
-            warning('Developer tools are disabled during the exam.', 'Action Blocked', 4000);
+            toast('Developer tools are disabled during the exam.', 'violation', 'Action Blocked', 4000);
             socketLogViolation('DEVTOOLS_SHORTCUT', `Blocked developer-tools shortcut: ${combo}`);
         };
 
@@ -1437,7 +1437,7 @@ export default function PublicExamPage() {
             const open = widthGrew > OPEN_DELTA || heightGrew > OPEN_DELTA;
             if (open && !devtoolsFlagged) {
                 devtoolsFlagged = true;
-                warning('Developer tools appear to be open. This has been recorded.', 'Proctoring Alert', 5000);
+                toast('Developer tools appear to be open. This has been recorded.', 'violation', 'Proctoring Alert', 5000);
                 socketLogViolation('DEVTOOLS_OPENED', 'Developer tools detected open during exam');
             } else if (!open) {
                 devtoolsFlagged = false;
@@ -1453,15 +1453,15 @@ export default function PublicExamPage() {
             window.clearInterval(interval);
             window.removeEventListener('resize', checkDevtools);
         };
-    }, [isFeedbackMode, isSuccessMode, warning, socketLogViolation]);
+    }, [isFeedbackMode, isSuccessMode, toast, socketLogViolation]);
 
     // Cheat detection callback for editor components
     const handleCheatDetected = useCallback(
         (reason: string) => {
-            warning(reason, 'Warning', 4000);
+            toast(reason, 'violation', 'Warning', 4000);
             socketLogViolation('CHEAT_DETECTED', reason);
         },
-        [warning, socketLogViolation],
+        [toast, socketLogViolation],
     );
 
     // Fullscreen Monitoring

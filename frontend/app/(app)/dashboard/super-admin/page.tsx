@@ -21,8 +21,11 @@ import { SuperAdminService } from '@/services/api/SuperAdminService';
 import { useRequireAuth } from '@/hooks/requireAuthClient';
 import SuperAdminDashboardSkeleton from '@/app/components/Skeletons/SuperAdminDashboardSkeleton';
 import { sanitizeProse } from '@/lib/sanitize';
+import { useToast } from '@/app/components/Common/Toast';
+import AlertModal from '@/app/components/Common/AlertModal';
 
 export default function SuperAdminDashboardPage() {
+    const { error: toastError } = useToast();
     const [statsData, setStatsData] = useState<any>(null);
     const [organizations, setOrganizations] = useState<any[]>([]);
     const [bugReports, setBugReports] = useState<any[]>([]);
@@ -32,6 +35,12 @@ export default function SuperAdminDashboardPage() {
     const [loadingBugs, setLoadingBugs] = useState(true);
     const [loading, setLoading] = useState(true);
     const [authChecked, setAuthChecked] = useState(false);
+    const [confirmConfig, setConfirmConfig] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        onConfirm: () => void;
+    } | null>(null);
     const isSignedIn = useRequireAuth('/login');
 
     useEffect(() => {
@@ -259,15 +268,22 @@ export default function SuperAdminDashboardPage() {
                                 <OrgRow
                                     key={org.id}
                                     org={org}
-                                    onDelete={async () => {
-                                        if (confirm(`Are you sure you want to delete ${org.name}?`)) {
-                                            try {
-                                                await SuperAdminService.deleteOrganization(org.id);
-                                                setOrganizations((prev) => prev.filter((o) => o.id !== org.id));
-                                            } catch (e) {
-                                                alert('Failed to delete organization');
-                                            }
-                                        }
+                                    onDelete={() => {
+                                        setConfirmConfig({
+                                            isOpen: true,
+                                            title: 'Delete Organization',
+                                            message: `Are you sure you want to delete ${org.name}?`,
+                                            onConfirm: async () => {
+                                                try {
+                                                    await SuperAdminService.deleteOrganization(org.id);
+                                                    setOrganizations((prev) => prev.filter((o) => o.id !== org.id));
+                                                } catch (e) {
+                                                    toastError('Failed to delete organization');
+                                                } finally {
+                                                    setConfirmConfig(null);
+                                                }
+                                            },
+                                        });
                                     }}
                                     onToggleStatus={async () => {
                                         try {
@@ -279,7 +295,7 @@ export default function SuperAdminDashboardPage() {
                                                 prev.map((o) => (o.id === org.id ? { ...o, status: newStatus } : o)),
                                             );
                                         } catch (e) {
-                                            alert('Failed to update status');
+                                            toastError('Failed to update status');
                                         }
                                     }}
                                 />
@@ -436,7 +452,7 @@ export default function SuperAdminDashboardPage() {
                                                                 ),
                                                             );
                                                         } catch (error) {
-                                                            alert('Failed to mark as fixed');
+                                                            toastError('Failed to mark as fixed');
                                                         }
                                                     }}
                                                     className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100"
@@ -446,14 +462,24 @@ export default function SuperAdminDashboardPage() {
                                                 </button>
                                             )}
                                             <button
-                                                onClick={async () => {
-                                                    if (!confirm('Delete this bug report?')) return;
-                                                    try {
-                                                        await SuperAdminService.deleteBugReport(bug.id);
-                                                        setBugReports((prev) => prev.filter((b) => b.id !== bug.id));
-                                                    } catch (error) {
-                                                        alert('Failed to delete bug report');
-                                                    }
+                                                onClick={() => {
+                                                    setConfirmConfig({
+                                                        isOpen: true,
+                                                        title: 'Delete Bug Report',
+                                                        message: 'Delete this bug report?',
+                                                        onConfirm: async () => {
+                                                            try {
+                                                                await SuperAdminService.deleteBugReport(bug.id);
+                                                                setBugReports((prev) =>
+                                                                    prev.filter((b) => b.id !== bug.id),
+                                                                );
+                                                            } catch (error) {
+                                                                toastError('Failed to delete bug report');
+                                                            } finally {
+                                                                setConfirmConfig(null);
+                                                            }
+                                                        },
+                                                    });
                                                 }}
                                                 className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700 transition-colors hover:bg-rose-100"
                                             >
@@ -572,6 +598,16 @@ export default function SuperAdminDashboardPage() {
                     </div>
                 </div>
             )}
+
+            <AlertModal
+                isOpen={!!confirmConfig?.isOpen}
+                title={confirmConfig?.title || ''}
+                message={confirmConfig?.message || ''}
+                type="danger"
+                confirmLabel="Delete"
+                onConfirm={() => confirmConfig?.onConfirm()}
+                onCancel={() => setConfirmConfig(null)}
+            />
         </div>
     );
 }
