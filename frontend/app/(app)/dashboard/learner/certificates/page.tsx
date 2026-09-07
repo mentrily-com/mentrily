@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { StudentService } from '@/services/api/StudentService';
 import { Award, Download, Loader2, Lock } from 'lucide-react';
+import LearnerCertificatesSkeleton from '@/app/components/Skeletons/LearnerCertificatesSkeleton';
 
 type LearnerCertificate = {
     id: string;
@@ -92,10 +93,7 @@ export default function LearnerCertificatesPage() {
 
             <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8 animate-fade-in">
                 {loading ? (
-                    <div className="flex min-h-[320px] flex-col items-center justify-center gap-4">
-                        <Loader2 className="h-10 w-10 animate-spin text-[var(--brand)]" />
-                        <p className="text-sm font-bold text-slate-500">Loading your certificates...</p>
-                    </div>
+                    <LearnerCertificatesSkeleton />
                 ) : locked ? (
                     <section className="mt-6 rounded-[30px] border border-amber-200 bg-amber-50 p-5 shadow-sm sm:p-8">
                         <div className="flex flex-col items-start gap-5 lg:flex-row lg:items-center lg:justify-between">

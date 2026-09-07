@@ -1,7 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { StudentService } from '@/services/api/StudentService';
-import { Loader2, Trash2, ExternalLink } from 'lucide-react';
+import { Trash2, ExternalLink } from 'lucide-react';
+import LearnerBookmarksSkeleton from '@/app/components/Skeletons/LearnerBookmarksSkeleton';
 import Link from 'next/link';
 
 interface Bookmark {
@@ -55,10 +56,7 @@ export default function BookmarksPage() {
 
             <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8 animate-fade-in text-left">
                 {loading ? (
-                    <div className="flex flex-col items-center justify-center py-20">
-                        <Loader2 className="w-10 h-10 text-[var(--brand)] animate-spin mb-4" />
-                        <p className="text-slate-500 font-bold">Loading your saved secrets...</p>
-                    </div>
+                    <LearnerBookmarksSkeleton />
                 ) : bookmarks.length === 0 ? (
                     <div className="text-center py-20 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-100">
                         <div className="w-16 h-16 bg-white rounded-2xl mx-auto flex items-center justify-center shadow-sm mb-4 text-2xl">
