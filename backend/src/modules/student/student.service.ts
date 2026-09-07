@@ -330,10 +330,10 @@ export class StudentService {
         : Math.round(averageScoreRaw);
 
     const stats = {
-      completedModules: (user as any)._count?.unitSubmissions ?? 0,
+      completedModules: user._count?.unitSubmissions ?? 0,
       averageScore,
-      streak: (user as any).dailyStreak,
-      totalXP: (user as any).totalXP,
+      streak: user.dailyStreak,
+      totalXP: user.totalXP,
     };
 
     // Cache for 60 seconds (short lived)
@@ -483,7 +483,7 @@ export class StudentService {
     if (!user) return [];
 
     // Collect every unit ID across all enrolled courses in one pass
-    const allUnitIds = (user as any).courses.flatMap((course: any) =>
+    const allUnitIds = user.courses.flatMap((course: any) =>
       course.modules.flatMap((mod: any) => mod.units.map((u: any) => u.id)),
     );
 
@@ -499,7 +499,7 @@ export class StudentService {
     const completedSet = new Set(completedSubs.map((s: any) => s.unitId));
 
     const courses = await Promise.all(
-      (user as any).courses.map(async (course: any) => {
+      user.courses.map(async (course: any) => {
         const totalUnits = course.modules.reduce(
           (sum: number, mod: any) => sum + mod.units.length,
           0,
@@ -1498,99 +1498,5 @@ export class StudentService {
       title: certificate.title,
       issuedAt: certificate.issuedAt,
     };
-  }
-
-  // ─── ANNOUNCEMENTS ─────────────────────────────────────────────────────────
-
-  async getAnnouncements(
-    userId: string,
-    options?: { limit?: string | number; offset?: string | number },
-  ) {
-    const limit = this.parseBoundedNumber(options?.limit, 50, 1, 100);
-    const offset = this.parseBoundedNumber(options?.offset, 0, 0, 10000);
-    const versionKey = `student:announcements:ver:${userId}`;
-    const cacheVersion = (await this.redis.get(versionKey)) || '1';
-    const cacheKey = `student:announcements:${userId}:v:${cacheVersion}:limit:${limit}:offset:${offset}`;
-    const cached = await this.redis.get(cacheKey);
-    if (cached) return JSON.parse(cached);
-
-    const announcements = await this.prisma.announcement.findMany({
-      where: {
-        groups: {
-          some: {
-            students: {
-              some: { id: userId },
-            },
-          },
-        },
-      },
-      include: {
-        teacher: { select: { name: true, profilePicture: true } },
-        groups: { select: { id: true, name: true } },
-        reads: {
-          where: { userId },
-          select: { id: true, readAt: true },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-      skip: offset,
-      take: limit,
-    });
-
-    const response = announcements.map((a) => ({
-      id: a.id,
-      title: a.title,
-      content: a.content,
-      attachments: a.attachments,
-      teacherName: a.teacher.name || 'Teacher',
-      teacherPicture: a.teacher.profilePicture,
-      groupNames: a.groups.map((g) => g.name),
-      isRead: a.reads.length > 0,
-      readAt: a.reads[0]?.readAt || null,
-      createdAt: a.createdAt,
-    }));
-
-    await this.redis.set(cacheKey, JSON.stringify(response), 'EX', 60);
-    return response;
-  }
-
-  async getUnreadAnnouncementCount(userId: string) {
-    const cacheKey = `student:announcements:unread:${userId}`;
-    const cached = await this.redis.get(cacheKey);
-    if (cached) return JSON.parse(cached);
-
-    const count = await this.prisma.announcement.count({
-      where: {
-        groups: {
-          some: {
-            students: {
-              some: { id: userId },
-            },
-          },
-        },
-        reads: {
-          none: { userId },
-        },
-      },
-    });
-
-    const response = { count };
-    await this.redis.set(cacheKey, JSON.stringify(response), 'EX', 30);
-    return response;
-  }
-
-  async markAnnouncementRead(userId: string, announcementId: string) {
-    const result = await this.prisma.announcementRead.upsert({
-      where: {
-        userId_announcementId: { userId, announcementId },
-      },
-      create: { userId, announcementId },
-      update: {},
-    });
-
-    await this.redis.del(`student:announcements:unread:${userId}`);
-    await this.redis.incr(`student:announcements:ver:${userId}`);
-
-    return result;
   }
 }
