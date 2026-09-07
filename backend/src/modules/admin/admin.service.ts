@@ -16,6 +16,7 @@ import { QuotaService } from '../billing/quota.service';
 import { MailService } from '../../services/mail.service';
 import { getEffectivePlanLimits, type PlanKey } from '../../config/plan-limits';
 import { getPublicAppUrl } from '../../config/app-brand';
+import { getEffectiveOrgId } from './admin.util';
 
 type InviteInput = {
   email?: string;
@@ -293,28 +294,6 @@ export class AdminService {
     }
   }
 
-  private getEffectiveOrgId(user: any, targetOrgId?: string): string {
-    if (user.role === 'SUPER_ADMIN') {
-      if (targetOrgId) return targetOrgId;
-      if (user.orgId) return user.orgId;
-      // If Super Admin and no targetOrgId, we might want to return null or throw depending on context.
-      // But for these operations, we need an orgId.
-      throw new BadRequestException(
-        'Organization ID is required for Super Admin operations',
-      );
-    }
-
-    if (!user.orgId)
-      throw new ForbiddenException('Admin has no organization assigned');
-
-    // Regular admin cannot impersonate
-    if (targetOrgId && targetOrgId !== user.orgId) {
-      throw new ForbiddenException('Cannot access another organization');
-    }
-
-    return user.orgId;
-  }
-
   private async invalidateOrgFeatureCaches(orgId: string): Promise<void> {
     const directKeys = [
       `org:features:${orgId}`,
@@ -364,7 +343,7 @@ export class AdminService {
   }
 
   async getOrganizationSettings(user?: any, targetOrgId?: string) {
-    const orgId = this.getEffectiveOrgId(user, targetOrgId);
+    const orgId = getEffectiveOrgId(user, targetOrgId);
     const org = await this.prisma.organization.findUnique({
       where: { id: orgId },
       select: {
@@ -384,7 +363,7 @@ export class AdminService {
   }
 
   async updateOrganizationSettings(user: any, data: any, targetOrgId?: string) {
-    const orgId = this.getEffectiveOrgId(user, targetOrgId);
+    const orgId = getEffectiveOrgId(user, targetOrgId);
 
     const org = await this.prisma.organization.findUnique({
       where: { id: orgId },
@@ -455,7 +434,7 @@ export class AdminService {
   }
 
   async getGlobalStats(user?: any, targetOrgId?: string) {
-    const orgId = this.getEffectiveOrgId(user, targetOrgId);
+    const orgId = getEffectiveOrgId(user, targetOrgId);
 
     // CACHE
     const cacheKey = `admin:stats:${orgId}`;
@@ -522,7 +501,7 @@ export class AdminService {
   }
 
   async getUsers(user?: any, targetOrgId?: string) {
-    const orgId = this.getEffectiveOrgId(user, targetOrgId);
+    const orgId = getEffectiveOrgId(user, targetOrgId);
     const [homeUsers, orgMemberships, pendingInvites] = await Promise.all([
       this.prisma.user.findMany({
         where: {
@@ -649,7 +628,7 @@ export class AdminService {
   }
 
   async getSystemLogs(user?: any, targetOrgId?: string) {
-    const orgId = this.getEffectiveOrgId(user, targetOrgId);
+    const orgId = getEffectiveOrgId(user, targetOrgId);
     // Only show logs for users in this org
     return this.prisma.auditLog.findMany({
       where: { user: { orgId } },
@@ -660,7 +639,7 @@ export class AdminService {
   }
 
   async getUserStorage(user?: any, targetOrgId?: string) {
-    const orgId = this.getEffectiveOrgId(user, targetOrgId);
+    const orgId = getEffectiveOrgId(user, targetOrgId);
 
     const assets = await this.prisma.asset.groupBy({
       by: ['userId'],
@@ -689,7 +668,7 @@ export class AdminService {
   }
 
   async getAnalytics(user?: any, targetOrgId?: string) {
-    const orgId = this.getEffectiveOrgId(user, targetOrgId);
+    const orgId = getEffectiveOrgId(user, targetOrgId);
 
     // CACHE
     const cacheKey = `admin:analytics:${orgId}`;
@@ -772,7 +751,7 @@ export class AdminService {
   }
 
   async getExams(user?: any, targetOrgId?: string) {
-    const orgId = this.getEffectiveOrgId(user, targetOrgId);
+    const orgId = getEffectiveOrgId(user, targetOrgId);
     return this.prisma.exam.findMany({
       where: { orgId }, // ISOLATION
       include: {
@@ -786,7 +765,7 @@ export class AdminService {
   }
 
   async getCourses(user?: any, targetOrgId?: string) {
-    const orgId = this.getEffectiveOrgId(user, targetOrgId);
+    const orgId = getEffectiveOrgId(user, targetOrgId);
     return this.prisma.course.findMany({
       where: { orgId }, // ISOLATION
       include: {
@@ -800,7 +779,7 @@ export class AdminService {
   }
 
   async getOnboardingStatus(user?: any, targetOrgId?: string) {
-    const orgId = this.getEffectiveOrgId(user, targetOrgId);
+    const orgId = getEffectiveOrgId(user, targetOrgId);
 
     const [
       org,
@@ -894,7 +873,7 @@ export class AdminService {
    * and listMemberships already honor), not User.isActive.
    */
   async toggleUserStatus(id: string, caller: any, targetOrgId?: string) {
-    const orgId = this.getEffectiveOrgId(caller, targetOrgId);
+    const orgId = getEffectiveOrgId(caller, targetOrgId);
 
     const targetUser = await this.prisma.user.findUnique({
       where: { id },
@@ -1027,7 +1006,7 @@ export class AdminService {
     currentUser?: any,
     targetOrgId?: string,
   ): Promise<InviteResult> {
-    const orgId = this.getEffectiveOrgId(currentUser, targetOrgId);
+    const orgId = getEffectiveOrgId(currentUser, targetOrgId);
     const role = this.normalizeRole(data.role);
     const email = this.normalizeEmail(data.email);
     const name = this.sanitizeOptionalText(data.name);
@@ -1227,99 +1206,6 @@ export class AdminService {
     }
   }
 
-  async getCourseAssignments(
-    courseId: string,
-    caller: any,
-    targetOrgId?: string,
-  ) {
-    const orgId = this.getEffectiveOrgId(caller, targetOrgId);
-    const course = await this.prisma.course.findFirst({
-      where: { id: courseId, orgId },
-      select: { id: true },
-    });
-
-    if (!course) {
-      throw new NotFoundException('Course not found');
-    }
-
-    return this.prisma.courseAssignment.findMany({
-      where: { courseId },
-      include: {
-        teacher: {
-          select: { id: true, email: true, name: true },
-        },
-        assignedBy: {
-          select: { id: true, email: true, name: true },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
-
-  async assignTeacherToCourse(
-    courseId: string,
-    teacherId: string,
-    caller: any,
-    targetOrgId?: string,
-  ) {
-    const orgId = this.getEffectiveOrgId(caller, targetOrgId);
-    const [course, teacher] = await Promise.all([
-      this.prisma.course.findFirst({
-        where: { id: courseId, orgId },
-        select: { id: true, orgId: true },
-      }),
-      this.prisma.user.findFirst({
-        where: { id: teacherId, orgId, role: 'TEACHER' },
-        select: { id: true },
-      }),
-    ]);
-
-    if (!course) {
-      throw new NotFoundException('Course not found');
-    }
-    if (!teacher) {
-      throw new NotFoundException('Teacher not found');
-    }
-
-    return this.prisma.courseAssignment.upsert({
-      where: {
-        courseId_teacherId: {
-          courseId,
-          teacherId,
-        },
-      },
-      update: {},
-      create: {
-        courseId,
-        teacherId,
-        assignedById: caller.id,
-      },
-    });
-  }
-
-  async removeTeacherFromCourse(
-    courseId: string,
-    teacherId: string,
-    caller: any,
-    targetOrgId?: string,
-  ) {
-    const orgId = this.getEffectiveOrgId(caller, targetOrgId);
-    const course = await this.prisma.course.findFirst({
-      where: { id: courseId, orgId },
-      select: { id: true },
-    });
-
-    if (!course) {
-      throw new NotFoundException('Course not found');
-    }
-
-    await this.prisma.courseAssignment.deleteMany({
-      where: { courseId, teacherId },
-    });
-
-    return { removed: true };
-  }
-
   private async decrementSeatCounter(orgId: string, role: Role): Promise<void> {
     if (role === Role.STUDENT) {
       await this.quotaService
@@ -1345,7 +1231,7 @@ export class AdminService {
       throw new BadRequestException('You cannot remove yourself');
     }
 
-    const orgId = this.getEffectiveOrgId(caller, targetOrgId);
+    const orgId = getEffectiveOrgId(caller, targetOrgId);
 
     const targetUser = await this.prisma.user.findUnique({
       where: { id },
@@ -1442,7 +1328,7 @@ export class AdminService {
       throw new BadRequestException('You cannot change your own role');
     }
 
-    const orgId = this.getEffectiveOrgId(caller, targetOrgId);
+    const orgId = getEffectiveOrgId(caller, targetOrgId);
     const normalizedRole = this.normalizeRole(role);
 
     const targetUser = await this.prisma.user.findUnique({
