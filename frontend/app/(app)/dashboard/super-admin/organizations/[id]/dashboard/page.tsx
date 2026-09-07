@@ -141,12 +141,12 @@ export default function SuperAdminOrganizationDashboard({ params }: { params: Pr
         <div className="space-y-6">
             <section className="max-w-[1440px] mx-auto px-6 lg:px-12 pt-8">
                 <div className="bg-white rounded-[32px] border border-slate-100 p-6 shadow-sm">
-                    <div className="flex items-center justify-between mb-6">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
                         <div>
                             <h2 className="text-xl font-black text-slate-900">Organization Controls</h2>
                             <p className="text-xs font-bold text-slate-400 mt-1">{orgName}</p>
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-center">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
                             <div className="bg-slate-50 rounded-xl px-3 py-2">
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Users</p>
                                 <p className="text-sm font-black text-slate-700">{usage.users}</p>
