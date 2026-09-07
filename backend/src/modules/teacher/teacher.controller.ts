@@ -15,6 +15,7 @@ import { TeacherService } from './teacher.service';
 import { TeacherGroupsService } from './teacher-groups.service';
 import { TeacherAnnouncementsService } from './teacher-announcements.service';
 import { TeacherStudentsService } from './teacher-students.service';
+import { TeacherStatsService } from './teacher-stats.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OrgFeaturesGuard } from '../auth/guards/org-features.guard';
 import { OrgStatusGuard } from '../auth/guards/org-status.guard';
@@ -35,26 +36,27 @@ export class TeacherController {
     private readonly teacherGroupsService: TeacherGroupsService,
     private readonly teacherAnnouncementsService: TeacherAnnouncementsService,
     private readonly teacherStudentsService: TeacherStudentsService,
+    private readonly teacherStatsService: TeacherStatsService,
   ) {}
 
   @Get('stats')
   async getStats(@User() user: any) {
-    return this.teacherService.getStats(user);
+    return this.teacherStatsService.getStats(user);
   }
 
   @Get('modules')
   async getMyModules(@User() user: any) {
-    return this.teacherService.getMyModules(user);
+    return this.teacherStatsService.getMyModules(user);
   }
 
   @Get('submissions/recent')
   async getRecentSubmissions(@User() user: any) {
-    return this.teacherService.getRecentSubmissions(user);
+    return this.teacherStatsService.getRecentSubmissions(user);
   }
 
   @Get('activity/recent')
   async getRecentActivity(@User() user: any) {
-    return this.teacherService.getRecentActivity(user);
+    return this.teacherStatsService.getRecentActivity(user);
   }
 
   @Get('students')
@@ -144,7 +146,7 @@ export class TeacherController {
 
   @Get('courses/:idOrSlug')
   async getCourse(@Param('idOrSlug') idOrSlug: string, @User() user: any) {
-    return this.teacherService.getCourse(idOrSlug, user);
+    return this.teacherStatsService.getCourse(idOrSlug, user);
   }
 
   @Post('courses')
@@ -226,7 +228,7 @@ export class TeacherController {
 
   @Get('exams/:idOrSlug')
   async getExam(@Param('idOrSlug') idOrSlug: string, @User() user: any) {
-    return this.teacherService.getExam(idOrSlug, user);
+    return this.teacherStatsService.getExam(idOrSlug, user);
   }
 
   @Post('exams')
