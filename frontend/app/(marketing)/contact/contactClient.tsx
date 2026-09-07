@@ -347,10 +347,17 @@ function ContactForm() {
                                                     href={card.href}
                                                     target={card.external ? '_blank' : undefined}
                                                     rel={card.external ? 'noopener noreferrer' : undefined}
-                                                    className="inline-flex items-center gap-1.5 text-xs font-bold transition-all duration-200 group-hover:gap-2"
+                                                    className="inline-flex items-center gap-1.5 text-xs font-bold transition-colors duration-200"
                                                     style={{ color: '#008D98' }}
                                                 >
-                                                    {card.cta} <ArrowRight size={14} className="transition-transform" />
+                                                    {/* The nudge is a transform on the arrow rather than an
+                                                        animated `gap`: gap is a layout property, so tweening it
+                                                        reflowed the card on every frame of the hover. */}
+                                                    {card.cta}{' '}
+                                                    <ArrowRight
+                                                        size={14}
+                                                        className="transition-transform duration-200 group-hover:translate-x-0.5"
+                                                    />
                                                 </Link>
                                             </div>
                                         </div>
