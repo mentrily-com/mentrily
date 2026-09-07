@@ -1,9 +1,12 @@
 'use client';
-import BrandedPageLoader from '@/app/components/Common/BrandedPageLoader';
+
+import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
 
 // Matches this route's own initial render (`!authChecked` renders the same
-// BrandedPageLoader — see page.tsx) so the route-transition fallback and the
-// page's first paint are pixel-identical: no visible swap, no white gap.
+// DashboardSkeleton -- see page.tsx) so the route-transition fallback and the
+// page's first paint are identical: no visible swap, no white gap. This is
+// the landing point straight after login and signup, so any mismatch here is
+// the first thing a new user sees.
 export default function DashboardRedirectLoading() {
-    return <BrandedPageLoader />;
+    return <DashboardSkeleton type="main" noNavbar />;
 }

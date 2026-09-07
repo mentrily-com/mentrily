@@ -137,7 +137,7 @@ export default function EmbeddedCodeRunner({ language, initialCode, onRunSuccess
                     padding: 15px 0;
                 }
                 .cm-content {
-                    font-family: 'Geist Mono', monospace !important;
+                    font-family: var(--font-jetbrains-mono), ui-monospace, monospace !important;
                     font-size: 13px !important;
                     color: #1e293b !important;
                     caret-color: #f77621 !important;

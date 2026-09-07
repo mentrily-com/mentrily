@@ -16,6 +16,15 @@ interface PageProps {
     params: Promise<{ orgSlug: string }>;
 }
 
+// This route sits at the top level, so without this every unmatched URL on
+// the site falls into it and gets answered by rendering the whole (app)
+// layout -- ClerkProvider and all -- only to throw notFound() at the end.
+// That made a plain typo'd URL cost a full auth bootstrap, and turned any
+// Clerk initialisation problem into a 500 where a 404 belonged. The valid
+// slugs are a fixed, build-time list, so anything outside it is a 404 the
+// router can answer directly, before a single layout renders.
+export const dynamicParams = false;
+
 export function generateStaticParams() {
     return publicPlaygroundSeoEntries.map((entry) => ({
         orgSlug: entry.slug,

@@ -332,7 +332,7 @@ export default function WebEditor({
                     padding-top: 15px;
                 }
                 .cm-content {
-                    font-family: 'Geist Mono', 'JetBrains Mono', monospace !important;
+                    font-family: var(--font-jetbrains-mono), ui-monospace, monospace !important;
                     font-size: ${fontSize ? `${fontSize}px` : '14px'} !important;
                     color: #1e293b !important;
                     caret-color: #f77621 !important;

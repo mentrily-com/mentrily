@@ -101,7 +101,17 @@ export default async function PublicCoursePage({
                 <section className="bg-white border border-slate-100 rounded-[28px] shadow-sm overflow-hidden">
                     {course.thumbnail && (
                         <div className="relative h-56 w-full">
-                            <Image src={course.thumbnail} alt={course.title} fill className="object-cover" />
+                            {/* Without `sizes`, `fill` defaults to 100vw and a
+                                wide viewport pulls a ~2000px derivative for a
+                                slot that is never wider than this max-w-4xl
+                                column. */}
+                            <Image
+                                src={course.thumbnail}
+                                alt={course.title}
+                                fill
+                                sizes="(max-width: 896px) 100vw, 896px"
+                                className="object-cover"
+                            />
                         </div>
                     )}
 

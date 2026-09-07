@@ -18,7 +18,12 @@ export const siteConfig = {
     contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'admin@mentrily.com',
     adminUserOrgFallback: process.env.NEXT_PUBLIC_ADMIN_USER_ORG_FALLBACK || 'Mentrily (Global)',
     adminSettingsOrgName: process.env.NEXT_PUBLIC_ADMIN_SETTINGS_ORG_NAME || 'Mentrily',
-    logo: process.env.NEXT_PUBLIC_APP_LOGO || '/brand/mentrily-logo.svg',
+    // The .svg here was not vector art -- it was a 98KB PNG wrapped in an
+    // <image> tag, which meant next/image could not touch it and every page
+    // downloaded the full-size original. The extracted PNG is the same
+    // pixels, but optimisable: served as AVIF/WebP at the size actually
+    // displayed (~13KB retina) instead of 98KB.
+    logo: process.env.NEXT_PUBLIC_APP_LOGO || '/brand/mentrily-logo.png',
     favicon: process.env.NEXT_PUBLIC_APP_FAVICON || '/android-chrome-192x192.png',
     links: {
         github: process.env.NEXT_PUBLIC_GITHUB_URL || 'https://github.com/mentrily',

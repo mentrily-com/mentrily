@@ -422,14 +422,14 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
                     color: #f8fafc !important;
                     padding: 1.5rem !important;
                     border-radius: 1rem !important;
-                    font-family: 'Geist Mono', 'JetBrains Mono', monospace !important;
+                    font-family: var(--font-jetbrains-mono), ui-monospace, monospace !important;
                     font-size: 0.875rem !important;
                     line-height: 1.5 !important;
                     border: 1px solid #1e293b !important;
                     margin: 1.5rem 0 !important;
                 }
                 .prose code {
-                    font-family: 'Geist Mono', 'JetBrains Mono', monospace !important;
+                    font-family: var(--font-jetbrains-mono), ui-monospace, monospace !important;
                     color: var(--brand) !important;
                     background-color: transparent !important;
                     padding: 0 !important;
