@@ -187,13 +187,11 @@ export default function PublicExamPage() {
 
     const [socketUserId, setSocketUserId] = useState<string>('');
 
-    useEffect(() => {
-        AuthService.checkSession().then((sessionUser) => {
-            if (!sessionUser) return;
-            setUser(sessionUser);
-            setSocketUserId(sessionUser.id || sessionUser.rollNumber || '');
-        });
-    }, []);
+    // loadExamData() below already resolves the session (resolveCurrentUser)
+    // and calls setUser/setSocketUserId with the result -- this effect used
+    // to run a second, independent AuthService.checkSession() call in
+    // parallel, racing an uncached /auth/me request against the one
+    // loadExamData was already making.
 
     // ===== ALL HOOKS MUST BE CALLED UNCONDITIONALLY BEFORE ANY EARLY RETURNS =====
 
@@ -498,7 +496,16 @@ export default function PublicExamPage() {
                     return null;
                 };
 
-                const currentUserMeta = await resolveCurrentUser();
+                // resolveCurrentUser() only needs the auth session, and
+                // getExamBySlug() only needs the slug + auth header -- they
+                // don't depend on each other's result, so running them
+                // sequentially was adding one full round trip's worth of
+                // dead time to every exam load for no reason.
+                const [currentUserMeta, data] = await Promise.all([
+                    resolveCurrentUser(),
+                    ExamService.getExamBySlug(slug as string),
+                ]);
+
                 if (!currentUserMeta) {
                     console.log('[ExamPage] No user session found, redirecting to login');
                     router.replace(
@@ -535,8 +542,7 @@ export default function PublicExamPage() {
                     sessionStorage.setItem('exam_tab_id', tabId);
                 }
 
-                // 1. Get Exam Content (Metadata only first)
-                const data = await ExamService.getExamBySlug(slug as string);
+                // 1. Exam Content (already fetched in parallel with the user above)
                 setExamTitle(data.title || 'Examination');
                 setTabSwitchLimit(data.tabSwitchLimit || null);
                 setIsAiProctoringEnabled(data.aiProctoring || false);
