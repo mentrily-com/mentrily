@@ -88,7 +88,7 @@ export default function CreatorSettingsPage() {
 
     if (plan !== 'ENTERPRISE') {
         return (
-            <div className="min-h-screen bg-[#F8FAFC] text-slate-900">
+            <div className="min-h-screen bg-slate-50 text-slate-900">
                 <main className="max-w-[980px] mx-auto px-6 lg:px-12 py-12">
                     <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm p-10 text-center">
                         <h1 className="text-2xl font-black tracking-tight text-slate-900">Enterprise Only</h1>
@@ -109,7 +109,7 @@ export default function CreatorSettingsPage() {
 
     if (role !== 'ADMIN') {
         return (
-            <div className="min-h-screen bg-[#F8FAFC] text-slate-900">
+            <div className="min-h-screen bg-slate-50 text-slate-900">
                 <main className="max-w-[980px] mx-auto px-6 lg:px-12 py-12">
                     <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm p-10 text-center">
                         <h1 className="text-2xl font-black tracking-tight text-slate-900">Admin Access Required</h1>

@@ -432,7 +432,7 @@ export default function AnalyticsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] font-sans selection:bg-[var(--brand-light)]">
+        <div className="min-h-screen bg-slate-50 font-sans selection:bg-[var(--brand-light)]">
             {/* TEACHER VIEW BANNER */}
             {studentNameParam && (
                 <div className="bg-[var(--brand)] text-white px-4 sm:px-6 py-3 sticky top-[56px] sm:top-[73px] z-40 shadow-md flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between animate-in slide-in-from-top duration-300">

@@ -440,7 +440,7 @@ export default function ExamBuilder({
                         >
                             {isSidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
                         </button>
-                        <span className="hidden lg:inline-flex shrink-0 rounded-full border border-violet-100 bg-violet-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-violet-700">
+                        <span className="hidden lg:inline-flex shrink-0 rounded-full border border-violet-100 bg-violet-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-violet-700">
                             Exam Builder
                         </span>
                         <input
@@ -463,7 +463,7 @@ export default function ExamBuilder({
                                         }) as any,
                                 )
                             }
-                            className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] cursor-pointer transition-colors ${exam.isVisible ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+                            className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-widest cursor-pointer transition-colors ${exam.isVisible ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
                         >
                             <span
                                 className={`h-1.5 w-1.5 rounded-full ${exam.isVisible ? 'bg-emerald-500' : 'bg-slate-400'}`}
@@ -596,7 +596,7 @@ export default function ExamBuilder({
                     className={`flex min-h-0 shrink-0 flex-col overflow-hidden border-r border-slate-200 bg-slate-50/95 backdrop-blur-xl transition-all duration-300 ease-in-out absolute inset-y-0 left-0 z-50 lg:relative lg:bg-slate-50/60 ${isSidebarCollapsed ? 'w-0 border-none -translate-x-full lg:translate-x-0' : 'w-[280px] sm:w-80 translate-x-0 shadow-2xl lg:shadow-none'}`}
                 >
                     <div className="border-b border-slate-200 bg-white px-4 py-3">
-                        <div className="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                        <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
                             <span>
                                 <span className="text-slate-900 font-bold">{totalSections}</span> sec
                             </span>
@@ -1506,7 +1506,7 @@ function SectionRow({
                 ) : (
                     <span className="text-xs font-black flex-1 truncate">{section.title}</span>
                 )}
-                <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-slate-500">
                     {section.questions.length}
                 </span>
                 <button

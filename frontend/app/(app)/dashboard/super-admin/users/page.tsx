@@ -243,7 +243,7 @@ export default function SuperAdminUsersPage() {
                                         </td>
                                         <td className="px-8 py-6">
                                             <span
-                                                className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${u.role === 'SUPER_ADMIN' ? 'bg-[var(--brand)] text-white border-[var(--brand)]' : 'bg-slate-50 text-slate-500 border-slate-100'}`}
+                                                className={`px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${u.role === 'SUPER_ADMIN' ? 'bg-[var(--brand)] text-white border-[var(--brand)]' : 'bg-slate-50 text-slate-500 border-slate-100'}`}
                                             >
                                                 {ROLE_LABELS[u.role] || u.role}
                                             </span>

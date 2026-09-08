@@ -20,6 +20,7 @@ import {
 import { SuperAdminService } from '@/services/api/SuperAdminService';
 import { useRequireAuth } from '@/hooks/requireAuthClient';
 import SuperAdminDashboardSkeleton from '@/app/components/Skeletons/SuperAdminDashboardSkeleton';
+import EmptyState from '@/app/components/Common/EmptyState';
 import { sanitizeProse } from '@/lib/sanitize';
 import { useToast } from '@/app/components/Common/Toast';
 import AlertModal from '@/app/components/Common/AlertModal';
@@ -301,21 +302,12 @@ export default function SuperAdminDashboardPage() {
                                 />
                             ))
                         ) : (
-                            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 p-9 text-center">
-                                <h3 className="text-lg font-semibold text-slate-900">No organizations found.</h3>
-                                <p className="mt-2 text-sm leading-6 text-slate-600">
-                                    Deploy your first organization to get started.
-                                </p>
-                                <div className="mt-5">
-                                    <Link
-                                        href="/dashboard/super-admin/organizations/new"
-                                        className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white"
-                                    >
-                                        <Plus size={14} />
-                                        Deploy Organization
-                                    </Link>
-                                </div>
-                            </div>
+                            <EmptyState
+                                icon={<Building2 size={24} />}
+                                title="No organizations found"
+                                description="Deploy your first organization to get started."
+                                action={{ label: 'Deploy Organization', href: '/dashboard/super-admin/organizations/new' }}
+                            />
                         )}
                     </div>
                 </section>

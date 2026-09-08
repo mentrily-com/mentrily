@@ -96,7 +96,7 @@ export default function SuperAdminOrganizationSettings({ params }: { params: Pro
 
     if (error) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
+            <div className="min-h-screen flex items-center justify-center bg-slate-50">
                 <div className="text-center">
                     <h1 className="text-2xl font-bold text-red-600 mb-4">Error Loading Organization</h1>
                     <p className="text-slate-600">{error}</p>

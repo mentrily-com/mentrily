@@ -2,7 +2,6 @@ import { Controller, Get, Query, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../services/prisma/prisma.service';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
-import { Plan } from '@prisma/client';
 import { getAppName } from '../../config/app-brand';
 
 @Controller('organization')
@@ -37,12 +36,15 @@ export class OrganizationController {
           { domain: { equals: domain, mode: 'insensitive' } }, // Case insensitive
         ],
       },
+      // This endpoint is unauthenticated (public branding for a login/
+      // landing page reachable by domain guessing) -- plan is deliberately
+      // excluded so anonymous callers can't enumerate which orgs are on
+      // which tier.
       select: {
         name: true,
         logo: true,
         primaryColor: true,
         domain: true,
-        plan: true,
       },
     });
 

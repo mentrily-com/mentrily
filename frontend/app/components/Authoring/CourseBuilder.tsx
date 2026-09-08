@@ -568,7 +568,7 @@ export default function CourseBuilder({
                         >
                             {isSidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
                         </button>
-                        <span className="hidden lg:inline-flex shrink-0 rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-700">
+                        <span className="hidden lg:inline-flex shrink-0 rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-sky-700">
                             Course Builder
                         </span>
                         <input
@@ -590,7 +590,7 @@ export default function CourseBuilder({
                                     isVisible: newStatus === 'Published',
                                 }));
                             }}
-                            className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] cursor-pointer transition-colors ${course.status === 'Published' ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'}`}
+                            className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-widest cursor-pointer transition-colors ${course.status === 'Published' ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'}`}
                         >
                             <span
                                 className={`h-1.5 w-1.5 rounded-full ${course.status === 'Published' ? 'bg-emerald-500' : 'bg-amber-500'}`}
@@ -813,7 +813,7 @@ export default function CourseBuilder({
                     className={`flex min-h-0 shrink-0 flex-col overflow-hidden border-r border-slate-200 bg-slate-50/95 backdrop-blur-xl transition-all duration-300 ease-in-out absolute inset-y-0 left-0 z-50 lg:relative lg:bg-slate-50/60 ${isSidebarCollapsed ? 'w-0 border-none -translate-x-full lg:translate-x-0' : 'w-[280px] sm:w-80 translate-x-0 shadow-2xl lg:shadow-none'}`}
                 >
                     <div className="border-b border-slate-200 bg-white px-4 py-3">
-                        <div className="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                        <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
                             <span>
                                 <span className="text-slate-900 font-bold">{totalUnits}</span> units
                             </span>
@@ -1440,7 +1440,7 @@ function CourseSectionRow({
                 ) : (
                     <span className="text-xs font-black flex-1 truncate">{section.title}</span>
                 )}
-                <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-slate-500">
                     {questions.length}
                 </span>
                 <button

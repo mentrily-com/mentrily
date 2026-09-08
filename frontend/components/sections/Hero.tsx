@@ -232,7 +232,7 @@ export default function Hero() {
                             }}
                         >
                             {/* Screenshot */}
-                            <div className="relative aspect-[1919/938] overflow-hidden bg-[#F8FAFC]">
+                            <div className="relative aspect-[1919/938] overflow-hidden bg-slate-50">
                                 <Image
                                     src={heroImage.src}
                                     alt={heroImage.alt}

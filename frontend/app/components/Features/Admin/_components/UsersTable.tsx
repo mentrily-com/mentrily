@@ -1,6 +1,7 @@
 'use client';
-import { CheckCircle, Trash2, UserMinus } from 'lucide-react';
+import { CheckCircle, Trash2, UserMinus, Users } from 'lucide-react';
 import RoleBadge from '@/app/components/Common/RoleBadge';
+import EmptyState from '@/app/components/Common/EmptyState';
 
 const ROLE_OPTIONS = ['STUDENT', 'TEACHER', 'ADMIN'] as const;
 
@@ -83,12 +84,13 @@ export default function UsersTable({
                     <tbody className="divide-y divide-slate-100">
                         {users.length === 0 ? (
                             <tr>
-                                <td
-                                    colSpan={4}
-                                    className="px-6 py-12 text-center text-sm"
-                                    style={{ color: 'var(--color-text-muted)' }}
-                                >
-                                    No users found matching your criteria.
+                                <td colSpan={4} className="px-6 py-4">
+                                    <EmptyState
+                                        icon={<Users size={24} />}
+                                        title="No users found"
+                                        description="No users match your current filters."
+                                        className="py-10"
+                                    />
                                 </td>
                             </tr>
                         ) : (

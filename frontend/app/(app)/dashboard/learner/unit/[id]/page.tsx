@@ -8,10 +8,11 @@ import { CourseService } from '@/services/api/CourseService';
 import { StudentService } from '@/services/api/StudentService';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/app/components/Common/Toast';
+import { useSession } from '@/hooks/useSession';
 import {
     getOnboardingQuestion,
     gettingStartedCourse,
-    MENTRILY_ONBOARDING_SKIP_KEY,
+    getOnboardingSkipStorageKey,
 } from '../../getting-started-course';
 
 export default function StudentUnitPage({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
@@ -19,6 +20,8 @@ export default function StudentUnitPage({ params: paramsPromise }: { params: Pro
     const id = params.id;
     const searchParams = useSearchParams();
     const attemptIdParam = searchParams.get('attemptId');
+    const { data: session } = useSession();
+    const userId = (session as any)?.id;
 
     const [currentQuestion, setCurrentQuestion] = useState<UnitQuestion | null>(null);
     const [loading, setLoading] = useState(true);
@@ -692,7 +695,7 @@ export default function StudentUnitPage({ params: paramsPromise }: { params: Pro
                     tourId={`mentrily_starter_unit_${id}_v2`}
                     ignoreUserOnboardingFlag
                     repeatUntilSkipped
-                    skipStorageKey={MENTRILY_ONBOARDING_SKIP_KEY}
+                    skipStorageKey={getOnboardingSkipStorageKey(userId)}
                     delayMs={800}
                     steps={[
                         {

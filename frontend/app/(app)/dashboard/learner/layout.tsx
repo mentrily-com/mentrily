@@ -9,7 +9,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
 
     if (!isReady || !isAuthorized) {
         return (
-            <div className="min-h-screen bg-[#F8FAFC]">
+            <div className="min-h-screen bg-slate-50">
                 <Navbar userRole="student" />
                 <DashboardSkeleton type="main" userRole="student" noNavbar />
             </div>

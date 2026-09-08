@@ -12,7 +12,7 @@
  */
 export default function LearnerAnalyticsSkeleton() {
     return (
-        <div className="min-h-screen bg-[#F8FAFC] font-sans">
+        <div className="min-h-screen bg-slate-50 font-sans">
             {/* STICKY SUB-HEADER */}
             <div className="sticky top-[56px] sm:top-[61px] z-40 bg-white border-b border-slate-200/60 shadow-sm">
                 <div className="max-w-[1440px] mx-auto px-4 sm:px-8 py-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

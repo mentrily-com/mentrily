@@ -393,7 +393,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                                 </td>
                                                 <td className="px-4 py-5 text-center">
                                                     {student.vmDetected ? (
-                                                        <span className="bg-rose-50 text-rose-600 px-3 py-1 rounded-lg text-[9px] font-black border border-rose-100 uppercase tracking-widest">
+                                                        <span className="bg-rose-50 text-rose-600 px-3 py-1 rounded-full text-[9px] font-black border border-rose-100 uppercase tracking-widest">
                                                             DETECTED
                                                         </span>
                                                     ) : (
@@ -811,7 +811,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                     <div className="flex flex-wrap gap-4 items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-[24px] sm:p-6 sm:rounded-[32px]">
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
                             <div
-                                className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest border ${selectedStudent.vmDetected ? 'bg-rose-50 border-rose-200 text-rose-600' : 'bg-emerald-50 border-emerald-200 text-emerald-600'}`}
+                                className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border ${selectedStudent.vmDetected ? 'bg-rose-50 border-rose-200 text-rose-600' : 'bg-emerald-50 border-emerald-200 text-emerald-600'}`}
                             >
                                 VM: {selectedStudent.vmDetected ? `DETECTED (${selectedStudent.vmType})` : 'NONE'}
                             </div>

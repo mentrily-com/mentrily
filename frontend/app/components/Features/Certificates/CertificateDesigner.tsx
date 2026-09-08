@@ -68,7 +68,7 @@ export default function CertificateDesigner({
     };
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex">
+        <div className="min-h-screen bg-slate-50 text-slate-900 flex">
             <aside className="w-[340px] bg-white border-r border-slate-200 p-5 overflow-y-auto">
                 <h1 className="text-base font-black text-slate-900 mb-6">Template Designer</h1>
 

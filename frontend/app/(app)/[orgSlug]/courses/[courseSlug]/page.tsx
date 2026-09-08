@@ -83,7 +83,7 @@ export default async function PublicCoursePage({
 
     if (!payload) {
         return (
-            <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex items-center justify-center p-6">
+            <div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center p-6">
                 <div className="max-w-xl w-full bg-white border border-slate-200 rounded-2xl p-8 text-center">
                     <h1 className="text-2xl font-black text-slate-900">Course not found</h1>
                     <p className="mt-2 text-sm font-semibold text-slate-500">This course is not publicly available.</p>
@@ -96,7 +96,7 @@ export default async function PublicCoursePage({
     const showPoweredBy = org.plan === 'FREE';
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] text-slate-900">
+        <div className="min-h-screen bg-slate-50 text-slate-900">
             <main className="max-w-4xl mx-auto px-6 py-10">
                 <section className="bg-white border border-slate-100 rounded-[28px] shadow-sm overflow-hidden">
                     {course.thumbnail && (

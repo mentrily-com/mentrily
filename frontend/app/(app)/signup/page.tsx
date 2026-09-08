@@ -464,7 +464,7 @@ export default function SignupPage() {
                         <div className="space-y-2">
                             {['Course builder', 'Quiz and exam tools', 'Certificates'].map((item, index) => (
                                 <div key={item} className="flex items-center gap-3 rounded-xl bg-white/10 p-3">
-                                    <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white text-xs font-bold text-[#008D98]">
+                                    <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white text-xs font-bold text-[var(--brand)]">
                                         {index + 1}
                                     </span>
                                     <span className="text-sm font-medium text-white/80">{item}</span>
@@ -780,14 +780,14 @@ export default function SignupPage() {
                                                 required
                                                 checked={acceptedTerms}
                                                 onChange={(e) => setAcceptedTerms(e.target.checked)}
-                                                className="w-4 h-4 rounded border-slate-300 text-[#008D98] focus:ring-[#008D98] cursor-pointer"
+                                                className="w-4 h-4 rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)] cursor-pointer"
                                             />
                                         </div>
                                         <label htmlFor="terms" className="text-sm text-slate-600 leading-tight">
                                             I agree to the{' '}
                                             <Link
                                                 href="/terms"
-                                                className="text-[#008D98] hover:underline"
+                                                className="text-[var(--brand)] hover:underline"
                                                 target="_blank"
                                             >
                                                 Terms of Service
@@ -795,7 +795,7 @@ export default function SignupPage() {
                                             and{' '}
                                             <Link
                                                 href="/privacy"
-                                                className="text-[#008D98] hover:underline"
+                                                className="text-[var(--brand)] hover:underline"
                                                 target="_blank"
                                             >
                                                 Privacy Policy

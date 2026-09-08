@@ -94,12 +94,12 @@ export default function ExamDetailsModal({ exam, onClose }: ExamDetailsModalProp
             >
                 <div className="flex flex-wrap items-center gap-2 mb-1 sm:gap-3">
                     <div
-                        className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${brandLightClass}`}
+                        className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${brandLightClass}`}
                     >
                         Exam Details
                     </div>
                     <span
-                        className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${exam.status === 'Published' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : exam.status === 'Monitor' || exam.status === 'Live' ? brandLightClass : 'bg-slate-50 text-slate-400 border-slate-100'}`}
+                        className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${exam.status === 'Published' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : exam.status === 'Monitor' || exam.status === 'Live' ? brandLightClass : 'bg-slate-50 text-slate-400 border-slate-100'}`}
                     >
                         {exam.status}
                     </span>
@@ -168,7 +168,7 @@ export default function ExamDetailsModal({ exam, onClose }: ExamDetailsModalProp
                                 <p className="text-xs font-bold text-slate-700">{exam.allowedIPs}</p>
                             </div>
                         </div>
-                        <div className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-emerald-100">
+                        <div className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-emerald-100">
                             Active
                         </div>
                     </div>

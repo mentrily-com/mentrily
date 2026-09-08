@@ -109,7 +109,7 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
                         <button
                             onClick={() => setAnnual(false)}
                             className={`px-5 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${
-                                !annual ? 'bg-[#008D98] text-white' : 'text-slate-400'
+                                !annual ? 'bg-[var(--brand)] text-white' : 'text-slate-400'
                             }`}
                         >
                             Monthly
@@ -117,7 +117,7 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
                         <button
                             onClick={() => setAnnual(true)}
                             className={`px-5 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${
-                                annual ? 'bg-[#008D98] text-white' : 'text-slate-400'
+                                annual ? 'bg-[var(--brand)] text-white' : 'text-slate-400'
                             }`}
                         >
                             Annual <span className="text-emerald-400">Save 17%</span>
@@ -151,12 +151,12 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
                                 key={plan.plan}
                                 className={`rounded-3xl border p-6 relative ${
                                     isPro
-                                        ? 'border-[#008D98] bg-gradient-to-b from-[#1e293b] to-[#172554]'
+                                        ? 'border-[var(--brand)] bg-gradient-to-b from-[#1e293b] to-[#172554]'
                                         : 'border-slate-700 bg-[#1e293b]'
                                 }`}
                             >
                                 {isPro && (
-                                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[#008D98] text-white text-[10px] font-black uppercase tracking-widest">
+                                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[var(--brand)] text-white text-[10px] font-black uppercase tracking-widest">
                                         Most Popular
                                     </span>
                                 )}
@@ -189,7 +189,7 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
                                     href={ctaHref}
                                     className={`mt-6 w-full py-3 rounded-xl inline-flex justify-center text-[10px] font-black uppercase tracking-widest transition-all ${
                                         isPro
-                                            ? 'bg-[#008D98] hover:bg-[#006F78] text-white'
+                                            ? 'bg-[var(--brand)] hover:bg-[var(--brand-dark)] text-white'
                                             : 'bg-slate-100 text-slate-700 hover:bg-white'
                                     }`}
                                 >

@@ -247,9 +247,20 @@ export const onboardingQuestions: Record<string, UnitQuestion> = {
     },
 };
 
-export function isOnboardingCourseHidden() {
+// Scoped by userId (when known) so hiding the getting-started course, or
+// permanently skipping onboarding, on a shared/lab computer doesn't also
+// hide it for the next person who logs in on that same browser.
+export function getOnboardingHiddenStorageKey(userId?: string) {
+    return userId ? `${MENTRILY_ONBOARDING_STORAGE_KEY}_${userId}` : MENTRILY_ONBOARDING_STORAGE_KEY;
+}
+
+export function getOnboardingSkipStorageKey(userId?: string) {
+    return userId ? `${MENTRILY_ONBOARDING_SKIP_KEY}_${userId}` : MENTRILY_ONBOARDING_SKIP_KEY;
+}
+
+export function isOnboardingCourseHidden(userId?: string) {
     if (typeof window === 'undefined') return false;
-    return window.localStorage.getItem(MENTRILY_ONBOARDING_STORAGE_KEY) === 'true';
+    return window.localStorage.getItem(getOnboardingHiddenStorageKey(userId)) === 'true';
 }
 
 export function getOnboardingQuestion(id: string) {

@@ -11,7 +11,7 @@
  */
 export default function AdminDashboardViewSkeleton() {
     return (
-        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans">
+        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
             <main className="max-w-[1440px] mx-auto px-6 lg:px-12 py-10">
                 <div className="flex items-center justify-between mb-12">
                     <div className="space-y-2">

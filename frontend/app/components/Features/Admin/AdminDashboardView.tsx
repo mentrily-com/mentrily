@@ -182,7 +182,7 @@ export default function AdminDashboardView({
     const showOnboarding = within30Days && !dismissOnboarding && onboarding?.steps?.length;
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
+        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
             {/* ignoreUserOnboardingFlag: keep this tour's completion
                 independent of the shared backend flag other creator/admin
                 tours used to write to — see dashboard/creator/page.tsx

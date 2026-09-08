@@ -6,10 +6,11 @@ import OnboardingTour from '@/app/components/Common/OnboardingTour';
 import { CourseService } from '@/services/api/CourseService';
 import { StudentService } from '@/services/api/StudentService';
 import StudentExamCard from '@/app/components/Features/Courses/StudentExamCard';
+import { useSession } from '@/hooks/useSession';
 import {
     gettingStartedCourse,
     MENTRILY_ONBOARDING_COURSE_SLUG,
-    MENTRILY_ONBOARDING_SKIP_KEY,
+    getOnboardingSkipStorageKey,
 } from '../../getting-started-course';
 
 type Attempt = { date: string; score: string; status: 'success' | 'failed' };
@@ -19,6 +20,8 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
     const router = useRouter();
     const params = React.use(paramsPromise);
     const slug = params.slug;
+    const { data: session } = useSession();
+    const userId = (session as any)?.id;
 
     const [course, setCourse] = useState<any | null>(null);
     const [progressData, setProgressData] = useState<{
@@ -322,7 +325,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
     if (error) {
         const is404 = typeof error === 'string' && error.includes('status: 404');
         return (
-            <div className="min-h-screen flex flex-col bg-[#F8FAFC] items-center justify-center">
+            <div className="min-h-screen flex flex-col bg-slate-50 items-center justify-center">
                 <h3 className="text-lg font-black text-rose-500">{is404 ? 'Course not found' : 'Module not found'}.</h3>
                 <p className="text-sm text-slate-500 mt-2">{error}</p>
                 <div className="mt-6 flex gap-4">
@@ -345,7 +348,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
 
     if (!course)
         return (
-            <div className="min-h-screen flex flex-col bg-[#F8FAFC] items-center justify-center">
+            <div className="min-h-screen flex flex-col bg-slate-50 items-center justify-center">
                 <h3 className="text-lg font-black text-rose-500">Module not found.</h3>
                 <div className="mt-6">
                     <button
@@ -386,13 +389,13 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
         : null;
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
+        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
             {slug === MENTRILY_ONBOARDING_COURSE_SLUG && (
                 <OnboardingTour
                     tourId="mentrily_starter_course_map_v2"
                     ignoreUserOnboardingFlag
                     repeatUntilSkipped
-                    skipStorageKey={MENTRILY_ONBOARDING_SKIP_KEY}
+                    skipStorageKey={getOnboardingSkipStorageKey(userId)}
                     delayMs={700}
                     steps={[
                         {

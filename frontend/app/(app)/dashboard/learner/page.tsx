@@ -5,9 +5,11 @@ import { StudentService, StudentModule } from '@/services/api/StudentService';
 import { useRequireAuth } from '@/hooks/requireAuthClient';
 import LearnerDashboardSkeleton from '@/app/components/Skeletons/LearnerDashboardSkeleton';
 import OnboardingTour from '@/app/components/Common/OnboardingTour';
+import EmptyState from '@/app/components/Common/EmptyState';
 import { useQuery } from '@/hooks/useQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useNotificationSocket } from '@/hooks/useNotificationSocket';
+import { useSession } from '@/hooks/useSession';
 import { useToast } from '@/app/components/Common/Toast';
 import {
     Award,
@@ -22,13 +24,14 @@ import {
     Target,
     BarChart3,
     Bookmark,
+    Compass,
 } from 'lucide-react';
 import { sanitizeProse } from '@/lib/sanitize';
 import {
     gettingStartedCourse,
     isOnboardingCourseHidden,
-    MENTRILY_ONBOARDING_SKIP_KEY,
-    MENTRILY_ONBOARDING_STORAGE_KEY,
+    getOnboardingHiddenStorageKey,
+    getOnboardingSkipStorageKey,
 } from './getting-started-course';
 
 export default function DashboardPage() {
@@ -36,6 +39,8 @@ export default function DashboardPage() {
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
     const { success: toastSuccess } = useToast();
     const [hideGettingStarted, setHideGettingStarted] = useState(false);
+    const { data: session } = useSession();
+    const userId = (session as any)?.id;
 
     // Announcements state
     const [announcements, setAnnouncements] = useState<any[]>([]);
@@ -64,8 +69,8 @@ export default function DashboardPage() {
     }, [loadAnnouncements]);
 
     useEffect(() => {
-        setHideGettingStarted(isOnboardingCourseHidden());
-    }, []);
+        setHideGettingStarted(isOnboardingCourseHidden(userId));
+    }, [userId]);
 
     // Real-time notifications
     useNotificationSocket((announcement) => {
@@ -108,7 +113,7 @@ export default function DashboardPage() {
     const handleHideGettingStarted = (event: React.MouseEvent) => {
         event.preventDefault();
         event.stopPropagation();
-        window.localStorage.setItem(MENTRILY_ONBOARDING_STORAGE_KEY, 'true');
+        window.localStorage.setItem(getOnboardingHiddenStorageKey(userId), 'true');
         setHideGettingStarted(true);
         toastSuccess('Getting Started course hidden. You can clear browser site data to show it again.');
     };
@@ -158,7 +163,7 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
+        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
             {/* Show the guided dashboard tour ONCE on first login. Dropping
                 repeatUntilSkipped switches to the per-tour localStorage
                 "completed" marker (set the first time it runs) instead of the
@@ -170,7 +175,7 @@ export default function DashboardPage() {
             <OnboardingTour
                 tourId="learner_dashboard_guided_v2"
                 ignoreUserOnboardingFlag
-                skipStorageKey={MENTRILY_ONBOARDING_SKIP_KEY}
+                skipStorageKey={getOnboardingSkipStorageKey(userId)}
                 steps={learnerTourSteps}
             />
 
@@ -288,10 +293,20 @@ export default function DashboardPage() {
                                         </Link>
                                     );
                                 })
+                            ) : debouncedSearchQuery ? (
+                                <EmptyState
+                                    icon={<Compass size={24} />}
+                                    title="No matching modules"
+                                    description={`Nothing in your modules matches "${debouncedSearchQuery}". Try a different search, or browse all available courses.`}
+                                    action={{ label: 'Browse Courses', href: '/dashboard/learner/browse' }}
+                                />
                             ) : (
-                                <div className="text-center py-12 text-slate-400 font-bold">
-                                    No modules available found.
-                                </div>
+                                <EmptyState
+                                    icon={<Compass size={24} />}
+                                    title="No modules yet"
+                                    description="You haven't been assigned any courses yet. Browse what's available and enroll in your first one."
+                                    action={{ label: 'Browse Courses', href: '/dashboard/learner/browse' }}
+                                />
                             )}
                         </div>
                     </div>
