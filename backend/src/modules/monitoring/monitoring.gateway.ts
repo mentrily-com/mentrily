@@ -666,15 +666,32 @@ export class MonitoringGateway
         `[Proctoring] Auto-terminating session ${data.sessionId} for user ${data.userId} due to tab switch limit (${tabSwitchInCount}/${limit})`,
       );
 
-      await this.prisma.$executeRaw`
+      // Guarded on status='IN_PROGRESS': the 60s status cache above can be
+      // stale, so without this guard a violation processed after the
+      // student already submitted (status now COMPLETED, with a real
+      // score) would silently overwrite the row back to TERMINATED --
+      // clobbering endTime/timeTakenSec on an already-graded session and
+      // defeating the "already passed" re-attempt block, which keys off
+      // status === 'COMPLETED'.
+      const terminatedCount: number = await this.prisma.$executeRaw`
                 UPDATE "ExamSession"
                 SET
                     "status" = 'TERMINATED',
                     "endTime" = NOW(),
                     "timeTakenSec" = GREATEST(EXTRACT(EPOCH FROM (NOW() - "startTime"))::INT, 0),
                     "updatedAt" = NOW()
-                WHERE "id" = ${data.sessionId}
+                WHERE "id" = ${data.sessionId} AND "status" = 'IN_PROGRESS'
             `;
+
+      if (terminatedCount === 0) {
+        // Session already left IN_PROGRESS (submitted or already
+        // terminated) between the stale cache read above and this write --
+        // don't kick the student or notify teachers of a termination that
+        // didn't happen. Drop the stale cache entry so the next check reads
+        // the session's real current status.
+        await this.redis.del(cacheKey);
+        return { status: 'rejected', reason: 'Session already inactive' };
+      }
 
       await this.redis.set(
         cacheKey,

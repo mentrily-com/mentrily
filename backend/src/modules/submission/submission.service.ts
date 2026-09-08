@@ -196,7 +196,7 @@ export class SubmissionService {
     // Idempotency: a double-click or an auto-submit racing a manual submit
     // must not re-run scoring, webhooks, or certificate issuance.
     if (session.status === 'COMPLETED') {
-      const existingScore = (dbAnswers as any)?._internal_score || {};
+      const existingScore = dbAnswers?._internal_score || {};
       return {
         status: 'submitted',
         score: Number(existingScore.percentage ?? 0),
@@ -212,7 +212,7 @@ export class SubmissionService {
       ...redisAnswers,
       ...(finalAnswers || {}),
     };
-    delete (mergedAnswers as any)._final_sync;
+    delete mergedAnswers._final_sync;
 
     const scoreDetails = this.examService.calculateScoreDetails(
       mergedAnswers,
@@ -253,16 +253,39 @@ export class SubmissionService {
       } as any,
     });
 
+    if (updated.count === 0) {
+      // Lost the completion race: another request (auto-submit, or a
+      // duplicate submit) completed the session between our read above and
+      // this write. Return what was actually persisted rather than this
+      // request's own (possibly different) computed values, and leave the
+      // Redis stash untouched -- the winner did its own read/clear at its
+      // own point in time, so clearing here could delete an answer staged
+      // after that winner already finished.
+      const finalSession = await this.prisma.examSession.findUnique({
+        where: { id: sessionId },
+        select: { answers: true },
+      });
+      const finalAnswers =
+        typeof finalSession?.answers === 'string'
+          ? JSON.parse(finalSession.answers || '{}')
+          : finalSession?.answers || {};
+      const finalScore = finalAnswers?._internal_score || {};
+      return {
+        status: 'submitted',
+        score: Number(finalScore.percentage ?? 0),
+        earnedMarks: Number(finalScore.earnedMarks ?? 0),
+        totalMarks: Number(finalScore.totalMarks ?? 0),
+      };
+    }
+
     await clearStashedSessionAnswers(this.redis, sessionId);
 
-    if (updated.count > 0) {
-      try {
-        await this.examService.handleExamCompletion(sessionId);
-      } catch (error: any) {
-        console.warn(
-          `[SubmissionService] Exam completion post-processing skipped for session ${sessionId}: ${error?.message || 'unknown_error'}`,
-        );
-      }
+    try {
+      await this.examService.handleExamCompletion(sessionId);
+    } catch (error: any) {
+      console.warn(
+        `[SubmissionService] Exam completion post-processing skipped for session ${sessionId}: ${error?.message || 'unknown_error'}`,
+      );
     }
 
     return {
