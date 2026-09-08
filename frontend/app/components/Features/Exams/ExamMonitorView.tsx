@@ -136,50 +136,17 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
             initPeer();
 
             // 3. Listeners
-            socket.on('live_violation', async (data: any) => {
-                console.log('Live Violation Received (RAW):', data);
-                if (data.details) console.log('Details Type:', typeof data.details, 'Length:', data.details.length);
-
-                // Check for Redis Reference
-                if (data.details && data.details.startsWith('violation_img:')) {
-                    // Fetch Image Async
-                    socket!.emit('get_violation_image', { imageKey: data.details }, (response: any) => {
-                        if (response && response.imageData) {
-                            // Update the violation object with the real image
-                            setViolations((prev) => {
-                                const updated = [...prev];
-                                // Find if we already added it (race condition safety)
-                                const existingIndex = updated.findIndex(
-                                    (v) => v.timestamp === data.timestamp && v.userId === data.userId,
-                                );
-
-                                if (existingIndex >= 0) {
-                                    updated[existingIndex] = {
-                                        ...updated[existingIndex],
-                                        details: response.imageData,
-                                    };
-                                    return updated;
-                                } else {
-                                    // Add new with image
-                                    return [{ ...data, details: response.imageData }, ...prev];
-                                }
-                            });
-                        }
-                    });
-
-                    // Add placeholder initially?
-                    // For simplicity, let's just add it, and if the fetch works, we update.
-                    // BUT updating state async is tricky.
-
-                    // Let's Add it to state with the Key, and have a separate Effect or component resolve it?
-                    // Or just do it here:
-
-                    // Add initially with key (it will fail string check in render, showing text, which is fine)
-                    setViolations((prev) => [data, ...prev]);
-                } else {
-                    setViolations((prev) => [data, ...prev]);
-                }
-
+            //
+            // Previously this branched on `data.details.startsWith('violation_img:')`
+            // to fetch an image via a `get_violation_image` ack -- but the backend
+            // never emits that prefix and has no handler for that event (confirmed
+            // by searching backend/src), so the branch always fell through to a
+            // dead, never-resolving emit, and `details` being a server-sent object
+            // (e.g. the HEARTBEAT_GAP violation's `{ gapMs }`, per
+            // MonitoringGateway) rather than a string would crash `.startsWith`
+            // outright and break this listener for the rest of the session.
+            socket.on('live_violation', (data: any) => {
+                setViolations((prev) => [data, ...prev]);
                 warning(`Violation: ${data.userId} - ${data.type}`);
             });
         };

@@ -420,19 +420,26 @@ export class TeacherExamsService {
         select: legacyExamSelect as any,
       });
     } catch (error) {
-      if (!isMissingExamAttemptFieldError(error)) {
+      if (isMissingExamAttemptFieldError(error)) {
+        delete updateData.passingPercentage;
+        delete updateData.maxAttempts;
+        delete updateData.attemptBufferMins;
+
+        updatedExam = await this.prisma.exam.update({
+          where: { id },
+          data: updateData as any,
+          select: legacyExamSelect as any,
+        });
+      } else if (
+        (error as any)?.code === 'P2002' &&
+        String((error as any)?.meta?.target || '').includes('testCode')
+      ) {
+        throw new BadRequestException(
+          'That test code is already in use by another exam. Please choose a different code.',
+        );
+      } else {
         throw error;
       }
-
-      delete updateData.passingPercentage;
-      delete updateData.maxAttempts;
-      delete updateData.attemptBufferMins;
-
-      updatedExam = await this.prisma.exam.update({
-        where: { id },
-        data: updateData as any,
-        select: legacyExamSelect as any,
-      });
     }
 
     // Invalidate Redis cache

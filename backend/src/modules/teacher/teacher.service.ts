@@ -177,9 +177,19 @@ export class TeacherService {
           });
         }
 
-        if (error?.code !== 'P2002' || attempt === 2) {
-          throw error;
+        if (error?.code === 'P2002') {
+          const target = String(error?.meta?.target || '');
+          if (target.includes('testCode')) {
+            throw new BadRequestException(
+              'That test code is already in use by another exam. Please choose a different code.',
+            );
+          }
+          if (attempt < 2) {
+            continue; // slug collision -- retry with a freshly generated slug
+          }
         }
+
+        throw error;
       }
     }
 

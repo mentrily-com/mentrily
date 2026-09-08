@@ -140,6 +140,13 @@ model Exam {
   testCode         String?
   testCodeType     String? // Permanent, Rotating
   rotationInterval Int?
+  // Set only by TestCodeRotationService (and cleared/reset implicitly by a
+  // teacher's own testCode edit going through the normal update path). Due
+  // time for the next rotation is computed from this, not from `updatedAt`
+  // -- `updatedAt` is bumped by any unrelated write to the exam (title
+  // edits, resultsPublished toggles, aiTokensUsed increments, ...), which
+  // was silently resetting the rotation clock on every unrelated save.
+  codeRotatedAt    DateTime?
   inviteToken      String?
   allowedIPs       String?
 
@@ -177,10 +184,10 @@ model Exam {
   updatedAt DateTime @updatedAt
 
   @@unique([slug, orgId])
+  @@unique([testCode])
   @@index([creatorId])
   @@index([orgId])
   @@index([slug])
-  @@index([testCode])
 }
 
 model ExamSession {

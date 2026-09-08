@@ -155,6 +155,39 @@ export default function ExamBuilder({
     const initialExamId = initialData?.id;
     const isEditMode = Boolean(initialExamId);
     const getDraftKey = () => (initialExamId ? `exam_builder_draft_${initialExamId}` : 'exam_builder_draft_new');
+    const testCodeInputFocusedRef = React.useRef(false);
+
+    // A "Rotating" exam's testCode is regenerated server-side by
+    // TestCodeRotationService on its own schedule. Without this, the code
+    // shown here is whatever was loaded/saved last -- a proctor could read
+    // out a code the backend already rotated away, and students would get
+    // "invalid code" right after. Poll for the live value while this mode
+    // is active; skip the update while the field is focused so a live
+    // refresh never clobbers an in-progress manual edit.
+    useEffect(() => {
+        if (!isEditMode || !initialExamId || exam.testCodeType !== 'Rotating') return;
+
+        let cancelled = false;
+        const poll = async () => {
+            try {
+                const fresh = await TeacherService.getExam(initialExamId);
+                if (!cancelled && fresh?.testCode && !testCodeInputFocusedRef.current) {
+                    setExam((prev) =>
+                        prev.testCode === fresh.testCode ? prev : { ...prev, testCode: fresh.testCode },
+                    );
+                }
+            } catch {
+                // Best-effort -- a missed refresh just leaves the on-screen
+                // code stale until the next tick, not a functional break.
+            }
+        };
+
+        const interval = setInterval(poll, 20000);
+        return () => {
+            cancelled = true;
+            clearInterval(interval);
+        };
+    }, [isEditMode, initialExamId, exam.testCodeType]);
 
     // Persistence: Load from localStorage on mount
     useEffect(() => {
@@ -979,6 +1012,12 @@ export default function ExamBuilder({
                                                     onChange={(e) =>
                                                         setExam((prev) => ({ ...prev, testCode: e.target.value }))
                                                     }
+                                                    onFocus={() => {
+                                                        testCodeInputFocusedRef.current = true;
+                                                    }}
+                                                    onBlur={() => {
+                                                        testCodeInputFocusedRef.current = false;
+                                                    }}
                                                 />
                                                 <p className="text-[9px] font-medium text-slate-400">
                                                     Required code to enter the exam.
