@@ -433,9 +433,11 @@ export default function AnalyticsPage() {
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans selection:bg-[var(--brand-light)]">
-            {/* TEACHER VIEW BANNER */}
+            {/* TEACHER VIEW BANNER -- sticks to the top of this page's own
+                scroll container (the navbar lives outside it, in a separate
+                flex row, so no navbar-height offset is needed here). */}
             {studentNameParam && (
-                <div className="bg-[var(--brand)] text-white px-4 sm:px-6 py-3 sticky top-[56px] sm:top-[73px] z-40 shadow-md flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between animate-in slide-in-from-top duration-300">
+                <div className="bg-[var(--brand)] text-white px-4 sm:px-6 py-3 sticky top-0 z-40 shadow-md flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between animate-in slide-in-from-top duration-300">
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
                             <svg
@@ -464,8 +466,11 @@ export default function AnalyticsPage() {
                 </div>
             )}
 
-            {/* COMPACT STICKY SUB-HEADER */}
-            <div className="sticky top-[56px] sm:top-[61px] z-40 bg-white border-b border-slate-200/60 shadow-sm transition-all duration-300">
+            {/* COMPACT STICKY SUB-HEADER -- sticks to the top of this page's
+                own scroll container (the navbar lives outside it, in a
+                separate flex row, so no navbar-height offset is needed
+                here). */}
+            <div className="sticky top-0 z-40 bg-white border-b border-slate-200/60 shadow-sm transition-all duration-300">
                 <div className="max-w-[1440px] mx-auto px-4 sm:px-8 py-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex flex-col">
                         <h1 className="text-lg font-black text-slate-900 tracking-tight leading-none mb-1">

@@ -7,6 +7,7 @@ import ProblemStatement from './ProblemStatement';
 import MCQOptions from './MCQOptions';
 import AttemptsView, { Attempt } from './AttemptsView';
 import CoursePlayerSkeleton from './Skeletons/CoursePlayerSkeleton';
+import QuestionNavFooter from './QuestionNavFooter';
 
 // Dynamic imports for heavy editor components to optimize bundle size
 const WebEditor = dynamic(() => import('./WebEditor/WebEditor'), {
@@ -201,12 +202,9 @@ export function UnitRendererComponent({
                         onTabChange={onTabChange}
                         onToggleSidebar={onToggleSidebar}
                         showSidebar={showSidebar}
-                        onPrevious={onPrevious}
-                        onNext={onNext}
                         extraContent={extraHeaderContent}
                         showSidebarToggle={showSidebarToggle}
                         minimal={true} // Hidden tabs for reading
-                        hideNavigationButtons={true} // Hidden < > for reading
                     />
                 )}
 
@@ -405,43 +403,14 @@ export function UnitRendererComponent({
                                     </div>
                                 )}
                             </article>
-
-                            {!hideNav && !isExamMode && (
-                                <div className="mt-20 pt-8 border-t border-slate-100 flex justify-between items-center text-xs font-bold tracking-widest uppercase text-slate-400">
-                                    <button
-                                        onClick={onPrevious}
-                                        className="hover:text-[var(--brand)] transition-colors flex items-center gap-2"
-                                    >
-                                        <svg
-                                            width="12"
-                                            height="12"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="4"
-                                        >
-                                            <path d="M15 18l-6-6 6-6" />
-                                        </svg>
-                                        Previous
-                                    </button>
-                                    <button onClick={onNext} className="flex items-center gap-2 text-[var(--brand)]">
-                                        Next
-                                        <svg
-                                            width="12"
-                                            height="12"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="4"
-                                        >
-                                            <path d="M9 18l6-6-6-6" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            )}
                         </div>
                     </div>
                 </div>
+
+                {/* Bottom Navigation -- same Previous/Next footer used for every
+                    other question type and for exam mode, so Reading lessons
+                    inside a course don't get a differently-styled nav. */}
+                {!hideNav && !isExamMode && <QuestionNavFooter onPrevious={onPrevious} onNext={onNext} />}
             </div>
         );
     }
@@ -614,18 +583,20 @@ export function UnitRendererComponent({
                     initialLeftWidth={35}
                     leftContent={
                         <div className="flex flex-col h-full overflow-hidden">
+                            {/* The Previous/Next arrows used to live in this header, on top
+                                of the panel. They now live in the bottom QuestionNavFooter
+                                (rendered by ProblemStatement below), matching exam mode in one
+                                shared place instead of course questions having their own,
+                                differently-placed pair. */}
                             {!isExamMode && (
                                 <UnitNavHeader
                                     activeTab={activeTab}
                                     onTabChange={onTabChange}
                                     onToggleSidebar={onToggleSidebar}
                                     showSidebar={showSidebar}
-                                    onPrevious={onPrevious}
-                                    onNext={onNext}
                                     extraContent={extraHeaderContent}
                                     showSidebarToggle={showSidebarToggle}
                                     minimal={hideTabs}
-                                    hideNavigationButtons={isExamMode}
                                 />
                             )}
                             <div className="flex-1 overflow-hidden relative">

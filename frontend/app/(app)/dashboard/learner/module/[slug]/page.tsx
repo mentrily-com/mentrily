@@ -425,8 +425,12 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                     ]}
                 />
             )}
-            {/* COMPACT STICKY HEADER BELOW NAVBAR */}
-            <div className="sticky top-[56px] sm:top-[61px] z-40 bg-white border-b border-slate-200/60 shadow-sm transition-all duration-300">
+            {/* COMPACT STICKY HEADER -- sticks to the top of this page's own
+                scroll container. The navbar lives outside that container now
+                (a separate flex row in the learner layout, not part of this
+                page's scroll flow), so this no longer needs to offset itself
+                below a navbar-height's worth of space. */}
+            <div className="sticky top-0 z-40 bg-white border-b border-slate-200/60 shadow-sm transition-all duration-300">
                 <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 py-3.5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex min-w-0 items-center gap-4">
                         <div>

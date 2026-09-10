@@ -11,11 +11,15 @@ export default function DashboardSkeleton({ type = 'main', userRole, noNavbar = 
     return (
         <div className="h-screen overflow-hidden bg-slate-50 text-slate-900 font-sans">
             <main className="max-w-[1440px] mx-auto px-6 lg:px-12 py-10 overflow-hidden h-screen">
-                {/* Header Skeleton */}
-                <div className="flex items-center justify-between mb-10">
-                    <div className="w-48 h-8 bg-slate-200 rounded-lg animate-pulse"></div>
-                    <div className="w-64 h-12 bg-slate-200 rounded-2xl animate-pulse"></div>
-                </div>
+                {/* Header Skeleton -- only when the caller has no real navbar/topbar
+                    of its own already on screen. Rendering this alongside a real
+                    navbar produced two header-shaped elements stacked at once. */}
+                {!noNavbar && (
+                    <div className="flex items-center justify-between mb-10">
+                        <div className="w-48 h-8 bg-slate-200 rounded-lg animate-pulse"></div>
+                        <div className="w-64 h-12 bg-slate-200 rounded-2xl animate-pulse"></div>
+                    </div>
+                )}
 
                 {type === 'main' && (
                     <div className="flex flex-col lg:flex-row gap-12">

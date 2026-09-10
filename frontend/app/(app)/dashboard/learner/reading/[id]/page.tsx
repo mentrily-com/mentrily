@@ -15,7 +15,7 @@ export default function ReadingUnitPage() {
     const sidebarUnitsMapped = sidebarUnits.map((u) => ({ ...u, done: u.done, active: u.active }));
 
     return (
-        <div className="h-screen flex flex-col bg-white overflow-hidden font-sans">
+        <div className="h-full flex flex-col bg-white overflow-hidden font-sans">
             <div className="flex-1 flex overflow-hidden">
                 <UnitRenderer
                     question={{

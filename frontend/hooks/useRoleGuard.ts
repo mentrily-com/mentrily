@@ -61,6 +61,32 @@ export function useRoleGuard(allowedRoles: string[]) {
         (isSessionResolved && (allowedRoles.length === 0 || allowedRoles.includes(String(role))));
     const isReady = !isLoaded ? false : !isSignedIn ? true : isSessionResolved || isPendingAuthorized;
 
+    // True only once we have a fully-resolved (non-placeholder) session that
+    // is definitively NOT one of the allowed roles -- the same condition the
+    // redirect effect below acts on, so a caller gating render on this stays
+    // in lockstep with the actual redirect decision instead of drifting out
+    // of sync with it.
+    const isKnownWrongRole =
+        isSessionResolved &&
+        !isPendingAuthorized &&
+        allowedRoles.length > 0 &&
+        !allowedRoles.includes(String(role));
+    // True once Clerk has loaded and confirmed there's no session at all --
+    // distinct from "still loading," which isn't grounds to block anything.
+    const isConfirmedSignedOut = isLoaded && !isSignedIn;
+    // Whether a page under this guard should hold off on rendering its own
+    // content/loading UI: only while we either don't know anything yet
+    // (Clerk itself hasn't loaded) or we've conclusively determined this
+    // visitor doesn't belong here (signed out, or resolved to a role that
+    // isn't allowed) -- both cases redirect away via the effect below. The
+    // much more common "still verifying, but probably fine" window is
+    // deliberately NOT blocking: pages fetch their own data independently of
+    // this guard anyway (the backend enforces the real authorization), so
+    // gating render here only bought a second, generic loading skeleton in
+    // front of whatever loading UI the page already shows for its own
+    // fetch -- shown on every hard refresh, not just first sign-in.
+    const shouldBlockRender = !isLoaded || isConfirmedSignedOut || isKnownWrongRole;
+
     useEffect(() => {
         if (!isLoaded) return;
         if (!isSignedIn) {
@@ -85,5 +111,5 @@ export function useRoleGuard(allowedRoles: string[]) {
         }
     }, [allowedRoles, router, isLoaded, isSignedIn, isSessionResolved, role, isPendingAuthorized]);
 
-    return { isAuthorized, isReady, isPendingAuthorized };
+    return { isAuthorized, isReady, isPendingAuthorized, shouldBlockRender };
 }

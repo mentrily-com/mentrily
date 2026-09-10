@@ -670,7 +670,7 @@ export default function StudentUnitPage({ params: paramsPromise }: { params: Pro
     };
     if (loading) {
         return (
-            <div className="h-[calc(100dvh-var(--topbar-height))] min-h-0 flex flex-col bg-white overflow-hidden">
+            <div className="h-full min-h-0 flex flex-col bg-white overflow-hidden">
                 <div className="flex-1 overflow-hidden">
                     <CoursePlayerSkeleton hasSidebar={true} isExamMode={false} />
                 </div>
@@ -680,7 +680,7 @@ export default function StudentUnitPage({ params: paramsPromise }: { params: Pro
 
     if (!currentQuestion) {
         return (
-            <div className="h-[calc(100dvh-var(--topbar-height))] min-h-0 flex flex-col bg-white overflow-hidden font-sans">
+            <div className="h-full min-h-0 flex flex-col bg-white overflow-hidden font-sans">
                 <div className="flex-1 flex items-center justify-center">
                     <div className="text-lg font-bold text-red-400">Unit not found</div>
                 </div>
@@ -689,7 +689,7 @@ export default function StudentUnitPage({ params: paramsPromise }: { params: Pro
     }
 
     return (
-        <div className="h-[calc(100dvh-var(--topbar-height))] min-h-0 flex flex-col bg-white overflow-hidden">
+        <div className="h-full min-h-0 flex flex-col bg-white overflow-hidden">
             {isStarterUnit && (
                 <OnboardingTour
                     tourId={`mentrily_starter_unit_${id}_v2`}

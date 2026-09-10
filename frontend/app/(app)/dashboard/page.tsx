@@ -1,5 +1,6 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRequireAuth } from '@/hooks/requireAuthClient';
 import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -13,8 +14,26 @@ export default function DashboardPage() {
     const [isRedirectingToRoleDashboard, setIsRedirectingToRoleDashboard] = useState(false);
     const [redirectingRole, setRedirectingRole] = useState<'student' | 'teacher' | 'admin' | 'super-admin'>('teacher');
     const isSignedIn = useRequireAuth('/login');
-    const { isLoaded: clerkLoaded, isSignedIn: clerkSignedIn } = useAuth();
+    const { isLoaded: clerkLoaded, isSignedIn: clerkSignedIn, sessionId, userId } = useAuth();
     const router = useRouter();
+    const queryClient = useQueryClient();
+
+    // This page's whole job is a role-based redirect: it fetches the session
+    // once via AuthService directly (not the useSession() hook, so it can
+    // run its own signup-provisioning retry loop). Without this, that fetch
+    // was wasted work -- useSession()'s react-query cache stayed cold, so the
+    // destination layout's useRoleGuard (also backed by useSession()) had to
+    // fetch the exact same session again from scratch, showing a second,
+    // independent loading skeleton for data we'd already just fetched here.
+    // Priming the shared cache with the query key useSession() uses means
+    // the destination layout sees it as already resolved.
+    const primeSessionCache = useCallback(
+        (user: unknown) => {
+            if (!user) return;
+            queryClient.setQueryData(['session', sessionId || userId || 'anonymous'], user);
+        },
+        [queryClient, sessionId, userId],
+    );
     const searchParams = useSearchParams();
     const authFlow = String(searchParams.get('flow') || '')
         .trim()
@@ -103,6 +122,7 @@ export default function DashboardPage() {
 
                 const destination = getDestinationByRole(user?.role);
                 if (destination) {
+                    primeSessionCache(user);
                     setAuthChecked(true);
                     setIsRedirectingToRoleDashboard(true);
                     router.replace(destination);
@@ -127,11 +147,20 @@ export default function DashboardPage() {
         return () => {
             cancelled = true;
         };
-    }, [isSignedIn, clerkLoaded, clerkSignedIn, redirectMissingAccount, router, shouldProvisionSignup]);
+    }, [
+        isSignedIn,
+        clerkLoaded,
+        clerkSignedIn,
+        redirectMissingAccount,
+        router,
+        shouldProvisionSignup,
+        primeSessionCache,
+    ]);
 
     const redirectByRole = (user: { role?: string } | null, preferredDestination?: string): boolean => {
         const destination = getDestinationByRole(user?.role);
         if (!destination) return false;
+        primeSessionCache(user);
         persistRoleHint(user?.role);
         const normalizedRole = String(user?.role || '')
             .trim()
@@ -249,7 +278,10 @@ export default function DashboardPage() {
     }
 
     if (isRedirectingToRoleDashboard) {
-        return <DashboardSkeleton type="main" userRole={redirectingRole} />;
+        // Bare /dashboard never renders a navbar of its own (AppShell only
+        // shows one for workspace routes), so this matches the !authChecked
+        // branch above rather than drawing a header nothing else is showing.
+        return <DashboardSkeleton type="main" userRole={redirectingRole} noNavbar />;
     }
 
     return null;

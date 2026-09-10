@@ -15,7 +15,7 @@ export default function WebUnitPage() {
     const [showSidebar, setShowSidebar] = useState(false);
 
     return (
-        <div className="h-screen flex flex-col bg-white overflow-hidden selection:bg-[var(--brand-light)]">
+        <div className="h-full flex flex-col bg-white overflow-hidden selection:bg-[var(--brand-light)]">
             <div className="flex-1 flex overflow-hidden">
                 <UnitRenderer
                     question={{

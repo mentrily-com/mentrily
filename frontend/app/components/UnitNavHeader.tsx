@@ -7,11 +7,8 @@ interface UnitNavHeaderProps {
     onToggleSidebar: () => void;
     showSidebar: boolean;
     minimal?: boolean;
-    onPrevious?: () => void;
-    onNext?: () => void;
     extraContent?: React.ReactNode;
     showSidebarToggle?: boolean;
-    hideNavigationButtons?: boolean;
 }
 
 export default function UnitNavHeader({
@@ -20,11 +17,8 @@ export default function UnitNavHeader({
     onToggleSidebar,
     showSidebar,
     minimal = false,
-    onPrevious,
-    onNext,
     extraContent,
     showSidebarToggle = true,
-    hideNavigationButtons = false,
 }: UnitNavHeaderProps) {
     return (
         <div className="flex min-h-12 items-center justify-between gap-2 px-2 sm:px-4 border-b border-slate-100 bg-white z-[60] shrink-0 relative isolate">
@@ -57,48 +51,11 @@ export default function UnitNavHeader({
                     </>
                 )}
 
-                {/* Integrated Navigation & Tabs Div */}
+                {/* Integrated Tabs Div -- Previous/Next used to live here; they now
+                    live in the bottom QuestionNavFooter (see ProblemStatement /
+                    UnitRenderer), matching exam mode in one shared place instead
+                    of course questions having their own separate top pair. */}
                 <div className="flex min-w-0 items-center overflow-x-auto bg-slate-50/80 border border-slate-100 rounded-xl p-1 gap-1 no-scrollbar">
-                    {/* Navigation Buttons */}
-                    {!hideNavigationButtons && (
-                        <div className="flex items-center gap-0.5 pr-1 border-r border-slate-200/60 mr-1">
-                            <button
-                                onClick={onPrevious}
-                                data-element-id="starter-unit-previous"
-                                className="p-1.5 hover:bg-white hover:text-indigo-600 rounded-lg text-slate-400 transition-all active:scale-95"
-                                title="Previous"
-                            >
-                                <svg
-                                    width="18"
-                                    height="18"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2.5"
-                                >
-                                    <path d="m15 18-6-6 6-6" />
-                                </svg>
-                            </button>
-                            <button
-                                onClick={onNext}
-                                data-element-id="starter-unit-next"
-                                className="p-1.5 hover:bg-white hover:text-indigo-600 rounded-lg text-slate-400 transition-all active:scale-95"
-                                title="Next"
-                            >
-                                <svg
-                                    width="18"
-                                    height="18"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2.5"
-                                >
-                                    <path d="m9 18 6-6-6-6" />
-                                </svg>
-                            </button>
-                        </div>
-                    )}
-
                     {/* Tabs */}
                     {!minimal && (
                         <div className="flex items-center gap-1">

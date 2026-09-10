@@ -13,8 +13,11 @@
 export default function ModulePageSkeleton() {
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
-            {/* STICKY SUB-HEADER */}
-            <div className="sticky top-[56px] sm:top-[61px] z-40 bg-white border-b border-slate-200/60 shadow-sm">
+            {/* STICKY SUB-HEADER -- sticks to the top of this page's own
+                scroll container; must match the real page's offset (see
+                module/[slug]/page.tsx) or the skeleton and real content
+                jump on swap. */}
+            <div className="sticky top-0 z-40 bg-white border-b border-slate-200/60 shadow-sm">
                 <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 py-3.5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <div className="flex items-baseline gap-2 mb-2">

@@ -9,7 +9,9 @@ import { AuthenticateWithRedirectCallback, useAuth, useClerk, useSignIn, useUser
 import { useQueryClient } from '@tanstack/react-query';
 import { BrandLockup } from '@/components/brand/BrandLockup';
 import BrandedPageLoader from '@/app/components/Common/BrandedPageLoader';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import LearnerDashboardSkeleton from '@/app/components/Skeletons/LearnerDashboardSkeleton';
+import CreatorDashboardSkeleton from '@/app/components/Skeletons/CreatorDashboardSkeleton';
+import SuperAdminDashboardSkeleton from '@/app/components/Skeletons/SuperAdminDashboardSkeleton';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -56,18 +58,15 @@ export default function LoginPage() {
     const isHandlingManualAuthRef = React.useRef(false);
     // Best-guess role for the skeleton shown while redirecting post-login --
     // read once from the hint the dashboard persists on every visit, so a
-    // returning user sees their own dashboard shape rather than a generic
-    // one. Wrong guesses just fall back to the generic "main" layout; the
-    // real page replaces this the instant it mounts.
+    // returning user sees their own dashboard's real skeleton (the exact
+    // same purpose-built component that dashboard route renders while ITS
+    // OWN data loads) instead of a mismatched placeholder. A wrong guess
+    // (new device, first login) just falls back to the learner shape; the
+    // real page replaces this the instant it mounts either way.
     const [redirectingRoleHint] = useState<'student' | 'teacher' | 'admin' | 'super-admin' | undefined>(() => {
         if (typeof window === 'undefined') return undefined;
         const stored = window.localStorage.getItem('user-role');
-        if (
-            stored === 'student' ||
-            stored === 'teacher' ||
-            stored === 'admin' ||
-            stored === 'super-admin'
-        ) {
+        if (stored === 'student' || stored === 'teacher' || stored === 'admin' || stored === 'super-admin') {
             return stored;
         }
         return undefined;
@@ -366,12 +365,38 @@ export default function LoginPage() {
         return <BrandedPageLoader />;
     }
 
-    // Once Clerk confirms a session (fresh login or an already-authenticated
-    // visitor landing here), we're heading straight to a dashboard-shaped
-    // page -- render its skeleton instead of a blank-white spinner screen so
-    // the transition feels continuous rather than a jarring flash-to-white.
+    // Once Clerk confirms a session, we're heading straight to a dashboard
+    // route -- render the SAME purpose-built skeleton that dashboard already
+    // shows while its own data loads, not a generic stand-in. Previously
+    // this rendered a generic `DashboardSkeleton`, which looked nothing like
+    // the destination's real skeleton, so every login showed that generic
+    // one here and then a completely different-shaped one the instant the
+    // destination page mounted -- two different skeletons in a row for
+    // every single login. Reusing the exact same component means the
+    // silhouette doesn't change at all across the navigation; only the real
+    // chrome (topbar/sidebar) and data fill in once we land.
     if (isSignedIn || isRedirectingAuthenticatedUser) {
-        return <DashboardSkeleton type="main" userRole={redirectingRoleHint} noNavbar />;
+        if (redirectingRoleHint === 'teacher' || redirectingRoleHint === 'admin') {
+            return (
+                <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
+                    <div className="max-w-[1440px] mx-auto">
+                        <CreatorDashboardSkeleton />
+                    </div>
+                </div>
+            );
+        }
+        if (redirectingRoleHint === 'super-admin') {
+            return (
+                <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
+                    <div className="max-w-[1440px] mx-auto">
+                        <SuperAdminDashboardSkeleton />
+                    </div>
+                </div>
+            );
+        }
+        // Default/student fallback -- also what a first-time login with no
+        // stored role hint yet gets, since student is the most common role.
+        return <LearnerDashboardSkeleton />;
     }
 
     return (

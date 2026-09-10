@@ -552,14 +552,6 @@ export default function DashboardSidebar({
         () => getNavGroups(role, sessionUser as Record<string, unknown> | null),
         [role, sessionUser],
     );
-    const hasCreatorRole =
-        String(sessionUser?.role || '').toUpperCase() === 'ADMIN' ||
-        String(sessionUser?.role || '').toUpperCase() === 'TEACHER';
-    const isCreatorRole = role === 'teacher' || role === 'admin';
-    const isCreatorSessionPending = Boolean(pathname?.startsWith('/dashboard/creator')) && !hasCreatorRole;
-    const isPlanPending = isCreatorRole && !sessionUser?.plan;
-    const showNavSkeleton = isCreatorSessionPending || isPlanPending;
-
     const isActive = useCallback(
         (path: string) => {
             if (!pathname) return false;
@@ -633,23 +625,16 @@ export default function DashboardSidebar({
 
                 {/* ── Navigation groups ── */}
                 <nav className="flex-1 overflow-y-auto py-3 px-2.5 space-y-5">
-                    {showNavSkeleton ? (
-                        <div className="space-y-5 px-1.5 py-1">
-                            {[0, 1, 2].map((groupIndex) => (
-                                <div key={groupIndex}>
-                                    {!collapsed && <div className="mb-3 h-3 w-20 rounded bg-slate-100" />}
-                                    <div className="space-y-2">
-                                        {[0, 1, 2].map((itemIndex) => (
-                                            <div
-                                                key={itemIndex}
-                                                className="h-10 rounded-lg bg-slate-100/80 animate-pulse"
-                                            />
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
+                    {
+                        // `role` already falls back to a sensible default (e.g. 'teacher'
+                        // for any /dashboard/creator/* path) before the session finishes
+                        // resolving, so navGroups is always meaningful -- no need to blank
+                        // the sidebar to a placeholder while session/plan details are still
+                        // loading. That kept flashing the nav to a skeleton on every load
+                        // even though, for the common case, nothing about it was about to
+                        // change; at most a role/plan-gated item or two appears once the
+                        // session resolves, which reads as a minor addition rather than a
+                        // jarring skeleton-to-content swap.
                         navGroups.map((group, gi) => {
                             const visibleItems = group.items.filter((item) => !item.hidden);
 
@@ -764,7 +749,7 @@ export default function DashboardSidebar({
                                 </div>
                             );
                         })
-                    )}
+                    }
 
                     {/* ── Playground section ── */}
                     <div className="pt-2">
