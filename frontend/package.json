@@ -14,7 +14,9 @@
         "check:full": "npm run lint && npm run typecheck && npm run knip",
         "clean": "rm -rf .next out build coverage *.tsbuildinfo",
         "format": "prettier --write .",
-        "format:check": "prettier --check ."
+        "format:check": "prettier --check .",
+        "test:e2e": "playwright test",
+        "test:e2e:ui": "playwright test --ui"
     },
     "overrides": {
         "isomorphic-dompurify": {
@@ -53,7 +55,6 @@
         "@sentry/nextjs": "^10.22.0",
         "@tailwindcss/typography": "^0.5.19",
         "@tanstack/react-query": "^5.96.2",
-        "@tanstack/react-query-devtools": "^5.96.2",
         "@tiptap/extension-image": "^3.14.0",
         "@tiptap/extension-link": "^3.14.0",
         "@tiptap/extension-subscript": "^3.14.0",
@@ -71,7 +72,6 @@
         "driver.js": "^1.4.0",
         "framer-motion": "^12.38.0",
         "graphql": "^16.13.2",
-        "html2canvas": "^1.4.1",
         "isomorphic-dompurify": "^2.35.0",
         "lru-cache": "^11.2.4",
         "lucide-react": "^0.562.0",
@@ -93,6 +93,7 @@
         "zod": "^4.2.1"
     },
     "devDependencies": {
+        "@playwright/test": "^1.56.1",
         "@tailwindcss/postcss": "^4",
         "@types/node": "^20",
         "@types/react": "^19",

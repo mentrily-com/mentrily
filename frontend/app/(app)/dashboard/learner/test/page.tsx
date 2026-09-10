@@ -1,6 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import { ClipboardList } from 'lucide-react';
+import LearnerTestAttemptsSkeleton from '@/app/components/Skeletons/LearnerTestAttemptsSkeleton';
+import EmptyState from '@/app/components/Common/EmptyState';
 import { StudentService } from '@/services/api/StudentService';
 
 export default function TestAttemptsPage() {
@@ -22,11 +24,7 @@ export default function TestAttemptsPage() {
     }, []);
 
     if (loading) {
-        return (
-            <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
-                <DashboardSkeleton type="list" userRole="student" noNavbar />
-            </div>
-        );
+        return <LearnerTestAttemptsSkeleton />;
     }
     return (
         <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
@@ -127,8 +125,13 @@ export default function TestAttemptsPage() {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={4} className="px-6 py-10 text-center text-slate-400 font-medium">
-                                        No test attempts found
+                                    <td colSpan={4} className="px-6 py-4">
+                                        <EmptyState
+                                            icon={<ClipboardList size={24} />}
+                                            title="No test attempts yet"
+                                            description="Attempts you take will show up here once you complete an exam."
+                                            className="py-10"
+                                        />
                                     </td>
                                 </tr>
                             )}
@@ -180,9 +183,12 @@ export default function TestAttemptsPage() {
                                 </article>
                             ))
                         ) : (
-                            <div className="px-6 py-10 text-center text-slate-400 font-medium">
-                                No test attempts found
-                            </div>
+                            <EmptyState
+                                icon={<ClipboardList size={24} />}
+                                title="No test attempts yet"
+                                description="Attempts you take will show up here once you complete an exam."
+                                className="py-10"
+                            />
                         )}
                     </div>
                 </div>

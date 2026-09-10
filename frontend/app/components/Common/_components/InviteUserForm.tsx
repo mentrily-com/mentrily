@@ -78,6 +78,7 @@ export default function InviteUserForm({
             <button
                 type="submit"
                 disabled={isProcessing}
+                aria-label={isProcessing ? 'Sending invite' : undefined}
                 className="w-full py-4 bg-[var(--brand)] text-white font-black text-xs uppercase tracking-[0.14em] rounded-[20px] shadow-xl shadow-[var(--brand)]/20 hover:scale-[1.02] active:scale-95 transition-all sm:py-5 sm:tracking-[0.2em] sm:rounded-[24px]"
             >
                 {isProcessing ? <Loader2 className="animate-spin mx-auto" size={20} /> : 'Send Clerk Invite'}

@@ -519,10 +519,7 @@ export const TeacherService = {
                         return await retryRes.json();
                     }
 
-                    throw await parseApiError(
-                        retryRes,
-                        errorData.message || 'Failed to create exam',
-                    );
+                    throw await parseApiError(retryRes, errorData.message || 'Failed to create exam');
                 }
 
                 const message =

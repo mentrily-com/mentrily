@@ -7,7 +7,7 @@ import {
   HeadObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { QuotaService } from '../../modules/billing/quota.service';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -58,8 +58,8 @@ export class StorageService {
     const fileExtension = filename.split('.').pop();
     const namespace = orgId || (ownerId ? `user-${ownerId}` : null);
     return namespace
-      ? `${folder}/${namespace}/${uuidv4()}.${fileExtension}`
-      : `${folder}/${uuidv4()}.${fileExtension}`;
+      ? `${folder}/${namespace}/${randomUUID()}.${fileExtension}`
+      : `${folder}/${randomUUID()}.${fileExtension}`;
   }
 
   publicUrl(key: string): string {
@@ -143,7 +143,9 @@ export class StorageService {
     });
 
     try {
-      this.logger.log(`Uploading file ${filename} to S3: ${this.bucketName}/${key}`);
+      this.logger.log(
+        `Uploading file ${filename} to S3: ${this.bucketName}/${key}`,
+      );
       await this.s3Client.send(command);
       this.logger.log(`File uploaded successfully: ${key}`);
 
@@ -215,7 +217,10 @@ export class StorageService {
           where: { key: key },
         });
       } catch (assetError) {
-        this.logger.error(`Failed to delete asset record: ${assetError.message}`, assetError.stack);
+        this.logger.error(
+          `Failed to delete asset record: ${assetError.message}`,
+          assetError.stack,
+        );
       }
     } catch (error) {
       this.logger.error(`Failed to delete file: ${error.message}`, error.stack);

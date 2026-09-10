@@ -17,12 +17,12 @@ interface QueryOptions {
  */
 export function useQuery<T>(key: string | null, fetcher: () => Promise<T>, options: QueryOptions = {}) {
     const { dedupingInterval = 2000, ttl = 1000 * 60 * 5 } = options;
-    
+
     // Attempt to read from cache synchronously for initial state
     const cachedEntry = key ? cache.get(key) : undefined;
-    const isStale = cachedEntry ? (Date.now() - cachedEntry.timestamp > ttl) : true;
+    const isStale = cachedEntry ? Date.now() - cachedEntry.timestamp > ttl : true;
     const initialData = cachedEntry ? cachedEntry.data : undefined;
-    
+
     const [data, setData] = useState<T | undefined>(initialData);
     const [error, setError] = useState<any>(null);
     const [isLoading, setIsLoading] = useState<boolean>(!initialData && !!key);
@@ -42,7 +42,7 @@ export function useQuery<T>(key: string | null, fetcher: () => Promise<T>, optio
             const now = Date.now();
 
             // If we have fresh data in cache (within deduping interval), use it and don't fetch
-            if (currentCache && (now - currentCache.timestamp < dedupingInterval)) {
+            if (currentCache && now - currentCache.timestamp < dedupingInterval) {
                 if (isMounted) {
                     setData(currentCache.data);
                     setIsLoading(false);
@@ -64,10 +64,10 @@ export function useQuery<T>(key: string | null, fetcher: () => Promise<T>, optio
                 }
 
                 const result = await promise;
-                
+
                 // Update Cache
                 if (inflight.get(key) === promise) {
-                     inflight.delete(key); // Cleanup
+                    inflight.delete(key); // Cleanup
                 }
                 cache.set(key, { data: result, timestamp: Date.now() });
 

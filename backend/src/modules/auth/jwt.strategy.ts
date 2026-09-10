@@ -617,7 +617,8 @@ export class ClerkAuthGuard implements CanActivate {
       .catch(() => {});
 
     if (this.quotaService) {
-      const counterField = role === 'STUDENT' ? 'studentCount' : 'teacherSeatCount';
+      const counterField =
+        role === 'STUDENT' ? 'studentCount' : 'teacherSeatCount';
       await this.quotaService
         .incrementCounter(invite.orgId, counterField, 1)
         .catch(() => {});
@@ -1064,7 +1065,8 @@ export class ClerkAuthGuard implements CanActivate {
 
     let orgIdForSubdomain: string | null = null;
     if (tenantSubdomain) {
-      orgIdForSubdomain = await this.resolveOrganizationIdBySubdomain(tenantSubdomain);
+      orgIdForSubdomain =
+        await this.resolveOrganizationIdBySubdomain(tenantSubdomain);
     }
 
     // Expose the subdomain's org on the request for BOTH the cached and
@@ -1076,7 +1078,9 @@ export class ClerkAuthGuard implements CanActivate {
     // against. Never trusted as-is — resolveActiveMembership() below only
     // honors it if the user actually has an ACTIVE membership there.
     let requestedOrgId =
-      orgIdForSubdomain || String(req?.headers?.['x-active-org-id'] || '').trim() || null;
+      orgIdForSubdomain ||
+      String(req?.headers?.['x-active-org-id'] || '').trim() ||
+      null;
 
     // A STRICT (fully isolated) org can only be the active workspace when
     // the request arrives on its own subdomain. A header-requested
@@ -1106,7 +1110,8 @@ export class ClerkAuthGuard implements CanActivate {
         .toLowerCase() || null;
 
     const isLearner = requestedPersona === 'learner';
-    let cacheScope = requestedOrgId || (isLearner ? 'persona-learner' : 'default');
+    let cacheScope =
+      requestedOrgId || (isLearner ? 'persona-learner' : 'default');
     if (requestedOrgId && isLearner) {
       cacheScope = `${requestedOrgId}:persona-learner`;
     }
@@ -1274,8 +1279,9 @@ export class ClerkAuthGuard implements CanActivate {
           // Force an org-less Student persona OR an in-org Student persona (Learner Preview)
           // based on whether the client explicitly requested an org context.
           effectiveRole = 'STUDENT';
-          
-          const headerOrgId = String(req?.headers?.['x-active-org-id'] || '').trim() || null;
+
+          const headerOrgId =
+            String(req?.headers?.['x-active-org-id'] || '').trim() || null;
           if (!headerOrgId && !orgIdForSubdomain) {
             // "My Learning": org-less learner
             effectiveOrgId = null;
@@ -1326,31 +1332,42 @@ export class ClerkAuthGuard implements CanActivate {
     };
 
     const orgUsage = effectiveOrgId
-      ? {
-          students: Number(effectiveOrganization?.studentCount || 0),
-          courses: Number(effectiveOrganization?.courseCount || 0),
-          storageMb: Number(effectiveOrganization?.storageUsedMb || 0),
-          seats: Number(effectiveOrganization?.teacherSeatCount || 0),
-          adminSeats: await this.prisma.user.count({
-            where: { orgId: effectiveOrgId, role: 'ADMIN' },
-          }),
-          teacherSeats: await this.prisma.user.count({
-            where: { orgId: effectiveOrgId, role: 'TEACHER' },
-          }),
-          monthlyExams: await this.prisma.usageLedger.count({
-            where: {
-              orgId: effectiveOrgId,
-              eventType: 'exam.created',
-              createdAt: {
-                gte: new Date(
-                  new Date().getFullYear(),
-                  new Date().getMonth(),
-                  1,
-                ),
+      ? await (async () => {
+          // These three counts are independent of each other -- running them
+          // sequentially stacked three extra DB round trips onto every
+          // cache-miss session resolution (i.e. every login). Promise.all
+          // collapses that to the cost of the single slowest query.
+          const [adminSeats, teacherSeats, monthlyExams] = await Promise.all([
+            this.prisma.user.count({
+              where: { orgId: effectiveOrgId, role: 'ADMIN' },
+            }),
+            this.prisma.user.count({
+              where: { orgId: effectiveOrgId, role: 'TEACHER' },
+            }),
+            this.prisma.usageLedger.count({
+              where: {
+                orgId: effectiveOrgId,
+                eventType: 'exam.created',
+                createdAt: {
+                  gte: new Date(
+                    new Date().getFullYear(),
+                    new Date().getMonth(),
+                    1,
+                  ),
+                },
               },
-            },
-          }),
-        }
+            }),
+          ]);
+          return {
+            students: Number(effectiveOrganization?.studentCount || 0),
+            courses: Number(effectiveOrganization?.courseCount || 0),
+            storageMb: Number(effectiveOrganization?.storageUsedMb || 0),
+            seats: Number(effectiveOrganization?.teacherSeatCount || 0),
+            adminSeats,
+            teacherSeats,
+            monthlyExams,
+          };
+        })()
       : this.quotaService
         ? await this.quotaService.getPersonalUsage(user.id)
         : {
@@ -1386,7 +1403,7 @@ export class ClerkAuthGuard implements CanActivate {
       // their own plan; invited teachers can't (that's the org admin's job).
       isOrgOwner: Boolean(
         effectiveOrgId &&
-          (effectiveOrganization as any)?.provisionedFromUserId === user.id,
+        (effectiveOrganization as any)?.provisionedFromUserId === user.id,
       ),
       rollNumber: user.rollNumber,
       department: user.department,

@@ -64,9 +64,7 @@ export function useAdminUsers(organizationId?: string) {
             setUsers((prev) => prev.filter((user) => user.id !== id));
             setUserToDelete(null);
             success(
-                result?.accountDeleted === false
-                    ? 'User removed from this organization'
-                    : 'User deleted successfully',
+                result?.accountDeleted === false ? 'User removed from this organization' : 'User deleted successfully',
                 'Cleanup Process',
             );
         } catch (error: any) {

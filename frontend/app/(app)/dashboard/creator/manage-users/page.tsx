@@ -1,16 +1,15 @@
 'use client';
 
 import React from 'react';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import ManageUsersSkeleton from '@/app/components/Skeletons/ManageUsersSkeleton';
 import AdminUsersView from '@/app/components/Features/Admin/AdminUsersView';
 import { usePlan } from '@/hooks/usePlan';
 
 export default function ManageUsersPage() {
-    const { role, loading } = usePlan();
-    const dashboardRole = role === 'ADMIN' ? 'admin' : 'teacher';
+    const { loading } = usePlan();
 
     if (loading) {
-        return <DashboardSkeleton type="list" userRole={dashboardRole} />;
+        return <ManageUsersSkeleton />;
     }
 
     return <AdminUsersView basePath="/dashboard/creator" />;

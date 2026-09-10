@@ -13,7 +13,6 @@ import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Redis } from 'ioredis';
 import { SubmissionService } from '../submission/submission.service';
 import { SupabaseService } from '../../services/supabase/supabase.service';
-import { WsException } from '@nestjs/websockets';
 import { verifyToken } from '@clerk/backend';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { OnModuleDestroy } from '@nestjs/common';
@@ -217,8 +216,8 @@ export class MonitoringGateway
 
     return Boolean(
       membership &&
-        membership.status === 'ACTIVE' &&
-        (membership.role === 'TEACHER' || membership.role === 'ADMIN'),
+      membership.status === 'ACTIVE' &&
+      (membership.role === 'TEACHER' || membership.role === 'ADMIN'),
     );
   }
 
@@ -573,6 +572,29 @@ export class MonitoringGateway
     // Identity in downstream events comes from the server, not the payload.
     data.userId = socketUser.id;
 
+    // `message`/`details` are client-supplied and, unlike every other field
+    // here, were persisted and rebroadcast to every connected teacher with
+    // no size limit or validation -- a buggy or malicious client could push
+    // arbitrary/oversized JSON (e.g. a base64 image) into the Violation
+    // table and into every monitor dashboard's socket stream.
+    const MAX_MESSAGE_LEN = 2000;
+    const MAX_DETAILS_BYTES = 4096;
+    const safeMessage = String(data.message ?? '').slice(0, MAX_MESSAGE_LEN);
+    let safeDetails: unknown = data.details ?? null;
+    try {
+      const serialized = JSON.stringify(safeDetails);
+      if (
+        serialized &&
+        Buffer.byteLength(serialized, 'utf8') > MAX_DETAILS_BYTES
+      ) {
+        safeDetails = { truncated: true };
+      }
+    } catch {
+      safeDetails = { truncated: true };
+    }
+    data.message = safeMessage;
+    data.details = safeDetails;
+
     // PERFORMANCE: Check Cache for Session Status & Limits
     const cacheKey = `session:status:${data.sessionId}`;
     const cachedData = await this.redis.get(cacheKey);
@@ -644,15 +666,32 @@ export class MonitoringGateway
         `[Proctoring] Auto-terminating session ${data.sessionId} for user ${data.userId} due to tab switch limit (${tabSwitchInCount}/${limit})`,
       );
 
-      await this.prisma.$executeRaw`
+      // Guarded on status='IN_PROGRESS': the 60s status cache above can be
+      // stale, so without this guard a violation processed after the
+      // student already submitted (status now COMPLETED, with a real
+      // score) would silently overwrite the row back to TERMINATED --
+      // clobbering endTime/timeTakenSec on an already-graded session and
+      // defeating the "already passed" re-attempt block, which keys off
+      // status === 'COMPLETED'.
+      const terminatedCount: number = await this.prisma.$executeRaw`
                 UPDATE "ExamSession"
                 SET
                     "status" = 'TERMINATED',
                     "endTime" = NOW(),
                     "timeTakenSec" = GREATEST(EXTRACT(EPOCH FROM (NOW() - "startTime"))::INT, 0),
                     "updatedAt" = NOW()
-                WHERE "id" = ${data.sessionId}
+                WHERE "id" = ${data.sessionId} AND "status" = 'IN_PROGRESS'
             `;
+
+      if (terminatedCount === 0) {
+        // Session already left IN_PROGRESS (submitted or already
+        // terminated) between the stale cache read above and this write --
+        // don't kick the student or notify teachers of a termination that
+        // didn't happen. Drop the stale cache entry so the next check reads
+        // the session's real current status.
+        await this.redis.del(cacheKey);
+        return { status: 'rejected', reason: 'Session already inactive' };
+      }
 
       await this.redis.set(
         cacheKey,

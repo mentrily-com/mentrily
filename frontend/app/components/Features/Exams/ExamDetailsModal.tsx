@@ -94,12 +94,12 @@ export default function ExamDetailsModal({ exam, onClose }: ExamDetailsModalProp
             >
                 <div className="flex flex-wrap items-center gap-2 mb-1 sm:gap-3">
                     <div
-                        className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${brandLightClass}`}
+                        className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${brandLightClass}`}
                     >
                         Exam Details
                     </div>
                     <span
-                        className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${exam.status === 'Published' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : exam.status === 'Monitor' || exam.status === 'Live' ? brandLightClass : 'bg-slate-50 text-slate-400 border-slate-100'}`}
+                        className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${exam.status === 'Published' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : exam.status === 'Monitor' || exam.status === 'Live' ? brandLightClass : 'bg-slate-50 text-slate-400 border-slate-100'}`}
                     >
                         {exam.status}
                     </span>
@@ -168,7 +168,7 @@ export default function ExamDetailsModal({ exam, onClose }: ExamDetailsModalProp
                                 <p className="text-xs font-bold text-slate-700">{exam.allowedIPs}</p>
                             </div>
                         </div>
-                        <div className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-emerald-100">
+                        <div className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-emerald-100">
                             Active
                         </div>
                     </div>
@@ -208,7 +208,9 @@ export default function ExamDetailsModal({ exam, onClose }: ExamDetailsModalProp
                             </div>
                             <div>
                                 <p className="text-[9px] font-black text-slate-300 uppercase">Starts At</p>
-                                <p className="text-xs font-black text-slate-700">{formatInZone(exam.startTime, exam.timeZone)}</p>
+                                <p className="text-xs font-black text-slate-700">
+                                    {formatInZone(exam.startTime, exam.timeZone)}
+                                </p>
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
@@ -217,7 +219,9 @@ export default function ExamDetailsModal({ exam, onClose }: ExamDetailsModalProp
                             </div>
                             <div>
                                 <p className="text-[9px] font-black text-slate-300 uppercase">Ends At</p>
-                                <p className="text-xs font-black text-slate-700">{formatInZone(exam.endTime, exam.timeZone)}</p>
+                                <p className="text-xs font-black text-slate-700">
+                                    {formatInZone(exam.endTime, exam.timeZone)}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -263,6 +267,7 @@ function DetailCard({ icon, label, value, onAlert, brandTextClass, canCopy = tru
                 <button
                     onClick={handleCopy}
                     disabled={!canCopy}
+                    aria-label={`Copy ${label}`}
                     className={`p-1.5 text-slate-300 transition-colors ${canCopy ? `hover:${brandTextClass}` : 'opacity-40 cursor-not-allowed'}`}
                 >
                     <Copy size={14} />

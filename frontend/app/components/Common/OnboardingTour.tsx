@@ -42,11 +42,26 @@ export default function OnboardingTour({
     skipStorageKey?: string;
 }) {
     const { data: session, isLoading, isPlaceholderData, refetch } = useSession();
-    const storageKey = useMemo(() => `tour_${tourId}_completed`, [tourId]);
-    const sessionSeenKey = useMemo(() => `tour_${tourId}_seen_this_session`, [tourId]);
+    const hasCompletedOnboarding = Boolean((session as any)?.hasCompletedOnboarding);
+    const userId = (session as any)?.id;
+
+    // Suffixed by userId (like markOnboardingCompleted/isOnboardingCompletedCached
+    // above) so a tour already dismissed by one account doesn't silently
+    // suppress it for the next person to use the same browser -- a shared
+    // school/lab machine otherwise means only the first student ever sees it.
+    const storageKey = useMemo(
+        () => (userId ? `tour_${tourId}_completed_${userId}` : `tour_${tourId}_completed`),
+        [tourId, userId],
+    );
+    const sessionSeenKey = useMemo(
+        () => (userId ? `tour_${tourId}_seen_this_session_${userId}` : `tour_${tourId}_seen_this_session`),
+        [tourId, userId],
+    );
     const resolvedSkipStorageKey = useMemo(
-        () => skipStorageKey || `tour_${tourId}_skipped`,
-        [skipStorageKey, tourId],
+        () =>
+            skipStorageKey ||
+            (userId ? `tour_${tourId}_skipped_${userId}` : `tour_${tourId}_skipped`),
+        [skipStorageKey, tourId, userId],
     );
     const activeKey = 'mentrily_active_tour';
     const startedRef = useRef(false);
@@ -62,9 +77,6 @@ export default function OnboardingTour({
     const stepsRef = useRef(steps);
     stepsRef.current = steps;
     const stepsLength = steps.length;
-
-    const hasCompletedOnboarding = Boolean((session as any)?.hasCompletedOnboarding);
-    const userId = (session as any)?.id;
 
     // Sync the localStorage fast-path cache as soon as the real session
     // confirms completion — so the NEXT page load suppresses the tour

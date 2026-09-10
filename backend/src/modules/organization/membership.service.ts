@@ -187,19 +187,33 @@ export class MembershipService {
     // status already is below — otherwise suspending someone's home org
     // membership would have no effect, since the flat User.orgId/role
     // columns are trusted unconditionally.
-    let homeMembershipIsActive: boolean | null = null;
-    const isHomeActive = async (): Promise<boolean> => {
-      if (homeMembershipIsActive !== null) return homeMembershipIsActive;
-      if (!user.orgId) {
-        homeMembershipIsActive = true;
-        return true;
+    // Fetches (and memoizes) the home membership row once, selecting both
+    // `status` and `role` together -- resolveActiveMembership previously
+    // issued two separate findUnique calls on this exact row (one for
+    // `status` via isHomeActive(), one for `role` at each of the two call
+    // sites below), tripling the DB round trips for what is the same,
+    // rarely-changing row within a single request.
+    let homeMembershipPromise: Promise<{
+      status: string;
+      role: Role;
+    } | null> | null = null;
+    const getHomeMembership = (): Promise<{
+      status: string;
+      role: Role;
+    } | null> => {
+      if (!user.orgId) return Promise.resolve(null);
+      if (!homeMembershipPromise) {
+        homeMembershipPromise = this.prisma.orgMembership.findUnique({
+          where: { userId_orgId: { userId: user.id, orgId: user.orgId } },
+          select: { status: true, role: true },
+        });
       }
-      const home = await this.prisma.orgMembership.findUnique({
-        where: { userId_orgId: { userId: user.id, orgId: user.orgId } },
-        select: { status: true },
-      });
-      homeMembershipIsActive = !home || home.status === 'ACTIVE';
-      return homeMembershipIsActive;
+      return homeMembershipPromise;
+    };
+    const isHomeActive = async (): Promise<boolean> => {
+      if (!user.orgId) return true;
+      const home = await getHomeMembership();
+      return !home || home.status === 'ACTIVE';
     };
 
     const candidates = [requestedOrgId, user.lastActiveOrgId].filter(
@@ -216,10 +230,7 @@ export class MembershipService {
         // might have an overriding OrgMembership row for their home org (e.g.
         // their flat role is STUDENT but they were granted TEACHER).
         if (await isHomeActive()) {
-          const homeMembership = user.orgId ? await this.prisma.orgMembership.findUnique({
-            where: { userId_orgId: { userId: user.id, orgId: user.orgId } },
-            select: { role: true },
-          }) : null;
+          const homeMembership = await getHomeMembership();
           return {
             orgId: user.orgId,
             role: homeMembership?.role || user.role,
@@ -239,10 +250,7 @@ export class MembershipService {
     }
 
     if (await isHomeActive()) {
-      const homeMembership = user.orgId ? await this.prisma.orgMembership.findUnique({
-        where: { userId_orgId: { userId: user.id, orgId: user.orgId } },
-        select: { role: true },
-      }) : null;
+      const homeMembership = await getHomeMembership();
       return {
         orgId: user.orgId,
         role: homeMembership?.role || user.role,
@@ -282,25 +290,27 @@ export class MembershipService {
     });
 
     const defaultOrgId = this.getDefaultOrgId();
-    return memberships.map((membership) => {
-      const kind = getOrgKindFromRecord(membership.organization, {
-        isDefaultOrg: membership.orgId === defaultOrgId,
-      });
-      const domain = String(membership.organization?.domain || '')
-        .trim()
-        .toLowerCase();
-      return {
-        orgId: membership.orgId,
-        orgName: membership.organization?.name || 'Untitled organization',
-        orgSlug: membership.organization?.slug || null,
-        // The switcher navigates strict orgs by host; never expose the
-        // sentinel 'default' domain as a navigable host.
-        orgDomain: domain && domain !== 'default' ? domain : null,
-        orgKind: kind,
-        role: membership.role,
-        isHome: membership.orgId === user.orgId,
-      };
-    }).filter((m) => !(m.role === 'STUDENT' && m.orgKind === 'PERSONAL'));
+    return memberships
+      .map((membership) => {
+        const kind = getOrgKindFromRecord(membership.organization, {
+          isDefaultOrg: membership.orgId === defaultOrgId,
+        });
+        const domain = String(membership.organization?.domain || '')
+          .trim()
+          .toLowerCase();
+        return {
+          orgId: membership.orgId,
+          orgName: membership.organization?.name || 'Untitled organization',
+          orgSlug: membership.organization?.slug || null,
+          // The switcher navigates strict orgs by host; never expose the
+          // sentinel 'default' domain as a navigable host.
+          orgDomain: domain && domain !== 'default' ? domain : null,
+          orgKind: kind,
+          role: membership.role,
+          isHome: membership.orgId === user.orgId,
+        };
+      })
+      .filter((m) => !(m.role === 'STUDENT' && m.orgKind === 'PERSONAL'));
   }
 
   /**
@@ -332,7 +342,9 @@ export class MembershipService {
       });
 
       if (home && home.status !== 'ACTIVE') {
-        throw new ForbiddenException('You are not a member of that organization');
+        throw new ForbiddenException(
+          'You are not a member of that organization',
+        );
       }
 
       await this.prisma.user.update({

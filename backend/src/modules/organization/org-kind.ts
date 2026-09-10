@@ -38,16 +38,11 @@ export function getOrgKindFromRecord(
 ): OrgKind {
   if (!org) return 'PERSONAL';
 
-  const domain = String(org.domain || '').trim().toLowerCase();
+  const domain = String(org.domain || '')
+    .trim()
+    .toLowerCase();
   if (!domain || domain === 'default' || opts?.isDefaultOrg) return 'PERSONAL';
   if (org.provisionedFromUserId) return 'PERSONAL';
 
   return isOpenEnrollmentOrgRecord(org) ? 'OPEN' : 'STRICT';
-}
-
-export function isStrictOrgRecord(
-  org: OrgKindSource | null | undefined,
-  opts?: { isDefaultOrg?: boolean },
-): boolean {
-  return getOrgKindFromRecord(org, opts) === 'STRICT';
 }

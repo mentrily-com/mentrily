@@ -263,7 +263,10 @@ export class SubmissionProcessor extends WorkerHost {
           const previousAnswers = (currentSession?.answers as any) || {};
           const jobs = Object.entries(staged)
             .filter(([qId]) => !qId.startsWith('_'))
-            .filter(([qId, ans]) => JSON.stringify(previousAnswers[qId]) !== JSON.stringify(ans))
+            .filter(
+              ([qId, ans]) =>
+                JSON.stringify(previousAnswers[qId]) !== JSON.stringify(ans),
+            )
             .map(([qId, ans]) => ({
               name: 'save-question-attempt',
               data: {

@@ -17,7 +17,7 @@ function ComingSoon() {
                 >
                     <Timer size={40} />
                 </motion.div>
-                
+
                 <motion.h2
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -35,8 +35,8 @@ function ComingSoon() {
                     transition={{ delay: 0.2, duration: 0.5 }}
                     className="text-slate-600 text-lg mb-12 max-w-xl mx-auto leading-relaxed"
                 >
-                    We&apos;re currently crafting deep-dives on technical education, 
-                    scaling bootcamps, and the future of coding assessments.
+                    We&apos;re currently crafting deep-dives on technical education, scaling bootcamps, and the future
+                    of coding assessments.
                 </motion.p>
             </div>
         </section>
@@ -46,7 +46,7 @@ function ComingSoon() {
 export default function BlogPage() {
     return (
         <main className="min-h-screen bg-white">
-            <MarketingPageHeader 
+            <MarketingPageHeader
                 title="The Mentrily Blog"
                 description="Insights, guides, and stories for modern technical educators."
             />

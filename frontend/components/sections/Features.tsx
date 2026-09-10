@@ -155,7 +155,17 @@ function FeatureRow({
                 <ul className="space-y-2">
                     {highlights.map((item) => (
                         <li key={item} className="flex items-center gap-2.5 text-sm" style={{ color: '#475569' }}>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={badgeColor} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                            <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke={badgeColor}
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="shrink-0"
+                            >
                                 <polyline points="20 6 9 17 4 12" />
                             </svg>
                             {item}
@@ -220,7 +230,7 @@ function QuestionShowcase({ onPreview }: { onPreview: (image: PreviewImage) => v
         <div
             role="button"
             tabIndex={0}
-            className="relative w-full overflow-hidden bg-[#F8FAFC] text-left"
+            className="relative w-full overflow-hidden bg-slate-50 text-left"
             onClick={() => onPreview(activeImage)}
             onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
@@ -287,7 +297,7 @@ function ExamMockup({ onPreview }: { onPreview: (image: PreviewImage) => void })
     return (
         <button
             type="button"
-            className="relative block aspect-[16/9] w-full overflow-hidden bg-[#F8FAFC] text-left"
+            className="relative block aspect-[16/9] w-full overflow-hidden bg-slate-50 text-left"
             onClick={() => onPreview(image)}
         >
             <Image
@@ -311,7 +321,7 @@ function CourseExamBuilderMockup({ onPreview }: { onPreview: (image: PreviewImag
     return (
         <button
             type="button"
-            className="relative block aspect-[1920/939] w-full overflow-hidden bg-[#F8FAFC] text-left"
+            className="relative block aspect-[1920/939] w-full overflow-hidden bg-slate-50 text-left"
             onClick={() => onPreview(image)}
         >
             <Image

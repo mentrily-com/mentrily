@@ -32,7 +32,7 @@ export default function PlaygroundEditor({ language, code, onChange }: Playgroun
                     padding-top: 20px;
                 }
                 .cm-content {
-                    font-family: 'Geist Mono', 'JetBrains Mono', monospace !important;
+                    font-family: var(--font-jetbrains-mono), ui-monospace, monospace !important;
                     font-size: 14px !important;
                     line-height: 1.6;
                     color: #1e293b !important;

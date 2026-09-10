@@ -80,15 +80,23 @@ export default function TemplatePreview({
 
             <div className="relative h-full px-12 py-10 flex flex-col items-center justify-center text-center">
                 <p className={`text-sm font-bold tracking-wide ${preset.muted}`}>{orgName}</p>
-                <h2 className={`mt-4 text-3xl font-black ${preset.title}`}>{value.certificateTitle || 'Certificate of Achievement'}</h2>
-                <p className={`mt-2 text-sm font-semibold ${preset.muted}`}>{value.subtitle || 'This certifies that'}</p>
+                <h2 className={`mt-4 text-3xl font-black ${preset.title}`}>
+                    {value.certificateTitle || 'Certificate of Achievement'}
+                </h2>
+                <p className={`mt-2 text-sm font-semibold ${preset.muted}`}>
+                    {value.subtitle || 'This certifies that'}
+                </p>
                 <p className={`mt-4 text-4xl font-black ${preset.accent}`}>{'{{ Student Name }}'}</p>
                 <p className={`mt-3 text-sm font-medium ${preset.muted}`}>has successfully completed</p>
                 <p className={`mt-2 text-2xl font-bold ${preset.title}`}>{'{{ Course / Exam Title }}'}</p>
-                <p className={`mt-4 text-xs font-semibold ${preset.muted}`}>{'Completion: {{ Percentage }}% · Issued {{ Date }}'}</p>
+                <p className={`mt-4 text-xs font-semibold ${preset.muted}`}>
+                    {'Completion: {{ Percentage }}% · Issued {{ Date }}'}
+                </p>
             </div>
 
-            <div className={`absolute ${qrPositionClass[value.qrPosition]} rounded-md bg-white/90 p-2 border border-slate-200`}>
+            <div
+                className={`absolute ${qrPositionClass[value.qrPosition]} rounded-md bg-white/90 p-2 border border-slate-200`}
+            >
                 <QRCodeSVG value="https://mentrily.example/certificate/verify/preview" size={58} level="M" />
             </div>
 

@@ -1,15 +1,16 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import ModulePageSkeleton from '@/app/components/Skeletons/ModulePageSkeleton';
 import OnboardingTour from '@/app/components/Common/OnboardingTour';
 import { CourseService } from '@/services/api/CourseService';
 import { StudentService } from '@/services/api/StudentService';
 import StudentExamCard from '@/app/components/Features/Courses/StudentExamCard';
+import { useSession } from '@/hooks/useSession';
 import {
     gettingStartedCourse,
     MENTRILY_ONBOARDING_COURSE_SLUG,
-    MENTRILY_ONBOARDING_SKIP_KEY,
+    getOnboardingSkipStorageKey,
 } from '../../getting-started-course';
 
 type Attempt = { date: string; score: string; status: 'success' | 'failed' };
@@ -19,6 +20,8 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
     const router = useRouter();
     const params = React.use(paramsPromise);
     const slug = params.slug;
+    const { data: session } = useSession();
+    const userId = (session as any)?.id;
 
     const [course, setCourse] = useState<any | null>(null);
     const [progressData, setProgressData] = useState<{
@@ -275,7 +278,9 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                         completedUnitIds:
                             typeof window === 'undefined'
                                 ? []
-                                : JSON.parse(window.localStorage.getItem('mentrily_getting_started_completed_units') || '[]'),
+                                : JSON.parse(
+                                      window.localStorage.getItem('mentrily_getting_started_completed_units') || '[]',
+                                  ),
                         attempts: {},
                     });
                     return;
@@ -315,16 +320,12 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
     }, [router]);
 
     if (loading) {
-        return (
-            <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans">
-                <DashboardSkeleton type="list" userRole="student" noNavbar />
-            </div>
-        );
+        return <ModulePageSkeleton />;
     }
     if (error) {
         const is404 = typeof error === 'string' && error.includes('status: 404');
         return (
-            <div className="min-h-screen flex flex-col bg-[#F8FAFC] items-center justify-center">
+            <div className="min-h-screen flex flex-col bg-slate-50 items-center justify-center">
                 <h3 className="text-lg font-black text-rose-500">{is404 ? 'Course not found' : 'Module not found'}.</h3>
                 <p className="text-sm text-slate-500 mt-2">{error}</p>
                 <div className="mt-6 flex gap-4">
@@ -347,7 +348,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
 
     if (!course)
         return (
-            <div className="min-h-screen flex flex-col bg-[#F8FAFC] items-center justify-center">
+            <div className="min-h-screen flex flex-col bg-slate-50 items-center justify-center">
                 <h3 className="text-lg font-black text-rose-500">Module not found.</h3>
                 <div className="mt-6">
                     <button
@@ -388,13 +389,13 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
         : null;
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
+        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
             {slug === MENTRILY_ONBOARDING_COURSE_SLUG && (
                 <OnboardingTour
                     tourId="mentrily_starter_course_map_v2"
                     ignoreUserOnboardingFlag
                     repeatUntilSkipped
-                    skipStorageKey={MENTRILY_ONBOARDING_SKIP_KEY}
+                    skipStorageKey={getOnboardingSkipStorageKey(userId)}
                     delayMs={700}
                     steps={[
                         {
@@ -424,8 +425,12 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                     ]}
                 />
             )}
-            {/* COMPACT STICKY HEADER BELOW NAVBAR */}
-            <div className="sticky top-[56px] sm:top-[61px] z-40 bg-white border-b border-slate-200/60 shadow-sm transition-all duration-300">
+            {/* COMPACT STICKY HEADER -- sticks to the top of this page's own
+                scroll container. The navbar lives outside that container now
+                (a separate flex row in the learner layout, not part of this
+                page's scroll flow), so this no longer needs to offset itself
+                below a navbar-height's worth of space. */}
+            <div className="sticky top-0 z-40 bg-white border-b border-slate-200/60 shadow-sm transition-all duration-300">
                 <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 py-3.5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex min-w-0 items-center gap-4">
                         <div>
@@ -439,7 +444,9 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                             {/* COMPACT TAB SWITCHER */}
                             <div
                                 className="flex items-center gap-4 mt-1.5 overflow-x-auto no-scrollbar sm:gap-6"
-                                data-element-id={slug === MENTRILY_ONBOARDING_COURSE_SLUG ? 'starter-course-tabs' : undefined}
+                                data-element-id={
+                                    slug === MENTRILY_ONBOARDING_COURSE_SLUG ? 'starter-course-tabs' : undefined
+                                }
                             >
                                 <TabLink
                                     active={activeTab === 'learning'}
@@ -601,9 +608,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                         }
                                     >
                                         <div
-                                            onMouseEnter={() =>
-                                                router.prefetch(`/dashboard/learner/unit/${u.id}`)
-                                            }
+                                            onMouseEnter={() => router.prefetch(`/dashboard/learner/unit/${u.id}`)}
                                             className={`px-4 py-4 rounded-[22px] border transition-all cursor-pointer flex items-center justify-between bg-white border-slate-100/80 hover:border-slate-300/50 sm:px-8 sm:py-5 sm:rounded-[24px]`}
                                         >
                                             <div

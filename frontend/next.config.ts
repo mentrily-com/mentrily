@@ -1,9 +1,8 @@
 import type { NextConfig } from 'next';
 import { withSentryConfig } from '@sentry/nextjs';
 
-const mediaCdnHostname = new URL(
-    process.env.NEXT_PUBLIC_MEDIA_CDN_URL || 'https://dyp4wnn9yf27t.cloudfront.net',
-).hostname;
+const mediaCdnHostname = new URL(process.env.NEXT_PUBLIC_MEDIA_CDN_URL || 'https://dyp4wnn9yf27t.cloudfront.net')
+    .hostname;
 
 const nextConfig: NextConfig = {
     output: 'standalone',

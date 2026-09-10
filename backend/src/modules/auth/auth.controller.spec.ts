@@ -4,6 +4,8 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { StorageService } from '../../services/storage/storage.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { MembershipService } from '../organization/membership.service';
+import { OrgProvisioningService } from '../organization/org-provisioning.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -15,6 +17,8 @@ describe('AuthController', () => {
         { provide: AuthService, useValue: {} },
         { provide: StorageService, useValue: {} },
         { provide: ConfigService, useValue: { get: jest.fn() } },
+        { provide: MembershipService, useValue: {} },
+        { provide: OrgProvisioningService, useValue: {} },
       ],
     })
       .overrideGuard(JwtAuthGuard)

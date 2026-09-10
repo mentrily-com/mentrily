@@ -220,7 +220,9 @@ export function getEffectivePlanLimits(
   const base = PLAN_LIMITS[plan] || PLAN_LIMITS.FREE;
 
   const features =
-    rawFeatures && typeof rawFeatures === 'object' && !Array.isArray(rawFeatures)
+    rawFeatures &&
+    typeof rawFeatures === 'object' &&
+    !Array.isArray(rawFeatures)
       ? (rawFeatures as Record<string, unknown>)
       : {};
 
@@ -239,14 +241,22 @@ export function getEffectivePlanLimits(
     }
 
     const numeric = Number(value);
-    if (Number.isFinite(numeric) && Number.isInteger(numeric) && numeric >= -1) {
+    if (
+      Number.isFinite(numeric) &&
+      Number.isInteger(numeric) &&
+      numeric >= -1
+    ) {
       normalizedOverrides[key] = numeric;
     }
   }
 
   const allowedQuestionTypes = Array.isArray(rawOverrides.allowedQuestionTypes)
     ? rawOverrides.allowedQuestionTypes
-        .map((value) => String(value || '').trim().toLowerCase())
+        .map((value) =>
+          String(value || '')
+            .trim()
+            .toLowerCase(),
+        )
         .filter(Boolean)
     : null;
 

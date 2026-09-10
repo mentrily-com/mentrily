@@ -38,8 +38,12 @@ function ComingSoonCard({ title, description, eta, variant = 'page', onClose }: 
                                 <Rocket size={22} />
                             </div>
                             <div>
-                                <h1 className="text-2xl font-black tracking-tight text-slate-950 md:text-4xl">{title}</h1>
-                                <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 md:text-base">{description}</p>
+                                <h1 className="text-2xl font-black tracking-tight text-slate-950 md:text-4xl">
+                                    {title}
+                                </h1>
+                                <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 md:text-base">
+                                    {description}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -57,12 +61,18 @@ function ComingSoonCard({ title, description, eta, variant = 'page', onClose }: 
 
                 <div className="mt-8 grid gap-3 md:grid-cols-3">
                     <div className="rounded-2xl border border-slate-200/80 bg-slate-50/90 p-4">
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">What to expect</p>
-                        <p className="mt-2 text-sm font-semibold text-slate-800">A polished workflow built into the current dashboard experience.</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
+                            What to expect
+                        </p>
+                        <p className="mt-2 text-sm font-semibold text-slate-800">
+                            A polished workflow built into the current dashboard experience.
+                        </p>
                     </div>
                     <div className="rounded-2xl border border-slate-200/80 bg-slate-50/90 p-4">
                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Status</p>
-                        <p className="mt-2 text-sm font-semibold text-slate-800">Planned and reserved in the product flow, but not open for use yet.</p>
+                        <p className="mt-2 text-sm font-semibold text-slate-800">
+                            Planned and reserved in the product flow, but not open for use yet.
+                        </p>
                     </div>
                     <div className="rounded-2xl border border-slate-200/80 bg-slate-50/90 p-4">
                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">ETA</p>

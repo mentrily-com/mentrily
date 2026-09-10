@@ -6,7 +6,11 @@ import { AdminService } from '@/services/api/AdminService';
 import { AuthService } from '@/services/api/AuthService';
 
 export default function StorageLeaderboard() {
-    const { data: users, isLoading, error } = useQuery({
+    const {
+        data: users,
+        isLoading,
+        error,
+    } = useQuery({
         queryKey: ['storage-leaderboard'],
         queryFn: async () => {
             const session = await AuthService.checkSession();
@@ -17,7 +21,9 @@ export default function StorageLeaderboard() {
     });
 
     if (isLoading) {
-        return <div className="text-sm font-medium text-slate-500 animate-pulse py-4">Loading storage leaderboard...</div>;
+        return (
+            <div className="text-sm font-medium text-slate-500 animate-pulse py-4">Loading storage leaderboard...</div>
+        );
     }
 
     if (error) {
@@ -42,17 +48,30 @@ export default function StorageLeaderboard() {
             <table className="w-full text-left border-collapse min-w-[600px]">
                 <thead>
                     <tr className="border-b border-slate-100">
-                        <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">User Name</th>
+                        <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                            User Name
+                        </th>
                         <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Email</th>
-                        <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Storage Used</th>
+                        <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">
+                            Storage Used
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     {users.map((item: any, index: number) => (
-                        <tr key={item.userId || index} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                            <td className="py-3 text-sm font-bold text-slate-800">{item.user?.name || item.name || 'Unknown User'}</td>
-                            <td className="py-3 text-sm font-medium text-slate-500">{item.user?.email || item.email || 'N/A'}</td>
-                            <td className="py-3 text-sm font-black text-slate-700 text-right">{formatBytes(Number(item.totalBytes || item.totalSizeBytes || 0))}</td>
+                        <tr
+                            key={item.userId || index}
+                            className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors"
+                        >
+                            <td className="py-3 text-sm font-bold text-slate-800">
+                                {item.user?.name || item.name || 'Unknown User'}
+                            </td>
+                            <td className="py-3 text-sm font-medium text-slate-500">
+                                {item.user?.email || item.email || 'N/A'}
+                            </td>
+                            <td className="py-3 text-sm font-black text-slate-700 text-right">
+                                {formatBytes(Number(item.totalBytes || item.totalSizeBytes || 0))}
+                            </td>
                         </tr>
                     ))}
                 </tbody>

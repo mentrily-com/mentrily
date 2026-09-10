@@ -151,7 +151,9 @@ function normalizeTypeKey(raw: unknown): string {
 }
 
 function coerceDifficulty(raw: unknown): Question['difficulty'] {
-    const v = String(raw ?? '').trim().toLowerCase();
+    const v = String(raw ?? '')
+        .trim()
+        .toLowerCase();
     if (v === 'easy') return 'Easy';
     if (v === 'hard') return 'Hard';
     return 'Medium';
@@ -246,7 +248,9 @@ function buildQuestionFromRaw(type: Question['type'], raw: any, id: string): Que
             initialCode: String(raw?.initialCode || raw?.code || '# Write your Python code here'),
             language: 'python',
             maxExecutionTime: 10,
-            allowedLibraries: Array.isArray(raw?.allowedLibraries) ? raw.allowedLibraries.map(String) : ['numpy', 'matplotlib'],
+            allowedLibraries: Array.isArray(raw?.allowedLibraries)
+                ? raw.allowedLibraries.map(String)
+                : ['numpy', 'matplotlib'],
         };
     }
 
@@ -264,8 +268,16 @@ export interface NormalizeOptions {
     allowedTypes: AiImportTypeInfo[];
 }
 
-export function normalizeImportedSections(rawSections: unknown, opts: NormalizeOptions): { sections: Section[]; stats: NormalizeStats } {
-    const stats: NormalizeStats = { sectionsImported: 0, questionsImported: 0, questionsSkipped: 0, skippedReasons: [] };
+export function normalizeImportedSections(
+    rawSections: unknown,
+    opts: NormalizeOptions,
+): { sections: Section[]; stats: NormalizeStats } {
+    const stats: NormalizeStats = {
+        sectionsImported: 0,
+        questionsImported: 0,
+        questionsSkipped: 0,
+        skippedReasons: [],
+    };
 
     const keyToType = new Map(opts.allowedTypes.map((t) => [t.key, t.type]));
     const list = Array.isArray(rawSections) ? rawSections : [];

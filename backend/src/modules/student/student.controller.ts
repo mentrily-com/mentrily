@@ -11,6 +11,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { StudentService } from './student.service';
+import { StudentAnnouncementsService } from './student-announcements.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { OrgStatusGuard } from '../auth/guards/org-status.guard';
@@ -25,7 +26,10 @@ import { RequirePlan } from '../auth/plan.decorator';
 @UseGuards(JwtAuthGuard, RolesGuard, OrgStatusGuard)
 @Roles('STUDENT')
 export class StudentController {
-  constructor(private readonly studentService: StudentService) {}
+  constructor(
+    private readonly studentService: StudentService,
+    private readonly studentAnnouncementsService: StudentAnnouncementsService,
+  ) {}
 
   @Get('stats')
   async getStats(@User() user: any) {
@@ -165,16 +169,19 @@ export class StudentController {
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
   ) {
-    return this.studentService.getAnnouncements(user.id, { limit, offset });
+    return this.studentAnnouncementsService.getAnnouncements(user.id, {
+      limit,
+      offset,
+    });
   }
 
   @Get('announcements/unread-count')
   async getUnreadAnnouncementCount(@User() user: any) {
-    return this.studentService.getUnreadAnnouncementCount(user.id);
+    return this.studentAnnouncementsService.getUnreadAnnouncementCount(user.id);
   }
 
   @Post('announcements/:id/read')
   async markAnnouncementRead(@User() user: any, @Param('id') id: string) {
-    return this.studentService.markAnnouncementRead(user.id, id);
+    return this.studentAnnouncementsService.markAnnouncementRead(user.id, id);
   }
 }

@@ -106,14 +106,14 @@ export default function UpgradeRequestModal({
         >
             {isSent ? (
                 <p className="text-sm font-bold text-slate-500">
-                    Thanks! Your request for the <span className="text-slate-900">{planLabel}</span> plan has been
-                    sent to our team. We&apos;ll reach out at your account email to get you set up.
+                    Thanks! Your request for the <span className="text-slate-900">{planLabel}</span> plan has been sent
+                    to our team. We&apos;ll reach out at your account email to get you set up.
                 </p>
             ) : (
                 <div className="space-y-4">
                     <p className="text-sm font-bold text-slate-500">
-                        Mentrily is currently in beta, so plan upgrades are handled by our team instead of an
-                        automated checkout. Tell us a bit about what you need and we&apos;ll follow up shortly.
+                        Mentrily is currently in beta, so plan upgrades are handled by our team instead of an automated
+                        checkout. Tell us a bit about what you need and we&apos;ll follow up shortly.
                     </p>
                     <div>
                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">

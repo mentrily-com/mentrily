@@ -2,11 +2,9 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { UserProfile, useUser } from '@clerk/nextjs';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import ProfilePageSkeleton from '@/app/components/Skeletons/ProfilePageSkeleton';
 import ReportProblemModal from '@/app/components/Common/ReportProblemModal';
 import { AuthService } from '@/services/api/AuthService';
-
-type DashboardRole = 'student' | 'teacher' | 'admin' | 'super-admin';
 
 type SessionUser = {
     id?: string;
@@ -16,13 +14,6 @@ type SessionUser = {
     rollNumber?: string;
     profilePicture?: string;
 };
-
-function mapRoleToDashboardRole(role?: SessionUser['role']): DashboardRole {
-    if (role === 'SUPER_ADMIN') return 'super-admin';
-    if (role === 'ADMIN') return 'admin';
-    if (role === 'TEACHER') return 'teacher';
-    return 'student';
-}
 
 function roleBadgeLabel(role?: SessionUser['role']): string {
     if (role === 'SUPER_ADMIN') return 'Super Admin';
@@ -93,8 +84,6 @@ export default function UnifiedProfilePage() {
         return () => window.clearTimeout(syncName);
     }, [clerkUser, clerkUser?.fullName, loading, sessionUser?.name]);
 
-    const userRole = mapRoleToDashboardRole(sessionUser?.role);
-
     const displayName = useMemo(() => {
         return sessionUser?.name || clerkUser?.fullName || 'User';
     }, [sessionUser?.name, clerkUser?.fullName]);
@@ -107,7 +96,7 @@ export default function UnifiedProfilePage() {
     const initial = displayName.charAt(0).toUpperCase();
 
     if (loading) {
-        return <DashboardSkeleton type="form" userRole={userRole} />;
+        return <ProfilePageSkeleton />;
     }
 
     return (

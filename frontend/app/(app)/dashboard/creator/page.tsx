@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import posthog from 'posthog-js';
 import { motion } from 'framer-motion';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import CreatorDashboardSkeleton from '@/app/components/Skeletons/CreatorDashboardSkeleton';
 import OnboardingTour from '@/app/components/Common/OnboardingTour';
 import AppModal from '@/app/components/Common/AppModal';
 import StudioRecentActivity from './_components/StudioRecentActivity';
@@ -70,7 +70,7 @@ export default function TeacherDashboardPage() {
     const dashboardRole = role === 'ADMIN' ? 'admin' : 'teacher';
     const hasOrg = Boolean(String(session?.orgId || '').trim());
 
-    if (loading && !stats) return <DashboardSkeleton type="main" userRole={dashboardRole} />;
+    if (loading && !stats) return <CreatorDashboardSkeleton />;
 
     const usageRecord = (usage ?? {}) as Record<string, number | string | undefined>;
     const limitsRecord = (limits ?? {}) as Record<string, number | string | undefined>;
@@ -250,7 +250,7 @@ export default function TeacherDashboardPage() {
                         <Link
                             href="/dashboard/creator/courses/create"
                             data-element-id="create-course-btn"
-                            className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(26,86,219,0.22)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(26,86,219,0.3)]"
+                            className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(0,141,152,0.22)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(0,141,152,0.3)]"
                         >
                             <Plus size={15} />
                             Create course

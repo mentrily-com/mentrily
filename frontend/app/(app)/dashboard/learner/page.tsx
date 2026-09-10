@@ -3,19 +3,35 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { StudentService, StudentModule } from '@/services/api/StudentService';
 import { useRequireAuth } from '@/hooks/requireAuthClient';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import LearnerDashboardSkeleton from '@/app/components/Skeletons/LearnerDashboardSkeleton';
 import OnboardingTour from '@/app/components/Common/OnboardingTour';
+import EmptyState from '@/app/components/Common/EmptyState';
 import { useQuery } from '@/hooks/useQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useNotificationSocket } from '@/hooks/useNotificationSocket';
+import { useSession } from '@/hooks/useSession';
 import { useToast } from '@/app/components/Common/Toast';
-import { Award, Megaphone, X, FileText, ImageIcon, File, Download, EyeOff, Sparkles, Target, BarChart3, Bookmark } from 'lucide-react';
-import DOMPurify from 'isomorphic-dompurify';
+import {
+    Award,
+    Megaphone,
+    X,
+    FileText,
+    ImageIcon,
+    File,
+    Download,
+    EyeOff,
+    Sparkles,
+    Target,
+    BarChart3,
+    Bookmark,
+    Compass,
+} from 'lucide-react';
+import { sanitizeProse } from '@/lib/sanitize';
 import {
     gettingStartedCourse,
     isOnboardingCourseHidden,
-    MENTRILY_ONBOARDING_SKIP_KEY,
-    MENTRILY_ONBOARDING_STORAGE_KEY,
+    getOnboardingHiddenStorageKey,
+    getOnboardingSkipStorageKey,
 } from './getting-started-course';
 
 export default function DashboardPage() {
@@ -23,6 +39,8 @@ export default function DashboardPage() {
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
     const { success: toastSuccess } = useToast();
     const [hideGettingStarted, setHideGettingStarted] = useState(false);
+    const { data: session } = useSession();
+    const userId = (session as any)?.id;
 
     // Announcements state
     const [announcements, setAnnouncements] = useState<any[]>([]);
@@ -51,8 +69,8 @@ export default function DashboardPage() {
     }, [loadAnnouncements]);
 
     useEffect(() => {
-        setHideGettingStarted(isOnboardingCourseHidden());
-    }, []);
+        setHideGettingStarted(isOnboardingCourseHidden(userId));
+    }, [userId]);
 
     // Real-time notifications
     useNotificationSocket((announcement) => {
@@ -95,7 +113,7 @@ export default function DashboardPage() {
     const handleHideGettingStarted = (event: React.MouseEvent) => {
         event.preventDefault();
         event.stopPropagation();
-        window.localStorage.setItem(MENTRILY_ONBOARDING_STORAGE_KEY, 'true');
+        window.localStorage.setItem(getOnboardingHiddenStorageKey(userId), 'true');
         setHideGettingStarted(true);
         toastSuccess('Getting Started course hidden. You can clear browser site data to show it again.');
     };
@@ -141,15 +159,11 @@ export default function DashboardPage() {
 
     // Show loading only if no data at all (first load)
     if (loading && !stats) {
-        return (
-            <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans">
-                <DashboardSkeleton type="main" userRole="student" noNavbar />
-            </div>
-        );
+        return <LearnerDashboardSkeleton />;
     }
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-orange-100 selection:text-orange-900">
+        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
             {/* Show the guided dashboard tour ONCE on first login. Dropping
                 repeatUntilSkipped switches to the per-tour localStorage
                 "completed" marker (set the first time it runs) instead of the
@@ -161,7 +175,7 @@ export default function DashboardPage() {
             <OnboardingTour
                 tourId="learner_dashboard_guided_v2"
                 ignoreUserOnboardingFlag
-                skipStorageKey={MENTRILY_ONBOARDING_SKIP_KEY}
+                skipStorageKey={getOnboardingSkipStorageKey(userId)}
                 steps={learnerTourSteps}
             />
 
@@ -200,84 +214,99 @@ export default function DashboardPage() {
                                 filteredModules.map((m) => {
                                     const isGettingStarted = (m as any).isOnboardingCourse;
                                     return (
-                                    <Link
-                                        key={m.slug}
-                                        href={`/dashboard/learner/module/${m.slug}`}
-                                        className={`block rounded-3xl border p-5 shadow-sm transition-all sm:p-6 ${
-                                            isGettingStarted
-                                                ? 'bg-white border-orange-200/80 shadow-orange-100/60 hover:border-[var(--brand)] hover:shadow-lg'
-                                                : 'bg-white border-slate-100 hover:border-[var(--brand-light)] hover:shadow-md'
-                                        }`}
-                                        data-element-id={isGettingStarted ? 'mentrily-getting-started-course' : undefined}
-                                    >
-                                        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-                                            <div className="min-w-0 flex-1">
-                                                <div className="mb-2 flex flex-wrap items-center gap-2">
+                                        <Link
+                                            key={m.slug}
+                                            href={`/dashboard/learner/module/${m.slug}`}
+                                            className={`block rounded-3xl border p-5 shadow-sm transition-all sm:p-6 ${
+                                                isGettingStarted
+                                                    ? 'bg-white border-orange-200/80 shadow-orange-100/60 hover:border-[var(--brand)] hover:shadow-lg'
+                                                    : 'bg-white border-slate-100 hover:border-[var(--brand-light)] hover:shadow-md'
+                                            }`}
+                                            data-element-id={
+                                                isGettingStarted ? 'mentrily-getting-started-course' : undefined
+                                            }
+                                        >
+                                            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                                                        {isGettingStarted && (
+                                                            <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--brand)]">
+                                                                <Sparkles size={12} /> Welcome Course
+                                                            </span>
+                                                        )}
+                                                        {isGettingStarted && (
+                                                            <button
+                                                                onClick={handleHideGettingStarted}
+                                                                className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-700"
+                                                                title="Hide this onboarding course"
+                                                            >
+                                                                <EyeOff size={12} /> Hide
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                    <h3 className="text-lg font-black text-slate-800 mb-1">
+                                                        {m.title}
+                                                    </h3>
                                                     {isGettingStarted && (
-                                                        <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--brand)]">
-                                                            <Sparkles size={12} /> Welcome Course
-                                                        </span>
+                                                        <p className="mb-3 max-w-2xl text-sm font-semibold leading-6 text-slate-500">
+                                                            A guided preview of Mentrily lessons, question types,
+                                                            practice tools, and a course exam before you start your real
+                                                            learning path.
+                                                        </p>
                                                     )}
-                                                    {isGettingStarted && (
-                                                        <button
-                                                            onClick={handleHideGettingStarted}
-                                                            className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-700"
-                                                            title="Hide this onboarding course"
-                                                        >
-                                                            <EyeOff size={12} /> Hide
-                                                        </button>
-                                                    )}
-                                                </div>
-                                                <h3 className="text-lg font-black text-slate-800 mb-1">{m.title}</h3>
-                                                {isGettingStarted && (
-                                                    <p className="mb-3 max-w-2xl text-sm font-semibold leading-6 text-slate-500">
-                                                        A guided preview of Mentrily lessons, question types, practice
-                                                        tools, and a course exam before you start your real learning
-                                                        path.
+                                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                                                        {m.sections} Sections · {m.totalUnits ?? m.sections} Learning
+                                                        Units
                                                     </p>
-                                                )}
-                                                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                                                    {m.sections} Sections · {m.totalUnits ?? m.sections} Learning Units
-                                                </p>
-                                            </div>
+                                                </div>
 
-                                            <div className="flex w-full items-center gap-4 sm:w-1/2 sm:gap-8">
-                                                <div className="flex-1 space-y-2">
-                                                    <div className="flex justify-between text-[10px] font-black uppercase text-slate-400">
-                                                        <span>{m.status}</span>
-                                                        <span className="text-[var(--brand)]">{m.percent}%</span>
+                                                <div className="flex w-full items-center gap-4 sm:w-1/2 sm:gap-8">
+                                                    <div className="flex-1 space-y-2">
+                                                        <div className="flex justify-between text-[10px] font-black uppercase text-slate-400">
+                                                            <span>{m.status}</span>
+                                                            <span className="text-[var(--brand)]">{m.percent}%</span>
+                                                        </div>
+                                                        <div className="w-full h-1.5 bg-slate-50 rounded-full overflow-hidden shadow-inner">
+                                                            {/* Removed Green: Consistency with --brand */}
+                                                            <div
+                                                                className={`h-full bg-[var(--brand)] transition-all duration-1000 rounded-full`}
+                                                                style={{ width: `${m.percent}%` }}
+                                                            />
+                                                        </div>
                                                     </div>
-                                                    <div className="w-full h-1.5 bg-slate-50 rounded-full overflow-hidden shadow-inner">
-                                                        {/* Removed Green: Consistency with --brand */}
-                                                        <div
-                                                            className={`h-full bg-[var(--brand)] transition-all duration-1000 rounded-full`}
-                                                            style={{ width: `${m.percent}%` }}
-                                                        />
+                                                    <div className="text-slate-300">
+                                                        <svg
+                                                            width="20"
+                                                            height="20"
+                                                            viewBox="0 0 24 24"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            strokeWidth="3"
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                        >
+                                                            <path d="m9 18 6-6-6-6" />
+                                                        </svg>
                                                     </div>
-                                                </div>
-                                                <div className="text-slate-300">
-                                                    <svg
-                                                        width="20"
-                                                        height="20"
-                                                        viewBox="0 0 24 24"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        strokeWidth="3"
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                    >
-                                                        <path d="m9 18 6-6-6-6" />
-                                                    </svg>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </Link>
-                                );
+                                        </Link>
+                                    );
                                 })
+                            ) : debouncedSearchQuery ? (
+                                <EmptyState
+                                    icon={<Compass size={24} />}
+                                    title="No matching modules"
+                                    description={`Nothing in your modules matches "${debouncedSearchQuery}". Try a different search, or browse all available courses.`}
+                                    action={{ label: 'Browse Courses', href: '/dashboard/learner/browse' }}
+                                />
                             ) : (
-                                <div className="text-center py-12 text-slate-400 font-bold">
-                                    No modules available found.
-                                </div>
+                                <EmptyState
+                                    icon={<Compass size={24} />}
+                                    title="No modules yet"
+                                    description="You haven't been assigned any courses yet. Browse what's available and enroll in your first one."
+                                    action={{ label: 'Browse Courses', href: '/dashboard/learner/browse' }}
+                                />
                             )}
                         </div>
                     </div>
@@ -406,10 +435,18 @@ export default function DashboardPage() {
 
                             <div className="space-y-3">
                                 <Link href="/exam/practice" className="block" data-element-id="learner-practice-exam">
-                                    <QuickLink icon={<Target size={18} />} label="Practice Exam" sub="Learn the exam interface" />
+                                    <QuickLink
+                                        icon={<Target size={18} />}
+                                        label="Practice Exam"
+                                        sub="Learn the exam interface"
+                                    />
                                 </Link>
                                 <Link href="/dashboard/learner/test" className="block">
-                                    <QuickLink icon={<BarChart3 size={18} />} label="My Results" sub="Performance history" />
+                                    <QuickLink
+                                        icon={<BarChart3 size={18} />}
+                                        label="My Results"
+                                        sub="Performance history"
+                                    />
                                 </Link>
                                 <Link href="/dashboard/learner/bookmarks" className="block">
                                     <QuickLink icon={<Bookmark size={18} />} label="Bookmarks" sub="Saved content" />
@@ -487,7 +524,7 @@ export default function DashboardPage() {
                         <div
                             className="prose prose-sm max-w-none text-slate-700 mb-8 [&_p]:mb-3 [&_h1]:text-xl [&_h1]:font-black [&_h2]:text-lg [&_h2]:font-black [&_ul]:list-disc [&_ol]:list-decimal [&_li]:ml-4 [&_a]:text-[var(--brand)] [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-[var(--brand-light)] [&_blockquote]:pl-4 [&_blockquote]:italic [&_img]:rounded-2xl [&_img]:max-w-full"
                             dangerouslySetInnerHTML={{
-                                __html: DOMPurify.sanitize(String(selectedAnnouncement.content || '')),
+                                __html: sanitizeProse(selectedAnnouncement.content),
                             }}
                         />
 
@@ -532,8 +569,13 @@ export default function DashboardPage() {
 }
 
 function QuickLink({ icon, label, sub }: { icon: React.ReactNode; label: string; sub: string }) {
+    // Rendered as a plain <div>, not a <button> -- every call site already
+    // wraps this in a <Link> (an <a>), and nesting an interactive <button>
+    // inside an <a> is invalid HTML that leaves two elements competing for
+    // the same click/Enter keypress instead of one clean, keyboard-focusable
+    // link.
     return (
-        <button className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all text-left group">
+        <div className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all text-left group">
             <div className="w-10 h-10 rounded-xl bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                 {icon}
             </div>
@@ -541,7 +583,7 @@ function QuickLink({ icon, label, sub }: { icon: React.ReactNode; label: string;
                 <p className="text-sm font-black text-slate-800 leading-none mb-1">{label}</p>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{sub}</p>
             </div>
-        </button>
+        </div>
     );
 }
 

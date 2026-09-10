@@ -13,22 +13,43 @@
 // complete IANA database returned by the Intl call below.
 const FALLBACK_ZONES = [
     'UTC',
-    'Africa/Cairo', 'Africa/Johannesburg', 'Africa/Lagos', 'Africa/Nairobi',
-    'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
-    'America/Sao_Paulo', 'America/Mexico_City', 'America/Toronto', 'America/Bogota',
-    'Asia/Kolkata', 'Asia/Kathmandu', 'Asia/Dubai', 'Asia/Karachi', 'Asia/Dhaka',
-    'Asia/Bangkok', 'Asia/Shanghai', 'Asia/Singapore', 'Asia/Tokyo', 'Asia/Seoul',
-    'Australia/Sydney', 'Australia/Perth',
-    'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Europe/Moscow', 'Europe/Istanbul',
-    'Pacific/Auckland', 'Pacific/Honolulu',
+    'Africa/Cairo',
+    'Africa/Johannesburg',
+    'Africa/Lagos',
+    'Africa/Nairobi',
+    'America/New_York',
+    'America/Chicago',
+    'America/Denver',
+    'America/Los_Angeles',
+    'America/Sao_Paulo',
+    'America/Mexico_City',
+    'America/Toronto',
+    'America/Bogota',
+    'Asia/Kolkata',
+    'Asia/Kathmandu',
+    'Asia/Dubai',
+    'Asia/Karachi',
+    'Asia/Dhaka',
+    'Asia/Bangkok',
+    'Asia/Shanghai',
+    'Asia/Singapore',
+    'Asia/Tokyo',
+    'Asia/Seoul',
+    'Australia/Sydney',
+    'Australia/Perth',
+    'Europe/London',
+    'Europe/Paris',
+    'Europe/Berlin',
+    'Europe/Moscow',
+    'Europe/Istanbul',
+    'Pacific/Auckland',
+    'Pacific/Honolulu',
 ];
 
 /** Every IANA timezone the runtime knows — the full global list (~418 zones). */
 export function getAllTimeZones(): string[] {
     try {
-        const supported = (Intl as any).supportedValuesOf?.('timeZone') as
-            | string[]
-            | undefined;
+        const supported = (Intl as any).supportedValuesOf?.('timeZone') as string[] | undefined;
         if (supported && supported.length) {
             return supported.includes('UTC') ? supported : ['UTC', ...supported];
         }
@@ -83,10 +104,7 @@ function offsetMinutesAt(instant: Date, timeZone: string): number {
  *
  * Do NOT use `new Date(wallClock)` for this — that assumes the *browser* zone.
  */
-export function zonedWallClockToUtcISO(
-    wallClock: string,
-    timeZone: string,
-): string | undefined {
+export function zonedWallClockToUtcISO(wallClock: string, timeZone: string): string | undefined {
     if (!wallClock) return undefined;
     const [datePart, timePart = '00:00'] = wallClock.split('T');
     const [y, mo, d] = datePart.split('-').map(Number);
@@ -130,10 +148,7 @@ export function utcISOToZonedWallClock(iso: string, timeZone: string): string {
  * e.g. "Mar 5, 2026, 3:00 PM EST". If `timeZone` is falsy, falls back to the
  * viewer's local zone.
  */
-export function formatInZone(
-    iso: string | Date | null | undefined,
-    timeZone?: string | null,
-): string {
+export function formatInZone(iso: string | Date | null | undefined, timeZone?: string | null): string {
     if (!iso) return '—';
     const date = typeof iso === 'string' ? new Date(iso) : iso;
     if (Number.isNaN(date.getTime())) return '—';

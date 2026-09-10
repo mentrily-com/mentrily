@@ -19,7 +19,7 @@ import {
     LifeBuoy,
 } from 'lucide-react';
 import { StudentService } from '@/services/api/StudentService';
-import DOMPurify from 'isomorphic-dompurify';
+import { sanitizeProse } from '@/lib/sanitize';
 import { useSession } from '@/hooks/useSession';
 import CrispWidget from './CrispWidget';
 import { orgHasCrispChat } from '@/lib/crisp';
@@ -196,7 +196,19 @@ export default function Navbar({ basePath, userRole: roleOverride, examConfig }:
             <ImpersonationBanner />
             {showPaymentFailedBanner && <PaymentFailedBanner />}
             <header className="w-full bg-white/80 backdrop-blur-md border-b border-slate-100">
-                <div className="w-full px-4 py-2.5 lg:px-6 sm:py-3 flex items-center justify-between">
+                <div
+                    className={`w-full px-4 py-2.5 lg:px-6 sm:py-3 flex items-center justify-between ${
+                        // The exam header packs several extra control groups (focus
+                        // counters, timer, font-size stepper, wifi indicator) into
+                        // this same row that the default dashboard navbar doesn't
+                        // carry -- on narrow viewports that combination can exceed
+                        // the row's width. Falling back to horizontal scroll here
+                        // keeps every control reachable instead of silently
+                        // clipping/overlapping; the default navbar never overflows
+                        // in the first place, so this is a no-op for it.
+                        examConfig ? 'overflow-x-auto no-scrollbar' : ''
+                    }`}
+                >
                     {/* Left - Brand & Primary Nav */}
                     <div className="flex items-center gap-8 z-10">
                         <div
@@ -786,9 +798,16 @@ const ContentDropdown = React.memo(function ContentDropdown({
                 setOpen(false);
             }
         }
+        function closeOnEscape(event: KeyboardEvent) {
+            if (event.key === 'Escape') setOpen(false);
+        }
 
         document.addEventListener('mousedown', closeOnOutsideClick);
-        return () => document.removeEventListener('mousedown', closeOnOutsideClick);
+        document.addEventListener('keydown', closeOnEscape);
+        return () => {
+            document.removeEventListener('mousedown', closeOnOutsideClick);
+            document.removeEventListener('keydown', closeOnEscape);
+        };
     }, []);
 
     return (
@@ -797,6 +816,8 @@ const ContentDropdown = React.memo(function ContentDropdown({
                 type="button"
                 data-element-id="nav-content-dropdown"
                 onClick={() => setOpen((prev) => !prev)}
+                aria-haspopup="true"
+                aria-expanded={open}
                 className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 ${
                     active ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-slate-400 hover:text-slate-600'
                 }`}
@@ -865,8 +886,15 @@ const AppsMenu = React.memo(function AppsMenu({ isTeacher }: { isTeacher: boolea
         function close(e: any) {
             if (ref.current && !ref.current.contains(e.target)) setOpen(false);
         }
+        function closeOnEscape(e: KeyboardEvent) {
+            if (e.key === 'Escape') setOpen(false);
+        }
         document.addEventListener('mousedown', close);
-        return () => document.removeEventListener('mousedown', close);
+        document.addEventListener('keydown', closeOnEscape);
+        return () => {
+            document.removeEventListener('mousedown', close);
+            document.removeEventListener('keydown', closeOnEscape);
+        };
     }, []);
 
     const apps = isTeacher
@@ -985,6 +1013,9 @@ const AppsMenu = React.memo(function AppsMenu({ isTeacher }: { isTeacher: boolea
         <div ref={ref} className="relative">
             <button
                 onClick={() => setOpen(!open)}
+                aria-haspopup="true"
+                aria-expanded={open}
+                aria-label="Apps"
                 className="w-10 h-10 rounded-xl border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-50 transition-colors"
             >
                 <svg
@@ -1055,9 +1086,16 @@ function ProfileMenu({
                 setOpen(false);
             }
         }
+        function closeOnEscape(e: KeyboardEvent) {
+            if (e.key === 'Escape') setOpen(false);
+        }
 
         document.addEventListener('mousedown', close);
-        return () => document.removeEventListener('mousedown', close);
+        document.addEventListener('keydown', closeOnEscape);
+        return () => {
+            document.removeEventListener('mousedown', close);
+            document.removeEventListener('keydown', closeOnEscape);
+        };
     }, []);
 
     const getLabel = () => {
@@ -1116,6 +1154,9 @@ function ProfileMenu({
                 <>
                     <button
                         onClick={() => setOpen((value) => !value)}
+                        aria-haspopup="true"
+                        aria-expanded={open}
+                        aria-label={`Account menu for ${displayName}`}
                         className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white font-black text-sm overflow-hidden relative"
                     >
                         {avatarUrl ? (
@@ -1180,6 +1221,9 @@ function ProfileMenu({
                 <>
                     <button
                         onClick={() => setOpen((value) => !value)}
+                        aria-haspopup="true"
+                        aria-expanded={open}
+                        aria-label={`Account menu for ${displayName}`}
                         className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white font-black text-sm overflow-hidden relative"
                     >
                         {avatarUrl ? (
@@ -1334,8 +1378,15 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
         function close(e: any) {
             if (ref.current && !ref.current.contains(e.target)) setOpen(false);
         }
+        function closeOnEscape(e: KeyboardEvent) {
+            if (e.key === 'Escape') setOpen(false);
+        }
         document.addEventListener('mousedown', close);
-        return () => document.removeEventListener('mousedown', close);
+        document.addEventListener('keydown', closeOnEscape);
+        return () => {
+            document.removeEventListener('mousedown', close);
+            document.removeEventListener('keydown', closeOnEscape);
+        };
     }, []);
 
     const load = async () => {
@@ -1391,6 +1442,9 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
             <div ref={ref} className="relative">
                 <button
                     onClick={() => setOpen(!open)}
+                    aria-haspopup="true"
+                    aria-expanded={open}
+                    aria-label="Announcements"
                     className="hidden sm:flex w-10 h-10 rounded-xl border border-slate-100 items-center justify-center text-slate-400 hover:bg-slate-50 hover:text-[var(--brand)] transition-all relative"
                     title="Announcements"
                 >
@@ -1475,6 +1529,7 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                         <div className="bg-white w-full max-w-2xl rounded-[48px] p-12 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[85vh] overflow-y-auto custom-scrollbar">
                             <button
                                 onClick={() => setSelectedAnn(null)}
+                                aria-label="Close"
                                 className="absolute top-10 right-10 w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all hover:scale-110 active:scale-95"
                             >
                                 <X size={20} strokeWidth={3} />
@@ -1523,7 +1578,7 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                             <div
                                 className="prose prose-sm max-w-none text-slate-700 mb-8 [&_p]:mb-3 [&_h1]:text-xl [&_h1]:font-black [&_h2]:text-lg [&_h2]:font-black [&_ul]:list-disc [&_ol]:list-decimal [&_li]:ml-4 [&_a]:text-[var(--brand)] [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-[var(--brand-light)] [&_blockquote]:pl-4 [&_blockquote]:italic [&_img]:rounded-2xl [&_img]:max-w-full"
                                 dangerouslySetInnerHTML={{
-                                    __html: DOMPurify.sanitize(String(selectedAnn.content || '')),
+                                    __html: sanitizeProse(selectedAnn.content),
                                 }}
                             />
 

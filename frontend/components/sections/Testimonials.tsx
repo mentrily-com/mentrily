@@ -63,10 +63,7 @@ export default function Testimonials() {
                     >
                         Educators trust Mentrily
                     </h2>
-                    <p
-                        className="mt-3 text-sm"
-                        style={{ color: '#64748B' }}
-                    >
+                    <p className="mt-3 text-sm" style={{ color: '#64748B' }}>
                         Hear from creators who made the switch.
                     </p>
                 </motion.div>
@@ -125,13 +122,7 @@ export default function Testimonials() {
                             {/* Star rating */}
                             <div className="flex items-center gap-0.5 mb-3">
                                 {Array.from({ length: t.stars }).map((_, si) => (
-                                    <Star
-                                        key={si}
-                                        size={14}
-                                        fill="#F59E0B"
-                                        stroke="#F59E0B"
-                                        strokeWidth={0}
-                                    />
+                                    <Star key={si} size={14} fill="#F59E0B" stroke="#F59E0B" strokeWidth={0} />
                                 ))}
                             </div>
 

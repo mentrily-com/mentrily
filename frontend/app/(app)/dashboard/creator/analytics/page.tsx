@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import PlanGate from '@/app/components/Common/PlanGate';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import CreatorAnalyticsSkeleton from '@/app/components/Skeletons/CreatorAnalyticsSkeleton';
 import { usePlan } from '@/hooks/usePlan';
 import { useApolloClient } from '@apollo/client/react';
 import { useQuery } from '@tanstack/react-query';
@@ -274,7 +274,7 @@ export default function CreatorAnalyticsPage() {
     });
 
     if (loading) {
-        return <DashboardSkeleton type="main" userRole={role === 'ADMIN' ? 'admin' : 'teacher'} />;
+        return <CreatorAnalyticsSkeleton />;
     }
 
     if (role !== 'ADMIN') {
@@ -317,7 +317,10 @@ export default function CreatorAnalyticsPage() {
         .sort((a, b) => new Date(a.periodDate).getTime() - new Date(b.periodDate).getTime());
 
     const trendSeries = (() => {
-        const bucketMap = new Map<string, { examSubmissions: number; courseCompletions: number; activeUsers: number }>();
+        const bucketMap = new Map<
+            string,
+            { examSubmissions: number; courseCompletions: number; activeUsers: number }
+        >();
 
         for (const row of filteredTrendRows) {
             const date = new Date(row.periodDate);
@@ -464,10 +467,7 @@ export default function CreatorAnalyticsPage() {
                             value={`${Number(source.overview?.averageExamScore || 0).toFixed(1)}%`}
                         />
                         <MetricCard label="MAU Learners" value={Number(source.overview?.activeLearnersMau || 0)} />
-                        <MetricCard
-                            label="Code Executions"
-                            value={Number(source.overview?.totalCodeExecutions || 0)}
-                        />
+                        <MetricCard label="Code Executions" value={Number(source.overview?.totalCodeExecutions || 0)} />
                     </div>
 
                     <div className="mt-8 grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -490,13 +490,31 @@ export default function CreatorAnalyticsPage() {
                                 <ResponsiveContainer width="100%" height="100%">
                                     <LineChart data={trendSeries}>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                        <XAxis dataKey="label" tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} />
+                                        <XAxis
+                                            dataKey="label"
+                                            tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }}
+                                        />
                                         <YAxis tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} />
                                         <Tooltip />
                                         <Legend />
-                                        <Line type="monotone" dataKey="examSubmissions" stroke="#6366f1" strokeWidth={2.5} />
-                                        <Line type="monotone" dataKey="courseCompletions" stroke="#10b981" strokeWidth={2.5} />
-                                        <Line type="monotone" dataKey="activeUsers" stroke="#f59e0b" strokeWidth={2.5} />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="examSubmissions"
+                                            stroke="#6366f1"
+                                            strokeWidth={2.5}
+                                        />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="courseCompletions"
+                                            stroke="#10b981"
+                                            strokeWidth={2.5}
+                                        />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="activeUsers"
+                                            stroke="#f59e0b"
+                                            strokeWidth={2.5}
+                                        />
                                     </LineChart>
                                 </ResponsiveContainer>
                             </div>
@@ -515,7 +533,9 @@ export default function CreatorAnalyticsPage() {
                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                                     Top Teacher
                                 </p>
-                                <p className="text-sm font-black text-slate-900 mt-1">{topTeacher?.teacherName || 'N/A'}</p>
+                                <p className="text-sm font-black text-slate-900 mt-1">
+                                    {topTeacher?.teacherName || 'N/A'}
+                                </p>
                                 <p className="text-xs font-bold text-slate-500 mt-1">
                                     Avg Score: {Number(topTeacher?.averageExamScore || 0).toFixed(1)}%
                                 </p>
@@ -524,7 +544,9 @@ export default function CreatorAnalyticsPage() {
                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                                     Avg Exam Time
                                 </p>
-                                <p className="text-xl font-black text-slate-900 mt-1">{toMinuteString(avgExamTimeSec)}</p>
+                                <p className="text-xl font-black text-slate-900 mt-1">
+                                    {toMinuteString(avgExamTimeSec)}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -532,7 +554,9 @@ export default function CreatorAnalyticsPage() {
 
                 <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 md:p-8">
                     <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-600">Per-exam Analytics</h3>
+                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-600">
+                            Per-exam Analytics
+                        </h3>
                         <div className="flex gap-2">
                             <select
                                 value={selectedExamId}
@@ -577,7 +601,10 @@ export default function CreatorAnalyticsPage() {
                                 <ResponsiveContainer width="100%" height="100%">
                                     <BarChart data={scoreHistogramRows}>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                        <XAxis dataKey="bucketLabel" tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} />
+                                        <XAxis
+                                            dataKey="bucketLabel"
+                                            tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }}
+                                        />
                                         <YAxis tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} />
                                         <Tooltip />
                                         <Bar dataKey="submissionCount" fill="#6366f1" radius={[8, 8, 0, 0]} />
@@ -587,11 +614,19 @@ export default function CreatorAnalyticsPage() {
                         </div>
 
                         <div className="rounded-2xl border border-slate-100 p-5 flex flex-col">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Pass / Fail</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">
+                                Pass / Fail
+                            </p>
                             <div className="h-[220px] relative">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
-                                        <Pie data={passFailRows} dataKey="value" nameKey="label" outerRadius={78} innerRadius={52}>
+                                        <Pie
+                                            data={passFailRows}
+                                            dataKey="value"
+                                            nameKey="label"
+                                            outerRadius={78}
+                                            innerRadius={52}
+                                        >
                                             <Cell fill="#10b981" />
                                             <Cell fill="#f43f5e" />
                                         </Pie>
@@ -600,9 +635,14 @@ export default function CreatorAnalyticsPage() {
                                 </ResponsiveContainer>
                                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                                     <span className="text-xl font-black text-slate-900">
-                                        {totalPass + totalFail > 0 ? Math.round((totalPass / (totalPass + totalFail)) * 100) : 0}%
+                                        {totalPass + totalFail > 0
+                                            ? Math.round((totalPass / (totalPass + totalFail)) * 100)
+                                            : 0}
+                                        %
                                     </span>
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Pass Rate</span>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                        Pass Rate
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -614,10 +654,19 @@ export default function CreatorAnalyticsPage() {
                         </p>
                         <div className="h-[260px]">
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={questionDifficultyRows} layout="vertical" margin={{ left: 20, right: 20 }}>
+                                <BarChart
+                                    data={questionDifficultyRows}
+                                    layout="vertical"
+                                    margin={{ left: 20, right: 20 }}
+                                >
                                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
                                     <XAxis type="number" tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} />
-                                    <YAxis type="category" dataKey="itemId" tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} width={120} />
+                                    <YAxis
+                                        type="category"
+                                        dataKey="itemId"
+                                        tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }}
+                                        width={120}
+                                    />
                                     <Tooltip />
                                     <Bar dataKey="correctRate" fill="#f59e0b" radius={[0, 8, 8, 0]} />
                                 </BarChart>
@@ -628,7 +677,9 @@ export default function CreatorAnalyticsPage() {
 
                 <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 md:p-8">
                     <div className="flex items-center justify-between mb-5">
-                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-600">Per-course Analytics</h3>
+                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-600">
+                            Per-course Analytics
+                        </h3>
                         <button
                             onClick={() =>
                                 downloadCsv(
@@ -652,22 +703,42 @@ export default function CreatorAnalyticsPage() {
                         <table className="w-full min-w-[900px]">
                             <thead>
                                 <tr className="border-b border-slate-100 text-left">
-                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Course</th>
-                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Completion</th>
-                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Drop-off Point</th>
-                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Avg Time / Unit</th>
-                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Students</th>
-                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Modules</th>
+                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                        Course
+                                    </th>
+                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                        Completion
+                                    </th>
+                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                        Drop-off Point
+                                    </th>
+                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                        Avg Time / Unit
+                                    </th>
+                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                        Students
+                                    </th>
+                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                        Modules
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {source.courseRows.map((row) => (
                                     <tr key={row.courseId} className="border-b border-slate-50">
                                         <td className="py-3 text-sm font-black text-slate-800">{row.title}</td>
-                                        <td className="py-3 text-xs font-bold text-slate-600">{Number(row.completionRate || 0).toFixed(1)}%</td>
-                                        <td className="py-3 text-xs font-bold text-slate-600">Module {row.dropoffModule}</td>
-                                        <td className="py-3 text-xs font-bold text-slate-600">{toMinuteString(Number(row.averageTimePerUnitSec || 0))}</td>
-                                        <td className="py-3 text-xs font-bold text-slate-600">{row.enrolledStudents}</td>
+                                        <td className="py-3 text-xs font-bold text-slate-600">
+                                            {Number(row.completionRate || 0).toFixed(1)}%
+                                        </td>
+                                        <td className="py-3 text-xs font-bold text-slate-600">
+                                            Module {row.dropoffModule}
+                                        </td>
+                                        <td className="py-3 text-xs font-bold text-slate-600">
+                                            {toMinuteString(Number(row.averageTimePerUnitSec || 0))}
+                                        </td>
+                                        <td className="py-3 text-xs font-bold text-slate-600">
+                                            {row.enrolledStudents}
+                                        </td>
                                         <td className="py-3 text-xs font-bold text-slate-600">{row.moduleCount}</td>
                                     </tr>
                                 ))}
@@ -685,13 +756,20 @@ export default function CreatorAnalyticsPage() {
                             <div className="grid grid-cols-[80px_repeat(24,minmax(20px,1fr))] gap-1 mb-2">
                                 <div />
                                 {Array.from({ length: 24 }, (_, hour) => (
-                                    <div key={hour} className="text-[9px] text-center font-black text-slate-400">{hour}</div>
+                                    <div key={hour} className="text-[9px] text-center font-black text-slate-400">
+                                        {hour}
+                                    </div>
                                 ))}
                             </div>
 
                             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((dayLabel, dayIndex) => (
-                                <div key={dayLabel} className="grid grid-cols-[80px_repeat(24,minmax(20px,1fr))] gap-1 mb-1">
-                                    <div className="text-[10px] font-black text-slate-500 flex items-center">{dayLabel}</div>
+                                <div
+                                    key={dayLabel}
+                                    className="grid grid-cols-[80px_repeat(24,minmax(20px,1fr))] gap-1 mb-1"
+                                >
+                                    <div className="text-[10px] font-black text-slate-500 flex items-center">
+                                        {dayLabel}
+                                    </div>
                                     {Array.from({ length: 24 }, (_, hour) => {
                                         const count = Number(heatmapMatrix.get(`${dayIndex}-${hour}`) || 0);
                                         const intensity = count / maxHeatmap;
@@ -712,7 +790,9 @@ export default function CreatorAnalyticsPage() {
                 </section>
 
                 <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 md:p-8">
-                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-600 mb-4">Activity Area View</h3>
+                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-600 mb-4">
+                        Activity Area View
+                    </h3>
                     <div className="h-[260px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={trendSeries}>
@@ -726,7 +806,12 @@ export default function CreatorAnalyticsPage() {
                                 <XAxis dataKey="label" tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} />
                                 <YAxis tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} />
                                 <Tooltip />
-                                <Area type="monotone" dataKey="activeUsers" stroke="#6366f1" fill="url(#activeUsersArea)" />
+                                <Area
+                                    type="monotone"
+                                    dataKey="activeUsers"
+                                    stroke="#6366f1"
+                                    fill="url(#activeUsersArea)"
+                                />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>

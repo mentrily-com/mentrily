@@ -86,7 +86,15 @@ export default function PublicExamPage() {
     const [questionsMap, setQuestionsMap] = useState<Record<string, UnitQuestion>>({});
     const [currentSectionId, setCurrentSectionId] = useState('s1');
     const [currentQuestionId, setCurrentQuestionId] = useState<string | number>('q1-1');
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    // Defaults to collapsed on narrow viewports -- the sidebar's expanded
+    // width (min(16rem, 100vw-24px)) already caps itself to fit small
+    // screens without overflowing, but starting collapsed on a phone-width
+    // viewport leaves more room for the actual question up front; the
+    // student can still expand it via the existing toggle. Desktop is
+    // unaffected (starts expanded, same as before).
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(
+        () => typeof window !== 'undefined' && window.innerWidth < 640,
+    );
     const [sidebarHidden, setSidebarHidden] = useState(false);
     const [navbarVisible, setNavbarVisible] = useState(true);
     const [fontSize, setFontSize] = useState(15);
@@ -129,7 +137,7 @@ export default function PublicExamPage() {
     const [finalSubmitTime, setFinalSubmitTime] = useState<string | null>(null);
     const [isNotFound, setIsNotFound] = useState(false);
 
-    const { warning, info, error: toastError, dismiss } = useToast();
+    const { warning, info, error: toastError, dismiss, toast } = useToast();
     const fullscreenToastIdRef = useRef<string | null>(null);
     const hasInteractedRef = useRef(false);
     const debouncedSaveRef = useRef<any>(null);
@@ -187,13 +195,11 @@ export default function PublicExamPage() {
 
     const [socketUserId, setSocketUserId] = useState<string>('');
 
-    useEffect(() => {
-        AuthService.checkSession().then((sessionUser) => {
-            if (!sessionUser) return;
-            setUser(sessionUser);
-            setSocketUserId(sessionUser.id || sessionUser.rollNumber || '');
-        });
-    }, []);
+    // loadExamData() below already resolves the session (resolveCurrentUser)
+    // and calls setUser/setSocketUserId with the result -- this effect used
+    // to run a second, independent AuthService.checkSession() call in
+    // parallel, racing an uncached /auth/me request against the one
+    // loadExamData was already making.
 
     // ===== ALL HOOKS MUST BE CALLED UNCONDITIONALLY BEFORE ANY EARLY RETURNS =====
 
@@ -498,7 +504,16 @@ export default function PublicExamPage() {
                     return null;
                 };
 
-                const currentUserMeta = await resolveCurrentUser();
+                // resolveCurrentUser() only needs the auth session, and
+                // getExamBySlug() only needs the slug + auth header -- they
+                // don't depend on each other's result, so running them
+                // sequentially was adding one full round trip's worth of
+                // dead time to every exam load for no reason.
+                const [currentUserMeta, data] = await Promise.all([
+                    resolveCurrentUser(),
+                    ExamService.getExamBySlug(slug as string),
+                ]);
+
                 if (!currentUserMeta) {
                     console.log('[ExamPage] No user session found, redirecting to login');
                     router.replace(
@@ -535,8 +550,7 @@ export default function PublicExamPage() {
                     sessionStorage.setItem('exam_tab_id', tabId);
                 }
 
-                // 1. Get Exam Content (Metadata only first)
-                const data = await ExamService.getExamBySlug(slug as string);
+                // 1. Exam Content (already fetched in parallel with the user above)
                 setExamTitle(data.title || 'Examination');
                 setTabSwitchLimit(data.tabSwitchLimit || null);
                 setIsAiProctoringEnabled(data.aiProctoring || false);
@@ -1082,22 +1096,14 @@ export default function PublicExamPage() {
         [user, slug, logEvent, info, setElectronStrictMode, sessionId, examVerdict, router, getCourseReturnHref],
     );
 
-    // Timer Logic
+    // Timer tick. This interval is created once per exam (not once per
+    // second): the previous version depended on `timeLeft` itself, so every
+    // tick tore down and recreated a new setInterval, needlessly running
+    // thousands of timer allocations over the course of an exam. The
+    // countdown value only ever needs the functional setState form, so the
+    // interval has no reason to depend on the value it's decrementing.
     useEffect(() => {
         if (timeLeft === null || isFeedbackMode || isSuccessMode) return;
-
-        // AUTO-SUBMIT when time is up
-        if (timeLeft <= 0) {
-            console.log('Time is up! Auto-submitting...');
-            submitFullExam();
-            return;
-        }
-
-        // Show 5-minute warning (only once)
-        if (timeLeft === 300 && !fiveMinWarningShownRef.current) {
-            fiveMinWarningShownRef.current = true;
-            warning('Only 5 minutes remaining! Please review and submit your answers.', 'Time Warning', 8000);
-        }
 
         const timer = setInterval(() => {
             setTimeLeft((prev) => {
@@ -1110,6 +1116,24 @@ export default function PublicExamPage() {
         }, 1000);
 
         return () => clearInterval(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [timeLeft === null, isFeedbackMode, isSuccessMode]);
+
+    // Auto-submit and the 5-minute warning are side effects of the *value*,
+    // so they stay in their own effect and don't need to touch the interval.
+    useEffect(() => {
+        if (timeLeft === null || isFeedbackMode || isSuccessMode) return;
+
+        if (timeLeft <= 0) {
+            console.log('Time is up! Auto-submitting...');
+            submitFullExam();
+            return;
+        }
+
+        if (timeLeft === 300 && !fiveMinWarningShownRef.current) {
+            fiveMinWarningShownRef.current = true;
+            warning('Only 5 minutes remaining! Please review and submit your answers.', 'Time Warning', 8000);
+        }
     }, [timeLeft, isFeedbackMode, isSuccessMode, submitFullExam, warning]);
 
     const formatTime = (seconds: number) => {
@@ -1331,7 +1355,7 @@ export default function PublicExamPage() {
             // Let CodeMirror handle paste internally (it uses internal clipboard)
             if (isFromCodeEditor(e.target)) return;
             e.preventDefault();
-            warning('Pasting is not allowed during the exam.', 'Paste Blocked', 4000);
+            toast('Pasting is not allowed during the exam.', 'violation', 'Paste Blocked', 4000);
             socketLogViolation('PASTE_ATTEMPT', 'Student attempted to paste content');
         };
         const handleCopy = (e: ClipboardEvent) => {
@@ -1362,7 +1386,7 @@ export default function PublicExamPage() {
             document.removeEventListener('cut', handleCut, true);
             document.removeEventListener('contextmenu', handleContextMenu, true);
         };
-    }, [isFeedbackMode, isSuccessMode, warning, socketLogViolation]);
+    }, [isFeedbackMode, isSuccessMode, toast, socketLogViolation]);
 
     // === DEVTOOLS / INSPECT DETERRENCE ===
     // IMPORTANT: this is a client-side DETERRENT, not a security boundary. A
@@ -1398,7 +1422,7 @@ export default function PublicExamPage() {
             if (!combo) return;
             e.preventDefault();
             e.stopPropagation();
-            warning('Developer tools are disabled during the exam.', 'Action Blocked', 4000);
+            toast('Developer tools are disabled during the exam.', 'violation', 'Action Blocked', 4000);
             socketLogViolation('DEVTOOLS_SHORTCUT', `Blocked developer-tools shortcut: ${combo}`);
         };
 
@@ -1421,11 +1445,7 @@ export default function PublicExamPage() {
             const open = widthGrew > OPEN_DELTA || heightGrew > OPEN_DELTA;
             if (open && !devtoolsFlagged) {
                 devtoolsFlagged = true;
-                warning(
-                    'Developer tools appear to be open. This has been recorded.',
-                    'Proctoring Alert',
-                    5000,
-                );
+                toast('Developer tools appear to be open. This has been recorded.', 'violation', 'Proctoring Alert', 5000);
                 socketLogViolation('DEVTOOLS_OPENED', 'Developer tools detected open during exam');
             } else if (!open) {
                 devtoolsFlagged = false;
@@ -1441,15 +1461,15 @@ export default function PublicExamPage() {
             window.clearInterval(interval);
             window.removeEventListener('resize', checkDevtools);
         };
-    }, [isFeedbackMode, isSuccessMode, warning, socketLogViolation]);
+    }, [isFeedbackMode, isSuccessMode, toast, socketLogViolation]);
 
     // Cheat detection callback for editor components
     const handleCheatDetected = useCallback(
         (reason: string) => {
-            warning(reason, 'Warning', 4000);
+            toast(reason, 'violation', 'Warning', 4000);
             socketLogViolation('CHEAT_DETECTED', reason);
         },
-        [warning, socketLogViolation],
+        [toast, socketLogViolation],
     );
 
     // Fullscreen Monitoring
@@ -1746,7 +1766,11 @@ export default function PublicExamPage() {
         hideBrandName: true,
         onRefresh: () => window.location.reload(),
         leftContent: (
-            <div className="flex items-center gap-4 ml-4">
+            // Hidden below sm: supplementary focus-tracking info, not
+            // essential to answering questions -- on a narrow viewport the
+            // timer, submit button, and question navigator matter far more
+            // than this readout, so it's the first thing to give up space.
+            <div className="hidden items-center gap-4 ml-4 sm:flex">
                 <div
                     className={`
                     bg-white border border-slate-100 rounded-xl px-3 py-1.5 flex items-center gap-3 transition-shadow duration-300
@@ -1829,10 +1853,10 @@ export default function PublicExamPage() {
                 </button>
             ),
         rightContent: (
-            <div className="flex items-center gap-4">
+            <div className="flex shrink-0 items-center gap-2 sm:gap-4">
                 <div
                     className={`
-                    flex items-center gap-2 px-3 py-1.5 rounded-xl border font-black text-xs transition-all duration-500
+                    flex items-center gap-2 px-3.5 py-1.5 rounded-xl border font-black text-sm transition-all duration-500
                     ${
                         timeLeft !== null && timeLeft <= 300
                             ? 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'
@@ -1840,14 +1864,17 @@ export default function PublicExamPage() {
                     }
                 `}
                 >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                         <circle cx="12" cy="12" r="10" />
                         <polyline points="12 6 12 12 16 14" />
                     </svg>
                     {timeLeft !== null ? formatTime(timeLeft) : 'Loading...'}
                 </div>
 
-                <div className="flex items-center gap-1 bg-white border border-slate-100 rounded-xl p-1">
+                {/* Font-size stepper: a convenience, not essential -- hidden on
+                    narrow viewports so the timer and Submit button (which
+                    are) always have room. */}
+                <div className="hidden items-center gap-1 bg-white border border-slate-100 rounded-xl p-1 sm:flex">
                     <button
                         onClick={() => setFontSize((prev) => Math.max(12, prev - 1))}
                         className="w-7 h-7 flex items-center justify-center hover:bg-slate-50 rounded-lg text-slate-500 hover:text-[var(--brand)] transition-colors"
@@ -1881,8 +1908,9 @@ export default function PublicExamPage() {
                     </button>
                 </div>
 
-                {/* WiFi Signal Icon with Tooltip */}
-                <div className="relative group flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-help border border-slate-100">
+                {/* WiFi Signal Icon with Tooltip -- hidden on narrow viewports
+                    for the same reason as the font-size stepper above. */}
+                <div className="relative group hidden items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-help border border-slate-100 sm:flex">
                     <div className="flex items-end gap-0.5 h-3.5 mb-0.5">
                         {[1, 2, 3, 4].map((bar) => {
                             const barThresholds = [0, 2, 5, 10];
@@ -1975,7 +2003,7 @@ export default function PublicExamPage() {
                     </p>
                     <button
                         onClick={() => router.push('/dashboard')}
-                        className="mt-8 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
+                        className="mt-8 px-6 py-3 bg-[var(--brand)] text-white font-semibold rounded-lg hover:brightness-110 transition"
                     >
                         Go Back to Dashboard
                     </button>
@@ -2071,7 +2099,7 @@ export default function PublicExamPage() {
                     <div className="flex gap-3 justify-center pt-2">
                         <button
                             onClick={retryConnection}
-                            className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition"
+                            className="px-6 py-3 bg-[var(--brand)] hover:brightness-110 text-white font-semibold rounded-lg transition"
                         >
                             Retry Connection
                         </button>
@@ -2192,8 +2220,8 @@ export default function PublicExamPage() {
 
             {/* AI Proctoring Webcam (Clean Preview) */}
             {!isFeedbackMode && !isSuccessMode && isAiProctoringEnabled && (
-                <div className="fixed bottom-24 right-6 z-[90] pointer-events-none">
-                    <div className="w-40 h-28 bg-black rounded-2xl overflow-hidden relative">
+                <div className="fixed bottom-20 right-4 z-[90] pointer-events-none sm:bottom-24 sm:right-6">
+                    <div className="w-32 h-24 bg-black rounded-2xl overflow-hidden relative shadow-[0_12px_32px_rgba(0,0,0,0.35)] sm:w-40 sm:h-28">
                         <video
                             ref={videoRef}
                             autoPlay
@@ -2201,11 +2229,21 @@ export default function PublicExamPage() {
                             muted
                             className="w-full h-full object-cover transform scale-x-[-1]"
                         />
-                        {!isModelLoaded && (
-                            <div className="absolute inset-0 flex items-center justify-center text-[9px] text-white font-mono bg-black/80">
-                                Loading...
-                            </div>
-                        )}
+                        {/* Status badge -- this feature is telling the student they are
+                            being watched, so a proper labeled state (not a tiny 9px
+                            mono "Loading...") makes it read as an intentional, working
+                            part of the product rather than a broken placeholder. */}
+                        <div
+                            className={`absolute top-1.5 left-1.5 flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wide backdrop-blur-sm ${
+                                isModelLoaded ? 'bg-emerald-500/90 text-white' : 'bg-black/70 text-white/90'
+                            }`}
+                        >
+                            <span
+                                className={`h-1.5 w-1.5 rounded-full ${isModelLoaded ? 'bg-white animate-pulse' : 'bg-amber-300 animate-pulse'}`}
+                            />
+                            {isModelLoaded ? 'Proctoring' : 'Initializing'}
+                        </div>
+                        {!isModelLoaded && <div className="absolute inset-0 bg-black/40" />}
                     </div>
                 </div>
             )}

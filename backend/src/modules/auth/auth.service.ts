@@ -62,10 +62,7 @@ export class AuthService {
 
     const users = await this.db.user.findMany({
       where: {
-        OR: [
-          { id: { in: uniqueIds } },
-          { clerkId: { in: uniqueIds } },
-        ],
+        OR: [{ id: { in: uniqueIds } }, { clerkId: { in: uniqueIds } }],
       },
       select: { id: true, orgId: true, clerkId: true },
     });
@@ -91,7 +88,7 @@ export class AuthService {
       keys.push(`user:session:${id}`);
       keys.push(`user:session:${id}:default`);
       keys.push(`user:session:${id}:persona-learner`);
-      
+
       for (const orgId of allOrgIds) {
         keys.push(`user:session:${id}:${orgId}`);
         keys.push(`user:session:${id}:${orgId}:persona-learner`);
@@ -145,7 +142,11 @@ export class AuthService {
 
     const labels = new Set(
       enumRows
-        .map((row) => String(row?.enumlabel || '').trim().toUpperCase())
+        .map((row) =>
+          String(row?.enumlabel || '')
+            .trim()
+            .toUpperCase(),
+        )
         .filter(Boolean),
     );
 
@@ -680,7 +681,8 @@ export class AuthService {
     }
 
     if (!existingUser.needsRoleSelection) {
-      const alreadySelectedUser = await this.getUserRoleSelectionPayload(userId);
+      const alreadySelectedUser =
+        await this.getUserRoleSelectionPayload(userId);
 
       if (!alreadySelectedUser) {
         throw new UnauthorizedException('User not found');
@@ -733,7 +735,8 @@ export class AuthService {
     }
 
     if (!user.needsRoleSelection) {
-      const alreadySelectedUser = await this.getUserRoleSelectionPayload(userId);
+      const alreadySelectedUser =
+        await this.getUserRoleSelectionPayload(userId);
 
       if (!alreadySelectedUser) {
         throw new UnauthorizedException('User not found');
@@ -797,7 +800,10 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
-    if (!existingUser.hasCompletedOnboarding && this.hasOnboardingColumn !== false) {
+    if (
+      !existingUser.hasCompletedOnboarding &&
+      this.hasOnboardingColumn !== false
+    ) {
       await this.db.user.update({
         where: { id: userId },
         data: { hasCompletedOnboarding: true } as any,

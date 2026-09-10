@@ -1,6 +1,7 @@
 'use client';
 import { AlertTriangle, X } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { useModalA11y } from '@/hooks/useModalA11y';
 
 interface DeleteUserModalProps {
     user: any | null;
@@ -11,6 +12,9 @@ interface DeleteUserModalProps {
 export default function DeleteUserModal({ user, onClose, onConfirm }: DeleteUserModalProps) {
     const [confirmText, setConfirmText] = useState('');
     const isValid = confirmText === 'DELETE';
+    const panelRef = useRef<HTMLDivElement>(null);
+    useModalA11y(panelRef, Boolean(user), onClose);
+
     if (!user) return null;
 
     return (
@@ -19,17 +23,31 @@ export default function DeleteUserModal({ user, onClose, onConfirm }: DeleteUser
                 className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300"
                 onClick={onClose}
             />
-            <div className="relative bg-white w-full max-w-md rounded-[40px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-slate-100">
+            <div
+                ref={panelRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="delete-user-title"
+                tabIndex={-1}
+                className="relative bg-white w-full max-w-md rounded-[40px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-slate-100 focus:outline-none"
+            >
                 <div className="p-8 pb-0 flex justify-between items-start">
                     <div className="w-16 h-16 rounded-[24px] bg-rose-50 flex items-center justify-center text-rose-500">
                         <AlertTriangle size={32} />
                     </div>
-                    <button onClick={onClose} className="p-2 text-slate-300 hover:text-slate-900 transition-colors">
+                    <button
+                        onClick={onClose}
+                        aria-label="Close dialog"
+                        className="p-2 text-slate-300 hover:text-slate-900 transition-colors"
+                    >
                         <X size={24} />
                     </button>
                 </div>
                 <div className="p-8 pt-6">
-                    <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-3">
+                    <h2
+                        id="delete-user-title"
+                        className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-3"
+                    >
                         Remove from organization
                     </h2>
                     <p className="text-sm font-bold text-slate-400 mb-8">

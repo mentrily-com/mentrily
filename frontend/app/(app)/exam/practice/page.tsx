@@ -205,7 +205,12 @@ export default function PracticeExamPage() {
     const [submittedSections, setSubmittedSections] = useState<Set<string>>(new Set());
     const [currentSectionId, setCurrentSectionId] = useState('ps1');
     const [currentQuestionId, setCurrentQuestionId] = useState('pq1');
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    // Same reasoning as the real exam page: starts collapsed (not hidden) on
+    // narrow viewports so the question itself gets more room by default,
+    // while the compact icon rail keeps navigation available.
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(
+        () => typeof window !== 'undefined' && window.innerWidth < 640,
+    );
     const [sidebarHidden, setSidebarHidden] = useState(false);
     const [isSubmitViewOpen, setIsSubmitViewOpen] = useState(false);
     const [isFinished, setIsFinished] = useState(false);
@@ -604,15 +609,28 @@ export default function PracticeExamPage() {
                     className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-600 transition-all hover:border-[var(--brand)] hover:text-[var(--brand)] active:scale-95"
                     title="Leave practice and return to your dashboard"
                 >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
                         <path d="M19 12H5" />
                         <path d="m12 19-7-7 7-7" />
                     </svg>
                     Back
                 </button>
+                {/* Guide replay and the focus-in/out counter are convenience/
+                    informational, not essential -- hidden below sm: so the
+                    Back button, timer, and Submit button (which are) always
+                    have room on narrow viewports. */}
                 <button
                     onClick={startGuide}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-600 transition-all hover:border-[var(--brand)] hover:text-[var(--brand)] active:scale-95"
+                    className="hidden items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-600 transition-all hover:border-[var(--brand)] hover:text-[var(--brand)] active:scale-95 sm:inline-flex"
                     title="Replay the guided tour"
                 >
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -624,7 +642,7 @@ export default function PracticeExamPage() {
                 </button>
                 <div
                     data-tour="practice-focus"
-                    className={`flex items-center gap-3 rounded-xl border border-slate-100 bg-white px-3 py-1.5 transition-shadow duration-300 ${
+                    className={`hidden items-center gap-3 rounded-xl border border-slate-100 bg-white px-3 py-1.5 transition-shadow duration-300 sm:flex ${
                         windowFocus.in === 0 && windowFocus.out === 0 ? 'shadow-none' : 'shadow-md shadow-slate-200/50'
                     }`}
                     title="Tab/window switches — real exams record these"
@@ -690,7 +708,7 @@ export default function PracticeExamPage() {
             </button>
         ),
         rightContent: (
-            <div className="flex items-center gap-3">
+            <div className="flex shrink-0 items-center gap-2 sm:gap-3">
                 <div
                     data-tour="practice-timer"
                     className={`flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-black transition-all duration-500 ${
@@ -705,13 +723,22 @@ export default function PracticeExamPage() {
                     </svg>
                     {formatTime(timeLeft)}
                 </div>
-                <div className="flex items-center gap-1 rounded-xl border border-slate-100 bg-white p-1">
+                {/* Font-size stepper -- convenience, not essential; hidden on
+                    narrow viewports (same treatment as the real exam page). */}
+                <div className="hidden items-center gap-1 rounded-xl border border-slate-100 bg-white p-1 sm:flex">
                     <button
                         onClick={() => setFontSize((prev) => Math.max(12, prev - 1))}
                         className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-50 hover:text-[var(--brand)]"
                         aria-label="Decrease font size"
                     >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                        >
                             <line x1="5" y1="12" x2="19" y2="12" />
                         </svg>
                     </button>
@@ -720,7 +747,14 @@ export default function PracticeExamPage() {
                         className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-50 hover:text-[var(--brand)]"
                         aria-label="Increase font size"
                     >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                        >
                             <line x1="12" y1="5" x2="12" y2="19" />
                             <line x1="5" y1="12" x2="19" y2="12" />
                         </svg>
@@ -728,8 +762,9 @@ export default function PracticeExamPage() {
                 </div>
 
                 {/* WiFi Signal Icon with Tooltip — same live network indicator the
-                    real exam shows, so practice looks identical. */}
-                <div className="relative group flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-help border border-slate-100">
+                    real exam shows, so practice looks identical. Hidden below
+                    sm: for the same reason as the font-size stepper above. */}
+                <div className="relative group hidden items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-help border border-slate-100 sm:flex">
                     <div className="flex items-end gap-0.5 h-3.5 mb-0.5">
                         {[1, 2, 3, 4].map((bar) => {
                             const barThresholds = [0, 2, 5, 10];
@@ -750,7 +785,9 @@ export default function PracticeExamPage() {
                         <div className="flex flex-col gap-2">
                             <div className="flex items-center justify-between gap-8">
                                 <span className="text-slate-400 uppercase tracking-tighter">Net Status</span>
-                                <span className={netOnline ? 'text-emerald-500 font-black' : 'text-rose-500 font-black'}>
+                                <span
+                                    className={netOnline ? 'text-emerald-500 font-black' : 'text-rose-500 font-black'}
+                                >
                                     {netOnline ? 'ONLINE' : 'OFFLINE'}
                                 </span>
                             </div>
@@ -791,7 +828,9 @@ export default function PracticeExamPage() {
                     <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-50 text-4xl">
                         🎉
                     </div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400">Practice Complete</p>
+                    <p className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400">
+                        Practice Complete
+                    </p>
                     <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-900">
                         You know your way around now
                     </h1>
@@ -928,12 +967,8 @@ export default function PracticeExamPage() {
                             </svg>
                         </div>
                         <div className="min-w-0 flex-1">
-                            <h4 className="text-xs font-black uppercase tracking-wider text-white">
-                                Exam lockdown
-                            </h4>
-                            <p className="mt-1 text-xs font-semibold leading-5 text-slate-300">
-                                {lockdownAlert}
-                            </p>
+                            <h4 className="text-xs font-black uppercase tracking-wider text-white">Exam lockdown</h4>
+                            <p className="mt-1 text-xs font-semibold leading-5 text-slate-300">{lockdownAlert}</p>
                         </div>
                         <button
                             onClick={() => setLockdownAlert(null)}
@@ -1011,7 +1046,6 @@ export default function PracticeExamPage() {
                     </>
                 )}
             </div>
-
         </div>
     );
 }

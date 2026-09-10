@@ -5,10 +5,7 @@ import { useRequireAuth } from '@/hooks/requireAuthClient';
 import { useQuery } from '@tanstack/react-query';
 import { useApolloClient } from '@apollo/client/react';
 import { useSession } from '@/hooks/useSession';
-import {
-    GET_CREATOR_DASHBOARD_STATS,
-    GET_CREATOR_RECENT_SUBMISSIONS,
-} from '@/services/graphql/queries';
+import { GET_CREATOR_DASHBOARD_STATS, GET_CREATOR_RECENT_SUBMISSIONS } from '@/services/graphql/queries';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const GRAPHQL_ENABLED = String(process.env.NEXT_PUBLIC_ENABLE_SUPABASE_GRAPHQL || '').toLowerCase() === 'true';

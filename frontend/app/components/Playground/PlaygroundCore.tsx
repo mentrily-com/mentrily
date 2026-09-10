@@ -15,15 +15,10 @@ import { CodeExecutionService } from '@/services/api/CodeExecutionService';
 // rendered) coding-question authoring panel — defer it so the playground shell
 // paints without pulling the editor bundle up front. No ref is passed and it's
 // interactive-only, so ssr:false is safe.
-const RichTextEditor = dynamic(
-    () => import('@/app/components/Authoring/RichTextEditor'),
-    {
-        ssr: false,
-        loading: () => (
-            <div className="min-h-[160px] rounded-[28px] bg-slate-50 animate-pulse" />
-        ),
-    },
-);
+const RichTextEditor = dynamic(() => import('@/app/components/Authoring/RichTextEditor'), {
+    ssr: false,
+    loading: () => <div className="min-h-[160px] rounded-[28px] bg-slate-50 animate-pulse" />,
+});
 
 interface Tab {
     id: number;
@@ -216,6 +211,7 @@ export default function PlaygroundCore({
                                                             event.stopPropagation();
                                                             setShowDeleteConfirm(tab.id);
                                                         }}
+                                                        aria-label={`Close ${tab.name || 'tab'}`}
                                                         className="ml-2 opacity-0 group-hover:opacity-100 p-1 hover:text-red-500 transition-all"
                                                     >
                                                         <X size={10} strokeWidth={3} />
@@ -540,6 +536,7 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
                             </div>
                             <button
                                 onClick={onClose}
+                                aria-label="Close dialog"
                                 className="rounded-lg p-2 text-slate-400 hover:bg-slate-50 hover:text-slate-700"
                             >
                                 <X size={18} />

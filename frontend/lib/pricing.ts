@@ -27,12 +27,7 @@ export const pricingTiers: PricingTier[] = [
         cta: 'Start Free',
         ctaHref: '/signup',
         highlighted: false,
-        features: [
-            'All question types',
-            'Up to 2 exams per month',
-            'Community support only',
-            'Mentrily branding',
-        ],
+        features: ['All question types', 'Up to 2 exams per month', 'Community support only', 'Mentrily branding'],
         limits: {
             courses: '2 courses',
             students: 'Unlimited students',

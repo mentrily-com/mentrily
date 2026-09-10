@@ -713,7 +713,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                     padding-top: 15px;
                 }
                 .cm-content {
-                    font-family: 'Geist Mono', 'JetBrains Mono', monospace !important;
+                    font-family: var(--font-jetbrains-mono), ui-monospace, monospace !important;
                     font-size: ${props.fontSize ? `${props.fontSize}px` : '14px'} !important;
                     line-height: 1.6;
                     color: #1e293b !important;

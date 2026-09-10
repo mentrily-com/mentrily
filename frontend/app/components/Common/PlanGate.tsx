@@ -45,8 +45,8 @@ export default function PlanGate({ feature, requiredPlan, children }: PlanGatePr
         role === 'TEACHER' || role === 'ADMIN'
             ? '/dashboard/creator/billing'
             : role === 'SUPER_ADMIN'
-                ? '/dashboard/super-admin'
-                : '/pricing';
+              ? '/dashboard/super-admin'
+              : '/pricing';
 
     return (
         <div className="relative rounded-2xl border border-slate-200 bg-white overflow-hidden">

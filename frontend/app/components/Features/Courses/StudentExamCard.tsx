@@ -44,30 +44,32 @@ export default function StudentExamCard({
     const hasFinalAttempt = Boolean(
         exam.lastAttempt?.status && finalAttemptStatuses.has(String(exam.lastAttempt.status).toUpperCase()),
     );
-    const score = hasFinalAttempt && typeof exam.lastAttempt?.score === 'number' ? Math.round(exam.lastAttempt.score) : null;
+    const score =
+        hasFinalAttempt && typeof exam.lastAttempt?.score === 'number' ? Math.round(exam.lastAttempt.score) : null;
     const passingPercentage = Number(exam.passingPercentage ?? 70);
     const durationLabel = typeof exam.duration === 'number' && exam.duration > 0 ? `${exam.duration} min` : null;
     const marksLabel = typeof exam.totalMarks === 'number' && exam.totalMarks > 0 ? `${exam.totalMarks} marks` : null;
     const metaLabel = [durationLabel, marksLabel].filter(Boolean).join(' · ') || 'Course exam';
     const passed = hasFinalAttempt ? exam.passed : null;
     const hasAttempt = hasFinalAttempt;
-    const statusLabel = passed === true
-        ? 'Passed'
-        : passed === false
-          ? 'Failed'
-          : exam.isUnlocked
-            ? hasAttempt
-                ? 'In Progress'
-                : 'Not Attempted'
-            : 'Locked';
+    const statusLabel =
+        passed === true
+            ? 'Passed'
+            : passed === false
+              ? 'Failed'
+              : exam.isUnlocked
+                ? hasAttempt
+                    ? 'In Progress'
+                    : 'Not Attempted'
+                : 'Locked';
     const returnTo = courseSlug ? `/dashboard/learner/module/${courseSlug}` : '/dashboard/learner';
     const examHref = `/exam/${exam.slug}?returnTo=${encodeURIComponent(returnTo)}`;
     const isRetakeDelayed =
-        passed === false &&
-        exam.nextAttemptAvailableAt &&
-        new Date(exam.nextAttemptAvailableAt).getTime() > Date.now();
+        passed === false && exam.nextAttemptAvailableAt && new Date(exam.nextAttemptAvailableAt).getTime() > Date.now();
     const isOutOfAttempts = passed === false && Number(exam.attemptsRemaining || 0) <= 0;
-    const canAttempt = Boolean(exam.isActive && exam.isUnlocked && passed !== true && !isOutOfAttempts && !isRetakeDelayed);
+    const canAttempt = Boolean(
+        exam.isActive && exam.isUnlocked && passed !== true && !isOutOfAttempts && !isRetakeDelayed,
+    );
     const statusTone =
         passed === true
             ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
@@ -120,7 +122,9 @@ export default function StudentExamCard({
                 <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
                     <div className="mb-2 flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-slate-500">
                         <span>Unlock Progress</span>
-                        <span>{progressPercent}% / {exam.requiredPercent}%</span>
+                        <span>
+                            {progressPercent}% / {exam.requiredPercent}%
+                        </span>
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-slate-200">
                         <div
@@ -167,24 +171,24 @@ export default function StudentExamCard({
                     className="w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2 text-left shadow-sm transition hover:border-slate-300 hover:bg-white sm:w-auto sm:min-w-[280px] sm:max-w-[420px]"
                 >
                     <div className="flex items-center gap-3">
-                    <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                            <p className="truncate text-[11px] font-black text-slate-800">{exam.title}</p>
-                            <span className={`shrink-0 rounded-md border px-1.5 py-0.5 text-[8px] font-black uppercase tracking-wider ${statusTone}`}>
-                                {statusLabel}
-                            </span>
+                        <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                                <p className="truncate text-[11px] font-black text-slate-800">{exam.title}</p>
+                                <span
+                                    className={`shrink-0 rounded-md border px-1.5 py-0.5 text-[8px] font-black uppercase tracking-wider ${statusTone}`}
+                                >
+                                    {statusLabel}
+                                </span>
+                            </div>
+                            <p className="mt-0.5 truncate text-[10px] font-bold text-slate-500">
+                                {metaLabel} · {detailText}
+                            </p>
                         </div>
-                        <p className="mt-0.5 truncate text-[10px] font-bold text-slate-500">
-                            {metaLabel} · {detailText}
-                        </p>
-                    </div>
-                    {canAttempt && (
-                        <span
-                            className="shrink-0 rounded-lg bg-slate-900 px-3 py-2 text-[9px] font-black uppercase tracking-widest text-white transition-colors hover:bg-[var(--brand)]"
-                        >
-                            {passed === false ? 'Retake' : 'Start'}
-                        </span>
-                    )}
+                        {canAttempt && (
+                            <span className="shrink-0 rounded-lg bg-slate-900 px-3 py-2 text-[9px] font-black uppercase tracking-widest text-white transition-colors hover:bg-[var(--brand)]">
+                                {passed === false ? 'Retake' : 'Start'}
+                            </span>
+                        )}
                     </div>
                 </button>
                 {detailsModal}
@@ -198,9 +202,7 @@ export default function StudentExamCard({
                 <div>
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Course Exam</p>
                     <h3 className="mt-1 text-lg font-black text-slate-800">{exam.title}</h3>
-                    <p className="mt-1 text-xs font-bold text-slate-500">
-                        {metaLabel}
-                    </p>
+                    <p className="mt-1 text-xs font-bold text-slate-500">{metaLabel}</p>
                 </div>
                 <span className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest ${statusTone}`}>
                     {statusLabel}
@@ -209,9 +211,7 @@ export default function StudentExamCard({
 
             {!exam.isActive ? (
                 <div className="mt-4 rounded-xl bg-slate-50 border border-slate-200 p-3">
-                    <p className="text-xs font-bold text-slate-700">
-                        This linked exam is not published yet.
-                    </p>
+                    <p className="text-xs font-bold text-slate-700">This linked exam is not published yet.</p>
                 </div>
             ) : !exam.isUnlocked ? (
                 <div className="mt-4 rounded-xl bg-amber-50 border border-amber-200 p-3">

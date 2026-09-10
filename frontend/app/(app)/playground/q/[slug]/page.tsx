@@ -67,10 +67,16 @@ export default function SharedCodingQuestionPage() {
                             : error}
                     </p>
                     <div className="mt-5 flex gap-3">
-                        <Link href="/login" className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-600">
+                        <Link
+                            href="/login"
+                            className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-600"
+                        >
                             Sign in
                         </Link>
-                        <Link href="/signup" className="rounded-xl bg-[var(--brand)] px-4 py-2 text-sm font-black text-white">
+                        <Link
+                            href="/signup"
+                            className="rounded-xl bg-[var(--brand)] px-4 py-2 text-sm font-black text-white"
+                        >
                             Sign up
                         </Link>
                     </div>
@@ -82,8 +88,8 @@ export default function SharedCodingQuestionPage() {
     const question = record.question;
 
     return (
-            <PublicPlaygroundShell>
-                <div
+        <PublicPlaygroundShell>
+            <div
                 className="h-[calc(100vh-6rem)] min-h-[620px] overflow-hidden rounded-xl border bg-white"
                 style={{ borderColor: 'var(--color-border-subtle)', boxShadow: 'var(--shadow-sm)' }}
             >

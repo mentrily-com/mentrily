@@ -6,7 +6,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { SupabaseService } from '../../services/supabase/supabase.service';
 import { StorageService } from '../../services/storage/storage.service';
-import axios from 'axios';
+import { safeGet } from '../../common/safe-http';
 import { randomUUID } from 'crypto';
 import QRCode from 'qrcode';
 import sharp from 'sharp';
@@ -142,14 +142,14 @@ export class CertificateService {
       ? Number(block.width)
       : fallback.width;
     const align =
-      typeof block?.align === 'string' ? block.align : (fallback.align ?? 'left');
+      typeof block?.align === 'string'
+        ? block.align
+        : (fallback.align ?? 'left');
     const fontSize = Number.isFinite(Number(block?.fontSize))
       ? Number(block.fontSize)
       : 14;
     const color =
-      typeof block?.color === 'string' && block.color
-        ? block.color
-        : '#0F172A';
+      typeof block?.color === 'string' && block.color ? block.color : '#0F172A';
 
     doc.fontSize(fontSize).fillColor(color);
     if (width) {
@@ -183,7 +183,7 @@ export class CertificateService {
 
       if (params.template?.backgroundUrl) {
         try {
-          const backgroundResp = await axios.get(params.template.backgroundUrl, {
+          const backgroundResp = await safeGet(params.template.backgroundUrl, {
             responseType: 'arraybuffer',
             timeout: 8000,
           });
@@ -206,7 +206,7 @@ export class CertificateService {
 
       if (params.orgLogo) {
         try {
-          const response = await axios.get(params.orgLogo, {
+          const response = await safeGet(params.orgLogo, {
             responseType: 'arraybuffer',
             timeout: 6000,
           });
@@ -262,17 +262,12 @@ export class CertificateService {
         },
       );
 
-      this.drawText(
-        doc,
-        params.studentName || 'Student',
-        layout.studentName,
-        {
-          x: 0,
-          y: 238,
-          width: 595,
-          align: 'center',
-        },
-      );
+      this.drawText(doc, params.studentName || 'Student', layout.studentName, {
+        x: 0,
+        y: 238,
+        width: 595,
+        align: 'center',
+      });
 
       const descriptor =
         params.type === 'course'
@@ -318,7 +313,7 @@ export class CertificateService {
 
       if (params.template?.signatureUrl && layout.signature) {
         try {
-          const signatureResp = await axios.get(params.template.signatureUrl, {
+          const signatureResp = await safeGet(params.template.signatureUrl, {
             responseType: 'arraybuffer',
             timeout: 6000,
           });
@@ -396,7 +391,11 @@ export class CertificateService {
     return template;
   }
 
-  async createTemplate(orgId: string, creatorId: string, dto: CreateTemplateDto) {
+  async createTemplate(
+    orgId: string,
+    creatorId: string,
+    dto: CreateTemplateDto,
+  ) {
     const resolvedOrgId = this.requireOrgId(orgId);
 
     if (!dto?.name?.trim()) {

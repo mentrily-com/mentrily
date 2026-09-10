@@ -1102,7 +1102,6 @@ Course Description: "${description}"`;
   getFullExamSchema() {
     // Same structure as course questions but wrapped differently. No courseSummary needed for exam.
     const fullCourseSchema = this.getFullCourseSchema();
-    // @ts-ignore
     const sections = fullCourseSchema.properties.sections;
     return {
       type: 'object',

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import ExamEditor from '@/app/components/Features/Exams/ExamEditor';
 import { TeacherService } from '@/services/api/TeacherService';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import ExamEditFormSkeleton from '@/app/components/Skeletons/ExamEditFormSkeleton';
 
 export default function SuperAdminOrganizationExamEdit({
     params,
@@ -29,7 +29,7 @@ export default function SuperAdminOrganizationExamEdit({
         load();
     }, [examId]);
 
-    if (loading) return <DashboardSkeleton type="form" userRole="super-admin" />;
+    if (loading) return <ExamEditFormSkeleton />;
     if (error) return <div className="p-8 text-center text-red-500 font-bold">{error}</div>;
 
     return (

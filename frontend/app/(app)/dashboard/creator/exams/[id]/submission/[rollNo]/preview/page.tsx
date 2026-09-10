@@ -244,7 +244,6 @@ export default function SubmissionPreviewPage({ params }: { params: Promise<{ id
 
     return (
         <div className="h-[calc(100dvh-var(--topbar-height)-20px)] min-h-0 overflow-hidden rounded-[18px] border border-slate-100 bg-white shadow-sm sm:h-[calc(100dvh-var(--topbar-height)-36px)]">
-
             {/* Main Workspace */}
             <main className="flex h-full min-h-0 overflow-hidden">
                 {/* Reusable Exam Sidebar */}
@@ -331,10 +330,7 @@ function ConsolidatedHeader({
                     </div>
                     <div className="min-w-0">
                         <h4 className="truncate text-sm font-black leading-tight text-slate-800">
-                            {studentName}{' '}
-                            <span className="font-bold text-slate-300">
-                                ({rollNo})
-                            </span>
+                            {studentName} <span className="font-bold text-slate-300">({rollNo})</span>
                         </h4>
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">
                             Total Score: <span className="text-[var(--brand)]">{totalScore || 0}</span>

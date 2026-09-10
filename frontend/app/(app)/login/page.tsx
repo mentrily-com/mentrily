@@ -5,9 +5,13 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, KeyRound, ArrowLeft } fro
 import Link from 'next/link';
 import { AuthService } from '@/services/api/AuthService';
 import { useOrganization } from '@/app/context/OrganizationContext';
-import { AuthenticateWithRedirectCallback, useClerk, useSignIn, useUser } from '@clerk/nextjs';
+import { AuthenticateWithRedirectCallback, useAuth, useClerk, useSignIn, useUser } from '@clerk/nextjs';
+import { useQueryClient } from '@tanstack/react-query';
 import { BrandLockup } from '@/components/brand/BrandLockup';
 import BrandedPageLoader from '@/app/components/Common/BrandedPageLoader';
+import LearnerDashboardSkeleton from '@/app/components/Skeletons/LearnerDashboardSkeleton';
+import CreatorDashboardSkeleton from '@/app/components/Skeletons/CreatorDashboardSkeleton';
+import SuperAdminDashboardSkeleton from '@/app/components/Skeletons/SuperAdminDashboardSkeleton';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -15,6 +19,18 @@ export default function LoginPage() {
     const { isLoaded, signIn, setActive } = useSignIn();
     const { isSignedIn } = useUser();
     const { signOut } = useClerk();
+    const { sessionId, userId } = useAuth();
+    const queryClient = useQueryClient();
+    // Mirrors useSession()'s own query key exactly, so pre-warming the
+    // cache here is actually visible to it -- see the comment at the call
+    // sites below for why this matters. Memoized on the primitive values,
+    // not just recomputed inline, so it has a stable reference across
+    // renders -- a fresh array literal here would make the effect below
+    // that depends on it re-run on every render.
+    const sessionQueryKey = React.useMemo(
+        () => ['session', sessionId || userId || 'anonymous'],
+        [sessionId, userId],
+    );
     const oauthMode = searchParams.get('oauth');
     const oauthFlow = searchParams.get('flow') || 'signin';
     const oauthError = searchParams.get('error');
@@ -34,6 +50,27 @@ export default function LoginPage() {
     const [error, setError] = useState('');
     const [isRedirectingAuthenticatedUser, setIsRedirectingAuthenticatedUser] = useState(false);
     const { organization: orgContext } = useOrganization();
+    // Set right before completeSignIn() runs its own /auth/me check, so the
+    // auto-redirect effect below (which also watches isSignedIn) doesn't
+    // fire a second, fully redundant /auth/me request for the same login --
+    // isSignedIn flips true as soon as setActive() resolves, which races
+    // ahead of completeSignIn's own in-flight session check.
+    const isHandlingManualAuthRef = React.useRef(false);
+    // Best-guess role for the skeleton shown while redirecting post-login --
+    // read once from the hint the dashboard persists on every visit, so a
+    // returning user sees their own dashboard's real skeleton (the exact
+    // same purpose-built component that dashboard route renders while ITS
+    // OWN data loads) instead of a mismatched placeholder. A wrong guess
+    // (new device, first login) just falls back to the learner shape; the
+    // real page replaces this the instant it mounts either way.
+    const [redirectingRoleHint] = useState<'student' | 'teacher' | 'admin' | 'super-admin' | undefined>(() => {
+        if (typeof window === 'undefined') return undefined;
+        const stored = window.localStorage.getItem('user-role');
+        if (stored === 'student' || stored === 'teacher' || stored === 'admin' || stored === 'super-admin') {
+            return stored;
+        }
+        return undefined;
+    });
 
     const getSafeRedirectPath = React.useCallback(() => {
         const redirect = searchParams.get('redirect');
@@ -114,6 +151,7 @@ export default function LoginPage() {
 
     React.useEffect(() => {
         if (isOauthCallback) return;
+        if (isHandlingManualAuthRef.current) return;
         if (isSignedIn) {
             const handleRedirect = async () => {
                 setIsRedirectingAuthenticatedUser(true);
@@ -121,6 +159,14 @@ export default function LoginPage() {
                 try {
                     const user = await AuthService.checkSession(true);
                     if (user) {
+                        // The dashboard layout this redirect lands on calls
+                        // useSession(), which reads from this exact query
+                        // cache entry. Without this, that hook has no way to
+                        // know a /auth/me call already just happened here and
+                        // fires a second one -- a fully redundant network
+                        // round trip stacked sequentially after this one,
+                        // directly on the critical path of every login.
+                        queryClient.setQueryData(sessionQueryKey, user);
                         path = resolvePostLoginPath(user);
                     } else {
                         await redirectMissingAccount();
@@ -156,6 +202,8 @@ export default function LoginPage() {
         redirectMissingAccount,
         getSafeRedirectPath,
         resolvePostLoginPath,
+        queryClient,
+        sessionQueryKey,
     ]);
 
     const completeSignIn = async (createdSessionId?: string | null) => {
@@ -166,6 +214,7 @@ export default function LoginPage() {
             throw new Error('Session activation is unavailable.');
         }
 
+        isHandlingManualAuthRef.current = true;
         await setActive({
             session: createdSessionId,
             navigate: async () => {},
@@ -178,6 +227,10 @@ export default function LoginPage() {
                 await redirectMissingAccount();
                 return;
             }
+            // See the matching comment in the auto-redirect effect above --
+            // this pre-warms useSession()'s cache for the dashboard we're
+            // about to navigate to, so it doesn't re-fetch what we just got.
+            queryClient.setQueryData(sessionQueryKey, user);
             path = resolvePostLoginPath(user);
         } catch (e: any) {
             if (e.message === 'FORBIDDEN') {
@@ -308,8 +361,42 @@ export default function LoginPage() {
         return <AuthenticateWithRedirectCallback transferable={false} signInUrl="/login" signUpUrl="/signup" />;
     }
 
-    if (!isLoaded || isSignedIn || isRedirectingAuthenticatedUser) {
+    if (!isLoaded) {
         return <BrandedPageLoader />;
+    }
+
+    // Once Clerk confirms a session, we're heading straight to a dashboard
+    // route -- render the SAME purpose-built skeleton that dashboard already
+    // shows while its own data loads, not a generic stand-in. Previously
+    // this rendered a generic `DashboardSkeleton`, which looked nothing like
+    // the destination's real skeleton, so every login showed that generic
+    // one here and then a completely different-shaped one the instant the
+    // destination page mounted -- two different skeletons in a row for
+    // every single login. Reusing the exact same component means the
+    // silhouette doesn't change at all across the navigation; only the real
+    // chrome (topbar/sidebar) and data fill in once we land.
+    if (isSignedIn || isRedirectingAuthenticatedUser) {
+        if (redirectingRoleHint === 'teacher' || redirectingRoleHint === 'admin') {
+            return (
+                <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
+                    <div className="max-w-[1440px] mx-auto">
+                        <CreatorDashboardSkeleton />
+                    </div>
+                </div>
+            );
+        }
+        if (redirectingRoleHint === 'super-admin') {
+            return (
+                <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
+                    <div className="max-w-[1440px] mx-auto">
+                        <SuperAdminDashboardSkeleton />
+                    </div>
+                </div>
+            );
+        }
+        // Default/student fallback -- also what a first-time login with no
+        // stored role hint yet gets, since student is the most common role.
+        return <LearnerDashboardSkeleton />;
     }
 
     return (
@@ -581,23 +668,6 @@ export default function LoginPage() {
                                             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                         </button>
                                     </div>
-                                </div>
-
-                                {/* Remember me */}
-                                <div className="flex items-center gap-2.5">
-                                    <input
-                                        type="checkbox"
-                                        id="remember"
-                                        className="w-4 h-4 rounded border cursor-pointer accent-[var(--brand)]"
-                                        style={{ borderColor: '#E2E8F0' }}
-                                    />
-                                    <label
-                                        htmlFor="remember"
-                                        className="text-sm cursor-pointer"
-                                        style={{ color: '#64748B' }}
-                                    >
-                                        Keep me signed in
-                                    </label>
                                 </div>
 
                                 {/* Submit */}

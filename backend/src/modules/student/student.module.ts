@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { StudentController } from './student.controller';
 import { StudentService } from './student.service';
+import { StudentAnnouncementsService } from './student-announcements.service';
 import { PrismaModule } from '../../services/prisma/prisma.module';
 import { ExamModule } from '../exam/exam.module';
 import { BullModule } from '@nestjs/bullmq';
@@ -17,6 +18,6 @@ import { CertificateModule } from '../certificate/certificate.module';
     }),
   ],
   controllers: [StudentController],
-  providers: [StudentService, StudentProcessor],
+  providers: [StudentService, StudentAnnouncementsService, StudentProcessor],
 })
 export class StudentModule {}

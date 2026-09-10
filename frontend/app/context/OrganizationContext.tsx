@@ -8,6 +8,7 @@ interface OrganizationBranding {
     logo: string | null;
     primaryColor: string;
     domain: string;
+    subdomain?: string;
 }
 
 interface OrganizationContextType {
@@ -110,7 +111,14 @@ export function OrganizationProvider({
                 return;
             }
 
-            if (initialOrganization && initialOrganization.domain === subdomain) {
+            // initialOrganization.domain can be the org's full custom/root
+            // domain (e.g. "acme.mentrily.com"), not the bare subdomain
+            // prefix ("acme") resolved here client-side -- comparing those
+            // two directly was always false for real org tenants, so this
+            // guard never actually skipped the redundant fetch below. The
+            // server also hands back the exact subdomain it resolved
+            // (`subdomain`), which is what's comparable to this value.
+            if (initialOrganization && (initialOrganization.subdomain || initialOrganization.domain) === subdomain) {
                 setOrganization(initialOrganization);
                 setLoading(false);
                 return;

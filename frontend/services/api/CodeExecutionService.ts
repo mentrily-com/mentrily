@@ -137,11 +137,7 @@ export const CodeExecutionService = {
         return response.json();
     },
 
-    publicSubmit: async (
-        questionSlug: string,
-        language: string,
-        code: string,
-    ): Promise<PublicSubmissionResult> => {
+    publicSubmit: async (questionSlug: string, language: string, code: string): Promise<PublicSubmissionResult> => {
         const response = await apiFetch(`${BASE_URL}/code/public-submit`, {
             method: 'POST',
             credentials: 'include',

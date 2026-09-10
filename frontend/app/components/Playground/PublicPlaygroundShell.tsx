@@ -53,7 +53,7 @@ export default function PublicPlaygroundShell({
 
     return (
         <div
-            className={`public-playground-page bg-[#F8FAFC] text-slate-900 ${
+            className={`public-playground-page bg-slate-50 text-slate-900 ${
                 embedded ? 'h-full min-h-0' : 'min-h-screen'
             }`}
         >
@@ -93,7 +93,11 @@ export default function PublicPlaygroundShell({
                             <PublicPlaygroundProfile />
                         </div>
 
-                        <button onClick={() => setOpen(!open)} className="rounded-lg p-2 text-slate-500 md:hidden">
+                        <button
+                            onClick={() => setOpen(!open)}
+                            aria-label={open ? 'Close menu' : 'Open menu'}
+                            className="rounded-lg p-2 text-slate-500 md:hidden"
+                        >
                             {open ? <X size={22} /> : <Menu size={22} />}
                         </button>
                     </div>
@@ -128,7 +132,7 @@ export default function PublicPlaygroundShell({
             <main
                 className={
                     embedded
-                        ? 'h-full min-h-0 w-full bg-[#F8FAFC] p-3 lg:p-4'
+                        ? 'h-full min-h-0 w-full bg-slate-50 p-3 lg:p-4'
                         : 'mx-auto min-h-[calc(100vh-4rem)] w-full max-w-[1660px] px-4 py-4 lg:px-6'
                 }
             >

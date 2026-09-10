@@ -5,19 +5,19 @@ import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import AlertModal from '@/app/components/Common/AlertModal';
 import { useToast } from '@/app/components/Common/Toast';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import CourseEditSkeleton from '@/app/components/Skeletons/CourseEditSkeleton';
 import React from 'react';
 import { usePlan } from '@/hooks/usePlan';
 
 const CourseBuilder = dynamic(() => import('@/app/components/Authoring/CourseBuilder'), {
     ssr: false,
-    loading: () => <DashboardSkeleton type="form" userRole="teacher" noNavbar />,
+    loading: () => <CourseEditSkeleton />,
 });
 
 export default function EditCoursePage({ params }: { params: Promise<{ id: string }> }) {
     const { role } = usePlan();
     const router = useRouter();
-    const { success } = useToast();
+    const { error: toastError } = useToast();
     const [alertConfig, setAlertConfig] = useState<{
         isOpen: boolean;
         title: string;
@@ -59,11 +59,11 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
             setTimeout(() => router.push('/dashboard/creator'), 1000);
         } catch (e) {
             console.error('Delete failed', e);
-            alert('Delete failed');
+            toastError('Delete failed');
         }
     };
 
-    if (loading) return <DashboardSkeleton type="form" userRole={dashboardRole} />;
+    if (loading) return <CourseEditSkeleton />;
     if (!course)
         return (
             <div className="p-12 text-center font-black uppercase tracking-widest text-rose-500">Course Not Found</div>

@@ -3,9 +3,11 @@ import React, { useState, useEffect, use } from 'react';
 import AdminSettingsView from '@/app/components/Features/Admin/AdminSettingsView';
 import { SuperAdminService } from '@/services/api/SuperAdminService';
 import { siteConfig } from '@/app/config/site';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import OrgSettingsSkeleton from '@/app/components/Skeletons/OrgSettingsSkeleton';
+import { useToast } from '@/app/components/Common/Toast';
 
 export default function SuperAdminOrganizationSettings({ params }: { params: Promise<{ id: string }> }) {
+    const { success, error: toastError } = useToast();
     const resolvedParams = use(params);
     const [orgData, setOrgData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -73,7 +75,7 @@ export default function SuperAdminOrganizationSettings({ params }: { params: Pro
 
             console.log('[SuperAdminOrganizationSettings] Payload:', payload);
             await SuperAdminService.updateOrganization(resolvedParams.id, payload);
-            alert('Settings saved successfully!');
+            success('Settings saved successfully!');
 
             // Reload data
             const refreshedData = await SuperAdminService.getOrganization(resolvedParams.id);
@@ -86,15 +88,15 @@ export default function SuperAdminOrganizationSettings({ params }: { params: Pro
             });
         } catch (e: any) {
             console.error('[SuperAdminOrganizationSettings] Save error:', e);
-            alert('Failed to save settings: ' + (e.message || 'Unknown error'));
+            toastError('Failed to save settings: ' + (e.message || 'Unknown error'));
         }
     };
 
-    if (loading) return <DashboardSkeleton type="form" userRole="super-admin" />;
+    if (loading) return <OrgSettingsSkeleton />;
 
     if (error) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
+            <div className="min-h-screen flex items-center justify-center bg-slate-50">
                 <div className="text-center">
                     <h1 className="text-2xl font-bold text-red-600 mb-4">Error Loading Organization</h1>
                     <p className="text-slate-600">{error}</p>

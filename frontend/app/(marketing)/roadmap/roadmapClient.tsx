@@ -12,22 +12,22 @@ const roadmapItems = [
         status: 'In Progress',
         title: 'Native Mobile Apps',
         description: 'iOS and Android apps for learners to take courses and exams on the go, with offline support.',
-        items: ['Offline mode for lessons', 'Push notifications for deadlines', 'Mobile-optimized code editor']
+        items: ['Offline mode for lessons', 'Push notifications for deadlines', 'Mobile-optimized code editor'],
     },
     {
         quarter: 'Q3 2026',
         status: 'Planned',
         title: 'Enterprise SSO & SCIM',
         description: 'Advanced identity management for large organizations and universities.',
-        items: ['Okta/Azure AD integration', 'Automatic user provisioning', 'Audit logs for security compliance']
+        items: ['Okta/Azure AD integration', 'Automatic user provisioning', 'Audit logs for security compliance'],
     },
     {
         quarter: 'Q4 2026',
         status: 'Researching',
         title: 'Virtual Classrooms',
         description: 'Integrated live video sessions with real-time code sharing and interactive whiteboards.',
-        items: ['Peer-to-peer video', 'Shared code editor', 'Student hand-raising & polls']
-    }
+        items: ['Peer-to-peer video', 'Shared code editor', 'Student hand-raising & polls'],
+    },
 ];
 
 function RoadmapList() {
@@ -52,15 +52,15 @@ function RoadmapList() {
                                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[10px] font-bold text-slate-500 uppercase">
                                     {item.status === 'In Progress' && <Clock size={12} className="text-amber-500" />}
                                     {item.status === 'Planned' && <Circle size={12} className="text-slate-400" />}
-                                    {item.status === 'Researching' && <Circle size={12} className="text-slate-400 border-dashed" />}
+                                    {item.status === 'Researching' && (
+                                        <Circle size={12} className="text-slate-400 border-dashed" />
+                                    )}
                                     {item.status}
                                 </div>
                             </div>
-                            
+
                             <h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3>
-                            <p className="text-sm text-slate-600 leading-relaxed mb-6 flex-1">
-                                {item.description}
-                            </p>
+                            <p className="text-sm text-slate-600 leading-relaxed mb-6 flex-1">{item.description}</p>
 
                             <ul className="space-y-3 pt-6 border-t border-slate-200">
                                 {item.items.map((sub, idx) => (
@@ -81,7 +81,7 @@ function RoadmapList() {
 export default function RoadmapPage() {
     return (
         <main className="min-h-screen bg-white">
-            <MarketingPageHeader 
+            <MarketingPageHeader
                 title="Our vision for the future"
                 description="See what we're working on and what's coming next to Mentrily. We're building the future of technical education."
             />

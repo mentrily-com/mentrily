@@ -85,7 +85,7 @@ export default function ExamResultPage({ params }: { params: Promise<{ sessionId
 
     if (loading) {
         return (
-            <div className="min-h-screen flex flex-col bg-white overflow-hidden">
+            <div className="h-full flex flex-col bg-white overflow-hidden">
                 <div className="flex-1 overflow-hidden">
                     <CoursePlayerSkeleton hasSidebar={true} isExamMode={false} />
                 </div>
@@ -126,7 +126,7 @@ export default function ExamResultPage({ params }: { params: Promise<{ sessionId
     }
 
     return (
-        <div className="h-screen bg-white flex flex-col overflow-hidden">
+        <div className="h-full bg-white flex flex-col overflow-hidden">
             {/* Header with Score Info */}
             <div className="bg-white border-b border-slate-100 px-4 py-3 sm:px-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex min-w-0 items-start gap-3">

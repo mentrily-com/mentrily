@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useRef, useState, useCallback } from 'react';
+import { useModalA11y } from '@/hooks/useModalA11y';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import {
@@ -500,6 +501,13 @@ export default function DashboardSidebar({
             : null;
     });
     const collapsed = collapsedProp ?? localCollapsed;
+    const panelRef = useRef<HTMLElement>(null);
+    // This <aside> is always mounted: on lg+ it's persistent page chrome, and
+    // only on mobile does `mobileOpen` turn it into an overlay drawer. That
+    // flag can only become true from the mobile-only hamburger button, so
+    // gating the trap on it (rather than a viewport check) is exactly the
+    // condition we want — never armed on desktop, never skipped on mobile.
+    useModalA11y(panelRef, mobileOpen, onMobileClose);
 
     const setCollapsed = useCallback(
         (next: boolean) => {
@@ -544,14 +552,6 @@ export default function DashboardSidebar({
         () => getNavGroups(role, sessionUser as Record<string, unknown> | null),
         [role, sessionUser],
     );
-    const hasCreatorRole =
-        String(sessionUser?.role || '').toUpperCase() === 'ADMIN' ||
-        String(sessionUser?.role || '').toUpperCase() === 'TEACHER';
-    const isCreatorRole = role === 'teacher' || role === 'admin';
-    const isCreatorSessionPending = Boolean(pathname?.startsWith('/dashboard/creator')) && !hasCreatorRole;
-    const isPlanPending = isCreatorRole && !sessionUser?.plan;
-    const showNavSkeleton = isCreatorSessionPending || isPlanPending;
-
     const isActive = useCallback(
         (path: string) => {
             if (!pathname) return false;
@@ -575,6 +575,7 @@ export default function DashboardSidebar({
             {/* Mobile Overlay */}
             {mobileOpen && (
                 <div
+                    aria-hidden="true"
                     className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[998] lg:hidden animate-in fade-in"
                     onClick={onMobileClose}
                 />
@@ -582,7 +583,12 @@ export default function DashboardSidebar({
 
             {/* Sidebar */}
             <aside
-                className={`fixed top-0 left-0 h-full bg-white border-r z-[999] flex flex-col transition-transform duration-250 ease-in-out lg:translate-x-0 ${mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'} ${collapsed ? '' : ''}`}
+                ref={panelRef}
+                role={mobileOpen ? 'dialog' : undefined}
+                aria-modal={mobileOpen || undefined}
+                aria-label="Navigation"
+                tabIndex={-1}
+                className={`fixed top-0 left-0 h-full bg-white border-r z-[999] flex flex-col transition-transform duration-250 ease-in-out lg:translate-x-0 ${mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'} ${collapsed ? '' : ''} focus:outline-none`}
                 style={{
                     width: collapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)',
                     borderColor: 'var(--color-border-subtle)',
@@ -619,23 +625,16 @@ export default function DashboardSidebar({
 
                 {/* ── Navigation groups ── */}
                 <nav className="flex-1 overflow-y-auto py-3 px-2.5 space-y-5">
-                    {showNavSkeleton ? (
-                        <div className="space-y-5 px-1.5 py-1">
-                            {[0, 1, 2].map((groupIndex) => (
-                                <div key={groupIndex}>
-                                    {!collapsed && <div className="mb-3 h-3 w-20 rounded bg-slate-100" />}
-                                    <div className="space-y-2">
-                                        {[0, 1, 2].map((itemIndex) => (
-                                            <div
-                                                key={itemIndex}
-                                                className="h-10 rounded-lg bg-slate-100/80 animate-pulse"
-                                            />
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
+                    {
+                        // `role` already falls back to a sensible default (e.g. 'teacher'
+                        // for any /dashboard/creator/* path) before the session finishes
+                        // resolving, so navGroups is always meaningful -- no need to blank
+                        // the sidebar to a placeholder while session/plan details are still
+                        // loading. That kept flashing the nav to a skeleton on every load
+                        // even though, for the common case, nothing about it was about to
+                        // change; at most a role/plan-gated item or two appears once the
+                        // session resolves, which reads as a minor addition rather than a
+                        // jarring skeleton-to-content swap.
                         navGroups.map((group, gi) => {
                             const visibleItems = group.items.filter((item) => !item.hidden);
 
@@ -750,7 +749,7 @@ export default function DashboardSidebar({
                                 </div>
                             );
                         })
-                    )}
+                    }
 
                     {/* ── Playground section ── */}
                     <div className="pt-2">

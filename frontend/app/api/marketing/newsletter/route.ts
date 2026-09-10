@@ -15,8 +15,8 @@ export async function POST(request: Request) {
         const LOGO_URL = new URL('/android-chrome-512x512.png', siteConfig.url).toString();
         const brandColor = '#008D98';
 
-        const fromEmail = process.env.RESEND_SENDER_EMAIL?.includes('mentrily.com') 
-            ? `Mentrily <newsletter@mentrily.com>` 
+        const fromEmail = process.env.RESEND_SENDER_EMAIL?.includes('mentrily.com')
+            ? `Mentrily <newsletter@mentrily.com>`
             : `Mentrily <newsletter@resend.dev>`;
 
         // 1. Add/Update contact with the Newsletter Topic
@@ -28,16 +28,19 @@ export async function POST(request: Request) {
                 topics: [
                     {
                         id: '69a48a75-5e0f-4035-be8a-51315032cd8b',
-                        subscription: 'opt_in'
-                    }
-                ]
+                        subscription: 'opt_in',
+                    },
+                ],
             });
         } catch (contactError: any) {
             console.error('Error managing contact:', contactError);
-            return NextResponse.json({ 
-                error: 'Failed to manage contact. Check API key permissions.', 
-                details: contactError.message 
-            }, { status: 500 });
+            return NextResponse.json(
+                {
+                    error: 'Failed to manage contact. Check API key permissions.',
+                    details: contactError.message,
+                },
+                { status: 500 },
+            );
         }
 
         // 2. Send the email - the placeholder {{{RESEND_UNSUBSCRIBE_URL}}} will now be

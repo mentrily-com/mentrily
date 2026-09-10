@@ -7,6 +7,7 @@ import {
 import { SupabaseService } from '../../services/supabase/supabase.service';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Redis } from 'ioredis';
+import { randomBytes, randomInt } from 'crypto';
 
 @Injectable()
 export class TestCodeRotationService implements OnModuleInit, OnModuleDestroy {
@@ -74,18 +75,25 @@ export class TestCodeRotationService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  /**
+   * Rotating test codes are the sole credential `verifyExamTestCode` checks
+   * before granting exam access, so they must be unguessable. `Math.random`
+   * is a seeded PRNG whose internal state can be recovered from a handful of
+   * observed outputs — meaning a candidate who legitimately receives one code
+   * could predict later ones. `randomInt` draws from the CSPRNG instead.
+   */
   private generateRandomNumericCode(length: number): string {
     const normalizedLength = Math.min(10, Math.max(4, length));
     let value = '';
     for (let i = 0; i < normalizedLength; i += 1) {
-      value += Math.floor(Math.random() * 10).toString();
+      value += randomInt(0, 10).toString();
     }
     return value;
   }
 
   private async tryAcquireLock(): Promise<boolean> {
     const lockKey = 'exam:test-code-rotation:lock';
-    const lockValue = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const lockValue = `${Date.now()}-${randomBytes(9).toString('hex')}`;
     const result = await this.redis.set(
       lockKey,
       lockValue,
@@ -105,31 +113,94 @@ export class TestCodeRotationService implements OnModuleInit, OnModuleDestroy {
     if (!gotLock) return;
 
     const now = Date.now();
-
     const rotatingExams = await this.getRotatingExamCatalog();
+    const nextCatalog: typeof rotatingExams = [];
+    let catalogChanged = false;
 
     for (const exam of rotatingExams) {
       const intervalMinutes = Number(exam.rotationInterval || 0);
-      if (!intervalMinutes || intervalMinutes <= 0) continue;
+      if (!intervalMinutes || intervalMinutes <= 0) {
+        nextCatalog.push(exam);
+        continue;
+      }
 
-      const dueAt =
-        new Date(exam.updatedAt).getTime() + intervalMinutes * 60 * 1000;
-      if (now < dueAt) continue;
+      // Due time is based on when the code last actually rotated, not
+      // `updatedAt` -- any unrelated write to the exam bumps `updatedAt`
+      // and would otherwise silently push rotation back out.
+      const baseTime = exam.codeRotatedAt
+        ? new Date(exam.codeRotatedAt).getTime()
+        : new Date(exam.createdAt).getTime();
+      const dueAt = baseTime + intervalMinutes * 60 * 1000;
+
+      if (now < dueAt) {
+        nextCatalog.push(exam);
+        continue;
+      }
 
       const currentCode = String(exam.testCode || '');
-      const nextCode = this.generateRandomNumericCode(currentCode.length || 5);
+      const rotated = await this.rotateOneExamCode(exam.id, currentCode);
+      catalogChanged = true;
 
-      if (nextCode === currentCode) continue;
+      if (!rotated) {
+        // Either a teacher edited this exam's code/rotation settings since
+        // the catalog snapshot was cached (optimistic write found the code
+        // had already changed), or every generated candidate collided with
+        // another exam's current code. Drop it from the cache instead of
+        // retrying it every tick until the cache naturally expires.
+        continue;
+      }
 
-      await this.prisma.exam.update({
-        where: { id: exam.id },
-        data: { testCode: nextCode },
+      nextCatalog.push({
+        ...exam,
+        testCode: rotated.testCode,
+        codeRotatedAt: rotated.codeRotatedAt,
       });
-
-      await this.redis.del(this.rotatingExamCatalogKey);
-
       this.logger.log(`Rotated test code for exam ${exam.slug}`);
     }
+
+    if (catalogChanged) {
+      await this.redis.set(
+        this.rotatingExamCatalogKey,
+        JSON.stringify(nextCatalog),
+        'EX',
+        this.rotatingExamCatalogTtlSec,
+      );
+    }
+  }
+
+  /**
+   * Optimistic write guarded by the code this exam had when the catalog was
+   * snapshotted -- if a teacher changed it in the meantime, `updateMany`
+   * matches zero rows and we back off instead of clobbering their edit.
+   * testCode is globally unique, so a freshly generated candidate can
+   * collide with another exam's current code; retry a few times with a new
+   * candidate rather than failing the whole tick.
+   */
+  private async rotateOneExamCode(
+    examId: string,
+    currentCode: string,
+  ): Promise<{ testCode: string; codeRotatedAt: Date } | null> {
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const nextCode = this.generateRandomNumericCode(currentCode.length || 5);
+      if (nextCode === currentCode) continue;
+
+      const rotatedAt = new Date();
+      try {
+        const result = await this.prisma.exam.updateMany({
+          where: { id: examId, testCode: currentCode },
+          data: { testCode: nextCode, codeRotatedAt: rotatedAt },
+        });
+        if (result.count === 0) return null;
+        return { testCode: nextCode, codeRotatedAt: rotatedAt };
+      } catch (error) {
+        if (error?.code === 'P2002') continue; // code collision -- retry
+        throw error;
+      }
+    }
+    this.logger.warn(
+      `Could not find a free test code for exam ${examId} after 5 attempts`,
+    );
+    return null;
   }
 
   private async getRotatingExamCatalog(): Promise<
@@ -138,7 +209,8 @@ export class TestCodeRotationService implements OnModuleInit, OnModuleDestroy {
       slug: string;
       testCode: string | null;
       rotationInterval: number | null;
-      updatedAt: string | Date;
+      createdAt: string | Date;
+      codeRotatedAt: string | Date | null;
     }>
   > {
     const cached = await this.redis.get(this.rotatingExamCatalogKey);
@@ -158,7 +230,8 @@ export class TestCodeRotationService implements OnModuleInit, OnModuleDestroy {
         slug: true,
         testCode: true,
         rotationInterval: true,
-        updatedAt: true,
+        createdAt: true,
+        codeRotatedAt: true,
       },
     });
 

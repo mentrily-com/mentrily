@@ -240,7 +240,10 @@ export default function ExamSidebar({
                 <div className="fixed left-0 top-1/2 -translate-y-1/2 z-[100]">
                     <button
                         onClick={onToggleHidden}
-                        className="flex items-center justify-center w-8 h-16 bg-white border border-slate-200 rounded-r-full shadow-lg text-slate-500 hover:text-[var(--brand)] transition-all hover:scale-105 hover:pr-2 active:scale-95 cursor-pointer"
+                        // `hover:pr-2` tweened padding, a layout property, so hovering this
+                        // handle reflowed on every frame -- during a live proctored exam.
+                        // The scale already carries the affordance and is composited.
+                        className="flex items-center justify-center w-8 h-16 bg-white border border-slate-200 rounded-r-full shadow-lg text-slate-500 transition-[transform,color] duration-200 hover:text-[var(--brand)] hover:scale-105 active:scale-95 cursor-pointer"
                         title="Show Sidebar"
                     >
                         <svg

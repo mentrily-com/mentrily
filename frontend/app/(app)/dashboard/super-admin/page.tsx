@@ -19,10 +19,14 @@ import {
 } from 'lucide-react';
 import { SuperAdminService } from '@/services/api/SuperAdminService';
 import { useRequireAuth } from '@/hooks/requireAuthClient';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
-import DOMPurify from 'isomorphic-dompurify';
+import SuperAdminDashboardSkeleton from '@/app/components/Skeletons/SuperAdminDashboardSkeleton';
+import EmptyState from '@/app/components/Common/EmptyState';
+import { sanitizeProse } from '@/lib/sanitize';
+import { useToast } from '@/app/components/Common/Toast';
+import AlertModal from '@/app/components/Common/AlertModal';
 
 export default function SuperAdminDashboardPage() {
+    const { error: toastError } = useToast();
     const [statsData, setStatsData] = useState<any>(null);
     const [organizations, setOrganizations] = useState<any[]>([]);
     const [bugReports, setBugReports] = useState<any[]>([]);
@@ -32,6 +36,12 @@ export default function SuperAdminDashboardPage() {
     const [loadingBugs, setLoadingBugs] = useState(true);
     const [loading, setLoading] = useState(true);
     const [authChecked, setAuthChecked] = useState(false);
+    const [confirmConfig, setConfirmConfig] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        onConfirm: () => void;
+    } | null>(null);
     const isSignedIn = useRequireAuth('/login');
 
     useEffect(() => {
@@ -105,7 +115,7 @@ export default function SuperAdminDashboardPage() {
     const anyCriticalOrg = organizations.some((org: any) => org.hasCriticalUsage);
     const showHealthAlert = Number(statsData?.failedPayments30d || 0) > 0 || anyCriticalOrg;
 
-    if (!authChecked || loading) return <DashboardSkeleton type="main" userRole="super-admin" />;
+    if (!authChecked || loading) return <SuperAdminDashboardSkeleton />;
 
     return (
         <div className="space-y-6 text-slate-900 selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)] animate-fade-in">
@@ -125,14 +135,15 @@ export default function SuperAdminDashboardPage() {
                                 System infrastructure and multi-tenant management.
                             </h1>
                             <p className="max-w-2xl text-sm leading-7 text-slate-600 lg:text-base">
-                                Monitor organizations, review billing health, and manage platform-wide operations from one unified control center.
+                                Monitor organizations, review billing health, and manage platform-wide operations from
+                                one unified control center.
                             </p>
                         </div>
 
                         <div className="flex flex-wrap items-center gap-3">
                             <Link
                                 href="/dashboard/super-admin/organizations/new"
-                                className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-[0_14px_30px_rgba(26,86,219,0.24)] transition-all duration-200 hover:brightness-110"
+                                className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-[0_14px_30px_rgba(0,141,152,0.24)] transition-all duration-200 hover:brightness-110"
                             >
                                 <Plus size={15} />
                                 Deploy New Organization
@@ -144,7 +155,9 @@ export default function SuperAdminDashboardPage() {
                             {globalStats.map((card) => (
                                 <div key={card.label} className="rounded-2xl border border-slate-200 bg-white p-4">
                                     <div className="flex items-center justify-between gap-3">
-                                        <div className={`inline-flex h-10 w-10 items-center justify-center rounded-xl ${card.chipClass}`}>
+                                        <div
+                                            className={`inline-flex h-10 w-10 items-center justify-center rounded-xl ${card.chipClass}`}
+                                        >
                                             {card.icon}
                                         </div>
                                         <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
@@ -154,7 +167,9 @@ export default function SuperAdminDashboardPage() {
                                     <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
                                         {card.label}
                                     </p>
-                                    <p className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">{card.value}</p>
+                                    <p className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">
+                                        {card.value}
+                                    </p>
                                 </div>
                             ))}
                         </div>
@@ -164,7 +179,9 @@ export default function SuperAdminDashboardPage() {
                     <div className="rounded-[24px] border border-slate-200 bg-slate-950 p-5 text-white shadow-[0_18px_40px_rgba(15,23,42,0.28)]">
                         <div className="flex items-start justify-between gap-3">
                             <div>
-                                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Plan Distribution</p>
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                                    Plan Distribution
+                                </p>
                                 <h2 className="mt-2 text-2xl font-semibold tracking-tight">Organization tiers</h2>
                             </div>
                         </div>
@@ -176,7 +193,9 @@ export default function SuperAdminDashboardPage() {
                                     <div key={plan} className="space-y-2">
                                         <div className="flex items-center justify-between gap-3 text-xs font-medium text-slate-300">
                                             <span>{plan}</span>
-                                            <span>{String(count)} ({percent}%)</span>
+                                            <span>
+                                                {String(count)} ({percent}%)
+                                            </span>
                                         </div>
                                         <div className="h-2 rounded-full bg-white/10">
                                             <div
@@ -225,7 +244,9 @@ export default function SuperAdminDashboardPage() {
                 <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.06)]">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                         <div>
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Directory</p>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                                Directory
+                            </p>
                             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
                                 Manage every organization from one board.
                             </h2>
@@ -248,15 +269,22 @@ export default function SuperAdminDashboardPage() {
                                 <OrgRow
                                     key={org.id}
                                     org={org}
-                                    onDelete={async () => {
-                                        if (confirm(`Are you sure you want to delete ${org.name}?`)) {
-                                            try {
-                                                await SuperAdminService.deleteOrganization(org.id);
-                                                setOrganizations((prev) => prev.filter((o) => o.id !== org.id));
-                                            } catch (e) {
-                                                alert('Failed to delete organization');
-                                            }
-                                        }
+                                    onDelete={() => {
+                                        setConfirmConfig({
+                                            isOpen: true,
+                                            title: 'Delete Organization',
+                                            message: `Are you sure you want to delete ${org.name}?`,
+                                            onConfirm: async () => {
+                                                try {
+                                                    await SuperAdminService.deleteOrganization(org.id);
+                                                    setOrganizations((prev) => prev.filter((o) => o.id !== org.id));
+                                                } catch (e) {
+                                                    toastError('Failed to delete organization');
+                                                } finally {
+                                                    setConfirmConfig(null);
+                                                }
+                                            },
+                                        });
                                     }}
                                     onToggleStatus={async () => {
                                         try {
@@ -265,32 +293,21 @@ export default function SuperAdminDashboardPage() {
                                                 status: newStatus,
                                             });
                                             setOrganizations((prev) =>
-                                                prev.map((o) =>
-                                                    o.id === org.id ? { ...o, status: newStatus } : o,
-                                                ),
+                                                prev.map((o) => (o.id === org.id ? { ...o, status: newStatus } : o)),
                                             );
                                         } catch (e) {
-                                            alert('Failed to update status');
+                                            toastError('Failed to update status');
                                         }
                                     }}
                                 />
                             ))
                         ) : (
-                            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 p-9 text-center">
-                                <h3 className="text-lg font-semibold text-slate-900">No organizations found.</h3>
-                                <p className="mt-2 text-sm leading-6 text-slate-600">
-                                    Deploy your first organization to get started.
-                                </p>
-                                <div className="mt-5">
-                                    <Link
-                                        href="/dashboard/super-admin/organizations/new"
-                                        className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white"
-                                    >
-                                        <Plus size={14} />
-                                        Deploy Organization
-                                    </Link>
-                                </div>
-                            </div>
+                            <EmptyState
+                                icon={<Building2 size={24} />}
+                                title="No organizations found"
+                                description="Deploy your first organization to get started."
+                                action={{ label: 'Deploy Organization', href: '/dashboard/super-admin/organizations/new' }}
+                            />
                         )}
                     </div>
                 </section>
@@ -299,7 +316,9 @@ export default function SuperAdminDashboardPage() {
                 <div className="space-y-6">
                     <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_14px_40px_rgba(15,23,42,0.06)]">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Billing</p>
-                        <h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">Recent Billing Events</h2>
+                        <h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">
+                            Recent Billing Events
+                        </h2>
                         <div className="mt-5 space-y-3">
                             {(statsData?.recentEvents || []).slice(0, 6).map((event: any) => (
                                 <div key={event.id} className="rounded-xl border border-slate-200 bg-slate-50 p-3.5">
@@ -329,7 +348,9 @@ export default function SuperAdminDashboardPage() {
             <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.06)]">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Issue tracker</p>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                            Issue tracker
+                        </p>
                         <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">Reported Bugs</h2>
                         <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
                             User-submitted issues from student, teacher, and organization admin profiles.
@@ -374,7 +395,9 @@ export default function SuperAdminDashboardPage() {
                                     <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                                         <div className="min-w-0">
                                             <div className="flex flex-wrap items-center gap-2">
-                                                <h3 className="truncate text-base font-semibold text-slate-950">{bug.title}</h3>
+                                                <h3 className="truncate text-base font-semibold text-slate-950">
+                                                    {bug.title}
+                                                </h3>
                                                 <span
                                                     className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${bug.status === 'FIXED' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}
                                                 >
@@ -412,12 +435,16 @@ export default function SuperAdminDashboardPage() {
                                                             setBugReports((prev) =>
                                                                 prev.map((b) =>
                                                                     b.id === bug.id
-                                                                        ? { ...b, status: 'FIXED', fixedAt: new Date().toISOString() }
+                                                                        ? {
+                                                                              ...b,
+                                                                              status: 'FIXED',
+                                                                              fixedAt: new Date().toISOString(),
+                                                                          }
                                                                         : b,
                                                                 ),
                                                             );
                                                         } catch (error) {
-                                                            alert('Failed to mark as fixed');
+                                                            toastError('Failed to mark as fixed');
                                                         }
                                                     }}
                                                     className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100"
@@ -427,14 +454,24 @@ export default function SuperAdminDashboardPage() {
                                                 </button>
                                             )}
                                             <button
-                                                onClick={async () => {
-                                                    if (!confirm('Delete this bug report?')) return;
-                                                    try {
-                                                        await SuperAdminService.deleteBugReport(bug.id);
-                                                        setBugReports((prev) => prev.filter((b) => b.id !== bug.id));
-                                                    } catch (error) {
-                                                        alert('Failed to delete bug report');
-                                                    }
+                                                onClick={() => {
+                                                    setConfirmConfig({
+                                                        isOpen: true,
+                                                        title: 'Delete Bug Report',
+                                                        message: 'Delete this bug report?',
+                                                        onConfirm: async () => {
+                                                            try {
+                                                                await SuperAdminService.deleteBugReport(bug.id);
+                                                                setBugReports((prev) =>
+                                                                    prev.filter((b) => b.id !== bug.id),
+                                                                );
+                                                            } catch (error) {
+                                                                toastError('Failed to delete bug report');
+                                                            } finally {
+                                                                setConfirmConfig(null);
+                                                            }
+                                                        },
+                                                    });
                                                 }}
                                                 className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700 transition-colors hover:bg-rose-100"
                                             >
@@ -457,7 +494,9 @@ export default function SuperAdminDashboardPage() {
                         <div className="flex items-start justify-between gap-4 mb-6">
                             <div className="min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                    <h3 className="text-2xl font-semibold tracking-tight text-slate-950">{selectedBug.title}</h3>
+                                    <h3 className="text-2xl font-semibold tracking-tight text-slate-950">
+                                        {selectedBug.title}
+                                    </h3>
                                     <span
                                         className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${selectedBug.status === 'FIXED' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}
                                     >
@@ -487,7 +526,7 @@ export default function SuperAdminDashboardPage() {
                         <div
                             className="prose prose-slate max-w-none text-sm font-medium text-slate-700"
                             dangerouslySetInnerHTML={{
-                                __html: DOMPurify.sanitize(String(selectedBug.description || '')),
+                                __html: sanitizeProse(selectedBug.description),
                             }}
                         />
 
@@ -551,6 +590,16 @@ export default function SuperAdminDashboardPage() {
                     </div>
                 </div>
             )}
+
+            <AlertModal
+                isOpen={!!confirmConfig?.isOpen}
+                title={confirmConfig?.title || ''}
+                message={confirmConfig?.message || ''}
+                type="danger"
+                confirmLabel="Delete"
+                onConfirm={() => confirmConfig?.onConfirm()}
+                onCancel={() => setConfirmConfig(null)}
+            />
         </div>
     );
 }
@@ -599,7 +648,9 @@ function OrgRow({ org, onDelete, onToggleStatus }: any) {
                             {usageBars.map((bar) => (
                                 <div key={bar.label}>
                                     <div className="flex items-center justify-between mb-0.5">
-                                        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">{bar.label}</span>
+                                        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                                            {bar.label}
+                                        </span>
                                         <span className="text-[10px] font-semibold text-slate-500">{bar.value}%</span>
                                     </div>
                                     <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">

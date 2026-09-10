@@ -3,7 +3,7 @@
 import React from 'react';
 import EnrollmentModal from '@/app/components/Common/EnrollmentModal';
 import CourseDetailsView from '@/app/components/Features/Courses/CourseDetailsView';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import CreatorCoursesSkeleton from '@/app/components/Skeletons/CreatorCoursesSkeleton';
 import StudioModuleList from '@/app/(app)/dashboard/creator/_components/StudioModuleList';
 import StudioRecentActivity from '@/app/(app)/dashboard/creator/_components/StudioRecentActivity';
 import { useStudioDashboard } from '@/app/(app)/dashboard/creator/_components/useStudioDashboard';
@@ -27,7 +27,7 @@ export default function CreatorCoursesPage() {
     const { role } = usePlan();
     const dashboardRole = role === 'ADMIN' ? 'admin' : 'teacher';
 
-    if (loading) return <DashboardSkeleton type="list" userRole={dashboardRole} />;
+    if (loading) return <CreatorCoursesSkeleton />;
 
     const canCreateCourses = userData?.features?.canCreateCourses !== false;
 

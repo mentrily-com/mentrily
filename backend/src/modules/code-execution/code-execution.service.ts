@@ -150,12 +150,7 @@ export class CodeExecutionService {
     }
   }
 
-  async publicRunCode(
-    language: string,
-    code: string,
-    stdin: string,
-    req: any,
-  ) {
+  async publicRunCode(language: string, code: string, stdin: string, req: any) {
     this.validatePublicExecutionPayload(language, code, stdin);
     const rateLimit = await this.consumePublicRun(this.getClientIp(req));
     const result = await this.runCode(language, code, stdin || '');
@@ -167,10 +162,13 @@ export class CodeExecutionService {
   }
 
   private normalizePublicQuestionPayload(body: any) {
-    const rawQuestion = body?.question && typeof body.question === 'object'
-      ? body.question
-      : body;
-    const title = String(rawQuestion?.title || body?.title || 'Shared coding challenge')
+    const rawQuestion =
+      body?.question && typeof body.question === 'object'
+        ? body.question
+        : body;
+    const title = String(
+      rawQuestion?.title || body?.title || 'Shared coding challenge',
+    )
       .trim()
       .slice(0, 160);
     const description = String(
@@ -248,8 +246,7 @@ export class CodeExecutionService {
     if (existingForIp) {
       throw new HttpException(
         {
-          message:
-            'Only one active shared question can be created per IP.',
+          message: 'Only one active shared question can be created per IP.',
           slug: existingForIp.slug,
           expiresAt: existingForIp.expiresAt,
         },

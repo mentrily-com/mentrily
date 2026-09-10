@@ -11,7 +11,11 @@ function slugifySegment(input: string): string {
     .slice(0, 40);
 }
 
-export function generateRandomSlug(title?: string, prefix = 'item', length = 10) {
+export function generateRandomSlug(
+  title?: string,
+  prefix = 'item',
+  length = 10,
+) {
   const base = slugifySegment(title || '') || prefix;
   const createSuffix = customAlphabet(slugAlphabet, length);
   return `${base}-${createSuffix()}`;

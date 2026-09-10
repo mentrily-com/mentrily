@@ -80,7 +80,9 @@ describe('AdminService invite flow', () => {
         { provide: QuotaService, useValue: quotaService },
         {
           provide: MailService,
-          useValue: { sendOrgInviteEmail: jest.fn().mockResolvedValue(undefined) },
+          useValue: {
+            sendOrgInviteEmail: jest.fn().mockResolvedValue(undefined),
+          },
         },
         {
           provide: 'default_IORedisModuleConnectionToken',
@@ -115,10 +117,7 @@ describe('AdminService invite flow', () => {
       email: 'newuser@example.com',
       role: 'TEACHER',
     });
-    expect(quotaService.checkTeacherSeatQuota).toHaveBeenCalledWith(
-      'org_1',
-      1,
-    );
+    expect(quotaService.checkTeacherSeatQuota).toHaveBeenCalledWith('org_1', 1);
     expect(prisma.pendingInvite.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
         email: 'newuser@example.com',

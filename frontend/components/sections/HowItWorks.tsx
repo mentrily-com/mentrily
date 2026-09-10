@@ -121,12 +121,14 @@ export default function HowItWorks() {
                                                 boxShadow: '0 4px 20px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)',
                                             }}
                                             onMouseEnter={(e) => {
-                                                e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,141,152,0.12), 0 2px 8px rgba(0,0,0,0.04)';
+                                                e.currentTarget.style.boxShadow =
+                                                    '0 8px 32px rgba(0,141,152,0.12), 0 2px 8px rgba(0,0,0,0.04)';
                                                 e.currentTarget.style.borderColor = 'rgba(0,141,152,0.2)';
                                                 e.currentTarget.style.transform = 'translateY(-2px)';
                                             }}
                                             onMouseLeave={(e) => {
-                                                e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)';
+                                                e.currentTarget.style.boxShadow =
+                                                    '0 4px 20px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)';
                                                 e.currentTarget.style.borderColor = 'rgba(226,232,240,0.8)';
                                                 e.currentTarget.style.transform = 'translateY(0)';
                                             }}
@@ -157,10 +159,7 @@ export default function HowItWorks() {
                                     >
                                         {step.description}
                                     </p>
-                                    <p
-                                        className="text-xs"
-                                        style={{ color: '#94A3B8' }}
-                                    >
+                                    <p className="text-xs" style={{ color: '#94A3B8' }}>
                                         {step.detail}
                                     </p>
                                 </motion.div>

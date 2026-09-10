@@ -20,10 +20,7 @@ type BrandLockupProps = {
 export function isDefaultBrand(orgName?: string | null, orgLogo?: string | null) {
     return (
         (!orgName || orgName === siteConfig.name) &&
-        (!orgLogo ||
-            orgLogo === siteConfig.logo ||
-            orgLogo === '/brand/mentrily-logo.svg' ||
-            orgLogo === '/logo.svg')
+        (!orgLogo || orgLogo === siteConfig.logo || orgLogo === '/brand/mentrily-logo.svg' || orgLogo === '/logo.svg')
     );
 }
 

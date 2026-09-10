@@ -18,9 +18,11 @@ import {
 import { useRouter } from 'next/navigation';
 
 import { SuperAdminService } from '@/services/api/SuperAdminService';
+import { useToast } from '@/app/components/Common/Toast';
 
 export default function CreateOrganizationView() {
     const router = useRouter();
+    const { error: toastError } = useToast();
     const [isSaving, setIsSaving] = useState(false);
     const [formData, setFormData] = useState<{
         name: string;
@@ -84,7 +86,7 @@ export default function CreateOrganizationView() {
     });
 
     const handleSave = async () => {
-        if (!formData.name) return alert('Organization name is required');
+        if (!formData.name) return toastError('Organization name is required');
 
         setIsSaving(true);
         try {
@@ -120,16 +122,16 @@ export default function CreateOrganizationView() {
                 country: formData.country,
             });
             router.push('/dashboard/super-admin/organizations');
-        } catch (error: any) {
-            console.error('Failed to create organization', error);
-            alert(error.message || 'Failed to create organization');
+        } catch (err: any) {
+            console.error('Failed to create organization', err);
+            toastError(err.message || 'Failed to create organization');
         } finally {
             setIsSaving(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans">
+        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
             {/* Navbar set to Super Admin context */}
 
             <main className="max-w-[1440px] mx-auto px-6 lg:px-12 py-10 animate-fade-in">
@@ -550,9 +552,7 @@ export default function CreateOrganizationView() {
                                         <PermissionToggle
                                             label="Crisp support chat"
                                             active={formData.crispChat}
-                                            onClick={() =>
-                                                setFormData({ ...formData, crispChat: !formData.crispChat })
-                                            }
+                                            onClick={() => setFormData({ ...formData, crispChat: !formData.crispChat })}
                                         />
                                     </div>
                                 </div>
@@ -653,11 +653,40 @@ function SettingsSection({ icon, title, desc, children }: any) {
     );
 }
 
+const FORM_CONTROL_TAGS = new Set(['input', 'select', 'textarea']);
+
+// Finds the actual form control inside `children` (which is sometimes the
+// control directly, sometimes wrapped one level in an icon `<div>`) and
+// clones it with the given id, so the <label> below can reference it via
+// htmlFor -- without that, every field in this form was visually labeled
+// but not programmatically associated, so a screen reader announces them
+// as unlabeled inputs. Recurses up to 2 levels since that covers every
+// shape used in this file; falls back to rendering children unmodified
+// (no crash, just no aria wiring) if nothing matches.
+function withControlId(node: React.ReactNode, id: string, depth = 2): React.ReactNode {
+    if (depth < 0 || !React.isValidElement(node)) return node;
+    const element = node as React.ReactElement<any>;
+    if (typeof element.type === 'string' && FORM_CONTROL_TAGS.has(element.type)) {
+        return React.cloneElement(element, { id: element.props.id || id });
+    }
+    const kids = element.props?.children;
+    if (!kids) return node;
+    return React.cloneElement(
+        element,
+        {},
+        React.Children.map(kids, (child) => withControlId(child, id, depth - 1)),
+    );
+}
+
 function InputGroup({ label, children }: any) {
+    const reactId = React.useId();
+    const controlId = `input-group-${reactId}`;
     return (
         <div className="space-y-2 w-full">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{label}</label>
-            {children}
+            <label htmlFor={controlId} className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                {label}
+            </label>
+            {withControlId(children, controlId)}
         </div>
     );
 }

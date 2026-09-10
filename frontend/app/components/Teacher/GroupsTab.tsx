@@ -21,6 +21,7 @@ import {
     AlertCircle,
 } from 'lucide-react';
 import BulkImportReportModal from '@/app/components/Common/BulkImportReportModal';
+import AlertModal from '@/app/components/Common/AlertModal';
 
 interface GroupsTabProps {
     onEnrollGroupInCourse?: (groupId: string, groupName: string) => void;
@@ -32,6 +33,13 @@ export default function GroupsTab({ onEnrollGroupInCourse }: GroupsTabProps) {
     const [isLoading, setIsLoading] = useState(true);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [manageGroup, setManageGroup] = useState<any>(null);
+    const [alertConfig, setAlertConfig] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        type?: 'danger' | 'warning' | 'info';
+        onConfirm: () => void;
+    }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
 
     const loadGroups = async () => {
         try {
@@ -49,15 +57,23 @@ export default function GroupsTab({ onEnrollGroupInCourse }: GroupsTabProps) {
         loadGroups();
     }, []);
 
-    const handleDeleteGroup = async (groupId: string) => {
-        if (!confirm("Delete this group? Students won't be removed from enrolled courses.")) return;
-        try {
-            await TeacherService.deleteGroup(groupId);
-            success('Group deleted');
-            loadGroups();
-        } catch (err) {
-            toastError('Failed to delete group');
-        }
+    const handleDeleteGroup = (groupId: string) => {
+        setAlertConfig({
+            isOpen: true,
+            title: 'Delete Group?',
+            message: "Delete this group? Students won't be removed from enrolled courses.",
+            type: 'danger',
+            onConfirm: async () => {
+                setAlertConfig((prev) => ({ ...prev, isOpen: false }));
+                try {
+                    await TeacherService.deleteGroup(groupId);
+                    success('Group deleted');
+                    loadGroups();
+                } catch (err) {
+                    toastError('Failed to delete group');
+                }
+            },
+        });
     };
 
     if (isLoading) {
@@ -191,6 +207,16 @@ export default function GroupsTab({ onEnrollGroupInCourse }: GroupsTabProps) {
                     />,
                     document.body,
                 )}
+
+            <AlertModal
+                isOpen={alertConfig.isOpen}
+                title={alertConfig.title}
+                message={alertConfig.message}
+                type={alertConfig.type || 'danger'}
+                confirmLabel="Delete"
+                onConfirm={alertConfig.onConfirm}
+                onCancel={() => setAlertConfig((prev) => ({ ...prev, isOpen: false }))}
+            />
         </>
     );
 }
@@ -231,6 +257,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                         if (step === 'students') onCreated();
                         else onClose();
                     }}
+                    aria-label="Close"
                     className="absolute top-10 right-10 w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all hover:scale-110 active:scale-95"
                 >
                     <X size={20} strokeWidth={3} />
@@ -333,6 +360,7 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
                     onClick={() => {
                         onUpdated();
                     }}
+                    aria-label="Close"
                     className="absolute top-10 right-10 w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all hover:scale-110 active:scale-95"
                 >
                     <X size={20} strokeWidth={3} />

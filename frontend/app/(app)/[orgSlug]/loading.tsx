@@ -1,4 +1,3 @@
-'use client';
 import PublicPlaygroundShell from '@/app/components/Playground/PublicPlaygroundShell';
 import PlaygroundSkeleton from '@/app/components/Skeletons/PlaygroundSkeleton';
 
