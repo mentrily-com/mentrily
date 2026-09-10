@@ -1,5 +1,3 @@
-'use client';
-
 import GlobalUsersSkeleton from '@/app/components/Skeletons/GlobalUsersSkeleton';
 
 // The route-transition fallback has to be the same visual this page renders

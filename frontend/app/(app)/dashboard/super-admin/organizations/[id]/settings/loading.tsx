@@ -1,5 +1,3 @@
-'use client';
-
 import OrgSettingsSkeleton from '@/app/components/Skeletons/OrgSettingsSkeleton';
 
 // The route-transition fallback has to be the same visual this page renders

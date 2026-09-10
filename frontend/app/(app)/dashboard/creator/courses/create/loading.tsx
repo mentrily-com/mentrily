@@ -1,5 +1,3 @@
-'use client';
-
 import CourseBuilderShellSkeleton from '@/app/components/Skeletons/CourseBuilderShellSkeleton';
 
 // CourseEditor (which this route renders) already falls back to

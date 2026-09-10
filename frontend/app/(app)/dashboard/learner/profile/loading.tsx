@@ -1,5 +1,3 @@
-'use client';
-
 import ProfilePageSkeleton from '@/app/components/Skeletons/ProfilePageSkeleton';
 
 // UnifiedProfilePage (which this route renders) already falls back to

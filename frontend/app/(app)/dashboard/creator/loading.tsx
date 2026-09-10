@@ -1,5 +1,3 @@
-'use client';
-
 import CreatorDashboardSkeleton from '@/app/components/Skeletons/CreatorDashboardSkeleton';
 
 // Matches what page.tsx renders while its data resolves

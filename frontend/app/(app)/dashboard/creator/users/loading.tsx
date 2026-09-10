@@ -1,5 +1,3 @@
-'use client';
-
 import TeacherStudentsSkeleton from '@/app/components/Skeletons/TeacherStudentsSkeleton';
 
 // TeacherStudentsPage (which this route renders) already falls back to

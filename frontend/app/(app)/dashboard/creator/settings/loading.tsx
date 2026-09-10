@@ -1,5 +1,3 @@
-'use client';
-
 import AdminSettingsSkeleton from '@/app/components/Skeletons/AdminSettingsSkeleton';
 
 // The route-transition fallback has to be the same visual this page renders

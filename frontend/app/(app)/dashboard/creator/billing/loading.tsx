@@ -1,5 +1,3 @@
-'use client';
-
 import CreatorBillingSkeleton from '@/app/components/Skeletons/CreatorBillingSkeleton';
 
 // The route-transition fallback has to be the same visual this page renders

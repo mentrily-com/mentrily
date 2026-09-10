@@ -1,5 +1,3 @@
-'use client';
-
 import LearnerBookmarksSkeleton from '@/app/components/Skeletons/LearnerBookmarksSkeleton';
 
 // Same skeleton the page renders while its bookmarks load, so the

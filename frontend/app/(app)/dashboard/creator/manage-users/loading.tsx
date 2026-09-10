@@ -1,5 +1,3 @@
-'use client';
-
 import ManageUsersSkeleton from '@/app/components/Skeletons/ManageUsersSkeleton';
 
 // The route-transition fallback has to be the same visual this page renders

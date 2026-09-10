@@ -1,5 +1,3 @@
-'use client';
-
 import CreatorExamsSkeleton from '@/app/components/Skeletons/CreatorExamsSkeleton';
 
 // The route-transition fallback has to be the same visual this page renders

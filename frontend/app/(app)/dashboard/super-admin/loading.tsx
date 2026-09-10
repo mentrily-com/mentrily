@@ -1,5 +1,3 @@
-'use client';
-
 import SuperAdminDashboardSkeleton from '@/app/components/Skeletons/SuperAdminDashboardSkeleton';
 
 // Matches what page.tsx renders while its data resolves, so the

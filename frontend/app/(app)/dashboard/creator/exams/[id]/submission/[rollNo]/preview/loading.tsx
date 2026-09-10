@@ -1,5 +1,3 @@
-'use client';
-
 import CoursePlayerSkeleton from '@/app/components/Skeletons/CoursePlayerSkeleton';
 
 // The route-transition fallback has to be the same visual this page renders

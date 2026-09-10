@@ -1,5 +1,3 @@
-'use client';
-
 import ExamMonitorSkeleton from '@/app/components/Skeletons/ExamMonitorSkeleton';
 
 // ExamMonitorView (which this route renders) already falls back to

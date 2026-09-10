@@ -1,5 +1,3 @@
-'use client';
-
 import LearnerDashboardSkeleton from '@/app/components/Skeletons/LearnerDashboardSkeleton';
 
 // Matches what page.tsx renders while its data resolves

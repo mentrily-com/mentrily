@@ -1,5 +1,3 @@
-'use client';
-
 import LearnerTestAttemptsSkeleton from '@/app/components/Skeletons/LearnerTestAttemptsSkeleton';
 
 // The route-transition fallback has to be the same visual this page renders

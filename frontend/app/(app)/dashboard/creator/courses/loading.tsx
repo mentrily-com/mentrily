@@ -1,5 +1,3 @@
-'use client';
-
 import CreatorCoursesSkeleton from '@/app/components/Skeletons/CreatorCoursesSkeleton';
 
 // The route-transition fallback has to be the same visual this page renders

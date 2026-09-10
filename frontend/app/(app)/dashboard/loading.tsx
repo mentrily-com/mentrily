@@ -1,5 +1,3 @@
-'use client';
-
 import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
 
 // Matches this route's own initial render (`!authChecked` renders the same

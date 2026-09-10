@@ -1,5 +1,3 @@
-'use client';
-
 import CreatorAnalyticsSkeleton from '@/app/components/Skeletons/CreatorAnalyticsSkeleton';
 
 // The route-transition fallback has to be the same visual this page renders

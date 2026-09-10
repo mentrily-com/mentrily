@@ -1,5 +1,3 @@
-'use client';
-
 import ExamEditFormSkeleton from '@/app/components/Skeletons/ExamEditFormSkeleton';
 
 // The route-transition fallback has to be the same visual this page renders

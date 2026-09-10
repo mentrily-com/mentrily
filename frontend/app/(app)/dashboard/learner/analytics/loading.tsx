@@ -1,5 +1,3 @@
-'use client';
-
 import LearnerAnalyticsSkeleton from '@/app/components/Skeletons/LearnerAnalyticsSkeleton';
 
 // The route-transition fallback has to be the same visual this page renders

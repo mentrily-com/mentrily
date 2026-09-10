@@ -1,5 +1,3 @@
-'use client';
-
 import AdminExamsViewSkeleton from '@/app/components/Skeletons/AdminExamsViewSkeleton';
 
 // AdminExamsView (which this route renders) already falls back to

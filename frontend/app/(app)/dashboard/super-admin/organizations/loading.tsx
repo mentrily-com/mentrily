@@ -1,5 +1,3 @@
-'use client';
-
 import OrganizationsRegistrySkeleton from '@/app/components/Skeletons/OrganizationsRegistrySkeleton';
 
 // The route-transition fallback has to be the same visual this page renders

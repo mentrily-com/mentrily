@@ -1,5 +1,3 @@
-'use client';
-
 import LearnerCertificatesSkeleton from '@/app/components/Skeletons/LearnerCertificatesSkeleton';
 
 // Same skeleton the page renders while its certificates load, so the

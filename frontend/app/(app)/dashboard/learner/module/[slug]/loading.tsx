@@ -1,5 +1,3 @@
-'use client';
-
 import ModulePageSkeleton from '@/app/components/Skeletons/ModulePageSkeleton';
 
 // The route-transition fallback has to be the same visual this page renders
