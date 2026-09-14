@@ -79,7 +79,13 @@ export default function AppModal({
             (focusable || panel).focus();
         });
 
+        const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
         const previousOverflow = document.body.style.overflow;
+        const previousPaddingRight = document.body.style.paddingRight;
+
+        if (scrollbarWidth > 0) {
+            document.body.style.paddingRight = `${scrollbarWidth}px`;
+        }
         document.body.style.overflow = 'hidden';
 
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -119,6 +125,7 @@ export default function AppModal({
             cancelAnimationFrame(raf);
             document.removeEventListener('keydown', handleKeyDown, true);
             document.body.style.overflow = previousOverflow;
+            document.body.style.paddingRight = previousPaddingRight;
             triggerRef.current?.focus?.();
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps

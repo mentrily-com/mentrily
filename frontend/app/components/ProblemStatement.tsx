@@ -25,7 +25,7 @@ interface ProblemStatementProps {
     questionTotalMarks?: number;
 }
 
-export default function ProblemStatement({
+function ProblemStatementComponent({
     title,
     difficulty,
     topic,
@@ -46,6 +46,8 @@ export default function ProblemStatement({
     marksObtained,
     questionTotalMarks,
 }: ProblemStatementProps) {
+    const sanitizedDescription = React.useMemo(() => sanitizeRichText(description), [description]);
+
     return (
         <div className="flex h-full min-h-0 flex-col bg-white relative" data-element-id="starter-question-prompt">
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain no-scrollbar">
@@ -215,9 +217,9 @@ export default function ProblemStatement({
                         style={{ fontSize: fontSize ? `${fontSize}px` : '15px' }}
                     >
                         <div
-                            className="prose prose-slate max-w-none prose-p:text-inherit prose-headings:text-slate-800 prose-code:text-[var(--brand-dark)] prose-code:bg-[var(--brand-lighter)] prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-sm prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-pre:border prose-pre:border-slate-700 prose-pre:overflow-x-auto prose-pre:max-w-full [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-inherit [&_pre_code]:before:content-none [&_pre_code]:after:content-none"
+                            className="prose prose-slate max-w-none prose-p:text-inherit prose-headings:text-slate-800 prose-code:text-[var(--brand-dark)] prose-code:bg-[var(--brand-lighter)] prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-sm prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-pre:border prose-pre:border-slate-700 prose-pre:overflow-x-auto prose-pre:max-w-full [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-inherit prose-code:before:content-none prose-code:after:content-none"
                             dangerouslySetInnerHTML={{
-                                __html: sanitizeRichText(description),
+                                __html: sanitizedDescription,
                             }}
                         ></div>
 
@@ -277,3 +279,6 @@ export default function ProblemStatement({
         </div>
     );
 }
+
+const ProblemStatement = React.memo(ProblemStatementComponent);
+export default ProblemStatement;

@@ -3,8 +3,14 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import SplitPane from '@/app/components/SplitPane';
-import CodingQuestionRenderer from '@/app/components/CodingQuestionRenderer';
+
+const CodingQuestionRenderer = dynamic(() => import('@/app/components/CodingQuestionRenderer'), {
+    ssr: false,
+    loading: () => <div className="h-full w-full bg-slate-900/5 animate-pulse rounded-2xl" />,
+});
+
 import ProblemStatement from '@/app/components/ProblemStatement';
 import PublicPlaygroundShell from '@/app/components/Playground/PublicPlaygroundShell';
 import { CodeExecutionService } from '@/services/api/CodeExecutionService';

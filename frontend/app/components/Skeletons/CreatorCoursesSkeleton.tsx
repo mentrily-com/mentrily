@@ -12,9 +12,9 @@
 export default function CreatorCoursesSkeleton() {
     return (
         <div className="font-sans">
-            <div className="mb-6 space-y-2">
-                <div className="h-6 w-32 animate-pulse rounded-md bg-slate-200" />
-                <div className="h-3 w-96 max-w-full animate-pulse rounded bg-slate-100" />
+            <div className="mb-6">
+                <div className="h-8 w-32 animate-pulse rounded-md bg-slate-200" />
+                <div className="mt-1 h-5 w-96 max-w-full animate-pulse rounded bg-slate-100" />
             </div>
 
             <div className="flex flex-col gap-8 xl:flex-row">

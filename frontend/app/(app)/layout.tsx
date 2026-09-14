@@ -159,22 +159,22 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         `}</style>
             <ClerkProvider signInUrl="/login" signUpUrl="/signup">
                 <PostHogProvider>
-                    <ClerkTokenBridge />
-                    <UserTelemetryBridge />
-                    <PWARegister />
-                    <NextTopLoader color="#008D98" showSpinner={false} speed={400} />
-                    <ApolloProvider>
-                        <QueryProvider>
+                    <QueryProvider>
+                        <ClerkTokenBridge />
+                        <UserTelemetryBridge />
+                        <PWARegister />
+                        <NextTopLoader color="#008D98" showSpinner={false} speed={400} />
+                        <ApolloProvider>
                             <OrganizationProvider initialOrganization={initialOrganization}>
                                 <ToastProvider>
                                     <AppShell>{children}</AppShell>
                                     <Toaster />
                                 </ToastProvider>
                             </OrganizationProvider>
-                        </QueryProvider>
-                    </ApolloProvider>
-                    <Analytics />
-                    <SpeedInsights />
+                        </ApolloProvider>
+                        <Analytics />
+                        <SpeedInsights />
+                    </QueryProvider>
                 </PostHogProvider>
             </ClerkProvider>
         </>

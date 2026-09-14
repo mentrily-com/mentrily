@@ -1,11 +1,26 @@
 import { NextResponse } from 'next/server';
+import { LRUCache } from 'lru-cache';
 import { Resend } from 'resend';
 import { siteConfig } from '../../../config/site';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Rate limiting: 5 requests per IP per hour
+const rateLimit = new LRUCache<string, number>({
+    max: 500,
+    ttl: 1000 * 60 * 60, // 1 hour
+});
+
+const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 
 export async function POST(request: Request) {
     try {
+        const rawIp = request.headers.get('x-forwarded-for') || request.headers.get('cf-connecting-ip') || 'unknown';
+        const ip = rawIp.split(',')[0].trim();
+        const currentUsage = rateLimit.get(ip) || 0;
+        if (currentUsage >= 5) {
+            return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+        }
+        rateLimit.set(ip, currentUsage + 1);
+
         const { email } = await request.json();
 
         if (!email || !/^\S+@\S+\.\S+$/.test(String(email).trim())) {

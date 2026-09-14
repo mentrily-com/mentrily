@@ -1,9 +1,11 @@
 import ProfilePageSkeleton from '@/app/components/Skeletons/ProfilePageSkeleton';
 
-// UnifiedProfilePage (which this route renders) already falls back to
-// ProfilePageSkeleton while its own data resolves. Matching it here means the
-// route-transition fallback and the mounted page show the same shape, instead
-// of the parent dashboard skeleton flashing first and then being replaced.
 export default function Loading() {
-    return <ProfilePageSkeleton />;
+    return (
+        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
+            <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8">
+                <ProfilePageSkeleton />
+            </main>
+        </div>
+    );
 }

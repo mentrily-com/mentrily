@@ -65,6 +65,11 @@ export default function AnnouncementsTab() {
         });
     };
 
+    const handleDownload = (url: string, name: string) => {
+        const proxyUrl = `/api/download?url=${encodeURIComponent(url)}&name=${encodeURIComponent(name || 'download')}`;
+        window.open(proxyUrl, '_self');
+    };
+
     if (isLoading) {
         return (
             <div className="space-y-4">
@@ -154,15 +159,14 @@ export default function AnnouncementsTab() {
                                         {Array.isArray(ann.attachments) && ann.attachments.length > 0 && (
                                             <div className="flex flex-wrap gap-2 mt-3">
                                                 {ann.attachments.map((att: any, idx: number) => (
-                                                    <a
+                                                    <button
                                                         key={idx}
-                                                        href={att.url}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 rounded-xl text-[10px] font-black text-slate-600 transition-colors border border-slate-100"
+                                                        type="button"
+                                                        onClick={() => handleDownload(att.url, att.name)}
+                                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 rounded-xl text-[10px] font-black text-slate-600 transition-colors border border-slate-100 cursor-pointer"
                                                     >
                                                         <AttachmentIcon type={att.type} /> {att.name}
-                                                    </a>
+                                                    </button>
                                                 ))}
                                             </div>
                                         )}
@@ -352,11 +356,11 @@ function ComposeAnnouncementModal({
     return (
         <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={onClose} />
-            <div className="bg-white w-full max-w-3xl rounded-[48px] p-12 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[85vh] overflow-y-auto custom-scrollbar">
+            <div className="bg-white w-full max-w-3xl rounded-3xl sm:rounded-[48px] p-6 sm:p-12 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[85vh] overflow-y-auto custom-scrollbar">
                 <button
                     onClick={onClose}
                     aria-label="Close dialog"
-                    className="absolute top-10 right-10 w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all hover:scale-110 active:scale-95"
+                    className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl sm:rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all active:scale-95"
                 >
                     <X size={20} strokeWidth={3} />
                 </button>

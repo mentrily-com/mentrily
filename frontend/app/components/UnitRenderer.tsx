@@ -130,6 +130,14 @@ export function UnitRendererComponent({
     const [terminalLogs, setTerminalLogs] = useState('');
     const [executionResults, setExecutionResults] = useState<any[]>([]);
 
+    // Reset transient execution state when moving between questions
+    React.useEffect(() => {
+        setIsRunning(false);
+        setTerminalLogs('');
+        setExecutionResults([]);
+        setIsReadingFullScreen(false);
+    }, [question.id]);
+
     // Selected language for Coding questions (can be changed by student if allowed)
     const [selectedCodingLang, setSelectedCodingLang] = React.useState<string | null>(null);
 
@@ -212,6 +220,11 @@ export function UnitRendererComponent({
                     {/* Consistent Sidebar Handling */}
                     {showSidebar && sidebar && !isReadingFullScreen && (
                         <>
+                            <div
+                                className="fixed inset-0 z-[95] bg-slate-900/40 backdrop-blur-xs animate-in fade-in cursor-pointer"
+                                onClick={onToggleSidebar}
+                                aria-label="Close curriculum sidebar"
+                            />
                             <div className="absolute inset-y-0 left-0 z-[100] w-[min(300px,calc(100vw-24px))] bg-white shadow-2xl animate-in slide-in-from-left duration-300">
                                 {sidebar}
                             </div>
@@ -312,7 +325,7 @@ export function UnitRendererComponent({
                             <div className="w-16 h-1.5 bg-[var(--brand)] rounded-full mb-12"></div>
 
                             <article
-                                className="prose prose-slate max-w-none text-slate-600 leading-relaxed space-y-6 prose-p:text-slate-600 prose-headings:text-slate-800 prose-code:text-[var(--brand-dark)] prose-code:bg-[var(--brand-lighter)] prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-sm [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-inherit [&_pre_code]:before:content-none [&_pre_code]:after:content-none"
+                                className="prose prose-slate max-w-none text-slate-600 leading-relaxed space-y-6 prose-p:text-slate-600 prose-headings:text-slate-800 prose-code:text-[var(--brand-dark)] prose-code:bg-[var(--brand-lighter)] prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-sm [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-inherit prose-code:before:content-none prose-code:after:content-none"
                                 style={{ fontSize: contentFontSize ? `${contentFontSize}px` : undefined }}
                             >
                                 <div
@@ -602,6 +615,11 @@ export function UnitRendererComponent({
                             <div className="flex-1 overflow-hidden relative">
                                 {showSidebar && sidebar && (
                                     <>
+                                        <div
+                                            className="fixed inset-0 z-[95] bg-slate-900/40 backdrop-blur-xs animate-in fade-in cursor-pointer"
+                                            onClick={onToggleSidebar}
+                                            aria-label="Close curriculum sidebar"
+                                        />
                                         <div className="absolute inset-y-0 left-0 z-[100] w-[min(300px,calc(100vw-24px))] bg-white shadow-2xl animate-in slide-in-from-left duration-300">
                                             {sidebar}
                                         </div>
@@ -709,5 +727,5 @@ function arePropsEqual(prevProps: UnitRendererProps, nextProps: UnitRendererProp
 const MemoizedUnitRenderer = React.memo(UnitRendererComponent, arePropsEqual);
 
 export default function UnitRenderer(props: UnitRendererProps) {
-    return <MemoizedUnitRenderer key={`unit-renderer-${props.question.id}`} {...props} />;
+    return <MemoizedUnitRenderer {...props} />;
 }

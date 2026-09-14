@@ -3,18 +3,20 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AdminService } from '@/services/api/AdminService';
-import { AuthService } from '@/services/api/AuthService';
+import { useSession } from '@/hooks/useSession';
 
 export default function StorageLeaderboard() {
+    const { session } = useSession();
+    const orgId = String(session?.orgId || '').trim();
+
     const {
         data: users,
         isLoading,
         error,
     } = useQuery({
-        queryKey: ['storage-leaderboard'],
+        queryKey: ['storage-leaderboard', orgId],
+        enabled: Boolean(orgId),
         queryFn: async () => {
-            const session = await AuthService.checkSession();
-            const orgId = String(session?.orgId || '').trim();
             const response = await AdminService.getStorageUsers(orgId);
             return Array.isArray(response) ? response : response?.data || response?.users || [];
         },

@@ -1,12 +1,13 @@
 'use client';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { StudentService, StudentModule } from '@/services/api/StudentService';
 import { useRequireAuth } from '@/hooks/requireAuthClient';
 import LearnerDashboardSkeleton from '@/app/components/Skeletons/LearnerDashboardSkeleton';
 import OnboardingTour from '@/app/components/Common/OnboardingTour';
 import EmptyState from '@/app/components/Common/EmptyState';
-import { useQuery } from '@/hooks/useQuery';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAnnouncements, ANNOUNCEMENTS_QUERY_KEY } from '@/hooks/useAnnouncements';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useNotificationSocket } from '@/hooks/useNotificationSocket';
 import { useSession } from '@/hooks/useSession';
@@ -42,31 +43,14 @@ export default function DashboardPage() {
     const { data: session } = useSession();
     const userId = (session as any)?.id;
 
-    // Announcements state
-    const [announcements, setAnnouncements] = useState<any[]>([]);
-    const [_unreadCount, setUnreadCount] = useState(0);
+    const queryClient = useQueryClient();
+
+    // Announcements state via shared TanStack Query hook
+    const { announcements, markAsRead: markAnnouncementAsRead } = useAnnouncements();
     const [selectedAnnouncement, setSelectedAnnouncement] = useState<any>(null);
 
     // Auth Check
     useRequireAuth('/login');
-
-    // Load announcements
-    const loadAnnouncements = useCallback(async () => {
-        try {
-            const [annData, countData] = await Promise.all([
-                StudentService.getAnnouncements(),
-                StudentService.getUnreadAnnouncementCount(),
-            ]);
-            setAnnouncements(annData);
-            setUnreadCount(countData.count || 0);
-        } catch (err) {
-            console.error('Failed to load announcements', err);
-        }
-    }, []);
-
-    useEffect(() => {
-        loadAnnouncements();
-    }, [loadAnnouncements]);
 
     useEffect(() => {
         setHideGettingStarted(isOnboardingCourseHidden(userId));
@@ -75,19 +59,13 @@ export default function DashboardPage() {
     // Real-time notifications
     useNotificationSocket((announcement) => {
         toastSuccess(`New announcement: ${announcement.title}`);
-        loadAnnouncements();
+        queryClient.invalidateQueries({ queryKey: ANNOUNCEMENTS_QUERY_KEY });
     });
 
     const handleOpenAnnouncement = async (ann: any) => {
         setSelectedAnnouncement(ann);
         if (!ann.isRead) {
-            try {
-                await StudentService.markAnnouncementRead(ann.id);
-                setUnreadCount((prev) => Math.max(prev - 1, 0));
-                setAnnouncements((prev) => prev.map((a) => (a.id === ann.id ? { ...a, isRead: true } : a)));
-            } catch {
-                /* silent */
-            }
+            markAnnouncementAsRead(ann.id);
         }
     };
 
@@ -97,9 +75,14 @@ export default function DashboardPage() {
     };
 
     // Optimized Data Fetching with Cache
-    const { data: dashboardData, isLoading: loading } = useQuery('student-dashboard', async () => {
-        const [stats, courses] = await Promise.all([StudentService.getStats(), StudentService.getCourses()]);
-        return { stats, courses };
+    const { data: dashboardData, isLoading: loading } = useQuery({
+        queryKey: ['student-dashboard', session?.orgId || 'personal'],
+        queryFn: async () => {
+            const [stats, courses] = await Promise.all([StudentService.getStats(), StudentService.getCourses()]);
+            return { stats, courses };
+        },
+        staleTime: 30_000,
+        gcTime: 5 * 60_000,
     });
 
     const stats = dashboardData?.stats || null;
@@ -163,7 +146,7 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
+        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)] animate-fade-in">
             {/* Show the guided dashboard tour ONCE on first login. Dropping
                 repeatUntilSkipped switches to the per-tour localStorage
                 "completed" marker (set the first time it runs) instead of the

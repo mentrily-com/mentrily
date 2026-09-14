@@ -5,9 +5,9 @@ import Link from 'next/link';
 import PlanGate from '@/app/components/Common/PlanGate';
 import CreatorAnalyticsSkeleton from '@/app/components/Skeletons/CreatorAnalyticsSkeleton';
 import { usePlan } from '@/hooks/usePlan';
+import { useSession } from '@/hooks/useSession';
 import { useApolloClient } from '@apollo/client/react';
 import { useQuery } from '@tanstack/react-query';
-import { AuthService } from '@/services/api/AuthService';
 import { AdminService } from '@/services/api/AdminService';
 import { TeacherService } from '@/services/api/TeacherService';
 import { getClerkToken } from '@/lib/clerk-token';
@@ -87,6 +87,8 @@ const EMPTY_PAYLOAD: AnalyticsPayload = {
 export default function CreatorAnalyticsPage() {
     const apolloClient = useApolloClient();
     const { loading, role, canUse } = usePlan();
+    const { session } = useSession();
+    const orgId = String(session?.orgId || '').trim();
     const hasAccess = !loading && canUse('advancedAnalytics');
 
     const [rangePreset, setRangePreset] = useState<RangePreset>('30d');
@@ -177,12 +179,10 @@ export default function CreatorAnalyticsPage() {
     };
 
     const { data } = useQuery({
-        queryKey: ['creator-analytics-v2', hasAccess],
+        queryKey: ['creator-analytics-v2', hasAccess, orgId],
         enabled: hasAccess,
         queryFn: async (): Promise<AnalyticsPayload> => {
             try {
-                const session = await AuthService.checkSession();
-                const orgId = String(session?.orgId || '').trim();
                 const token = await getClerkToken();
 
                 if (!orgId || !UUID_REGEX.test(orgId) || !token || !GRAPHQL_ENABLED) {

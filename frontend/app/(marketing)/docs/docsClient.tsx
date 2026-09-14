@@ -1,7 +1,6 @@
 'use client';
 
 import { motion } from 'motion/react';
-import { useInView } from 'react-intersection-observer';
 import { MarketingPageHeader } from '@/components/layout/MarketingPageHeader';
 import CTASection from '@/components/sections/CTASection';
 import { Book, Code2, Terminal, Zap, Puzzle, Lock } from 'lucide-react';
@@ -59,7 +58,7 @@ function ComingSoon() {
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5 }}
-                    className="p-16 rounded-[48px] border border-slate-100 bg-slate-50/50 backdrop-blur-xl relative overflow-hidden"
+                    className="p-6 sm:p-12 lg:p-16 rounded-3xl sm:rounded-[48px] border border-slate-100 bg-slate-50/50 backdrop-blur-xl relative overflow-hidden"
                 >
                     {/* Decorative elements */}
                     <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />

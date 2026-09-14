@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Loading from '@/app/(app)/loading';
 import AlertModal from '@/app/components/Common/AlertModal';
 import { useState } from 'react';
-import { AuthService } from '@/services/api/AuthService';
+import { useSession } from '@/hooks/useSession';
 import ExamEditorSkeleton from '@/app/components/Skeletons/ExamEditorSkeleton';
 
 const ExamBuilder = dynamic(() => import('@/app/components/Authoring/ExamBuilder'), {
@@ -27,22 +27,13 @@ export default function ExamEditor({
     organizationId,
 }: ExamEditorProps) {
     const router = useRouter();
+    const { session: userData } = useSession();
     const [alertConfig, setAlertConfig] = useState<{
         isOpen: boolean;
         title: string;
         message: string;
         type?: 'danger' | 'warning' | 'info';
     }>({ isOpen: false, title: '', message: '' });
-    const [userData, setUserData] = useState<any>(null);
-
-    React.useEffect(() => {
-        const loadUser = async () => {
-            const user = await AuthService.checkSession();
-            setUserData(user);
-        };
-
-        void loadUser();
-    }, []);
 
     const handleDelete = () => {
         setAlertConfig({

@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { Crisp } from 'crisp-sdk-web';
 import { usePathname } from 'next/navigation';
-import { AuthService } from '@/services/api/AuthService';
+import { useSession } from '@/hooks/useSession';
 
 interface CrispWidgetProps {
     role: 'ADMIN' | 'TEACHER' | 'STUDENT';
@@ -19,6 +19,7 @@ let crispConfigured = false;
 
 export default function CrispWidget({ role, orgName }: CrispWidgetProps) {
     const pathname = usePathname();
+    const { session } = useSession();
 
     useEffect(() => {
         const websiteId = process.env.NEXT_PUBLIC_CRISP_WEBSITE_ID;
@@ -40,12 +41,7 @@ export default function CrispWidget({ role, orgName }: CrispWidgetProps) {
             crispConfigured = true;
         }
 
-        let active = true;
-
-        const configureUser = async () => {
-            const session = await AuthService.checkSession();
-            if (!active || !session) return;
-
+        if (session) {
             if (session.email) {
                 Crisp.user.setEmail(session.email);
             }
@@ -57,18 +53,16 @@ export default function CrispWidget({ role, orgName }: CrispWidgetProps) {
                 role,
                 plan: String(session.plan || 'FREE'),
                 orgId: String(session.orgId || ''),
-                orgName: String(orgName || session.organization?.name || ''),
+                orgName: String(orgName || (session as any).organization?.name || ''),
             });
-        };
+        }
 
-        void configureUser();
         Crisp.chat.show();
 
         return () => {
-            active = false;
             Crisp.chat.hide();
         };
-    }, [pathname, role, orgName]);
+    }, [pathname, role, orgName, session]);
 
     return null;
 }

@@ -48,11 +48,11 @@ export default function ExamFeedbackView({ onSubmitFeedback, verdict }: ExamFeed
                     <div className="h-1 w-12 bg-indigo-500 rounded-full" />
                 </div>
 
-                <div className="w-full bg-white rounded-[2.5rem] p-10 shadow-2xl shadow-slate-200/60 border border-slate-100 text-center relative overflow-hidden">
+                <div className="w-full bg-white rounded-3xl sm:rounded-[2.5rem] p-5 sm:p-10 shadow-2xl shadow-slate-200/60 border border-slate-100 text-center relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-2 bg-indigo-500" />
 
-                    <h1 className="text-3xl font-black text-slate-900 mb-2 tracking-tight">How was your experience?</h1>
-                    <p className="text-slate-500 font-medium mb-10 text-lg">
+                    <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2 tracking-tight">How was your experience?</h1>
+                    <p className="text-slate-500 font-medium mb-8 sm:mb-10 text-base sm:text-lg">
                         Your feedback helps us make exams better for everyone.
                     </p>
                     {verdict ? (
@@ -75,7 +75,7 @@ export default function ExamFeedbackView({ onSubmitFeedback, verdict }: ExamFeed
 
                     {/* Rating Section */}
                     <div className="mb-10">
-                        <div className="flex justify-center gap-4 mb-4">
+                        <div className="flex justify-center gap-2 sm:gap-4 mb-4">
                             {[1, 2, 3, 4, 5].map((star) => (
                                 <button
                                     key={star}
@@ -83,7 +83,7 @@ export default function ExamFeedbackView({ onSubmitFeedback, verdict }: ExamFeed
                                     onMouseLeave={() => setHoveredRating(0)}
                                     onClick={() => setRating(star)}
                                     className={`
-                                        w-16 h-16 rounded-2xl flex items-center justify-center text-3xl transition-all duration-300 transform
+                                        w-11 h-11 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-3xl transition-all duration-300 transform
                                         ${
                                             (hoveredRating || rating) >= star
                                                 ? 'bg-indigo-600 text-white scale-110 shadow-xl shadow-indigo-200 ring-4 ring-indigo-50'

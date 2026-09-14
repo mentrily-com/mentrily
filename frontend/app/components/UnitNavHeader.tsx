@@ -29,7 +29,7 @@ export default function UnitNavHeader({
                         <button
                             onClick={onToggleSidebar}
                             data-element-id="starter-unit-sidebar-toggle"
-                            className={`p-2 transition-all rounded-xl hover:bg-slate-50 ${showSidebar ? 'text-indigo-600 bg-indigo-50/50' : 'text-slate-400'}`}
+                            className={`p-2.5 min-h-[40px] min-w-[40px] flex items-center justify-center transition-all rounded-xl hover:bg-slate-50 cursor-pointer ${showSidebar ? 'text-indigo-600 bg-indigo-50/50' : 'text-slate-400'}`}
                             title="Toggle Sidebar"
                         >
                             <svg
@@ -64,7 +64,7 @@ export default function UnitNavHeader({
                                     key={tab}
                                     onClick={() => onTabChange(tab as any)}
                                     data-element-id={`starter-unit-tab-${tab}`}
-                                    className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all sm:px-4 ${
+                                    className={`px-3 py-2 min-h-[36px] text-[10px] font-black uppercase tracking-widest rounded-lg transition-all cursor-pointer sm:px-4 ${
                                         activeTab === tab
                                             ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-black/5'
                                             : 'text-slate-400 hover:text-slate-600'

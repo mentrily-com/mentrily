@@ -85,7 +85,7 @@ export function useRoleGuard(allowedRoles: string[]) {
     // gating render here only bought a second, generic loading skeleton in
     // front of whatever loading UI the page already shows for its own
     // fetch -- shown on every hard refresh, not just first sign-in.
-    const shouldBlockRender = !isLoaded || isConfirmedSignedOut || isKnownWrongRole;
+    const shouldBlockRender = isConfirmedSignedOut || isKnownWrongRole;
 
     useEffect(() => {
         if (!isLoaded) return;

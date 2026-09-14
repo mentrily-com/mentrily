@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import CreatorExamsSkeleton from '@/app/components/Skeletons/CreatorExamsSkeleton';
 import { BookOpen, Eye, Lock, Pencil, Send, Activity, BarChart3 } from 'lucide-react';
@@ -9,55 +9,37 @@ import ExamInviteModal from '@/app/components/Features/Exams/ExamInviteModal';
 import ExamCalendarView from '@/app/components/Features/Exams/ExamCalendarView';
 import EmptyState from '@/app/components/Common/EmptyState';
 import { TeacherService } from '@/services/api/TeacherService';
-import { AuthService } from '@/services/api/AuthService';
+import { useSession } from '@/hooks/useSession';
+import { useQuery } from '@tanstack/react-query';
 import { usePlan } from '@/hooks/usePlan';
 
 export default function TeacherExamsPage() {
     const { role } = usePlan();
+    const { session } = useSession();
     const [activeTab, setActiveTab] = useState('all');
     const [viewingExam, setViewingExam] = useState<any>(null);
     const [invitingExam, setInvitingExam] = useState<any | null>(null);
-    const [exams, setExams] = useState<any[]>([]);
-    const [scheduledExams, setScheduledExams] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [userData, setUserData] = useState<any>(null);
 
-    useEffect(() => {
-        let alive = true;
+    const { data, isLoading } = useQuery({
+        queryKey: ['teacher-exams'],
+        queryFn: async () => {
+            const [examsData, scheduledData] = await Promise.all([
+                TeacherService.getExams(),
+                TeacherService.getScheduledExams(),
+            ]);
+            return {
+                exams: Array.isArray(examsData) ? examsData : [],
+                scheduledExams: Array.isArray(scheduledData) ? scheduledData : [],
+            };
+        },
+        staleTime: 30_000,
+        gcTime: 5 * 60_000,
+    });
 
-        void AuthService.checkSession().then((user) => {
-            if (alive) setUserData(user);
-        });
-
-        const load = async (showLoader = false) => {
-            if (showLoader) setLoading(true);
-            try {
-                const [data, scheduled] = await Promise.all([
-                    TeacherService.getExams(),
-                    TeacherService.getScheduledExams(),
-                ]);
-                if (!alive) return;
-                setExams(data);
-                setScheduledExams(scheduled);
-                setViewingExam((prev: any) => {
-                    if (!prev) return prev;
-                    return data.find((exam: any) => exam.id === prev.id) || prev;
-                });
-            } catch (error) {
-                console.error(error);
-            } finally {
-                if (showLoader && alive) setLoading(false);
-            }
-        };
-
-        void load(true);
-        const interval = setInterval(() => void load(false), 30 * 1000);
-
-        return () => {
-            alive = false;
-            clearInterval(interval);
-        };
-    }, []);
+    const exams = data?.exams || [];
+    const scheduledExams = data?.scheduledExams || [];
+    const loading = isLoading && exams.length === 0;
+    const userData = session;
 
     const orgPermissions = userData?.features || { allowAppExams: true };
     const canCreateExams = orgPermissions?.canCreateExams !== false;

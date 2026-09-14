@@ -30,7 +30,12 @@ export default function DashboardPage() {
     const primeSessionCache = useCallback(
         (user: unknown) => {
             if (!user) return;
-            queryClient.setQueryData(['session', sessionId || userId || 'anonymous'], user);
+            queryClient.setQueriesData({ queryKey: ['session'] }, user);
+            const targetId = (user as any)?.id || userId;
+            if (targetId) queryClient.setQueryData(['session', targetId], user);
+            if (userId) queryClient.setQueryData(['session', userId], user);
+            if (sessionId) queryClient.setQueryData(['session', sessionId], user);
+            queryClient.setQueryData(['session', 'anonymous'], user);
         },
         [queryClient, sessionId, userId],
     );
@@ -94,7 +99,9 @@ export default function DashboardPage() {
         let cancelled = false;
 
         const loadSession = async () => {
-            AuthService.resetSessionCache();
+            if (shouldProvisionSignup) {
+                AuthService.resetSessionCache();
+            }
             setIsRedirectingToRoleDashboard(false);
 
             // Fresh signups race Clerk token issuance + first-request user

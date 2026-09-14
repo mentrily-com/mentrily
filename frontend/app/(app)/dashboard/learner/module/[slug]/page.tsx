@@ -431,7 +431,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                 page's scroll flow), so this no longer needs to offset itself
                 below a navbar-height's worth of space. */}
             <div className="sticky top-0 z-40 bg-white border-b border-slate-200/60 shadow-sm transition-all duration-300">
-                <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 py-3.5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-3.5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex min-w-0 items-center gap-4">
                         <div>
                             <div className="flex flex-wrap items-baseline gap-2 mb-1">
@@ -507,7 +507,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                 </div>
             </div>
 
-            <main className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8 animate-fade-in">
+            <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8 animate-fade-in">
                 {activeTab === 'learning' ? (
                     <div className="space-y-10">
                         <div className="relative group/carousel">
@@ -1078,7 +1078,7 @@ function CardNav({ direction, onClick }: { direction: 'left' | 'right'; onClick:
     return (
         <button
             onClick={onClick}
-            className={`absolute ${style} top-[42%] -translate-y-1/2 w-12 h-12 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-[var(--brand)] hover:border-[var(--brand-light)] shadow-xl z-20 transition-all active:scale-90`}
+            className={`hidden sm:flex absolute ${style} top-[42%] -translate-y-1/2 w-12 h-12 rounded-full bg-white border border-slate-200 items-center justify-center text-slate-400 hover:text-[var(--brand)] hover:border-[var(--brand-light)] shadow-xl z-20 transition-all active:scale-90`}
         >
             <svg
                 width="24"

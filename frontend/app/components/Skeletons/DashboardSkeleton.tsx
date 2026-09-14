@@ -1,5 +1,8 @@
 'use client';
 import React from 'react';
+import LearnerDashboardSkeleton from './LearnerDashboardSkeleton';
+import CreatorDashboardSkeleton from './CreatorDashboardSkeleton';
+import SuperAdminDashboardSkeleton from './SuperAdminDashboardSkeleton';
 
 interface DashboardSkeletonProps {
     type?: 'main' | 'list' | 'form';
@@ -7,57 +10,50 @@ interface DashboardSkeletonProps {
     noNavbar?: boolean;
 }
 
+function resolveEffectiveRole(userRole?: string): 'student' | 'teacher' | 'admin' | 'super-admin' {
+    if (userRole) {
+        return userRole as 'student' | 'teacher' | 'admin' | 'super-admin';
+    }
+    if (typeof window !== 'undefined') {
+        const pendingRaw = window.localStorage.getItem('pending-dashboard-role');
+        if (pendingRaw) {
+            try {
+                const parsed = JSON.parse(pendingRaw);
+                const role = String(parsed?.role || '').toUpperCase();
+                if (role === 'STUDENT') return 'student';
+                if (role === 'SUPER_ADMIN') return 'super-admin';
+                if (role === 'ADMIN') return 'admin';
+                if (role === 'TEACHER') return 'teacher';
+            } catch {}
+        }
+        const stored = window.localStorage.getItem('user-role');
+        if (stored === 'student') return 'student';
+        if (stored === 'super-admin') return 'super-admin';
+        if (stored === 'admin') return 'admin';
+        if (stored === 'teacher') return 'teacher';
+    }
+    return 'teacher';
+}
+
 export default function DashboardSkeleton({ type = 'main', userRole, noNavbar = false }: DashboardSkeletonProps) {
+    if (type === 'main') {
+        const effective = resolveEffectiveRole(userRole);
+        if (effective === 'student') {
+            return <LearnerDashboardSkeleton />;
+        }
+        if (effective === 'super-admin') {
+            return <SuperAdminDashboardSkeleton />;
+        }
+        return <CreatorDashboardSkeleton />;
+    }
+
     return (
         <div className="h-screen overflow-hidden bg-slate-50 text-slate-900 font-sans">
             <main className="max-w-[1440px] mx-auto px-6 lg:px-12 py-10 overflow-hidden h-screen">
-                {/* Header Skeleton -- only when the caller has no real navbar/topbar
-                    of its own already on screen. Rendering this alongside a real
-                    navbar produced two header-shaped elements stacked at once. */}
                 {!noNavbar && (
                     <div className="flex items-center justify-between mb-10">
                         <div className="w-48 h-8 bg-slate-200 rounded-lg animate-pulse"></div>
                         <div className="w-64 h-12 bg-slate-200 rounded-2xl animate-pulse"></div>
-                    </div>
-                )}
-
-                {type === 'main' && (
-                    <div className="flex flex-col lg:flex-row gap-12">
-                        {/* LEFT: Main Content Area */}
-                        <div className="flex-1 space-y-4">
-                            {[1, 2, 3, 4].map((i) => (
-                                <div
-                                    key={i}
-                                    className="bg-white rounded-3xl border border-slate-100 p-6 flex flex-col gap-4 shadow-sm"
-                                >
-                                    <div className="flex justify-between items-start">
-                                        <div className="space-y-3">
-                                            <div className="w-56 h-6 bg-slate-200 rounded-lg animate-pulse"></div>
-                                            <div className="w-32 h-4 bg-slate-100 rounded-md animate-pulse"></div>
-                                        </div>
-                                        <div className="w-24 h-10 bg-slate-100 rounded-xl animate-pulse"></div>
-                                    </div>
-                                    <div className="w-full h-2 bg-slate-100 rounded-full mt-2 animate-pulse"></div>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* RIGHT: Sidebar Area */}
-                        <aside className="w-full lg:w-80 space-y-6">
-                            <div className="bg-slate-200 rounded-[32px] p-8 h-48 animate-pulse"></div>
-                            <div className="bg-white rounded-[32px] border border-slate-100 p-8 shadow-sm space-y-4">
-                                <div className="w-32 h-6 bg-slate-200 rounded-lg animate-pulse mb-6"></div>
-                                {[1, 2, 3].map((i) => (
-                                    <div key={i} className="flex items-center gap-4">
-                                        <div className="w-10 h-10 bg-slate-100 rounded-xl animate-pulse"></div>
-                                        <div className="space-y-2">
-                                            <div className="w-32 h-4 bg-slate-200 rounded-md animate-pulse"></div>
-                                            <div className="w-20 h-3 bg-slate-100 rounded-md animate-pulse"></div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </aside>
                     </div>
                 )}
 

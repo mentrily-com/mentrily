@@ -1,9 +1,9 @@
 'use client';
-import React, { useState, useEffect } from 'react';
-import { StudentService } from '@/services/api/StudentService';
+import React from 'react';
 import { Trash2, ExternalLink } from 'lucide-react';
 import LearnerBookmarksSkeleton from '@/app/components/Skeletons/LearnerBookmarksSkeleton';
 import Link from 'next/link';
+import { useBookmarks } from '@/hooks/useBookmarks';
 
 interface Bookmark {
     id: string;
@@ -16,32 +16,10 @@ interface Bookmark {
 }
 
 export default function BookmarksPage() {
-    const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { bookmarks, isLoading: loading, removeBookmark } = useBookmarks();
 
-    useEffect(() => {
-        fetchBookmarks();
-    }, []);
-
-    const fetchBookmarks = async () => {
-        try {
-            setLoading(true);
-            const data = await StudentService.getBookmarks();
-            setBookmarks(data);
-        } catch (error) {
-            console.error('Failed to fetch bookmarks:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleRemoveBookmark = async (bookmarkId: string) => {
-        try {
-            await StudentService.removeBookmark(bookmarkId);
-            setBookmarks((prev) => prev.filter((b) => b.id !== bookmarkId));
-        } catch (error) {
-            console.error('Failed to remove bookmark:', error);
-        }
+    const handleRemoveBookmark = (bookmarkId: string) => {
+        removeBookmark(bookmarkId);
     };
     return (
         <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">

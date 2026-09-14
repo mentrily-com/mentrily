@@ -13,16 +13,16 @@ export default function CreatorExamsSkeleton() {
     return (
         <div className="pb-10 font-sans">
             <div className="mb-8 flex flex-col justify-between gap-4 md:mb-12 md:flex-row md:items-center">
-                <div className="space-y-2">
-                    <div className="h-6 w-56 animate-pulse rounded-md bg-slate-200" />
-                    <div className="h-3 w-80 max-w-full animate-pulse rounded bg-slate-100" />
+                <div>
+                    <div className="h-8 w-56 animate-pulse rounded-md bg-slate-200" />
+                    <div className="mt-1 h-5 w-80 max-w-full animate-pulse rounded bg-slate-100" />
                 </div>
                 <div className="h-12 w-full animate-pulse rounded-2xl bg-slate-200 sm:w-52" />
             </div>
 
             <div className="mb-8 grid grid-cols-2 gap-2 rounded-3xl border border-slate-200 bg-white p-2 shadow-sm sm:mb-10 sm:flex sm:items-center sm:gap-3 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
-                    <div key={i} className="h-9 w-24 animate-pulse rounded-2xl bg-slate-100 sm:rounded-none" />
+                    <div key={i} className="h-9 w-24 animate-pulse rounded-2xl bg-slate-100 sm:h-8 sm:w-20 sm:rounded-xl sm:bg-slate-100/80" />
                 ))}
             </div>
 

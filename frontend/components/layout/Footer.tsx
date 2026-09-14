@@ -215,7 +215,7 @@ export default function Footer() {
                     <p className="text-xs" style={{ color: '#94A3B8' }}>
                         © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
                     </p>
-                    <div className="flex items-center gap-5">
+                    <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-5 gap-y-2 text-center">
                         <Link
                             href="/privacy"
                             className="text-xs transition-colors duration-150 cursor-pointer"

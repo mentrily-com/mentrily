@@ -5,7 +5,7 @@ import { Course } from '@/app/components/Authoring/types';
 import { useRouter } from 'next/navigation';
 import AlertModal from '@/app/components/Common/AlertModal';
 import { useState } from 'react';
-import { AuthService } from '@/services/api/AuthService';
+import { useSession } from '@/hooks/useSession';
 import CourseBuilderShellSkeleton from '@/app/components/Skeletons/CourseBuilderShellSkeleton';
 
 const CourseBuilder = dynamic(() => import('@/app/components/Authoring/CourseBuilder'), {
@@ -29,22 +29,13 @@ export default function CourseEditor({
     organizationId,
 }: CourseEditorProps) {
     const router = useRouter();
+    const { session: userData } = useSession();
     const [alertConfig, setAlertConfig] = useState<{
         isOpen: boolean;
         title: string;
         message: string;
         type?: 'danger' | 'warning' | 'info';
     }>({ isOpen: false, title: '', message: '' });
-    const [userData, setUserData] = useState<any>(null);
-
-    React.useEffect(() => {
-        const loadUser = async () => {
-            const user = await AuthService.checkSession();
-            setUserData(user);
-        };
-
-        void loadUser();
-    }, []);
 
     const handleDelete = () => {
         if (onDelete) {

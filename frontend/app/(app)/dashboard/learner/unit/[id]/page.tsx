@@ -9,11 +9,14 @@ import { StudentService } from '@/services/api/StudentService';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/app/components/Common/Toast';
 import { useSession } from '@/hooks/useSession';
+import { useBookmarks } from '@/hooks/useBookmarks';
 import {
     getOnboardingQuestion,
     gettingStartedCourse,
     getOnboardingSkipStorageKey,
 } from '../../getting-started-course';
+
+const courseOutlineCache = new Map<string, { modules: any[]; tests: any[]; timestamp: number }>();
 
 export default function StudentUnitPage({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
     const params = React.use(paramsPromise);
@@ -27,7 +30,8 @@ export default function StudentUnitPage({ params: paramsPromise }: { params: Pro
     const [loading, setLoading] = useState(true);
     const [showSidebar, setShowSidebar] = useState(false);
     const [activeTab, setActiveTab] = useState<'question' | 'attempts'>('question');
-    const [isBookmarked, setIsBookmarked] = useState(false);
+    const { bookmarks, addBookmark, removeBookmark } = useBookmarks();
+    const isBookmarked = bookmarks.some((b: any) => b.unitId === id || b.id === id);
     const [selectedAttemptId, setSelectedAttemptId] = useState<string | undefined>();
     const [attempts, setAttempts] = useState<any[]>([]);
     const [isExecuting, setIsExecuting] = useState(false);
@@ -60,20 +64,17 @@ export default function StudentUnitPage({ params: paramsPromise }: { params: Pro
                 const onboardingQuestion = getOnboardingQuestion(id);
                 if (onboardingQuestion) {
                     setCurrentQuestion(onboardingQuestion);
-                    setIsBookmarked(false);
                     setAttempts([]);
                     setCourseModules(gettingStartedCourse.modules);
                     setCourseTests(gettingStartedCourse.tests);
                     return;
                 }
 
-                const [unitData, bookmarks, attemptsData] = await Promise.all([
+                const [unitData, attemptsData] = await Promise.all([
                     CourseService.getUnit(id),
-                    StudentService.getBookmarks(),
                     StudentService.getUnitSubmissions(id),
                 ]);
                 setCurrentQuestion(unitData as UnitQuestion);
-                setIsBookmarked(bookmarks.some((b: any) => b.unitId === id));
 
                 // Process attempts to extract testCases from content if needed
                 const processedAttempts = attemptsData.map((a: any) => {
@@ -89,13 +90,25 @@ export default function StudentUnitPage({ params: paramsPromise }: { params: Pro
                 });
                 setAttempts(processedAttempts);
 
-                // Fetch parent Course modules for section navigation if available
+                // Fetch parent Course modules for section navigation if available (with caching)
                 const courseSlug = (unitData as any)?.module?.course?.slug;
                 if (courseSlug) {
                     try {
-                        const courseData = await CourseService.getCourse(courseSlug);
-                        setCourseModules(courseData.modules || null);
-                        setCourseTests(courseData.tests || null);
+                        const cached = courseOutlineCache.get(courseSlug);
+                        if (cached && Date.now() - cached.timestamp < 5 * 60_000) {
+                            setCourseModules(cached.modules);
+                            setCourseTests(cached.tests);
+                        } else {
+                            const courseData = await CourseService.getCourse(courseSlug);
+                            const outline = {
+                                modules: courseData.modules || null,
+                                tests: courseData.tests || null,
+                                timestamp: Date.now(),
+                            };
+                            courseOutlineCache.set(courseSlug, outline);
+                            setCourseModules(outline.modules);
+                            setCourseTests(outline.tests);
+                        }
                     } catch (e) {
                         // silent fail - optional
                         console.warn('Failed to fetch parent course for module navigation', e);
@@ -123,16 +136,17 @@ export default function StudentUnitPage({ params: paramsPromise }: { params: Pro
         }
         try {
             if (isBookmarked) {
-                await StudentService.removeBookmark(id);
-                setIsBookmarked(false);
+                removeBookmark(id);
             } else {
-                await StudentService.addBookmark(id, {
-                    title: currentQuestion.title,
-                    type: currentQuestion.type,
-                    moduleTitle: currentQuestion.moduleTitle || currentQuestion.module?.title,
-                    courseTitle: currentQuestion.module?.course?.title,
+                addBookmark({
+                    unitId: id,
+                    metadata: {
+                        title: currentQuestion.title,
+                        type: currentQuestion.type,
+                        moduleTitle: currentQuestion.moduleTitle || currentQuestion.module?.title,
+                        courseTitle: currentQuestion.module?.course?.title,
+                    },
                 });
-                setIsBookmarked(true);
             }
         } catch (error) {
             console.error('Failed to toggle bookmark:', error);

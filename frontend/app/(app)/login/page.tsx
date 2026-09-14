@@ -28,8 +28,8 @@ export default function LoginPage() {
     // renders -- a fresh array literal here would make the effect below
     // that depends on it re-run on every render.
     const sessionQueryKey = React.useMemo(
-        () => ['session', sessionId || userId || 'anonymous'],
-        [sessionId, userId],
+        () => ['session', userId || sessionId || 'anonymous'],
+        [userId, sessionId],
     );
     const oauthMode = searchParams.get('oauth');
     const oauthFlow = searchParams.get('flow') || 'signin';
@@ -166,7 +166,10 @@ export default function LoginPage() {
                         // fires a second one -- a fully redundant network
                         // round trip stacked sequentially after this one,
                         // directly on the critical path of every login.
-                        queryClient.setQueryData(sessionQueryKey, user);
+                        const targetUserId = user?.id || userId;
+                        if (targetUserId) queryClient.setQueryData(['session', targetUserId], user);
+                        if (sessionId) queryClient.setQueryData(['session', sessionId], user);
+                        queryClient.setQueryData(['session', 'anonymous'], user);
                         path = resolvePostLoginPath(user);
                     } else {
                         await redirectMissingAccount();
@@ -227,10 +230,10 @@ export default function LoginPage() {
                 await redirectMissingAccount();
                 return;
             }
-            // See the matching comment in the auto-redirect effect above --
-            // this pre-warms useSession()'s cache for the dashboard we're
-            // about to navigate to, so it doesn't re-fetch what we just got.
-            queryClient.setQueryData(sessionQueryKey, user);
+            const targetUserId = user?.id || userId;
+            if (targetUserId) queryClient.setQueryData(['session', targetUserId], user);
+            if (createdSessionId) queryClient.setQueryData(['session', createdSessionId], user);
+            queryClient.setQueryData(['session', 'anonymous'], user);
             path = resolvePostLoginPath(user);
         } catch (e: any) {
             if (e.message === 'FORBIDDEN') {

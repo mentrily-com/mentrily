@@ -87,9 +87,9 @@ export default function ExamWaitingRoom() {
     };
 
     return (
-        <div className="h-screen w-full bg-slate-50 flex items-center justify-center font-sans overflow-hidden relative">
+        <div className="min-h-screen w-full bg-slate-50 flex items-center justify-center font-sans overflow-y-auto md:overflow-hidden relative py-20 md:py-0">
             {/* Minimal Header with Logo */}
-            <div className="absolute top-0 left-0 w-full p-8 z-20">
+            <div className="absolute top-0 left-0 w-full p-4 sm:p-8 z-20">
                 <BrandLockup
                     orgName={orgContext?.name}
                     orgLogo={orgContext?.logo}
@@ -100,27 +100,27 @@ export default function ExamWaitingRoom() {
                 />
             </div>
 
-            <div className="max-w-4xl w-full flex flex-col items-center justify-center text-center px-6 relative z-10">
-                <div className="space-y-12">
+            <div className="max-w-4xl w-full flex flex-col items-center justify-center text-center px-4 sm:px-6 relative z-10 my-auto">
+                <div className="space-y-8 sm:space-y-12">
                     <div>
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold tracking-wider uppercase mb-8">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold tracking-wider uppercase mb-6 sm:mb-8">
                             <span className="w-2 h-2 rounded-full bg-indigo-600"></span>
                             Exam Waiting Room
                         </div>
-                        <h1 className="text-5xl md:text-7xl font-black text-slate-900 tracking-tight leading-tight mb-6">
+                        <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-slate-900 tracking-tight leading-tight mb-4 sm:mb-6">
                             {examTitle} <br className="hidden md:block" /> starts in...
                         </h1>
-                        <p className="text-lg text-slate-500 font-medium max-w-xl mx-auto leading-relaxed">
+                        <p className="text-base sm:text-lg text-slate-500 font-medium max-w-xl mx-auto leading-relaxed px-2">
                             {loading
                                 ? 'Checking exam status...'
                                 : 'Please stay on this page. You will be automatically redirected to the secure login portal when the timer hits zero.'}
                         </p>
                     </div>
 
-                    <div className="space-y-6">
+                    <div className="space-y-4 sm:space-y-6">
                         <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Time Remaining</div>
                         <div className="inline-block relative">
-                            <div className="text-8xl md:text-9xl font-black text-slate-900 font-mono tracking-tight tabular-nums">
+                            <div className="text-4xl sm:text-7xl md:text-8xl lg:text-9xl font-black text-slate-900 font-mono tracking-tight tabular-nums">
                                 {timeLeft !== null ? formatTime(timeLeft) : '--:--:--'}
                             </div>
                             {/* Static underline decoration */}

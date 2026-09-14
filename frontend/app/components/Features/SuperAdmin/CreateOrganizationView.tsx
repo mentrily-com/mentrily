@@ -134,17 +134,17 @@ export default function CreateOrganizationView() {
         <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
             {/* Navbar set to Super Admin context */}
 
-            <main className="max-w-[1440px] mx-auto px-6 lg:px-12 py-10 animate-fade-in">
-                <div className="flex items-center justify-between mb-12">
+            <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-10 animate-fade-in">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-12">
                     <div>
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Provision New Tenant</h1>
+                        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Provision New Tenant</h1>
                         <p className="text-slate-400 font-bold text-sm mt-1">
                             Create a new organization instance and configure initial settings.
                         </p>
                     </div>
                     <button
                         onClick={handleSave}
-                        className="px-8 py-4 bg-[var(--brand)] text-white font-black text-sm rounded-2xl shadow-xl shadow-[var(--brand)]/20 flex items-center gap-3 hover:scale-105 transition-all active:scale-95"
+                        className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-[var(--brand)] text-white font-black text-sm rounded-2xl shadow-xl shadow-[var(--brand)]/20 flex items-center justify-center gap-3 hover:scale-105 transition-all active:scale-95"
                     >
                         {isSaving ? (
                             <span className="animate-pulse">Provisioning...</span>
@@ -638,14 +638,14 @@ export default function CreateOrganizationView() {
 
 function SettingsSection({ icon, title, desc, children }: any) {
     return (
-        <div className="bg-white rounded-[40px] border border-slate-100 p-10 shadow-sm">
-            <div className="flex items-start gap-6 mb-10">
-                <div className="w-16 h-16 rounded-[24px] bg-slate-50 flex items-center justify-center text-slate-400 shrink-0">
+        <div className="bg-white rounded-3xl sm:rounded-[40px] border border-slate-100 p-5 sm:p-8 lg:p-10 shadow-sm">
+            <div className="flex items-start gap-4 sm:gap-6 mb-6 sm:mb-10">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl sm:rounded-[24px] bg-slate-50 flex items-center justify-center text-slate-400 shrink-0">
                     {icon}
                 </div>
                 <div>
-                    <h3 className="text-xl font-black text-slate-800 tracking-tight leading-none mb-2">{title}</h3>
-                    <p className="text-sm font-bold text-slate-400">{desc}</p>
+                    <h3 className="text-lg sm:text-xl font-black text-slate-800 tracking-tight leading-none mb-1.5 sm:mb-2">{title}</h3>
+                    <p className="text-xs sm:text-sm font-bold text-slate-400">{desc}</p>
                 </div>
             </div>
             {children}

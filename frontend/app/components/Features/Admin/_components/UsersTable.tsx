@@ -45,7 +45,7 @@ export default function UsersTable({
             className="bg-white rounded-xl border shadow-sm overflow-hidden min-h-[500px] flex flex-col"
             style={{ borderColor: 'var(--color-border-subtle)' }}
         >
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto overscroll-x-contain">
                 <table className="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                         <tr
@@ -169,7 +169,7 @@ export default function UsersTable({
                                                         value={user.role}
                                                         onChange={(e) => onRoleChange(user, e.target.value)}
                                                         onClick={(e) => e.stopPropagation()}
-                                                        className={`px-2 py-0.5 rounded-lg border text-[9px] font-black uppercase tracking-widest cursor-pointer outline-none ${ROLE_SELECT_STYLES[user.role] || ROLE_SELECT_STYLES.STUDENT}`}
+                                                        className={`px-2.5 py-1 rounded-lg border text-[10px] sm:text-[9px] font-black uppercase tracking-widest cursor-pointer outline-none ${ROLE_SELECT_STYLES[user.role] || ROLE_SELECT_STYLES.STUDENT}`}
                                                         title="Change role"
                                                     >
                                                         {ROLE_OPTIONS.map((role) => (
@@ -202,7 +202,7 @@ export default function UsersTable({
                                             <div className="flex items-center justify-end gap-1.5">
                                                 <button
                                                     onClick={() => canActOnUser && onToggleStatus(user)}
-                                                    className={`p-2 rounded-lg transition-colors ${
+                                                    className={`p-2.5 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-lg transition-colors ${
                                                         !canActOnUser
                                                             ? 'opacity-30 cursor-not-allowed'
                                                             : 'cursor-pointer'
@@ -253,7 +253,7 @@ export default function UsersTable({
                                                 </button>
                                                 <button
                                                     onClick={() => canActOnUser && onDeleteRequest(user)}
-                                                    className={`p-2 rounded-lg transition-colors ${
+                                                    className={`p-2.5 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-lg transition-colors ${
                                                         !canActOnUser
                                                             ? 'opacity-30 cursor-not-allowed'
                                                             : 'cursor-pointer'

@@ -24,6 +24,8 @@ import {
     BarChart3,
     User,
     UserPlus,
+    X,
+    Sparkles,
 } from 'lucide-react';
 import { useOrganization } from '@/app/context/OrganizationContext';
 import { useSession } from '@/hooks/useSession';
@@ -144,6 +146,16 @@ function getNavGroups(role: NavbarRole, sessionUser: Record<string, unknown> | n
             {
                 label: 'SCHOOL',
                 items: [
+                    {
+                        label: 'AI Studio',
+                        path: '/dashboard/creator/ai',
+                        icon: (
+                            <N>
+                                <Sparkles size={iconSize} />
+                            </N>
+                        ),
+                        badge: 'New',
+                    },
                     {
                         label: 'Courses',
                         path: '/dashboard/creator/courses',
@@ -276,6 +288,16 @@ function getNavGroups(role: NavbarRole, sessionUser: Record<string, unknown> | n
             {
                 label: 'MY WORK',
                 items: [
+                    {
+                        label: 'AI Studio',
+                        path: '/dashboard/creator/ai',
+                        icon: (
+                            <N>
+                                <Sparkles size={iconSize} />
+                            </N>
+                        ),
+                        badge: 'New',
+                    },
                     {
                         label: 'My Courses',
                         path: '/dashboard/creator/courses',
@@ -501,6 +523,7 @@ export default function DashboardSidebar({
             : null;
     });
     const collapsed = collapsedProp ?? localCollapsed;
+    const isEffectiveCollapsed = collapsed && !mobileOpen;
     const panelRef = useRef<HTMLElement>(null);
     // This <aside> is always mounted: on lg+ it's persistent page chrome, and
     // only on mobile does `mobileOpen` turn it into an overlay drawer. That
@@ -588,39 +611,50 @@ export default function DashboardSidebar({
                 aria-modal={mobileOpen || undefined}
                 aria-label="Navigation"
                 tabIndex={-1}
-                className={`fixed top-0 left-0 h-full bg-white border-r z-[999] flex flex-col transition-transform duration-250 ease-in-out lg:translate-x-0 ${mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'} ${collapsed ? '' : ''} focus:outline-none`}
+                className={`fixed top-0 left-0 h-full bg-white border-r z-[999] flex flex-col transition-transform duration-250 ease-in-out lg:translate-x-0 ${mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'} focus:outline-none`}
                 style={{
-                    width: collapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)',
+                    width: mobileOpen ? 'min(280px, 85vw)' : isEffectiveCollapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)',
                     borderColor: 'var(--color-border-subtle)',
                 }}
             >
                 {/* ── Brand section ── */}
                 <div
-                    className="flex items-center gap-2.5 border-b shrink-0"
+                    className="flex items-center justify-between gap-2 border-b shrink-0"
                     style={{
                         height: 'var(--topbar-height)',
                         borderColor: 'var(--color-border-subtle)',
-                        padding: collapsed ? '0 12px' : '0 16px',
+                        padding: isEffectiveCollapsed ? '0 12px' : '0 16px',
                     }}
                 >
                     <button
                         type="button"
                         className="min-w-0 cursor-pointer"
-                        onClick={() =>
+                        onClick={() => {
+                            if (mobileOpen && onMobileClose) onMobileClose();
                             router.push(
                                 `/dashboard/${role === 'student' ? 'learner' : role === 'admin' || role === 'teacher' ? 'creator' : 'super-admin'}`,
-                            )
-                        }
+                            );
+                        }}
                     >
                         <BrandLockup
                             orgName={orgContext?.name}
                             orgLogo={orgContext?.logo}
-                            collapsed={collapsed}
-                            defaultLogoClassName={collapsed ? 'h-9 w-9 max-w-none rounded-xl' : 'h-8 max-w-[158px]'}
+                            collapsed={isEffectiveCollapsed}
+                            defaultLogoClassName={isEffectiveCollapsed ? 'h-9 w-9 max-w-none rounded-xl' : 'h-8 max-w-[158px]'}
                             textClassName="text-[13px]"
                             priority
                         />
                     </button>
+                    {mobileOpen && (
+                        <button
+                            type="button"
+                            onClick={onMobileClose}
+                            className="p-1.5 -mr-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg lg:hidden transition-colors cursor-pointer"
+                            aria-label="Close navigation"
+                        >
+                            <X size={18} />
+                        </button>
+                    )}
                 </div>
 
                 {/* ── Navigation groups ── */}
@@ -644,7 +678,7 @@ export default function DashboardSidebar({
 
                             return (
                                 <div key={gi}>
-                                    {group.label && !collapsed && (
+                                    {group.label && !isEffectiveCollapsed && (
                                         <p
                                             className="px-2.5 mb-2 text-[11px] font-semibold uppercase tracking-[0.04em]"
                                             style={{ color: 'var(--color-text-muted)' }}
@@ -652,7 +686,7 @@ export default function DashboardSidebar({
                                             {group.label}
                                         </p>
                                     )}
-                                    {collapsed && group.label && (
+                                    {isEffectiveCollapsed && group.label && (
                                         <div
                                             className="h-px mx-2 mb-2"
                                             style={{ backgroundColor: 'var(--color-border-subtle)' }}
@@ -667,14 +701,14 @@ export default function DashboardSidebar({
                                                 <Link
                                                     key={item.path}
                                                     href={isDisabled ? '#' : item.path}
-                                                    title={collapsed ? item.label : undefined}
+                                                    title={isEffectiveCollapsed ? item.label : undefined}
                                                     className={`relative w-full flex items-center gap-2.5 rounded-lg transition-all duration-150 text-sm font-medium cursor-pointer ${
                                                         isDisabled ? 'opacity-40 cursor-not-allowed' : ''
                                                     }`}
                                                     style={{
                                                         height: 40,
-                                                        padding: collapsed ? '0 12px' : '0 12px',
-                                                        justifyContent: collapsed ? 'center' : 'flex-start',
+                                                        padding: isEffectiveCollapsed ? '0 12px' : '0 12px',
+                                                        justifyContent: isEffectiveCollapsed ? 'center' : 'flex-start',
                                                         backgroundColor: active
                                                             ? 'var(--color-bg-blue-tint)'
                                                             : 'transparent',
@@ -696,7 +730,13 @@ export default function DashboardSidebar({
                                                         }
                                                     }}
                                                     onClick={(event) => {
-                                                        if (isDisabled) event.preventDefault();
+                                                        if (isDisabled) {
+                                                            event.preventDefault();
+                                                            return;
+                                                        }
+                                                        if (mobileOpen && onMobileClose) {
+                                                            onMobileClose();
+                                                        }
                                                     }}
                                                 >
                                                     {/* Active indicator */}
@@ -719,10 +759,10 @@ export default function DashboardSidebar({
                                                     </span>
 
                                                     {/* Label */}
-                                                    {!collapsed && <span className="truncate">{item.label}</span>}
+                                                    {!isEffectiveCollapsed && <span className="truncate">{item.label}</span>}
 
                                                     {/* Badge */}
-                                                    {!collapsed && item.badge && (
+                                                    {!isEffectiveCollapsed && item.badge && (
                                                         <span
                                                             className="ml-auto px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wider"
                                                             style={{
@@ -735,7 +775,7 @@ export default function DashboardSidebar({
                                                     )}
 
                                                     {/* Disabled lock */}
-                                                    {isDisabled && !collapsed && (
+                                                    {isDisabled && !isEffectiveCollapsed && (
                                                         <Lock
                                                             size={12}
                                                             className="ml-auto"
@@ -753,7 +793,7 @@ export default function DashboardSidebar({
 
                     {/* ── Playground section ── */}
                     <div className="pt-2">
-                        {!collapsed && (
+                        {!isEffectiveCollapsed && (
                             <div className="mx-1.5 mb-2 px-2.5">
                                 <p
                                     className="text-[11px] font-semibold uppercase tracking-[0.04em]"
@@ -766,7 +806,7 @@ export default function DashboardSidebar({
                                 </p>
                             </div>
                         )}
-                        {collapsed && (
+                        {isEffectiveCollapsed && (
                             <div className="h-px mx-2 mb-2" style={{ backgroundColor: 'var(--color-border-subtle)' }} />
                         )}
                         <div className="space-y-0.5">
@@ -778,12 +818,12 @@ export default function DashboardSidebar({
                                     <Link
                                         key={item.path}
                                         href={item.path}
-                                        title={collapsed ? item.label : undefined}
+                                        title={isEffectiveCollapsed ? item.label : undefined}
                                         className="relative w-full flex items-center gap-2.5 rounded-lg transition-all duration-150 text-sm font-medium cursor-pointer"
                                         style={{
                                             height: 40,
-                                            padding: '0 12px',
-                                            justifyContent: collapsed ? 'center' : 'flex-start',
+                                            padding: isEffectiveCollapsed ? '0 12px' : '0 12px',
+                                            justifyContent: isEffectiveCollapsed ? 'center' : 'flex-start',
                                             backgroundColor: active ? 'var(--color-bg-blue-tint)' : 'transparent',
                                             color: active ? 'var(--brand, #008D98)' : 'var(--color-text-secondary)',
                                         }}
@@ -800,6 +840,9 @@ export default function DashboardSidebar({
                                             }
                                         }}
                                         onClick={() => {
+                                            if (mobileOpen && onMobileClose) {
+                                                onMobileClose();
+                                            }
                                             localStorage.setItem(
                                                 'playground-workspace-role',
                                                 JSON.stringify({
@@ -823,7 +866,7 @@ export default function DashboardSidebar({
                                         >
                                             {item.icon}
                                         </span>
-                                        {!collapsed && <span className="truncate">{item.label}</span>}
+                                        {!isEffectiveCollapsed && <span className="truncate">{item.label}</span>}
                                     </Link>
                                 );
                             })}

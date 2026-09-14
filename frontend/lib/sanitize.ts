@@ -37,9 +37,8 @@ DOMPurify.addHook('uponSanitizeElement', (node, data) => {
     try {
         const url = new URL(src, 'https://invalid.local');
         if (url.protocol === 'https:' && ALLOWED_IFRAME_HOSTS.has(url.hostname)) {
-            // Constrain the frame even when the host is trusted, so a
-            // compromised or changed embed cannot navigate the top window.
-            el.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation');
+            // Constrain the frame: do NOT include allow-same-origin, preventing sandbox escape
+            el.setAttribute('sandbox', 'allow-scripts allow-presentation allow-popups');
             el.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
             return;
         }
@@ -57,11 +56,17 @@ DOMPurify.addHook('afterSanitizeAttributes', (node) => {
         el.setAttribute('target', '_blank');
         el.setAttribute('rel', 'noopener noreferrer');
     }
+    if (el.tagName === 'IFRAME') {
+        el.setAttribute('sandbox', 'allow-scripts allow-presentation allow-popups');
+        el.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+    }
 });
 
 const RICH_TEXT_CONFIG = Object.freeze({
+    USE_PROFILES: { html: true },
     ADD_TAGS: ['iframe'],
-    ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling'],
+    ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling', 'sandbox', 'referrerpolicy'],
+    FORBID_TAGS: ['svg', 'math', 'base', 'form', 'object', 'embed'],
 });
 
 /**
@@ -77,5 +82,8 @@ export function sanitizeRichText(html: unknown): string {
  * Iframes are stripped entirely rather than host-checked.
  */
 export function sanitizeProse(html: unknown): string {
-    return DOMPurify.sanitize(String(html ?? ''));
+    return DOMPurify.sanitize(String(html ?? ''), {
+        USE_PROFILES: { html: true },
+        FORBID_TAGS: ['svg', 'math', 'base', 'form', 'object', 'embed', 'iframe'],
+    });
 }

@@ -53,8 +53,8 @@ export const useNotificationSocket = (onNewAnnouncement?: (announcement: Announc
                 // not a WebSocket API) can't perform a WS upgrade at all, so
                 // 'websocket'-only here meant this socket could never connect
                 // in production. Force long-polling instead.
-                transports: ['polling'],
-                upgrade: false,
+                transports: ['websocket', 'polling'],
+                upgrade: true,
                 reconnection: true,
                 reconnectionAttempts: 10,
                 reconnectionDelay: 3000,

@@ -281,7 +281,7 @@ export default function TeacherDashboardPage() {
                 initial="hidden"
                 animate="visible"
                 variants={stagger}
-                className="grid grid-cols-2 gap-3 lg:grid-cols-4"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
                 data-element-id="creator-stats"
             >
                 {statCards.map((card, i) => (
@@ -297,7 +297,7 @@ export default function TeacherDashboardPage() {
                             >
                                 {card.icon}
                             </div>
-                            <span className="rounded-full bg-slate-100/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                            <span className="rounded-full bg-slate-100/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400 truncate max-w-[120px]">
                                 {card.hint}
                             </span>
                         </div>
@@ -400,7 +400,7 @@ export default function TeacherDashboardPage() {
                             </div>
 
                             {/* Search */}
-                            <label className="relative block">
+                            <label className="relative block w-full sm:w-auto">
                                 <span className="sr-only">Search courses</span>
                                 <Search
                                     size={15}

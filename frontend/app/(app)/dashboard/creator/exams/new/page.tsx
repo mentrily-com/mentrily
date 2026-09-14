@@ -3,8 +3,8 @@ import React, { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import NewExamSkeleton from '@/app/components/Skeletons/NewExamSkeleton';
-import { AuthService } from '@/services/api/AuthService';
 import { usePlan } from '@/hooks/usePlan';
+import { useSession } from '@/hooks/useSession';
 
 const ExamBuilder = dynamic(() => import('@/app/components/Authoring/ExamBuilder'), {
     ssr: false,
@@ -15,17 +15,8 @@ export default function CreateExamPage() {
     const searchParams = useSearchParams();
     const courseId = searchParams.get('courseId') || undefined;
     const { role } = usePlan();
-    const [userData, setUserData] = React.useState<any>(null);
+    const { session: userData } = useSession();
     const dashboardRole = role === 'ADMIN' ? 'admin' : 'teacher';
-
-    React.useEffect(() => {
-        const loadUser = async () => {
-            const user = await AuthService.checkSession();
-            setUserData(user);
-        };
-
-        void loadUser();
-    }, []);
 
     return (
         <Suspense fallback={<NewExamSkeleton />}>

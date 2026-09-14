@@ -179,7 +179,7 @@ function PartnershipHero() {
                         transition={{ duration: 0.8 }}
                         className="relative flex items-center justify-center lg:justify-end"
                     >
-                        <div className="relative w-full max-w-[480px] aspect-[4/3]">
+                        <div className="relative w-full max-w-[480px] min-h-[380px] aspect-auto sm:aspect-[4/3]">
                             <div className="absolute -inset-4 bg-gradient-to-tr from-teal-500/10 to-blue-500/10 blur-3xl rounded-full" />
 
                             <motion.div
@@ -193,7 +193,7 @@ function PartnershipHero() {
                                 initial={{ y: 10, rotate: 0 }}
                                 animate={{ y: -20, rotate: -2 }}
                                 transition={{ delay: 0.1 }}
-                                className="absolute inset-0 bg-slate-900 border border-white/10 rounded-[2rem] shadow-2xl p-8 flex flex-col justify-end overflow-hidden"
+                                className="absolute inset-0 bg-slate-900 border border-white/10 rounded-[2rem] shadow-2xl p-6 sm:p-8 flex flex-col justify-end overflow-hidden"
                             >
                                 <div className="absolute top-0 right-0 p-12 opacity-5">
                                     <TrendingUp size={160} className="text-white" />
@@ -211,7 +211,7 @@ function PartnershipHero() {
 
                             <motion.div
                                 whileHover={{ y: -8, transition: { duration: 0.2 } }}
-                                className="absolute inset-0 bg-white rounded-[2rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] p-10 flex flex-col justify-between border border-slate-100"
+                                className="absolute inset-0 bg-white rounded-[2rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] p-6 sm:p-10 flex flex-col justify-between border border-slate-100"
                             >
                                 <div className="flex justify-between items-start">
                                     <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center">

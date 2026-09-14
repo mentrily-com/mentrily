@@ -18,7 +18,7 @@ import {
     CreditCard,
     LifeBuoy,
 } from 'lucide-react';
-import { StudentService } from '@/services/api/StudentService';
+import { useAnnouncements } from '@/hooks/useAnnouncements';
 import { sanitizeProse } from '@/lib/sanitize';
 import { useSession } from '@/hooks/useSession';
 import CrispWidget from './CrispWidget';
@@ -72,7 +72,7 @@ function getDashboardRouteForRole(role: NavbarRole) {
     return '/dashboard/super-admin';
 }
 
-export default function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
+function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
     const router = useRouter();
     const pathname = usePathname();
     const { user: clerkUser } = useUser();
@@ -600,7 +600,7 @@ export default function Navbar({ basePath, userRole: roleOverride, examConfig }:
 
                     {/* Center Content - Absolute Center for Exam Mode */}
                     {examConfig ? (
-                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                        <div className="hidden sm:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                             {examConfig.centerContent}
                         </div>
                     ) : (
@@ -947,6 +947,65 @@ const AppsMenu = React.memo(function AppsMenu({ isTeacher }: { isTeacher: boolea
           ]
         : [
               {
+                  label: 'Dashboard',
+                  icon: (
+                      <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                      >
+                          <rect x="3" y="3" width="7" height="7" />
+                          <rect x="14" y="3" width="7" height="7" />
+                          <rect x="14" y="14" width="7" height="7" />
+                          <rect x="3" y="14" width="7" height="7" />
+                      </svg>
+                  ),
+                  path: '/dashboard/learner',
+              },
+              {
+                  label: 'Browse',
+                  icon: (
+                      <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                      >
+                          <circle cx="12" cy="12" r="10" />
+                          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+                      </svg>
+                  ),
+                  path: '/dashboard/learner/browse',
+              },
+              {
+                  label: 'Playground',
+                  icon: (
+                      <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                      >
+                          <polyline points="16 18 22 12 16 6" />
+                          <polyline points="8 6 2 12 8 18" />
+                      </svg>
+                  ),
+                  path: '/playground',
+              },
+              {
                   label: 'Assessments',
                   icon: (
                       <svg
@@ -1006,6 +1065,25 @@ const AppsMenu = React.memo(function AppsMenu({ isTeacher }: { isTeacher: boolea
                       </svg>
                   ),
                   path: '/dashboard/learner/certificates',
+              },
+              {
+                  label: 'Analytics',
+                  icon: (
+                      <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                      >
+                          <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+                          <path d="M22 12A10 10 0 0 0 12 2v10z" />
+                      </svg>
+                  ),
+                  path: '/dashboard/learner/analytics',
               },
           ];
 
@@ -1369,8 +1447,7 @@ function MenuBtn({
 function AnnouncementBell({ enabled }: { enabled: boolean }) {
     const router = useRouter();
     const [open, setOpen] = useState(false);
-    const [announcements, setAnnouncements] = useState<any[]>([]);
-    const [unreadCount, setUnreadCount] = useState(0);
+    const { announcements, unreadCount, markAsRead } = useAnnouncements(enabled);
     const [selectedAnn, setSelectedAnn] = useState<any>(null);
     const ref = useRef<HTMLDivElement | null>(null);
 
@@ -1389,46 +1466,11 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
         };
     }, []);
 
-    const load = async () => {
-        if (!enabled) {
-            setAnnouncements([]);
-            setUnreadCount(0);
-            return;
-        }
-
-        try {
-            const [ann, count] = await Promise.all([
-                StudentService.getAnnouncements(true),
-                StudentService.getUnreadAnnouncementCount(),
-            ]);
-            setAnnouncements(ann);
-            setUnreadCount(count.count || 0);
-        } catch {
-            /* silent */
-        }
-    };
-
-    useEffect(() => {
-        if (!enabled) {
-            return;
-        }
-
-        load();
-        const interval = setInterval(load, 30000); // poll every 30s
-        return () => clearInterval(interval);
-    }, [enabled]);
-
     const handleClick = async (ann: any) => {
         setSelectedAnn(ann);
         setOpen(false);
         if (!ann.isRead) {
-            try {
-                await StudentService.markAnnouncementRead(ann.id);
-                setUnreadCount((prev) => Math.max(prev - 1, 0));
-                setAnnouncements((prev) => prev.map((a) => (a.id === ann.id ? { ...a, isRead: true } : a)));
-            } catch {
-                /* silent */
-            }
+            markAsRead(ann.id);
         }
     };
 
@@ -1526,11 +1568,11 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                             className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
                             onClick={() => setSelectedAnn(null)}
                         />
-                        <div className="bg-white w-full max-w-2xl rounded-[48px] p-12 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[85vh] overflow-y-auto custom-scrollbar">
+                        <div className="bg-white w-full max-w-2xl rounded-3xl sm:rounded-[48px] p-6 sm:p-12 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[85vh] overflow-y-auto custom-scrollbar">
                             <button
                                 onClick={() => setSelectedAnn(null)}
                                 aria-label="Close"
-                                className="absolute top-10 right-10 w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all hover:scale-110 active:scale-95"
+                                className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl sm:rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all active:scale-95"
                             >
                                 <X size={20} strokeWidth={3} />
                             </button>
@@ -1626,3 +1668,6 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
         </>
     );
 }
+
+export default React.memo(Navbar);
+

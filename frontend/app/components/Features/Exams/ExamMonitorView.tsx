@@ -237,10 +237,10 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto">
                         <button
                             onClick={() => setView('ai-proctoring')}
-                            className={`relative flex items-center gap-3 px-6 py-3 rounded-2xl border transition-all ${view === 'ai-proctoring' ? `${activeBgClass} text-white border-transparent shadow-xl ${activeShadowClass}` : `bg-white border-slate-100 text-slate-600 hover:border-[var(--brand-light)] shadow-sm`}`}
+                            className={`relative flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl border transition-all ${view === 'ai-proctoring' ? `${activeBgClass} text-white border-transparent shadow-xl ${activeShadowClass}` : `bg-white border-slate-100 text-slate-600 hover:border-[var(--brand-light)] shadow-sm`}`}
                         >
                             <svg
                                 width="18"
@@ -253,14 +253,14 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                 <path d="M15 10l5 5-5 5" />
                                 <path d="M4 4v7a4 4 0 0 0 4 4h12" />
                             </svg>
-                            <span className="text-[11px] font-black uppercase tracking-widest">AI Proctoring</span>
+                            <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest">AI Proctoring</span>
                             <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 animate-pulse border-2 border-white"></div>
                         </button>
 
                         {/* Feedback Toggle Button */}
                         <button
                             onClick={() => setView('feedback')}
-                            className={`relative flex items-center gap-3 px-6 py-3 rounded-2xl border transition-all ${view === 'feedback' ? `${activeBgClass} text-white border-transparent shadow-xl ${activeShadowClass}` : `bg-white border-slate-100 text-slate-600 hover:border-[var(--brand-light)] shadow-sm`}`}
+                            className={`relative flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl border transition-all ${view === 'feedback' ? `${activeBgClass} text-white border-transparent shadow-xl ${activeShadowClass}` : `bg-white border-slate-100 text-slate-600 hover:border-[var(--brand-light)] shadow-sm`}`}
                         >
                             <svg
                                 width="18"
@@ -272,13 +272,13 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                             >
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                             </svg>
-                            <span className="text-[11px] font-black uppercase tracking-widest">Feedback Center</span>
+                            <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest">Feedback Center</span>
                             {unseenCount > 0 && (
                                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 border-2 border-white rounded-full animate-bounce"></div>
                             )}
                         </button>
 
-                        <div className="flex items-center gap-3 bg-white px-5 py-3 rounded-2xl border border-slate-100 shadow-sm">
+                        <div className="flex items-center gap-2 sm:gap-3 bg-white px-3 sm:px-5 py-2.5 sm:py-3 rounded-2xl border border-slate-100 shadow-sm">
                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></div>
                             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                                 Synced • <span className="text-slate-800">{new Date().toLocaleTimeString()}</span>
@@ -290,17 +290,17 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                 {view === 'monitor' ? (
                     <>
                         {/* KPI Grid - 5 Cards */}
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-                            {stats.map((s) => (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-8">
+                            {stats.map((s, idx) => (
                                 <div
                                     key={s.label}
-                                    className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm"
+                                    className={`bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm ${idx === 4 ? 'col-span-2 sm:col-span-1' : ''}`}
                                 >
                                     <p className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 mb-1">
                                         {s.label}
                                     </p>
                                     <p
-                                        className={`text-2xl font-black ${s.color === 'text-indigo-600' && userRole === 'admin' ? 'text-orange-600' : s.color}`}
+                                        className={`text-xl sm:text-2xl font-black ${s.color === 'text-indigo-600' && userRole === 'admin' ? 'text-orange-600' : s.color}`}
                                     >
                                         {s.value}
                                     </p>
@@ -403,7 +403,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                                     )}
                                                 </td>
                                                 <td className="px-6 py-5 text-right">
-                                                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <div className="flex items-center justify-end gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                                                         <button
                                                             onClick={() => setSelectedStudent(student)}
                                                             className={`p-2 bg-white border border-slate-100 rounded-lg text-slate-400 ${buttonHoverClass} transition-all shadow-sm`}

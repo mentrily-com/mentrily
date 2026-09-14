@@ -116,16 +116,13 @@ function FeatureRow({
     return (
         <div
             ref={ref}
-            className={`grid lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] gap-10 lg:gap-14 xl:gap-16 items-center ${
-                direction === 'right' ? 'lg:flex-row-reverse' : ''
-            }`}
-            style={{ direction: direction === 'right' ? 'rtl' : 'ltr' }}
+            className="grid lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] gap-10 lg:gap-14 xl:gap-16 items-center"
         >
             <motion.div
                 initial={{ opacity: 0, x: textX }}
                 animate={inView ? { opacity: 1, x: 0 } : {}}
                 transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-                style={{ direction: 'ltr' }}
+                className={direction === 'right' ? 'lg:order-2' : 'lg:order-1'}
             >
                 <h3
                     className="mb-4"
@@ -178,8 +175,9 @@ function FeatureRow({
                 initial={{ opacity: 0, x: mockupX }}
                 animate={inView ? { opacity: 1, x: 0 } : {}}
                 transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-                className="transition-transform duration-300 lg:-mx-3 xl:-mx-6"
-                style={{ direction: 'ltr' }}
+                className={`transition-transform duration-300 lg:-mx-3 xl:-mx-6 ${
+                    direction === 'right' ? 'lg:order-1' : 'lg:order-2'
+                }`}
             >
                 <div
                     className="transition-all duration-300 cursor-pointer"

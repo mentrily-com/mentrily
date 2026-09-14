@@ -251,14 +251,14 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                 className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
                 onClick={step === 'name' ? onClose : undefined}
             />
-            <div className="bg-white w-full max-w-xl rounded-[48px] p-12 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[85vh] overflow-y-auto custom-scrollbar">
+            <div className="bg-white w-full max-w-xl rounded-3xl sm:rounded-[48px] p-6 sm:p-12 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[85vh] overflow-y-auto custom-scrollbar">
                 <button
                     onClick={() => {
                         if (step === 'students') onCreated();
                         else onClose();
                     }}
                     aria-label="Close"
-                    className="absolute top-10 right-10 w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all hover:scale-110 active:scale-95"
+                    className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl sm:rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all hover:scale-110 active:scale-95"
                 >
                     <X size={20} strokeWidth={3} />
                 </button>
@@ -355,13 +355,13 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
                     onUpdated();
                 }}
             />
-            <div className="bg-white w-full max-w-2xl rounded-[48px] p-12 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[85vh] overflow-hidden flex flex-col">
+            <div className="bg-white w-full max-w-2xl rounded-3xl sm:rounded-[48px] p-6 sm:p-12 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[85vh] overflow-hidden flex flex-col">
                 <button
                     onClick={() => {
                         onUpdated();
                     }}
                     aria-label="Close"
-                    className="absolute top-10 right-10 w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all hover:scale-110 active:scale-95"
+                    className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl sm:rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all hover:scale-110 active:scale-95"
                 >
                     <X size={20} strokeWidth={3} />
                 </button>
@@ -469,7 +469,7 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
                                 </div>
                                 <button
                                     onClick={() => handleRemoveStudent(st.id)}
-                                    className="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all opacity-0 group-hover/student:opacity-100"
+                                    className="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all sm:opacity-0 sm:group-hover/student:opacity-100 opacity-100"
                                     title="Remove from group"
                                 >
                                     <X size={16} strokeWidth={3} />

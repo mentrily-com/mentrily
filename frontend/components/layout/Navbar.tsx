@@ -121,10 +121,10 @@ export default function Navbar() {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: '100%' }}
                         transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-                        className="fixed inset-0 z-[60] md:hidden focus:outline-none"
+                        className="fixed inset-0 z-[60] md:hidden focus:outline-none overflow-y-auto"
                         style={{ backgroundColor: '#FFFFFF' }}
                     >
-                        <div className="flex items-center justify-between px-4 h-16">
+                        <div className="flex items-center justify-between px-4 h-16 sticky top-0 bg-white z-10">
                             <BrandLogo className="h-8 max-w-[160px]" priority />
                             <button
                                 onClick={() => setMobileOpen(false)}
@@ -136,7 +136,7 @@ export default function Navbar() {
                             </button>
                         </div>
 
-                        <div className="flex flex-col items-center justify-center gap-6 pt-16">
+                        <div className="flex flex-col items-center justify-center gap-6 pt-8 pb-12">
                             {navLinks.map((link, i) => (
                                 <motion.div
                                     key={link.href}

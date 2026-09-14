@@ -64,6 +64,40 @@ const nextConfig: NextConfig = {
         ];
     },
 
+    async headers() {
+        return [
+            {
+                source: '/:path*',
+                headers: [
+                    {
+                        key: 'X-Frame-Options',
+                        value: 'SAMEORIGIN',
+                    },
+                    {
+                        key: 'X-Content-Type-Options',
+                        value: 'nosniff',
+                    },
+                    {
+                        key: 'Referrer-Policy',
+                        value: 'strict-origin-when-cross-origin',
+                    },
+                    {
+                        key: 'Permissions-Policy',
+                        value: 'camera=(self), microphone=(self), geolocation=(), browsing-topics=()',
+                    },
+                    ...(process.env.NODE_ENV === 'production'
+                        ? [
+                              {
+                                  key: 'Strict-Transport-Security',
+                                  value: 'max-age=31536000; includeSubDomains',
+                              },
+                          ]
+                        : []),
+                ],
+            },
+        ];
+    },
+
     // Proxy PostHog through our own domain so ad-blockers cannot intercept it.
     // Requests to /ingest/* are rewritten server-side to us.i.posthog.com.
     async rewrites() {
@@ -106,8 +140,17 @@ const nextConfig: NextConfig = {
         optimizeCss: true,
         // Tree-shake heavy barrel-file packages so pages only bundle the
         // components they actually import (lucide-react is covered by the
-        // built-in default list).
-        optimizePackageImports: ['framer-motion', 'recharts', '@apollo/client'],
+        optimizePackageImports: [
+            'framer-motion',
+            'recharts',
+            '@apollo/client',
+            '@tiptap/react',
+            '@tiptap/starter-kit',
+            '@dnd-kit/core',
+            '@dnd-kit/sortable',
+            '@radix-ui/react-toast',
+            'clsx',
+        ],
         serverActions: {
             bodySizeLimit: '10mb',
         },

@@ -403,7 +403,7 @@ export default function AdminDashboardView({
                             <QuickActionCard
                                 title="Manage Teachers"
                                 desc="View profiles and assigned courses"
-                                count="42 Instructors"
+                                count={`${statsData?.totalUsers || 0} Members`}
                                 icon={<Users size={24} />}
                                 color="text-emerald-600 bg-emerald-50"
                                 link={`${basePath}/users?type=teacher`}
@@ -412,10 +412,10 @@ export default function AdminDashboardView({
                                 <QuickActionCard
                                     title="Organization Trends"
                                     desc="Student engagement metrics"
-                                    count="+18.4% growth"
+                                    count={`${Math.round(Number(statsData?.averageCourseCompletionPercent || 0))}% Avg Progress`}
                                     icon={<TrendingUp size={24} />}
                                     color="text-[var(--brand)] bg-[var(--brand-light)]"
-                                    link={`${basePath}/analytics`}
+                                    link={organizationId ? `${basePath}/dashboard` : `${basePath}/analytics`}
                                 />
                             </PlanGate>
                         </div>

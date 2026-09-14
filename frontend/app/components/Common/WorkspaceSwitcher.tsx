@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import { useAuth } from '@clerk/nextjs';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Building2, ChevronsUpDown, Check, Loader2, Plus, GraduationCap, Presentation } from 'lucide-react';
 import { AuthService, WorkspaceMembership } from '@/services/api/AuthService';
@@ -36,6 +37,8 @@ const CREATOR_HOME_SENTINEL = '__creator_home__';
  */
 export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }) {
     const router = useRouter();
+    const pathname = usePathname();
+    const { userId: clerkUserId } = useAuth();
     const queryClient = useQueryClient();
     const { refetch } = useSession();
     const [open, setOpen] = useState(false);
@@ -164,9 +167,18 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
               ...expandedMemberships,
           ];
 
+    const currentRouteRole = pathname?.startsWith('/dashboard/creator')
+        ? 'TEACHER'
+        : pathname?.startsWith('/dashboard/super-admin')
+        ? 'SUPER_ADMIN'
+        : pathname?.startsWith('/dashboard/learner')
+        ? 'STUDENT'
+        : '';
+
     // In learner mode the resolved role is STUDENT and there's no active org.
     // However, if they are in a learner preview, they HAVE an active org but role is STUDENT.
-    const isLearnerActive = String(sessionUser?.role || '').toUpperCase() === 'STUDENT';
+    const effectiveRole = String(sessionUser?.role || '').toUpperCase() || currentRouteRole;
+    const isLearnerActive = effectiveRole === 'STUDENT';
     const isLearnerPreviewActive = isLearnerActive && !!sessionUser?.orgId;
     const isGlobalLearnerActive = isLearnerActive && !sessionUser?.orgId;
 
@@ -179,15 +191,13 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
             if ((membership as any).isLearnerPreview) {
                 return isLearnerPreviewActive && membership.orgId === sessionUser?.orgId;
             }
-            return !isLearnerActive && membership.orgId === sessionUser?.orgId;
+            if (sessionUser?.orgId) {
+                return !isLearnerActive && membership.orgId === sessionUser.orgId;
+            }
+            return !isLearnerActive && (membership.role === 'TEACHER' || membership.role === 'ADMIN');
         }) || displayMemberships[0];
 
     const landOnDashboard = (membership?: WorkspaceMembership) => {
-        // Switching between EXISTING workspaces never changes the membership
-        // list itself, so refetching it here was pure overhead on every
-        // single switch (handleBecomeCreator, the one flow that actually
-        // adds a membership row, does a full page reload and never reaches
-        // this function — it doesn't need this invalidation either).
         setOpen(false);
 
         let targetUrl = '/dashboard';
@@ -200,8 +210,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
         }
 
         // If the target is on the same host, use client-side routing for a seamless
-        // transition without a white flash. We invalidate the session query so
-        // the new layout instantly receives the updated persona.
+        // transition without a white flash.
         let isSameHost = false;
         try {
             if (targetUrl.startsWith('http')) {
@@ -219,14 +228,19 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
         if (!isSameHost) {
             window.location.href = targetUrl;
         } else {
-            // Remove the stale session data IMMEDIATELY. If we just invalidate,
-            // React Query keeps serving the old role (e.g. TEACHER) while fetching.
-            // When the new layout mounts, useRoleGuard sees the stale TEACHER role
-            // on the Learner dashboard and prematurely kicks the user back!
-            queryClient.resetQueries({ queryKey: ['session'] });
             const isStudent = membership?.role === 'STUDENT' || (membership as any)?.isLearnerPreview;
-            const destination = isStudent ? '/dashboard/learner' : '/dashboard/creator';
-            router.push(destination);
+            const isSuperAdmin = membership?.role === 'SUPER_ADMIN';
+            const destination = isSuperAdmin
+                ? '/dashboard/super-admin'
+                : isStudent
+                ? '/dashboard/learner'
+                : '/dashboard/creator';
+
+            if (typeof window !== 'undefined' && window.location.pathname === destination) {
+                router.refresh();
+            } else {
+                router.push(destination);
+            }
         }
     };
 
@@ -255,39 +269,96 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
             }
         }
 
+        const isStudent = membership.role === 'STUDENT' || (membership as any)?.isLearnerPreview;
+        const isSuperAdmin = membership.role === 'SUPER_ADMIN';
+        const destination = isSuperAdmin
+            ? '/dashboard/super-admin'
+            : isStudent
+            ? '/dashboard/learner'
+            : '/dashboard/creator';
+        const targetRole = isSuperAdmin
+            ? 'SUPER_ADMIN'
+            : isStudent
+            ? 'STUDENT'
+            : membership.role === 'ADMIN'
+            ? 'ADMIN'
+            : 'TEACHER';
+
+        // 1. Prime localStorage so useRoleGuard and DashboardSkeleton immediately
+        // recognize the target persona with zero delay, zero wrong-skeleton flicker,
+        // and zero unauthorized kickouts.
+        if (typeof window !== 'undefined') {
+            window.localStorage.setItem(
+                'pending-dashboard-role',
+                JSON.stringify({
+                    role: targetRole,
+                    destination,
+                    expiresAt: Date.now() + 20_000,
+                }),
+            );
+            window.localStorage.setItem(
+                'user-role',
+                isSuperAdmin ? 'super-admin' : isStudent ? 'student' : membership.role === 'ADMIN' ? 'admin' : 'teacher',
+            );
+        }
+
         try {
-            const switchPromise = (async () => {
-                if (membership.orgId === LEARNER_SENTINEL) {
-                    await AuthService.switchToLearner();
-                } else if (membership.orgId === CREATOR_HOME_SENTINEL) {
-                    await AuthService.switchToHome();
-                } else if ((membership as any).isLearnerPreview) {
-                    await AuthService.switchOrg(membership.orgId, { asLearner: true });
-                } else {
-                    await AuthService.switchOrg(membership.orgId);
+            // 2. Perform the switch request and get back the verified fresh session
+            let newSession: any = null;
+            if (membership.orgId === LEARNER_SENTINEL) {
+                newSession = await AuthService.switchToLearner();
+            } else if (membership.orgId === CREATOR_HOME_SENTINEL) {
+                newSession = await AuthService.switchToHome();
+            } else if ((membership as any).isLearnerPreview) {
+                newSession = await AuthService.switchOrg(membership.orgId, { asLearner: true });
+            } else {
+                newSession = await AuthService.switchOrg(membership.orgId);
+            }
+
+            if (switchGenerationRef.current !== myGeneration) return;
+
+            // 3. Prime React Query session cache with the verified session
+            if (newSession) {
+                queryClient.setQueriesData({ queryKey: ['session'] }, newSession);
+                if (clerkUserId) queryClient.setQueryData(['session', clerkUserId], newSession);
+                if (newSession.id) queryClient.setQueryData(['session', newSession.id], newSession);
+                if (sessionUser?.id) queryClient.setQueryData(['session', sessionUser.id], newSession);
+                queryClient.setQueryData(['session', 'anonymous'], newSession);
+
+                if (typeof window !== 'undefined') {
+                    try {
+                        window.localStorage.setItem(
+                            'bc-session-snapshot',
+                            JSON.stringify({
+                                ...newSession,
+                                cachedAt: Date.now(),
+                            }),
+                        );
+                    } catch {}
                 }
-            })();
+            }
 
-            switchPromise.catch((err) => {
-                // A newer switch has already started -- that one owns
-                // switchingMembershipId/error now, so this stale failure
-                // must not clobber its state.
-                if (switchGenerationRef.current !== myGeneration) return;
-                console.error('[WorkspaceSwitcher] background switch failed', err);
-                setError(err instanceof Error ? err.message : 'Failed to switch workspace');
-                setSwitchingMembershipId(null);
-                // The dropdown was already closed and the user may have
-                // navigated to the target dashboard optimistically -- reopen
-                // it so the failure is actually visible instead of sitting
-                // in a closed menu on a page whose session switch failed.
-                setOpen(true);
-            });
+            // Invalidate workspace memberships query so membership list stays fresh
+            queryClient.invalidateQueries({ queryKey: ['workspace-memberships'] });
 
-            // Navigate instantly while the API requests happen in the background!
+            // 4. Remove stale dashboard query caches so new workspace data renders fresh
+            queryClient.removeQueries({ queryKey: ['student-dashboard'] });
+            queryClient.removeQueries({ queryKey: ['student-announcements'] });
+            queryClient.removeQueries({ queryKey: ['teacher-dashboard'] });
+            queryClient.removeQueries({ queryKey: ['super-admin-stats'] });
+
+            // 5. Seamless client navigation
             landOnDashboard(membership);
         } catch (err) {
+            if (switchGenerationRef.current !== myGeneration) return;
+            console.error('[WorkspaceSwitcher] switch failed', err);
             setError(err instanceof Error ? err.message : 'Failed to switch workspace');
             setSwitchingMembershipId(null);
+            setOpen(true);
+        } finally {
+            if (switchGenerationRef.current === myGeneration) {
+                setSwitchingMembershipId(null);
+            }
         }
     };
 
@@ -350,7 +421,15 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                 aria-label="Switch workspace"
             >
                 <div className="w-6 h-6 rounded-lg bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center shrink-0">
-                    {switchingMembershipId ? <Loader2 size={13} className="animate-spin" /> : <Building2 size={13} />}
+                    {switchingMembershipId ? (
+                        <Loader2 size={13} className="animate-spin" />
+                    ) : activeMembership?.role === 'STUDENT' ? (
+                        <GraduationCap size={13} />
+                    ) : activeMembership?.orgId === CREATOR_HOME_SENTINEL ? (
+                        <Presentation size={13} />
+                    ) : (
+                        <Building2 size={13} />
+                    )}
                 </div>
                 <span className="min-w-0 flex-1 text-left">
                     <span className="block text-[11px] font-black text-slate-800 truncate">
@@ -367,7 +446,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                 <div
                     role="menu"
                     aria-label="Your workspaces"
-                    className="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-2xl ring-1 ring-slate-200/60 py-2 z-50">
+                    className="absolute right-0 top-full mt-2 w-64 max-w-[calc(100vw-1.5rem)] max-h-[calc(100dvh-80px)] overflow-y-auto bg-white rounded-2xl shadow-2xl ring-1 ring-slate-200/60 py-2 z-50">
                     <p className="px-4 py-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
                         Your workspaces
                     </p>

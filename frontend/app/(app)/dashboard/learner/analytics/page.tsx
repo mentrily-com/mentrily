@@ -570,7 +570,7 @@ export default function AnalyticsPage() {
                                             {heatmap.activeDays === 1 ? '' : 's'}
                                         </p>
                                     </div>
-                                    <div className="flex items-center gap-4">
+                                    <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                                         {stats.streak > 0 && (
                                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-100 text-[10px] font-black text-amber-600 uppercase tracking-widest">
                                                 <Flame size={12} />
@@ -655,7 +655,7 @@ export default function AnalyticsPage() {
                                     </div>
 
                                     {/* Summary rail */}
-                                    <div className="grid grid-cols-3 gap-3 lg:grid-cols-1 lg:w-56 lg:border-l lg:border-slate-100 lg:pl-8 shrink-0">
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:grid-cols-1 lg:w-56 lg:border-l lg:border-slate-100 lg:pl-8 shrink-0">
                                         <div>
                                             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
                                                 This week
@@ -934,7 +934,7 @@ export default function AnalyticsPage() {
                                         <h3 className="text-base font-black text-slate-800">By Question Type</h3>
                                     </div>
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6">
-                                        Where you're strongest
+                                        Where you&apos;re strongest
                                     </p>
                                     {typeBreakdown.length > 0 ? (
                                         <div className="space-y-3">

@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -25,12 +26,12 @@ type PublicCourseResponse = {
     };
 };
 
-async function fetchPublicCourse(orgSlug: string, courseSlug: string): Promise<PublicCourseResponse | null> {
+const fetchPublicCourse = cache(async (orgSlug: string, courseSlug: string): Promise<PublicCourseResponse | null> => {
     try {
         const res = await fetch(
             `${API_BASE}/courses/public/${encodeURIComponent(orgSlug)}/${encodeURIComponent(courseSlug)}`,
             {
-                cache: 'no-store',
+                next: { revalidate: 30 },
             },
         );
 
@@ -39,7 +40,7 @@ async function fetchPublicCourse(orgSlug: string, courseSlug: string): Promise<P
     } catch {
         return null;
     }
-}
+});
 
 export async function generateMetadata({
     params,

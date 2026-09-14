@@ -19,6 +19,7 @@ type CachedSession = SessionHint & {
     effectiveFeatures?: Record<string, unknown>;
     limits?: Record<string, unknown>;
     usage?: Record<string, unknown>;
+    cachedAt?: number;
 };
 
 type PendingDashboardRole = {
@@ -189,6 +190,23 @@ export function useSession() {
             (effectiveHintRole === 'TEACHER' || effectiveHintRole === 'ADMIN')) ||
         (pathname.startsWith('/dashboard/super-admin') && effectiveHintRole === 'SUPER_ADMIN') ||
         (pathname.startsWith('/dashboard/learner') && effectiveHintRole === 'STUDENT');
+    const isFreshSnapshot = Boolean(
+        isLoaded &&
+        isSignedIn &&
+        cachedSession?.id &&
+        isHintCompatibleWithRoute &&
+        cachedSession?.cachedAt &&
+        Date.now() - Number(cachedSession.cachedAt) < 60_000,
+    );
+
+    const initialSession =
+        isFreshSnapshot && cachedSession
+            ? {
+                  ...cachedSession,
+                  role: pendingRole || cachedSession.role,
+              }
+            : undefined;
+
     const placeholderSession =
         isLoaded && isSignedIn && cachedSession?.id && isHintCompatibleWithRoute
             ? {
@@ -202,10 +220,14 @@ export function useSession() {
                 }
               : undefined;
 
+    const sessionUserId = userId || hintedUserId || sessionId || 'anonymous';
+
     const { data, isLoading, isPlaceholderData, error, refetch } = useQuery({
-        queryKey: ['session', sessionId || userId || hintedUserId || 'anonymous'],
+        queryKey: ['session', sessionUserId],
         enabled: isLoaded,
-        placeholderData: placeholderSession,
+        initialData: initialSession,
+        initialDataUpdatedAt: isFreshSnapshot ? Number(cachedSession?.cachedAt) : undefined,
+        placeholderData: !isFreshSnapshot ? placeholderSession : undefined,
         queryFn: async () => {
             if (!isSignedIn) {
                 AuthService.resetSessionCache();
@@ -241,9 +263,9 @@ export function useSession() {
 
             return await fetchVerifiedSession();
         },
-        staleTime: 5_000,
+        staleTime: 60_000,
         gcTime: 5 * 60_000,
-        refetchOnWindowFocus: true,
+        refetchOnWindowFocus: false,
         retry: 1,
     });
 

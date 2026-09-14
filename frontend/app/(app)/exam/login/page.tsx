@@ -419,9 +419,9 @@ export default function ExamLoginPage() {
     }
 
     return (
-        <div className="h-screen w-full bg-slate-50 flex items-center justify-center font-sans overflow-hidden">
-            <div className="w-full h-full flex flex-col md:flex-row bg-white overflow-hidden shadow-2xl">
-                <div className="w-full md:w-1/2 p-8 md:p-12 lg:p-16 flex flex-col justify-center bg-white relative z-10">
+        <div className="min-h-screen md:h-screen w-full bg-slate-50 flex items-center justify-center font-sans overflow-y-auto md:overflow-hidden">
+            <div className="w-full min-h-screen md:min-h-0 md:h-full flex flex-col md:flex-row bg-white shadow-2xl">
+                <div className="w-full md:w-1/2 p-6 sm:p-8 md:p-12 lg:p-16 flex flex-col justify-start md:justify-center bg-white relative z-10 overflow-y-auto">
                     <div className="max-w-md mx-auto w-full">
                         <div className="mb-10">
                             <div className="flex items-center gap-2.5 mb-8">
@@ -438,6 +438,33 @@ export default function ExamLoginPage() {
                             <h1 className="text-3xl font-black text-slate-900 mb-2">Student Login</h1>
                             <p className="text-slate-500 font-medium">Enter your details to access the exam</p>
                         </div>
+
+                        {examInfo?.title && (
+                            <div className="md:hidden mb-6 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                                <div className="flex items-center justify-between gap-2">
+                                    <div className="min-w-0">
+                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-0.5">
+                                            Exam
+                                        </span>
+                                        <p className="text-xs font-bold text-slate-900 truncate">
+                                            {examInfo.title}
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center gap-2 shrink-0">
+                                        {typeof examInfo.duration === 'number' && (
+                                            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700">
+                                                {examInfo.duration}m
+                                            </span>
+                                        )}
+                                        {typeof examInfo.totalQuestions === 'number' && (
+                                            <span className="text-[10px] font-bold text-slate-500">
+                                                {examInfo.totalQuestions} Qs
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {isAppRequired ? (
                             <div className="bg-white rounded-2xl border border-indigo-200 overflow-hidden shadow-sm">

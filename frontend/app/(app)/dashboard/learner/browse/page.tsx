@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { StudentService, BrowseCourse } from '@/services/api/StudentService';
 import { useToast } from '@/app/components/Common/Toast';
+import LearnerBrowseSkeleton from '@/app/components/Skeletons/LearnerBrowseSkeleton';
 
 interface EnrolledSummary {
     slug: string;
@@ -87,6 +88,10 @@ export default function BrowseCoursesPage() {
         }
     };
 
+    if (loading) {
+        return <LearnerBrowseSkeleton />;
+    }
+
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
             <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-10 animate-fade-in">
@@ -126,23 +131,7 @@ export default function BrowseCoursesPage() {
                     included for demonstration purposes. A full course marketplace is a coming-soon feature.
                 </p>
 
-                {loading ? (
-                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        {Array.from({ length: 6 }).map((_, i) => (
-                            <div
-                                key={i}
-                                className="rounded-3xl border border-slate-100 bg-white p-0 shadow-sm overflow-hidden"
-                            >
-                                <div className="h-40 w-full bg-slate-100 animate-pulse" />
-                                <div className="p-5 space-y-3">
-                                    <div className="h-4 w-2/3 bg-slate-100 rounded animate-pulse" />
-                                    <div className="h-3 w-full bg-slate-50 rounded animate-pulse" />
-                                    <div className="h-9 w-full bg-slate-100 rounded-2xl animate-pulse" />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : filteredCourses.length === 0 ? (
+                {filteredCourses.length === 0 ? (
                     <div className="text-center py-20 text-slate-400 font-bold">
                         {courses.length === 0
                             ? 'No courses are open for enrollment yet. Check back soon!'

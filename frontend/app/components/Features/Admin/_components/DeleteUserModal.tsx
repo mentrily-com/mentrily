@@ -29,21 +29,21 @@ export default function DeleteUserModal({ user, onClose, onConfirm }: DeleteUser
                 aria-modal="true"
                 aria-labelledby="delete-user-title"
                 tabIndex={-1}
-                className="relative bg-white w-full max-w-md rounded-[40px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-slate-100 focus:outline-none"
+                className="relative bg-white w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-3xl sm:rounded-[40px] shadow-2xl animate-in zoom-in-95 duration-300 border border-slate-100 focus:outline-none"
             >
-                <div className="p-8 pb-0 flex justify-between items-start">
-                    <div className="w-16 h-16 rounded-[24px] bg-rose-50 flex items-center justify-center text-rose-500">
-                        <AlertTriangle size={32} />
+                <div className="p-5 sm:p-8 pb-0 flex justify-between items-start">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl sm:rounded-[24px] bg-rose-50 flex items-center justify-center text-rose-500">
+                        <AlertTriangle size={28} />
                     </div>
                     <button
                         onClick={onClose}
                         aria-label="Close dialog"
                         className="p-2 text-slate-300 hover:text-slate-900 transition-colors"
                     >
-                        <X size={24} />
+                        <X size={22} />
                     </button>
                 </div>
-                <div className="p-8 pt-6">
+                <div className="p-5 sm:p-8 pt-4 sm:pt-6">
                     <h2
                         id="delete-user-title"
                         className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-3"

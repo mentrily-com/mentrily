@@ -13,7 +13,7 @@
  */
 export default function CreatorDashboardSkeleton() {
     return (
-        <div className="space-y-5">
+        <div className="space-y-5 animate-fade-in">
             {/* HERO */}
             <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6 lg:rounded-3xl lg:p-8">
                 <div className="space-y-5">

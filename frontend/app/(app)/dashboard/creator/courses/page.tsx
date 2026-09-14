@@ -27,7 +27,7 @@ export default function CreatorCoursesPage() {
     const { role } = usePlan();
     const dashboardRole = role === 'ADMIN' ? 'admin' : 'teacher';
 
-    if (loading) return <CreatorCoursesSkeleton />;
+    if (loading && filteredModules.length === 0) return <CreatorCoursesSkeleton />;
 
     const canCreateCourses = userData?.features?.canCreateCourses !== false;
 

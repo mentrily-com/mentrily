@@ -18,7 +18,7 @@ export default function ModulePageSkeleton() {
                 module/[slug]/page.tsx) or the skeleton and real content
                 jump on swap. */}
             <div className="sticky top-0 z-40 bg-white border-b border-slate-200/60 shadow-sm">
-                <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 py-3.5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-3.5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <div className="flex items-baseline gap-2 mb-2">
                             <div className="h-4 w-40 animate-pulse rounded-md bg-slate-200" />
@@ -39,7 +39,7 @@ export default function ModulePageSkeleton() {
                 </div>
             </div>
 
-            <main className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8">
+            <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8">
                 <div className="space-y-10">
                     {/* MODULE CARD CAROUSEL */}
                     <div className="flex gap-4 overflow-hidden pb-2">

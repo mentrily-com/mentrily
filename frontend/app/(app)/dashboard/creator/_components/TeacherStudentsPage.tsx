@@ -1,5 +1,6 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { TeacherService } from '@/services/api/TeacherService';
 import TeacherStudentsSkeleton from '@/app/components/Skeletons/TeacherStudentsSkeleton';
 import { useToast } from '@/app/components/Common/Toast';
@@ -21,8 +22,13 @@ const TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
 
 export default function TeacherStudentsPage() {
     const { error: toastError } = useToast();
-    const [students, setStudents] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const queryClient = useQueryClient();
+    const { data: students = [], isLoading } = useQuery<any[]>({
+        queryKey: ['teacher-students'],
+        queryFn: () => TeacherService.getStudents(),
+        staleTime: 30_000,
+        gcTime: 5 * 60_000,
+    });
     const [searchQuery, setSearchQuery] = useState('');
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
     const [selectedStudent, setSelectedStudent] = useState<any>(null);
@@ -35,23 +41,8 @@ export default function TeacherStudentsPage() {
         onConfirm: () => void;
     }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
 
-    useEffect(() => {
-        async function loadData() {
-            try {
-                const data = await TeacherService.getStudents();
-                setStudents(data);
-            } catch (error) {
-                console.error('Failed to fetch data', error);
-                toastError('Could not load student data');
-            } finally {
-                setIsLoading(false);
-            }
-        }
-        loadData();
-    }, [toastError]);
-
     const filteredStudents = students.filter(
-        (st) =>
+        (st: any) =>
             st.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
             st.course.toLowerCase().includes(debouncedSearchQuery.toLowerCase()),
     );
@@ -74,8 +65,7 @@ export default function TeacherStudentsPage() {
                     }
 
                     // Refresh the main list
-                    const data = await TeacherService.getStudents();
-                    setStudents(data);
+                    await queryClient.invalidateQueries({ queryKey: ['teacher-students'] });
                 } catch (error) {
                     console.error('Failed to unenroll', error);
                     toastError('Failed to unenroll student');
@@ -88,7 +78,7 @@ export default function TeacherStudentsPage() {
         setSelectedStudent(student);
     };
 
-    if (isLoading) return <TeacherStudentsSkeleton />;
+    if (isLoading && students.length === 0) return <TeacherStudentsSkeleton />;
 
     return (
         <div className="animate-fade-in font-sans">
@@ -104,24 +94,26 @@ export default function TeacherStudentsPage() {
             </div>
 
             {/* ─── TABS ─── */}
-            <div
-                className="flex items-center gap-1 mb-8 p-1 w-fit rounded-lg shadow-sm"
-                style={{ backgroundColor: 'var(--color-bg-muted)' }}
-            >
-                {TABS.map((tab) => (
-                    <button
-                        key={tab.key}
-                        onClick={() => setActiveTab(tab.key)}
-                        className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
-                            activeTab === tab.key ? 'bg-white shadow-sm' : 'hover:bg-white/50'
-                        }`}
-                        style={{
-                            color: activeTab === tab.key ? 'var(--brand)' : 'var(--color-text-muted)',
-                        }}
-                    >
-                        {tab.icon} {tab.label}
-                    </button>
-                ))}
+            <div className="w-full overflow-x-auto no-scrollbar mb-8">
+                <div
+                    className="flex items-center gap-1 p-1 w-fit rounded-lg shadow-sm"
+                    style={{ backgroundColor: 'var(--color-bg-muted)' }}
+                >
+                    {TABS.map((tab) => (
+                        <button
+                            key={tab.key}
+                            onClick={() => setActiveTab(tab.key)}
+                            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer shrink-0 ${
+                                activeTab === tab.key ? 'bg-white shadow-sm' : 'hover:bg-white/50'
+                            }`}
+                            style={{
+                                color: activeTab === tab.key ? 'var(--brand)' : 'var(--color-text-muted)',
+                            }}
+                        >
+                            {tab.icon} {tab.label}
+                        </button>
+                    ))}
+                </div>
             </div>
 
             {/* ─── GROUPS TAB ─── */}

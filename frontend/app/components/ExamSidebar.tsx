@@ -28,7 +28,7 @@ interface ExamSidebarProps {
     showCollapseToggle?: boolean;
 }
 
-export default function ExamSidebar({
+const ExamSidebar = React.memo(function ExamSidebar({
     sections,
     currentSectionId,
     currentQuestionId,
@@ -59,7 +59,7 @@ export default function ExamSidebar({
                         {showCollapseToggle && (
                             <button
                                 onClick={onToggleCollapse}
-                                className="flex items-center justify-center w-8 h-8 bg-white border border-slate-200 rounded-full shadow-lg text-slate-500 hover:text-[var(--brand)] transition-all hover:scale-110 active:scale-95 cursor-pointer"
+                                className="touch-manipulation flex items-center justify-center w-9 h-9 sm:w-8 sm:h-8 bg-white border border-slate-200 rounded-full shadow-lg text-slate-500 hover:text-[var(--brand)] transition-all hover:scale-110 active:scale-95 cursor-pointer"
                                 title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
                             >
                                 <svg
@@ -80,7 +80,7 @@ export default function ExamSidebar({
 
                         <button
                             onClick={onToggleHidden}
-                            className="flex items-center justify-center w-8 h-16 bg-white border border-slate-200 rounded-full shadow-lg text-slate-500 hover:text-[var(--brand)] transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                            className="touch-manipulation flex items-center justify-center w-9 h-16 sm:w-8 sm:h-16 bg-white border border-slate-200 rounded-full shadow-lg text-slate-500 hover:text-[var(--brand)] transition-all hover:scale-105 active:scale-95 cursor-pointer"
                             title="Hide Sidebar"
                         >
                             <svg
@@ -243,7 +243,7 @@ export default function ExamSidebar({
                         // `hover:pr-2` tweened padding, a layout property, so hovering this
                         // handle reflowed on every frame -- during a live proctored exam.
                         // The scale already carries the affordance and is composited.
-                        className="flex items-center justify-center w-8 h-16 bg-white border border-slate-200 rounded-r-full shadow-lg text-slate-500 transition-[transform,color] duration-200 hover:text-[var(--brand)] hover:scale-105 active:scale-95 cursor-pointer"
+                        className="touch-manipulation flex items-center justify-center w-9 h-16 sm:w-8 sm:h-16 bg-white border border-slate-200 rounded-r-full shadow-lg text-slate-500 transition-[transform,color] duration-200 hover:text-[var(--brand)] hover:scale-105 active:scale-95 cursor-pointer"
                         title="Show Sidebar"
                     >
                         <svg
@@ -263,4 +263,6 @@ export default function ExamSidebar({
             )}
         </>
     );
-}
+});
+
+export default ExamSidebar;

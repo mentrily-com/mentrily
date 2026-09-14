@@ -9,7 +9,7 @@ const rateLimit = new LRUCache<string, number>({
     ttl: 1000 * 60 * 60, // 1 hour
 });
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 const SENDER_EMAIL = process.env.RESEND_SENDER_EMAIL || `contact@${siteConfig.domain}`;
 const RECIPIENT_EMAIL = process.env.RESEND_CONTACT_RECIPIENT || siteConfig.contactEmail;
 const LOGO_URL = new URL('/android-chrome-512x512.png', siteConfig.url).toString();
@@ -25,7 +25,8 @@ const escapeHtml = (value: string) =>
 export async function POST(request: Request) {
     try {
         // 1. Rate Limiting
-        const ip = request.headers.get('x-forwarded-for') || 'unknown';
+        const rawIp = request.headers.get('x-forwarded-for') || request.headers.get('cf-connecting-ip') || 'unknown';
+        const ip = rawIp.split(',')[0].trim();
         const currentUsage = rateLimit.get(ip) || 0;
 
         if (currentUsage >= 5) {
@@ -53,6 +54,11 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
         }
 
+        // Strip CRLF to prevent SMTP header injection
+        const safeName = String(name).replace(/[\r\n]/g, ' ').trim();
+        const safeEmail = String(email).replace(/[\r\n]/g, '').trim();
+        const safeSubject = contactSubject.replace(/[\r\n]/g, ' ').trim();
+
         // 5. Resend Setup
         if (!process.env.RESEND_API_KEY) {
             console.error('Resend API key missing');
@@ -63,9 +69,9 @@ export async function POST(request: Request) {
         const { error } = await resend.emails.send({
             from: `${siteConfig.contactFormName} <${SENDER_EMAIL}>`,
             to: RECIPIENT_EMAIL,
-            replyTo: `${name} <${email}>`,
-            subject: `[Contact Form] ${contactSubject}`,
-            text: `Name: ${name}\nEmail: ${email}\nCategory: ${contactSubject}\n\nMessage:\n${message}`,
+            replyTo: `${safeName} <${safeEmail}>`,
+            subject: `[Contact Form] ${safeSubject}`,
+            text: `Name: ${safeName}\nEmail: ${safeEmail}\nCategory: ${safeSubject}\n\nMessage:\n${message}`,
             html: `
             <div style="margin:0;padding:24px;background:#f8fafc;font-family:Arial,sans-serif;color:#0f172a;">
               <div style="max-width:640px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">

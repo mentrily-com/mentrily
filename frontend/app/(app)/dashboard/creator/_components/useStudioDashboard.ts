@@ -22,6 +22,8 @@ export function useStudioDashboard() {
     const { data, isLoading } = useQuery({
         queryKey: ['teacher-dashboard', session?.orgId || 'no-org'],
         enabled: !!isSignedIn && !isSessionLoading,
+        staleTime: 30_000,
+        gcTime: 5 * 60_000,
         queryFn: async () => {
             const normalizeCourses = (coursesData: any[]) =>
                 (coursesData || []).map((course: any) => ({
@@ -58,12 +60,12 @@ export function useStudioDashboard() {
                     apolloClient.query({
                         query: GET_CREATOR_DASHBOARD_STATS,
                         variables: { orgId },
-                        fetchPolicy: 'network-only',
+                        fetchPolicy: 'cache-first',
                     }),
                     apolloClient.query({
                         query: GET_CREATOR_RECENT_SUBMISSIONS,
                         variables: { orgId, first: 20 },
-                        fetchPolicy: 'network-only',
+                        fetchPolicy: 'cache-first',
                     }),
                 ]);
 
@@ -131,10 +133,12 @@ export function useStudioDashboard() {
             return { ...module, status: normalizedStatus };
         });
     }, [modules]);
-    const stats = {
-        ...(data?.stats || {}),
-        activeCourses: Number((data?.stats as Record<string, unknown> | undefined)?.activeCourses || modules.length),
-    };
+    const stats = data?.stats
+        ? {
+              ...(data.stats || {}),
+              activeCourses: Number((data.stats as Record<string, unknown> | undefined)?.activeCourses || modules.length),
+          }
+        : null;
     const recentParams = data?.recent || [];
     const filteredModules = useMemo(
         () =>
@@ -143,6 +147,9 @@ export function useStudioDashboard() {
                 .filter((module: any) => module.title.toLowerCase().includes(searchQuery.toLowerCase())),
         [normalizedModules, searchQuery, tab],
     );
+
+    const hasData = Boolean(data);
+    const loading = !hasData && (isLoading || isSessionLoading);
 
     return {
         searchQuery,
@@ -157,6 +164,6 @@ export function useStudioDashboard() {
         filteredModules,
         recentActivity: recentParams,
         stats,
-        loading: isLoading || isSessionLoading,
+        loading,
     };
 }

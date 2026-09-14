@@ -28,7 +28,13 @@ export function useModalA11y(panelRef: React.RefObject<HTMLElement | null>, isOp
             (focusable || panel).focus();
         });
 
+        const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
         const previousOverflow = document.body.style.overflow;
+        const previousPaddingRight = document.body.style.paddingRight;
+
+        if (scrollbarWidth > 0) {
+            document.body.style.paddingRight = `${scrollbarWidth}px`;
+        }
         document.body.style.overflow = 'hidden';
 
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -66,6 +72,7 @@ export function useModalA11y(panelRef: React.RefObject<HTMLElement | null>, isOp
             cancelAnimationFrame(raf);
             document.removeEventListener('keydown', handleKeyDown, true);
             document.body.style.overflow = previousOverflow;
+            document.body.style.paddingRight = previousPaddingRight;
             triggerRef.current?.focus?.();
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps

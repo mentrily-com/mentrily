@@ -14,7 +14,11 @@ const ALLOWED_DOWNLOAD_HOSTS = [
 function isAllowedDownloadUrl(inputUrl: string): boolean {
     try {
         const parsed = new URL(inputUrl);
-        if (!['https:', 'http:'].includes(parsed.protocol)) return false;
+        if (process.env.NODE_ENV === 'production') {
+            if (parsed.protocol !== 'https:') return false;
+        } else {
+            if (!['https:', 'http:'].includes(parsed.protocol)) return false;
+        }
 
         const host = parsed.hostname.toLowerCase();
         return ALLOWED_DOWNLOAD_HOSTS.some((allowed) => host === allowed || host.endsWith(`.${allowed}`));
@@ -36,7 +40,7 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const res = await fetch(url);
+        const res = await fetch(url, { redirect: 'error' });
         if (!res.ok) {
             return NextResponse.json({ error: 'Failed to fetch file' }, { status: 502 });
         }

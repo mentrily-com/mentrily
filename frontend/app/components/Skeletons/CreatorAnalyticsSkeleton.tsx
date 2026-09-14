@@ -14,9 +14,9 @@ export default function CreatorAnalyticsSkeleton() {
     return (
         <div className="font-sans pb-10">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between mb-8">
-                <div className="space-y-2">
-                    <div className="h-6 w-32 animate-pulse rounded-md bg-slate-200" />
-                    <div className="h-3 w-80 max-w-full animate-pulse rounded bg-slate-100" />
+                <div>
+                    <div className="h-8 w-32 animate-pulse rounded-md bg-slate-200" />
+                    <div className="mt-1 h-5 w-80 max-w-full animate-pulse rounded bg-slate-100" />
                 </div>
                 <div className="h-10 w-64 animate-pulse rounded-lg bg-slate-100" />
             </div>

@@ -9,7 +9,7 @@ import EnrollmentModal from '@/app/components/Common/EnrollmentModal';
 import ExamInviteModal from '@/app/components/Features/Exams/ExamInviteModal';
 
 import { AdminService } from '@/services/api/AdminService';
-import { AuthService } from '@/services/api/AuthService';
+import { useSession } from '@/hooks/useSession';
 import { useEffect } from 'react';
 import AdminExamsViewSkeleton from '@/app/components/Skeletons/AdminExamsViewSkeleton';
 
@@ -19,13 +19,11 @@ interface AdminExamsViewProps {
     orgPermissions?: {
         canCreateExams?: boolean;
         canCreateCourses?: boolean;
-        allowAppExams?: boolean;
-        allowAIProctoring?: boolean;
-        allowCourseTests?: boolean;
     };
 }
 
-export default function AdminExamsView({ basePath = '/dashboard/creator', organizationId }: AdminExamsViewProps) {
+export default function AdminExamsView({ basePath = '/admin', organizationId }: AdminExamsViewProps) {
+    const { session: userData } = useSession();
     const [activeTab, setActiveTab] = useState<'exams' | 'courses'>('exams');
     const [searchQuery, setSearchQuery] = useState('');
     const [viewingCourse, setViewingCourse] = useState<any | null>(null);
@@ -34,17 +32,10 @@ export default function AdminExamsView({ basePath = '/dashboard/creator', organi
     const [exams, setExams] = useState<any[]>([]);
     const [courses, setCourses] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [userData, setUserData] = useState<any>(null);
     const [invitingExam, setInvitingExam] = useState<any | null>(null);
 
     useEffect(() => {
         let alive = true;
-
-        const loadUser = async () => {
-            const user = await AuthService.checkSession();
-            if (alive) setUserData(user);
-        };
-        void loadUser();
 
         async function load(showLoader = false) {
             if (showLoader) setLoading(true);
@@ -114,10 +105,10 @@ export default function AdminExamsView({ basePath = '/dashboard/creator', organi
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-8 border-b border-slate-100 mb-10">
+            <div className="flex gap-4 sm:gap-8 border-b border-slate-100 mb-8 sm:mb-10 overflow-x-auto no-scrollbar">
                 <button
                     onClick={() => setActiveTab('exams')}
-                    className={`pb-4 px-2 text-xs font-black uppercase tracking-widest transition-all relative ${activeTab === 'exams' ? 'text-[var(--brand)]' : 'text-slate-400 hover:text-slate-600'}`}
+                    className={`pb-4 px-2 text-xs font-black uppercase tracking-widest transition-all relative shrink-0 ${activeTab === 'exams' ? 'text-[var(--brand)]' : 'text-slate-400 hover:text-slate-600'}`}
                 >
                     Total Examinations
                     {activeTab === 'exams' && (
@@ -126,7 +117,7 @@ export default function AdminExamsView({ basePath = '/dashboard/creator', organi
                 </button>
                 <button
                     onClick={() => setActiveTab('courses')}
-                    className={`pb-4 px-2 text-xs font-black uppercase tracking-widest transition-all relative ${activeTab === 'courses' ? 'text-[var(--brand)]' : 'text-slate-400 hover:text-slate-600'}`}
+                    className={`pb-4 px-2 text-xs font-black uppercase tracking-widest transition-all relative shrink-0 ${activeTab === 'courses' ? 'text-[var(--brand)]' : 'text-slate-400 hover:text-slate-600'}`}
                 >
                     Active Courses
                     {activeTab === 'courses' && (
@@ -137,31 +128,31 @@ export default function AdminExamsView({ basePath = '/dashboard/creator', organi
 
             {/* Search & Action Bar */}
             <div className="flex flex-col md:flex-row items-center gap-4 mb-8">
-                <div className="relative flex-1">
+                <div className="relative flex-1 w-full">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
                     <input
                         type="text"
                         placeholder={`Search ${activeTab}...`}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-12 pr-4 py-4 bg-white border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:border-[var(--brand)] shadow-sm transition-all"
+                        className="w-full pl-12 pr-4 py-3.5 sm:py-4 bg-white border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:border-[var(--brand)] shadow-sm transition-all"
                     />
                 </div>
-                <div className="flex gap-2">
-                    <button className="flex items-center gap-2 px-6 py-4 bg-white border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:border-[var(--brand)] hover:text-[var(--brand)] transition-all shadow-sm">
+                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                    <button className="flex items-center gap-2 px-4 sm:px-6 py-3.5 sm:py-4 bg-white border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:border-[var(--brand)] hover:text-[var(--brand)] transition-all shadow-sm">
                         <Filter size={14} /> Filter
                     </button>
                     {activeTab === 'exams' ? (
                         orgPermissions.canCreateExams ? (
                             <Link
                                 href={`${basePath}/exams/new`}
-                                className="px-8 py-4 bg-slate-900 text-white font-black text-sm rounded-2xl shadow-xl shadow-slate-200 flex items-center gap-3 hover:scale-105 transition-all active:scale-95"
+                                className="w-full sm:w-auto justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-slate-900 text-white font-black text-sm rounded-2xl shadow-xl shadow-slate-200 flex items-center gap-3 hover:scale-105 transition-all active:scale-95"
                             >
                                 <Shield size={18} />
                                 Create Exam
                             </Link>
                         ) : (
-                            <div className="px-8 py-4 bg-slate-100 text-slate-400 font-black text-sm rounded-2xl flex items-center gap-3 cursor-not-allowed opacity-50">
+                            <div className="w-full sm:w-auto justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-slate-100 text-slate-400 font-black text-sm rounded-2xl flex items-center gap-3 cursor-not-allowed opacity-50">
                                 <Lock size={18} />
                                 Exam Creation Locked
                             </div>
@@ -169,13 +160,13 @@ export default function AdminExamsView({ basePath = '/dashboard/creator', organi
                     ) : orgPermissions.canCreateCourses && orgPermissions.allowCourseTests ? (
                         <Link
                             href={`${basePath}/courses/create`}
-                            className="px-8 py-4 bg-slate-900 text-white font-black text-sm rounded-2xl shadow-xl shadow-slate-200 flex items-center gap-3 hover:scale-105 transition-all active:scale-95"
+                            className="w-full sm:w-auto justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-slate-900 text-white font-black text-sm rounded-2xl shadow-xl shadow-slate-200 flex items-center gap-3 hover:scale-105 transition-all active:scale-95"
                         >
                             <BookOpen size={18} />
                             Create Course
                         </Link>
                     ) : (
-                        <div className="px-8 py-4 bg-slate-100 text-slate-400 font-black text-sm rounded-2xl flex items-center gap-3 cursor-not-allowed opacity-50">
+                        <div className="w-full sm:w-auto justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-slate-100 text-slate-400 font-black text-sm rounded-2xl flex items-center gap-3 cursor-not-allowed opacity-50">
                             <Lock size={18} />
                             Course Creation Locked
                         </div>

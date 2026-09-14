@@ -94,7 +94,7 @@ export default function StudentExamCard({
     const progressGap = Math.max(0, Number(exam.requiredPercent || 0) - Number(progressPercent || 0));
     const detailsModal = isDetailsOpen ? (
         <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
+            <div className="w-full max-w-lg max-h-[calc(100dvh-32px)] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
                 <div className="flex items-start justify-between gap-4">
                     <div>
                         <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Course Exam</p>

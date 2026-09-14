@@ -190,18 +190,7 @@ function ActionBtn({ label, icon, onClick }: any) {
     return (
         <button
             onClick={onClick}
-            className="flex w-full items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-white border text-xs font-medium transition-all cursor-pointer sm:w-auto sm:px-3 sm:py-1.5"
-            style={{ borderColor: 'var(--color-border-subtle)', color: 'var(--color-text-secondary)' }}
-            onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--color-bg-blue-tint)';
-                e.currentTarget.style.borderColor = 'var(--color-border-brand)';
-                e.currentTarget.style.color = 'var(--brand, #008D98)';
-            }}
-            onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'white';
-                e.currentTarget.style.borderColor = 'var(--color-border-subtle)';
-                e.currentTarget.style.color = 'var(--color-text-secondary)';
-            }}
+            className="flex w-full items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-white border border-slate-200 text-slate-600 text-xs font-semibold transition-all cursor-pointer hover:bg-[var(--brand-light)] hover:border-[var(--brand)] hover:text-[var(--brand)] active:scale-95 sm:w-auto sm:px-3 sm:py-1.5"
         >
             {icon}
             {label}

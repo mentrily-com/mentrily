@@ -1,8 +1,9 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { SuperAdminService } from '@/services/api/SuperAdminService';
 import Link from 'next/link';
-import { Search, Building2, Plus, Globe, Users, Settings2, Trash2, ShieldCheck } from 'lucide-react';
+import { Search, Building2, Plus, Globe, Users, Settings2, Trash2, ShieldCheck, X } from 'lucide-react';
+import { useModalA11y } from '@/hooks/useModalA11y';
 import { useToast } from '@/app/components/Common/Toast';
 import OrganizationsRegistrySkeleton from '@/app/components/Skeletons/OrganizationsRegistrySkeleton';
 
@@ -71,17 +72,17 @@ export default function SuperAdminOrganizationsPage() {
 
     return (
         <div className="max-w-[1440px] mx-auto animate-fade-in">
-            <div className="px-6 lg:px-12 py-10">
+            <div className="px-4 sm:px-6 lg:px-12 py-6 sm:py-10">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-12">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-12">
                     <div>
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Organizations Registry</h1>
+                        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Organizations Registry</h1>
                         <p className="text-slate-400 font-bold text-sm mt-1">
                             Manage institutional tenants and their subscriptions.
                         </p>
                     </div>
-                    <Link href="/dashboard/super-admin/organizations/new">
-                        <button className="px-8 py-4 bg-[var(--brand)] text-white font-black text-sm rounded-2xl shadow-xl shadow-[var(--brand)]/20 flex items-center gap-3 hover:scale-105 transition-all active:scale-95">
+                    <Link href="/dashboard/super-admin/organizations/new" className="w-full sm:w-auto">
+                        <button className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-[var(--brand)] text-white font-black text-sm rounded-2xl shadow-xl shadow-[var(--brand)]/20 flex items-center justify-center gap-3 hover:scale-105 transition-all active:scale-95">
                             <Plus size={18} />
                             Register Organization
                         </button>
@@ -246,6 +247,8 @@ function DeleteOrganizationModal({
 }) {
     const [confirmText, setConfirmText] = useState('');
     const isValid = confirmText === 'DELETE';
+    const panelRef = useRef<HTMLDivElement>(null);
+    useModalA11y(panelRef, Boolean(org), onClose);
 
     if (!org) return null;
 
@@ -256,7 +259,14 @@ function DeleteOrganizationModal({
                 onClick={onClose}
             />
 
-            <div className="relative bg-white w-full max-w-md rounded-[40px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-slate-100">
+            <div
+                ref={panelRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="delete-org-title"
+                tabIndex={-1}
+                className="relative bg-white w-full max-w-md rounded-[40px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-slate-100 focus:outline-none"
+            >
                 {/* Header */}
                 <div className="p-8 pb-0 flex justify-between items-start">
                     <div className="w-16 h-16 rounded-[24px] bg-rose-50 flex items-center justify-center text-rose-500">
@@ -265,14 +275,14 @@ function DeleteOrganizationModal({
                     <button
                         onClick={onClose}
                         aria-label="Close dialog"
-                        className="p-2 text-slate-300 hover:text-slate-900 transition-colors"
+                        className="p-2 text-slate-400 hover:text-slate-900 transition-colors rounded-xl hover:bg-slate-50"
                     >
-                        <Settings2 size={24} className="rotate-45" />
+                        <X size={20} />
                     </button>
                 </div>
 
                 <div className="p-8 pt-6">
-                    <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-3">
+                    <h2 id="delete-org-title" className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-3">
                         Delete Organization
                     </h2>
                     <p className="text-sm font-bold text-slate-400 mb-8">
