@@ -6,6 +6,7 @@ import {
 } from '@supabase/postgrest-js';
 import { PrismaService } from '../prisma/prisma.service';
 import { Database } from './database.types';
+import { LocalSupabaseClient } from './local-supabase-client';
 
 @Injectable()
 export class SupabaseService implements OnModuleInit {
@@ -17,6 +18,25 @@ export class SupabaseService implements OnModuleInit {
     const supabaseServiceRoleKey = String(
       process.env.SUPABASE_SERVICE_ROLE_KEY || '',
     ).trim();
+
+    // Local development without a Supabase REST server: run the same SQL
+    // functions and table writes straight against Postgres. Never in prod.
+    const localDirect =
+      String(process.env.SUPABASE_LOCAL_DIRECT || '').toLowerCase() === 'true';
+    if (localDirect && process.env.NODE_ENV !== 'production') {
+      this.logger.warn(
+        'SUPABASE_LOCAL_DIRECT=true: Supabase RPC and table calls run directly on the local Postgres database.',
+      );
+      this.client = new LocalSupabaseClient(
+        prismaService,
+      ) as unknown as SupabaseClient<Database>;
+      return;
+    }
+    if (localDirect) {
+      this.logger.error(
+        'SUPABASE_LOCAL_DIRECT is ignored in production; using the Supabase REST API.',
+      );
+    }
 
     if (!supabaseUrl || !supabaseServiceRoleKey) {
       this.logger.warn(
