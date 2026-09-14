@@ -84,7 +84,14 @@ export class AuthService {
       }
     }
 
-    for (const id of uniqueIds) {
+    // Invalidate under both DB user ID and Clerk ID so session caches are guaranteed cleared
+    const allTargetIds = new Set<string>(uniqueIds);
+    for (const u of users) {
+      if (u.id) allTargetIds.add(u.id);
+      if (u.clerkId) allTargetIds.add(u.clerkId);
+    }
+
+    for (const id of allTargetIds) {
       keys.push(`user:session:${id}`);
       keys.push(`user:session:${id}:default`);
       keys.push(`user:session:${id}:persona-learner`);
@@ -557,13 +564,15 @@ export class AuthService {
       throw new UnauthorizedException('Test code is required');
     }
 
-    const whereClause: any = { testCode: normalizedCode };
-    if (normalizedSlug) {
-      whereClause.slug = normalizedSlug;
+    if (!normalizedSlug) {
+      throw new BadRequestException('Exam slug is required');
     }
 
     const exam = await this.db.exam.findFirst({
-      where: whereClause,
+      where: {
+        testCode: normalizedCode,
+        slug: normalizedSlug,
+      },
       select: { id: true, slug: true, title: true, isActive: true },
     });
 

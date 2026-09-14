@@ -71,7 +71,7 @@ export class TeacherExamsService {
     } else {
       where.creatorId = user.id;
     }
-    const response = await this.prisma.exam.findMany({
+    const rawExams = await this.prisma.exam.findMany({
       where,
       include: {
         linkedCourse: {
@@ -83,6 +83,22 @@ export class TeacherExamsService {
         },
       },
       orderBy: { updatedAt: 'desc' },
+    });
+
+    const response = rawExams.map((exam: any) => {
+      const lightweightSections = Array.isArray(exam.questions)
+        ? (exam.questions as any[]).map((sec: any) => ({
+            id: sec.id,
+            title: sec.title,
+            questionCount: Array.isArray(sec.questions)
+              ? sec.questions.length
+              : 0,
+          }))
+        : [];
+      return {
+        ...exam,
+        questions: lightweightSections,
+      };
     });
 
     await this.redis.set(cacheKey, JSON.stringify(response), 'EX', 30);
@@ -503,6 +519,17 @@ export class TeacherExamsService {
     if (!exam) throw new Error('Exam not found');
     await this.teacherService.checkAccess(exam, user);
 
+    // PERFORMANCE: Cache monitored student status for 4s. During live proctoring,
+    // multiple proctors poll every 3-5 seconds. Caching eliminates redundant
+    // full-table scans and JSON deserialization while keeping live metrics responsive.
+    const cacheKey = `teacher:monitored:${exam.id}`;
+    try {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) {
+        return JSON.parse(cached);
+      }
+    } catch {}
+
     // Fetch all sessions for this exam
     const sessions = await this.prisma.examSession.findMany({
       where: { examId },
@@ -516,6 +543,11 @@ export class TeacherExamsService {
           },
         },
         violations: {
+          select: {
+            type: true,
+            message: true,
+            timestamp: true,
+          },
           orderBy: { timestamp: 'desc' },
         },
       },
@@ -523,7 +555,7 @@ export class TeacherExamsService {
     });
 
     // Transform to frontend format
-    return sessions.map((session: any) => {
+    const result = sessions.map((session: any) => {
       const tabSwitchViolations = session.violations.filter(
         (v: any) =>
           v.type === 'TAB_SWITCH' ||
@@ -598,6 +630,12 @@ export class TeacherExamsService {
         })),
       };
     });
+
+    try {
+      await this.redis.set(cacheKey, JSON.stringify(result), 'EX', 4);
+    } catch {}
+
+    return result;
   }
 
   async getFeedbacks(examId: string, user: any) {
@@ -656,31 +694,36 @@ export class TeacherExamsService {
       select: { id: true, startTime: true },
     });
 
-    // Update session status
+    // Update session status in parallel
     const terminatedAt = new Date();
-    for (const session of sessions) {
-      const computedTimeTakenSec = Math.max(
-        0,
-        Math.floor(
-          (terminatedAt.getTime() - new Date(session.startTime).getTime()) /
-            1000,
-        ),
-      );
-      await this.prisma.examSession.update({
-        where: { id: session.id },
-        data: {
-          status: 'TERMINATED',
-          endTime: terminatedAt,
-          timeTakenSec: computedTimeTakenSec,
-        } as any,
-      });
-    }
+    await Promise.all(
+      sessions.map((session: any) => {
+        const computedTimeTakenSec = Math.max(
+          0,
+          Math.floor(
+            (terminatedAt.getTime() - new Date(session.startTime).getTime()) /
+              1000,
+          ),
+        );
+        return this.prisma.examSession.update({
+          where: { id: session.id },
+          data: {
+            status: 'TERMINATED',
+            endTime: terminatedAt,
+            timeTakenSec: computedTimeTakenSec,
+          } as any,
+        });
+      }),
+    );
 
     // Invalidate caches
-    const sessionCacheKeys = sessions.flatMap((session: any) => [
-      `session:status:${session.id}`,
-      `session:meta:${session.id}`,
-    ]);
+    const sessionCacheKeys = [
+      ...sessions.flatMap((session: any) => [
+        `session:status:${session.id}`,
+        `session:meta:${session.id}`,
+      ]),
+      `teacher:monitored:${realExamId}`,
+    ];
     if (sessionCacheKeys.length > 0) {
       await this.redis.del(...sessionCacheKeys);
     }
@@ -725,10 +768,13 @@ export class TeacherExamsService {
     });
 
     // Invalidate caches to allow re-entry/re-processing
-    const sessionCacheKeys = sessions.flatMap((session: any) => [
-      `session:status:${session.id}`,
-      `session:meta:${session.id}`,
-    ]);
+    const sessionCacheKeys = [
+      ...sessions.flatMap((session: any) => [
+        `session:status:${session.id}`,
+        `session:meta:${session.id}`,
+      ]),
+      `teacher:monitored:${realExamId}`,
+    ];
     if (sessionCacheKeys.length > 0) {
       await this.redis.del(...sessionCacheKeys);
     }

@@ -23,8 +23,11 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return structured API status', () => {
+      const result = appController.getHello();
+      expect(result).toHaveProperty('name', 'Mentrily API Gateway');
+      expect(result).toHaveProperty('status', 'online');
+      expect(result).toHaveProperty('endpoints');
     });
   });
 });

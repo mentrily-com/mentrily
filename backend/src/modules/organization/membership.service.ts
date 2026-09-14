@@ -140,6 +140,10 @@ export class MembershipService {
   }): Promise<void> {
     if (!user.orgId) return;
 
+    const cacheKey = `org:home-ensured:${user.id}:${user.orgId}`;
+    const cached = await this.redis.get(cacheKey);
+    if (cached) return;
+
     await this.prisma.orgMembership.upsert({
       where: { userId_orgId: { userId: user.id, orgId: user.orgId } },
       update: {},
@@ -150,6 +154,8 @@ export class MembershipService {
         status: 'ACTIVE',
       },
     });
+
+    await this.redis.set(cacheKey, '1', 'EX', 86400);
   }
 
   /**

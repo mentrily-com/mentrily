@@ -20,9 +20,8 @@ import {
   maxStalledCount: 3,
   lockDuration: 60000, // 60s
   // Flush jobs are IO-bound (1 read + 1 write); with coalescing there is at
-  // most one job per active session so a higher concurrency drains bursts
-  // (e.g. everyone answering at exam start) without backlog.
-  concurrency: 25,
+  // most one job per active session. Tune concurrency to avoid exhausting DB connection pool.
+  concurrency: Number(process.env.SUBMISSION_PROCESSOR_CONCURRENCY || 10),
 })
 export class SubmissionProcessor extends WorkerHost {
   constructor(
@@ -318,12 +317,14 @@ export class SubmissionProcessor extends WorkerHost {
         status: true,
         userId: true,
         startTime: true,
-        exam: { select: { questions: true } },
+        examId: true,
+        exam: { select: { questions: true, orgId: true } },
       },
     });
 
-    // Idempotency: manual submit may already have completed the session.
-    if (!session || session.status === 'COMPLETED') {
+    // Idempotency: only IN_PROGRESS sessions can be auto-submitted.
+    // TERMINATED sessions (e.g. cheating disqualification) must never be completed.
+    if (!session || session.status !== 'IN_PROGRESS') {
       return;
     }
 
@@ -349,7 +350,7 @@ export class SubmissionProcessor extends WorkerHost {
       : null;
 
     const updated = await this.prisma.examSession.updateMany({
-      where: { id: sessionId, status: { not: 'COMPLETED' } },
+      where: { id: sessionId, status: 'IN_PROGRESS' },
       data: {
         status: 'COMPLETED',
         endTime: completedAt,
@@ -379,32 +380,22 @@ export class SubmissionProcessor extends WorkerHost {
     });
 
     try {
-      const examSession = await this.prisma.examSession.findUnique({
-        where: { id: sessionId },
-        select: {
-          userId: true,
-          score: true,
-          examId: true,
-          exam: { select: { orgId: true } },
-        },
-      });
-
-      const orgId = examSession?.exam?.orgId || null;
-      if (orgId && examSession) {
+      const orgId = session.exam?.orgId || null;
+      if (orgId) {
         await this.webhookService.dispatch(orgId, 'exam.completed', {
           sessionId,
-          examId: examSession.examId,
-          studentId: examSession.userId,
-          score: Number(examSession.score || 0),
+          examId: session.examId,
+          studentId: session.userId,
+          score: Number(finalScore || 0),
         });
 
         const threshold = Number(process.env.WEBHOOK_SCORE_THRESHOLD || 40);
-        if (Number(examSession.score || 0) < threshold) {
+        if (Number(finalScore || 0) < threshold) {
           await this.webhookService.dispatch(orgId, 'score.below_threshold', {
             sessionId,
-            examId: examSession.examId,
-            studentId: examSession.userId,
-            score: Number(examSession.score || 0),
+            examId: session.examId,
+            studentId: session.userId,
+            score: Number(finalScore || 0),
             threshold,
           });
         }

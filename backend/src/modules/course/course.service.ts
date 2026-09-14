@@ -85,17 +85,25 @@ export class CourseService {
     user: any,
     message = 'Not found or access denied',
   ): Promise<void> {
-    try {
-      this.assertTenantOrOwnerAccess(course, user, message);
+    if (user?.role === 'SUPER_ADMIN') {
       return;
-    } catch (error) {
-      if (!(error instanceof NotFoundException) || !user?.id || !course?.id) {
-        throw error;
+    }
+    if (course.creatorId && user?.id && course.creatorId === user.id) {
+      return;
+    }
+    if (user?.role === 'ADMIN' || user?.role === 'TEACHER') {
+      try {
+        this.assertTenantOrOwnerAccess(course, user, message);
+        return;
+      } catch (error) {
+        if (!(error instanceof NotFoundException) || !user?.id || !course?.id) {
+          throw error;
+        }
       }
     }
 
     const enrolled = await this.prisma.course.count({
-      where: { id: course.id, students: { some: { id: user.id } } },
+      where: { id: course.id, students: { some: { id: user?.id } } },
     });
 
     if (enrolled === 0) {
@@ -222,7 +230,7 @@ export class CourseService {
       'Course not found or access denied',
     );
 
-    if (!shouldSanitizeSensitiveContent(user)) {
+    if (!shouldSanitizeSensitiveContent(user, course)) {
       return course;
     }
 
@@ -323,6 +331,22 @@ export class CourseService {
       }
     } while (cursor !== '0');
 
+    // Also invalidate public and tenant course catalogs
+    let catalogCursor = '0';
+    do {
+      const [nextCursor, batch] = await this.redis.scan(
+        catalogCursor,
+        'MATCH',
+        'catalog:courses:*',
+        'COUNT',
+        200,
+      );
+      catalogCursor = nextCursor;
+      if (batch && batch.length > 0) {
+        keysToDelete.push(...batch);
+      }
+    } while (catalogCursor !== '0');
+
     const uniqueKeys = Array.from(new Set([...keysToDelete, `course:${slug}`]));
     if (uniqueKeys.length > 0) {
       await this.redis.del(...uniqueKeys);
@@ -351,7 +375,7 @@ export class CourseService {
           user,
           'Unit not found',
         );
-        if (!shouldSanitizeSensitiveContent(user)) {
+        if (!shouldSanitizeSensitiveContent(user, { orgId, creatorId })) {
           return data;
         }
 
@@ -396,7 +420,7 @@ export class CourseService {
         user,
         'Unit not found',
       );
-      if (!shouldSanitizeSensitiveContent(user)) {
+      if (!shouldSanitizeSensitiveContent(user, { orgId, creatorId })) {
         return unit;
       }
 
@@ -567,7 +591,12 @@ export class CourseService {
         user,
         'Unit not found',
       );
-      if (!shouldSanitizeSensitiveContent(user)) {
+      if (
+        !shouldSanitizeSensitiveContent(user, {
+          orgId: foundOrgId,
+          creatorId: foundCreatorId,
+        })
+      ) {
         return responseData;
       }
 

@@ -116,6 +116,7 @@ export class Judge0Strategy implements IExecutionStrategy {
             cpu_time_limit: 5,
             wall_time_limit: 20,
             memory_limit: 256000,
+            enable_network: false,
           },
           {
             headers: {
@@ -124,6 +125,7 @@ export class Judge0Strategy implements IExecutionStrategy {
                 ? { 'X-Auth-Token': this.judge0AuthToken }
                 : {}),
             },
+            timeout: 25000,
           },
         ),
       );

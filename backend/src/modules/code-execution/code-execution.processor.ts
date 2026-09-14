@@ -5,10 +5,10 @@ import type { IExecutionStrategy } from './strategies/execution-strategy.interfa
 
 @Processor('code-execution', {
   limiter: {
-    max: 3, // Reduced to 3/sec to stay safely under the strict 5/sec API limit
+    max: Number(process.env.CODE_EXEC_LIMITER_MAX || 15),
     duration: 1000,
   },
-  concurrency: 1, // Force sequential processing to prevent burst rate-limiting
+  concurrency: Number(process.env.CODE_EXEC_CONCURRENCY || 15), // Allow up to 15 concurrent submissions to execute in parallel
   // Optimize for serverless Redis (reduce command usage)
   stalledInterval: 300000,
   maxStalledCount: 3,

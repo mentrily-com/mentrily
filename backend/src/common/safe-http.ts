@@ -279,6 +279,14 @@ export function assertSafeUrl(rawUrl: string): URL {
     throw new Error('Refusing to connect to a URL containing credentials');
   }
 
+  if (url.port) {
+    const portNum = Number(url.port);
+    const isDev = process.env.NODE_ENV !== 'production';
+    if (!isDev && portNum !== 80 && portNum !== 443) {
+      throw new Error(`Refusing to connect to non-standard port ${portNum}`);
+    }
+  }
+
   // A hostname that is already an IP literal never reaches DNS, so the agent's
   // `lookup` is not consulted and cannot filter it. Check it here instead —
   // without this, http://169.254.169.254/ would connect straight through.
@@ -308,6 +316,8 @@ export function safeRequestConfig(
   config: AxiosRequestConfig = {},
 ): AxiosRequestConfig {
   return {
+    maxContentLength: 10 * 1024 * 1024, // 10MB payload ceiling to prevent memory exhaustion
+    maxBodyLength: 10 * 1024 * 1024,
     ...config,
     httpAgent: safeHttpAgent,
     httpsAgent: safeHttpsAgent,

@@ -40,10 +40,6 @@ export class TeacherStatsService {
     const cached = await this.redis.get(cacheKey);
     if (cached) return JSON.parse(cached);
 
-    const totalExams = await this.prisma.exam.count({
-      where: { creatorId: userId, isActive: true },
-    });
-
     // Scope students count based on role
     const studentWhere: any = { role: 'STUDENT' };
     if (user.role === 'ADMIN') {
@@ -56,26 +52,12 @@ export class TeacherStatsService {
       studentWhere.courses = { some: { creatorId: user.id } };
     }
 
-    const totalStudents = await this.prisma.user.count({ where: studentWhere });
-
-    const recentSubmissionsCount = await this.prisma.examSession.count({
-      where: {
-        exam: { creatorId: userId },
-        status: 'COMPLETED',
-        updatedAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
-      },
-    });
-
-    let certificatesIssued = 0;
-    if (user.role === 'ADMIN') {
-      if (orgId) {
-        certificatesIssued = await this.prisma.certificate.count({
-          where: { orgId },
-        });
-      } else {
-        certificatesIssued = 0;
+    const resolveCertificates = async (): Promise<number> => {
+      if (user.role === 'ADMIN') {
+        if (!orgId) return 0;
+        return this.prisma.certificate.count({ where: { orgId } });
       }
-    } else {
+
       const [teacherCourses, teacherExams] = await Promise.all([
         this.prisma.course.findMany({
           where: { creatorId: userId },
@@ -93,7 +75,7 @@ export class TeacherStatsService {
       const examIds = teacherExams.map((exam: { id: string }) => exam.id);
 
       if (orgId && (courseIds.length > 0 || examIds.length > 0)) {
-        certificatesIssued = await this.prisma.certificate.count({
+        return this.prisma.certificate.count({
           where: {
             orgId,
             OR: [
@@ -116,10 +98,29 @@ export class TeacherStatsService {
             ],
           },
         });
-      } else {
-        certificatesIssued = 0;
       }
-    }
+      return 0;
+    };
+
+    const [
+      totalExams,
+      totalStudents,
+      recentSubmissionsCount,
+      certificatesIssued,
+    ] = await Promise.all([
+      this.prisma.exam.count({
+        where: { creatorId: userId, isActive: true },
+      }),
+      this.prisma.user.count({ where: studentWhere }),
+      this.prisma.examSession.count({
+        where: {
+          exam: { creatorId: userId },
+          status: 'COMPLETED',
+          updatedAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+        },
+      }),
+      resolveCertificates(),
+    ]);
 
     const stats = {
       totalExams,
@@ -135,11 +136,22 @@ export class TeacherStatsService {
   }
 
   async getExam(idOrSlug: string, user: any) {
-    const exam = await this.prisma.exam.findFirst({
-      where: {
-        OR: [{ id: idOrSlug }, { slug: idOrSlug }],
-      },
-    });
+    const isUUID =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        idOrSlug,
+      );
+    const where: any = isUUID
+      ? { id: idOrSlug }
+      : user?.orgId
+        ? { slug: idOrSlug, orgId: user.orgId }
+        : { slug: idOrSlug };
+
+    let exam = await this.prisma.exam.findFirst({ where });
+    if (!exam && !isUUID && user?.orgId) {
+      exam = await this.prisma.exam.findFirst({
+        where: { slug: idOrSlug, creatorId: user.id },
+      });
+    }
 
     if (exam) {
       await this.teacherService.checkAccess(exam, user);
@@ -149,10 +161,18 @@ export class TeacherStatsService {
   }
 
   async getCourse(idOrSlug: string, user: any) {
-    const course = await this.prisma.course.findFirst({
-      where: {
-        OR: [{ id: idOrSlug }, { slug: idOrSlug }],
-      },
+    const isUUID =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        idOrSlug,
+      );
+    const where: any = isUUID
+      ? { id: idOrSlug }
+      : user?.orgId
+        ? { slug: idOrSlug, orgId: user.orgId }
+        : { slug: idOrSlug };
+
+    let course = await this.prisma.course.findFirst({
+      where,
       include: {
         modules: {
           include: { units: true },
@@ -174,6 +194,32 @@ export class TeacherStatsService {
         },
       },
     });
+
+    if (!course && !isUUID && user?.orgId) {
+      course = await this.prisma.course.findFirst({
+        where: { slug: idOrSlug, creatorId: user.id },
+        include: {
+          modules: {
+            include: { units: true },
+            orderBy: { order: 'asc' },
+          },
+          tests: true,
+          linkedExam: {
+            select: {
+              id: true,
+              title: true,
+              slug: true,
+              duration: true,
+              totalMarks: true,
+              passingPercentage: true,
+              maxAttempts: true,
+              attemptBufferMins: true,
+              questions: true,
+            },
+          },
+        },
+      });
+    }
 
     if (course) {
       await this.teacherService.checkAccess(course, user);
@@ -363,6 +409,16 @@ export class TeacherStatsService {
   }
 
   async getMyModules(user: any) {
+    const cacheKey = `teacher:my_modules:${user.id}:${user.role}:${user.orgId || 'none'}`;
+    const cached = await this.redis.get(cacheKey);
+    if (cached) {
+      try {
+        return JSON.parse(cached);
+      } catch {
+        await this.redis.del(cacheKey);
+      }
+    }
+
     const whereClause: any = {};
     if (user.role === 'ADMIN') {
       whereClause.OR = [
@@ -460,7 +516,7 @@ export class TeacherStatsService {
       durationByCourse.set(courseId, current);
     }
 
-    return courses.map((c: any) => ({
+    const result = courses.map((c: any) => ({
       ...(() => {
         const unitIds = (c.modules || []).flatMap((m: any) =>
           (m.units || []).map((u: any) => u.id),
@@ -521,5 +577,8 @@ export class TeacherStatsService {
       longDescription: c.longDescription || '',
       courseSummary: c.courseSummary || '',
     }));
+
+    await this.redis.set(cacheKey, JSON.stringify(result), 'EX', 60);
+    return result;
   }
 }

@@ -6,17 +6,29 @@ const SENSITIVE_QUESTION_KEYS = [
   'correctOptionIds',
   'answerKey',
   'isCorrect',
+  'solution',
+  'explanation',
+  'answer',
+  'testScript',
 ];
 
-const PRIVILEGED_ROLES = new Set(['TEACHER', 'ADMIN', 'SUPER_ADMIN']);
-
 /**
- * Fail closed: only explicitly privileged roles may see answer keys,
- * solutions, and hidden test cases. Anything else — students, users who
- * haven't picked a role yet, missing users — gets sanitized content.
+ * Fail closed: only explicitly privileged users who own or administer the specific resource
+ * may see answer keys, solutions, and hidden test cases.
+ * Test-takers, enrolled students, unassigned teachers, and third parties get sanitized content.
  */
-export function shouldSanitizeSensitiveContent(user?: any): boolean {
-  return !PRIVILEGED_ROLES.has(String(user?.role || '').toUpperCase());
+export function shouldSanitizeSensitiveContent(user?: any, resource?: any): boolean {
+  if (!user || !user.role) return true;
+  const role = String(user.role).toUpperCase();
+  if (role === 'SUPER_ADMIN') return false;
+
+  if (resource) {
+    if (resource.creatorId && resource.creatorId === user.id) return false;
+    if (role === 'ADMIN' && user.orgId && resource.orgId === user.orgId) return false;
+    return true;
+  }
+
+  return true;
 }
 
 function sanitizeCodingConfigForClient(

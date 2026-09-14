@@ -62,16 +62,27 @@ export class PlanGuard implements CanActivate {
     if (!cached && orgId) {
       const org = await this.prisma.organization.findUnique({
         where: { id: orgId },
-        select: { plan: true, features: true },
+        select: {
+          plan: true,
+          features: true,
+          planStatus: true,
+          planExpiresAt: true,
+        },
       });
 
       if (!org) {
         throw new ForbiddenException('Organization not found');
       }
 
-      const plan = (org.plan as PlanKey) || 'FREE';
+      const isInactive =
+        org.planStatus === 'CANCELED' ||
+        (org.planExpiresAt &&
+          new Date(org.planExpiresAt).getTime() < Date.now());
+
+      const plan = isInactive ? 'FREE' : ((org.plan as PlanKey) || 'FREE');
       const baseFeatures = PLAN_FEATURES[plan] || PLAN_FEATURES.FREE;
       const overrides =
+        !isInactive &&
         org.features &&
         typeof org.features === 'object' &&
         !Array.isArray(org.features)
@@ -87,7 +98,7 @@ export class PlanGuard implements CanActivate {
         cacheKey,
         JSON.stringify({ plan, features: effectiveFeatures }),
         'EX',
-        1800,
+        180,
       );
     }
 

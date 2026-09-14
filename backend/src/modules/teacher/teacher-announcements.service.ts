@@ -46,6 +46,21 @@ export class TeacherAnnouncementsService {
     throw new ForbiddenException('Access denied');
   }
 
+  private assertAttachmentOwnership(attachments: any[] | undefined, user: any): void {
+    if (!Array.isArray(attachments) || attachments.length === 0) return;
+    const allowedNamespaces = [user?.orgId, user?.id ? `user-${user.id}` : null];
+    for (const att of attachments) {
+      if (
+        att?.url &&
+        !this.storageService.isOwnedByNamespace(att.url, allowedNamespaces)
+      ) {
+        throw new ForbiddenException(
+          `Attachment "${att.name || att.url}" does not belong to your organization`,
+        );
+      }
+    }
+  }
+
   async getAnnouncements(user: any) {
     const cacheKey = `teacher:announcements:${user.id}`;
     const cached = await this.redis.get(cacheKey);
@@ -78,6 +93,8 @@ export class TeacherAnnouncementsService {
       throw new BadRequestException('Content is required');
     if (!data.groupIds || data.groupIds.length === 0)
       throw new BadRequestException('At least one group must be selected');
+
+    this.assertAttachmentOwnership(data.attachments, user);
 
     // Verify all groups belong to this teacher
     const groups = await this.prisma.studentGroup.findMany({
@@ -165,6 +182,8 @@ export class TeacherAnnouncementsService {
         'One or more groups not found or not owned by the announcement teacher',
       );
     }
+
+    this.assertAttachmentOwnership(data.attachments, user);
 
     const oldAttachments = Array.isArray(existing.attachments)
       ? (existing.attachments as any[])

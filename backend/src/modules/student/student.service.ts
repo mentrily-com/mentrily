@@ -184,54 +184,62 @@ export class StudentService {
       } | null;
     },
     progressPercent: number,
+    preloadedSessions?: any[],
   ) {
     if (!course.linkedExam) {
       return null;
     }
 
     let latestAttempt: any;
-    try {
-      latestAttempt = await this.prisma.examSession.findFirst({
-        where: {
-          userId,
-          examId: course.linkedExam.id,
-          status: { in: this.finalExamSessionStatuses as any },
-        },
-        orderBy: [{ attemptNumber: 'desc' }, { createdAt: 'desc' }],
-        select: {
-          status: true,
-          score: true,
-          attemptNumber: true,
-          endTime: true,
-        },
-      });
-    } catch (error) {
-      if (!this.isMissingExamSessionAttemptNumberError(error)) {
-        throw error;
+    let attemptsUsed = 0;
+
+    if (preloadedSessions !== undefined) {
+      latestAttempt = preloadedSessions.length > 0 ? preloadedSessions[0] : null;
+      attemptsUsed = preloadedSessions.length;
+    } else {
+      try {
+        latestAttempt = await this.prisma.examSession.findFirst({
+          where: {
+            userId,
+            examId: course.linkedExam.id,
+            status: { in: this.finalExamSessionStatuses as any },
+          },
+          orderBy: [{ attemptNumber: 'desc' }, { createdAt: 'desc' }],
+          select: {
+            status: true,
+            score: true,
+            attemptNumber: true,
+            endTime: true,
+          },
+        });
+      } catch (error) {
+        if (!this.isMissingExamSessionAttemptNumberError(error)) {
+          throw error;
+        }
+
+        latestAttempt = await this.prisma.examSession.findFirst({
+          where: {
+            userId,
+            examId: course.linkedExam.id,
+            status: { in: this.finalExamSessionStatuses as any },
+          },
+          orderBy: [{ createdAt: 'desc' }],
+          select: {
+            status: true,
+            score: true,
+            endTime: true,
+          },
+        });
       }
 
-      latestAttempt = await this.prisma.examSession.findFirst({
+      attemptsUsed = await this.prisma.examSession.count({
         where: {
           userId,
           examId: course.linkedExam.id,
           status: { in: this.finalExamSessionStatuses as any },
-        },
-        orderBy: [{ createdAt: 'desc' }],
-        select: {
-          status: true,
-          score: true,
-          endTime: true,
         },
       });
     }
-
-    const attemptsUsed = await this.prisma.examSession.count({
-      where: {
-        userId,
-        examId: course.linkedExam.id,
-        status: { in: this.finalExamSessionStatuses as any },
-      },
-    });
 
     const passingPercentage = Number(
       course.linkedExam.passingPercentage ?? course.examPassThreshold ?? 70,
@@ -498,6 +506,57 @@ export class StudentService {
 
     const completedSet = new Set(completedSubs.map((s: any) => s.unitId));
 
+    // Batch query: all final exam sessions for all linked exams in one single trip
+    const linkedExamIds = user.courses
+      .map((c: any) => c.linkedExam?.id)
+      .filter((id: string | null | undefined): id is string => Boolean(id));
+
+    let allLinkedSessions: any[] = [];
+    if (linkedExamIds.length > 0) {
+      try {
+        allLinkedSessions = await this.prisma.examSession.findMany({
+          where: {
+            userId,
+            examId: { in: linkedExamIds },
+            status: { in: this.finalExamSessionStatuses as any },
+          },
+          orderBy: [{ attemptNumber: 'desc' }, { createdAt: 'desc' }],
+          select: {
+            examId: true,
+            status: true,
+            score: true,
+            attemptNumber: true,
+            endTime: true,
+          },
+        });
+      } catch (error) {
+        if (!this.isMissingExamSessionAttemptNumberError(error)) {
+          throw error;
+        }
+        allLinkedSessions = await this.prisma.examSession.findMany({
+          where: {
+            userId,
+            examId: { in: linkedExamIds },
+            status: { in: this.finalExamSessionStatuses as any },
+          },
+          orderBy: [{ createdAt: 'desc' }],
+          select: {
+            examId: true,
+            status: true,
+            score: true,
+            endTime: true,
+          },
+        });
+      }
+    }
+
+    const sessionsByExamId = new Map<string, any[]>();
+    for (const s of allLinkedSessions) {
+      const list = sessionsByExamId.get(s.examId) || [];
+      list.push(s);
+      sessionsByExamId.set(s.examId, list);
+    }
+
     const courses = await Promise.all(
       user.courses.map(async (course: any) => {
         const totalUnits = course.modules.reduce(
@@ -519,10 +578,15 @@ export class StudentService {
               ? 'In Progress'
               : 'Not Started';
 
+        const preloaded = course.linkedExam?.id
+          ? sessionsByExamId.get(course.linkedExam.id) || []
+          : undefined;
+
         const linkedExam = await this.buildLinkedExamAttemptSummary(
           userId,
           course,
           percent,
+          preloaded,
         );
 
         return {
@@ -549,43 +613,78 @@ export class StudentService {
     // Catalog of self-enrollable courses: everything published/visible in the
     // learner's own org plus platform-wide org-less courses. Only card-level
     // metadata leaves the server — never unit content or exam payloads.
+    //
+    // PERFORMANCE: Decouple public catalog metadata from user enrollment check.
+    // The course metadata is cached in Redis (catalog:courses:${orgId}) for 180s,
+    // eliminating heavy multi-table joins on Course -> Module -> Unit. User
+    // enrollments are resolved with an indexed primary-key query and merged in memory.
     const orgId = user.orgId || null;
-    const courses = await this.prisma.course.findMany({
-      where: {
-        isVisible: true,
-        OR: orgId ? [{ orgId }, { orgId: null }] : [{ orgId: null }],
-      },
-      select: {
-        id: true,
-        slug: true,
-        title: true,
-        shortDescription: true,
-        difficulty: true,
-        tags: true,
-        thumbnail: true,
-        modules: { select: { units: { select: { id: true } } } },
-        students: { where: { id: user.id }, select: { id: true } },
-        linkedExamId: true,
-        createdAt: true,
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+    const cacheKey = `catalog:courses:${orgId || 'public'}`;
 
-    return courses.map((course: any) => ({
-      id: course.id,
-      slug: course.slug,
-      title: course.title,
-      shortDescription: course.shortDescription,
-      difficulty: course.difficulty,
-      tags: course.tags || [],
-      thumbnail: course.thumbnail,
-      sections: course.modules.length,
-      totalUnits: course.modules.reduce(
-        (sum: number, mod: any) => sum + mod.units.length,
-        0,
-      ),
-      hasFinalExam: !!course.linkedExamId,
-      enrolled: course.students.length > 0,
+    let catalog: any[] | null = null;
+    try {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) {
+        catalog = JSON.parse(cached);
+      }
+    } catch {
+      catalog = null;
+    }
+
+    if (!catalog) {
+      const courses = await this.prisma.course.findMany({
+        where: {
+          isVisible: true,
+          OR: orgId ? [{ orgId }, { orgId: null }] : [{ orgId: null }],
+        },
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          shortDescription: true,
+          difficulty: true,
+          tags: true,
+          thumbnail: true,
+          modules: { select: { units: { select: { id: true } } } },
+          linkedExamId: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      catalog = courses.map((course: any) => ({
+        id: course.id,
+        slug: course.slug,
+        title: course.title,
+        shortDescription: course.shortDescription,
+        difficulty: course.difficulty,
+        tags: course.tags || [],
+        thumbnail: course.thumbnail,
+        sections: course.modules.length,
+        totalUnits: course.modules.reduce(
+          (sum: number, mod: any) => sum + mod.units.length,
+          0,
+        ),
+        hasFinalExam: !!course.linkedExamId,
+      }));
+
+      try {
+        await this.redis.set(cacheKey, JSON.stringify(catalog), 'EX', 180);
+      } catch {}
+    }
+
+    let enrolledIds = new Set<string>();
+    if (user?.id) {
+      const userCourses = await this.prisma.user.findUnique({
+        where: { id: user.id },
+        select: { courses: { select: { id: true } } },
+      });
+      enrolledIds = new Set((userCourses?.courses || []).map((c: any) => c.id));
+    }
+
+    return catalog.map((course: any) => ({
+      ...course,
+      enrolled: enrolledIds.has(course.id),
     }));
   }
 
@@ -742,7 +841,7 @@ export class StudentService {
   }
 
   async getExamResult(userId: string, sessionId: string) {
-    const session = await this.prisma.examSession.findUnique({
+    const session = await this.prisma.examSession.findFirst({
       where: { id: sessionId, userId },
       include: {
         exam: true,
@@ -1089,14 +1188,36 @@ export class StudentService {
   }
 
   async getBookmarks(userId: string) {
+    const cacheKey = `student:bookmarks:${userId}`;
+    const cached = await this.redis.get(cacheKey).catch(() => null);
+    if (cached) {
+      try {
+        return JSON.parse(cached);
+      } catch {
+        // Fall back to DB
+      }
+    }
+
     const bookmarks = await this.prisma.bookmark.findMany({
       where: { userId },
-      include: {
+      select: {
+        id: true,
+        customId: true,
+        title: true,
+        type: true,
+        moduleTitle: true,
+        courseTitle: true,
+        createdAt: true,
         unit: {
-          include: {
+          select: {
+            title: true,
+            type: true,
             module: {
-              include: {
-                course: true,
+              select: {
+                title: true,
+                course: {
+                  select: { title: true },
+                },
               },
             },
           },
@@ -1105,7 +1226,7 @@ export class StudentService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return bookmarks.map((b: any) => ({
+    const mapped = bookmarks.map((b: any) => ({
       id: b.id,
       unitId: b.customId, // Use customId for frontend links
       unitTitle: b.unit?.title || b.title || 'Untitled',
@@ -1114,6 +1235,11 @@ export class StudentService {
       courseTitle: b.unit?.module?.course?.title || b.courseTitle || 'System',
       bookmarkedAt: b.createdAt,
     }));
+
+    await this.redis
+      .set(cacheKey, JSON.stringify(mapped), 'EX', 30)
+      .catch(() => {});
+    return mapped;
   }
 
   async addBookmark(
@@ -1150,6 +1276,7 @@ export class StudentService {
       throw new Error(error.message || 'Failed to save bookmark');
     }
 
+    await this.redis.del(`student:bookmarks:${userId}`).catch(() => {});
     return data;
   }
 
@@ -1182,6 +1309,7 @@ export class StudentService {
         const result = await this.prisma.bookmark.delete({
           where: { id: bookmarkId },
         });
+        await this.redis.del(`student:bookmarks:${userId}`).catch(() => {});
         console.log('[StudentService] ✅ Bookmark deleted successfully');
         return result;
       } else {
@@ -1192,6 +1320,7 @@ export class StudentService {
             userId_customId: { userId, customId: bookmarkId },
           },
         });
+        await this.redis.del(`student:bookmarks:${userId}`).catch(() => {});
         console.log('[StudentService] ✅ Bookmark deleted by customId');
         return result;
       }
@@ -1204,22 +1333,32 @@ export class StudentService {
   }
 
   async getUnitSubmissions(userId: string, unitId: string) {
-    // Check if this is a real Unit or a virtual test question
+    // Fast path: fetch real unit submissions first with a bounded limit.
+    // In 99% of requests for real units with prior attempts, this returns in 1 DB
+    // query instead of 2 (eliminates redundant unit.findUnique existence check).
+    const submissions = await this.prisma.unitSubmission.findMany({
+      where: { userId, unitId },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+    });
+    if (submissions.length > 0) {
+      return submissions;
+    }
+
+    // Check if this is a real Unit without prior submissions, or a virtual test question
     const unitExists = await this.prisma.unit.findUnique({
       where: { id: unitId },
       select: { id: true },
     });
     if (unitExists) {
-      return this.prisma.unitSubmission.findMany({
-        where: { userId, unitId },
-        orderBy: { createdAt: 'desc' },
-      });
+      return [];
     }
 
     // Virtual test question: return from QuestionAttempt instead
     const attempts = await this.prisma.questionAttempt.findMany({
       where: { userId, itemId: unitId, type: 'UNIT' },
       orderBy: { createdAt: 'desc' },
+      take: 50,
     });
     // Shape to match UnitSubmission structure that frontend expects
     return attempts.map((a: any) => ({

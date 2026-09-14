@@ -205,6 +205,18 @@ export class SubmissionService {
       };
     }
 
+    if (session.status === 'TERMINATED') {
+      throw new ForbiddenException(
+        'Exam session has been terminated due to violations and cannot be submitted.',
+      );
+    }
+
+    if (session.status !== 'IN_PROGRESS') {
+      throw new ForbiddenException(
+        `Exam session is not in progress (current status: ${session.status}).`,
+      );
+    }
+
     const redisAnswers = await readStashedSessionAnswers(this.redis, sessionId);
 
     const mergedAnswers = {
@@ -239,11 +251,10 @@ export class SubmissionService {
       },
     };
 
-    // Conditional write: only the request that flips the status runs the
-    // completion side effects. Anyone who loses the race gets the stored
-    // result via the COMPLETED branch above on retry.
+    // Conditional write: only transition if status is still IN_PROGRESS.
+    // This prevents race conditions and strictly prevents reviving TERMINATED sessions.
     const updated = await this.prisma.examSession.updateMany({
-      where: { id: sessionId, status: { not: 'COMPLETED' } },
+      where: { id: sessionId, status: 'IN_PROGRESS' },
       data: {
         answers: answersWithMarks,
         score: scoreDetails.percentage,
@@ -265,10 +276,11 @@ export class SubmissionService {
         where: { id: sessionId },
         select: { answers: true },
       });
-      const finalAnswers =
-        typeof finalSession?.answers === 'string'
-          ? JSON.parse(finalSession.answers || '{}')
-          : finalSession?.answers || {};
+      const rawFinalAnswers = finalSession?.answers;
+      const finalAnswers: any =
+        typeof rawFinalAnswers === 'string'
+          ? JSON.parse(rawFinalAnswers || '{}')
+          : rawFinalAnswers || {};
       const finalScore = finalAnswers?._internal_score || {};
       return {
         status: 'submitted',
@@ -280,13 +292,12 @@ export class SubmissionService {
 
     await clearStashedSessionAnswers(this.redis, sessionId);
 
-    try {
-      await this.examService.handleExamCompletion(sessionId);
-    } catch (error: any) {
+    // Run certificate issuance & notifications in background without blocking the submission HTTP response
+    void this.examService.handleExamCompletion(sessionId).catch((error: any) => {
       console.warn(
-        `[SubmissionService] Exam completion post-processing skipped for session ${sessionId}: ${error?.message || 'unknown_error'}`,
+        `[SubmissionService] Exam completion post-processing failed for session ${sessionId}: ${error?.message || 'unknown_error'}`,
       );
-    }
+    });
 
     return {
       status: 'submitted',

@@ -294,12 +294,22 @@ export class AdminService {
     }
   }
 
+  private async invalidateUsersCache(orgId?: string | null): Promise<void> {
+    if (!orgId) return;
+    try {
+      await this.redis.del(`admin:users:${orgId}`);
+    } catch {
+      // ignore
+    }
+  }
+
   private async invalidateOrgFeatureCaches(orgId: string): Promise<void> {
     const directKeys = [
       `org:features:${orgId}`,
       `org:status:${orgId}`,
       `org:effective_features:${orgId}`,
       `admin:stats:${orgId}`,
+      `admin:users:${orgId}`,
     ];
 
     await this.redis.del(...directKeys);
@@ -502,6 +512,18 @@ export class AdminService {
 
   async getUsers(user?: any, targetOrgId?: string) {
     const orgId = getEffectiveOrgId(user, targetOrgId);
+    if (!orgId) return [];
+
+    const cacheKey = `admin:users:${orgId}`;
+    try {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) {
+        return JSON.parse(cached);
+      }
+    } catch {
+      // Redis unavailable or parse failure: fall through to DB
+    }
+
     const [homeUsers, orgMemberships, pendingInvites] = await Promise.all([
       this.prisma.user.findMany({
         where: {
@@ -620,11 +642,19 @@ export class AdminService {
         clerkInvitationId: invite.clerkInvitationId,
       }));
 
-    return [...users, ...pendingRows].sort(
+    const result = [...users, ...pendingRows].sort(
       (left, right) =>
         new Date(right.createdAt).getTime() -
         new Date(left.createdAt).getTime(),
     );
+
+    try {
+      await this.redis.set(cacheKey, JSON.stringify(result), 'EX', 30);
+    } catch {
+      // ignore
+    }
+
+    return result;
   }
 
   async getSystemLogs(user?: any, targetOrgId?: string) {
@@ -640,6 +670,13 @@ export class AdminService {
 
   async getUserStorage(user?: any, targetOrgId?: string) {
     const orgId = getEffectiveOrgId(user, targetOrgId);
+    if (!orgId) return [];
+
+    const cacheKey = `admin:storage:${orgId}`;
+    try {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) return JSON.parse(cached);
+    } catch {}
 
     const assets = await this.prisma.asset.groupBy({
       by: ['userId'],
@@ -664,7 +701,13 @@ export class AdminService {
       totalMb: Number(((a._sum.sizeBytes || 0) / (1024 * 1024)).toFixed(2)),
     }));
 
-    return result.sort((a, b) => b.totalBytes - a.totalBytes);
+    result.sort((a, b) => b.totalBytes - a.totalBytes);
+
+    try {
+      await this.redis.set(cacheKey, JSON.stringify(result), 'EX', 60);
+    } catch {}
+
+    return result;
   }
 
   async getAnalytics(user?: any, targetOrgId?: string) {
@@ -752,7 +795,7 @@ export class AdminService {
 
   async getExams(user?: any, targetOrgId?: string) {
     const orgId = getEffectiveOrgId(user, targetOrgId);
-    return this.prisma.exam.findMany({
+    const rawExams = await this.prisma.exam.findMany({
       where: { orgId }, // ISOLATION
       include: {
         _count: {
@@ -761,6 +804,22 @@ export class AdminService {
         creator: { select: { name: true, email: true } },
       },
       orderBy: { createdAt: 'desc' },
+    });
+
+    return rawExams.map((exam: any) => {
+      const lightweightSections = Array.isArray(exam.questions)
+        ? (exam.questions as any[]).map((sec: any) => ({
+            id: sec.id,
+            title: sec.title,
+            questionCount: Array.isArray(sec.questions)
+              ? sec.questions.length
+              : 0,
+          }))
+        : [];
+      return {
+        ...exam,
+        questions: lightweightSections,
+      };
     });
   }
 
@@ -1177,6 +1236,8 @@ export class AdminService {
         data: { clerkInvitationId: invitation.id },
       });
 
+      await this.invalidateUsersCache(orgId);
+
       return {
         email,
         success: true,
@@ -1238,6 +1299,12 @@ export class AdminService {
       select: { id: true, orgId: true, role: true },
     });
     if (!targetUser) throw new NotFoundException('User not found');
+
+    if (targetUser.role === 'SUPER_ADMIN' && caller?.role !== 'SUPER_ADMIN') {
+      throw new ForbiddenException(
+        'Organization Admins cannot remove or delete Super Admin users',
+      );
+    }
 
     const isHomeMember = targetUser.orgId === orgId;
     const membership = await this.prisma.orgMembership.findUnique({
@@ -1347,6 +1414,14 @@ export class AdminService {
     }
 
     const currentRole = membership?.role || targetUser.role;
+    if (
+      (targetUser.role === 'SUPER_ADMIN' || currentRole === 'SUPER_ADMIN') &&
+      caller?.role !== 'SUPER_ADMIN'
+    ) {
+      throw new ForbiddenException(
+        'Super Admin roles cannot be modified by Organization Admins',
+      );
+    }
     if (currentRole === normalizedRole) {
       return { id, orgId, role: normalizedRole, changed: false };
     }

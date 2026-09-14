@@ -405,6 +405,7 @@ export class TeacherStudentsService {
         },
       },
       orderBy: { createdAt: 'desc' },
+      take: 1000,
     });
 
     // Weekly activity via DB query optimization
@@ -451,7 +452,8 @@ export class TeacherStudentsService {
     const attemptedUnitIds = new Set<string>();
     const completedUnitIds = new Set<string>();
     submissions.forEach((sub: any) => {
-      const courseName = sub.unit.module.course.title;
+      const courseName = sub.unit?.module?.course?.title;
+      if (!courseName) return;
       if (!courseStats[courseName]) {
         courseStats[courseName] = { total: 0, completed: 0 };
       }
@@ -851,23 +853,27 @@ export class TeacherStudentsService {
       };
     }
 
-    const [students, existingCourse] = await Promise.all([
-      this.prisma.user.findMany({
-        where: { email: { in: normalizedEmails } },
-        select: { id: true, email: true, name: true, role: true },
-      }),
-      this.prisma.course.findUnique({
-        where: { id: courseId },
-        select: { students: { select: { id: true } } },
-      }),
-    ]);
+    const students = await this.prisma.user.findMany({
+      where: { email: { in: normalizedEmails } },
+      select: { id: true, email: true, name: true, role: true },
+    });
+
+    const candidateStudentIds = students.map((s: any) => s.id);
+    const alreadyEnrolled =
+      candidateStudentIds.length > 0
+        ? await this.prisma.user.findMany({
+            where: {
+              id: { in: candidateStudentIds },
+              courses: { some: { id: courseId } },
+            },
+            select: { id: true },
+          })
+        : [];
 
     const studentByEmail = new Map(
       students.map((s: any) => [String(s.email).toLowerCase(), s]),
     );
-    const enrolledSet = new Set(
-      (existingCourse?.students || []).map((s: any) => s.id),
-    );
+    const enrolledSet = new Set(alreadyEnrolled.map((s: any) => s.id));
     const blocked = await this.teacherService.getBlockedEnrollments(
       course,
       students.map((s: any) => s.id),

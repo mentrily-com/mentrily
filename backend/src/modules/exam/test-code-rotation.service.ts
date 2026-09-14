@@ -112,59 +112,63 @@ export class TestCodeRotationService implements OnModuleInit, OnModuleDestroy {
     const gotLock = await this.tryAcquireLock();
     if (!gotLock) return;
 
-    const now = Date.now();
-    const rotatingExams = await this.getRotatingExamCatalog();
-    const nextCatalog: typeof rotatingExams = [];
-    let catalogChanged = false;
+    try {
+      const now = Date.now();
+      const rotatingExams = await this.getRotatingExamCatalog();
+      const nextCatalog: typeof rotatingExams = [];
+      let catalogChanged = false;
 
-    for (const exam of rotatingExams) {
-      const intervalMinutes = Number(exam.rotationInterval || 0);
-      if (!intervalMinutes || intervalMinutes <= 0) {
-        nextCatalog.push(exam);
-        continue;
+      for (const exam of rotatingExams) {
+        const intervalMinutes = Number(exam.rotationInterval || 0);
+        if (!intervalMinutes || intervalMinutes <= 0) {
+          nextCatalog.push(exam);
+          continue;
+        }
+
+        // Due time is based on when the code last actually rotated, not
+        // `updatedAt` -- any unrelated write to the exam bumps `updatedAt`
+        // and would otherwise silently push rotation back out.
+        const baseTime = exam.codeRotatedAt
+          ? new Date(exam.codeRotatedAt).getTime()
+          : new Date(exam.createdAt).getTime();
+        const dueAt = baseTime + intervalMinutes * 60 * 1000;
+
+        if (now < dueAt) {
+          nextCatalog.push(exam);
+          continue;
+        }
+
+        const currentCode = String(exam.testCode || '');
+        const rotated = await this.rotateOneExamCode(exam.id, currentCode);
+        catalogChanged = true;
+
+        if (!rotated) {
+          // Either a teacher edited this exam's code/rotation settings since
+          // the catalog snapshot was cached (optimistic write found the code
+          // had already changed), or every generated candidate collided with
+          // another exam's current code. Drop it from the cache instead of
+          // retrying it every tick until the cache naturally expires.
+          continue;
+        }
+
+        nextCatalog.push({
+          ...exam,
+          testCode: rotated.testCode,
+          codeRotatedAt: rotated.codeRotatedAt,
+        });
+        this.logger.log(`Rotated test code for exam ${exam.slug}`);
       }
 
-      // Due time is based on when the code last actually rotated, not
-      // `updatedAt` -- any unrelated write to the exam bumps `updatedAt`
-      // and would otherwise silently push rotation back out.
-      const baseTime = exam.codeRotatedAt
-        ? new Date(exam.codeRotatedAt).getTime()
-        : new Date(exam.createdAt).getTime();
-      const dueAt = baseTime + intervalMinutes * 60 * 1000;
-
-      if (now < dueAt) {
-        nextCatalog.push(exam);
-        continue;
+      if (catalogChanged) {
+        await this.redis.set(
+          this.rotatingExamCatalogKey,
+          JSON.stringify(nextCatalog),
+          'EX',
+          this.rotatingExamCatalogTtlSec,
+        );
       }
-
-      const currentCode = String(exam.testCode || '');
-      const rotated = await this.rotateOneExamCode(exam.id, currentCode);
-      catalogChanged = true;
-
-      if (!rotated) {
-        // Either a teacher edited this exam's code/rotation settings since
-        // the catalog snapshot was cached (optimistic write found the code
-        // had already changed), or every generated candidate collided with
-        // another exam's current code. Drop it from the cache instead of
-        // retrying it every tick until the cache naturally expires.
-        continue;
-      }
-
-      nextCatalog.push({
-        ...exam,
-        testCode: rotated.testCode,
-        codeRotatedAt: rotated.codeRotatedAt,
-      });
-      this.logger.log(`Rotated test code for exam ${exam.slug}`);
-    }
-
-    if (catalogChanged) {
-      await this.redis.set(
-        this.rotatingExamCatalogKey,
-        JSON.stringify(nextCatalog),
-        'EX',
-        this.rotatingExamCatalogTtlSec,
-      );
+    } finally {
+      await this.redis.del('exam:test-code-rotation:lock').catch(() => {});
     }
   }
 

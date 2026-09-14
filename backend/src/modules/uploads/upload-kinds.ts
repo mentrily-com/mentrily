@@ -34,6 +34,7 @@ export const UPLOAD_KINDS: Record<UploadKind, UploadKindConfig> = {
     folder: 'courseVideos',
     maxSizeBytes: 100 * 1024 * 1024,
     allowedMime: VIDEO_TYPES,
+    allowedRoles: ['TEACHER', 'ADMIN', 'SUPER_ADMIN'],
     countsAgainstQuota: true,
   },
   'bug-report': {
@@ -47,6 +48,7 @@ export const UPLOAD_KINDS: Record<UploadKind, UploadKindConfig> = {
     folder: 'announcements',
     maxSizeBytes: 25 * 1024 * 1024,
     allowedMime: ANNOUNCEMENT_TYPES,
+    allowedRoles: ['TEACHER', 'ADMIN', 'SUPER_ADMIN'],
     requiresOrgActive: true,
     countsAgainstQuota: true,
   },

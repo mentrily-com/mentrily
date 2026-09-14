@@ -90,13 +90,22 @@ export function getAllowedWebOrigins(includeDevOrigins: boolean): string[] {
 
 export function isAllowedSubdomainOrigin(origin: string): boolean {
   if (!origin) return false;
-  if (origin.endsWith('.mentrily.com')) return true;
-
-  const configuredDomain = getAppDomain();
-  const escapedDomain = configuredDomain.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const subdomainRegex = new RegExp(
-    `^https?:\\/\\/[a-zA-Z0-9-]+\\.${escapedDomain}$`,
-  );
-
-  return subdomainRegex.test(origin);
+  try {
+    const urlObj = new URL(origin);
+    const isProduction = process.env.NODE_ENV === 'production';
+    if (isProduction && urlObj.protocol !== 'https:') {
+      return false;
+    }
+    const hostname = urlObj.hostname.toLowerCase();
+    if (hostname.endsWith('.mentrily.com')) {
+      return true;
+    }
+    const configuredDomain = getAppDomain().toLowerCase();
+    if (configuredDomain && hostname.endsWith(`.${configuredDomain}`)) {
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
 }

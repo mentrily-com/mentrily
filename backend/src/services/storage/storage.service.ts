@@ -55,7 +55,9 @@ export class StorageService {
     orgId?: string,
     ownerId?: string,
   ): string {
-    const fileExtension = filename.split('.').pop();
+    const rawExtension = filename ? filename.split('.').pop() || '' : '';
+    const fileExtension =
+      rawExtension.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() || 'bin';
     const namespace = orgId || (ownerId ? `user-${ownerId}` : null);
     return namespace
       ? `${folder}/${namespace}/${randomUUID()}.${fileExtension}`
@@ -270,25 +272,34 @@ export class StorageService {
     try {
       const urlObj = new URL(url);
 
-      if (this.cdnUrl && url.startsWith(this.cdnUrl)) {
-        return urlObj.pathname.replace(/^\//, '');
+      if (this.cdnUrl) {
+        try {
+          const cdnObj = new URL(this.cdnUrl);
+          if (cdnObj.origin === urlObj.origin) {
+            return decodeURIComponent(urlObj.pathname.replace(/^\//, ''));
+          }
+        } catch {
+          if (url.startsWith(this.cdnUrl)) {
+            return decodeURIComponent(urlObj.pathname.replace(/^\//, ''));
+          }
+        }
       }
 
       // Legacy DigitalOcean Spaces: <bucket>.<region>.digitaloceanspaces.com/<key>
       if (urlObj.hostname.includes('digitaloceanspaces.com')) {
-        return urlObj.pathname.replace(/^\//, '');
+        return decodeURIComponent(urlObj.pathname.replace(/^\//, ''));
       }
 
       // Legacy Supabase fallback: /storage/v1/object/public/<bucket>/<key>
       const supabaseMatch = url.match(
         /\/storage\/v1\/object\/public\/[^/]+\/(.+)$/,
       );
-      if (supabaseMatch) return supabaseMatch[1];
+      if (supabaseMatch) return decodeURIComponent(supabaseMatch[1]);
 
-      // Generic fallback: whole pathname is the key (CDN has no bucket
-      // segment in the URL, unlike the legacy providers above).
-      const pathname = urlObj.pathname.replace(/^\//, '');
-      return pathname || null;
+      // Deliberately reject external/unrecognized URLs:
+      // We must not extract pathname from arbitrary domains (e.g. img.clerk.com,
+      // attacker hosts) as internal S3 keys.
+      return null;
     } catch {
       return null;
     }

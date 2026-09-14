@@ -720,9 +720,7 @@ export class CertificateService {
         metadata: true,
         user: {
           select: {
-            id: true,
             name: true,
-            email: true,
           },
         },
         organization: {

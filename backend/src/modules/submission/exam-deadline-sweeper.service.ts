@@ -106,25 +106,26 @@ export class ExamDeadlineSweeperService
 
       if (expired.length === 0) return;
 
-      for (const { id } of expired) {
-        await this.submissionQueue.add(
-          'auto_submit',
-          { sessionId: id },
-          {
+      await this.submissionQueue.addBulk(
+        expired.map(({ id }) => ({
+          name: 'auto_submit',
+          data: { sessionId: id },
+          opts: {
             // Coalesce with any auto_submit already scheduled/queued for
             // this session (e.g. from a just-arrived late write).
             jobId: `auto-submit-${id}`,
             removeOnComplete: true,
             removeOnFail: 50,
           },
-        );
-      }
+        })),
+      );
 
       this.logger.log(
         `Enqueued auto-submit for ${expired.length} session(s) past deadline`,
       );
     } finally {
       this.sweeping = false;
+      await this.redis.del(lockKey).catch(() => {});
     }
   }
 }

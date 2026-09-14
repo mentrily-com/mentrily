@@ -9,6 +9,7 @@ import {
   Query,
   UnauthorizedException,
   BadRequestException,
+  ForbiddenException,
   ValidationPipe,
 } from '@nestjs/common';
 import { ExamService } from './exam.service';
@@ -60,6 +61,15 @@ export class ExamController {
   }
 
   private getClientIp(req: any): string {
+    const cfIp = req?.headers?.['cf-connecting-ip'] || req?.headers?.['true-client-ip'];
+    if (typeof cfIp === 'string' && cfIp.trim().length > 0) {
+      return cfIp.split(',')[0].trim();
+    }
+
+    if (req?.ip && typeof req.ip === 'string') {
+      return req.ip;
+    }
+
     const forwardedFor = req?.headers?.['x-forwarded-for'];
     if (typeof forwardedFor === 'string' && forwardedFor.trim().length > 0) {
       return forwardedFor.split(',')[0].trim();
@@ -70,7 +80,7 @@ export class ExamController {
       return realIp.trim();
     }
 
-    return req?.ip || '';
+    return '';
   }
 
   @Get('app-config')
@@ -95,9 +105,9 @@ export class ExamController {
     @User() user: any,
   ) {
     const exam = await this.examService.getExamBySlug(slug, user);
-    // Fail closed: anyone who isn't an explicitly privileged role gets the
-    // whitelisted student payload (no answer keys, solutions, hidden tests).
-    if (shouldSanitizeSensitiveContent(user)) {
+    // Fail closed: only users who own or administer this specific exam
+    // receive the unsanitized exam with answers, solutions, and hidden tests.
+    if (shouldSanitizeSensitiveContent(user, exam)) {
       return toStudentExamResponseDto(exam);
     }
     return exam;
@@ -182,7 +192,6 @@ export class ExamController {
 
     // OPTIMIZATION: Use lightweight ID lookup instead of full transform
     const lookup: any = await this.examService.getExamIdBySlug(slug, user);
-    console.log(`[ExamController] Lookup for slug ${slug}:`, lookup);
 
     if (!lookup || lookup.type !== 'exam') {
       throw new BadRequestException(
@@ -203,7 +212,7 @@ export class ExamController {
     }
 
     if (lookup.linkedCourseId) {
-      await this.examService.validateCourseLinkedExamEntry(user.id, lookup.id);
+      await this.examService.validateCourseLinkedExamEntry(user.id, lookup.id, lookup);
     }
 
     const ip = this.getClientIp(req);
@@ -244,12 +253,10 @@ export class ExamController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('TEACHER', 'ADMIN', 'SUPER_ADMIN')
-  async createExam(
-    @Body(new ValidationPipe({ transform: true, whitelist: false }))
-    body: CreateExamDto,
-    @User() user: any,
-  ) {
-    return this.examService.createExam(body, user);
+  async createExam() {
+    throw new ForbiddenException(
+      'Exam creation must be performed via /teacher/exams to enforce organization plan limits, quotas, and feature entitlements.',
+    );
   }
 
   @Get(':examId/monitoring')

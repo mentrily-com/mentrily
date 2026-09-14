@@ -370,7 +370,6 @@ export class MonitoringGateway
     }
 
     const examRoom = `exam_${data.examId}`;
-    client.join(examRoom);
 
     if (data.role === 'teacher') {
       // The monitor room streams every student's violations and status —
@@ -420,11 +419,37 @@ export class MonitoringGateway
         examId: data.examId,
       });
 
-      // Establish live presence immediately on join so a fast first submit
-      // isn't blocked before the first 30s heartbeat lands. Owner is already
-      // verified above (data.userId === socketUser.id).
+      // Establish live presence on join only if ownership is verified.
+      // Check presence gap before recording to prevent erasing offline gaps.
       if (data.sessionId) {
-        await this.submissionService.recordPresence(data.sessionId);
+        const ownerId = await this.submissionService.getSessionOwner(data.sessionId);
+        if (ownerId === socketUser.id) {
+          const gapMs = await this.submissionService.getPresenceGapMs(data.sessionId);
+          await this.submissionService.recordPresence(data.sessionId);
+
+          if (gapMs !== null && gapMs > 75_000) {
+            const seconds = Math.round(gapMs / 1000);
+            const message = `Disconnected from exam proctoring for ${seconds}s before reconnecting`;
+            void this.prisma.violation
+              .create({
+                data: {
+                  sessionId: data.sessionId,
+                  type: 'HEARTBEAT_GAP',
+                  message,
+                  severity: 'WARNING',
+                  timestamp: new Date(),
+                },
+              })
+              .catch(() => {});
+            this.server.to(`exam_${data.examId}_monitor`).emit('live_violation', {
+              userId: socketUser.id,
+              type: 'HEARTBEAT_GAP',
+              message,
+              details: { gapMs },
+              timestamp: new Date(),
+            });
+          }
+        }
       }
 
       // 2. SET Redis ownership IMMEDIATELY
@@ -509,15 +534,22 @@ export class MonitoringGateway
           const examId = this.activeConnections.get(client.id)?.examId;
           const seconds = Math.round(gapMs / 1000);
           const message = `No proctoring signal for ${seconds}s (possible tab switch, backgrounded tab, or disconnect)`;
-          await this.prisma.violation.create({
-            data: {
-              sessionId: data.sessionId,
-              type: 'HEARTBEAT_GAP',
-              message,
-              severity: 'WARNING',
-              timestamp: new Date(),
-            },
-          });
+          void this.prisma.violation
+            .create({
+              data: {
+                sessionId: data.sessionId,
+                type: 'HEARTBEAT_GAP',
+                message,
+                severity: 'WARNING',
+                timestamp: new Date(),
+              },
+            })
+            .catch((err) => {
+              console.error(
+                `[Proctoring] Failed to log HEARTBEAT_GAP violation for session ${data.sessionId}:`,
+                err,
+              );
+            });
           if (examId) {
             this.server.to(`exam_${examId}_monitor`).emit('live_violation', {
               userId: socketUser.id,
@@ -600,15 +632,19 @@ export class MonitoringGateway
     const cachedData = await this.redis.get(cacheKey);
 
     // Parse cached data or init as null
-    let sessionData: { status: string; tabSwitchLimit: number | null } =
-      cachedData ? JSON.parse(cachedData) : null;
+    let sessionData: {
+      status: string;
+      examId?: string;
+      tabSwitchLimit: number | null;
+    } = cachedData ? JSON.parse(cachedData) : null;
 
     if (!sessionData) {
       const examSession = await this.prisma.examSession.findUnique({
         where: { id: data.sessionId },
         select: {
           status: true,
-          exam: { select: { tabSwitchLimit: true } },
+          examId: true,
+          exam: { select: { id: true, tabSwitchLimit: true } },
         },
       });
       if (!examSession) {
@@ -616,10 +652,15 @@ export class MonitoringGateway
       }
       sessionData = {
         status: examSession.status,
+        examId: examSession.examId || examSession.exam?.id || data.examId,
         tabSwitchLimit: examSession.exam?.tabSwitchLimit || null,
       };
       // Cache for short duration as status can change
       await this.redis.set(cacheKey, JSON.stringify(sessionData), 'EX', 60);
+    }
+
+    if (sessionData.examId) {
+      data.examId = sessionData.examId;
     }
 
     const status = sessionData.status;
@@ -632,16 +673,23 @@ export class MonitoringGateway
       return { status: 'rejected', reason: 'Session inactive' };
     }
 
-    // Save to DB (Fire and forget? No, wait for it to ensure consistency)
-    await this.prisma.violation.create({
-      data: {
-        sessionId: data.sessionId,
-        type: data.type,
-        message: data.message,
-        severity: 'WARNING',
-        timestamp: new Date(),
-      },
-    });
+    // Save to DB asynchronously to avoid blocking the real-time event pipeline
+    void this.prisma.violation
+      .create({
+        data: {
+          sessionId: data.sessionId,
+          type: data.type,
+          message: data.message,
+          severity: 'WARNING',
+          timestamp: new Date(),
+        },
+      })
+      .catch((err) => {
+        console.error(
+          `[Proctoring] Failed to log violation for session ${data.sessionId}:`,
+          err,
+        );
+      });
 
     // OPTIMIZATION: Use Redis Atomic Counters for Tab Switches
     let { inCount: tabSwitchInCount, outCount: tabSwitchOutCount } =

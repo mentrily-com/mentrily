@@ -8,7 +8,7 @@ import {
 import { ArgumentsHost, Logger, ValidationPipe } from '@nestjs/common';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import helmet from '@fastify/helmet';
-import { randomBytes } from 'crypto';
+import { randomBytes, timingSafeEqual } from 'crypto';
 import * as Sentry from '@sentry/node';
 import { AppModule } from './app.module';
 import {
@@ -78,10 +78,8 @@ async function bootstrap() {
   const fastifyInstance = app.getHttpAdapter().getInstance();
   fastifyInstance.addHook('onRequest', async (req: FastifyRequest) => {
     const cfConnectingIp = req.headers['cf-connecting-ip'];
-    const xForwardedFor = req.headers['x-forwarded-for'];
-
-    if (typeof cfConnectingIp === 'string' && !xForwardedFor) {
-      req.headers['x-forwarded-for'] = cfConnectingIp;
+    if (typeof cfConnectingIp === 'string' && cfConnectingIp.trim()) {
+      req.headers['x-forwarded-for'] = cfConnectingIp.trim();
     }
   });
 
@@ -190,10 +188,16 @@ async function bootstrap() {
         ? headerToken[0]
         : headerToken;
 
+      if (!cookieToken || !normalizedHeaderToken) {
+        return reply.code(403).send({ message: 'Invalid CSRF token' });
+      }
+
+      const cookieBuf = Buffer.from(cookieToken);
+      const headerBuf = Buffer.from(normalizedHeaderToken);
+
       if (
-        !cookieToken ||
-        !normalizedHeaderToken ||
-        cookieToken !== normalizedHeaderToken
+        cookieBuf.length !== headerBuf.length ||
+        !timingSafeEqual(cookieBuf, headerBuf)
       ) {
         return reply.code(403).send({ message: 'Invalid CSRF token' });
       }

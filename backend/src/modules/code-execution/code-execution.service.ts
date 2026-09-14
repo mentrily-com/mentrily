@@ -1,4 +1,4 @@
-import { randomBytes } from 'crypto';
+import { randomBytes, createHash } from 'crypto';
 import {
   BadRequestException,
   ForbiddenException,
@@ -77,21 +77,23 @@ export class CodeExecutionService {
 
   getClientIp(req: any): string {
     const headers = req?.headers || {};
-    const candidates = [
-      headers['cf-connecting-ip'],
-      headers['true-client-ip'],
-      headers['x-real-ip'],
-      headers['x-forwarded-for'],
-      req?.ip,
-      req?.socket?.remoteAddress,
-    ];
+    const cfIp = headers['cf-connecting-ip'] || headers['true-client-ip'];
+    if (typeof cfIp === 'string' && cfIp.trim().length > 0) {
+      return cfIp.split(',')[0].trim();
+    }
 
-    for (const candidate of candidates) {
-      const value = Array.isArray(candidate) ? candidate[0] : candidate;
-      const ip = String(value || '')
-        .split(',')[0]
-        .trim();
-      if (ip) return ip;
+    if (req?.ip && typeof req.ip === 'string') {
+      return req.ip;
+    }
+
+    const socketIp = req?.socket?.remoteAddress;
+    if (typeof socketIp === 'string' && socketIp.trim().length > 0) {
+      return socketIp.trim();
+    }
+
+    const forwarded = headers['x-forwarded-for'] || headers['x-real-ip'];
+    if (typeof forwarded === 'string' && forwarded.trim().length > 0) {
+      return forwarded.split(',')[0].trim();
     }
 
     return 'unknown';
@@ -134,6 +136,20 @@ export class CodeExecutionService {
   async runCode(language: string, code: string, stdin: string) {
     this.validateExecutionPayload(language, code, stdin);
 
+    // Compute execution hash for deterministic caching
+    const normalizedLang = String(language || '')
+      .trim()
+      .toLowerCase();
+    const hash = createHash('sha256')
+      .update(`${normalizedLang}:${code.trim()}:${stdin}`)
+      .digest('hex');
+    const cacheKey = `code:exec:${hash}`;
+
+    const cached = await this.redis.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+
     // Add job to queue
     const job = await this.executionQueue.add('execute', {
       language,
@@ -141,9 +157,12 @@ export class CodeExecutionService {
       stdin,
     });
 
-    // Wait for the job to finish and return the result
+    // Wait for the job to finish and return the result (with 30s fallback timeout)
     try {
-      const result = await job.waitUntilFinished(this.getQueueEvents());
+      const result = await job.waitUntilFinished(this.getQueueEvents(), 30000);
+      if (result) {
+        await this.redis.set(cacheKey, JSON.stringify(result), 'EX', 60);
+      }
       return result;
     } catch (error) {
       throw error;
@@ -345,24 +364,38 @@ export class CodeExecutionService {
     let testCases: any[] = [];
 
     if (examId) {
-      // Tenancy check FIRST, independent of the questions cache below —
-      // any authenticated user could otherwise run/grade against another
-      // org's exam questions just by knowing/guessing its examId, since
-      // this endpoint previously carried no org scoping at all.
+      // Scope check: fetch exam metadata to verify ownership/tenancy
       const examOrg = await this.prisma.exam.findFirst({
         where: { OR: [{ id: examId }, { slug: examId }] },
-        select: { orgId: true },
+        select: { id: true, orgId: true, creatorId: true },
       });
       if (!examOrg) {
         throw new NotFoundException('Exam not found');
       }
-      if (
-        user &&
-        user.role !== 'SUPER_ADMIN' &&
-        examOrg.orgId &&
-        examOrg.orgId !== user.orgId
-      ) {
-        throw new ForbiddenException('You do not have access to this exam');
+
+      const isExamOwnerOrAdmin =
+        user?.role === 'SUPER_ADMIN' ||
+        (examOrg.creatorId && examOrg.creatorId === user?.id) ||
+        (user?.role === 'ADMIN' && user?.orgId && examOrg.orgId === user.orgId);
+
+      if (!isExamOwnerOrAdmin && user?.id && this.prisma?.examSession) {
+        if (examOrg.orgId && user?.orgId && examOrg.orgId !== user.orgId) {
+          throw new ForbiddenException('You do not have access to this exam');
+        }
+        // Candidates must possess an active in-progress exam session to submit code
+        const activeSession = await this.prisma.examSession.findFirst({
+          where: {
+            examId: examOrg.id,
+            userId: user.id,
+            status: 'IN_PROGRESS',
+          },
+          select: { id: true },
+        });
+        if (!activeSession) {
+          throw new ForbiddenException(
+            'Active exam session required to run code submissions',
+          );
+        }
       }
 
       // PERFORMANCE: Cache exam questions to avoid fetching large JSON blobs on every run
@@ -405,59 +438,16 @@ export class CodeExecutionService {
         }
       }
 
-      // Find question in exam.questions
-      let foundQuestion: any = null;
+      const questions = Array.isArray(questionsData)
+        ? questionsData
+        : (questionsData as any)?.sections?.flatMap((s: any) => s.questions) ||
+          [];
 
-      // Helper to find question in sections or flat list
-      if (Array.isArray(questionsData)) {
-        // Check if it's sections or flat
-        if (questionsData.length > 0 && questionsData[0].questions) {
-          // Sections
-          for (const section of questionsData) {
-            const q = section.questions?.find((q: any) => q.id === unitId);
-            if (q) {
-              foundQuestion = q;
-              break;
-            }
-          }
-        } else {
-          // Flat
-          foundQuestion = questionsData.find((q: any) => q.id === unitId);
-        }
-      } else if (questionsData?.sections) {
-        for (const section of questionsData.sections) {
-          const q = section.questions?.find((q: any) => q.id === unitId);
-          if (q) {
-            foundQuestion = q;
-            break;
-          }
-        }
-      } else if (typeof questionsData === 'object' && questionsData !== null) {
-        // Handle object structure like { "sec-1": { questions: [] } }
-        const sections = Object.values(questionsData);
-        for (const section of sections as any[]) {
-          if (
-            section &&
-            typeof section === 'object' &&
-            section.questions &&
-            Array.isArray(section.questions)
-          ) {
-            const q = section.questions.find((q: any) => q.id === unitId);
-            if (q) {
-              foundQuestion = q;
-              break;
-            }
-          }
-        }
-      }
-
+      const foundQuestion = questions.find((q: any) => q.id === unitId);
       if (!foundQuestion) {
-        console.log(`Question not found. ExamId: ${examId}, UnitId: ${unitId}`);
-        console.log('Questions Data keys:', Object.keys(questionsData || {}));
         throw new NotFoundException('Question not found in exam');
       }
 
-      // Check for testCases in root OR in codingConfig (to match Unit behavior)
       testCases =
         foundQuestion.testCases || foundQuestion.codingConfig?.testCases || [];
     } else {
@@ -465,103 +455,150 @@ export class CodeExecutionService {
       const unit = await this.prisma.unit.findUnique({
         where: { id: unitId },
         include: {
-          module: { include: { course: { select: { orgId: true } } } },
+          module: {
+            include: {
+              course: {
+                select: { id: true, orgId: true, creatorId: true },
+              },
+            },
+          },
         },
       });
 
       if (unit) {
-        // Same tenancy gap as the exam branch above: without this, any
-        // authenticated user could grade against another org's unit just
-        // by knowing/guessing its unitId.
-        const unitOrgId = unit.module?.course?.orgId;
-        if (
-          user &&
-          user.role !== 'SUPER_ADMIN' &&
-          unitOrgId &&
-          unitOrgId !== user.orgId
-        ) {
-          throw new ForbiddenException('You do not have access to this unit');
+        const course = unit.module?.course;
+        const unitOrgId = course?.orgId;
+        const isCourseOwnerOrAdmin =
+          user?.role === 'SUPER_ADMIN' ||
+          (course?.creatorId && course.creatorId === user?.id) ||
+          (user?.role === 'ADMIN' && user?.orgId && unitOrgId === user.orgId);
+
+        if (!isCourseOwnerOrAdmin) {
+          if (unitOrgId && user?.orgId && unitOrgId !== user.orgId) {
+            throw new ForbiddenException('You do not have access to this unit');
+          }
+          if (course?.id) {
+            const isEnrolled = await this.prisma.course.findFirst({
+              where: {
+                id: course.id,
+                students: { some: { id: user.id } },
+              },
+              select: { id: true },
+            });
+            if (!isEnrolled) {
+              throw new ForbiddenException('You are not enrolled in this course');
+            }
+          }
         }
 
-        // Assuming unit.content follows a structure suitable for coding problems
-        // generic casting, in a real app we'd want strict DTOs/Validation
         const content: any = unit.content;
-        // Check for testCases in content root OR in codingConfig (if structure differs)
         testCases = content.testCases || content.codingConfig?.testCases || [];
       } else if (testCasesBody && Array.isArray(testCasesBody)) {
-        // Fallback for preview/authoring flows where question is not persisted yet
+        // Fallback only permitted for authoring preview by teachers/admins
+        const privilegedRoles = ['TEACHER', 'ADMIN', 'SUPER_ADMIN'];
+        if (!privilegedRoles.includes(user?.role)) {
+          throw new ForbiddenException('Unauthorized test case preview');
+        }
         testCases = testCasesBody;
       } else {
         throw new NotFoundException('Unit not found');
       }
     }
 
-    if (!testCases.length) {
-      // Should we error or just return passed?
-      // Let's assume passed but with warning or empty result
-      return {
-        status: 'Accepted',
-        passedTests: 0,
-        totalTests: 0,
-        results: [],
-      };
+    if (!Array.isArray(testCases) || testCases.length === 0) {
+      throw new BadRequestException('No test cases found to evaluate code');
     }
 
-    // 2. Execute against each test case
-    // Use parallel execution to minimize latency
-    const results = await Promise.all(
-      testCases.map(async (testCase) => {
-        const input = testCase.input || '';
-        const expectedOutput = (
-          testCase.expectedOutput ||
-          testCase.output ||
-          ''
-        ).trim();
-        const isPublic = testCase.isPublic !== false; // Default to true if undefined, unless explicitly false
+    if (testCases.length > 25) {
+      testCases = testCases.slice(0, 25);
+    }
 
-        try {
-          // Use the queue-backed runCode method
-          const executionResult = await this.runCode(language, code, input);
+    // 2. Execute test cases (with early compilation short-circuiting to save worker capacity)
+    const runSingleTestCase = async (testCase: any) => {
+      const input = testCase.input || '';
+      const expectedOutput = (
+        testCase.expectedOutput ||
+        testCase.output ||
+        ''
+      ).trim();
+      const isPublic = testCase.isPublic !== false;
 
-          // Clean undefined or null outputs
-          const actualOutput = (executionResult.stdout || '').trim();
-          const errorOutput = (executionResult.stderr || '').trim();
+      try {
+        const executionResult = await this.runCode(language, code, input);
+        const actualOutput = (executionResult.stdout || '').trim();
+        const errorOutput = (executionResult.stderr || '').trim();
 
-          // Pass only if actual matches expected AND there are no errors
-          const hasError =
-            errorOutput.length > 0 ||
-            (executionResult.code !== 0 && executionResult.code !== null);
-          const passed = !hasError && actualOutput === expectedOutput;
+        const hasError =
+          errorOutput.length > 0 ||
+          (executionResult.code !== 0 && executionResult.code !== null);
+        const passed = !hasError && actualOutput === expectedOutput;
 
-          return {
-            input: isPublic ? input : null,
-            expectedOutput: isPublic ? expectedOutput : null,
-            actualOutput: isPublic ? actualOutput : null,
-            passed: passed,
-            status: passed ? 'Passed' : 'Failed',
-            isPublic: isPublic, // Keep track of visibility
-            error: isPublic ? errorOutput || null : null,
-          };
-        } catch (err: any) {
-          console.error(
-            isPublic
-              ? `Test case execution failed: ${err.message}`
-              : 'Hidden test case execution failed',
-          );
-          return {
-            input: isPublic ? input : null,
-            expectedOutput: isPublic ? expectedOutput : null,
+        return {
+          input: isPublic ? input : null,
+          expectedOutput: isPublic ? expectedOutput : null,
+          actualOutput: isPublic ? actualOutput : null,
+          passed,
+          status: passed ? 'Passed' : 'Failed',
+          isPublic,
+          error: isPublic ? errorOutput || null : null,
+          rawError: isPublic ? errorOutput : null,
+          code: executionResult.code,
+        };
+      } catch (err: any) {
+        return {
+          input: isPublic ? input : null,
+          expectedOutput: isPublic ? expectedOutput : null,
+          actualOutput: null,
+          passed: false,
+          status: 'Error',
+          isPublic,
+          error: isPublic
+            ? 'Execution failed: ' + (err.message || 'Unknown error')
+            : null,
+          rawError: isPublic ? String(err?.message || '') : null,
+          code: 1,
+        };
+      }
+    };
+
+    let results: any[];
+    if (testCases.length <= 1) {
+      results = [await runSingleTestCase(testCases[0])];
+    } else {
+      const firstResult = await runSingleTestCase(testCases[0]);
+      const isCompilationError =
+        !firstResult.passed &&
+        firstResult.code !== 0 &&
+        Boolean(
+          firstResult.rawError &&
+            /syntaxerror|compilation error|compile error|fatal error|error:/i.test(
+              firstResult.rawError,
+            ),
+        );
+
+      if (isCompilationError) {
+        results = [
+          firstResult,
+          ...testCases.slice(1).map((tc) => ({
+            input: tc.isPublic !== false ? tc.input || '' : null,
+            expectedOutput:
+              tc.isPublic !== false
+                ? (tc.expectedOutput || tc.output || '').trim()
+                : null,
             actualOutput: null,
             passed: false,
             status: 'Error',
-            isPublic: isPublic,
-            error: isPublic
-              ? 'Execution failed: ' + (err.message || 'Unknown error')
-              : null,
-          };
-        }
-      }),
-    );
+            isPublic: tc.isPublic !== false,
+            error: tc.isPublic !== false ? firstResult.error : null,
+          })),
+        ];
+      } else {
+        const remainingResults = await Promise.all(
+          testCases.slice(1).map(runSingleTestCase),
+        );
+        results = [firstResult, ...remainingResults];
+      }
+    }
 
     const passedCount = results.filter((r) => r.passed).length;
 

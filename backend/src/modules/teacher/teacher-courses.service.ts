@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { SupabaseService } from '../../services/supabase/supabase.service';
 import { CourseService } from '../course/course.service';
 import { QuotaService } from '../billing/quota.service';
@@ -17,17 +17,13 @@ import {
 } from './teacher.util';
 
 /**
- * Course CRUD and exam-linking, split out of the former monolithic
- * TeacherService -- see teacher-groups.service.ts for the full context on
- * why. checkAccess, slug generation (canUseCustomSlug/createUniqueSlug/
- * resolveIncomingSlug), createCourseRecordWithRetry, findExamByIdCompat,
- * assertLinkableExam, assertLinkableCertificateTemplate, and
- * enforceQuestionTypeAccess all remain on TeacherService (courses and exams
  * share most of this cross-cutting surface, and TeacherExamsService needs
  * several of the same ones), injected here rather than duplicated.
  */
 @Injectable()
 export class TeacherCoursesService {
+  private readonly logger = new Logger(TeacherCoursesService.name);
+
   constructor(
     private readonly supabase: SupabaseService,
     private readonly teacherService: TeacherService,
@@ -41,6 +37,20 @@ export class TeacherCoursesService {
   }
 
   async getCourses(user: any) {
+    const userId = typeof user === 'string' ? user : user?.id;
+    const userOrgId = typeof user === 'string' ? 'no-org' : user?.orgId || 'no-org';
+    const userRole = typeof user === 'string' ? 'default' : user?.role || 'default';
+    const cacheKey = `teacher:courses:${userId}:${userOrgId}:${userRole}`;
+
+    const cached = await this.redis.get(cacheKey).catch(() => null);
+    if (cached) {
+      try {
+        return JSON.parse(cached);
+      } catch {
+        // Fall back to DB
+      }
+    }
+
     const where: any = {};
 
     if (typeof user === 'string') {
@@ -56,13 +66,19 @@ export class TeacherCoursesService {
       where.creatorId = user?.id;
     }
 
-    return this.prisma.course.findMany({
+    const courses = await this.prisma.course.findMany({
       where,
       include: {
         _count: { select: { modules: true, students: true } },
       },
       orderBy: { updatedAt: 'desc' },
     });
+
+    await this.redis
+      .set(cacheKey, JSON.stringify(courses), 'EX', 10)
+      .catch(() => {});
+
+    return courses;
   }
 
   async deleteCourse(id: string, user: any) {
@@ -334,12 +350,6 @@ export class TeacherCoursesService {
       },
     });
 
-    // Invalidate course cache
-    await this.courseService.invalidateCourseCache(course.slug);
-    if (existing.slug !== course.slug) {
-      await this.courseService.invalidateCourseCache(existing.slug);
-    }
-
     if (typeof data.linkedExamId === 'string' && data.linkedExamId.trim()) {
       await this.prisma.exam.update({
         where: { id: data.linkedExamId },
@@ -360,46 +370,64 @@ export class TeacherCoursesService {
 
     // 1. Sync Modules and Units
     if (hasSectionPayload) {
-      const existingModules = await this.prisma.courseModule.findMany({
-        where: { courseId: id },
-        include: { units: true },
-      });
+      await this.prisma.$transaction(
+        async (tx) => {
+        const existingModules = await tx.courseModule.findMany({
+          where: { courseId: id },
+          include: { units: true },
+        });
 
-      const currentModuleIds = incomingSections
-        .map((s: any) => s.id)
-        .filter((id: string) => isUUID(id));
-      const modulesToDelete = existingModules.filter(
-        (m: any) => !currentModuleIds.includes(m.id),
-      );
+        const currentModuleIds = incomingSections
+          .map((s: any) => s.id)
+          .filter((id: string) => isUUID(id));
+        const modulesToDelete = existingModules.filter(
+          (m: any) => !currentModuleIds.includes(m.id),
+        );
 
-      for (const mod of modulesToDelete) {
-        await this.prisma.courseModule.delete({ where: { id: mod.id } });
-      }
-
-      for (let i = 0; i < incomingSections.length; i++) {
-        const sec = incomingSections[i];
-        const isNewModule = !isUUID(sec.id);
-
-        let module;
-        if (!isNewModule) {
-          module = await this.prisma.courseModule.upsert({
-            where: { id: sec.id },
-            update: { title: sec.title, order: i },
-            create: { id: sec.id, title: sec.title, order: i, courseId: id },
+        if (modulesToDelete.length > 0) {
+          const modIdsToDelete = modulesToDelete.map((m: any) => m.id);
+          await tx.unit.deleteMany({
+            where: { moduleId: { in: modIdsToDelete } },
           });
-        } else {
-          module = await this.prisma.courseModule.create({
-            data: { title: sec.title, order: i, courseId: id },
+          await tx.courseModule.deleteMany({
+            where: { id: { in: modIdsToDelete } },
           });
         }
 
-        if (sec.questions && Array.isArray(sec.questions)) {
-          // Refresh existing units list for deletion check since we might have upserted the module
-          const unitsInDb = await this.prisma.unit.findMany({
-            where: { moduleId: module.id },
-            select: { id: true },
-          });
-          const unitsInDbIds = unitsInDb.map((u) => u.id);
+        const moduleUpsertPromises = incomingSections.map((sec: any, i: number) => {
+          const isNewModule = !isUUID(sec.id);
+          if (!isNewModule) {
+            const existingMod = existingModules.find((em) => em.id === sec.id);
+            if (
+              existingMod &&
+              existingMod.title === sec.title &&
+              existingMod.order === i
+            ) {
+              return Promise.resolve(existingMod);
+            }
+            return tx.courseModule.upsert({
+              where: { id: sec.id },
+              update: { title: sec.title, order: i },
+              create: { id: sec.id, title: sec.title, order: i, courseId: id },
+            });
+          } else {
+            return tx.courseModule.create({
+              data: { title: sec.title, order: i, courseId: id },
+            });
+          }
+        });
+
+        const createdModules = await Promise.all(moduleUpsertPromises);
+
+        const unitSyncPromises = incomingSections.map(async (sec: any, i: number) => {
+          const module = createdModules[i];
+          if (!sec.questions || !Array.isArray(sec.questions)) {
+            return;
+          }
+
+          // Use preloaded units from existingModules to avoid redundant DB queries
+          const existingMod = existingModules.find((em) => em.id === module.id);
+          const unitsInDbIds = existingMod ? existingMod.units.map((u) => u.id) : [];
 
           const currentUnitIds = sec.questions
             .map((q: any) => q.id)
@@ -408,14 +436,14 @@ export class TeacherCoursesService {
             (uid: string) => !currentUnitIds.includes(uid),
           );
 
-          for (const uid of unitsToDelete) {
-            await this.prisma.unit.delete({ where: { id: uid } });
+          if (unitsToDelete.length > 0) {
+            await tx.unit.deleteMany({
+              where: { id: { in: unitsToDelete } },
+            });
           }
 
-          for (let j = 0; j < sec.questions.length; j++) {
-            const q = sec.questions[j];
+          const unitUpserts = sec.questions.map((q: any, j: number) => {
             const hasUUID = isUUID(q.id);
-
             const unitData = {
               title: q.title,
               type: q.type,
@@ -425,17 +453,41 @@ export class TeacherCoursesService {
             };
 
             if (hasUUID) {
-              await this.prisma.unit.upsert({
+              const existingUnit = existingMod?.units?.find(
+                (u: any) => u.id === q.id,
+              );
+              if (
+                existingUnit &&
+                existingUnit.title === q.title &&
+                existingUnit.type === q.type &&
+                existingUnit.order === j &&
+                existingUnit.moduleId === module.id
+              ) {
+                // Fast path: avoid rewriting unchanged JSON content and WAL write locks
+                try {
+                  if (
+                    JSON.stringify(existingUnit.content) === JSON.stringify(q)
+                  ) {
+                    return Promise.resolve(existingUnit);
+                  }
+                } catch {}
+              }
+
+              return tx.unit.upsert({
                 where: { id: q.id },
                 update: unitData,
                 create: { ...unitData, id: q.id },
               });
             } else {
-              await this.prisma.unit.create({ data: unitData });
+              return tx.unit.create({ data: unitData });
             }
-          }
-        }
-      }
+          });
+
+          await Promise.all(unitUpserts);
+        });
+
+        await Promise.all(unitSyncPromises);
+      }, { maxWait: 10000, timeout: 20000 });
     }
 
     // 2. Sync Course Tests
@@ -451,16 +503,39 @@ export class TeacherCoursesService {
         (t: any) => !currentTestIds.includes(t.id),
       );
 
-      for (const test of testsToDelete) {
-        await this.prisma.courseTest.delete({ where: { id: test.id } });
+      if (testsToDelete.length > 0) {
+        await this.prisma.courseTest.deleteMany({
+          where: { id: { in: testsToDelete.map((t: any) => t.id) } },
+        });
       }
 
-      for (const test of data.tests) {
+      const testUpserts = data.tests.map(async (test: any) => {
         const hasUUID = isUUID(test.id);
+        const existingTest = hasUUID
+          ? existingTests.find((et: any) => et.id === test.id)
+          : null;
+
+        if (
+          existingTest &&
+          existingTest.title === test.title &&
+          existingTest.slug ===
+            (normalizeSlug(String(test.slug || '')) || existingTest.slug)
+        ) {
+          try {
+            if (
+              JSON.stringify(existingTest.questions) ===
+              JSON.stringify(test.questions || [])
+            ) {
+              return existingTest;
+            }
+          } catch {}
+        }
+
         const testData = {
           title: test.title,
           slug:
             normalizeSlug(String(test.slug || '')) ||
+            existingTest?.slug ||
             (await this.teacherService.createUniqueSlug(
               'courseTest',
               test.title,
@@ -474,121 +549,115 @@ export class TeacherCoursesService {
         };
 
         if (hasUUID) {
-          await this.prisma.courseTest.upsert({
+          return this.prisma.courseTest.upsert({
             where: { id: test.id },
             update: testData,
             create: { ...testData, id: test.id },
           });
         } else {
-          await this.prisma.courseTest.create({ data: testData });
+          return this.prisma.courseTest.create({ data: testData });
         }
-      }
-    }
-
-    // 3. Recalculate CourseProgress for all enrolled students so both dashboards
-    //    stay coherent after unit additions/deletions.
-    const updatedCourse = await this.prisma.course.findUnique({
-      where: { id },
-      include: {
-        modules: { include: { units: { select: { id: true } } } },
-        students: { select: { id: true } },
-      },
-    });
-
-    if (updatedCourse && updatedCourse.students.length > 0) {
-      const allUnitIds = updatedCourse.modules.flatMap((m: any) =>
-        m.units.map((u: any) => u.id),
-      );
-      const totalUnits = allUnitIds.length;
-
-      const studentIds = updatedCourse.students.map((s: any) => s.id);
-
-      // One query for the whole cohort instead of one per student. Course
-      // saves used to cost 4 round-trips per enrolled learner (submissions
-      // read, progress upsert, two cache deletes), so a 500-learner course
-      // issued ~2000 sequential round-trips on every save from the builder.
-      const completedSubmissions = await this.prisma.unitSubmission.findMany({
-        where: {
-          userId: { in: studentIds },
-          unitId: { in: allUnitIds },
-          status: 'COMPLETED',
-        },
-        select: { userId: true, unitId: true },
       });
 
-      const completedByStudent = new Map<string, Set<string>>();
-      for (const submission of completedSubmissions) {
-        let units = completedByStudent.get(submission.userId);
-        if (!units) {
-          units = new Set<string>();
-          completedByStudent.set(submission.userId, units);
-        }
-        units.add(submission.unitId);
-      }
-
-      const progressWrites = updatedCourse.students.map((student: any) => {
-        const completedUnitIds = [
-          ...(completedByStudent.get(student.id) ?? new Set<string>()),
-        ];
-        const completedCount = completedUnitIds.length;
-        const percent =
-          totalUnits > 0 ? Math.round((completedCount / totalUnits) * 100) : 0;
-        const status =
-          completedCount === totalUnits && totalUnits > 0
-            ? 'Completed'
-            : completedCount > 0
-              ? 'In Progress'
-              : 'Not Started';
-
-        const fields = {
-          completedUnits: completedUnitIds,
-          totalUnits,
-          completedCount,
-          percent,
-          status,
-        };
-
-        return this.prisma.courseProgress.upsert({
-          where: { userId_courseId: { userId: student.id, courseId: id } },
-          update: fields,
-          create: { userId: student.id, courseId: id, ...fields },
-        });
-      });
-
-      // Chunked so a large cohort does not open one long-running transaction
-      // that holds row locks across the whole course roster.
-      const PROGRESS_WRITE_CHUNK = 100;
-      for (let i = 0; i < progressWrites.length; i += PROGRESS_WRITE_CHUNK) {
-        await this.prisma.$transaction(
-          progressWrites.slice(i, i + PROGRESS_WRITE_CHUNK),
-        );
-      }
-
-      // Invalidate student stats caches in as few round-trips as possible.
-      const cacheKeys = studentIds.flatMap((studentId: string) => [
-        `student:stats:${studentId}`,
-        `student:analytics:${studentId}`,
-      ]);
-      const CACHE_DEL_CHUNK = 500;
-      for (let i = 0; i < cacheKeys.length; i += CACHE_DEL_CHUNK) {
-        await this.redis.del(...cacheKeys.slice(i, i + CACHE_DEL_CHUNK));
-      }
+      await Promise.all(testUpserts);
     }
 
-    const finalCourse = await this.prisma.course.update({
-      where: { id },
-      data: {
-        status: normalizedStatus,
-        isVisible: normalizedVisibility,
-      },
-    });
+    // 3. Recalculate CourseProgress for all enrolled students asynchronously in the background
+    //    so teacher saves complete instantaneously.
+    if (hasSectionPayload) {
+      void (async () => {
+        try {
+          const updatedCourse = await this.prisma.course.findUnique({
+            where: { id },
+            include: {
+              modules: { include: { units: { select: { id: true } } } },
+              students: { select: { id: true } },
+            },
+          });
 
-    await this.courseService.invalidateCourseCache(finalCourse.slug);
-    if (existing.slug !== finalCourse.slug) {
+          if (!updatedCourse || updatedCourse.students.length === 0) return;
+
+          const allUnitIds = updatedCourse.modules.flatMap((m: any) =>
+            m.units.map((u: any) => u.id),
+          );
+          const totalUnits = allUnitIds.length;
+          const studentIds = updatedCourse.students.map((s: any) => s.id);
+
+          const completedSubmissions = await this.prisma.unitSubmission.findMany({
+            where: {
+              userId: { in: studentIds },
+              unitId: { in: allUnitIds },
+              status: 'COMPLETED',
+            },
+            select: { userId: true, unitId: true },
+          });
+
+          const completedByStudent = new Map<string, Set<string>>();
+          for (const submission of completedSubmissions) {
+            let units = completedByStudent.get(submission.userId);
+            if (!units) {
+              units = new Set<string>();
+              completedByStudent.set(submission.userId, units);
+            }
+            units.add(submission.unitId);
+          }
+
+          const progressWrites = updatedCourse.students.map((student: any) => {
+            const completedUnitIds = [
+              ...(completedByStudent.get(student.id) ?? new Set<string>()),
+            ];
+            const completedCount = completedUnitIds.length;
+            const percent =
+              totalUnits > 0 ? Math.round((completedCount / totalUnits) * 100) : 0;
+            const status =
+              completedCount === totalUnits && totalUnits > 0
+                ? 'Completed'
+                : completedCount > 0
+                  ? 'In Progress'
+                  : 'Not Started';
+
+            const fields = {
+              completedUnits: completedUnitIds,
+              totalUnits,
+              completedCount,
+              percent,
+              status,
+            };
+
+            return this.prisma.courseProgress.upsert({
+              where: { userId_courseId: { userId: student.id, courseId: id } },
+              update: fields,
+              create: { userId: student.id, courseId: id, ...fields },
+            });
+          });
+
+          const PROGRESS_WRITE_CHUNK = 100;
+          for (let i = 0; i < progressWrites.length; i += PROGRESS_WRITE_CHUNK) {
+            await this.prisma.$transaction(
+              progressWrites.slice(i, i + PROGRESS_WRITE_CHUNK),
+            );
+          }
+
+          const cacheKeys = studentIds.flatMap((studentId: string) => [
+            `student:stats:${studentId}`,
+            `student:analytics:${studentId}`,
+          ]);
+          const CACHE_DEL_CHUNK = 500;
+          for (let i = 0; i < cacheKeys.length; i += CACHE_DEL_CHUNK) {
+            await this.redis.del(...cacheKeys.slice(i, i + CACHE_DEL_CHUNK));
+          }
+        } catch (err) {
+          this.logger.warn(`Failed background progress recalculation for course ${id}: ${err}`);
+        }
+      })();
+    }
+
+    await this.courseService.invalidateCourseCache(course.slug);
+    if (existing.slug !== course.slug) {
       await this.courseService.invalidateCourseCache(existing.slug);
     }
 
-    return finalCourse;
+    return course;
   }
 
   async createCourse(user: any, data: any) {

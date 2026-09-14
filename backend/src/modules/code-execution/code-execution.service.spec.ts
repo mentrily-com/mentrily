@@ -44,6 +44,9 @@ describe('CodeExecutionService', () => {
         unit: {
           findUnique: jest.fn().mockResolvedValue(null),
         },
+        examSession: {
+          findFirst: jest.fn().mockResolvedValue({ id: 'sess-1' }),
+        },
       } as any,
       {
         add,

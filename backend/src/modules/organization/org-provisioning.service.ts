@@ -162,7 +162,7 @@ export class OrgProvisioningService {
       });
 
       if (!existingMembership || existingMembership.status !== 'ACTIVE') {
-        await this.quotaService.checkTeacherSeatQuota(personalOrg.id, 1);
+        await this.quotaService.checkSeatQuota(personalOrg.id, 1);
       }
     }
 

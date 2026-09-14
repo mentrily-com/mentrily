@@ -19,6 +19,8 @@ import {
   isAllowedSubdomainOrigin,
 } from '../../config/app-brand';
 
+import { PrismaService } from '../../services/prisma/prisma.service';
+
 @WebSocketGateway({
   namespace: 'notifications',
   pingInterval: 20000,
@@ -46,7 +48,10 @@ export class NotificationGateway
     OnGatewayDisconnect,
     OnModuleDestroy
 {
-  constructor(@InjectRedis() private readonly redis: Redis) {}
+  constructor(
+    @InjectRedis() private readonly redis: Redis,
+    private readonly prisma: PrismaService,
+  ) {}
 
   @WebSocketServer()
   server: Server;
@@ -115,8 +120,27 @@ export class NotificationGateway
       client.data.userId = userId;
       this.connectedUsers.set(client.id, userId);
 
-      // Join user-specific room so we can target them
+      // Join user-specific room so we can target by Clerk ID
       client.join(`user_${userId}`);
+
+      // Also lookup internal database User ID and join that room
+      try {
+        const dbUser = await this.prisma.user.findFirst({
+          where: {
+            OR: [{ clerkId: userId }, { id: userId }],
+          },
+          select: { id: true },
+        });
+        if (dbUser && dbUser.id !== userId) {
+          client.data.dbUserId = dbUser.id;
+          client.join(`user_${dbUser.id}`);
+        }
+      } catch (dbErr) {
+        console.warn(
+          `[NotificationGateway] Could not resolve DB user for ${userId}:`,
+          dbErr,
+        );
+      }
 
       console.log(
         `[NotificationGateway] User ${userId} connected (${client.id})`,
@@ -160,11 +184,7 @@ export class NotificationGateway
       return;
     }
 
-    let emitter: any = this.server;
-    for (const room of roomIds) {
-      emitter = emitter.to(room);
-    }
-    emitter.emit('new_announcement', announcement);
+    this.server.to(roomIds).emit('new_announcement', announcement);
 
     console.log(
       `[NotificationGateway] Broadcast announcement "${announcement.title}" to ${roomIds.length} students`,
