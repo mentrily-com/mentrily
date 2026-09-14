@@ -13,6 +13,7 @@ import { MailService } from '../../services/mail.service';
 import { QuotaService } from './quota.service';
 import { OrgProvisioningService } from '../organization/org-provisioning.service';
 import { MembershipService } from '../organization/membership.service';
+import { AiCreditsService } from '../ai/credits/ai-credits.service';
 import {
   getAllowedWebOrigins,
   isAllowedSubdomainOrigin,
@@ -46,6 +47,7 @@ export class BillingService {
     private readonly orgProvisioningService: OrgProvisioningService,
     private readonly membershipService: MembershipService,
     @InjectRedis() private readonly redis: Redis,
+    private readonly aiCredits: AiCreditsService,
   ) {
     this.initializeStripe();
   }
@@ -588,16 +590,26 @@ export class BillingService {
     newPlan?: PlanKey | null;
     metadata?: unknown;
   }): Promise<void> {
-    await this.prisma.subscriptionEvent.create({
-      data: {
-        stripeEventId: params.stripeEventId,
-        eventType: params.eventType,
-        orgId: params.orgId,
-        previousPlan: params.previousPlan || null,
-        newPlan: params.newPlan || null,
-        metadata: (params.metadata as any) || null,
-      },
-    });
+    try {
+      await this.prisma.subscriptionEvent.create({
+        data: {
+          stripeEventId: params.stripeEventId,
+          eventType: params.eventType,
+          orgId: params.orgId,
+          previousPlan: params.previousPlan || null,
+          newPlan: params.newPlan || null,
+          metadata: (params.metadata as any) || null,
+        },
+      });
+    } catch (err: any) {
+      if (err?.code === 'P2002') {
+        this.logger.log(
+          `Subscription event ${params.stripeEventId} already recorded (idempotent duplicate)`,
+        );
+        return;
+      }
+      throw err;
+    }
   }
 
   private async invalidateSessionCacheByClerkIds(
@@ -1041,7 +1053,10 @@ export class BillingService {
         plan: 'FREE',
         limits: getEffectivePlanLimits('FREE'),
         features: PLAN_FEATURES.FREE,
-        usage: await this.quotaService.getPersonalUsage(userId),
+        usage: {
+          ...(await this.quotaService.getPersonalUsage(userId)),
+          aiCredits: await this.aiCredits.usedThisMonth({ userId }),
+        },
         billing: {
           stripeCustomerId: null,
           stripeSubscriptionId: null,
@@ -1190,17 +1205,19 @@ export class BillingService {
       new Date().getMonth(),
       1,
     );
-    const [adminSeats, teacherSeats, monthlyExams] = await Promise.all([
-      this.prisma.user.count({ where: { orgId, role: 'ADMIN' } }),
-      this.prisma.user.count({ where: { orgId, role: 'TEACHER' } }),
-      this.prisma.usageLedger.count({
-        where: {
-          orgId,
-          eventType: 'exam.created',
-          createdAt: { gte: monthStart },
-        },
-      }),
-    ]);
+    const [adminSeats, teacherSeats, monthlyExams, aiCredits] =
+      await Promise.all([
+        this.prisma.user.count({ where: { orgId, role: 'ADMIN' } }),
+        this.prisma.user.count({ where: { orgId, role: 'TEACHER' } }),
+        this.prisma.usageLedger.count({
+          where: {
+            orgId,
+            eventType: 'exam.created',
+            createdAt: { gte: monthStart },
+          },
+        }),
+        this.aiCredits.usedThisMonth({ orgId }),
+      ]);
 
     return {
       orgId: org.id,
@@ -1218,6 +1235,7 @@ export class BillingService {
         adminSeats,
         teacherSeats,
         monthlyExams,
+        aiCredits,
       },
       billing: {
         stripeCustomerId: org.stripeCustomerId,

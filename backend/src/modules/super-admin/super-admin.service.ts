@@ -15,6 +15,21 @@ import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
 import { UpdateOrganizationPlanDto } from './dto/update-organization-plan.dto';
 import { UpdateOrganizationLimitsDto } from './dto/update-organization-limits.dto';
+
+const NUMERIC_LIMIT_OVERRIDE_KEYS = [
+  'students',
+  'courses',
+  'examsPerMonth',
+  'storageMb',
+  'seats',
+  'adminSeats',
+  'teacherSeats',
+  'aiCreditsPerMonth',
+  'aiMessagesPerDay',
+  'aiMaxQuestionsPerGeneration',
+  'aiConcurrentJobs',
+  'aiMaxReferences',
+] as const satisfies ReadonlyArray<keyof UpdateOrganizationLimitsDto>;
 import { createClerkClient, type ClerkClient } from '@clerk/backend';
 import { getPublicAppUrl } from '../../config/app-brand';
 
@@ -442,7 +457,12 @@ export class SuperAdminService {
    * org-kind/public-surface flags that gate isolation and exam entry.
    */
   private async clearOrgDerivedCaches(orgId: string, domain?: string | null) {
-    const keys = [`org:kind:${orgId}`, `org:is-public-surface:${orgId}`];
+    const keys = [
+      `org:kind:${orgId}`,
+      `org:is-public-surface:${orgId}`,
+      `org:effective_features:${orgId}`,
+      `ai:plan:${orgId}`,
+    ];
     if (domain) {
       const normalized = domain.toLowerCase();
       keys.push(`org:public:${normalized}`);
@@ -593,13 +613,10 @@ export class SuperAdminService {
         ? (currentFeatures.limitsOverrides as Record<string, unknown>)
         : {};
 
-    const nextOverrides = {
-      ...currentOverrides,
-      ...(data.students !== undefined ? { students: data.students } : {}),
-      ...(data.courses !== undefined ? { courses: data.courses } : {}),
-      ...(data.storageMb !== undefined ? { storageMb: data.storageMb } : {}),
-      ...(data.seats !== undefined ? { seats: data.seats } : {}),
-    };
+    const nextOverrides: Record<string, unknown> = { ...currentOverrides };
+    for (const key of NUMERIC_LIMIT_OVERRIDE_KEYS) {
+      if (data[key] !== undefined) nextOverrides[key] = data[key];
+    }
 
     const nextFeatures = {
       ...currentFeatures,
@@ -787,7 +804,7 @@ export class SuperAdminService {
             data: { orgId: normalizedTargetOrgId },
           }),
           tx.user.updateMany({
-            where: { orgId: sourceOrgId },
+            where: { id: normalizedUserId, orgId: sourceOrgId },
             data: { orgId: normalizedTargetOrgId },
           }),
         ]);

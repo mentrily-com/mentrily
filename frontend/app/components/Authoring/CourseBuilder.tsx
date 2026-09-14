@@ -53,7 +53,7 @@ import { usePlan } from '@/hooks/usePlan';
 import UpgradeModal from '../Common/UpgradeModal';
 import CourseExamSection from '../Features/Courses/CourseExamSection';
 import OnboardingTour from '../Common/OnboardingTour';
-import AiGenerateModal from './AiGenerateModal';
+import AiDrawer from './AiDrawer/AiDrawer';
 import { getAvailableImportTypes } from './aiImport';
 
 const RichTextEditor = dynamic(() => import('./RichTextEditor'), {
@@ -171,7 +171,7 @@ export default function CourseBuilder({
         type?: 'danger' | 'warning' | 'info';
         onConfirm: () => void;
     }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
-    const [showComingSoon, setShowComingSoon] = useState(false);
+    const [showAiDrawer, setShowAiDrawer] = useState(false);
     const [certificateTemplates, setCertificateTemplates] = useState<Array<{ id: string; name: string }>>([]);
     const [upgradeConfig, setUpgradeConfig] = useState<{ isOpen: boolean; title: string; message: string }>({
         isOpen: false,
@@ -559,7 +559,7 @@ export default function CourseBuilder({
             ) : null}
             <div className="sticky top-0 z-40 border-b border-slate-200 glass-card">
                 {/* Unified Toolbar */}
-                <div className="flex items-center justify-between gap-3 px-4 py-2.5 md:px-5">
+                <div className="flex items-center justify-between gap-2 sm:gap-3 px-3 py-2 sm:px-4 sm:py-2.5 md:px-5 overflow-x-auto no-scrollbar">
                     <div className="flex min-w-0 flex-1 items-center gap-2">
                         <button
                             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
@@ -640,10 +640,12 @@ export default function CourseBuilder({
                         </button>
                         <div className="mx-1 h-5 w-px bg-slate-200" />
                         <button
+                            type="button"
+                            aria-label="AI Generate"
                             onClick={() => {
-                                setShowComingSoon(true);
+                                setShowAiDrawer(true);
                             }}
-                            className="flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--brand-light)]/30 px-4 py-2 text-xs font-bold uppercase tracking-widest text-[var(--brand)] transition-colors hover:bg-[var(--brand-light)]/50"
+                            className="flex cursor-pointer items-center gap-1.5 sm:gap-2 rounded-xl bg-[var(--brand-light)]/30 px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs font-bold uppercase tracking-widest text-[var(--brand)] transition-colors hover:bg-[var(--brand-light)]/50 shrink-0"
                         >
                             <Sparkles size={14} />
                             <span className="hidden sm:inline">AI Generate</span>
@@ -784,7 +786,7 @@ export default function CourseBuilder({
                                     setIsSaving(false);
                                 }
                             }}
-                            className="flex items-center gap-2 rounded-xl bg-[var(--brand)] px-5 py-2 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-[var(--brand)]/20 transition-all hover:brightness-110 disabled:opacity-50"
+                            className="flex items-center gap-1.5 sm:gap-2 rounded-xl bg-[var(--brand)] px-3.5 sm:px-5 py-1.5 sm:py-2 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-[var(--brand)]/20 transition-all hover:brightness-110 disabled:opacity-50 shrink-0"
                             disabled={isSaving}
                         >
                             {isSaving ? (
@@ -1242,6 +1244,7 @@ export default function CourseBuilder({
                     ) : activeQuestion ? (
                         <QuestionBuilder
                             question={activeQuestion}
+                            aiKind="course"
                             onChange={(updates) => {
                                 setCourse((prev) => {
                                     const updateList = (list: any[]) =>
@@ -1292,12 +1295,13 @@ export default function CourseBuilder({
                 }}
                 onCancel={() => setAlertConfig((prev) => ({ ...prev, isOpen: false }))}
             />
-            {showComingSoon ? (
-                <AiGenerateModal
+            {showAiDrawer ? (
+                <AiDrawer
                     kind="course"
+                    storageKey={`ai_drawer_course_${initialCourseId ?? 'new'}`}
                     availableTypes={getAvailableImportTypes('course', canUse)}
-                    onClose={() => setShowComingSoon(false)}
-                    onImport={(importedSections, stats) => {
+                    onClose={() => setShowAiDrawer(false)}
+                    onInsert={(importedSections, stats) => {
                         setCourse((prev) => {
                             const listKey = activeTab === 'unit' ? 'sections' : 'tests';
                             const currentList = (activeTab === 'unit' ? prev.sections : prev.tests) || [];
@@ -1306,7 +1310,7 @@ export default function CourseBuilder({
                                 [listKey]: [...currentList, ...importedSections],
                             } as Course;
                         });
-                        setShowComingSoon(false);
+                        setShowAiDrawer(false);
                         success(
                             `Imported ${stats.questionsImported} question${stats.questionsImported === 1 ? '' : 's'} across ${stats.sectionsImported} section${stats.sectionsImported === 1 ? '' : 's'}.${stats.questionsSkipped ? ` ${stats.questionsSkipped} skipped.` : ''}`,
                             'Imported',

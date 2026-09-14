@@ -53,7 +53,7 @@ import { useToast } from '../Common/Toast';
 import RichTextEditorSkeleton from '../Skeletons/RichTextEditorSkeleton';
 import { usePlan } from '@/hooks/usePlan';
 import UpgradeModal from '../Common/UpgradeModal';
-import AiGenerateModal from './AiGenerateModal';
+import AiDrawer from './AiDrawer/AiDrawer';
 import { getAvailableImportTypes } from './aiImport';
 import {
     getAllTimeZones,
@@ -142,7 +142,7 @@ export default function ExamBuilder({
         type?: 'danger' | 'warning' | 'info';
         onConfirm: () => void;
     }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
-    const [showComingSoon, setShowComingSoon] = useState(false);
+    const [showAiDrawer, setShowAiDrawer] = useState(false);
     const [upgradeConfig, setUpgradeConfig] = useState<{ isOpen: boolean; title: string; message: string }>({
         isOpen: false,
         title: 'Upgrade Required',
@@ -431,7 +431,7 @@ export default function ExamBuilder({
         <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.10)]">
             <div className="sticky top-0 z-40 border-b border-slate-200 glass-card">
                 {/* Unified Toolbar */}
-                <div className="flex items-center justify-between gap-3 px-4 py-2.5 md:px-5">
+                <div className="flex items-center justify-between gap-3 px-4 py-2.5 md:px-5 overflow-x-auto no-scrollbar">
                     <div className="flex min-w-0 flex-1 items-center gap-2">
                         <button
                             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
@@ -472,10 +472,10 @@ export default function ExamBuilder({
                         </button>
                     </div>
 
-                    <div className="flex items-center justify-end gap-1.5 md:gap-2">
+                    <div className="flex items-center justify-end gap-1.5 md:gap-2 shrink-0">
                         <button
                             onClick={resetDraft}
-                            className="cursor-pointer rounded-xl p-2.5 text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-600"
+                            className="shrink-0 cursor-pointer rounded-xl p-2.5 text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-600"
                             title="Reset local draft"
                         >
                             <RotateCcw size={16} />
@@ -490,7 +490,7 @@ export default function ExamBuilder({
                                         onConfirm: onDelete,
                                     })
                                 }
-                                className="cursor-pointer rounded-xl p-2.5 text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500"
+                                className="shrink-0 cursor-pointer rounded-xl p-2.5 text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500"
                                 title="Delete exam"
                             >
                                 <Trash2 size={16} />
@@ -499,7 +499,7 @@ export default function ExamBuilder({
                         <button
                             onClick={() => setPreviewMode(previewMode ? null : 'desktop')}
                             disabled={!activeQuestion}
-                            className={`cursor-pointer rounded-xl p-2.5 transition-colors disabled:opacity-30 ${previewMode ? 'bg-[var(--brand)] text-white' : 'text-slate-400 hover:bg-slate-50 hover:text-[var(--brand)]'}`}
+                            className={`shrink-0 cursor-pointer rounded-xl p-2.5 transition-colors disabled:opacity-30 ${previewMode ? 'bg-[var(--brand)] text-white' : 'text-slate-400 hover:bg-slate-50 hover:text-[var(--brand)]'}`}
                             title={
                                 activeQuestion
                                     ? previewMode
@@ -510,12 +510,14 @@ export default function ExamBuilder({
                         >
                             {previewMode ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
-                        <div className="mx-1 h-5 w-px bg-slate-200" />
+                        <div className="mx-1 h-5 w-px bg-slate-200 shrink-0" />
                         <button
+                            type="button"
+                            aria-label="AI Generate"
                             onClick={() => {
-                                setShowComingSoon(true);
+                                setShowAiDrawer(true);
                             }}
-                            className="flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--brand-light)]/30 px-4 py-2 text-xs font-bold uppercase tracking-widest text-[var(--brand)] transition-colors hover:bg-[var(--brand-light)]/50"
+                            className="shrink-0 flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--brand-light)]/30 px-3 sm:px-4 py-2 text-xs font-bold uppercase tracking-widest text-[var(--brand)] transition-colors hover:bg-[var(--brand-light)]/50"
                         >
                             <Sparkles size={14} />
                             <span className="hidden sm:inline">AI Generate</span>
@@ -569,7 +571,7 @@ export default function ExamBuilder({
                                     setIsSaving(false);
                                 }
                             }}
-                            className="flex items-center gap-2 rounded-xl bg-[var(--brand)] px-5 py-2 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-[var(--brand)]/20 transition-all hover:brightness-110 disabled:opacity-50"
+                            className="shrink-0 flex items-center gap-2 rounded-xl bg-[var(--brand)] px-4 sm:px-5 py-2 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-[var(--brand)]/20 transition-all hover:brightness-110 disabled:opacity-50"
                             disabled={isSaving}
                         >
                             {isSaving ? (
@@ -1322,6 +1324,7 @@ export default function ExamBuilder({
                     ) : activeQuestion ? (
                         <QuestionBuilder
                             question={activeQuestion}
+                            aiKind="exam"
                             onChange={(updates) => {
                                 setExam((prev) => ({
                                     ...prev,
@@ -1366,17 +1369,29 @@ export default function ExamBuilder({
                 }}
                 onCancel={() => setAlertConfig((prev) => ({ ...prev, isOpen: false }))}
             />
-            {showComingSoon ? (
-                <AiGenerateModal
+            {showAiDrawer ? (
+                <AiDrawer
                     kind="exam"
+                    storageKey={`ai_drawer_exam_${initialExamId ?? courseId ?? 'new'}`}
                     availableTypes={getAvailableImportTypes('exam', canUse)}
-                    onClose={() => setShowComingSoon(false)}
-                    onImport={(importedSections, stats) => {
+                    defaultReferences={
+                        courseId || exam.linkedCourseId
+                            ? [
+                                  {
+                                      kind: 'course',
+                                      id: (courseId || exam.linkedCourseId) as string,
+                                      title: 'Linked course',
+                                  },
+                              ]
+                            : undefined
+                    }
+                    onClose={() => setShowAiDrawer(false)}
+                    onInsert={(importedSections, stats) => {
                         setExam((prev) => ({
                             ...prev,
                             sections: [...(prev.sections || []), ...importedSections],
                         }));
-                        setShowComingSoon(false);
+                        setShowAiDrawer(false);
                         success(
                             `Imported ${stats.questionsImported} question${stats.questionsImported === 1 ? '' : 's'} across ${stats.sectionsImported} section${stats.sectionsImported === 1 ? '' : 's'}.${stats.questionsSkipped ? ` ${stats.questionsSkipped} skipped.` : ''}`,
                             'Imported',

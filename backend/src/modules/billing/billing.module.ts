@@ -6,9 +6,15 @@ import { QuotaService } from './quota.service';
 import { AlertService } from './alert.service';
 import { MailModule } from '../../services/mail.module';
 import { OrganizationModule } from '../organization/organization.module';
+import { AiCreditsModule } from '../ai/credits/ai-credits.module';
 
 @Module({
-  imports: [PrismaModule, MailModule, forwardRef(() => OrganizationModule)],
+  imports: [
+    PrismaModule,
+    MailModule,
+    AiCreditsModule,
+    forwardRef(() => OrganizationModule),
+  ],
   controllers: [BillingController],
   providers: [BillingService, QuotaService, AlertService],
   exports: [BillingService, QuotaService],

@@ -21,6 +21,7 @@ type BillingUsage = {
         adminSeats?: number;
         teacherSeats?: number;
         monthlyExams?: number;
+        aiCredits?: number;
     };
     limits: {
         students: number;
@@ -30,6 +31,7 @@ type BillingUsage = {
         examsPerMonth?: number;
         adminSeats?: number;
         teacherSeats?: number;
+        aiCreditsPerMonth?: number;
         allowedQuestionTypes?: string[];
     };
     billing: {
@@ -49,6 +51,7 @@ type PlansResponse = {
             examsPerMonth?: number;
             adminSeats?: number;
             teacherSeats?: number;
+            aiCreditsPerMonth?: number;
             allowedQuestionTypes?: string[];
         };
         prices: { primary: string | null; all: string[] };
@@ -460,6 +463,11 @@ export default function TeacherBillingPage() {
                         used={Number(usageData?.usage?.monthlyExams || 0)}
                         limit={Number(usageData?.limits?.examsPerMonth || 0)}
                     />
+                    <QuotaBar
+                        label="AI credits this month"
+                        used={Number(usageData?.usage?.aiCredits || 0)}
+                        limit={Number(usageData?.limits?.aiCreditsPerMonth ?? 0)}
+                    />
                 </div>
                 <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Question Types</p>
@@ -591,6 +599,18 @@ export default function TeacherBillingPage() {
                                                     style={{ color: 'var(--color-text-primary)' }}
                                                 >
                                                     {formatLimit(plan.limits.examsPerMonth)}
+                                                </span>
+                                            </li>
+                                            <li
+                                                className="flex justify-between border-b pb-1.5"
+                                                style={{ borderColor: 'var(--color-border-subtle)' }}
+                                            >
+                                                <span>AI credits / month:</span>
+                                                <span
+                                                    className="font-semibold"
+                                                    style={{ color: 'var(--color-text-primary)' }}
+                                                >
+                                                    {formatLimit(plan.limits.aiCreditsPerMonth)}
                                                 </span>
                                             </li>
                                             <li
