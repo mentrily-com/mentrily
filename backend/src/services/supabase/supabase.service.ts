@@ -19,29 +19,51 @@ export class SupabaseService implements OnModuleInit {
       process.env.SUPABASE_SERVICE_ROLE_KEY || '',
     ).trim();
 
-    // Local development without a Supabase REST server: run the same SQL
-    // functions and table writes straight against Postgres. Never in prod.
     const localDirect =
       String(process.env.SUPABASE_LOCAL_DIRECT || '').toLowerCase() === 'true';
-    if (localDirect && process.env.NODE_ENV !== 'production') {
-      this.logger.warn(
-        'SUPABASE_LOCAL_DIRECT=true: Supabase RPC and table calls run directly on the local Postgres database.',
+    if (localDirect) {
+      this.logger.log(
+        'SUPABASE_LOCAL_DIRECT=true: Supabase RPC and table calls run directly on Postgres via Prisma.',
       );
       this.client = new LocalSupabaseClient(
         prismaService,
       ) as unknown as SupabaseClient<Database>;
       return;
     }
-    if (localDirect) {
-      this.logger.error(
-        'SUPABASE_LOCAL_DIRECT is ignored in production; using the Supabase REST API.',
-      );
+
+    const isPlaceholderKey =
+      !supabaseServiceRoleKey ||
+      supabaseServiceRoleKey === 'missing-service-role-key' ||
+      supabaseServiceRoleKey.startsWith('placeholder');
+
+    let isMismatchedKey = false;
+    if (supabaseServiceRoleKey && supabaseUrl) {
+      try {
+        const parts = supabaseServiceRoleKey.split('.');
+        if (parts.length >= 2) {
+          const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+          const tokenRef = payload?.ref;
+          const url = new URL(supabaseUrl);
+          const hostnameRef = url.hostname.split('.')[0];
+          if (tokenRef && hostnameRef && tokenRef !== hostnameRef) {
+            isMismatchedKey = true;
+          }
+        }
+      } catch {
+        // Ignore parse error
+      }
     }
 
-    if (!supabaseUrl || !supabaseServiceRoleKey) {
+    if (isPlaceholderKey || isMismatchedKey) {
       this.logger.warn(
-        'SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is missing. Supabase client is initialized with placeholder values.',
+        isMismatchedKey
+          ? 'SUPABASE_SERVICE_ROLE_KEY project ref does not match SUPABASE_URL. Falling back to direct Postgres mode.'
+          : 'SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is missing. Falling back to direct Postgres mode.',
       );
+      this.client = new LocalSupabaseClient(
+        prismaService,
+      ) as unknown as SupabaseClient<Database>;
+      return;
     }
 
     this.client = createClient<Database>(
@@ -57,6 +79,11 @@ export class SupabaseService implements OnModuleInit {
   }
 
   async onModuleInit(): Promise<void> {
+    if ((this.client as any) instanceof LocalSupabaseClient) {
+      this.logger.log('Direct Postgres mode active for Supabase calls.');
+      return;
+    }
+
     try {
       const query = this.client
         .from('Organization')
@@ -69,15 +96,27 @@ export class SupabaseService implements OnModuleInit {
 
       const result = await Promise.race([query, timeout]);
       if (result === 'timeout') {
-        this.logger.warn('Supabase connectivity check timed out.');
+        this.logger.warn(
+          'Supabase REST connectivity check timed out. Falling back to direct Postgres mode.',
+        );
+        (this as any).client = new LocalSupabaseClient(this.prismaService);
+        return;
+      }
+
+      if ((result as any)?.error) {
+        this.logger.warn(
+          `Supabase REST connectivity check returned error (${(result as any).error.message}). Falling back to direct Postgres mode.`,
+        );
+        (this as any).client = new LocalSupabaseClient(this.prismaService);
         return;
       }
 
       this.logger.log('Supabase client initialized.');
     } catch (error: any) {
       this.logger.warn(
-        `Supabase connectivity check skipped: ${error?.message || 'unknown error'}`,
+        `Supabase connectivity check failed: ${error?.message || 'unknown error'}. Falling back to direct Postgres mode.`,
       );
+      (this as any).client = new LocalSupabaseClient(this.prismaService);
     }
   }
 

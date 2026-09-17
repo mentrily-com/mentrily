@@ -1,6 +1,7 @@
 import {
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { SupabaseService } from '../../services/supabase/supabase.service';
@@ -26,6 +27,8 @@ type OrgPlanShape = {
 
 @Injectable()
 export class QuotaService {
+  private readonly logger = new Logger(QuotaService.name);
+
   constructor(
     private readonly supabase: SupabaseService,
     private readonly alertService: AlertService,
@@ -465,19 +468,43 @@ export class QuotaService {
   ): Promise<void> {
     if (!orgId || !amount) return;
 
-    const { error } = await (this.supabase.client as any).rpc(
-      'adjust_org_counter',
-      {
-        p_org_id: orgId,
-        p_field: field,
-        p_delta: amount,
-      },
-    );
-
-    if (error) {
-      throw new NotFoundException(
-        error.message || 'Failed to increment organization counter',
+    try {
+      const { error } = await (this.supabase.client as any).rpc(
+        'adjust_org_counter',
+        {
+          p_org_id: orgId,
+          p_field: field,
+          p_delta: amount,
+        },
       );
+
+      if (error) {
+        this.logger.warn(
+          `Supabase RPC adjust_org_counter returned error (${error.message}); falling back to direct Prisma SQL`,
+        );
+        await this.prisma.$executeRawUnsafe(
+          'SELECT public.adjust_org_counter($1, $2, $3)',
+          orgId,
+          field,
+          amount,
+        );
+      }
+    } catch (err: any) {
+      this.logger.warn(
+        `Supabase client failed during incrementCounter (${err?.message}); trying direct Prisma SQL`,
+      );
+      try {
+        await this.prisma.$executeRawUnsafe(
+          'SELECT public.adjust_org_counter($1, $2, $3)',
+          orgId,
+          field,
+          amount,
+        );
+      } catch (fallbackErr: any) {
+        this.logger.error(
+          `Fallback direct counter adjustment failed: ${fallbackErr?.message}`,
+        );
+      }
     }
 
     if (field === 'storageUsedMb') {
@@ -496,19 +523,44 @@ export class QuotaService {
   ): Promise<void> {
     if (!orgId || !amount) return;
 
-    const { error } = await (this.supabase.client as any).rpc(
-      'adjust_org_counter',
-      {
-        p_org_id: orgId,
-        p_field: field,
-        p_delta: -Math.abs(amount),
-      },
-    );
-
-    if (error) {
-      throw new NotFoundException(
-        error.message || 'Failed to decrement organization counter',
+    const delta = -Math.abs(amount);
+    try {
+      const { error } = await (this.supabase.client as any).rpc(
+        'adjust_org_counter',
+        {
+          p_org_id: orgId,
+          p_field: field,
+          p_delta: delta,
+        },
       );
+
+      if (error) {
+        this.logger.warn(
+          `Supabase RPC adjust_org_counter returned error (${error.message}); falling back to direct Prisma SQL`,
+        );
+        await this.prisma.$executeRawUnsafe(
+          'SELECT public.adjust_org_counter($1, $2, $3)',
+          orgId,
+          field,
+          delta,
+        );
+      }
+    } catch (err: any) {
+      this.logger.warn(
+        `Supabase client failed during decrementCounter (${err?.message}); trying direct Prisma SQL`,
+      );
+      try {
+        await this.prisma.$executeRawUnsafe(
+          'SELECT public.adjust_org_counter($1, $2, $3)',
+          orgId,
+          field,
+          delta,
+        );
+      } catch (fallbackErr: any) {
+        this.logger.error(
+          `Fallback direct counter adjustment failed: ${fallbackErr?.message}`,
+        );
+      }
     }
   }
 

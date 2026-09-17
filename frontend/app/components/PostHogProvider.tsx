@@ -20,8 +20,12 @@ export default function PostHogProvider({ children }: { children: React.ReactNod
             return;
         }
 
+        const defaultHost =
+            typeof window !== 'undefined' ? `${window.location.origin}/ingest` : '/ingest';
+
         posthog.init(posthogKey, {
-            api_host: posthogHost || 'https://us.i.posthog.com',
+            api_host: posthogHost || defaultHost,
+            ui_host: 'https://us.posthog.com',
             capture_pageview: true,
             capture_pageleave: true,
             person_profiles: 'identified_only',
