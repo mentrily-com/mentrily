@@ -448,7 +448,7 @@ export default function ExamBuilder({
                             aria-label="Exam title"
                             placeholder="Exam Title..."
                             className="min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 py-1.5 text-sm font-semibold text-slate-800 outline-none transition-all placeholder:text-slate-300 focus:border-[var(--brand-light)] focus:bg-slate-50 md:text-base"
-                            value={exam.title}
+                            value={exam.title ?? ''}
                             onChange={(e) => setExam((prev) => ({ ...prev, title: e.target.value }))}
                         />
                         <button
@@ -755,7 +755,7 @@ export default function ExamBuilder({
                                                 type="text"
                                                 className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-700 outline-none focus:border-[var(--brand-light)] transition-all"
                                                 placeholder="e.g. JavaScript Midterm"
-                                                value={exam.title}
+                                                value={exam.title ?? ''}
                                                 onChange={(e) =>
                                                     setExam((prev) => ({ ...prev, title: e.target.value }))
                                                 }
@@ -783,7 +783,7 @@ export default function ExamBuilder({
                                                                 ? exam.slug || 'Auto-generated after save'
                                                                 : 'Auto-generated on save'
                                                         }
-                                                        value={exam.slug}
+                                                        value={exam.slug ?? ''}
                                                         onChange={(e) =>
                                                             canCustomSlug &&
                                                             setExam((prev) => ({ ...prev, slug: e.target.value }))
@@ -891,7 +891,7 @@ export default function ExamBuilder({
                                                     type="number"
                                                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-black text-slate-700 outline-none focus:border-[var(--brand-light)] transition-all"
                                                     placeholder="60"
-                                                    value={exam.duration}
+                                                    value={exam.duration ?? ''}
                                                     onChange={(e) =>
                                                         setExam((prev) => ({
                                                             ...prev,
@@ -908,7 +908,7 @@ export default function ExamBuilder({
                                                     type="number"
                                                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-black text-[var(--brand)] outline-none focus:border-[var(--brand-light)] transition-all"
                                                     placeholder="100"
-                                                    value={exam.totalMarks}
+                                                    value={exam.totalMarks ?? ''}
                                                     onChange={(e) =>
                                                         setExam((prev) => ({
                                                             ...prev,
@@ -1010,7 +1010,7 @@ export default function ExamBuilder({
                                                     type="text"
                                                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-black tracking-[0.3em] text-[var(--brand)] outline-none focus:border-[var(--brand-light)] transition-all"
                                                     placeholder="00000"
-                                                    value={exam.testCode}
+                                                    value={exam.testCode ?? ''}
                                                     onChange={(e) =>
                                                         setExam((prev) => ({ ...prev, testCode: e.target.value }))
                                                     }
@@ -1058,7 +1058,7 @@ export default function ExamBuilder({
                                                             type="number"
                                                             className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-black text-[var(--brand)] outline-none focus:border-[var(--brand-light)]"
                                                             placeholder="60"
-                                                            value={exam.rotationInterval}
+                                                            value={exam.rotationInterval ?? ''}
                                                             onChange={(e) =>
                                                                 setExam((prev) => ({
                                                                     ...prev,

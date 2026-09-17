@@ -6,7 +6,70 @@ import { sanitizeRichText } from '@/lib/sanitize';
 import { AI_TYPES, REVIEW_STATUS } from '@/lib/ai/questionTypes';
 import type { AiDraft, AiGenerationType, GeneratedQuestion } from '@/lib/ai/types';
 
-function QuestionDetail({ q }: { q: GeneratedQuestion }) {
+type CodingTemplates = NonNullable<GeneratedQuestion['codingConfig']>['templates'];
+
+const CODE_PARTS = [
+    { key: 'body', label: 'Starter', hint: 'What learners see and edit' },
+    { key: 'head', label: 'Header', hint: 'Hidden, runs before the learner code' },
+    { key: 'tail', label: 'Footer', hint: 'Hidden, reads input, calls the function and prints the result' },
+    { key: 'solution', label: 'Solution', hint: 'Reference answer, never shown to learners' },
+] as const;
+
+const LANGUAGE_LABEL: Record<string, string> = { python: 'Python', javascript: 'JavaScript' };
+
+/** The builder's header / starter / footer / solution split, read-only. */
+function CodePreview({ templates }: { templates: CodingTemplates }) {
+    const languages = Object.keys(templates);
+    const [lang, setLang] = useState(languages[0]);
+    const [part, setPart] = useState<(typeof CODE_PARTS)[number]['key']>('body');
+    const template = templates[lang] ?? templates[languages[0]];
+    if (!template) return null;
+    const active = CODE_PARTS.find((p) => p.key === part)!;
+    const code = template[part];
+
+    return (
+        <div className="overflow-hidden rounded-md border border-slate-200 bg-white">
+            <div className="flex flex-wrap items-center gap-1 border-b border-slate-200 px-1.5 py-1">
+                {CODE_PARTS.map((p) => (
+                    <button
+                        key={p.key}
+                        type="button"
+                        onClick={() => setPart(p.key)}
+                        aria-pressed={part === p.key}
+                        className={`rounded px-2 py-1 text-xs font-medium ${
+                            part === p.key ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'
+                        }`}
+                    >
+                        {p.label}
+                    </button>
+                ))}
+                {languages.length > 1 && (
+                    <select
+                        value={lang}
+                        onChange={(e) => setLang(e.target.value)}
+                        aria-label="Language"
+                        className="ml-auto rounded border border-slate-200 bg-white px-1.5 py-0.5 text-xs text-slate-700"
+                    >
+                        {languages.map((l) => (
+                            <option key={l} value={l}>
+                                {LANGUAGE_LABEL[l] ?? l}
+                            </option>
+                        ))}
+                    </select>
+                )}
+                {languages.length === 1 && (
+                    <span className="ml-auto px-1.5 text-xs text-slate-500">{LANGUAGE_LABEL[lang] ?? lang}</span>
+                )}
+            </div>
+            <p className="px-2.5 pt-2 text-[11px] text-slate-500">{active.hint}</p>
+            <pre className="max-h-64 overflow-auto p-2.5 font-mono text-xs leading-5 text-slate-800">
+                {code.trim() ? code : <span className="text-slate-400">(empty)</span>}
+            </pre>
+        </div>
+    );
+}
+
+export function QuestionDetail({ q }: { q: GeneratedQuestion }) {
     const statement = useMemo(() => sanitizeRichText(q.problemStatement || ''), [q.problemStatement]);
     return (
         <div className="space-y-3 rounded-lg bg-slate-50 p-3 text-sm text-slate-700">
@@ -23,7 +86,13 @@ function QuestionDetail({ q }: { q: GeneratedQuestion }) {
                             key={o.id}
                             className={`flex items-start gap-2 rounded-md px-2 py-1 ${o.isCorrect ? 'bg-emerald-50 text-emerald-800' : ''}`}
                         >
-                            <span className="mt-0.5 shrink-0">{o.isCorrect ? <Check size={13} /> : <span className="inline-block h-[13px] w-[13px] rounded-full border border-slate-300" />}</span>
+                            <span className="mt-0.5 shrink-0">
+                                {o.isCorrect ? (
+                                    <Check size={13} />
+                                ) : (
+                                    <span className="inline-block h-[13px] w-[13px] rounded-full border border-slate-300" />
+                                )}
+                            </span>
                             <span>{o.text}</span>
                         </li>
                     ))}
@@ -31,9 +100,7 @@ function QuestionDetail({ q }: { q: GeneratedQuestion }) {
             )}
             {q.codingConfig && (
                 <div className="space-y-2">
-                    <p className="text-xs text-slate-500">
-                        Languages: {Object.keys(q.codingConfig.templates).join(', ')}
-                    </p>
+                    <CodePreview templates={q.codingConfig.templates} />
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-xs">
                             <thead className="text-slate-500">
@@ -62,7 +129,10 @@ function QuestionDetail({ q }: { q: GeneratedQuestion }) {
                 <div className="space-y-2">
                     {q.readingConfig.contentBlocks.map((b) =>
                         b.type === 'code-runner' ? (
-                            <pre key={b.id} className="overflow-x-auto rounded-md bg-slate-900 p-2.5 text-xs text-slate-100">
+                            <pre
+                                key={b.id}
+                                className="overflow-x-auto rounded-md bg-slate-900 p-2.5 text-xs text-slate-100"
+                            >
                                 {b.runnerConfig?.initialCode}
                             </pre>
                         ) : (
@@ -76,7 +146,9 @@ function QuestionDetail({ q }: { q: GeneratedQuestion }) {
                 </div>
             )}
             {q.webConfig && (
-                <pre className="max-h-40 overflow-auto rounded-md bg-slate-900 p-2.5 text-xs text-slate-100">{q.webConfig.html}</pre>
+                <pre className="max-h-40 overflow-auto rounded-md bg-slate-900 p-2.5 text-xs text-slate-100">
+                    {q.webConfig.html}
+                </pre>
             )}
             {q.notebookConfig && (
                 <pre className="max-h-40 overflow-auto rounded-md bg-slate-900 p-2.5 text-xs text-slate-100">
@@ -111,8 +183,16 @@ export default function DraftReview({
             <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs text-slate-600">
                 <span className="tabular-nums">
                     {draft.stats.questions} items, {draft.totalMarks} {draft.totalMarks === 1 ? 'pt' : 'pts'}
-                    {draft.stats.verified > 0 && <>, <span className="text-emerald-700">{draft.stats.verified} verified</span></>}
-                    {draft.stats.needsReview > 0 && <>, <span className="text-amber-700">{draft.stats.needsReview} to review</span></>}
+                    {draft.stats.verified > 0 && (
+                        <>
+                            , <span className="text-emerald-700">{draft.stats.verified} verified</span>
+                        </>
+                    )}
+                    {draft.stats.needsReview > 0 && (
+                        <>
+                            , <span className="text-amber-700">{draft.stats.needsReview} to review</span>
+                        </>
+                    )}
                 </span>
                 <button
                     type="button"
@@ -160,14 +240,22 @@ export default function DraftReview({
                                                 aria-expanded={isOpen}
                                                 className="flex min-w-0 flex-1 items-center gap-2 text-left"
                                             >
-                                                <span className="min-w-0 flex-1 truncate text-sm text-slate-800">{q.title}</span>
+                                                <span className="min-w-0 flex-1 truncate text-sm text-slate-800">
+                                                    {q.title}
+                                                </span>
                                                 <span
                                                     className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium ${status.className}`}
-                                                    title={q.aiMeta.issues.length ? q.aiMeta.issues.join('\n') : status.hint}
+                                                    title={
+                                                        q.aiMeta.issues.length
+                                                            ? q.aiMeta.issues.join('\n')
+                                                            : status.hint
+                                                    }
                                                 >
                                                     {status.label}
                                                 </span>
-                                                <span className="shrink-0 text-xs tabular-nums text-slate-400">{q.marks} {q.marks === 1 ? 'pt' : 'pts'}</span>
+                                                <span className="shrink-0 text-xs tabular-nums text-slate-400">
+                                                    {q.marks} {q.marks === 1 ? 'pt' : 'pts'}
+                                                </span>
                                                 {isOpen ? (
                                                     <EyeOff size={14} className="shrink-0 text-slate-400" />
                                                 ) : (

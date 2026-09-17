@@ -1,12 +1,12 @@
 'use client';
 
 import React from 'react';
-import { AlertTriangle, ChevronRight, ClipboardCheck, GraduationCap, ListChecks, Loader2 } from 'lucide-react';
+import { AlertTriangle, ChevronRight, ClipboardCheck, GraduationCap, ListChecks, Loader2, PenLine } from 'lucide-react';
 import { useAiJob } from '@/hooks/useAi';
 
 export interface JobPartData {
     jobId: string;
-    kind: 'blueprint' | 'generate' | 'quiz';
+    kind: 'blueprint' | 'generate' | 'quiz' | 'edit';
     briefKind: 'course' | 'exam';
     title: string;
     estimate?: number;
@@ -26,8 +26,22 @@ export default function JobCard({
 }) {
     const effectiveId = childJobId ?? data.jobId;
     const { data: job } = useAiJob(effectiveId);
-    const noun = data.kind === 'quiz' ? 'Quiz' : data.briefKind === 'exam' ? 'Exam' : 'Course';
-    const Icon = data.kind === 'quiz' ? ListChecks : data.briefKind === 'exam' ? ClipboardCheck : GraduationCap;
+    const noun =
+        data.kind === 'edit'
+            ? 'Editing'
+            : data.kind === 'quiz'
+              ? 'Quiz'
+              : data.briefKind === 'exam'
+                ? 'Exam'
+                : 'Course';
+    const Icon =
+        data.kind === 'edit'
+            ? PenLine
+            : data.kind === 'quiz'
+              ? ListChecks
+              : data.briefKind === 'exam'
+                ? ClipboardCheck
+                : GraduationCap;
 
     let line = 'Starting…';
     let action = 'Open';
@@ -45,10 +59,24 @@ export default function JobCard({
             const count = job.result.blueprint.sections.reduce((acc, s) => acc + s.questions.length, 0);
             line = `Outline ready: ${job.result.blueprint.sections.length} sections, ${count} items`;
             action = 'Review outline';
+        } else if (job.result?.type === 'draft' && job.result.edit) {
+            const n = job.result.edit.changes.length;
+            line = n ? `New version ready: ${n} change${n === 1 ? '' : 's'}` : 'No changes were needed';
+            action = 'Review draft';
         } else if (job.result?.type === 'draft') {
             const { stats } = job.result.draft;
             line = `Draft ready: ${stats.questions} items${stats.verified ? `, ${stats.verified} verified` : ''}${stats.needsReview ? `, ${stats.needsReview} to review` : ''}`;
             action = 'Review draft';
+        } else if (job.result?.type === 'changeset') {
+            const { changes, applied, undone } = job.result.changeset;
+            const n = changes.length;
+            line =
+                applied && !undone
+                    ? `Applied ${applied.changeIds.length} change${applied.changeIds.length === 1 ? '' : 's'}`
+                    : n
+                      ? `${n} change${n === 1 ? '' : 's'} ready to review`
+                      : 'No changes were needed';
+            action = applied && !undone ? 'View' : 'Review changes';
         }
     }
 

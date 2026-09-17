@@ -1,5 +1,59 @@
+import {
+  callsFunction,
+  definesFunction,
+  functionName,
+  readsInput,
+  type CodeTemplate,
+} from './coding-format';
 import type { BuilderQuestion } from './normalize';
 import { plainText } from './sanitize';
+
+/**
+ * The header / starter / footer split: the learner writes one function, the
+ * hidden footer does all input and output around it.
+ */
+function validateTemplate(lang: string, tpl: CodeTemplate): string[] {
+  const issues: string[] = [];
+  const name = functionName(lang, tpl.body);
+  if (!name) {
+    return [
+      `the ${lang} starter must be just the function the learner completes (a def/function with its signature)`,
+    ];
+  }
+  if (!tpl.tail.trim()) {
+    issues.push(
+      `the ${lang} footer is empty: it must read stdin, call ${name} and print the result`,
+    );
+  } else if (!callsFunction(tpl.tail, name)) {
+    issues.push(`the ${lang} footer must call ${name}`);
+  }
+  if (readsInput(lang, tpl.body)) {
+    issues.push(
+      `the ${lang} starter must not read input; the footer reads stdin and passes it to ${name}`,
+    );
+  }
+  if (tpl.head && definesFunction(lang, tpl.head, name)) {
+    issues.push(`the ${lang} header must not define ${name}`);
+  }
+  if (tpl.solution.trim()) {
+    if (!definesFunction(lang, tpl.solution, name)) {
+      issues.push(
+        `the ${lang} solution must be the same function ${name} as the starter, fully implemented`,
+      );
+    }
+    if (readsInput(lang, tpl.solution)) {
+      issues.push(
+        `the ${lang} solution must not read input; the footer does that`,
+      );
+    }
+    if (tpl.solution.trim() === tpl.body.trim()) {
+      issues.push(
+        `the ${lang} starter must not contain the solution; leave a placeholder body`,
+      );
+    }
+  }
+  return issues;
+}
 
 /**
  * Deterministic checks run on every generated question. Each message is
@@ -57,11 +111,14 @@ export function validateQuestion(q: BuilderQuestion): string[] {
       const hasSolution = Object.values(config?.templates ?? {}).some(
         (tpl) => tpl.solution.trim().length > 0,
       );
-      if (!hasSolution) issues.push('Coding needs a complete solution program');
+      if (!hasSolution) issues.push('Coding needs a solution');
       if (tests.some((t) => t.output.length > 400)) {
         issues.push(
           'test case outputs must be exact program output, not prose',
         );
+      }
+      for (const [lang, tpl] of Object.entries(config?.templates ?? {})) {
+        issues.push(...validateTemplate(lang, tpl));
       }
       break;
     }

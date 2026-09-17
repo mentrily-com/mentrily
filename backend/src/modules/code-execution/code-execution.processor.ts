@@ -1,5 +1,5 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Job } from 'bullmq';
+import { Job, UnrecoverableError } from 'bullmq';
 import { Inject, Logger } from '@nestjs/common';
 import type { IExecutionStrategy } from './strategies/execution-strategy.interface';
 
@@ -25,7 +25,11 @@ export class CodeExecutionProcessor extends WorkerHost {
   }
 
   async process(job: Job<any, any, string>): Promise<any> {
-    const { language, code, stdin } = job.data;
+    const { language, code, stdin, deadline } = job.data;
+    if (typeof deadline === 'number' && Date.now() > deadline) {
+      // The caller already timed out; running it now only delays live jobs.
+      throw new UnrecoverableError('Execution request expired before it ran');
+    }
     this.logger.debug(
       `Processing code execution job ${job.id} for language: ${language}`,
     );

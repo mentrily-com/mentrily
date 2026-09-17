@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
-import { ArrowDown, Loader2 } from 'lucide-react';
+import { ArrowDown, Loader2, X } from 'lucide-react';
 import { API_BASE_URL } from '@/lib/api-base';
 import { buildAiHeaders } from '@/services/api/AiService';
 import type { AiUsage } from '@/lib/ai/types';
@@ -26,6 +26,8 @@ export default function ChatThread({
     onActivity,
     onError,
     onLocked,
+    resumed,
+    onDismissResumed,
 }: {
     chatKey: string;
     conversationId: string | null;
@@ -39,6 +41,9 @@ export default function ChatThread({
     onActivity: () => void;
     onError: (err: unknown) => void;
     onLocked: (message: string) => void;
+    /** A prompt carried over from the public /ai page, applied once. */
+    resumed?: { command: string; text: string; nonce: number } | null;
+    onDismissResumed?: () => void;
 }) {
     const conversationRef = useRef<string | null>(conversationId);
     const lastBodyRef = useRef<RequestBody>({});
@@ -46,6 +51,10 @@ export default function ChatThread({
     const scrollRef = useRef<HTMLDivElement>(null);
     const messagesRef = useRef<StudioMessage[]>([]);
     const [atBottom, setAtBottom] = useState(true);
+
+    useEffect(() => {
+        if (resumed) setPrefill(resumed);
+    }, [resumed]);
 
     useEffect(() => {
         conversationRef.current = conversationId;
@@ -150,8 +159,8 @@ export default function ChatThread({
                             What are you teaching next?
                         </h1>
                         <p className="mt-3 max-w-lg text-[15px] leading-7 text-slate-500">
-                            Ask a question, or start with a command to plan a course, build an exam or write a quiz you can
-                            drop straight into your builder.
+                            Ask a question, or start with a command to plan a course, build an exam or write a quiz you
+                            can drop straight into your builder.
                         </p>
                         <div className="mt-8 grid gap-2 sm:grid-cols-2">
                             {STARTERS.map((s) => {
@@ -161,7 +170,9 @@ export default function ChatThread({
                                     <button
                                         key={s.text}
                                         type="button"
-                                        onClick={() => setPrefill({ command: s.command, text: s.text, nonce: Date.now() })}
+                                        onClick={() =>
+                                            setPrefill({ command: s.command, text: s.text, nonce: Date.now() })
+                                        }
                                         className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 text-left transition hover:border-[var(--color-border-brand)] hover:bg-[var(--color-brand-light)]/40"
                                     >
                                         {Icon && (
@@ -170,7 +181,9 @@ export default function ChatThread({
                                             </span>
                                         )}
                                         <span className="min-w-0">
-                                            <span className="block text-xs font-medium text-slate-500">/{info?.label}</span>
+                                            <span className="block text-xs font-medium text-slate-500">
+                                                /{info?.label}
+                                            </span>
                                             <span className="block text-sm leading-5 text-slate-800">{s.text}</span>
                                         </span>
                                     </button>
@@ -190,7 +203,9 @@ export default function ChatThread({
                                 activeJobId={activeJobId}
                                 onOpenJob={onOpenJob}
                                 onRegenerate={
-                                    i === lastAssistantIndex && !lastIsJob && !busy ? () => void regenerate() : undefined
+                                    i === lastAssistantIndex && !lastIsJob && !busy
+                                        ? () => void regenerate()
+                                        : undefined
                                 }
                             />
                         ))}
@@ -214,6 +229,22 @@ export default function ChatThread({
                     >
                         <ArrowDown size={15} />
                     </button>
+                )}
+                {resumed && (
+                    <div
+                        role="status"
+                        className="mb-2 flex items-start gap-2 rounded-xl border border-[var(--color-border-brand)] bg-[var(--color-brand-light)]/50 px-3 py-2 text-xs text-slate-700"
+                    >
+                        <span className="min-w-0 flex-1">Your prompt is ready. Review it and press send.</span>
+                        <button
+                            type="button"
+                            onClick={onDismissResumed}
+                            className="shrink-0 rounded p-0.5 text-slate-400 hover:text-slate-700"
+                            aria-label="Dismiss"
+                        >
+                            <X size={13} />
+                        </button>
+                    </div>
                 )}
                 <Composer
                     usage={usage}

@@ -45,22 +45,36 @@ export function countQuestions(questions: any): {
   totalSections: number;
 } {
   const rawQuestions: any = questions || {};
+  // The stored JSON is a flat list of questions, a list of sections, a
+  // { sections: [...] } wrapper or a map of either. Counting a list of
+  // sections as questions is what made an exam read "3 questions" when it
+  // had 3 sections holding 25 of them.
+  const items: any[] = Array.isArray(rawQuestions)
+    ? rawQuestions
+    : Array.isArray(rawQuestions.sections)
+      ? rawQuestions.sections
+      : typeof rawQuestions === 'object'
+        ? Object.values(rawQuestions)
+        : [];
+
   let totalQuestions = 0;
   let totalSections = 0;
+  let looseQuestions = 0;
 
-  if (rawQuestions.sections && Array.isArray(rawQuestions.sections)) {
-    totalSections = rawQuestions.sections.length;
-    rawQuestions.sections.forEach((s: any) => {
-      if (Array.isArray(s.questions)) {
-        totalQuestions += s.questions.length;
-      }
-    });
-  } else if (Array.isArray(rawQuestions)) {
-    totalSections = 1;
-    totalQuestions = rawQuestions.length;
-  } else if (Object.keys(rawQuestions).length > 0) {
-    totalSections = 1;
-    totalQuestions = Object.keys(rawQuestions).length;
+  for (const item of items) {
+    if (!item || typeof item !== 'object') continue;
+    if (Array.isArray(item.questions)) {
+      totalSections += 1;
+      totalQuestions += item.questions.length;
+    } else {
+      looseQuestions += 1;
+    }
+  }
+
+  // Questions sitting outside any section still make up one section.
+  if (looseQuestions > 0) {
+    totalSections += 1;
+    totalQuestions += looseQuestions;
   }
 
   return { totalQuestions, totalSections };

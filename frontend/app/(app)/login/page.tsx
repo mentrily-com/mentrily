@@ -27,10 +27,7 @@ export default function LoginPage() {
     // not just recomputed inline, so it has a stable reference across
     // renders -- a fresh array literal here would make the effect below
     // that depends on it re-run on every render.
-    const sessionQueryKey = React.useMemo(
-        () => ['session', userId || sessionId || 'anonymous'],
-        [userId, sessionId],
-    );
+    const sessionQueryKey = React.useMemo(() => ['session', userId || sessionId || 'anonymous'], [userId, sessionId]);
     const oauthMode = searchParams.get('oauth');
     const oauthFlow = searchParams.get('flow') || 'signin';
     const oauthError = searchParams.get('error');
@@ -77,6 +74,10 @@ export default function LoginPage() {
         if (!redirect || !redirect.startsWith('/')) return null;
         if (redirect.startsWith('//')) return null;
         if (redirect.startsWith('/exam/') || redirect.startsWith('/dashboard/')) {
+            return redirect;
+        }
+        // The standalone Mentrily AI chat (sign-in from /chat resumes the prompt there).
+        if (redirect === '/chat' || redirect.startsWith('/chat?')) {
             return redirect;
         }
         return null;

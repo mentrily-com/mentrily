@@ -8,6 +8,8 @@ import { BrandLogo } from '@/components/brand/BrandLogo';
 
 const productLinks = [
     { label: 'Features', href: '/#features' },
+    { label: 'Mentrily AI', href: '/ai' },
+    { label: 'Chat with AI', href: '/chat' },
     { label: 'Pricing', href: '/pricing' },
     { label: 'Changelog', href: '/changelog' },
     { label: 'Roadmap', href: '/roadmap' },

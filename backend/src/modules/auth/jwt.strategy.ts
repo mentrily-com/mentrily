@@ -35,6 +35,7 @@ export class ClerkAuthGuard implements CanActivate {
       }
     | undefined;
   private hasOnboardingColumn: boolean | null = null;
+  private readonly inFlightSessions = new Map<string, Promise<any>>();
 
   constructor(
     private readonly configService: ConfigService,
@@ -503,7 +504,7 @@ export class ClerkAuthGuard implements CanActivate {
 
     const newUserId = crypto.randomUUID();
     const createdRows = (await client.$queryRawUnsafe(
-      `INSERT INTO "User" ("id", "email", "clerkId", "name", "orgId", "needsRoleSelection", "isActive", "updatedAt", "role", "department", "rollNumber") VALUES ($1, $2, $3, $4, $5, $6, TRUE, NOW(), $7::${roleEnumMeta.castType}, $8, $9) RETURNING "id"`,
+      `INSERT INTO "User" ("id", "email", "clerkId", "name", "orgId", "needsRoleSelection", "isActive", "updatedAt", "role", "department", "rollNumber") VALUES ($1, $2, $3, $4, $5, $6, TRUE, (NOW() AT TIME ZONE 'UTC'), $7::${roleEnumMeta.castType}, $8, $9) RETURNING "id"`,
       newUserId,
       input.email,
       input.clerkId,
@@ -858,9 +859,9 @@ export class ClerkAuthGuard implements CanActivate {
       return true;
     }
 
-    if (sessionUser?.orgDomain !== undefined && sessionUser?.orgDomain !== null) {
+    if (sessionUser?.orgDomain !== undefined) {
       return (
-        String(sessionUser.orgDomain)
+        String(sessionUser.orgDomain || '')
           .trim()
           .toLowerCase() === 'default'
       );
@@ -1099,9 +1100,10 @@ export class ClerkAuthGuard implements CanActivate {
           }
 
           if (payload?.sub) {
+            const nowSec = Math.floor(Date.now() / 1000);
             const remainingTtl = payload?.exp
-              ? Math.max(1, Math.min(60, payload.exp - Math.floor(Date.now() / 1000)))
-              : 60;
+              ? Math.max(1, Math.min(300, payload.exp - nowSec))
+              : 300;
             await this.redis
               .set(tokenCacheKey, JSON.stringify(payload), 'EX', remainingTtl)
               .catch(() => {});
@@ -1208,6 +1210,25 @@ export class ClerkAuthGuard implements CanActivate {
       return true;
     }
 
+    // Coalesce concurrent requests for the same session to prevent database thundering herd
+    if (this.inFlightSessions.has(cacheKey)) {
+      const coalescedUser = await this.inFlightSessions.get(cacheKey);
+      if (coalescedUser) {
+        await this.enforceTenantAccess(req, coalescedUser);
+        req.user = coalescedUser;
+        return true;
+      }
+    }
+
+    let resolveInFlight!: (val: any) => void;
+    let rejectInFlight!: (err: any) => void;
+    const inFlightPromise = new Promise((resolve, reject) => {
+      resolveInFlight = resolve;
+      rejectInFlight = reject;
+    });
+    this.inFlightSessions.set(cacheKey, inFlightPromise);
+
+    try {
     const effectivePayload = await this.enrichPayloadFromClerk(
       clerkId,
       payload,
@@ -1507,9 +1528,16 @@ export class ClerkAuthGuard implements CanActivate {
     };
 
     await this.enforceTenantAccess(req, sessionUser);
-    await this.redis.set(cacheKey, JSON.stringify(sessionUser), 'EX', 180);
+    await this.redis.set(cacheKey, JSON.stringify(sessionUser), 'EX', 900);
 
+    resolveInFlight(sessionUser);
     req.user = sessionUser;
     return true;
+    } catch (err) {
+      rejectInFlight(err);
+      throw err;
+    } finally {
+      this.inFlightSessions.delete(cacheKey);
+    }
   }
 }

@@ -38,7 +38,23 @@ export class AiPlanService {
   ) {}
 
   async resolve(actor: AiActor): Promise<AiPlanContext> {
-    if (!actor.orgId) {
+    let orgId = actor.orgId;
+    if (!orgId) {
+      const user = await this.prisma.user.findUnique({
+        where: { id: actor.userId },
+        select: { orgId: true, lastActiveOrgId: true },
+      });
+      orgId = user?.orgId ?? user?.lastActiveOrgId ?? null;
+      if (!orgId) {
+        const personalOrg = await this.prisma.organization.findFirst({
+          where: { provisionedFromUserId: actor.userId },
+          select: { id: true },
+        });
+        orgId = personalOrg?.id ?? null;
+      }
+    }
+
+    if (!orgId) {
       const unlimited = actor.role === 'SUPER_ADMIN';
       return {
         plan: 'FREE',
@@ -49,7 +65,7 @@ export class AiPlanService {
       };
     }
 
-    const cacheKey = `ai:plan:${actor.orgId}`;
+    const cacheKey = `ai:plan:${orgId}`;
     const cached = await this.redis.get(cacheKey);
     let plan: PlanKey;
     let rawFeatures: unknown;
@@ -60,7 +76,7 @@ export class AiPlanService {
       rawFeatures = parsed.features;
     } else {
       const org = await this.prisma.organization.findUnique({
-        where: { id: actor.orgId },
+        where: { id: orgId },
         select: {
           plan: true,
           features: true,
@@ -97,7 +113,7 @@ export class AiPlanService {
         ...(PLAN_FEATURES[plan] ?? PLAN_FEATURES.FREE),
         ...overrides,
       },
-      scope: `org:${actor.orgId}`,
+      scope: `org:${orgId}`,
       unlimited: actor.role === 'SUPER_ADMIN',
     };
   }

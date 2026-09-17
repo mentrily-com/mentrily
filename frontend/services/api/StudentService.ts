@@ -84,6 +84,10 @@ export interface BrowseCourse {
 }
 
 export const StudentService = {
+    clearCache() {
+        cache.clear();
+    },
+
     async getStats(forceRefresh = false): Promise<StudentStats> {
         const cacheKey = 'student_stats';
         if (!forceRefresh && cache.has(cacheKey)) {

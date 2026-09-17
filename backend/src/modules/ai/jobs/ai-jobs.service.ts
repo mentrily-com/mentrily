@@ -158,77 +158,81 @@ export class AiJobsService {
       }
     }
 
-    await this.credits.assertJobSlot(actor, ctx);
+    const releaseSlot = await this.credits.acquireJobSlot(actor, ctx);
 
-    const referenceText = input.references.length
-      ? await this.context.referenceText(actor, input.references)
-      : undefined;
-    const tier = this.plans.effectiveTier(
-      ctx,
-      input.quality === 'pro' ? 'pro' : 'standard',
-    );
-    const refChars = referenceText?.length ?? 0;
-
-    const estimate =
-      input.kind === 'blueprint'
-        ? this.generation.estimateBlueprint(brief, refChars)
-        : input.kind === 'generate'
-          ? this.generation.estimateGeneration(blueprint!, tier, refChars)
-          : this.generation.estimateBlueprint(brief, refChars) +
-            this.generation.estimateGeneration(
-              this.syntheticBlueprint(brief),
-              tier,
-              refChars,
-            );
-
-    const reservation = await this.credits.reserve(actor, ctx, estimate);
-
-    const jobInput: AiJobInput = {
-      brief,
-      blueprint,
-      references: input.references,
-      referenceText,
-      tier,
-      verifyCoding: brief.types.includes('Coding'),
-      parentJobId: input.parentJobId,
-    };
-
-    let jobId: string;
     try {
-      const job = await this.prisma.aiJob.create({
-        data: {
-          orgId: actor.orgId,
-          userId: actor.userId,
-          kind: input.kind,
-          status: 'queued',
-          input: jobInput as unknown as Prisma.InputJsonValue,
-          creditsReserved: reservation.amount,
-          conversationId: input.conversationId ?? null,
-        },
-        select: { id: true },
-      });
-      jobId = job.id;
-      const payload: AiJobPayload = { jobId, actor, reservation };
-      await this.writeProgress(jobId, {
-        stage: 'queued',
-        message: 'Waiting to start…',
-        completed: 0,
-        total: blueprint?.sections.length ?? 0,
-        creditsUsed: 0,
-        sections: [],
-      });
-      await this.queue.add('run', payload, {
-        jobId,
-        attempts: 1,
-        removeOnComplete: 200,
-        removeOnFail: 200,
-      });
-    } catch (error) {
-      await this.credits.release(reservation);
-      throw error;
-    }
+      const referenceText = input.references.length
+        ? await this.context.referenceText(actor, input.references)
+        : undefined;
+      const tier = this.plans.effectiveTier(
+        ctx,
+        input.quality === 'pro' ? 'pro' : 'standard',
+      );
+      const refChars = referenceText?.length ?? 0;
 
-    return { jobId, kind: input.kind, estimate: reservation.amount, tier };
+      const estimate =
+        input.kind === 'blueprint'
+          ? this.generation.estimateBlueprint(brief, refChars)
+          : input.kind === 'generate'
+            ? this.generation.estimateGeneration(blueprint!, tier, refChars)
+            : this.generation.estimateBlueprint(brief, refChars) +
+              this.generation.estimateGeneration(
+                this.syntheticBlueprint(brief),
+                tier,
+                refChars,
+              );
+
+      const reservation = await this.credits.reserve(actor, ctx, estimate);
+
+      const jobInput: AiJobInput = {
+        brief,
+        blueprint,
+        references: input.references,
+        referenceText,
+        tier,
+        verifyCoding: brief.types.includes('Coding'),
+        parentJobId: input.parentJobId,
+      };
+
+      let jobId: string;
+      try {
+        const job = await this.prisma.aiJob.create({
+          data: {
+            orgId: actor.orgId,
+            userId: actor.userId,
+            kind: input.kind,
+            status: 'queued',
+            input: jobInput as unknown as Prisma.InputJsonValue,
+            creditsReserved: reservation.amount,
+            conversationId: input.conversationId ?? null,
+          },
+          select: { id: true },
+        });
+        jobId = job.id;
+        const payload: AiJobPayload = { jobId, actor, reservation };
+        await this.writeProgress(jobId, {
+          stage: 'queued',
+          message: 'Waiting to start…',
+          completed: 0,
+          total: blueprint?.sections.length ?? 0,
+          creditsUsed: 0,
+          sections: [],
+        });
+        await this.queue.add('run', payload, {
+          jobId,
+          attempts: 1,
+          removeOnComplete: 200,
+          removeOnFail: 200,
+        });
+      } catch (error) {
+        await this.credits.release(reservation);
+        throw error;
+      }
+
+      return { jobId, kind: input.kind, estimate: reservation.amount, tier };
+    } finally {
+      await releaseSlot();
+    }
   }
 
   private fromClientBlueprint(
@@ -276,6 +280,68 @@ export class AiJobsService {
         },
       ],
     };
+  }
+
+  /**
+   * Queues an edit job. Mirrors create(): one concurrency slot, a credit
+   * reservation released by the processor, progress seeded for polling.
+   */
+  async enqueueEditJob(
+    actor: AiActor,
+    ctx: AiPlanContext,
+    input: AiJobInput,
+    options: {
+      estimate: number;
+      conversationId?: string | null;
+      parentJobId?: string;
+    },
+  ): Promise<{ jobId: string; estimate: number }> {
+    const releaseSlot = await this.credits.acquireJobSlot(actor, ctx);
+    try {
+      const reservation = await this.credits.reserve(
+        actor,
+        ctx,
+        options.estimate,
+      );
+      try {
+        const job = await this.prisma.aiJob.create({
+          data: {
+            orgId: actor.orgId,
+            userId: actor.userId,
+            kind: 'edit',
+            status: 'queued',
+            input: {
+              ...input,
+              parentJobId: options.parentJobId,
+            } as unknown as Prisma.InputJsonValue,
+            creditsReserved: reservation.amount,
+            conversationId: options.conversationId ?? null,
+          },
+          select: { id: true },
+        });
+        await this.writeProgress(job.id, {
+          stage: 'queued',
+          message: 'Waiting to start…',
+          completed: 0,
+          total: 0,
+          creditsUsed: 0,
+          sections: [],
+        });
+        const payload: AiJobPayload = { jobId: job.id, actor, reservation };
+        await this.queue.add('run', payload, {
+          jobId: job.id,
+          attempts: 1,
+          removeOnComplete: 200,
+          removeOnFail: 200,
+        });
+        return { jobId: job.id, estimate: reservation.amount };
+      } catch (error) {
+        await this.credits.release(reservation);
+        throw error;
+      }
+    } finally {
+      await releaseSlot();
+    }
   }
 
   async writeProgress(jobId: string, progress: AiJobProgress) {

@@ -5,6 +5,7 @@ import { SupabaseService } from '../../services/supabase/supabase.service';
 import { CertificateService } from '../certificate/certificate.service';
 
 @Processor('student-analytics', {
+  concurrency: Number(process.env.STUDENT_ANALYTICS_CONCURRENCY || 15),
   // Optimize for serverless Redis (reduce command usage)
   stalledInterval: 300000, // 5 minutes
   maxStalledCount: 3,

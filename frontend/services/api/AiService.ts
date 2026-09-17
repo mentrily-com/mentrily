@@ -29,8 +29,7 @@ export class AiApiError extends Error {
 
     constructor(status: number, payload: Record<string, unknown>, fallback: string) {
         const raw = payload?.message;
-        const message =
-            typeof raw === 'string' ? raw : Array.isArray(raw) ? raw.join(', ') : fallback;
+        const message = typeof raw === 'string' ? raw : Array.isArray(raw) ? raw.join(', ') : fallback;
         super(message || fallback);
         this.status = status;
         this.code = typeof payload?.code === 'string' ? payload.code : undefined;
@@ -50,7 +49,11 @@ export async function buildAiHeaders(method: string, withJsonBody: boolean): Pro
     return withClerkAuthorization(withCsrfHeader(method, headers));
 }
 
-async function aiFetch<T>(path: string, init: { method?: string; body?: unknown } = {}, fallback = 'Request failed'): Promise<T> {
+async function aiFetch<T>(
+    path: string,
+    init: { method?: string; body?: unknown } = {},
+    fallback = 'Request failed',
+): Promise<T> {
     const method = init.method ?? 'GET';
     const hasBody = init.body !== undefined;
     const res = await apiFetch(`${API_BASE_URL}${path}`, {
@@ -64,6 +67,11 @@ async function aiFetch<T>(path: string, init: { method?: string; body?: unknown 
         throw new AiApiError(res.status, payload, fallback);
     }
     return (await res.json()) as T;
+}
+
+export interface EditApplyResult {
+    applied: string[];
+    skipped: { id: string; summary: string; reason: string }[];
 }
 
 export interface CreateJobInput {
@@ -90,6 +98,19 @@ export const AiService = {
         ),
 
     getJob: (id: string) => aiFetch<AiJob>(`/ai/jobs/${id}`, {}, 'Could not load the generation'),
+
+    applyEdit: (id: string, changeIds?: string[]) =>
+        aiFetch<EditApplyResult>(
+            `/ai/jobs/${id}/apply`,
+            { method: 'POST', body: { changeIds } },
+            'Could not apply the changes',
+        ),
+
+    undoEdit: (id: string) =>
+        aiFetch<EditApplyResult>(`/ai/jobs/${id}/undo`, { method: 'POST', body: {} }, 'Could not undo the changes'),
+
+    markDraftSaved: (id: string, savedAs: { kind: AiKind; id: string }) =>
+        aiFetch<{ ok: boolean }>(`/ai/jobs/${id}/saved`, { method: 'POST', body: savedAs }),
 
     cancelJob: (id: string) =>
         aiFetch<{ id: string; status: string }>(`/ai/jobs/${id}/cancel`, { method: 'POST', body: {} }),

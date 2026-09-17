@@ -26,6 +26,7 @@ import {
 } from '../prompts/chat.prompts';
 import { ConversationService } from './conversation.service';
 import { buildChatTools } from './chat-tools';
+import { ContentEditService } from '../edit/content-edit.service';
 
 const MAX_USER_TEXT = 8000;
 const CHAT_OUTPUT_TOKENS = 2500;
@@ -78,6 +79,7 @@ export class AiChatService {
     private readonly context: ContentContextService,
     private readonly conversations: ConversationService,
     private readonly jobs: AiJobsService,
+    private readonly edits: ContentEditService,
   ) {
     this.toolsEnabled = config.get<string>('AI_CHAT_TOOLS') !== 'false';
   }
@@ -134,15 +136,17 @@ export class AiChatService {
       });
     }
 
-    await this.credits.consumeMessage(ctx);
     const tier: AiTier = request.quality === 'smart' ? 'standard' : 'lite';
+    const CHAT_RESERVATION_TTL_MS = 3 * 60 * 1000;
     const reservation = await this.credits.reserve(
       actor,
       ctx,
       tier === 'lite' ? 8 : 25,
+      CHAT_RESERVATION_TTL_MS,
     );
 
     try {
+      await this.credits.consumeMessage(ctx);
       const referenceText = request.references.length
         ? await this.context.referenceText(actor, request.references)
         : undefined;
@@ -158,8 +162,16 @@ export class AiChatService {
       await this.conversations.saveMessage(conversation.id, userMessage);
 
       const tools = this.toolsEnabled
-        ? buildChatTools(actor, this.context)
+        ? buildChatTools(actor, this.context, {
+            service: this.edits,
+            conversationId: conversation.id,
+          })
         : undefined;
+      const drafts = this.toolsEnabled
+        ? await this.edits
+            .conversationDrafts(actor, conversation.id)
+            .catch(() => '')
+        : '';
       const modelMessages = await convertToModelMessages(history, {
         tools,
         ignoreIncompleteToolCalls: true,
@@ -201,7 +213,7 @@ export class AiChatService {
 
       const result = streamText({
         model: this.omni.model(tier),
-        system: chatSystemPrompt(request.intent, referenceText),
+        system: chatSystemPrompt(request.intent, referenceText, drafts),
         messages: modelMessages,
         tools,
         stopWhen: stepCountIs(4),

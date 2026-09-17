@@ -12,7 +12,10 @@ import { Server, Socket } from 'socket.io';
 import { verifyToken } from '@clerk/backend';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Redis } from 'ioredis';
-import { createAdapter } from '@socket.io/redis-adapter';
+import {
+  closeSocketRedisAdapter,
+  ensureSocketRedisAdapter,
+} from '../common/socket-redis-adapter';
 import { OnModuleDestroy } from '@nestjs/common';
 import {
   getAllowedWebOrigins,
@@ -56,8 +59,8 @@ export class NotificationGateway
   @WebSocketServer()
   server: Server;
 
-  private redisPubClient: Redis | null = null;
-  private redisSubClient: Redis | null = null;
+  private installedAdapter = false;
+  private rootServer: any = null;
 
   // Map socketId → userId for cleanup
   private connectedUsers = new Map<string, string>();
@@ -84,26 +87,23 @@ export class NotificationGateway
     return null;
   }
 
-  async afterInit(server: Server) {
-    this.redisPubClient = this.redis.duplicate();
-    this.redisSubClient = this.redis.duplicate();
+  afterInit(server: Server) {
     const ioTarget: any = server || this.server;
     const rootServer =
       typeof ioTarget?.adapter === 'function' ? ioTarget : ioTarget?.server;
 
-    if (!rootServer || typeof rootServer.adapter !== 'function') {
-      throw new Error('Socket.IO root server adapter API is unavailable');
-    }
-
-    rootServer.adapter(createAdapter(this.redisPubClient, this.redisSubClient));
+    // Shared across gateways: installing a second adapter on the same server
+    // leaves the first one subscribed, so serverCount() over-counts and every
+    // cluster-wide call (fetchSockets) waits for a reply that never arrives.
+    this.installedAdapter = ensureSocketRedisAdapter(rootServer, this.redis);
+    this.rootServer = rootServer;
     console.log('[NotificationGateway] Initialized');
   }
 
   async onModuleDestroy() {
-    await Promise.all([
-      this.redisPubClient?.quit(),
-      this.redisSubClient?.quit(),
-    ]);
+    if (this.installedAdapter) {
+      await closeSocketRedisAdapter(this.rootServer);
+    }
   }
 
   async handleConnection(client: Socket) {

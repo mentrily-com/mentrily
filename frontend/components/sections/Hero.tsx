@@ -8,6 +8,7 @@ import { heroWordStagger, heroWord } from '@/lib/animations';
 import { siteConfig } from '@/app/config/site';
 import { ArrowRight } from 'lucide-react';
 import ImagePreviewModal, { type PreviewImage } from '@/components/ui/ImagePreviewModal';
+import HeroAiPrompt from './HeroAiPrompt';
 
 export default function Hero() {
     const [previewImage, setPreviewImage] = useState<PreviewImage | null>(null);
@@ -145,57 +146,69 @@ export default function Hero() {
                         </motion.p>
 
                         {/* CTAs */}
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.94 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.6, duration: 0.28, ease: [0.25, 0.1, 0.25, 1] }}
-                            className="flex flex-wrap gap-4"
-                        >
-                            <Link
-                                href="/signup"
-                                className="group inline-flex items-center gap-2 px-7 py-3.5 text-sm font-semibold text-white rounded-xl transition-all duration-200 cursor-pointer"
-                                style={{
-                                    background: 'linear-gradient(135deg, #008D98 0%, #006F78 100%)',
-                                    boxShadow: '0 4px 16px rgba(0,141,152,0.25)',
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,141,152,0.35)';
-                                    e.currentTarget.style.transform = 'translateY(-1px)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,141,152,0.25)';
-                                    e.currentTarget.style.transform = 'translateY(0)';
-                                }}
+                        {/* Same width as the button row, so the ask box lines up under it. */}
+                        <div className="inline-grid max-w-full">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.94 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.6, duration: 0.28, ease: [0.25, 0.1, 0.25, 1] }}
+                                className="flex flex-wrap gap-4"
                             >
-                                Start for Free
-                                <ArrowRight
-                                    size={16}
-                                    className="transition-transform duration-200 group-hover:translate-x-0.5"
-                                />
-                            </Link>
-                            <Link
-                                href="/pricing"
-                                className="inline-flex items-center px-7 py-3.5 text-sm font-semibold rounded-xl border transition-all duration-200 cursor-pointer"
-                                style={{
-                                    color: '#008D98',
-                                    borderColor: '#E2E8F0',
-                                    backgroundColor: 'rgba(255,255,255,0.7)',
-                                    backdropFilter: 'blur(8px)',
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#FFFFFF';
-                                    e.currentTarget.style.borderColor = '#008D98';
-                                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,141,152,0.1)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.7)';
-                                    e.currentTarget.style.borderColor = '#E2E8F0';
-                                    e.currentTarget.style.boxShadow = 'none';
-                                }}
+                                <Link
+                                    href="/signup"
+                                    className="group inline-flex items-center gap-2 px-7 py-3.5 text-sm font-semibold text-white rounded-xl transition-all duration-200 cursor-pointer"
+                                    style={{
+                                        background: 'linear-gradient(135deg, #008D98 0%, #006F78 100%)',
+                                        boxShadow: '0 4px 16px rgba(0,141,152,0.25)',
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,141,152,0.35)';
+                                        e.currentTarget.style.transform = 'translateY(-1px)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,141,152,0.25)';
+                                        e.currentTarget.style.transform = 'translateY(0)';
+                                    }}
+                                >
+                                    Start for Free
+                                    <ArrowRight
+                                        size={16}
+                                        className="transition-transform duration-200 group-hover:translate-x-0.5"
+                                    />
+                                </Link>
+                                <Link
+                                    href="/pricing"
+                                    className="inline-flex items-center px-7 py-3.5 text-sm font-semibold rounded-xl border transition-all duration-200 cursor-pointer"
+                                    style={{
+                                        color: '#008D98',
+                                        borderColor: '#E2E8F0',
+                                        backgroundColor: 'rgba(255,255,255,0.7)',
+                                        backdropFilter: 'blur(8px)',
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor = '#FFFFFF';
+                                        e.currentTarget.style.borderColor = '#008D98';
+                                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,141,152,0.1)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.7)';
+                                        e.currentTarget.style.borderColor = '#E2E8F0';
+                                        e.currentTarget.style.boxShadow = 'none';
+                                    }}
+                                >
+                                    See Pricing
+                                </Link>
+                            </motion.div>
+
+                            <motion.div
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.75, duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+                                className="mt-5"
                             >
-                                See Pricing
-                            </Link>
-                        </motion.div>
+                                <HeroAiPrompt />
+                            </motion.div>
+                        </div>
                     </div>
 
                     {/* ── Right: Dashboard preview with 3D tilt ── */}

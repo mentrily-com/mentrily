@@ -20,6 +20,14 @@ const getHeaders = () => {
 };
 
 export const ExamService = {
+    clearCache() {
+        examCache.clear();
+    },
+
+    evictExam(slug: string) {
+        examCache.delete(slug);
+    },
+
     async getExamBySlug(slug: string): Promise<any> {
         // Return cached response if available
         if (examCache.has(slug)) {

@@ -530,63 +530,94 @@ export class TeacherExamsService {
       }
     } catch {}
 
-    // Fetch all sessions for this exam
-    const sessions = await this.prisma.examSession.findMany({
-      where: { examId },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            rollNumber: true,
-          },
-        },
-        violations: {
-          select: {
-            type: true,
-            message: true,
-            timestamp: true,
-          },
-          orderBy: { timestamp: 'desc' },
-        },
-      },
-      orderBy: { startTime: 'desc' },
-    });
+    // PERFORMANCE FIX: Fetch sessions and violations with targeted projection.
+    // Instead of transferring full multi-megabyte `answers` JSON (code stubs, testcase outputs),
+    // extract only the lightweight `_internal_metadata` JSON sub-object using Postgres JSON path.
+    const rawSessions: Array<{
+      id: string;
+      userId: string;
+      status: string;
+      startTime: Date;
+      endTime: Date | null;
+      updatedAt: Date;
+      ipAddress: string | null;
+      vmDetected: boolean;
+      sessionMetadata: any;
+      user_id: string;
+      user_name: string | null;
+      user_email: string;
+      user_rollNumber: string | null;
+    }> = await this.prisma.$queryRaw`
+      SELECT
+        es.id,
+        es."userId",
+        es.status,
+        es."startTime",
+        es."endTime",
+        es."updatedAt",
+        es."ipAddress",
+        es."vmDetected",
+        es.answers->'_internal_metadata' AS "sessionMetadata",
+        u.id AS user_id,
+        u.name AS user_name,
+        u.email AS user_email,
+        u."rollNumber" AS "user_rollNumber"
+      FROM "ExamSession" es
+      JOIN "User" u ON u.id = es."userId"
+      WHERE es."examId" = ${examId}
+      ORDER BY es."startTime" DESC
+    `;
+
+    const sessionIds = rawSessions.map((s) => s.id);
+    const violations =
+      sessionIds.length > 0
+        ? await this.prisma.violation.findMany({
+            where: { sessionId: { in: sessionIds } },
+            select: {
+              sessionId: true,
+              type: true,
+              message: true,
+              timestamp: true,
+            },
+            orderBy: { timestamp: 'desc' },
+          })
+        : [];
+
+    const violationsBySession = new Map<string, typeof violations>();
+    for (const v of violations) {
+      const list = violationsBySession.get(v.sessionId) || [];
+      list.push(v);
+      violationsBySession.set(v.sessionId, list);
+    }
 
     // Transform to frontend format
-    const result = sessions.map((session: any) => {
-      const tabSwitchViolations = session.violations.filter(
+    const result = rawSessions.map((session) => {
+      const sessionViolations = violationsBySession.get(session.id) || [];
+      const tabSwitchViolations = sessionViolations.filter(
         (v: any) =>
           v.type === 'TAB_SWITCH' ||
           v.type === 'TAB_SWITCH_OUT' ||
           v.type === 'TAB_SWITCH_IN',
       );
-      const vmViolations = session.violations.filter(
+      const vmViolations = sessionViolations.filter(
         (v: any) => v.type === 'VM_DETECTED',
       );
 
-      // The roll number / section shown here is what the student actually
-      // typed on the exam login form, stashed in the session's own
-      // _internal_metadata (see ExamService.startSession) — NOT the
-      // User.rollNumber profile column, which is a separate, usually-empty
-      // field most exam-only accounts never fill in.
-      const sessionAnswers =
-        typeof session.answers === 'string'
-          ? JSON.parse(session.answers || '{}')
-          : session.answers || {};
-      const sessionMetadata = sessionAnswers._internal_metadata || {};
+      const sessionMetadata =
+        typeof session.sessionMetadata === 'string'
+          ? JSON.parse(session.sessionMetadata || '{}')
+          : session.sessionMetadata || {};
 
       return {
-        id: session.user.id,
+        id: session.user_id,
         name:
           sessionMetadata.name ||
-          session.user.name ||
-          session.user.email ||
+          session.user_name ||
+          session.user_email ||
           'Unknown',
-        email: session.user.email,
+        email: session.user_email,
         rollNumber:
-          sessionMetadata.rollNumber || session.user.rollNumber || 'N/A',
+          sessionMetadata.rollNumber || session.user_rollNumber || 'N/A',
         section: sessionMetadata.section || 'N/A',
         status:
           session.status === 'COMPLETED' ||
@@ -600,10 +631,10 @@ export class TeacherExamsService {
         ip: session.ipAddress || 'Unknown',
         vmDetected: session.vmDetected || vmViolations.length > 0,
         vmType: vmViolations.length > 0 ? vmViolations[0].message : null,
-        tabOuts: session.violations.filter(
+        tabOuts: sessionViolations.filter(
           (v: any) => v.type === 'TAB_SWITCH' || v.type === 'TAB_SWITCH_OUT',
         ).length,
-        tabIns: session.violations.filter(
+        tabIns: sessionViolations.filter(
           (v: any) => v.type === 'TAB_SWITCH_IN',
         ).length,
         isHighRisk: session.vmDetected || tabSwitchViolations.length > 5,
@@ -616,7 +647,7 @@ export class TeacherExamsService {
         loginCount: 1,
         sleepDuration: '0m',
         appVersion: 'Web',
-        logs: session.violations.map((v: any) => ({
+        logs: sessionViolations.map((v: any) => ({
           time: new Date(v.timestamp).toLocaleTimeString(),
           event:
             v.type === 'TAB_SWITCH' || v.type === 'TAB_SWITCH_OUT'

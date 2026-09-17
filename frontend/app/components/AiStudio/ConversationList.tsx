@@ -83,7 +83,9 @@ function Row({
                 onClick={onSelect}
                 aria-current={active ? 'page' : undefined}
                 className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm transition ${
-                    active ? 'bg-white font-medium text-slate-900 shadow-sm' : 'text-slate-600 hover:bg-white/70 hover:text-slate-900'
+                    active
+                        ? 'bg-white font-medium text-slate-900 shadow-sm'
+                        : 'text-slate-600 hover:bg-white/70 hover:text-slate-900'
                 }`}
             >
                 {item.pinned && <Pin size={12} className="shrink-0 text-slate-400" />}
@@ -194,7 +196,11 @@ export default function ConversationList({
                 {loading && (
                     <div className="space-y-2 px-1">
                         {[70, 55, 80].map((w) => (
-                            <div key={w} className="h-8 animate-pulse rounded-lg bg-slate-200/60" style={{ width: `${w}%` }} />
+                            <div
+                                key={w}
+                                className="h-8 animate-pulse rounded-lg bg-slate-200/60"
+                                style={{ width: `${w}%` }}
+                            />
                         ))}
                     </div>
                 )}

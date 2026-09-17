@@ -105,31 +105,7 @@ export class Judge0Strategy implements IExecutionStrategy {
     }
 
     try {
-      // POST /submissions?base64_encoded=false&wait=true
-      const response = await firstValueFrom(
-        this.httpService.post(
-          `${this.judge0Url}/submissions?base64_encoded=false&wait=true`,
-          {
-            source_code: code,
-            language_id: languageId,
-            stdin: stdin,
-            cpu_time_limit: 5,
-            wall_time_limit: 20,
-            memory_limit: 256000,
-            enable_network: false,
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              ...(this.judge0AuthToken
-                ? { 'X-Auth-Token': this.judge0AuthToken }
-                : {}),
-            },
-            timeout: 25000,
-          },
-        ),
-      );
-
+      const response = await this.submit(code, languageId, stdin);
       const judge0Result = response.data;
 
       // Judge0 usually returns stdout, stderr, compile_output, status
@@ -176,4 +152,61 @@ export class Judge0Strategy implements IExecutionStrategy {
       throw new InternalServerErrorException('Failed to execute code');
     }
   }
+
+  // POST /submissions?base64_encoded=false&wait=true. A dropped connection or
+  // a full Judge0 queue (503) is usually gone within a second, so retry once
+  // rather than failing the learner's run.
+  private async submit(code: string, languageId: number, stdin: string) {
+    const request = () =>
+      firstValueFrom(
+        this.httpService.post(
+          `${this.judge0Url}/submissions?base64_encoded=false&wait=true`,
+          {
+            source_code: code,
+            language_id: languageId,
+            stdin: stdin,
+            cpu_time_limit: 5,
+            wall_time_limit: 20,
+            memory_limit: 256000,
+            enable_network: false,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              ...(this.judge0AuthToken
+                ? { 'X-Auth-Token': this.judge0AuthToken }
+                : {}),
+            },
+            timeout: 25000,
+          },
+        ),
+      );
+
+    try {
+      return await request();
+    } catch (error: unknown) {
+      const failure = error as RequestFailure;
+      if (!isTransient(failure)) throw error;
+      this.logger.warn(
+        `Judge0 transient failure (${failure.response?.status ?? failure.code}), retrying once`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, 750));
+      return request();
+    }
+  }
+}
+
+type RequestFailure = { code?: string; response?: { status?: number } };
+
+function isTransient(error: RequestFailure): boolean {
+  const status = error.response?.status;
+  if (status === 502 || status === 503 || status === 504) return true;
+  // No response at all: connection reset/refused before Judge0 answered.
+  // A client-side timeout is excluded — the run may still be executing.
+  return (
+    !error.response &&
+    ['ECONNRESET', 'ECONNREFUSED', 'EPIPE', 'EAI_AGAIN'].includes(
+      error.code ?? '',
+    )
+  );
 }

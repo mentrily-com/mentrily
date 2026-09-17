@@ -1,6 +1,17 @@
-import { BookOpenCheck, ClipboardCheck, FileQuestion, GraduationCap, Lightbulb, ListChecks, PenLine, ScrollText, type LucideIcon } from 'lucide-react';
+import {
+    BookOpenCheck,
+    ClipboardCheck,
+    FilePen,
+    FileQuestion,
+    GraduationCap,
+    Lightbulb,
+    ListChecks,
+    PenLine,
+    ScrollText,
+    type LucideIcon,
+} from 'lucide-react';
 
-export type ChatIntent = 'ask' | 'explain' | 'improve' | 'rubric' | 'summarize' | 'lesson';
+export type ChatIntent = 'ask' | 'edit' | 'explain' | 'improve' | 'rubric' | 'summarize' | 'lesson';
 
 export type StudioCommand =
     | { id: 'course' | 'exam'; kind: 'job'; job: 'blueprint'; brief: 'course' | 'exam' }
@@ -40,6 +51,13 @@ export const COMMANDS: CommandInfo[] = [
         description: 'Quick set of questions, ready to insert',
         placeholder: 'Topic for the quiz',
         icon: ListChecks,
+    },
+    {
+        command: { id: 'edit', kind: 'chat', intent: 'edit' },
+        label: 'edit',
+        description: 'Change a course, exam or draft',
+        placeholder: 'Which course or exam, and what should change?',
+        icon: FilePen,
     },
     {
         command: { id: 'explain', kind: 'chat', intent: 'explain' },

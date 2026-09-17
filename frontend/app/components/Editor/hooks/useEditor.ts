@@ -28,13 +28,12 @@ import { lintKeymap } from '@codemirror/lint';
 import { CodeEditorProps } from '../types';
 import { securityPlugin } from '../plugins/SecurityPlugin';
 
-const languageConf = new Compartment();
-
 export function useEditor(props: CodeEditorProps) {
     const editorRef = useRef<HTMLDivElement>(null);
     const viewRef = useRef<EditorView | null>(null);
     const [view, setView] = useState<EditorView | null>(null);
     const isMounted = useRef(true);
+    const languageConfRef = useRef(new Compartment());
 
     // Store latest props in a ref to avoid stale closures in CM listeners
     const propsRef = useRef(props);
@@ -82,7 +81,7 @@ export function useEditor(props: CodeEditorProps) {
                             indentWithTab,
                         ]),
 
-                        languageConf.of([]),
+                        languageConfRef.current.of([]),
                         securityPlugin(props.options || {}, (msg) => propsRef.current.actions?.onCheatDetected?.(msg)),
 
                         EditorView.updateListener.of((update) => {
@@ -117,7 +116,7 @@ export function useEditor(props: CodeEditorProps) {
                     try {
                         const langExt = await props.language.extension();
                         if (viewRef.current && isMounted.current) {
-                            v.dispatch({ effects: languageConf.reconfigure(langExt) });
+                            v.dispatch({ effects: languageConfRef.current.reconfigure(langExt) });
                         }
                     } catch (e) {}
                 };
@@ -151,35 +150,48 @@ export function useEditor(props: CodeEditorProps) {
         };
     }, []);
 
+    // Reconfigure language extension ONLY when language ID changes (never on document typing)
     useEffect(() => {
         if (!viewRef.current) return;
+        let cancelled = false;
 
         const updateLang = async () => {
             try {
                 const langExt = await props.language.extension();
-                if (viewRef.current && isMounted.current) {
-                    const currentDoc = viewRef.current.state.doc.toString();
-                    const effects = [languageConf.reconfigure(langExt)];
-
-                    if (currentDoc !== props.language.initialBody) {
-                        viewRef.current.dispatch({
-                            effects,
-                            changes: {
-                                from: 0,
-                                to: currentDoc.length,
-                                insert: props.language.initialBody,
-                            },
-                        });
-                    } else {
-                        viewRef.current.dispatch({ effects });
-                    }
+                if (viewRef.current && isMounted.current && !cancelled) {
+                    viewRef.current.dispatch({
+                        effects: [languageConfRef.current.reconfigure(langExt)],
+                    });
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.error('Failed to load language extension', e);
+            }
         };
         updateLang();
-        // Re-run when language id or initial body changes so components like EmbeddedCodeRunner
-        // that only change the initial code (but keep same language id) will refresh the editor content.
-    }, [props.language.id, props.language.initialBody]);
+
+        return () => {
+            cancelled = true;
+        };
+    }, [props.language.id]);
+
+    // Synchronize editor document when initialBody changes externally (e.g. question switch or reset)
+    const prevInitialBodyRef = useRef(props.language.initialBody);
+    useEffect(() => {
+        if (!viewRef.current) return;
+        if (props.language.initialBody !== prevInitialBodyRef.current) {
+            prevInitialBodyRef.current = props.language.initialBody;
+            const currentDoc = viewRef.current.state.doc.toString();
+            if (currentDoc !== props.language.initialBody) {
+                viewRef.current.dispatch({
+                    changes: {
+                        from: 0,
+                        to: currentDoc.length,
+                        insert: props.language.initialBody,
+                    },
+                });
+            }
+        }
+    }, [props.language.initialBody]);
 
     return { editorRef, view };
 }

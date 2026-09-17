@@ -196,7 +196,7 @@ export class SubmissionProcessor extends WorkerHost {
           SET "answers" = (COALESCE("answers", '{}'::jsonb) || ${JSON.stringify(staged)}::jsonb)
                             - '_internal_marks' - '_internal_score',
               "score" = NULL,
-              "updatedAt" = NOW()
+              "updatedAt" = (NOW() AT TIME ZONE 'UTC')
           WHERE "id" = ${sessionId}
             AND "status" = 'IN_PROGRESS'
         `;
@@ -235,7 +235,7 @@ export class SubmissionProcessor extends WorkerHost {
                                  })}::jsonb
                                ),
               "score" = ${scoreDetails.percentage},
-              "updatedAt" = NOW()
+              "updatedAt" = (NOW() AT TIME ZONE 'UTC')
           WHERE "id" = ${sessionId}
             AND "status" NOT IN ('COMPLETED', 'TERMINATED')
         `;
@@ -288,7 +288,7 @@ export class SubmissionProcessor extends WorkerHost {
         await this.prisma.$executeRaw`
           UPDATE "ExamSession"
           SET "answers" = COALESCE("answers", '{}'::jsonb) || ${JSON.stringify(staged)}::jsonb,
-              "updatedAt" = NOW()
+              "updatedAt" = (NOW() AT TIME ZONE 'UTC')
           WHERE "id" = ${sessionId}
             AND "status" NOT IN ('COMPLETED', 'TERMINATED')
         `;

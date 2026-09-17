@@ -4,11 +4,13 @@ import 'streamdown/styles.css';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Lock, PanelLeft, Sparkles } from 'lucide-react';
+import { Lock, Maximize2, PanelLeft, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { AiService } from '@/services/api/AiService';
 import { useAiUsage, useRefreshAiUsage } from '@/hooks/useAi';
 import { useAiErrorGate } from '@/app/components/AiShared/useAiErrorGate';
+import { takePromptHandoff } from '@/lib/ai/promptHandoff';
+import AiAppFrame from './AiAppFrame';
 import ConversationList from './ConversationList';
 import ChatThread from './ChatThread';
 import DraftPanel from './DraftPanel';
@@ -21,7 +23,14 @@ function setUrl(id: string | null, mode: 'push' | 'replace') {
     window.history[mode === 'push' ? 'pushState' : 'replaceState'](null, '', url);
 }
 
-export default function AiStudio() {
+export default function AiStudio({
+    variant = 'embedded',
+    topbarRight,
+}: {
+    /** `standalone` renders the full-screen /ai app; `embedded` sits inside the dashboard. */
+    variant?: 'embedded' | 'standalone';
+    topbarRight?: React.ReactNode;
+} = {}) {
     const searchParams = useSearchParams();
     const queryClient = useQueryClient();
     const { data: usage } = useAiUsage();
@@ -36,6 +45,18 @@ export default function AiStudio() {
     const [panelJobId, setPanelJobId] = useState<string | null>(null);
     const [localChildren, setLocalChildren] = useState<Record<string, string>>({});
     const [listOpen, setListOpen] = useState(false);
+    const [resumed, setResumed] = useState<{ command: string; text: string; nonce: number } | null>(null);
+
+    // Pick up a prompt written on the public /ai page before signing in.
+    useEffect(() => {
+        const handoff = takePromptHandoff();
+        if (handoff && !searchParams.get('c')) {
+            setResumed({ command: handoff.command, text: handoff.text, nonce: Date.now() });
+        }
+        if (searchParams.has('resume')) setUrl(searchParams.get('c'), 'replace');
+        // Once, on arrival.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const conversations = useQuery({
         queryKey: CONVERSATIONS_KEY,
@@ -52,10 +73,7 @@ export default function AiStudio() {
         retry: false,
     });
 
-    const messages = useMemo(
-        () => (detail.data?.messages ?? []) as unknown as StudioMessage[],
-        [detail.data],
-    );
+    const messages = useMemo(() => (detail.data?.messages ?? []) as unknown as StudioMessage[], [detail.data]);
     const pendingReply =
         messages.at(-1)?.role === 'user' &&
         Date.now() - new Date(detail.data?.conversation.lastMessageAt ?? 0).getTime() < 3 * 60_000;
@@ -120,12 +138,14 @@ export default function AiStudio() {
         setSession((s) => s + 1);
         setPanelJobId(null);
         setLocalChildren({});
+        setResumed(null);
         setUrl(id, 'push');
     };
 
     const onConversationId = useCallback(
         (id: string) => {
             createdHere.current.add(id);
+            setResumed(null);
             setActiveId(id);
             setUrl(id, 'replace');
             void queryClient.invalidateQueries({ queryKey: CONVERSATIONS_KEY });
@@ -136,7 +156,9 @@ export default function AiStudio() {
     const onActivity = useCallback(() => {
         void refreshUsage();
         void queryClient.invalidateQueries({ queryKey: CONVERSATIONS_KEY });
-    }, [queryClient, refreshUsage]);
+        // Picks up jobs the reply started (e.g. an edit), so version chains link up.
+        if (activeId) void queryClient.invalidateQueries({ queryKey: ['ai-conversation', activeId] });
+    }, [queryClient, refreshUsage, activeId]);
 
     const openJob = useCallback((jobId: string) => {
         setPanelJobId(jobId);
@@ -166,9 +188,12 @@ export default function AiStudio() {
         }
     };
 
+    const standalone = variant === 'standalone';
+    const fullScreenHref = `/chat${activeId ? `?c=${activeId}` : ''}`;
+
     if (usage && !usage.features.aiStudio) {
-        return (
-            <div className="grid h-[calc(100vh-var(--topbar-height)-36px)] place-items-center rounded-2xl border border-slate-200 bg-white p-6">
+        const locked = (
+            <div className="grid h-full place-items-center p-6">
                 <div className="max-w-sm text-center">
                     <Lock className="mx-auto text-slate-400" />
                     <h1 className="mt-3 text-lg font-semibold text-slate-900">AI Studio isn&apos;t on your plan</h1>
@@ -182,10 +207,104 @@ export default function AiStudio() {
                 </div>
             </div>
         );
+        if (standalone) {
+            return (
+                <AiAppFrame
+                    sidebar={null}
+                    topbarRight={topbarRight}
+                    mobileOpen={listOpen}
+                    onMobileOpenChange={setListOpen}
+                >
+                    {locked}
+                </AiAppFrame>
+            );
+        }
+        return (
+            <div className="h-[calc(100vh-var(--topbar-height)-36px)] rounded-2xl border border-slate-200 bg-white">
+                {locked}
+            </div>
+        );
     }
 
     const loadingThread = needsDetail && detail.isLoading;
     const chatKey = `studio-${session}-${needsDetail ? `${activeId}-${messages.length}` : 'new'}`;
+
+    const list = (
+        <ConversationList
+            items={conversations.data ?? []}
+            loading={conversations.isLoading}
+            activeId={activeId}
+            onSelect={select}
+            onNew={() => select(null)}
+            onRename={(id, title) => updateConversation(id, { title })}
+            onPin={(id, pinned) => updateConversation(id, { pinned })}
+            onDelete={deleteConversation}
+        />
+    );
+
+    const thread = loadingThread ? (
+        <div className="mx-auto w-full max-w-3xl space-y-5 px-6 py-8" aria-busy="true">
+            {[60, 85, 45].map((w, i) => (
+                <div
+                    key={i}
+                    className={`h-10 animate-pulse rounded-2xl bg-slate-100 ${i % 2 === 0 ? 'ml-auto' : ''}`}
+                    style={{ width: `${w}%` }}
+                />
+            ))}
+        </div>
+    ) : (
+        <ChatThread
+            key={chatKey}
+            chatKey={chatKey}
+            conversationId={activeId}
+            initialMessages={needsDetail ? messages : []}
+            pendingReply={Boolean(pendingReply)}
+            usage={usage}
+            childJobs={chainTips}
+            activeJobId={panelJobId}
+            onOpenJob={openJob}
+            onConversationId={onConversationId}
+            onActivity={onActivity}
+            onError={handleError}
+            onLocked={(message) => promptUpgrade(message)}
+            resumed={activeId ? null : resumed}
+            onDismissResumed={() => setResumed(null)}
+        />
+    );
+
+    const panel = panelJobId ? (
+        <div className="absolute inset-0 z-40 flex flex-col bg-white lg:static lg:z-auto lg:w-[420px] lg:border-l lg:border-slate-200 xl:w-[460px]">
+            <DraftPanel
+                jobId={panelJobId}
+                conversationId={activeId}
+                onClose={() => setPanelJobId(null)}
+                onChildJob={onChildJob}
+                onError={handleError}
+                onLocked={promptUpgrade}
+                parentJobId={parentOf[panelJobId]}
+                onOpenJob={openJob}
+            />
+        </div>
+    ) : null;
+
+    if (standalone) {
+        return (
+            <>
+                <AiAppFrame
+                    sidebar={list}
+                    topbarRight={topbarRight}
+                    panel={panel}
+                    mobileOpen={listOpen}
+                    onMobileOpenChange={setListOpen}
+                >
+                    <section className="flex min-h-0 flex-1 flex-col" aria-label="Chat">
+                        {thread}
+                    </section>
+                </AiAppFrame>
+                {modal}
+            </>
+        );
+    }
 
     return (
         <div className="relative flex h-[calc(100vh-var(--topbar-height)-36px)] min-h-[520px] overflow-hidden rounded-2xl border border-slate-200 bg-white">
@@ -195,16 +314,7 @@ export default function AiStudio() {
                     listOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full'
                 }`}
             >
-                <ConversationList
-                    items={conversations.data ?? []}
-                    loading={conversations.isLoading}
-                    activeId={activeId}
-                    onSelect={select}
-                    onNew={() => select(null)}
-                    onRename={(id, title) => updateConversation(id, { title })}
-                    onPin={(id, pinned) => updateConversation(id, { pinned })}
-                    onDelete={deleteConversation}
-                />
+                {list}
             </div>
             {listOpen && (
                 <button
@@ -217,11 +327,11 @@ export default function AiStudio() {
 
             {/* Thread */}
             <section className="flex min-w-0 flex-1 flex-col" aria-label="Chat">
-                <div className="flex items-center gap-2 border-b border-slate-100 px-3 py-2 md:hidden">
+                <div className="flex items-center gap-2 border-b border-slate-100 px-3 py-2">
                     <button
                         type="button"
                         onClick={() => setListOpen(true)}
-                        className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+                        className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 md:hidden"
                         aria-label="Show chats"
                     >
                         <PanelLeft size={18} />
@@ -229,51 +339,20 @@ export default function AiStudio() {
                     <span className="flex items-center gap-1.5 text-sm font-semibold text-slate-900">
                         <Sparkles size={15} className="text-[var(--brand)]" /> AI Studio
                     </span>
+                    <Link
+                        href={fullScreenHref}
+                        className="ml-auto inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                        title="Open Mentrily AI in full screen"
+                    >
+                        <Maximize2 size={14} />
+                        <span className="hidden sm:inline">Full screen</span>
+                        <span className="sr-only sm:hidden">Open full screen</span>
+                    </Link>
                 </div>
-                {loadingThread ? (
-                    <div className="mx-auto w-full max-w-3xl space-y-5 px-6 py-8" aria-busy="true">
-                        {[60, 85, 45].map((w, i) => (
-                            <div
-                                key={i}
-                                className={`h-10 animate-pulse rounded-2xl bg-slate-100 ${i % 2 === 0 ? 'ml-auto' : ''}`}
-                                style={{ width: `${w}%` }}
-                            />
-                        ))}
-                    </div>
-                ) : (
-                    <ChatThread
-                        key={chatKey}
-                        chatKey={chatKey}
-                        conversationId={activeId}
-                        initialMessages={needsDetail ? messages : []}
-                        pendingReply={Boolean(pendingReply)}
-                        usage={usage}
-                        childJobs={chainTips}
-                        activeJobId={panelJobId}
-                        onOpenJob={openJob}
-                        onConversationId={onConversationId}
-                        onActivity={onActivity}
-                        onError={handleError}
-                        onLocked={(message) => promptUpgrade(message)}
-                    />
-                )}
+                {thread}
             </section>
 
-            {/* Draft panel */}
-            {panelJobId && (
-                <div className="absolute inset-0 z-40 flex flex-col bg-white lg:static lg:z-auto lg:w-[420px] lg:border-l lg:border-slate-200 xl:w-[460px]">
-                    <DraftPanel
-                        jobId={panelJobId}
-                        conversationId={activeId}
-                        onClose={() => setPanelJobId(null)}
-                        onChildJob={onChildJob}
-                        onError={handleError}
-                        onLocked={promptUpgrade}
-                        parentJobId={parentOf[panelJobId]}
-                        onOpenJob={openJob}
-                    />
-                </div>
-            )}
+            {panel}
             {modal}
         </div>
     );

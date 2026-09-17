@@ -25,6 +25,7 @@ import { AiJobsService } from './jobs/ai-jobs.service';
 import { QuestionOpsService } from './generation/question-ops.service';
 import { ConversationService } from './chat/conversation.service';
 import { AiChatService } from './chat/ai-chat.service';
+import { ContentEditService } from './edit/content-edit.service';
 import { UpdateConversationDto } from './dto/update-conversation.dto';
 
 type SessionUser = { id: string; orgId?: string | null; role: string };
@@ -49,6 +50,7 @@ export class AiController {
     private readonly questionOps: QuestionOpsService,
     private readonly conversations: ConversationService,
     private readonly chat: AiChatService,
+    private readonly edits: ContentEditService,
   ) {}
 
   @Get('usage')
@@ -82,6 +84,42 @@ export class AiController {
     @Param('id', new ParseUUIDPipe()) id: string,
   ) {
     return this.jobs.cancel(toActor(user), id);
+  }
+
+  /** Starts an AI edit of a draft, course or exam (proposes changes; nothing is saved). */
+  @Post('edits')
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  startEdit(@User() user: SessionUser, @Body() body: Record<string, unknown>) {
+    return this.edits.start(toActor(user), body);
+  }
+
+  @Post('jobs/:id/apply')
+  @Throttle({ default: { limit: 20, ttl: 60_000 } })
+  applyEdit(
+    @User() user: SessionUser,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() body: Record<string, unknown>,
+  ) {
+    return this.edits.apply(toActor(user), id, body);
+  }
+
+  @Post('jobs/:id/undo')
+  @Throttle({ default: { limit: 20, ttl: 60_000 } })
+  undoEdit(
+    @User() user: SessionUser,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ) {
+    return this.edits.undo(toActor(user), id);
+  }
+
+  /** Records which course or exam a draft was saved as, so later edits target it. */
+  @Post('jobs/:id/saved')
+  markDraftSaved(
+    @User() user: SessionUser,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() body: Record<string, unknown>,
+  ) {
+    return this.edits.markSaved(toActor(user), id, body);
   }
 
   @Post('questions/op')

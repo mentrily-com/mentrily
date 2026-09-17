@@ -97,10 +97,12 @@ export class QuestionOpsService {
     this.jobs.assertReferencesAllowed(ctx, input.references.length);
 
     const tier = this.plans.effectiveTier(ctx, OP_TIER[input.op] ?? 'lite');
+    const OP_RESERVATION_TTL_MS = 3 * 60 * 1000;
     const reservation = await this.credits.reserve(
       actor,
       ctx,
       tier === 'lite' ? 10 : 30,
+      OP_RESERVATION_TTL_MS,
     );
     let creditsUsed = 0;
     try {

@@ -17,9 +17,16 @@ export class MonitoringController {
   }
 
   @Post('log-violation')
-  logViolation(@Body() body: any) {
-    // Save to DB associated with session
-    console.log('Violation Logged via HTTP (Fallback):', body);
+  logViolation(@Body() body: { violationType?: string; examId?: string }) {
+    // WARNING: this endpoint does NOT persist anything. Violations are
+    // recorded by the 'log_violation' socket event (monitoring.gateway),
+    // which is the only path that verifies session ownership, counts tab
+    // switches and enforces the limit. Anything sent here is dropped, so
+    // never route real proctoring events through it.
+    console.warn(
+      '[Monitoring] HTTP log-violation received but NOT persisted (socket is the source of truth):',
+      { type: body?.violationType, examId: body?.examId },
+    );
 
     // NOTE: Real-time proctoring primarily uses handleLogViolation in monitoring.gateway.ts
     // We comment this out to prevent double-counting in the monitoring dashboard
@@ -29,7 +36,7 @@ export class MonitoringController {
             .emit('live_violation', body);
         */
 
-    return { status: 'recorded' };
+    return { status: 'not_persisted' };
   }
 
   @Post('heartbeat')

@@ -578,6 +578,8 @@ export class SuperAdminService {
       });
     }
 
+    await this.clearOrgDerivedCaches(id);
+
     return updated;
   }
 

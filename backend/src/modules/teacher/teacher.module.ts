@@ -43,5 +43,7 @@ import { OrganizationModule } from '../organization/organization.module';
     TeacherCoursesService,
     TeacherExamsService,
   ],
+  // Used by the AI module to apply AI edits through the builder's save paths.
+  exports: [TeacherService, TeacherCoursesService, TeacherExamsService],
 })
 export class TeacherModule {}

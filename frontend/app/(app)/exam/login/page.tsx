@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useOrganization } from '@/app/context/OrganizationContext';
 import Loading from '../../loading';
@@ -59,6 +59,39 @@ export default function ExamLoginPage() {
 
     const { organization: orgContext } = useOrganization();
     const [examInfo, setExamInfo] = useState<any>(null);
+    // Only real, known values are shown: an exam with one section doesn't
+    // advertise a section count, and a pass mark appears only when set.
+    const examStats = useMemo(() => {
+        if (!examInfo) return [] as { label: string; value: string }[];
+        const stats: { label: string; value: string }[] = [];
+        const { duration, totalSections, totalQuestions, totalMarks, passingPercentage } = examInfo;
+        if (typeof duration === 'number' && duration > 0) stats.push({ label: 'Duration', value: `${duration} min` });
+        if (typeof totalSections === 'number' && totalSections > 1)
+            stats.push({ label: 'Sections', value: String(totalSections) });
+        if (typeof totalQuestions === 'number' && totalQuestions > 0)
+            stats.push({ label: 'Questions', value: String(totalQuestions) });
+        if (typeof totalMarks === 'number' && totalMarks > 0)
+            stats.push({ label: 'Total marks', value: String(totalMarks) });
+        if (typeof passingPercentage === 'number' && passingPercentage > 0)
+            stats.push({ label: 'Pass mark', value: `${passingPercentage}%` });
+        return stats;
+    }, [examInfo]);
+
+    const examTips = useMemo(() => {
+        const attempts = Number(examInfo?.maxAttempts ?? 1);
+        const minutes = Number(examInfo?.duration);
+        return [
+            'Have your test code ready — your teacher shares it with you.',
+            'Use a stable connection, and close other tabs and apps before you start.',
+            Number.isFinite(minutes) && minutes > 0
+                ? `The ${minutes}-minute timer starts as soon as you enter, and runs until you submit.`
+                : 'The timer starts as soon as you enter, and runs until you submit.',
+            attempts > 1
+                ? `You have ${attempts} attempts at this exam.`
+                : 'You get one attempt, so start when you are ready.',
+        ];
+    }, [examInfo]);
+
     const slugFromQuery = searchParams?.get('slug');
     const afterSignInUrl = `/exam/login${slugFromQuery ? `?slug=${encodeURIComponent(slugFromQuery)}` : ''}`;
     const oauthMode = searchParams.get('oauth');
@@ -446,9 +479,7 @@ export default function ExamLoginPage() {
                                         <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-0.5">
                                             Exam
                                         </span>
-                                        <p className="text-xs font-bold text-slate-900 truncate">
-                                            {examInfo.title}
-                                        </p>
+                                        <p className="text-xs font-bold text-slate-900 truncate">{examInfo.title}</p>
                                     </div>
                                     <div className="flex items-center gap-2 shrink-0">
                                         {typeof examInfo.duration === 'number' && (
@@ -766,36 +797,23 @@ export default function ExamLoginPage() {
                         <h2 className="text-4xl lg:text-5xl font-black tracking-tight mb-3 leading-tight">
                             {examInfo?.title || 'Secure Examination'}
                         </h2>
-                        <p className="text-indigo-100 font-medium text-lg mb-8 max-w-lg leading-relaxed">
+                        <p className="text-indigo-100 font-medium text-lg mb-8 max-w-lg leading-relaxed line-clamp-4">
                             {examInfo?.shortDescription || 'Please authenticate to begin your examination'}
                         </p>
 
-                        {examInfo && (
+                        {examStats.length > 0 && (
                             <div className="flex flex-wrap gap-3 mb-10">
-                                {typeof examInfo.duration === 'number' && (
-                                    <div className="px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/15">
+                                {examStats.map((stat) => (
+                                    <div
+                                        key={stat.label}
+                                        className="px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/15"
+                                    >
                                         <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-200">
-                                            Duration
+                                            {stat.label}
                                         </p>
-                                        <p className="text-lg font-black">{examInfo.duration} min</p>
+                                        <p className="text-lg font-black">{stat.value}</p>
                                     </div>
-                                )}
-                                {typeof examInfo.totalQuestions === 'number' && (
-                                    <div className="px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/15">
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-200">
-                                            Questions
-                                        </p>
-                                        <p className="text-lg font-black">{examInfo.totalQuestions}</p>
-                                    </div>
-                                )}
-                                {typeof examInfo.totalMarks === 'number' && examInfo.totalMarks > 0 && (
-                                    <div className="px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/15">
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-200">
-                                            Total Marks
-                                        </p>
-                                        <p className="text-lg font-black">{examInfo.totalMarks}</p>
-                                    </div>
-                                )}
+                                ))}
                             </div>
                         )}
 
@@ -804,11 +822,7 @@ export default function ExamLoginPage() {
                                 Before you begin
                             </p>
                             <ul className="space-y-2.5">
-                                {[
-                                    'Keep your test code ready — your teacher shared it with you.',
-                                    'Use a stable internet connection and close other tabs.',
-                                    'Once you start, the timer runs until you submit.',
-                                ].map((tip) => (
+                                {examTips.map((tip) => (
                                     <li
                                         key={tip}
                                         className="flex items-start gap-2.5 text-sm text-indigo-50 font-medium"

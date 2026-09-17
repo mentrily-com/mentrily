@@ -12,6 +12,7 @@ import {
   BlueprintQuestion,
   BlueprintSection,
   QuestionType,
+  RawCoding,
   RawGeneratedQuestion,
   blueprintSchema,
   buildSectionSchema,
@@ -20,11 +21,15 @@ import {
 import {
   BLUEPRINT_SYSTEM,
   BriefInput,
+  EDIT_PLAN_SYSTEM,
   QUESTION_OP_SYSTEM,
+  QUESTION_OP_SYSTEM_CODING,
   QuestionOp,
   SECTION_SYSTEM,
+  SECTION_SYSTEM_CODING,
   SUMMARY_SYSTEM,
   blueprintPrompt,
+  editPlanPrompt,
   questionOpPrompt,
   sectionPrompt,
 } from '../prompts/generation.prompts';
@@ -38,7 +43,9 @@ import {
   newId,
   toBuilderQuestion,
 } from '../quality/normalize';
+import { splitCodingStatement } from '../quality/coding-format';
 import { validateQuestion } from '../quality/validators';
+import { EditPlan, editPlanSchema } from '../schemas/edit.schemas';
 import { CodingVerifierService } from '../quality/coding-verifier.service';
 import { plainText, sanitizeRichText } from '../quality/sanitize';
 
@@ -49,11 +56,12 @@ export type ChargeFn = (
 ) => Promise<void>;
 
 // Typical output per item, used for credit estimates. Calibrated against the
-// AiUsage ledger (a Reading + MCQ + Coding section averages ~1.4k tokens).
+// AiUsage ledger (a Reading + MCQ + Coding section averages ~1.4k tokens);
+// Coding includes the header/starter/footer split and statement parts.
 const OUTPUT_TOKENS_TYPICAL: Record<QuestionType, number> = {
   MCQ: 200,
   MultiSelect: 230,
-  Coding: 700,
+  Coding: 1100,
   Web: 600,
   Reading: 500,
   Notebook: 400,
@@ -63,7 +71,7 @@ const OUTPUT_TOKENS_TYPICAL: Record<QuestionType, number> = {
 const OUTPUT_TOKENS_MAX: Record<QuestionType, number> = {
   MCQ: 900,
   MultiSelect: 1000,
-  Coding: 3600,
+  Coding: 5200,
   Web: 2600,
   Reading: 3000,
   Notebook: 1800,
@@ -153,6 +161,35 @@ export class GenerationService {
     return this.normalizeBlueprint(brief, data);
   }
 
+  /** Plans the operations for an edit request against an outline. */
+  async planEdit(
+    input: {
+      outline: string;
+      instruction: string;
+      allowedTypes: QuestionType[];
+      maxNewItems: number;
+      tier: AiTier;
+    },
+    charge: ChargeFn,
+    signal?: AbortSignal,
+  ): Promise<EditPlan> {
+    const { data } = await this.callStructured(
+      {
+        tier: input.tier,
+        system: EDIT_PLAN_SYSTEM,
+        prompt: editPlanPrompt(input),
+        schema: editPlanSchema,
+        schemaName: 'edit_plan',
+        maxOutputTokens: 4000,
+        timeoutMs: 90_000,
+        abortSignal: signal,
+      },
+      'plan',
+      charge,
+    );
+    return data;
+  }
+
   normalizeBlueprint(
     brief: BriefInput,
     raw: z.infer<typeof blueprintSchema>,
@@ -224,7 +261,9 @@ export class GenerationService {
       this.callStructured(
         {
           tier: input.tier,
-          system: SECTION_SYSTEM,
+          system: types.includes('Coding')
+            ? SECTION_SYSTEM_CODING
+            : SECTION_SYSTEM,
           prompt: sectionPrompt({ ...input, feedback }),
           schema,
           schemaName: 'section',
@@ -390,7 +429,8 @@ export class GenerationService {
     const { data } = await this.callStructured(
       {
         tier: input.tier,
-        system: QUESTION_OP_SYSTEM,
+        system:
+          type === 'Coding' ? QUESTION_OP_SYSTEM_CODING : QUESTION_OP_SYSTEM,
         prompt: questionOpPrompt({
           op: input.op,
           question: toRawQuestion(input.question),
@@ -414,7 +454,19 @@ export class GenerationService {
       difficulty: input.question.difficulty,
       marks: input.question.marks,
     };
-    const next = toBuilderQuestion(data as RawGeneratedQuestion, plan, [type]);
+    // Keep the teacher's languages rather than whatever the model returns.
+    const languages = Object.keys(
+      input.question.codingConfig?.templates ?? {},
+    ).filter(
+      (lang): lang is 'python' | 'javascript' =>
+        lang === 'python' || lang === 'javascript',
+    );
+    const next = toBuilderQuestion(
+      data as RawGeneratedQuestion,
+      plan,
+      [type],
+      languages.length ? languages : undefined,
+    );
     const issues = validateQuestion(next);
     return {
       ...next,
@@ -493,21 +545,37 @@ export function toRawQuestion(q: BuilderQuestion): RawGeneratedQuestion {
     raw.options = q.options.map(({ text, isCorrect }) => ({ text, isCorrect }));
   }
   if (q.codingConfig) {
-    raw.starterCode = {};
-    raw.solution = {};
+    const statement = splitCodingStatement(q.problemStatement);
+    raw.problemStatement = statement.task;
+    const templates: RawCoding['templates'] = {};
     for (const [lang, tpl] of Object.entries(q.codingConfig.templates)) {
       if (lang === 'javascript' || lang === 'python') {
-        raw.starterCode[lang] = tpl.body;
-        raw.solution[lang] = tpl.solution;
+        templates[lang] = {
+          header: tpl.head,
+          starter: tpl.body,
+          footer: tpl.tail,
+          solution: tpl.solution,
+        };
       }
     }
-    raw.testCases = q.codingConfig.testCases.map(
-      ({ input, output, isPublic }) => ({
-        input,
-        output,
-        isPublic,
-      }),
-    );
+    let publicIndex = 0;
+    raw.coding = {
+      functionDescription: statement.functionDescription,
+      inputFormat: statement.inputFormat,
+      outputFormat: statement.outputFormat,
+      constraints: statement.constraints,
+      templates,
+      testCases: q.codingConfig.testCases.map(
+        ({ input, output, isPublic }) => ({
+          input,
+          output,
+          isPublic,
+          ...(isPublic && statement.explanations[publicIndex]
+            ? { explanation: statement.explanations[publicIndex++] }
+            : {}),
+        }),
+      ),
+    };
   }
   if (q.webConfig) {
     raw.web = {

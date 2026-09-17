@@ -27,10 +27,25 @@ export function draftToSections(draft: AiDraft, selected?: Set<string>, sequenti
         .filter((section) => section.questions.length > 0);
 }
 
+/**
+ * Short descriptions are capped at 300 characters. A hard slice cut sentences
+ * mid-word on exam and course cards ("...validates your read"), so trim back
+ * to the last sentence or word instead.
+ */
+function summarize(text: string, max = 300): string {
+    const clean = (text || '').trim();
+    if (clean.length <= max) return clean;
+    const cut = clean.slice(0, max - 1);
+    const sentenceEnd = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('! '), cut.lastIndexOf('? '));
+    if (sentenceEnd > max * 0.5) return cut.slice(0, sentenceEnd + 1);
+    const wordEnd = cut.lastIndexOf(' ');
+    return `${(wordEnd > max * 0.5 ? cut.slice(0, wordEnd) : cut).replace(/[\s.,;:]+$/, '')}…`;
+}
+
 export function draftToCourse(draft: AiDraft, selected?: Set<string>): Course {
     return {
         title: draft.title,
-        shortDescription: draft.description.slice(0, 300),
+        shortDescription: summarize(draft.description),
         longDescription: draft.summary || draft.description,
         difficulty: 'Intermediate',
         tags: [],
@@ -46,7 +61,7 @@ export function draftToExam(draft: AiDraft, selected?: Set<string>): Partial<Cou
     const totalMarks = sections.reduce((acc, s) => acc + s.questions.reduce((a, q) => a + (q.marks || 0), 0), 0);
     return {
         title: draft.title,
-        shortDescription: draft.description.slice(0, 300),
+        shortDescription: summarize(draft.description),
         longDescription: draft.description,
         difficulty: 'Intermediate',
         tags: [],

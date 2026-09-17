@@ -33,6 +33,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: 0.9,
     };
 
+    const ai = {
+        url: `${siteConfig.url}/ai`,
+        lastModified: now,
+        changeFrequency: 'weekly' as const,
+        priority: 0.9,
+    };
+
     const playground = publicPlaygroundSeoEntries.map((entry) => ({
         url: `${siteConfig.url}/${entry.slug}`,
         lastModified: now,
@@ -40,5 +47,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: 0.8,
     }));
 
-    return [...marketing, compilerHub, ...playground];
+    return [...marketing, ai, compilerHub, ...playground];
 }

@@ -25,12 +25,23 @@ export class UserAwareThrottlerGuard extends ThrottlerGuard {
           tracker = `token:${token.slice(-40)}`;
         }
       } else {
-        const rawIp = req.ips?.length ? req.ips[0] : req.ip || 'unknown-ip';
-        const deviceId = req.body?.deviceId || req.headers?.['x-device-id'];
-        if (deviceId) {
-          tracker = `ip-device:${rawIp}:${deviceId}`;
+        // 3. Check Clerk session cookie from req.cookies or raw cookie header
+        const sessionCookie =
+          req.cookies?.__session ||
+          (typeof req.headers?.cookie === 'string'
+            ? req.headers.cookie.match(/__session=([^;]+)/)?.[1]
+            : undefined);
+
+        if (sessionCookie && typeof sessionCookie === 'string' && sessionCookie.trim()) {
+          tracker = `cookie:${sessionCookie.trim().slice(-40)}`;
         } else {
-          tracker = `ip:${rawIp}`;
+          const rawIp = req.ips?.length ? req.ips[0] : req.ip || 'unknown-ip';
+          const deviceId = req.body?.deviceId || req.headers?.['x-device-id'];
+          if (deviceId) {
+            tracker = `ip-device:${rawIp}:${deviceId}`;
+          } else {
+            tracker = `ip:${rawIp}`;
+          }
         }
       }
     }

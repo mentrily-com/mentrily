@@ -80,9 +80,10 @@ export class ExamDeadlineSweeperService
   private async sweep() {
     if (this.sweeping) return; // in-process guard against overlapping ticks
     const lockKey = 'exam:deadline-sweep:lock';
+    const lockToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
     const gotLock = await this.redis.set(
       lockKey,
-      '1',
+      lockToken,
       'PX',
       this.lockTtlMs,
       'NX',
@@ -100,7 +101,8 @@ export class ExamDeadlineSweeperService
           AND e.duration IS NOT NULL
           AND es."startTime"
             + ((e.duration * 60) + ${this.graceSeconds}) * INTERVAL '1 second'
-            < NOW()
+            < (NOW() AT TIME ZONE 'UTC')
+        ORDER BY es."startTime" ASC
         LIMIT ${this.batchSize}
       `;
 
@@ -111,11 +113,14 @@ export class ExamDeadlineSweeperService
           name: 'auto_submit',
           data: { sessionId: id },
           opts: {
-            // Coalesce with any auto_submit already scheduled/queued for
-            // this session (e.g. from a just-arrived late write).
             jobId: `auto-submit-${id}`,
             removeOnComplete: true,
-            removeOnFail: 50,
+            removeOnFail: true,
+            attempts: 3,
+            backoff: {
+              type: 'exponential',
+              delay: 2000,
+            },
           },
         })),
       );
@@ -125,7 +130,15 @@ export class ExamDeadlineSweeperService
       );
     } finally {
       this.sweeping = false;
-      await this.redis.del(lockKey).catch(() => {});
+      // Atomic lock release via Lua to avoid releasing another worker's acquired lock
+      const unlockLua = `
+        if redis.call('get', KEYS[1]) == ARGV[1] then
+          return redis.call('del', KEYS[1])
+        else
+          return 0
+        end
+      `;
+      await this.redis.eval(unlockLua, 1, lockKey, lockToken).catch(() => {});
     }
   }
 }

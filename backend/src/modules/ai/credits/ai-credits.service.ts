@@ -116,6 +116,7 @@ export class AiCreditsService {
     actor: AiActor,
     ctx: AiPlanContext,
     amount: number,
+    ttlMs = RESERVATION_TTL_MS,
   ): Promise<CreditReservation> {
     const period = this.period();
     const reservation: CreditReservation = {
@@ -138,7 +139,7 @@ export class AiCreditsService {
       String(reservation.amount),
       `${reservation.id}|${reservation.amount}`,
       String(now),
-      String(now + RESERVATION_TTL_MS),
+      String(now + ttlMs),
       String(COUNTER_TTL_SECONDS),
     )) as [number, number, number];
 
@@ -250,9 +251,17 @@ export class AiCreditsService {
     return Number((await this.redis.get(`ai:msgs:${scope}:${day}`)) ?? 0);
   }
 
-  async assertJobSlot(actor: AiActor, ctx: AiPlanContext): Promise<void> {
+  async acquireJobSlot(
+    actor: AiActor,
+    ctx: AiPlanContext,
+  ): Promise<() => Promise<void>> {
     const limit = this.plans.limit(ctx, 'aiConcurrentJobs');
-    if (limit < 0) return;
+    if (limit < 0) return async () => {};
+
+    const holdKey = `ai:job_hold:${ctx.scope}`;
+    const hold = await this.redis.incr(holdKey);
+    if (hold === 1) await this.redis.expire(holdKey, 60);
+
     const active = await this.prisma.aiJob.count({
       where: {
         ...(actor.orgId ? { orgId: actor.orgId } : { userId: actor.userId }),
@@ -260,7 +269,9 @@ export class AiCreditsService {
         createdAt: { gte: new Date(Date.now() - ACTIVE_JOB_WINDOW_MS) },
       },
     });
-    if (active >= limit) {
+
+    if (active + (hold - 1) >= limit) {
+      await this.redis.decr(holdKey).catch(() => undefined);
       throw new HttpException(
         {
           code: 'AI_CONCURRENCY_LIMIT',
@@ -273,6 +284,15 @@ export class AiCreditsService {
         HttpStatus.TOO_MANY_REQUESTS,
       );
     }
+
+    return async () => {
+      await this.redis.decr(holdKey).catch(() => undefined);
+    };
+  }
+
+  async assertJobSlot(actor: AiActor, ctx: AiPlanContext): Promise<void> {
+    const release = await this.acquireJobSlot(actor, ctx);
+    await release();
   }
 
   async summary(actor: AiActor) {

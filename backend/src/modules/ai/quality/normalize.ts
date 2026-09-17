@@ -6,6 +6,11 @@ import {
   QuestionType,
   RawGeneratedQuestion,
 } from '../schemas/generation.schemas';
+import {
+  cleanCode,
+  composeCodingStatement,
+  splitCodingStatement,
+} from './coding-format';
 import { asText, plainText, sanitizeRichText } from './sanitize';
 
 /** Matches frontend/app/components/Authoring/types.ts `Question`. */
@@ -76,11 +81,12 @@ export interface BuilderSection {
   questions: GeneratedQuestion[];
 }
 
+// Only used when the model returned no code at all (placeholders).
 const STARTER: Record<string, string> = {
   javascript:
-    "const input = require('fs').readFileSync(0, 'utf8').trim();\n\n// Write your solution here\n",
+    "const input = require('fs').readFileSync(0, 'utf8').trim();\n\n// Write your solution here",
   python:
-    'import sys\n\ndata = sys.stdin.read().strip()\n\n# Write your solution here\n',
+    'import sys\n\ndata = sys.stdin.read().strip()\n\n# Write your solution here',
 };
 
 export function newId(prefix: string): string {
@@ -171,19 +177,21 @@ export function toBuilderQuestion(
   }
 
   if (type === 'Coding') {
+    const coding = raw.coding;
     const templates: NonNullable<BuilderQuestion['codingConfig']>['templates'] =
       {};
     const languages = codingLanguages?.length
       ? codingLanguages
       : (['python', 'javascript'] as const);
     for (const lang of languages) {
-      const solution = String(raw.solution?.[lang] ?? '').trim();
-      const starter = String(raw.starterCode?.[lang] ?? '').trim();
-      if (!solution && !starter) continue;
+      const tpl = coding?.templates?.[lang];
+      const starter = cleanCode(tpl?.starter);
+      const solution = cleanCode(tpl?.solution);
+      if (!starter && !solution) continue;
       templates[lang] = {
-        head: '',
+        head: cleanCode(tpl?.header),
         body: starter || STARTER[lang],
-        tail: '',
+        tail: cleanCode(tpl?.footer),
         solution,
       };
     }
@@ -195,7 +203,7 @@ export function toBuilderQuestion(
         solution: '',
       };
     }
-    const cases = (Array.isArray(raw.testCases) ? raw.testCases : [])
+    const cases = (Array.isArray(coding?.testCases) ? coding.testCases : [])
       .filter((tc) => tc && String(tc.output ?? '').trim() !== '')
       .slice(0, 6);
     const points = distributePoints(
@@ -203,8 +211,10 @@ export function toBuilderQuestion(
       cases.length,
     );
     const testCases = cases.map((tc, idx) => ({
-      input: String(tc.input ?? ''),
-      output: String(tc.output ?? '').trim(),
+      input: String(tc.input ?? '').replace(/\r\n?/g, '\n'),
+      output: String(tc.output ?? '')
+        .replace(/\r\n?/g, '\n')
+        .trim(),
       isPublic: Boolean(tc.isPublic),
       points: points[idx],
     }));
@@ -213,6 +223,36 @@ export function toBuilderQuestion(
     }
     question.codingConfig = { templates, testCases, showTestCases: false };
     question.marks = testCases.reduce((acc, tc) => acc + tc.points, 0) || marks;
+
+    if (coding) {
+      // A model that echoes an already-composed statement back into the task
+      // would otherwise get every section twice.
+      const echoed = splitCodingStatement(question.problemStatement);
+      const constraints = (
+        Array.isArray(coding.constraints) ? coding.constraints : []
+      )
+        .map(asText)
+        .filter((c) => c.trim())
+        .slice(0, 8);
+      // Sanitised when composed; may carry inline <code>.
+      const explanations = cases.map((tc) =>
+        asText(tc.explanation).slice(0, 600),
+      );
+      question.problemStatement = composeCodingStatement(
+        {
+          task: echoed.task,
+          functionDescription:
+            asText(coding.functionDescription) || echoed.functionDescription,
+          inputFormat: asText(coding.inputFormat) || echoed.inputFormat,
+          outputFormat: asText(coding.outputFormat) || echoed.outputFormat,
+          constraints: constraints.length ? constraints : echoed.constraints,
+          examples: testCases
+            .map((tc, idx) => ({ ...tc, explanation: explanations[idx] }))
+            .filter((tc) => tc.isPublic),
+        },
+        templates,
+      );
+    }
   }
 
   if (type === 'Web') {

@@ -6,6 +6,8 @@ import { useAuth } from '@clerk/nextjs';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Building2, ChevronsUpDown, Check, Loader2, Plus, GraduationCap, Presentation } from 'lucide-react';
 import { AuthService, WorkspaceMembership } from '@/services/api/AuthService';
+import { StudentService } from '@/services/api/StudentService';
+import { ExamService } from '@/services/api/ExamService';
 import { useSession } from '@/hooks/useSession';
 import { buildOrgUrl, getRootDomain, getCurrentSubdomain } from '@/lib/domain';
 
@@ -341,11 +343,21 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
             // Invalidate workspace memberships query so membership list stays fresh
             queryClient.invalidateQueries({ queryKey: ['workspace-memberships'] });
 
-            // 4. Remove stale dashboard query caches so new workspace data renders fresh
-            queryClient.removeQueries({ queryKey: ['student-dashboard'] });
-            queryClient.removeQueries({ queryKey: ['student-announcements'] });
-            queryClient.removeQueries({ queryKey: ['teacher-dashboard'] });
-            queryClient.removeQueries({ queryKey: ['super-admin-stats'] });
+            // 4. Clear service-level memory caches and wipe all tenant query caches
+            StudentService.clearCache();
+            ExamService.clearCache();
+            queryClient.removeQueries({
+                predicate: (query) => {
+                    const key = query.queryKey[0];
+                    return (
+                        typeof key === 'string' &&
+                        (key.startsWith('student-') ||
+                            key.startsWith('teacher-') ||
+                            key.startsWith('admin-') ||
+                            key.startsWith('super-admin-'))
+                    );
+                },
+            });
 
             // 5. Seamless client navigation
             landOnDashboard(membership);

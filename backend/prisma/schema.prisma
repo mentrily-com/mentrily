@@ -196,6 +196,9 @@ model Exam {
   @@index([creatorId, startTime])
   @@index([isActive, testCodeType])
   @@index([isActive, testCodeType, rotationInterval])
+  @@index([orgId, isActive])
+  @@index([orgId, isActive, startTime])
+  @@index([orgId, createdAt(sort: Desc)])
 }
 
 model ExamSession {
@@ -233,6 +236,9 @@ model ExamSession {
   @@index([userId, examId, status]) // Hot path: start/resume session + attempt counting
   @@index([status, startTime])
   @@index([userId, createdAt(sort: Desc)])
+  @@index([examId, endTime(sort: Desc)])
+  @@index([examId, score])
+  @@index([examId, status])
 }
 
 model Violation {
@@ -330,6 +336,9 @@ model Course {
   @@index([certificateTemplateId])
   @@index([creatorId, updatedAt(sort: Desc)])
   @@index([orgId, updatedAt(sort: Desc)])
+  @@index([isVisible, orgId])
+  @@index([orgId, createdAt(sort: Desc)])
+  @@index([orgId, status])
 }
 
 model CourseModule {
@@ -619,6 +628,8 @@ model SubscriptionEvent {
   organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@index([orgId, createdAt])
+  @@index([createdAt(sort: Desc)])
+  @@index([eventType, createdAt(sort: Desc)])
 }
 
 model PendingInvite {
@@ -857,6 +868,7 @@ model AiUsage {
   @@index([provider])
   @@index([operation])
   @@index([jobId])
+  @@index([conversationId])
 }
 
 model AiConversation {
@@ -916,6 +928,9 @@ model AiJob {
   @@index([userId, createdAt(sort: Desc)])
   @@index([orgId, status])
   @@index([userId, status])
+  @@index([conversationId])
+  @@index([orgId, status, createdAt])
+  @@index([userId, status, createdAt])
 }
 
 model Asset {

@@ -53,6 +53,11 @@ export const useExamSocket = (
 
     // --- Persistent refs (never stale in callbacks) ---
     const isKicked = useRef(false);
+    // Violations raised while the socket is down (network blip, reconnect,
+    // or before the first connect). They are emitted once it is back, so a
+    // tab switch during that window is still recorded instead of vanishing.
+    const pendingViolations = useRef<Record<string, unknown>[]>([]);
+    const MAX_PENDING_VIOLATIONS = 200;
     const hasEverConnected = useRef(false); // tracks if socket confirmed connected at least once
     const lastHeartbeatAck = useRef<number>(Date.now());
     const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -267,6 +272,21 @@ export const useExamSocket = (
 
             // Restart heartbeat bound to this fresh socket
             if (sessionIdRef.current) startHeartbeat(socket);
+
+            // Send anything captured while the socket was down, keeping the
+            // time each one actually happened.
+            if (pendingViolations.current.length > 0 && sessionIdRef.current) {
+                const queued = pendingViolations.current;
+                pendingViolations.current = [];
+                console.warn(`[Socket] Flushing ${queued.length} queued violation(s)`);
+                queued.forEach((violation) =>
+                    socket.emit('log_violation', {
+                        ...violation,
+                        sessionId: sessionIdRef.current,
+                        queued: true,
+                    }),
+                );
+            }
         });
 
         // ── heartbeat ack ───────────────────────────────────────────────────
@@ -457,16 +477,27 @@ export const useExamSocket = (
     }, []);
 
     const logViolation = useCallback((type: string, message: string, details?: any) => {
-        if (!isKicked.current && socketRef.current?.connected && sessionIdRef.current) {
-            socketRef.current.emit('log_violation', {
-                sessionId: sessionIdRef.current,
-                examId: examIdRef.current,
-                userId: userIdRef.current,
-                type,
-                message,
-                details,
-                timestamp: new Date(),
-            });
+        if (isKicked.current) return;
+
+        const violation = {
+            sessionId: sessionIdRef.current,
+            examId: examIdRef.current,
+            userId: userIdRef.current,
+            type,
+            message,
+            details,
+            timestamp: new Date().toISOString(),
+        };
+
+        if (socketRef.current?.connected && sessionIdRef.current) {
+            socketRef.current.emit('log_violation', violation);
+            return;
+        }
+
+        // Offline or still connecting: hold it rather than drop it. The cap
+        // keeps a long outage from growing this without bound.
+        if (pendingViolations.current.length < MAX_PENDING_VIOLATIONS) {
+            pendingViolations.current.push(violation);
         }
     }, []);
 

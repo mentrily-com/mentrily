@@ -186,4 +186,20 @@ describe('CodeExecutionService', () => {
       ]),
     ).rejects.toBeInstanceOf(NotFoundException);
   });
+
+  it('shares one execution between identical concurrent runs and sets a deadline', async () => {
+    const { service, add } = makeService([], { same: 'out' });
+
+    const [a, b] = await Promise.all([
+      service.runCode('python', 'print(1)', 'same'),
+      service.runCode('python', 'print(1)', 'same'),
+    ]);
+
+    expect(add).toHaveBeenCalledTimes(1);
+    expect(a.stdout).toBe('out');
+    expect(b.stdout).toBe('out');
+    const data = add.mock.calls[0][1];
+    expect(data.deadline).toBeGreaterThan(Date.now());
+    expect((service as any).inFlight.size).toBe(0);
+  });
 });

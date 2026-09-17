@@ -14,7 +14,10 @@ import { Redis } from 'ioredis';
 import { SubmissionService } from '../submission/submission.service';
 import { SupabaseService } from '../../services/supabase/supabase.service';
 import { verifyToken } from '@clerk/backend';
-import { createAdapter } from '@socket.io/redis-adapter';
+import {
+  closeSocketRedisAdapter,
+  ensureSocketRedisAdapter,
+} from '../common/socket-redis-adapter';
 import { OnModuleDestroy } from '@nestjs/common';
 import {
   getAllowedWebOrigins,
@@ -64,8 +67,8 @@ export class MonitoringGateway
   @WebSocketServer()
   server: Server;
 
-  private redisPubClient: Redis | null = null;
-  private redisSubClient: Redis | null = null;
+  private installedAdapter = false;
+  private rootServer: any = null;
 
   private readonly violationCounterTtlSec = 6 * 60 * 60;
 
@@ -138,6 +141,11 @@ export class MonitoringGateway
   ): Promise<{ id: string; role: string } | null> {
     if (client.data.dbUser) {
       return client.data.dbUser;
+    }
+
+    // Wait for handleConnection's token check (see the note there).
+    if (client.data.authReady) {
+      await client.data.authReady;
     }
 
     const clerkId = String(client.data.userId || '');
@@ -221,6 +229,17 @@ export class MonitoringGateway
     );
   }
 
+  /** Client-reported time, trusted only inside a sane window. */
+  private resolveViolationTime(raw?: string | Date): Date {
+    const now = Date.now();
+    if (!raw) return new Date(now);
+    const parsed = new Date(raw).getTime();
+    if (!Number.isFinite(parsed)) return new Date(now);
+    const sixHoursAgo = now - 6 * 60 * 60 * 1000;
+    if (parsed > now || parsed < sixHoursAgo) return new Date(now);
+    return new Date(parsed);
+  }
+
   private async getViolationCounts(
     sessionId: string,
   ): Promise<{ inCount: number; outCount: number }> {
@@ -284,29 +303,36 @@ export class MonitoringGateway
     return Number(results?.[0]?.[1] ?? 0);
   }
 
-  async afterInit(server: Server) {
-    this.redisPubClient = this.redis.duplicate();
-    this.redisSubClient = this.redis.duplicate();
+  afterInit(server: Server) {
     const ioTarget: any = server || this.server;
     const rootServer =
       typeof ioTarget?.adapter === 'function' ? ioTarget : ioTarget?.server;
 
-    if (!rootServer || typeof rootServer.adapter !== 'function') {
-      throw new Error('Socket.IO root server adapter API is unavailable');
-    }
-
-    rootServer.adapter(createAdapter(this.redisPubClient, this.redisSubClient));
+    // Shared across gateways: installing a second adapter on the same server
+    // leaves the first one subscribed, so serverCount() over-counts and every
+    // cluster-wide call (fetchSockets) waits for a reply that never arrives.
+    this.installedAdapter = ensureSocketRedisAdapter(rootServer, this.redis);
+    this.rootServer = rootServer;
     console.log('Proctoring Gateway initialized');
   }
 
   async onModuleDestroy() {
-    await Promise.all([
-      this.redisPubClient?.quit(),
-      this.redisSubClient?.quit(),
-    ]);
+    if (this.installedAdapter) {
+      await closeSocketRedisAdapter(this.rootServer);
+    }
   }
 
   async handleConnection(client: Socket) {
+    // Socket.IO delivers 'connect' to the client as soon as the transport is
+    // up, so a client that emits immediately (the exam page emits join_exam
+    // from its connect handler) could arrive before this async verification
+    // finished and be rejected as UNAUTHENTICATED — silently leaving that
+    // student out of their room, with no monitoring and no device takeover.
+    // Handlers await this promise instead of reading client.data.userId raw.
+    let settleAuth: () => void = () => undefined;
+    client.data.authReady = new Promise<void>((resolve) => {
+      settleAuth = resolve;
+    });
     try {
       const token = this.extractToken(client);
       if (!token) throw new Error('No token provided');
@@ -317,6 +343,7 @@ export class MonitoringGateway
       client.data.userId = payload.sub;
 
       console.log(`Client connected and authenticated: ${client.id}`);
+      settleAuth();
     } catch (error) {
       console.log(
         `Client connection rejected (unauthorized): ${client.id}`,
@@ -326,6 +353,7 @@ export class MonitoringGateway
       // and can decide whether to retry (stale token) or redirect to login.
       client.emit('auth_error', { message: 'AUTH_FAILED' });
       // Small delay so the event is flushed before the transport closes
+      settleAuth();
       setTimeout(() => client.disconnect(true), 100);
     }
   }
@@ -396,20 +424,30 @@ export class MonitoringGateway
       // Student logic - Takeover (Kick Out) Model
       const studentRoom = `student_${socketUser.id}_exam_${data.examId}`;
 
-      // 1. SURGICAL KICK: Disconnect only OTHER sockets in this student's room
-      const peers = await this.server.in(studentRoom).fetchSockets();
+      // 1. SURGICAL KICK: Disconnect only OTHER sockets in this student's room.
+      // fetchSockets() is a cluster-wide round trip; if it fails or times out
+      // the student must still join, so this never aborts the handler.
+      try {
+        const peers = await this.server.in(studentRoom).fetchSockets();
 
-      for (const s of peers) {
-        if (s.id !== client.id) {
-          console.log(
-            `[JoinExam] Surgical kick for old socket ${s.id} (user ${data.userId})`,
-          );
-          s.emit('error', {
-            message:
-              'Another instance of this exam is active. This session is now inactive.',
-          });
-          s.disconnect(true);
+        for (const s of peers) {
+          if (s.id !== client.id) {
+            console.log(
+              `[JoinExam] Surgical kick for old socket ${s.id} (user ${data.userId})`,
+            );
+            s.emit('error', {
+              message:
+                'Another instance of this exam is active. This session is now inactive.',
+            });
+            s.disconnect(true);
+          }
         }
+      } catch (error) {
+        console.error(
+          `[JoinExam] Could not enumerate peers for ${studentRoom}: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        );
       }
 
       // JOIN the room for future displacement
@@ -422,9 +460,13 @@ export class MonitoringGateway
       // Establish live presence on join only if ownership is verified.
       // Check presence gap before recording to prevent erasing offline gaps.
       if (data.sessionId) {
-        const ownerId = await this.submissionService.getSessionOwner(data.sessionId);
+        const ownerId = await this.submissionService.getSessionOwner(
+          data.sessionId,
+        );
         if (ownerId === socketUser.id) {
-          const gapMs = await this.submissionService.getPresenceGapMs(data.sessionId);
+          const gapMs = await this.submissionService.getPresenceGapMs(
+            data.sessionId,
+          );
           await this.submissionService.recordPresence(data.sessionId);
 
           if (gapMs !== null && gapMs > 75_000) {
@@ -441,13 +483,15 @@ export class MonitoringGateway
                 },
               })
               .catch(() => {});
-            this.server.to(`exam_${data.examId}_monitor`).emit('live_violation', {
-              userId: socketUser.id,
-              type: 'HEARTBEAT_GAP',
-              message,
-              details: { gapMs },
-              timestamp: new Date(),
-            });
+            this.server
+              .to(`exam_${data.examId}_monitor`)
+              .emit('live_violation', {
+                userId: socketUser.id,
+                type: 'HEARTBEAT_GAP',
+                message,
+                details: { gapMs },
+                timestamp: new Date(),
+              });
           }
         }
       }
@@ -582,6 +626,7 @@ export class MonitoringGateway
       type: string;
       message: string;
       details?: any;
+      timestamp?: string | Date;
     },
     @ConnectedSocket() client: Socket,
   ) {
@@ -673,6 +718,12 @@ export class MonitoringGateway
       return { status: 'rejected', reason: 'Session inactive' };
     }
 
+    // A client that was offline when the violation happened sends it on
+    // reconnect, so keep the time it actually occurred. Clamped to a sane
+    // window: never in the future, never more than 6h old, so a wrong or
+    // tampered clock can't rewrite the timeline.
+    const occurredAt = this.resolveViolationTime(data.timestamp);
+
     // Save to DB asynchronously to avoid blocking the real-time event pipeline
     void this.prisma.violation
       .create({
@@ -681,7 +732,7 @@ export class MonitoringGateway
           type: data.type,
           message: data.message,
           severity: 'WARNING',
-          timestamp: new Date(),
+          timestamp: occurredAt,
         },
       })
       .catch((err) => {
@@ -725,9 +776,9 @@ export class MonitoringGateway
                 UPDATE "ExamSession"
                 SET
                     "status" = 'TERMINATED',
-                    "endTime" = NOW(),
-                    "timeTakenSec" = GREATEST(EXTRACT(EPOCH FROM (NOW() - "startTime"))::INT, 0),
-                    "updatedAt" = NOW()
+                    "endTime" = (NOW() AT TIME ZONE 'UTC'),
+                    "timeTakenSec" = GREATEST(EXTRACT(EPOCH FROM ((NOW() AT TIME ZONE 'UTC') - "startTime"))::INT, 0),
+                    "updatedAt" = (NOW() AT TIME ZONE 'UTC')
                 WHERE "id" = ${data.sessionId} AND "status" = 'IN_PROGRESS'
             `;
 
@@ -770,7 +821,7 @@ export class MonitoringGateway
       details: data.details,
       tabOuts: tabSwitchOutCount,
       tabIns: tabSwitchInCount,
-      timestamp: new Date(),
+      timestamp: occurredAt,
     });
 
     return { status: 'recorded' };

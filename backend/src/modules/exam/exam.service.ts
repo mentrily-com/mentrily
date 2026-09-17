@@ -653,6 +653,53 @@ export class ExamService {
   }
 
   /**
+   * Creates the session unless one is already in progress for this student
+   * and exam, and returns whichever exists. The check and the insert run in
+   * one short transaction holding a Postgres advisory lock on (user, exam),
+   * so concurrent starts (double-click, two tabs, retried requests, several
+   * API instances) serialize in the database: the second caller waits, then
+   * sees the first caller's row and resumes it instead of creating another.
+   * This holds even when the Redis lock in startSession gives up.
+   */
+  private async createSessionOnce(
+    userId: string,
+    examId: string,
+    createData: Record<string, unknown>,
+  ) {
+    const lockKey = `exam-session:${userId}:${examId}`;
+    const run = (data: Record<string, unknown>) =>
+      this.prisma.$transaction(
+        async (tx) => {
+          await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))`;
+          const active = await tx.examSession.findFirst({
+            where: { userId, examId, status: 'IN_PROGRESS' },
+            orderBy: { createdAt: 'desc' },
+          });
+          if (active) return active;
+          return tx.examSession.create({ data: data as any });
+        },
+        // Held for a few milliseconds; generous limits only matter when many
+        // students start at once and the connection pool is busy.
+        { maxWait: 10_000, timeout: 10_000 },
+      );
+
+    let session: any;
+    try {
+      session = await run(createData);
+    } catch (error) {
+      if (!isMissingExamSessionAttemptNumberError(error)) {
+        throw error;
+      }
+      const { attemptNumber: _attemptNumber, ...withoutAttempt } = createData;
+      session = await run(withoutAttempt);
+    }
+    if (session?.id) {
+      void this.redis.set(`session:owner:${session.id}`, userId, 'EX', 21600);
+    }
+    return session;
+  }
+
+  /**
    * startSessionUnlocked does a plain read-then-create with no DB unique
    * constraint on (userId, examId, status='IN_PROGRESS') — two concurrent
    * calls (double-clicked "Start Exam", or the exam link opened in two tabs
@@ -740,7 +787,12 @@ export class ExamService {
           select: { linkedCourseId: true },
         });
         linkedCourseId = exam?.linkedCourseId || null;
-        await this.redis.set(courseCacheKey, linkedCourseId || 'none', 'EX', 3600);
+        await this.redis.set(
+          courseCacheKey,
+          linkedCourseId || 'none',
+          'EX',
+          3600,
+        );
       }
 
       let latestSession: any;
@@ -818,7 +870,7 @@ export class ExamService {
               UPDATE "ExamSession"
               SET "answers" = COALESCE("answers", '{}'::jsonb) - '_internal_marks' - '_internal_score',
                   "score" = NULL,
-                  "updatedAt" = NOW()
+                  "updatedAt" = (NOW() AT TIME ZONE 'UTC')
               WHERE "id" = ${latestSession.id}
                 AND "status" = 'IN_PROGRESS'
             `;
@@ -857,25 +909,31 @@ export class ExamService {
           answers: metadata ? { _internal_metadata: metadata } : {},
         };
 
-        let createdSession: any;
-        try {
-          createdSession = await this.prisma.examSession.create({
-            data: createData as any,
-          });
-        } catch (error) {
-          if (!isMissingExamSessionAttemptNumberError(error)) {
-            throw error;
-          }
+        return this.createSessionOnce(userId, examId, createData);
+      }
 
-          delete createData.attemptNumber;
-          createdSession = await this.prisma.examSession.create({
-            data: createData as any,
-          });
-        }
-        if (createdSession?.id) {
-          void this.redis.set(`session:owner:${createdSession.id}`, userId, 'EX', 21600);
-        }
-        return createdSession;
+      // Standalone exams are single-attempt, the same rule the exam login
+      // flow applies (auth.service). Without this, a signed-in student who
+      // reopened /exam/<slug> skipped that login check and silently got a
+      // brand-new session after submitting — one more recorded attempt per
+      // reload. A finished attempt is returned as-is so the student lands on
+      // their feedback/result screen; the client handles COMPLETED sessions.
+      // Course-linked exams handle retakes above.
+      if (latestSession?.status === 'TERMINATED') {
+        throw new ConflictException('EXAM_TERMINATED');
+      }
+      if (latestSession && latestSession.status !== 'IN_PROGRESS') {
+        const [feedbackRecord, tabSwitchCounts] = await Promise.all([
+          this.prisma.feedback.findFirst({
+            where: { userId, examId },
+            select: { id: true },
+          }),
+          this.getTabSwitchCounts(latestSession.id),
+        ]);
+        latestSession.tabSwitchOutCount = tabSwitchCounts.outCount;
+        latestSession.tabSwitchInCount = tabSwitchCounts.inCount;
+        latestSession.feedbackDone = !!feedbackRecord;
+        return latestSession;
       }
 
       // Find existing session first to resume
@@ -883,9 +941,6 @@ export class ExamService {
         latestSession?.status === 'IN_PROGRESS' ? latestSession : null;
 
       if (existing) {
-        if (existing.status === 'TERMINATED') {
-          throw new ConflictException('EXAM_TERMINATED');
-        }
         // If metadata changed, we could update it. But typically it stays same for the session.
         // We'll update it if provided to ensure the latest "Name/Roll No" from login is preserved.
         if (metadata) {
@@ -942,7 +997,7 @@ export class ExamService {
         return existing;
       }
 
-      const createData: any = {
+      const createData: Record<string, unknown> = {
         userId,
         examId,
         ipAddress: ip,
@@ -952,20 +1007,7 @@ export class ExamService {
         answers: metadata ? { _internal_metadata: metadata } : {},
       };
 
-      let createdSession: any;
-      try {
-        createdSession = await this.prisma.examSession.create({ data: createData });
-      } catch (error) {
-        if (!isMissingExamSessionAttemptNumberError(error)) {
-          throw error;
-        }
-        delete createData.attemptNumber;
-        createdSession = await this.prisma.examSession.create({ data: createData });
-      }
-      if (createdSession?.id) {
-        void this.redis.set(`session:owner:${createdSession.id}`, userId, 'EX', 21600);
-      }
-      return createdSession;
+      return this.createSessionOnce(userId, examId, createData);
     } catch (e) {
       console.error('[ExamService] Failed to start/resume session', e);
       throw e;
@@ -1761,7 +1803,10 @@ export class ExamService {
     }
 
     let courseThreshold: number | null = null;
-    if (session.exam?.passingPercentage == null && session.exam?.linkedCourseId) {
+    if (
+      session.exam?.passingPercentage == null &&
+      session.exam?.linkedCourseId
+    ) {
       const course = await this.prisma.course.findUnique({
         where: { id: session.exam.linkedCourseId },
         select: { examPassThreshold: true },

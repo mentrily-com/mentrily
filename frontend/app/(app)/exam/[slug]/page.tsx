@@ -183,7 +183,7 @@ const ExamCountdownTimer = React.memo(function ExamCountdownTimer({
 const ExamNetworkIndicator = React.memo(function ExamNetworkIndicator() {
     const { isOnline, downlink } = useNetworkMonitor();
     return (
-        <div className="relative group hidden items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-help border border-slate-100 sm:flex">
+        <div className="relative group hidden items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-help border border-slate-100 lg:flex">
             <div className="flex items-end gap-0.5 h-3.5 mb-0.5">
                 {[1, 2, 3, 4].map((bar) => {
                     const barThresholds = [0, 2, 5, 10];
@@ -214,7 +214,7 @@ const ExamNetworkIndicator = React.memo(function ExamNetworkIndicator() {
                         <div className="flex items-center justify-between gap-8 border-t border-slate-50 pt-2">
                             <span className="text-slate-400 uppercase tracking-tighter">Sync Speed</span>
                             <span className="text-indigo-600 font-black">
-                                {downlink > 0 ? `${downlink} MB/s` : 'Detecting...'}
+                                {downlink > 0 ? `${downlink} Mbps` : 'Detecting...'}
                             </span>
                         </div>
                     )}
@@ -401,7 +401,7 @@ export default function PublicExamPage() {
         return () => clearTimeout(timer);
     }, [isElectronRuntime]);
 
-    const { logEvent } = useElectronMonitoring(slug || '', user?.rollNumber || '2211981482');
+    const { logEvent } = useElectronMonitoring(slug || '', user?.rollNumber || '2211981482', socketLogViolation);
 
     const setElectronStrictMode = useCallback((enabled: boolean, reason?: string) => {
         if (typeof window === 'undefined') return;
@@ -1360,7 +1360,9 @@ export default function PublicExamPage() {
             setSections((prev) =>
                 prev.map((s) => ({
                     ...s,
-                    questions: s.questions.map((q: any) => (q.id === currentQuestionId ? { ...q, status: 'answered' } : q)),
+                    questions: s.questions.map((q: any) =>
+                        q.id === currentQuestionId ? { ...q, status: 'answered' } : q,
+                    ),
                 })),
             );
 
@@ -1380,7 +1382,6 @@ export default function PublicExamPage() {
         },
         [currentQuestionId, sessionId, writeLocalDraft, saveAnswer, sections, currentSectionId, handleNext],
     );
-
 
     const handleAnswerChange = useCallback(
         (answer: any) => {
@@ -1590,7 +1591,12 @@ export default function PublicExamPage() {
             const open = widthGrew > OPEN_DELTA || heightGrew > OPEN_DELTA;
             if (open && !devtoolsFlagged) {
                 devtoolsFlagged = true;
-                toast('Developer tools appear to be open. This has been recorded.', 'violation', 'Proctoring Alert', 5000);
+                toast(
+                    'Developer tools appear to be open. This has been recorded.',
+                    'violation',
+                    'Proctoring Alert',
+                    5000,
+                );
                 socketLogViolation('DEVTOOLS_OPENED', 'Developer tools detected open during exam');
             } else if (!open) {
                 devtoolsFlagged = false;
@@ -1768,7 +1774,6 @@ export default function PublicExamPage() {
             return hasAnyStatusChange ? nextSections : prev;
         });
     }, [statusSignature, sections.length]);
-
 
     const submitSection = async (sectionId: string) => {
         // Logic to submit the current section and unlock the next one
@@ -2015,10 +2020,10 @@ export default function PublicExamPage() {
                         onWarning={warning}
                     />
 
-                    {/* Font-size stepper: a convenience, not essential -- hidden on
-                        narrow viewports so the timer and Submit button (which
-                        are) always have room. */}
-                    <div className="hidden items-center gap-1 bg-white border border-slate-100 rounded-xl p-1 sm:flex">
+                    {/* Font-size stepper and network indicator: conveniences, not
+                        essential -- shown from lg up so the timer, Submit and the
+                        profile menu (which are) always have room in the header. */}
+                    <div className="hidden items-center gap-1 bg-white border border-slate-100 rounded-xl p-1 lg:flex">
                         <button
                             onClick={() => setFontSize((prev) => Math.max(12, prev - 1))}
                             className="w-7 h-7 flex items-center justify-center hover:bg-slate-50 rounded-lg text-slate-500 hover:text-[var(--brand)] transition-colors"
@@ -2346,10 +2351,10 @@ export default function PublicExamPage() {
             {!isFeedbackMode && !isSuccessMode && isAiProctoringEnabled && (
                 <div className="fixed top-16 right-3 sm:top-auto sm:bottom-24 sm:right-6 z-[90] pointer-events-none">
                     <div
-                        className={`overflow-hidden relative shadow-[0_12px_32px_rgba(0,0,0,0.35)] border border-white/10 transition-all duration-300 pointer-events-auto ${
+                        className={`group/cam relative overflow-hidden transition-all duration-300 pointer-events-auto ${
                             isWebcamMinimized
-                                ? 'w-auto h-auto bg-slate-900/95 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 cursor-pointer hover:bg-slate-800 ring-1 ring-white/10'
-                                : 'w-28 h-20 sm:w-40 sm:h-28 bg-black rounded-xl sm:rounded-2xl'
+                                ? 'w-auto h-auto bg-slate-900/95 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 cursor-pointer hover:bg-slate-800 ring-1 ring-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.35)]'
+                                : 'w-28 h-20 sm:w-40 sm:h-28 rounded-xl sm:rounded-2xl shadow-[0_6px_18px_rgba(15,23,42,0.18)]'
                         }`}
                         onClick={isWebcamMinimized ? () => setIsWebcamMinimized(false) : undefined}
                     >
@@ -2358,10 +2363,10 @@ export default function PublicExamPage() {
                             autoPlay
                             playsInline
                             muted
-                            className={`object-cover transform scale-x-[-1] transition-opacity duration-200 ${
+                            className={`block h-full w-full object-cover transform scale-x-[-1] transition-opacity duration-200 ${
                                 isWebcamMinimized
-                                    ? 'absolute inset-0 w-full h-full opacity-0 pointer-events-none -z-10'
-                                    : 'w-full h-full opacity-100'
+                                    ? 'absolute inset-0 opacity-0 pointer-events-none -z-10'
+                                    : 'opacity-100'
                             }`}
                         />
 
@@ -2389,23 +2394,24 @@ export default function PublicExamPage() {
                             </div>
                         ) : (
                             <>
-                                {/* Status badge */}
-                                <div
-                                    className={`absolute top-1.5 left-1.5 flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wide backdrop-blur-sm ${
-                                        isModelLoaded ? 'bg-emerald-500/90 text-white' : 'bg-black/70 text-white/90'
-                                    }`}
-                                >
+                                {/* No label over the video: the preview stays a plain
+                                    camera view. Only the "still starting" state is
+                                    flagged, and just with a dot. */}
+                                {!isModelLoaded && (
                                     <span
-                                        className={`h-1.5 w-1.5 rounded-full ${isModelLoaded ? 'bg-white animate-pulse' : 'bg-amber-300 animate-pulse'}`}
+                                        className="absolute top-1.5 left-1.5 h-2 w-2 rounded-full bg-amber-300 animate-pulse"
+                                        title="Starting camera check"
+                                        aria-label="Starting camera check"
                                     />
-                                    {isModelLoaded ? 'Proctoring' : 'Initializing'}
-                                </div>
+                                )}
 
-                                {/* Minimize Toggle */}
+                                {/* Minimize toggle: dimmed so it stays out of the
+                                    way, but always present — a hover-only control
+                                    is unreachable on a tablet. */}
                                 <button
                                     type="button"
                                     onClick={() => setIsWebcamMinimized(true)}
-                                    className="absolute top-1.5 right-1.5 p-1.5 rounded-full bg-black/60 hover:bg-black/80 text-white/80 hover:text-white transition-colors backdrop-blur-sm"
+                                    className="absolute top-1.5 right-1.5 rounded-full bg-black/40 p-1.5 text-white/80 opacity-60 backdrop-blur-sm transition focus-visible:opacity-100 hover:bg-black/70 hover:text-white hover:opacity-100 group-hover/cam:opacity-100"
                                     title="Minimize Camera Preview"
                                     aria-label="Minimize Camera Preview"
                                 >

@@ -13,12 +13,15 @@ import { AI_GENERATION_QUEUE, AiJobsService } from './jobs/ai-jobs.service';
 import { AiGenerationProcessor } from './jobs/ai-generation.processor';
 import { ConversationService } from './chat/conversation.service';
 import { AiChatService } from './chat/ai-chat.service';
+import { ContentEditService } from './edit/content-edit.service';
+import { TeacherModule } from '../teacher/teacher.module';
 
 @Module({
   imports: [
     PrismaModule,
     CodeExecutionModule,
     AiCreditsModule,
+    TeacherModule,
     BullModule.registerQueue({ name: AI_GENERATION_QUEUE }),
   ],
   controllers: [AiController],
@@ -32,6 +35,7 @@ import { AiChatService } from './chat/ai-chat.service';
     AiGenerationProcessor,
     ConversationService,
     AiChatService,
+    ContentEditService,
   ],
 })
 export class AiModule {}

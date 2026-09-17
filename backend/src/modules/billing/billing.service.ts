@@ -527,6 +527,7 @@ export class BillingService {
       `org:features:${orgId}`,
       `org:status:${orgId}`,
       `org:effective_features:${orgId}`,
+      `ai:plan:${orgId}`,
     ];
 
     await this.redis.del(...directKeys);

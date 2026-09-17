@@ -198,19 +198,23 @@ function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
             <header className="w-full bg-white/80 backdrop-blur-md border-b border-slate-100">
                 <div
                     className={`w-full px-4 py-2.5 lg:px-6 sm:py-3 flex items-center justify-between ${
-                        // The exam header packs several extra control groups (focus
-                        // counters, timer, font-size stepper, wifi indicator) into
-                        // this same row that the default dashboard navbar doesn't
-                        // carry -- on narrow viewports that combination can exceed
-                        // the row's width. Falling back to horizontal scroll here
-                        // keeps every control reachable instead of silently
-                        // clipping/overlapping; the default navbar never overflows
-                        // in the first place, so this is a no-op for it.
-                        examConfig ? 'overflow-x-auto no-scrollbar' : ''
+                        examConfig ? 'gap-3' : ''
                     }`}
                 >
-                    {/* Left - Brand & Primary Nav */}
-                    <div className="flex items-center gap-8 z-10">
+                    {/* Left - Brand & Primary Nav. The exam header packs extra
+                        controls (focus counters, timer, font size, network) into
+                        this row. In exam mode it is three columns: the left and
+                        right groups share the space equally (so the centre stays
+                        centred when it fits), the right group never shrinks below
+                        its controls, and the left group gives up space and scrolls.
+                        The row itself must not scroll: any overflow other than
+                        visible also clips vertically, which cut off the network
+                        tooltip and the profile menu. */}
+                    <div
+                        className={`flex items-center gap-8 z-10 ${
+                            examConfig ? 'min-w-0 flex-1 basis-0 overflow-x-auto no-scrollbar' : ''
+                        }`}
+                    >
                         <div
                             onClick={() => !examConfig && router.push(dashboardRoute)}
                             className={`flex items-center gap-2.5 ${examConfig ? 'cursor-default' : 'cursor-pointer'}`}
@@ -598,9 +602,9 @@ function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
                         )}
                     </div>
 
-                    {/* Center Content - Absolute Center for Exam Mode */}
+                    {/* Center Content - the middle column in exam mode */}
                     {examConfig ? (
-                        <div className="hidden sm:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                        <div className="hidden shrink-0 sm:block">
                             {examConfig.centerContent}
                         </div>
                     ) : (
@@ -610,7 +614,7 @@ function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
                     )}
 
                     {/* Right - User Actions */}
-                    <div className="flex items-center gap-5">
+                    <div className={`flex items-center gap-5 ${examConfig ? 'min-w-max flex-1 basis-0 justify-end' : ''}`}>
                         {!examConfig && !mustChangePassword && role === 'student' && (
                             <AnnouncementBell enabled={Boolean(isLoaded && isSignedIn && sessionUser?.id)} />
                         )}
@@ -1221,7 +1225,9 @@ function ProfileMenu({
 
     return (
         <div ref={dropdownRef} className="relative flex items-center gap-3 ml-2">
-            <div className="hidden sm:block text-right">
+            {/* In the exam header the name gives up its space below lg; the
+                menu itself shows the name and roll number. */}
+            <div className={`hidden text-right ${examConfig ? 'lg:block' : 'sm:block'}`}>
                 <p className="text-sm font-black text-slate-800 leading-none">{displayName}</p>
                 <p className="text-[9px] font-black text-[var(--brand)] uppercase tracking-widest mt-1">
                     {examConfig?.rollNumber ? `Roll: ${examConfig.rollNumber}` : getLabel()}

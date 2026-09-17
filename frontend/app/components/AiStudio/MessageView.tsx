@@ -5,7 +5,7 @@ import type { UIMessage } from 'ai';
 import { Streamdown } from 'streamdown';
 import { createMathPlugin } from '@streamdown/math';
 import 'katex/dist/katex.min.css';
-import { BookOpen, Check, ClipboardList, Copy, RotateCcw, Search } from 'lucide-react';
+import { BookOpen, Check, ClipboardList, Copy, PenLine, RotateCcw, Search } from 'lucide-react';
 import JobCard, { type JobPartData } from './JobCard';
 import { commandById } from './commands';
 
@@ -118,6 +118,39 @@ function MessageView({
                             active={activeJobId === (childJobs[data.jobId] ?? data.jobId)}
                             onOpen={onOpenJob}
                         />
+                    );
+                }
+                if (part.type === 'tool-edit_content') {
+                    const state = 'state' in part ? part.state : undefined;
+                    const output = ('output' in part ? part.output : undefined) as
+                        | { jobId?: string; title?: string; kind?: 'course' | 'exam'; error?: string }
+                        | undefined;
+                    if (state === 'output-available' && output?.jobId) {
+                        return (
+                            <JobCard
+                                key={i}
+                                data={{
+                                    jobId: output.jobId,
+                                    kind: 'edit',
+                                    briefKind: output.kind ?? 'course',
+                                    title: output.title ?? 'Your content',
+                                }}
+                                active={activeJobId === output.jobId}
+                                onOpen={onOpenJob}
+                            />
+                        );
+                    }
+                    if (state === 'output-available' || state === 'output-error') {
+                        return (
+                            <p key={i} className="text-xs text-rose-600">
+                                Couldn&apos;t start the edit{output?.error ? `: ${output.error}` : '.'}
+                            </p>
+                        );
+                    }
+                    return (
+                        <p key={i} className="flex items-center gap-1.5 text-xs text-slate-400">
+                            <PenLine size={12} /> Preparing the edit…
+                        </p>
                     );
                 }
                 if (part.type.startsWith('tool-')) {

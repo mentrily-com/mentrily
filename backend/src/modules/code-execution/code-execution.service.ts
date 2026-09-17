@@ -11,14 +11,19 @@ import {
 } from '@nestjs/common';
 import type { IExecutionStrategy } from './strategies/execution-strategy.interface';
 import { PrismaService } from '../../services/prisma/prisma.service';
+import { transformExam } from '../exam/exam.util';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue, QueueEvents } from 'bullmq';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
 
+// How long a caller waits for one sandbox run before giving up.
+const RUN_WAIT_MS = 30000;
+
 @Injectable()
 export class CodeExecutionService {
   private queueEvents: QueueEvents | null = null;
+  private readonly inFlight = new Map<string, Promise<any>>();
   private readonly publicRunLimit = 25;
   private readonly maxPublicCodeLength = 20_000;
   private readonly maxPublicInputLength = 5_000;
@@ -150,23 +155,51 @@ export class CodeExecutionService {
       return JSON.parse(cached);
     }
 
-    // Add job to queue
-    const job = await this.executionQueue.add('execute', {
-      language,
-      code,
-      stdin,
-    });
-
-    // Wait for the job to finish and return the result (with 30s fallback timeout)
-    try {
-      const result = await job.waitUntilFinished(this.getQueueEvents(), 30000);
-      if (result) {
-        await this.redis.set(cacheKey, JSON.stringify(result), 'EX', 60);
-      }
-      return result;
-    } catch (error) {
-      throw error;
+    // Identical code+input already running on this instance (double-clicked
+    // Run, duplicate test inputs): share that execution instead of queueing
+    // a second sandbox run.
+    const pending = this.inFlight.get(hash);
+    if (pending) {
+      return pending;
     }
+
+    const execution = this.executeQueued(language, code, stdin, cacheKey);
+    this.inFlight.set(hash, execution);
+    try {
+      return await execution;
+    } finally {
+      this.inFlight.delete(hash);
+    }
+  }
+
+  private async executeQueued(
+    language: string,
+    code: string,
+    stdin: string,
+    cacheKey: string,
+  ) {
+    const job = await this.executionQueue.add(
+      'execute',
+      {
+        language,
+        code,
+        stdin,
+        // The caller stops waiting after RUN_WAIT_MS; the worker skips the
+        // job past this point so a backlog doesn't burn Judge0 capacity on
+        // results nobody will read.
+        deadline: Date.now() + RUN_WAIT_MS,
+      },
+      { removeOnFail: { age: 24 * 3600, count: 200 } },
+    );
+
+    const result = await job.waitUntilFinished(
+      this.getQueueEvents(),
+      RUN_WAIT_MS,
+    );
+    if (result) {
+      await this.redis.set(cacheKey, JSON.stringify(result), 'EX', 60);
+    }
+    return result;
   }
 
   async publicRunCode(language: string, code: string, stdin: string, req: any) {
@@ -379,9 +412,12 @@ export class CodeExecutionService {
         (user?.role === 'ADMIN' && user?.orgId && examOrg.orgId === user.orgId);
 
       if (!isExamOwnerOrAdmin && user?.id && this.prisma?.examSession) {
-        if (examOrg.orgId && user?.orgId && examOrg.orgId !== user.orgId) {
-          throw new ForbiddenException('You do not have access to this exam');
-        }
+        // Authorization is the active session, not org equality: exams in a
+        // public/personal org are open to any signed-in student, so comparing
+        // the exam's org to the student's home org rejected legitimate
+        // candidates mid-exam ("You do not have access to this exam" on every
+        // Run/Submit, while the rest of the exam worked). A session only
+        // exists if the entry flow already granted access.
         // Candidates must possess an active in-progress exam session to submit code
         const activeSession = await this.prisma.examSession.findFirst({
           where: {
@@ -438,12 +474,15 @@ export class CodeExecutionService {
         }
       }
 
-      const questions = Array.isArray(questionsData)
-        ? questionsData
-        : (questionsData as any)?.sections?.flatMap((s: any) => s.questions) ||
-          [];
-
-      const foundQuestion = questions.find((q: any) => q.id === unitId);
+      // Resolve the question exactly as the exam page received it: the stored
+      // JSON can be a flat list, an array of sections, { sections } or a map,
+      // and questions without an id get the same generated ids.
+      const foundQuestion = (
+        transformExam({ questions: questionsData }, true).questions as Record<
+          string,
+          any
+        >
+      )[unitId];
       if (!foundQuestion) {
         throw new NotFoundException('Question not found in exam');
       }
@@ -486,7 +525,9 @@ export class CodeExecutionService {
               select: { id: true },
             });
             if (!isEnrolled) {
-              throw new ForbiddenException('You are not enrolled in this course');
+              throw new ForbiddenException(
+                'You are not enrolled in this course',
+              );
             }
           }
         }
@@ -571,9 +612,9 @@ export class CodeExecutionService {
         firstResult.code !== 0 &&
         Boolean(
           firstResult.rawError &&
-            /syntaxerror|compilation error|compile error|fatal error|error:/i.test(
-              firstResult.rawError,
-            ),
+          /syntaxerror|compilation error|compile error|fatal error|error:/i.test(
+            firstResult.rawError,
+          ),
         );
 
       if (isCompilationError) {

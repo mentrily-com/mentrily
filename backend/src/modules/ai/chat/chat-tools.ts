@@ -2,6 +2,7 @@ import { tool } from 'ai';
 import { z } from 'zod';
 import type { AiActor } from '../engine/ai-types';
 import type { ContentContextService } from '../context/content-context.service';
+import type { ContentEditService } from '../edit/content-edit.service';
 
 const safe = async <T>(fn: () => Promise<T>) => {
   try {
@@ -14,11 +15,16 @@ const safe = async <T>(fn: () => Promise<T>) => {
 };
 
 /**
- * Read-only tools over the caller's own content. The actor is bound here on
- * the server; the model can only choose ids, never whose data it reads.
- * Nothing in this set writes — saving drafts is always a user click.
+ * Tools over the caller's own content. The actor is bound here on the
+ * server; the model can only choose ids, never whose data it touches.
+ * Nothing here saves: edit_content only proposes changes, and applying them
+ * is always a click by the teacher.
  */
-export function buildChatTools(actor: AiActor, context: ContentContextService) {
+export function buildChatTools(
+  actor: AiActor,
+  context: ContentContextService,
+  edits?: { service: ContentEditService; conversationId: string },
+) {
   return {
     search_my_content: tool({
       description:
@@ -59,5 +65,31 @@ export function buildChatTools(actor: AiActor, context: ContentContextService) {
           outline: await context.examDigest(actor, examId),
         })),
     }),
+    ...(edits
+      ? {
+          edit_content: tool({
+            description:
+              "Change one of the teacher's courses or exams, or a draft made in this chat, as they ask (edit, add, remove or reorder items and sections). Starts an edit that proposes changes for the teacher to review; nothing is saved until they apply it. Find saved content ids with search_my_content; drafts from this chat are listed in your instructions.",
+            inputSchema: z.object({
+              target: z
+                .enum(['draft', 'course', 'exam'])
+                .describe('draft = a draft generated in this chat.'),
+              id: z.string().uuid(),
+              instruction: z
+                .string()
+                .max(1000)
+                .describe("The teacher's requested changes, stated precisely."),
+            }),
+            execute: ({ target, id, instruction }) =>
+              safe(() =>
+                edits.service.start(actor, {
+                  target: { type: target, id },
+                  instruction,
+                  conversationId: edits.conversationId,
+                }),
+              ),
+          }),
+        }
+      : {}),
   };
 }

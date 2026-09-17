@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X } from 'lucide-react';
 import { BrandLogo } from '@/components/brand/BrandLogo';
@@ -9,12 +10,14 @@ import { useModalA11y } from '@/hooks/useModalA11y';
 
 const navLinks = [
     { label: 'Features', href: '/#features' },
+    { label: 'AI', href: '/ai' },
     { label: 'Pricing', href: '/pricing' },
     { label: 'About', href: '/about' },
     { label: 'Contact', href: '/contact' },
 ];
 
 export default function Navbar() {
+    const pathname = usePathname();
     const [scrolled, setScrolled] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const drawerRef = useRef<HTMLDivElement>(null);
@@ -45,22 +48,29 @@ export default function Navbar() {
 
                     {/* Desktop Nav */}
                     <div className="hidden md:flex items-center gap-8">
-                        {navLinks.map((link) => (
-                            <Link
-                                key={link.href}
-                                href={link.href}
-                                className="relative text-sm font-medium transition-colors duration-150 cursor-pointer group"
-                                style={{ color: '#475569' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.color = '#008D98')}
-                                onMouseLeave={(e) => (e.currentTarget.style.color = '#475569')}
-                            >
-                                {link.label}
-                                <span
-                                    className="absolute -bottom-1 left-0 h-0.5 w-full origin-left scale-x-0 transition-transform duration-200 group-hover:scale-x-100"
-                                    style={{ backgroundColor: '#008D98' }}
-                                />
-                            </Link>
-                        ))}
+                        {navLinks.map((link) => {
+                            const active = pathname === link.href;
+                            const rest = active ? '#008D98' : '#475569';
+                            return (
+                                <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    aria-current={active ? 'page' : undefined}
+                                    className="relative text-sm font-medium transition-colors duration-150 cursor-pointer group"
+                                    style={{ color: rest }}
+                                    onMouseEnter={(e) => (e.currentTarget.style.color = '#008D98')}
+                                    onMouseLeave={(e) => (e.currentTarget.style.color = rest)}
+                                >
+                                    {link.label}
+                                    <span
+                                        className={`absolute -bottom-1 left-0 h-0.5 w-full origin-left transition-transform duration-200 group-hover:scale-x-100 ${
+                                            active ? 'scale-x-100' : 'scale-x-0'
+                                        }`}
+                                        style={{ backgroundColor: '#008D98' }}
+                                    />
+                                </Link>
+                            );
+                        })}
                     </div>
 
                     {/* Desktop CTAs */}

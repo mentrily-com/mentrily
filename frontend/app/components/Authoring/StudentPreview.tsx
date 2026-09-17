@@ -59,6 +59,8 @@ export default function StudentPreview({ question, mode, setMode }: StudentPrevi
                     header: tmpl.head,
                     initialCode: tmpl.body,
                     footer: tmpl.tail,
+                    // Limits the language picker to the question's languages, as learners see it.
+                    templates: question.codingConfig.templates,
                     testCases: question.codingConfig.testCases || [],
                 },
             };

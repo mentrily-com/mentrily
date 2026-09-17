@@ -723,9 +723,9 @@ export default function PracticeExamPage() {
                     </svg>
                     {formatTime(timeLeft)}
                 </div>
-                {/* Font-size stepper -- convenience, not essential; hidden on
-                    narrow viewports (same treatment as the real exam page). */}
-                <div className="hidden items-center gap-1 rounded-xl border border-slate-100 bg-white p-1 sm:flex">
+                {/* Font-size stepper -- convenience, not essential; shown from
+                    lg up (same treatment as the real exam page). */}
+                <div className="hidden items-center gap-1 rounded-xl border border-slate-100 bg-white p-1 lg:flex">
                     <button
                         onClick={() => setFontSize((prev) => Math.max(12, prev - 1))}
                         className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-50 hover:text-[var(--brand)]"
@@ -764,7 +764,7 @@ export default function PracticeExamPage() {
                 {/* WiFi Signal Icon with Tooltip — same live network indicator the
                     real exam shows, so practice looks identical. Hidden below
                     sm: for the same reason as the font-size stepper above. */}
-                <div className="relative group hidden items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-help border border-slate-100 sm:flex">
+                <div className="relative group hidden items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-help border border-slate-100 lg:flex">
                     <div className="flex items-end gap-0.5 h-3.5 mb-0.5">
                         {[1, 2, 3, 4].map((bar) => {
                             const barThresholds = [0, 2, 5, 10];
@@ -795,7 +795,7 @@ export default function PracticeExamPage() {
                                 <div className="flex items-center justify-between gap-8 border-t border-slate-50 pt-2">
                                     <span className="text-slate-400 uppercase tracking-tighter">Sync Speed</span>
                                     <span className="text-indigo-600 font-black">
-                                        {netDownlink > 0 ? `${netDownlink} MB/s` : 'Detecting...'}
+                                        {netDownlink > 0 ? `${netDownlink} Mbps` : 'Detecting...'}
                                     </span>
                                 </div>
                             )}

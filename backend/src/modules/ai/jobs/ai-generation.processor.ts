@@ -11,6 +11,7 @@ import { ChargeFn, GenerationService } from '../generation/generation.service';
 import type { Blueprint } from '../schemas/generation.schemas';
 import type { BuilderSection } from '../quality/normalize';
 import { AI_GENERATION_QUEUE, AiJobsService } from './ai-jobs.service';
+import { ContentEditService } from '../edit/content-edit.service';
 import type {
   AiDraft,
   AiJobInput,
@@ -38,6 +39,7 @@ export class AiGenerationProcessor extends WorkerHost {
     private readonly credits: AiCreditsService,
     private readonly generation: GenerationService,
     private readonly jobs: AiJobsService,
+    private readonly edits: ContentEditService,
   ) {
     super();
   }
@@ -93,7 +95,16 @@ export class AiGenerationProcessor extends WorkerHost {
 
     try {
       let result: AiJobResult;
-      if (record.kind === 'blueprint') {
+      if (record.kind === 'edit') {
+        result = await this.edits.run(
+          job.data.actor,
+          input,
+          progress,
+          publish,
+          charge,
+          controller.signal,
+        );
+      } else if (record.kind === 'blueprint') {
         progress.message = 'Designing the outline…';
         await publish();
         const blueprint = await this.generation.blueprint(

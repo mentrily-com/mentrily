@@ -45,6 +45,7 @@ export default function Composer({
     onStop,
     onLocked,
     prefill,
+    showEstimate = true,
 }: {
     usage?: AiUsage;
     busy: boolean;
@@ -52,6 +53,8 @@ export default function Composer({
     onStop: () => void;
     onLocked: (message: string) => void;
     prefill?: { command: string; text: string; nonce: number } | null;
+    /** Credit estimates only mean something to signed-in users. */
+    showEstimate?: boolean;
 }) {
     const uid = useId();
     const { canUse } = usePlan();
@@ -357,7 +360,8 @@ export default function Composer({
                         />
                     )}
                     <span className="ml-auto whitespace-nowrap text-[11px] tabular-nums text-slate-400">
-                        {isJob && !isQuiz ? `outline about ${creditsLabel(estimate)}` : `about ${creditsLabel(estimate)}`}
+                        {showEstimate &&
+                            (isJob && !isQuiz ? `outline about ${creditsLabel(estimate)}` : `about ${creditsLabel(estimate)}`)}
                     </span>
                     {busy ? (
                         <button

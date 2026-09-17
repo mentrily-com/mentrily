@@ -211,7 +211,11 @@ function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
             role={isAssertive ? 'alert' : 'status'}
             aria-live={isAssertive ? 'assertive' : 'polite'}
             aria-atomic="true"
-            className={`pointer-events-auto flex items-start gap-4 p-4 rounded-2xl border backdrop-blur-md shadow-xl animate-fade-in ${isViolation ? '' : 'bg-white/80'} ${styles[toast.type]}`}
+            // The card itself stays click-through: a top-center toast (e.g.
+            // "Full Screen Required" during an exam) sits over the header and
+            // was swallowing clicks on the Submit button underneath it. Only
+            // the dismiss button below takes pointer events.
+            className={`pointer-events-none flex items-start gap-4 p-4 rounded-2xl border backdrop-blur-md shadow-xl animate-fade-in ${isViolation ? '' : 'bg-white/80'} ${styles[toast.type]}`}
         >
             <div className="shrink-0 mt-0.5">{icons[toast.type]}</div>
             <div className="flex-1 min-w-0">
@@ -230,7 +234,7 @@ function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
                 <button
                     onClick={onClose}
                     aria-label="Dismiss notification"
-                    className={`shrink-0 p-1 transition-colors ${
+                    className={`pointer-events-auto shrink-0 p-1 transition-colors ${
                         isViolation ? 'text-white/70 hover:text-white' : 'text-slate-400 hover:text-slate-600'
                     }`}
                 >

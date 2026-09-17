@@ -96,11 +96,51 @@ const testCaseSchema = z.object({
     .describe('Exact raw stdin, e.g. "5\\n10". Empty string if none.'),
   output: z.string().describe('Exact expected stdout, trimmed.'),
   isPublic: z.boolean(),
+  explanation: z
+    .string()
+    .optional()
+    .describe('Public cases only: one sentence on why this is the output.'),
 });
 
-const codeByLanguage = z.object({
-  javascript: z.string().optional(),
-  python: z.string().optional(),
+const codeTemplateSchema = z.object({
+  header: z
+    .string()
+    .describe(
+      'Hidden, runs before the learner code: only imports or small helpers the function may use. Often empty.',
+    ),
+  starter: z
+    .string()
+    .describe(
+      'The only code the learner sees and edits: the function with its full signature, a short docstring/comment on its parameters and return value, and a placeholder body. No input reading, no printing, no solution.',
+    ),
+  footer: z
+    .string()
+    .describe(
+      'Hidden, runs after the learner code: reads all of stdin, parses it as inputFormat says, calls the function and prints the returned value as outputFormat says. No solution logic.',
+    ),
+  solution: z
+    .string()
+    .describe(
+      'The same function as starter, fully implemented. header + solution + footer prints the expected output for every test case.',
+    ),
+});
+
+const codingSchema = z.object({
+  functionDescription: z
+    .string()
+    .describe(
+      'What the function receives and must return, in plain words (no language syntax). End by saying the input is read for them and they should return the answer, not print it.',
+    ),
+  inputFormat: z.string().describe('The raw stdin layout, line by line.'),
+  outputFormat: z.string().describe('Exactly what is printed.'),
+  constraints: z
+    .array(z.string())
+    .describe('Input limits, e.g. "1 ≤ n ≤ 10<sup>5</sup>".'),
+  templates: z.object({
+    python: codeTemplateSchema.optional(),
+    javascript: codeTemplateSchema.optional(),
+  }),
+  testCases: z.array(testCaseSchema).describe('3 to 6 test cases.'),
 });
 
 /**
@@ -115,7 +155,9 @@ export function buildSectionSchema(types: QuestionType[]) {
     problemStatement: z
       .string()
       .describe(
-        'HTML using <p>, <ul>, <ol>, <li>, <strong>, <em>, <code>, <pre>, <blockquote>. No heading with the title, no answer options.',
+        has('Coding')
+          ? 'HTML using <p>, <ul>, <ol>, <li>, <strong>, <em>, <code>, <pre>, <blockquote>. No heading with the title, no answer options. For Coding: only the task (context and what to compute); function, formats, constraints and examples go in "coding".'
+          : 'HTML using <p>, <ul>, <ol>, <li>, <strong>, <em>, <code>, <pre>, <blockquote>. No heading with the title, no answer options.',
       ),
     marks: z.number(),
     difficulty: z.string().describe('Easy, Medium or Hard.'),
@@ -128,18 +170,11 @@ export function buildSectionSchema(types: QuestionType[]) {
       .describe('MCQ/MultiSelect only: 4 or 5 options.');
   }
   if (has('Coding')) {
-    shape.starterCode = codeByLanguage
-      .optional()
-      .describe('Coding only: complete runnable starter program per language.');
-    shape.solution = codeByLanguage
+    shape.coding = codingSchema
       .optional()
       .describe(
-        'Coding only: complete program that reads stdin and prints the expected stdout.',
+        'Coding only: the function spec, header/starter/footer/solution per requested language, and test cases.',
       );
-    shape.testCases = z
-      .array(testCaseSchema)
-      .optional()
-      .describe('Coding only: 3 to 6 test cases.');
   }
   if (has('Web')) {
     shape.web = z
@@ -175,6 +210,9 @@ export function buildSectionSchema(types: QuestionType[]) {
   });
 }
 
+export type RawCodeTemplate = z.infer<typeof codeTemplateSchema>;
+export type RawCoding = z.infer<typeof codingSchema>;
+
 export type RawGeneratedQuestion = {
   type: string;
   title: string;
@@ -183,9 +221,7 @@ export type RawGeneratedQuestion = {
   difficulty: string;
   tags: string[];
   options?: { text: string; isCorrect: boolean }[];
-  starterCode?: { javascript?: string; python?: string };
-  solution?: { javascript?: string; python?: string };
-  testCases?: { input: string; output: string; isPublic: boolean }[];
+  coding?: RawCoding;
   web?: { html: string; css: string; js: string };
   blocks?: {
     kind: 'text' | 'code';

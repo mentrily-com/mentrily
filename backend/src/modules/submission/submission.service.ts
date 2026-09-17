@@ -143,24 +143,29 @@ export class SubmissionService {
   async queueAnswer(sessionId: string, answer: any) {
     await stashSessionAnswers(this.redis, sessionId, answer || {});
 
-    await this.submissionQueue.add(
-      'flush_answers',
-      { sessionId },
-      {
-        // BullMQ rejects a custom jobId containing ':' unless splitting on
-        // it yields exactly 3 parts (a legacy repeatable-job carve-out) —
-        // `flush:${sessionId}` split into 2 and threw "Custom Id cannot
-        // contain :" on every single call, meaning this coalescing job was
-        // NEVER successfully scheduled and every submitSection/save-answer
-        // request 500'd. '-' has no such restriction.
-        jobId: `flush-${sessionId}`,
-        delay: FLUSH_DELAY_MS,
-        // jobIds must leave the queue after completion so the next batch
-        // for this session can schedule a fresh flush.
-        removeOnComplete: true,
-        removeOnFail: 50,
-      },
-    );
+    try {
+      await this.submissionQueue.add(
+        'flush_answers',
+        { sessionId },
+        {
+          jobId: `flush-${sessionId}`,
+          delay: FLUSH_DELAY_MS,
+          removeOnComplete: true,
+          removeOnFail: true, // Must be true so failed jobs do not block future flush scheduling
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+            delay: 1000,
+          },
+        },
+      );
+    } catch (err: any) {
+      // If BullMQ indicates job already exists or is active, staged answers remain in Redis
+      // and will be drained by the next scheduled flush.
+      if (!err?.message?.includes('already exists')) {
+        console.warn(`[SubmissionService] queueAnswer add error:`, err?.message);
+      }
+    }
   }
 
   async scheduleAutoSubmit(sessionId: string, delay: number) {

@@ -73,7 +73,7 @@ export interface AiDraft {
     stats: { questions: number; verified: number; needsReview: number };
 }
 
-export type AiJobKind = 'blueprint' | 'generate' | 'quiz';
+export type AiJobKind = 'blueprint' | 'generate' | 'quiz' | 'edit';
 export type AiJobStatus = 'queued' | 'running' | 'completed' | 'failed' | 'cancelled';
 
 export interface AiJobSectionProgress {
@@ -94,7 +94,70 @@ export interface AiJobProgress {
     sections: AiJobSectionProgress[];
 }
 
-export type AiJobResult = { type: 'blueprint'; blueprint: Blueprint } | { type: 'draft'; draft: AiDraft };
+/** One AI-proposed change to a course, exam or draft (mirrors the backend). */
+export type EditChange =
+    | {
+          id: string;
+          kind: 'edit_item';
+          summary: string;
+          sectionId: string;
+          itemId: string;
+          before: GeneratedQuestion;
+          after: GeneratedQuestion;
+      }
+    | { id: string; kind: 'add_item'; summary: string; sectionId: string; index: number; after: GeneratedQuestion }
+    | { id: string; kind: 'remove_item'; summary: string; sectionId: string; index: number; before: GeneratedQuestion }
+    | {
+          id: string;
+          kind: 'move_item';
+          summary: string;
+          itemId: string;
+          from: { sectionId: string; index: number };
+          to: { sectionId: string; index: number };
+      }
+    | {
+          id: string;
+          kind: 'add_section';
+          summary: string;
+          sectionId: string;
+          index: number;
+          title: string;
+          items: GeneratedQuestion[];
+      }
+    | {
+          id: string;
+          kind: 'remove_section';
+          summary: string;
+          sectionId: string;
+          index: number;
+          before: { title: string; items: GeneratedQuestion[] };
+      }
+    | { id: string; kind: 'rename_section'; summary: string; sectionId: string; before: string; after: string }
+    | {
+          id: string;
+          kind: 'update_details';
+          summary: string;
+          before: { title: string; description: string };
+          after: { title: string; description: string };
+      };
+
+export interface ChangeSet {
+    target: { type: 'draft' | 'course' | 'exam'; id: string; kind: AiKind; title: string; live: boolean };
+    summary: string;
+    changes: EditChange[];
+    applied?: { at: string; changeIds: string[] };
+    undone?: { at: string };
+}
+
+export type AiJobResult =
+    | { type: 'blueprint'; blueprint: Blueprint }
+    | {
+          type: 'draft';
+          draft: AiDraft;
+          edit?: { summary: string; changes: EditChange[] };
+          savedAs?: { kind: AiKind; id: string };
+      }
+    | { type: 'changeset'; changeset: ChangeSet };
 
 export interface AiJob {
     id: string;
