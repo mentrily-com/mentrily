@@ -17,6 +17,8 @@ export default function robots(): MetadataRoute.Robots {
                 '/sign-up',
                 '/forgot-password',
                 '/playground',
+                // App surface (and private /chat?c=… conversations); /ai is the indexable page.
+                '/chat',
             ],
         },
         sitemap: `${siteConfig.url}/sitemap.xml`,

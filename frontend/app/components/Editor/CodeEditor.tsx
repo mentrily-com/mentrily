@@ -384,9 +384,9 @@ export default function CodeEditor(props: CodeEditorProps) {
 
                 <div className="min-h-0 flex-1 overflow-hidden p-4 sm:p-6">
                     {activeTab === 'testcases' && (
-                        <div className="flex h-full gap-8">
-                            <div className="w-[260px] flex flex-col gap-3 content-start">
-                                <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-col sm:flex-row h-full gap-4 sm:gap-8 overflow-y-auto">
+                            <div className="w-full sm:w-[240px] lg:w-[260px] flex flex-col gap-3 content-start shrink-0">
+                                <div className="flex flex-wrap sm:flex-col gap-2">
                                     {(props.testCases || []).map((tc: any, idx: number) => (
                                         <button
                                             key={idx}
@@ -413,7 +413,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                 {props.testCases &&
                                     props.testCases.length > 0 &&
                                     props.testCases.some((tc: any) => tc.passed !== undefined) && (
-                                        <div className="mt-4 p-3 bg-emerald-50 rounded-lg flex items-center justify-between">
+                                        <div className="mt-2 sm:mt-4 p-3 bg-emerald-50 rounded-lg flex items-center justify-between">
                                             <span className="text-[11px] font-bold text-emerald-600">PASSED</span>
                                             <span className="text-[12px] font-black text-emerald-700">
                                                 {props.testCases.filter((tc: any) => tc.passed).length} /{' '}
@@ -461,7 +461,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                             </div>
                                         ) : (
                                             <>
-                                                <div className="grid grid-cols-2 gap-4">
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                     <div className="flex flex-col gap-2">
                                                         <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider">
                                                             Input
@@ -571,15 +571,15 @@ export default function CodeEditor(props: CodeEditorProps) {
                         </div>
                     )}
 
-                    <div className="px-5 py-3 flex items-center justify-between h-[60px] bg-white select-none relative z-[120]">
-                        <div className="flex items-center gap-4">
+                    <div className="px-3 sm:px-5 py-2 sm:py-3 flex flex-wrap items-center justify-between min-h-[56px] sm:h-[60px] bg-white select-none relative z-[120] gap-2">
+                        <div className="flex items-center gap-2 sm:gap-4">
                             <button
                                 type="button"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setIsTerminalOpen((prev) => !prev);
                                 }}
-                                className={`group flex items-center gap-2 px-4 py-2 border rounded-lg text-[12px] font-bold transition-all shadow-sm active:scale-95 cursor-pointer relative ${
+                                className={`group flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 border rounded-lg text-[11px] sm:text-[12px] font-bold transition-all shadow-sm active:scale-95 cursor-pointer relative ${
                                     isTerminalOpen
                                         ? 'bg-[var(--brand-light)] border-[var(--brand-light)] text-[var(--brand)]'
                                         : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
@@ -604,7 +604,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                 </span>
                             </button>
                         </div>
-                        <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-2 sm:gap-6">
                             {!props.options?.readOnly && (
                                 <>
                                     <button
@@ -623,11 +623,11 @@ export default function CodeEditor(props: CodeEditorProps) {
                                             }
                                         }}
                                         title="Reset Code"
-                                        className="text-slate-400 hover:text-slate-600 transition-all p-2 active:rotate-180 duration-500"
+                                        className="text-slate-400 hover:text-slate-600 transition-all p-1.5 sm:p-2 active:rotate-180 duration-500"
                                     >
                                         <svg
-                                            width="22"
-                                            height="22"
+                                            width="20"
+                                            height="20"
                                             viewBox="0 0 24 24"
                                             fill="none"
                                             stroke="currentColor"
@@ -642,7 +642,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                     <button
                                         onClick={handleRun}
                                         disabled={props.isExecuting}
-                                        className={`px-6 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl text-[12px] uppercase tracking-widest hover:bg-slate-200 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait flex items-center gap-2`}
+                                        className={`px-3.5 sm:px-6 py-2 sm:py-3 bg-slate-100 text-slate-700 font-bold rounded-xl text-[11px] sm:text-[12px] uppercase tracking-wider sm:tracking-widest hover:bg-slate-200 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait flex items-center gap-1.5 sm:gap-2`}
                                     >
                                         {props.isExecuting ? (
                                             <>
@@ -680,7 +680,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                                     }
                                                 }
                                             }}
-                                            className={`px-10 py-3 bg-[var(--brand)] text-white font-black rounded-xl text-[12px] uppercase tracking-widest shadow-lg shadow-[var(--brand-light)] hover:bg-[var(--brand-dark)] hover:-translate-y-0.5 transition-all active:translate-y-0 active:scale-[0.98] flex items-center gap-2`}
+                                            className={`px-4 sm:px-10 py-2 sm:py-3 bg-[var(--brand)] text-white font-black rounded-xl text-[11px] sm:text-[12px] uppercase tracking-wider sm:tracking-widest shadow-lg shadow-[var(--brand-light)] hover:bg-[var(--brand-dark)] hover:-translate-y-0.5 transition-all active:translate-y-0 active:scale-[0.98] flex items-center gap-1.5 sm:gap-2`}
                                         >
                                             Submit
                                             <svg
@@ -713,7 +713,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                     padding-top: 15px;
                 }
                 .cm-content {
-                    font-family: 'Geist Mono', 'JetBrains Mono', monospace !important;
+                    font-family: var(--font-jetbrains-mono), ui-monospace, monospace !important;
                     font-size: ${props.fontSize ? `${props.fontSize}px` : '14px'} !important;
                     line-height: 1.6;
                     color: #1e293b !important;

@@ -14,6 +14,11 @@ type PlanLimitConfig = {
   modulesPerCourse: number;
   examsPerCourse: number;
   codeExecs: number;
+  aiCreditsPerMonth: number;
+  aiMessagesPerDay: number;
+  aiMaxQuestionsPerGeneration: number;
+  aiConcurrentJobs: number;
+  aiMaxReferences: number;
   allowedQuestionTypes: string[];
 };
 
@@ -23,6 +28,8 @@ type PlanFeatureConfig = {
   pythonNotebook: boolean;
   proctoring: boolean;
   aiExams: boolean;
+  aiStudio: boolean;
+  aiProTier: boolean;
   bulkImport: boolean;
   whiteLabel: boolean;
   customDomain: boolean;
@@ -49,6 +56,11 @@ const LIMIT_OVERRIDE_KEYS: PlanLimitOverrideKey[] = [
   'modulesPerCourse',
   'examsPerCourse',
   'codeExecs',
+  'aiCreditsPerMonth',
+  'aiMessagesPerDay',
+  'aiMaxQuestionsPerGeneration',
+  'aiConcurrentJobs',
+  'aiMaxReferences',
 ];
 
 const ORG_ONLY_PLAN_FEATURES = new Set<keyof PlanFeatureConfig>([
@@ -62,7 +74,9 @@ const FEATURE_REQUIRED_PLAN: Record<string, PlanKey> = {
   webEditor: 'STARTER',
   pythonNotebook: 'PRO',
   proctoring: 'STARTER',
-  aiExams: 'PRO',
+  aiExams: 'STARTER',
+  aiStudio: 'FREE',
+  aiProTier: 'PRO',
   bulkImport: 'PRO',
   whiteLabel: 'ENTERPRISE',
   customDomain: 'ENTERPRISE',
@@ -88,6 +102,11 @@ export const PLAN_LIMITS: Record<PlanKey, PlanLimitConfig> = {
     modulesPerCourse: 3,
     examsPerCourse: 1,
     codeExecs: 100,
+    aiCreditsPerMonth: 100,
+    aiMessagesPerDay: 15,
+    aiMaxQuestionsPerGeneration: 10,
+    aiConcurrentJobs: 1,
+    aiMaxReferences: 0,
     allowedQuestionTypes: ['*'],
   },
   STARTER: {
@@ -101,6 +120,11 @@ export const PLAN_LIMITS: Record<PlanKey, PlanLimitConfig> = {
     modulesPerCourse: 20,
     examsPerCourse: 10,
     codeExecs: 5000,
+    aiCreditsPerMonth: 2500,
+    aiMessagesPerDay: 150,
+    aiMaxQuestionsPerGeneration: 40,
+    aiConcurrentJobs: 2,
+    aiMaxReferences: 2,
     allowedQuestionTypes: ['*'],
   },
   PRO: {
@@ -114,6 +138,11 @@ export const PLAN_LIMITS: Record<PlanKey, PlanLimitConfig> = {
     modulesPerCourse: UNLIMITED,
     examsPerCourse: UNLIMITED,
     codeExecs: 50000,
+    aiCreditsPerMonth: 8000,
+    aiMessagesPerDay: 500,
+    aiMaxQuestionsPerGeneration: 100,
+    aiConcurrentJobs: 5,
+    aiMaxReferences: 5,
     allowedQuestionTypes: ['*'],
   },
   ENTERPRISE: {
@@ -127,6 +156,11 @@ export const PLAN_LIMITS: Record<PlanKey, PlanLimitConfig> = {
     modulesPerCourse: UNLIMITED,
     examsPerCourse: UNLIMITED,
     codeExecs: UNLIMITED,
+    aiCreditsPerMonth: 30000,
+    aiMessagesPerDay: 2000,
+    aiMaxQuestionsPerGeneration: 200,
+    aiConcurrentJobs: 10,
+    aiMaxReferences: 10,
     allowedQuestionTypes: ['*'],
   },
 };
@@ -138,6 +172,8 @@ export const PLAN_FEATURES: Record<PlanKey, PlanFeatureConfig> = {
     pythonNotebook: false,
     proctoring: false,
     aiExams: false,
+    aiStudio: true,
+    aiProTier: false,
     bulkImport: false,
     whiteLabel: false,
     customDomain: false,
@@ -155,7 +191,9 @@ export const PLAN_FEATURES: Record<PlanKey, PlanFeatureConfig> = {
     webEditor: true,
     pythonNotebook: false,
     proctoring: true,
-    aiExams: false,
+    aiExams: true,
+    aiStudio: true,
+    aiProTier: false,
     bulkImport: false,
     whiteLabel: false,
     customDomain: false,
@@ -173,7 +211,9 @@ export const PLAN_FEATURES: Record<PlanKey, PlanFeatureConfig> = {
     webEditor: true,
     pythonNotebook: true,
     proctoring: true,
-    aiExams: false,
+    aiExams: true,
+    aiStudio: true,
+    aiProTier: true,
     bulkImport: true,
     whiteLabel: false,
     customDomain: false,
@@ -191,7 +231,9 @@ export const PLAN_FEATURES: Record<PlanKey, PlanFeatureConfig> = {
     webEditor: true,
     pythonNotebook: true,
     proctoring: true,
-    aiExams: false,
+    aiExams: true,
+    aiStudio: true,
+    aiProTier: true,
     bulkImport: true,
     whiteLabel: true,
     customDomain: true,
@@ -220,7 +262,9 @@ export function getEffectivePlanLimits(
   const base = PLAN_LIMITS[plan] || PLAN_LIMITS.FREE;
 
   const features =
-    rawFeatures && typeof rawFeatures === 'object' && !Array.isArray(rawFeatures)
+    rawFeatures &&
+    typeof rawFeatures === 'object' &&
+    !Array.isArray(rawFeatures)
       ? (rawFeatures as Record<string, unknown>)
       : {};
 
@@ -239,14 +283,22 @@ export function getEffectivePlanLimits(
     }
 
     const numeric = Number(value);
-    if (Number.isFinite(numeric) && Number.isInteger(numeric) && numeric >= -1) {
+    if (
+      Number.isFinite(numeric) &&
+      Number.isInteger(numeric) &&
+      numeric >= -1
+    ) {
       normalizedOverrides[key] = numeric;
     }
   }
 
   const allowedQuestionTypes = Array.isArray(rawOverrides.allowedQuestionTypes)
     ? rawOverrides.allowedQuestionTypes
-        .map((value) => String(value || '').trim().toLowerCase())
+        .map((value) =>
+          String(value || '')
+            .trim()
+            .toLowerCase(),
+        )
         .filter(Boolean)
     : null;
 

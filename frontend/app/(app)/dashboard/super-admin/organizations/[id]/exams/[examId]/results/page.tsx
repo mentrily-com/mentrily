@@ -10,7 +10,7 @@ export default function SuperAdminOrganizationExamResults({
     const { id, examId } = React.use(params);
     const basePath = `/dashboard/super-admin/organizations/${id}`;
     return (
-        <div className="min-h-screen bg-[#F8FAFC]">
+        <div className="min-h-screen bg-slate-50">
             <ExamResultsView examId={examId} userRole="admin" basePath={basePath} />
         </div>
     );

@@ -13,9 +13,11 @@ import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Redis } from 'ioredis';
 import { SubmissionService } from '../submission/submission.service';
 import { SupabaseService } from '../../services/supabase/supabase.service';
-import { WsException } from '@nestjs/websockets';
 import { verifyToken } from '@clerk/backend';
-import { createAdapter } from '@socket.io/redis-adapter';
+import {
+  closeSocketRedisAdapter,
+  ensureSocketRedisAdapter,
+} from '../common/socket-redis-adapter';
 import { OnModuleDestroy } from '@nestjs/common';
 import {
   getAllowedWebOrigins,
@@ -65,8 +67,8 @@ export class MonitoringGateway
   @WebSocketServer()
   server: Server;
 
-  private redisPubClient: Redis | null = null;
-  private redisSubClient: Redis | null = null;
+  private installedAdapter = false;
+  private rootServer: any = null;
 
   private readonly violationCounterTtlSec = 6 * 60 * 60;
 
@@ -139,6 +141,11 @@ export class MonitoringGateway
   ): Promise<{ id: string; role: string } | null> {
     if (client.data.dbUser) {
       return client.data.dbUser;
+    }
+
+    // Wait for handleConnection's token check (see the note there).
+    if (client.data.authReady) {
+      await client.data.authReady;
     }
 
     const clerkId = String(client.data.userId || '');
@@ -217,9 +224,20 @@ export class MonitoringGateway
 
     return Boolean(
       membership &&
-        membership.status === 'ACTIVE' &&
-        (membership.role === 'TEACHER' || membership.role === 'ADMIN'),
+      membership.status === 'ACTIVE' &&
+      (membership.role === 'TEACHER' || membership.role === 'ADMIN'),
     );
+  }
+
+  /** Client-reported time, trusted only inside a sane window. */
+  private resolveViolationTime(raw?: string | Date): Date {
+    const now = Date.now();
+    if (!raw) return new Date(now);
+    const parsed = new Date(raw).getTime();
+    if (!Number.isFinite(parsed)) return new Date(now);
+    const sixHoursAgo = now - 6 * 60 * 60 * 1000;
+    if (parsed > now || parsed < sixHoursAgo) return new Date(now);
+    return new Date(parsed);
   }
 
   private async getViolationCounts(
@@ -285,29 +303,36 @@ export class MonitoringGateway
     return Number(results?.[0]?.[1] ?? 0);
   }
 
-  async afterInit(server: Server) {
-    this.redisPubClient = this.redis.duplicate();
-    this.redisSubClient = this.redis.duplicate();
+  afterInit(server: Server) {
     const ioTarget: any = server || this.server;
     const rootServer =
       typeof ioTarget?.adapter === 'function' ? ioTarget : ioTarget?.server;
 
-    if (!rootServer || typeof rootServer.adapter !== 'function') {
-      throw new Error('Socket.IO root server adapter API is unavailable');
-    }
-
-    rootServer.adapter(createAdapter(this.redisPubClient, this.redisSubClient));
+    // Shared across gateways: installing a second adapter on the same server
+    // leaves the first one subscribed, so serverCount() over-counts and every
+    // cluster-wide call (fetchSockets) waits for a reply that never arrives.
+    this.installedAdapter = ensureSocketRedisAdapter(rootServer, this.redis);
+    this.rootServer = rootServer;
     console.log('Proctoring Gateway initialized');
   }
 
   async onModuleDestroy() {
-    await Promise.all([
-      this.redisPubClient?.quit(),
-      this.redisSubClient?.quit(),
-    ]);
+    if (this.installedAdapter) {
+      await closeSocketRedisAdapter(this.rootServer);
+    }
   }
 
   async handleConnection(client: Socket) {
+    // Socket.IO delivers 'connect' to the client as soon as the transport is
+    // up, so a client that emits immediately (the exam page emits join_exam
+    // from its connect handler) could arrive before this async verification
+    // finished and be rejected as UNAUTHENTICATED — silently leaving that
+    // student out of their room, with no monitoring and no device takeover.
+    // Handlers await this promise instead of reading client.data.userId raw.
+    let settleAuth: () => void = () => undefined;
+    client.data.authReady = new Promise<void>((resolve) => {
+      settleAuth = resolve;
+    });
     try {
       const token = this.extractToken(client);
       if (!token) throw new Error('No token provided');
@@ -318,6 +343,7 @@ export class MonitoringGateway
       client.data.userId = payload.sub;
 
       console.log(`Client connected and authenticated: ${client.id}`);
+      settleAuth();
     } catch (error) {
       console.log(
         `Client connection rejected (unauthorized): ${client.id}`,
@@ -327,6 +353,7 @@ export class MonitoringGateway
       // and can decide whether to retry (stale token) or redirect to login.
       client.emit('auth_error', { message: 'AUTH_FAILED' });
       // Small delay so the event is flushed before the transport closes
+      settleAuth();
       setTimeout(() => client.disconnect(true), 100);
     }
   }
@@ -371,7 +398,6 @@ export class MonitoringGateway
     }
 
     const examRoom = `exam_${data.examId}`;
-    client.join(examRoom);
 
     if (data.role === 'teacher') {
       // The monitor room streams every student's violations and status —
@@ -398,20 +424,30 @@ export class MonitoringGateway
       // Student logic - Takeover (Kick Out) Model
       const studentRoom = `student_${socketUser.id}_exam_${data.examId}`;
 
-      // 1. SURGICAL KICK: Disconnect only OTHER sockets in this student's room
-      const peers = await this.server.in(studentRoom).fetchSockets();
+      // 1. SURGICAL KICK: Disconnect only OTHER sockets in this student's room.
+      // fetchSockets() is a cluster-wide round trip; if it fails or times out
+      // the student must still join, so this never aborts the handler.
+      try {
+        const peers = await this.server.in(studentRoom).fetchSockets();
 
-      for (const s of peers) {
-        if (s.id !== client.id) {
-          console.log(
-            `[JoinExam] Surgical kick for old socket ${s.id} (user ${data.userId})`,
-          );
-          s.emit('error', {
-            message:
-              'Another instance of this exam is active. This session is now inactive.',
-          });
-          s.disconnect(true);
+        for (const s of peers) {
+          if (s.id !== client.id) {
+            console.log(
+              `[JoinExam] Surgical kick for old socket ${s.id} (user ${data.userId})`,
+            );
+            s.emit('error', {
+              message:
+                'Another instance of this exam is active. This session is now inactive.',
+            });
+            s.disconnect(true);
+          }
         }
+      } catch (error) {
+        console.error(
+          `[JoinExam] Could not enumerate peers for ${studentRoom}: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        );
       }
 
       // JOIN the room for future displacement
@@ -421,11 +457,43 @@ export class MonitoringGateway
         examId: data.examId,
       });
 
-      // Establish live presence immediately on join so a fast first submit
-      // isn't blocked before the first 30s heartbeat lands. Owner is already
-      // verified above (data.userId === socketUser.id).
+      // Establish live presence on join only if ownership is verified.
+      // Check presence gap before recording to prevent erasing offline gaps.
       if (data.sessionId) {
-        await this.submissionService.recordPresence(data.sessionId);
+        const ownerId = await this.submissionService.getSessionOwner(
+          data.sessionId,
+        );
+        if (ownerId === socketUser.id) {
+          const gapMs = await this.submissionService.getPresenceGapMs(
+            data.sessionId,
+          );
+          await this.submissionService.recordPresence(data.sessionId);
+
+          if (gapMs !== null && gapMs > 75_000) {
+            const seconds = Math.round(gapMs / 1000);
+            const message = `Disconnected from exam proctoring for ${seconds}s before reconnecting`;
+            void this.prisma.violation
+              .create({
+                data: {
+                  sessionId: data.sessionId,
+                  type: 'HEARTBEAT_GAP',
+                  message,
+                  severity: 'WARNING',
+                  timestamp: new Date(),
+                },
+              })
+              .catch(() => {});
+            this.server
+              .to(`exam_${data.examId}_monitor`)
+              .emit('live_violation', {
+                userId: socketUser.id,
+                type: 'HEARTBEAT_GAP',
+                message,
+                details: { gapMs },
+                timestamp: new Date(),
+              });
+          }
+        }
       }
 
       // 2. SET Redis ownership IMMEDIATELY
@@ -510,15 +578,22 @@ export class MonitoringGateway
           const examId = this.activeConnections.get(client.id)?.examId;
           const seconds = Math.round(gapMs / 1000);
           const message = `No proctoring signal for ${seconds}s (possible tab switch, backgrounded tab, or disconnect)`;
-          await this.prisma.violation.create({
-            data: {
-              sessionId: data.sessionId,
-              type: 'HEARTBEAT_GAP',
-              message,
-              severity: 'WARNING',
-              timestamp: new Date(),
-            },
-          });
+          void this.prisma.violation
+            .create({
+              data: {
+                sessionId: data.sessionId,
+                type: 'HEARTBEAT_GAP',
+                message,
+                severity: 'WARNING',
+                timestamp: new Date(),
+              },
+            })
+            .catch((err) => {
+              console.error(
+                `[Proctoring] Failed to log HEARTBEAT_GAP violation for session ${data.sessionId}:`,
+                err,
+              );
+            });
           if (examId) {
             this.server.to(`exam_${examId}_monitor`).emit('live_violation', {
               userId: socketUser.id,
@@ -551,6 +626,7 @@ export class MonitoringGateway
       type: string;
       message: string;
       details?: any;
+      timestamp?: string | Date;
     },
     @ConnectedSocket() client: Socket,
   ) {
@@ -573,20 +649,47 @@ export class MonitoringGateway
     // Identity in downstream events comes from the server, not the payload.
     data.userId = socketUser.id;
 
+    // `message`/`details` are client-supplied and, unlike every other field
+    // here, were persisted and rebroadcast to every connected teacher with
+    // no size limit or validation -- a buggy or malicious client could push
+    // arbitrary/oversized JSON (e.g. a base64 image) into the Violation
+    // table and into every monitor dashboard's socket stream.
+    const MAX_MESSAGE_LEN = 2000;
+    const MAX_DETAILS_BYTES = 4096;
+    const safeMessage = String(data.message ?? '').slice(0, MAX_MESSAGE_LEN);
+    let safeDetails: unknown = data.details ?? null;
+    try {
+      const serialized = JSON.stringify(safeDetails);
+      if (
+        serialized &&
+        Buffer.byteLength(serialized, 'utf8') > MAX_DETAILS_BYTES
+      ) {
+        safeDetails = { truncated: true };
+      }
+    } catch {
+      safeDetails = { truncated: true };
+    }
+    data.message = safeMessage;
+    data.details = safeDetails;
+
     // PERFORMANCE: Check Cache for Session Status & Limits
     const cacheKey = `session:status:${data.sessionId}`;
     const cachedData = await this.redis.get(cacheKey);
 
     // Parse cached data or init as null
-    let sessionData: { status: string; tabSwitchLimit: number | null } =
-      cachedData ? JSON.parse(cachedData) : null;
+    let sessionData: {
+      status: string;
+      examId?: string;
+      tabSwitchLimit: number | null;
+    } = cachedData ? JSON.parse(cachedData) : null;
 
     if (!sessionData) {
       const examSession = await this.prisma.examSession.findUnique({
         where: { id: data.sessionId },
         select: {
           status: true,
-          exam: { select: { tabSwitchLimit: true } },
+          examId: true,
+          exam: { select: { id: true, tabSwitchLimit: true } },
         },
       });
       if (!examSession) {
@@ -594,10 +697,15 @@ export class MonitoringGateway
       }
       sessionData = {
         status: examSession.status,
+        examId: examSession.examId || examSession.exam?.id || data.examId,
         tabSwitchLimit: examSession.exam?.tabSwitchLimit || null,
       };
       // Cache for short duration as status can change
       await this.redis.set(cacheKey, JSON.stringify(sessionData), 'EX', 60);
+    }
+
+    if (sessionData.examId) {
+      data.examId = sessionData.examId;
     }
 
     const status = sessionData.status;
@@ -610,16 +718,29 @@ export class MonitoringGateway
       return { status: 'rejected', reason: 'Session inactive' };
     }
 
-    // Save to DB (Fire and forget? No, wait for it to ensure consistency)
-    await this.prisma.violation.create({
-      data: {
-        sessionId: data.sessionId,
-        type: data.type,
-        message: data.message,
-        severity: 'WARNING',
-        timestamp: new Date(),
-      },
-    });
+    // A client that was offline when the violation happened sends it on
+    // reconnect, so keep the time it actually occurred. Clamped to a sane
+    // window: never in the future, never more than 6h old, so a wrong or
+    // tampered clock can't rewrite the timeline.
+    const occurredAt = this.resolveViolationTime(data.timestamp);
+
+    // Save to DB asynchronously to avoid blocking the real-time event pipeline
+    void this.prisma.violation
+      .create({
+        data: {
+          sessionId: data.sessionId,
+          type: data.type,
+          message: data.message,
+          severity: 'WARNING',
+          timestamp: occurredAt,
+        },
+      })
+      .catch((err) => {
+        console.error(
+          `[Proctoring] Failed to log violation for session ${data.sessionId}:`,
+          err,
+        );
+      });
 
     // OPTIMIZATION: Use Redis Atomic Counters for Tab Switches
     let { inCount: tabSwitchInCount, outCount: tabSwitchOutCount } =
@@ -644,15 +765,32 @@ export class MonitoringGateway
         `[Proctoring] Auto-terminating session ${data.sessionId} for user ${data.userId} due to tab switch limit (${tabSwitchInCount}/${limit})`,
       );
 
-      await this.prisma.$executeRaw`
+      // Guarded on status='IN_PROGRESS': the 60s status cache above can be
+      // stale, so without this guard a violation processed after the
+      // student already submitted (status now COMPLETED, with a real
+      // score) would silently overwrite the row back to TERMINATED --
+      // clobbering endTime/timeTakenSec on an already-graded session and
+      // defeating the "already passed" re-attempt block, which keys off
+      // status === 'COMPLETED'.
+      const terminatedCount: number = await this.prisma.$executeRaw`
                 UPDATE "ExamSession"
                 SET
                     "status" = 'TERMINATED',
-                    "endTime" = NOW(),
-                    "timeTakenSec" = GREATEST(EXTRACT(EPOCH FROM (NOW() - "startTime"))::INT, 0),
-                    "updatedAt" = NOW()
-                WHERE "id" = ${data.sessionId}
+                    "endTime" = (NOW() AT TIME ZONE 'UTC'),
+                    "timeTakenSec" = GREATEST(EXTRACT(EPOCH FROM ((NOW() AT TIME ZONE 'UTC') - "startTime"))::INT, 0),
+                    "updatedAt" = (NOW() AT TIME ZONE 'UTC')
+                WHERE "id" = ${data.sessionId} AND "status" = 'IN_PROGRESS'
             `;
+
+      if (terminatedCount === 0) {
+        // Session already left IN_PROGRESS (submitted or already
+        // terminated) between the stale cache read above and this write --
+        // don't kick the student or notify teachers of a termination that
+        // didn't happen. Drop the stale cache entry so the next check reads
+        // the session's real current status.
+        await this.redis.del(cacheKey);
+        return { status: 'rejected', reason: 'Session already inactive' };
+      }
 
       await this.redis.set(
         cacheKey,
@@ -683,7 +821,7 @@ export class MonitoringGateway
       details: data.details,
       tabOuts: tabSwitchOutCount,
       tabIns: tabSwitchInCount,
-      timestamp: new Date(),
+      timestamp: occurredAt,
     });
 
     return { status: 'recorded' };

@@ -16,6 +16,7 @@ import {
 } from 'recharts';
 import { TeacherService } from '@/services/api/TeacherService';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import ExamResultsSkeleton from '@/app/components/Skeletons/ExamResultsSkeleton';
 
 interface Result {
     sessionId: string;
@@ -144,11 +145,11 @@ export default function ExamResultsView({
     const pieData = !hasResults
         ? [{ name: 'No Data', value: 1, color: neutralColor }]
         : classifiedCount > 0
-            ? [
+          ? [
                 { name: 'Passed', value: stats.passedCount || 0, color: passedColor },
                 { name: 'Failed', value: stats.failedCount || 0, color: failedColor },
             ]
-            : [{ name: 'Pending', value: results.length, color: neutralColor }];
+          : [{ name: 'Pending', value: results.length, color: neutralColor }];
 
     const pieChartData = pieData.filter((segment) => segment.value > 0);
     const piePaddingAngle = pieChartData.length > 1 ? 8 : 0;
@@ -200,15 +201,10 @@ export default function ExamResultsView({
     const backLink = basePath
         ? `${basePath}/exams`
         : userRole === 'admin'
-            ? '/dashboard/creator/exams'
-            : '/dashboard/creator/exams';
+          ? '/dashboard/creator/exams'
+          : '/dashboard/creator/exams';
 
-    if (loading)
-        return (
-            <div className="p-12 text-center font-black text-slate-300 uppercase tracking-widest animate-pulse">
-                Loading Results...
-            </div>
-        );
+    if (loading) return <ExamResultsSkeleton />;
 
     return (
         <div className="animate-fade-in pb-10">
@@ -219,7 +215,7 @@ export default function ExamResultsView({
                         Assessment ID: {examId}
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                     <Link href={backLink}>
                         <button className="p-3 bg-white border border-slate-100 text-slate-400 rounded-xl hover:text-slate-600 transition-all shadow-sm">
                             <svg
@@ -245,11 +241,7 @@ export default function ExamResultsView({
                             boxShadow: isResultsPublished ? 'none' : `0 10px 15px -3px ${brandColor}40`,
                         }}
                     >
-                        {isPublishing
-                            ? 'Publishing...'
-                            : isResultsPublished
-                                ? 'Results Published'
-                                : 'Publish Results'}
+                        {isPublishing ? 'Publishing...' : isResultsPublished ? 'Results Published' : 'Publish Results'}
                     </button>
                 </div>
             </div>
@@ -286,9 +278,7 @@ export default function ExamResultsView({
                             </PieChart>
                         </ResponsiveContainer>
                         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                            <span className="text-2xl font-black text-slate-800 leading-none">
-                                {results.length}
-                            </span>
+                            <span className="text-2xl font-black text-slate-800 leading-none">{results.length}</span>
                             <span className="text-[8px] font-black text-slate-300 uppercase">Total</span>
                         </div>
                     </div>
@@ -298,7 +288,7 @@ export default function ExamResultsView({
                     </div>
                 </div>
 
-                <div className="lg:col-span-1 space-y-4">
+                <div className="md:col-span-2 lg:col-span-1 space-y-4">
                     <CompactStatTile
                         label="Avg Score"
                         value={`${stats.avgScore.toFixed(0)}%`}
@@ -313,7 +303,7 @@ export default function ExamResultsView({
                     />
                 </div>
 
-                <div className="md:col-span-2 lg:col-span-3 bg-white rounded-[32px] border border-slate-100 p-6 shadow-sm flex flex-col">
+                <div className="md:col-span-4 lg:col-span-3 bg-white rounded-[32px] border border-slate-100 p-6 shadow-sm flex flex-col">
                     <div className="flex items-center justify-between mb-6 px-2">
                         <div>
                             <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">
@@ -325,10 +315,7 @@ export default function ExamResultsView({
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-1.5">
-                                <div
-                                    className="w-1.5 h-1.5 rounded-full"
-                                    style={{ backgroundColor: brandColor }}
-                                ></div>
+                                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: brandColor }}></div>
                                 <span className="text-[9px] font-black text-slate-400 uppercase">Count</span>
                             </div>
                         </div>
@@ -336,10 +323,7 @@ export default function ExamResultsView({
 
                     <div className="flex-1 w-full min-h-[160px]">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                                data={stats.distribution}
-                                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-                            >
+                            <BarChart data={stats.distribution} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id={`barGradient-${userRole}`} x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="0%" stopColor={brandColor} stopOpacity={1} />
@@ -409,9 +393,7 @@ export default function ExamResultsView({
                                 </div>
                             )}
                         </div>
-                        <span className="text-[10px] font-black text-slate-400 uppercase">
-                            Total {results.length}
-                        </span>
+                        <span className="text-[10px] font-black text-slate-400 uppercase">Total {results.length}</span>
                     </div>
                 </div>
                 <div className="overflow-x-auto">
@@ -497,11 +479,11 @@ export default function ExamResultsView({
                                                 basePath
                                                     ? `${basePath}/exams/${examId}/submission/${r.sessionId}/preview`
                                                     : userRole === 'admin'
-                                                        ? `/dashboard/creator/exams/${examId}/submission/${r.sessionId}/preview`
-                                                        : `/dashboard/creator/exams/${examId}/submission/${r.sessionId}/preview`
+                                                      ? `/dashboard/creator/exams/${examId}/submission/${r.sessionId}/preview`
+                                                      : `/dashboard/creator/exams/${examId}/submission/${r.sessionId}/preview`
                                             }
                                         >
-                                            <button className="text-[9px] font-black uppercase text-slate-400 hover:text-[var(--brand)] transition-colors">
+                                            <button className="px-3 py-1.5 rounded-lg text-[10px] sm:text-[9px] font-black uppercase text-slate-500 bg-slate-50 hover:bg-[var(--brand-light)]/20 hover:text-[var(--brand)] transition-colors inline-flex items-center justify-center min-h-[36px]">
                                                 Preview →
                                             </button>
                                         </Link>
@@ -522,7 +504,7 @@ export default function ExamResultsView({
                     <button
                         onClick={() => setPagination((p) => ({ ...p, page: Math.max(1, p.page - 1) }))}
                         disabled={pagination.page === 1}
-                        className="p-2 rounded-xl bg-white border border-slate-100 disabled:opacity-50 hover:bg-slate-50 transition-colors"
+                        className="p-2.5 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl bg-white border border-slate-100 disabled:opacity-50 hover:bg-slate-50 transition-colors"
                     >
                         <ChevronLeft size={16} className="text-slate-600" />
                     </button>
@@ -531,7 +513,7 @@ export default function ExamResultsView({
                             setPagination((p) => ({ ...p, page: Math.min(pagination.totalPages, p.page + 1) }))
                         }
                         disabled={pagination.page === pagination.totalPages}
-                        className="p-2 rounded-xl bg-white border border-slate-100 disabled:opacity-50 hover:bg-slate-50 transition-colors"
+                        className="p-2.5 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl bg-white border border-slate-100 disabled:opacity-50 hover:bg-slate-50 transition-colors"
                     >
                         <ChevronRight size={16} className="text-slate-600" />
                     </button>
@@ -547,7 +529,6 @@ export default function ExamResultsView({
                 onConfirm={() => setAlertConfig((prev) => ({ ...prev, isOpen: false }))}
                 onCancel={() => setAlertConfig((prev) => ({ ...prev, isOpen: false }))}
             />
-
         </div>
     );
 }

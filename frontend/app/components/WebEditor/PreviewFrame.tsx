@@ -11,7 +11,9 @@ export default function PreviewFrame({ src, onMessage }: PreviewFrameProps) {
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
-            if (onMessage) onMessage(event.data);
+            if (iframeRef.current && event.source === iframeRef.current.contentWindow) {
+                if (onMessage) onMessage(event.data);
+            }
         };
         window.addEventListener('message', handleMessage);
         return () => window.removeEventListener('message', handleMessage);
@@ -37,7 +39,7 @@ export default function PreviewFrame({ src, onMessage }: PreviewFrameProps) {
                         ref={iframeRef}
                         src={src}
                         className="w-full h-full border-none"
-                        sandbox="allow-scripts allow-same-origin"
+                        sandbox="allow-scripts"
                         title="Web Preview"
                     />
                 )}

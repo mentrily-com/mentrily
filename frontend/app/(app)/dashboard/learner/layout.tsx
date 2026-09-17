@@ -1,25 +1,27 @@
-"use client";
-import React from "react";
-import { useRoleGuard } from "@/hooks/useRoleGuard";
-import DashboardSkeleton from "@/app/components/Skeletons/DashboardSkeleton";
-import Navbar from "@/app/components/Navbar";
+'use client';
+import React from 'react';
+import { useRoleGuard } from '@/hooks/useRoleGuard';
+import LearnerDashboardSkeleton from '@/app/components/Skeletons/LearnerDashboardSkeleton';
+import Navbar from '@/app/components/Navbar';
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
-    const { isAuthorized, isReady } = useRoleGuard(['STUDENT']);
+    const { shouldBlockRender } = useRoleGuard(['STUDENT']);
 
-    if (!isReady || !isAuthorized) {
+    if (shouldBlockRender) {
         return (
-            <div className="min-h-screen bg-[#F8FAFC]">
+            <div className="h-screen flex flex-col overflow-hidden bg-slate-50">
                 <Navbar userRole="student" />
-                <DashboardSkeleton type="main" userRole="student" noNavbar />
+                <div className="flex-1 min-h-0 overflow-y-auto">
+                    <LearnerDashboardSkeleton />
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen">
+        <div className="h-screen flex flex-col overflow-hidden">
             <Navbar userRole="student" />
-            {children}
+            <div className="flex-1 min-h-0 overflow-y-auto">{children}</div>
         </div>
     );
 }

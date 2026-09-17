@@ -7,6 +7,7 @@ import ExamSidebar from '@/app/components/ExamSidebar';
 // submission details and questions are now fetched from API
 
 import { TeacherService } from '@/services/api/TeacherService';
+import { useToast } from '@/app/components/Common/Toast';
 
 export default function SuperAdminSubmissionPreviewPage({
     params,
@@ -14,6 +15,7 @@ export default function SuperAdminSubmissionPreviewPage({
     params: Promise<{ id: string; examId: string; sessionId: string }>;
 }) {
     const { id, examId, sessionId } = React.use(params);
+    const { success, error: toastError } = useToast();
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [activeTab, setActiveTab] = useState<'question' | 'attempts'>('question');
     const [selectedAttemptId, setSelectedAttemptId] = useState<string | undefined>(undefined);
@@ -108,10 +110,10 @@ export default function SuperAdminSubmissionPreviewPage({
                 ...prev,
                 details: { ...prev.details, score: totalCalculated },
             }));
-            alert(`Grades saved! Total Score: ${totalCalculated}`);
+            success(`Grades saved! Total Score: ${totalCalculated}`);
         } catch (error) {
             console.error('Failed to save grades', error);
-            alert('Failed to save grades');
+            toastError('Failed to save grades');
         }
     };
 
@@ -189,7 +191,6 @@ export default function SuperAdminSubmissionPreviewPage({
 
     return (
         <div className="h-[calc(100dvh-var(--topbar-height)-20px)] min-h-0 overflow-hidden rounded-[18px] border border-slate-100 bg-white shadow-sm sm:h-[calc(100dvh-var(--topbar-height)-36px)]">
-
             {/* Main Workspace */}
             <main className="flex h-full min-h-0 overflow-hidden">
                 {/* Reusable Exam Sidebar */}
@@ -256,10 +257,7 @@ function ConsolidatedHeader({ studentName, rollNo, marks, maxMarks, totalScore, 
                     </div>
                     <div className="min-w-0">
                         <h4 className="truncate text-sm font-black leading-tight text-slate-800">
-                            {studentName}{' '}
-                            <span className="font-bold text-slate-300">
-                                ({rollNo})
-                            </span>
+                            {studentName} <span className="font-bold text-slate-300">({rollNo})</span>
                         </h4>
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">
                             Total Score: <span className="text-[var(--brand)]">{totalScore || 0}</span>

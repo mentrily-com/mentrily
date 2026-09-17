@@ -20,9 +20,7 @@ interface PresignResponse {
 }
 
 async function presign(kind: UploadKind, file: File): Promise<PresignResponse> {
-    const headers = await withClerkAuthorization(
-        withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
-    );
+    const headers = await withClerkAuthorization(withCsrfHeader('POST', { 'Content-Type': 'application/json' }));
     const res = await apiFetch(`${BASE_URL}/uploads/presign`, {
         method: 'POST',
         headers,
@@ -73,9 +71,7 @@ function putToS3(uploadUrl: string, file: File, onProgress?: (percent: number) =
 }
 
 async function confirm(kind: UploadKind, key: string): Promise<UploadedFile> {
-    const headers = await withClerkAuthorization(
-        withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
-    );
+    const headers = await withClerkAuthorization(withCsrfHeader('POST', { 'Content-Type': 'application/json' }));
     const res = await apiFetch(`${BASE_URL}/uploads/confirm`, {
         method: 'POST',
         headers,
@@ -98,11 +94,7 @@ export const UploadService = {
      * bug-report screenshot to a 500MB course video, goes through this same
      * presign -> PUT -> confirm flow.
      */
-    async uploadFile(
-        kind: UploadKind,
-        file: File,
-        onProgress?: (percent: number) => void,
-    ): Promise<UploadedFile> {
+    async uploadFile(kind: UploadKind, file: File, onProgress?: (percent: number) => void): Promise<UploadedFile> {
         const { uploadUrl, key } = await presign(kind, file);
         await putToS3(uploadUrl, file, onProgress);
         return confirm(kind, key);

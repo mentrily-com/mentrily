@@ -33,11 +33,5 @@ export default function ClerkSignInCompatPage() {
         return null;
     }
 
-    return (
-        <AuthenticateWithRedirectCallback
-            transferable={false}
-            signInUrl="/login"
-            signUpUrl="/signup"
-        />
-    );
+    return <AuthenticateWithRedirectCallback transferable={false} signInUrl="/login" signUpUrl="/signup" />;
 }

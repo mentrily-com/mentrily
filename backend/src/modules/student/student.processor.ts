@@ -5,6 +5,7 @@ import { SupabaseService } from '../../services/supabase/supabase.service';
 import { CertificateService } from '../certificate/certificate.service';
 
 @Processor('student-analytics', {
+  concurrency: Number(process.env.STUDENT_ANALYTICS_CONCURRENCY || 15),
   // Optimize for serverless Redis (reduce command usage)
   stalledInterval: 300000, // 5 minutes
   maxStalledCount: 3,
@@ -101,9 +102,7 @@ export class StudentProcessor extends WorkerHost {
     await this.prisma.user.update({
       where: { id: userId },
       data: {
-        // @ts-ignore
         dailyStreak: streak,
-        // @ts-ignore
         lastActivityDate: lastActivityDate,
       },
     });
@@ -179,7 +178,6 @@ export class StudentProcessor extends WorkerHost {
           ? 'In Progress'
           : 'Not Started';
 
-    // @ts-ignore - Prisma types might be stale in IDE but schema is correct
     await this.prisma.courseProgress.upsert({
       where: {
         userId_courseId: { userId, courseId },
@@ -245,18 +243,19 @@ export class StudentProcessor extends WorkerHost {
     // (same session, question, and content); a genuinely changed answer
     // still creates a new attempt row as before.
     if (sessionId) {
-      // @ts-ignore
       const recentDuplicate = await this.prisma.questionAttempt.findFirst({
         where: { sessionId, itemId },
         orderBy: { createdAt: 'desc' },
         select: { content: true },
       });
-      if (recentDuplicate && JSON.stringify(recentDuplicate.content) === JSON.stringify(content)) {
+      if (
+        recentDuplicate &&
+        JSON.stringify(recentDuplicate.content) === JSON.stringify(content)
+      ) {
         return;
       }
     }
 
-    // @ts-ignore
     await this.prisma.questionAttempt.create({
       data: {
         userId,
@@ -274,7 +273,6 @@ export class StudentProcessor extends WorkerHost {
       await this.prisma.user.update({
         where: { id: userId },
         data: {
-          // @ts-ignore
           totalXP: { increment: 10 }, // 10 XP per correct question
         },
       });

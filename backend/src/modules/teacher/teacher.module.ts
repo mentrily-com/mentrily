@@ -1,6 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TeacherController } from './teacher.controller';
 import { TeacherService } from './teacher.service';
+import { TeacherGroupsService } from './teacher-groups.service';
+import { TeacherAnnouncementsService } from './teacher-announcements.service';
+import { TeacherStudentsService } from './teacher-students.service';
+import { TeacherStatsService } from './teacher-stats.service';
+import { TeacherCoursesService } from './teacher-courses.service';
+import { TeacherExamsService } from './teacher-exams.service';
 import { PrismaModule } from '../../services/prisma/prisma.module';
 import { MonitoringModule } from '../monitoring/monitoring.module';
 import { ExamModule } from '../exam/exam.module';
@@ -28,6 +34,16 @@ import { OrganizationModule } from '../organization/organization.module';
     }),
   ],
   controllers: [TeacherController],
-  providers: [TeacherService],
+  providers: [
+    TeacherService,
+    TeacherGroupsService,
+    TeacherAnnouncementsService,
+    TeacherStudentsService,
+    TeacherStatsService,
+    TeacherCoursesService,
+    TeacherExamsService,
+  ],
+  // Used by the AI module to apply AI edits through the builder's save paths.
+  exports: [TeacherService, TeacherCoursesService, TeacherExamsService],
 })
 export class TeacherModule {}

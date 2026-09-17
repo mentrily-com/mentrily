@@ -11,10 +11,9 @@ export function toCsv(rows: Array<Record<string, string | number | boolean | nul
         return `"${text.replace(/"/g, '""')}"`;
     };
 
-    return [
-        headers.join(','),
-        ...rows.map((row) => headers.map((header) => escapeCell(row[header])).join(',')),
-    ].join('\n');
+    return [headers.join(','), ...rows.map((row) => headers.map((header) => escapeCell(row[header])).join(','))].join(
+        '\n',
+    );
 }
 
 export function downloadCsv(

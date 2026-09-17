@@ -8,7 +8,12 @@ import { NotificationModule } from '../notification/notification.module';
 import { OrganizationModule } from '../organization/organization.module';
 
 @Module({
-  imports: [PrismaModule, CertificateModule, NotificationModule, OrganizationModule],
+  imports: [
+    PrismaModule,
+    CertificateModule,
+    NotificationModule,
+    OrganizationModule,
+  ],
   controllers: [ExamController],
   providers: [ExamService, TestCodeRotationService],
   exports: [ExamService],

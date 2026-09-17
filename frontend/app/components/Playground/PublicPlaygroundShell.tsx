@@ -53,7 +53,7 @@ export default function PublicPlaygroundShell({
 
     return (
         <div
-            className={`public-playground-page bg-[#F8FAFC] text-slate-900 ${
+            className={`public-playground-page bg-slate-50 text-slate-900 ${
                 embedded ? 'h-full min-h-0' : 'min-h-screen'
             }`}
         >
@@ -93,7 +93,11 @@ export default function PublicPlaygroundShell({
                             <PublicPlaygroundProfile />
                         </div>
 
-                        <button onClick={() => setOpen(!open)} className="rounded-lg p-2 text-slate-500 md:hidden">
+                        <button
+                            onClick={() => setOpen(!open)}
+                            aria-label={open ? 'Close menu' : 'Open menu'}
+                            className="rounded-lg p-2 text-slate-500 md:hidden"
+                        >
                             {open ? <X size={22} /> : <Menu size={22} />}
                         </button>
                     </div>
@@ -128,7 +132,7 @@ export default function PublicPlaygroundShell({
             <main
                 className={
                     embedded
-                        ? 'h-full min-h-0 w-full bg-[#F8FAFC] p-3 lg:p-4'
+                        ? 'h-full min-h-0 w-full bg-slate-50 p-3 lg:p-4'
                         : 'mx-auto min-h-[calc(100vh-4rem)] w-full max-w-[1660px] px-4 py-4 lg:px-6'
                 }
             >
@@ -208,7 +212,14 @@ function QuestionBuilderCard({ onOpen }: { onOpen: () => void }) {
     );
 }
 
-function PublicPlaygroundProfile({ mobile = false }: { mobile?: boolean }) {
+export function PublicPlaygroundProfile({
+    mobile = false,
+    compact = false,
+}: {
+    mobile?: boolean;
+    /** Avatar-only trigger (name and email move into the menu). */
+    compact?: boolean;
+}) {
     const { isLoaded, isSignedIn } = useAuth();
     const { user: clerkUser } = useUser();
     const clerk = useClerk();
@@ -266,10 +277,20 @@ function PublicPlaygroundProfile({ mobile = false }: { mobile?: boolean }) {
             <button
                 type="button"
                 onClick={() => setOpen((value) => !value)}
-                className="flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-left shadow-sm transition hover:border-slate-300"
+                aria-label={compact ? `Account menu for ${name}` : undefined}
+                aria-expanded={open}
+                className={
+                    compact
+                        ? 'flex rounded-full p-0.5 ring-1 ring-slate-200 transition hover:ring-slate-300'
+                        : 'flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-left shadow-sm transition hover:border-slate-300'
+                }
             >
                 <span className="flex min-w-0 items-center gap-2.5">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[var(--brand)] text-xs font-black text-white">
+                    <span
+                        className={`flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden bg-[var(--brand)] text-xs font-black text-white ${
+                            compact ? 'rounded-full' : 'rounded-lg'
+                        }`}
+                    >
                         {avatarUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
@@ -277,7 +298,7 @@ function PublicPlaygroundProfile({ mobile = false }: { mobile?: boolean }) {
                             initial
                         )}
                     </span>
-                    <span className="hidden min-w-0 sm:block">
+                    <span className={compact ? 'sr-only' : 'hidden min-w-0 sm:block'}>
                         <span className="block truncate text-xs font-black text-slate-800">{name}</span>
                         {email && (
                             <span className="block truncate text-[10px] font-semibold text-slate-400">{email}</span>
@@ -287,6 +308,12 @@ function PublicPlaygroundProfile({ mobile = false }: { mobile?: boolean }) {
             </button>
             {open && (
                 <div className="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
+                    {compact && (
+                        <div className="border-b border-slate-100 px-4 py-3">
+                            <p className="truncate text-sm font-semibold text-slate-900">{name}</p>
+                            {email && <p className="truncate text-xs text-slate-500">{email}</p>}
+                        </div>
+                    )}
                     <Link
                         href={profileHref}
                         onClick={() => setOpen(false)}

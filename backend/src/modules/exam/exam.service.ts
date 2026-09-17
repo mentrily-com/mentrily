@@ -6,17 +6,22 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRedis } from '@nestjs-modules/ioredis';
+import { randomBytes } from 'crypto';
 import { Redis } from 'ioredis';
 import { SupabaseService } from '../../services/supabase/supabase.service';
-import {
-  sanitizeQuestionForClient,
-  shouldSanitizeSensitiveContent,
-} from '../common/testcase-visibility.util';
+import { shouldSanitizeSensitiveContent } from '../common/testcase-visibility.util';
 import { readStashedSessionAnswers } from '../common/session-answers.util';
-import { toStudentExamResponseDto } from './dto/exam-response.dto';
 import { CertificateService } from '../certificate/certificate.service';
 import { NotificationGateway } from '../notification/notification.gateway';
 import { MembershipService } from '../organization/membership.service';
+import {
+  isMissingExamAttemptFieldError,
+  isMissingExamSessionAttemptNumberError,
+  countQuestions,
+  transformExam as transformExamUtil,
+  transformCourseTest as transformCourseTestUtil,
+  transformCourse as transformCourseUtil,
+} from './exam.util';
 
 @Injectable()
 export class ExamService {
@@ -34,38 +39,55 @@ export class ExamService {
     return this.supabase.legacyPrisma;
   }
 
-  private isMissingExamAttemptFieldError(error: unknown): boolean {
-    return (
-      typeof error === 'object' &&
-      error !== null &&
-      (error as any).code === 'P2022' &&
-      (String((error as any)?.meta?.column || '').includes(
-        'Exam.passingPercentage',
-      ) ||
-        String((error as any)?.meta?.column || '').includes('Exam.maxAttempts') ||
-        String((error as any)?.meta?.column || '').includes(
-          'Exam.attemptBufferMins',
-        ))
-    );
+  // Thin delegates -- the actual transform logic lives in exam.util.ts
+  // (pure functions, independently testable, no DB/DI dependency). Kept as
+  // methods here since teacher-students.service.ts and student.service.ts
+  // both call these via `examService.transformExam(...)`.
+  transformExam(exam: any, includeSensitive: boolean = true) {
+    return transformExamUtil(exam, includeSensitive);
   }
 
-  private isMissingExamSessionAttemptNumberError(error: unknown): boolean {
-    return (
-      typeof error === 'object' &&
-      error !== null &&
-      (error as any).code === 'P2022' &&
-      String((error as any)?.meta?.column || '').includes(
-        'ExamSession.attemptNumber',
-      )
-    );
+  transformCourseTest(test: any, includeSensitive: boolean = true) {
+    return transformCourseTestUtil(test, includeSensitive);
   }
 
-  private async calculateCourseCompletionPercent(courseId: string, userId: string) {
-    const course = await this.prisma.course.findUnique({
+  transformCourse(course: any, includeSensitive: boolean = true) {
+    return transformCourseUtil(course, includeSensitive);
+  }
+
+  private async calculateCourseCompletionPercent(
+    courseId: string,
+    userId: string,
+  ) {
+    const [course, progressRecord] = await Promise.all([
+      this.prisma.course.findUnique({
+        where: { id: courseId },
+        select: {
+          examUnlockThreshold: true,
+          examPassThreshold: true,
+        },
+      }),
+      this.prisma.courseProgress.findUnique({
+        where: { userId_courseId: { userId, courseId } },
+        select: { percent: true },
+      }),
+    ]);
+
+    if (!course) return null;
+
+    if (progressRecord) {
+      return {
+        percent: progressRecord.percent,
+        course: {
+          examUnlockThreshold: course.examUnlockThreshold,
+          examPassThreshold: course.examPassThreshold,
+        },
+      };
+    }
+
+    const courseWithModules = await this.prisma.course.findUnique({
       where: { id: courseId },
       select: {
-        examUnlockThreshold: true,
-        examPassThreshold: true,
         modules: {
           select: {
             units: {
@@ -76,9 +98,9 @@ export class ExamService {
       },
     });
 
-    if (!course) return null;
-
-    const unitIds = course.modules.flatMap((module) => module.units.map((unit) => unit.id));
+    const unitIds = (courseWithModules?.modules || []).flatMap((module) =>
+      module.units.map((unit) => unit.id),
+    );
     const completedRows =
       unitIds.length > 0
         ? await this.prisma.unitSubmission.findMany({
@@ -92,7 +114,10 @@ export class ExamService {
           })
         : [];
 
-    const percent = unitIds.length > 0 ? Math.round((completedRows.length / unitIds.length) * 100) : 0;
+    const percent =
+      unitIds.length > 0
+        ? Math.round((completedRows.length / unitIds.length) * 100)
+        : 0;
     return {
       percent,
       course: {
@@ -200,35 +225,9 @@ export class ExamService {
     return this.resolveOrganizationIdBySubdomain(tenantSubdomain);
   }
 
-  private countQuestions(questions: any): {
-    totalQuestions: number;
-    totalSections: number;
-  } {
-    const rawQuestions: any = questions || {};
-    let totalQuestions = 0;
-    let totalSections = 0;
-
-    if (rawQuestions.sections && Array.isArray(rawQuestions.sections)) {
-      totalSections = rawQuestions.sections.length;
-      rawQuestions.sections.forEach((s: any) => {
-        if (Array.isArray(s.questions)) {
-          totalQuestions += s.questions.length;
-        }
-      });
-    } else if (Array.isArray(rawQuestions)) {
-      totalSections = 1;
-      totalQuestions = rawQuestions.length;
-    } else if (Object.keys(rawQuestions).length > 0) {
-      totalSections = 1;
-      totalQuestions = Object.keys(rawQuestions).length;
-    }
-
-    return { totalQuestions, totalSections };
-  }
-
   async createExam(data: any, user?: any) {
     try {
-      return await this.prisma.exam.create({
+      const created = await this.prisma.exam.create({
         data: {
           title: data.title,
           slug: data.slug,
@@ -243,6 +242,8 @@ export class ExamService {
           orgId: user?.orgId || null,
         },
       });
+      await this.redis.del(`exam:check-status:${data.slug}`).catch(() => {});
+      return created;
     } catch (e) {
       if (e.code === 'P2002')
         throw new ConflictException('Slug already exists');
@@ -257,6 +258,9 @@ export class ExamService {
     const cached = await this.redis.get(cacheKey);
 
     let foundData = cached ? JSON.parse(cached) : null;
+    if (foundData?.notFound) {
+      throw new NotFoundException('Exam not found');
+    }
 
     if (!foundData) {
       const examSelect = {
@@ -317,6 +321,14 @@ export class ExamService {
           `[ExamService] Resolved slug '${slug}' to type '${foundData.type}' with ID: ${foundData.id}`,
         );
         await this.redis.set(cacheKey, JSON.stringify(foundData), 'EX', 3600);
+      } else {
+        // PERFORMANCE: Negative caching prevents repeated 3-table scans on invalid slugs
+        await this.redis.set(
+          cacheKey,
+          JSON.stringify({ notFound: true }),
+          'EX',
+          60,
+        );
       }
     }
 
@@ -332,7 +344,9 @@ export class ExamService {
         foundData.examMode = examModeRecord?.examMode;
       }
 
-      if (!(await this.canAccessPublicExamResource(foundData, user?.orgId, user))) {
+      if (
+        !(await this.canAccessPublicExamResource(foundData, user?.orgId, user))
+      ) {
         throw new NotFoundException('Exam not found');
       }
 
@@ -352,10 +366,23 @@ export class ExamService {
     const entity = cached ? JSON.parse(cached) : null;
 
     if (entity) {
-      if (!(await this.canAccessPublicExamResource(entity, requestOrgId, user))) {
+      if (
+        !(await this.canAccessPublicExamResource(entity, requestOrgId, user))
+      ) {
         throw new NotFoundException('Assessment not found or access denied');
       }
-      return this.transformExam(entity, !shouldSanitizeSensitiveContent(user));
+      const includeSensitive = !shouldSanitizeSensitiveContent(user, entity);
+      const transformedCacheKey = `exam:content:transformed:${slug}:${includeSensitive ? `sensitive:${user?.id}` : 'public'}`;
+      const cachedTransformed = await this.redis.get(transformedCacheKey);
+      if (cachedTransformed) return JSON.parse(cachedTransformed);
+      const transformed = this.transformExam(entity, includeSensitive);
+      await this.redis.set(
+        transformedCacheKey,
+        JSON.stringify(transformed),
+        'EX',
+        3600,
+      );
+      return transformed;
     }
 
     // 1. Try finding all at once using Promise.all to reduce latency
@@ -385,7 +412,18 @@ export class ExamService {
       if (!(await this.canAccessPublicExamResource(exam, requestOrgId, user))) {
         throw new NotFoundException('Assessment not found or access denied');
       }
-      return this.transformExam(exam, !shouldSanitizeSensitiveContent(user));
+      const includeSensitive = !shouldSanitizeSensitiveContent(user, exam);
+      const transformedCacheKey = `exam:content:transformed:${slug}:${includeSensitive ? `sensitive:${user?.id}` : 'public'}`;
+      const cachedTransformed = await this.redis.get(transformedCacheKey);
+      if (cachedTransformed) return JSON.parse(cachedTransformed);
+      const transformed = this.transformExam(exam, includeSensitive);
+      await this.redis.set(
+        transformedCacheKey,
+        JSON.stringify(transformed),
+        'EX',
+        3600,
+      );
+      return transformed;
     }
 
     if (courseTest) {
@@ -397,13 +435,19 @@ export class ExamService {
       // Cache
       await this.redis.set(cacheKey, JSON.stringify(mappedTest), 'EX', 3600);
 
-      if (!(await this.canAccessPublicExamResource(mappedTest, requestOrgId, user))) {
+      if (
+        !(await this.canAccessPublicExamResource(
+          mappedTest,
+          requestOrgId,
+          user,
+        ))
+      ) {
         throw new NotFoundException('Assessment not found');
       }
 
       const transformed = this.transformCourseTest(
         courseTest,
-        !shouldSanitizeSensitiveContent(user),
+        !shouldSanitizeSensitiveContent(user, mappedTest),
       );
       // Add startTime for frontend timer calculation
       (transformed as any).startTime =
@@ -412,12 +456,14 @@ export class ExamService {
     }
 
     if (course) {
-      if (!(await this.canAccessPublicExamResource(course, requestOrgId, user))) {
+      if (
+        !(await this.canAccessPublicExamResource(course, requestOrgId, user))
+      ) {
         throw new NotFoundException('Assessment not found');
       }
       return this.transformCourse(
         course,
-        !shouldSanitizeSensitiveContent(user),
+        !shouldSanitizeSensitiveContent(user, course),
       );
     }
 
@@ -462,7 +508,7 @@ export class ExamService {
           select: examSelect as any,
         });
       } catch (error) {
-        if (!this.isMissingExamAttemptFieldError(error)) {
+        if (!isMissingExamAttemptFieldError(error)) {
           throw error;
         }
 
@@ -477,7 +523,7 @@ export class ExamService {
       }
 
       if (exam) {
-        const { totalQuestions, totalSections } = this.countQuestions(
+        const { totalQuestions, totalSections } = countQuestions(
           exam.questions,
         );
         payload = {
@@ -526,7 +572,7 @@ export class ExamService {
             duration = Math.floor(diffMs / 60000);
           }
 
-          const { totalQuestions, totalSections } = this.countQuestions(
+          const { totalQuestions, totalSections } = countQuestions(
             courseTest.questions,
           );
           payload = {
@@ -556,7 +602,9 @@ export class ExamService {
       throw new NotFoundException(`Exam not found for slug: ${slug}`);
     }
 
-    if (!(await this.canAccessPublicExamResource(payload, requestOrgId, user))) {
+    if (
+      !(await this.canAccessPublicExamResource(payload, requestOrgId, user))
+    ) {
       throw new NotFoundException(`Exam not found for slug: ${slug}`);
     }
 
@@ -576,261 +624,6 @@ export class ExamService {
     }
 
     return payload.response;
-  }
-
-  private normalizeType(type: string): string {
-    const t = type.toLowerCase();
-    if (t.includes('multi') || t.includes('select')) return 'MultiSelect';
-    if (t.includes('mcq') || t.includes('quiz') || t.includes('choice'))
-      return 'MCQ';
-    if (t.includes('code') || t.includes('coding') || t.includes('program'))
-      return 'Coding';
-    if (t.includes('web') || t.includes('html')) return 'Web';
-    if (t.includes('read') || t.includes('text') || t.includes('lesson'))
-      return 'Reading';
-    if (t.includes('notebook') || t.includes('jupyter')) return 'Notebook';
-    return 'MCQ'; // Default fallback
-  }
-
-  public transformExam(exam: any, includeSensitive: boolean = true) {
-    const questionsMap: Record<string, any> = {};
-    const finalSections: any[] = [];
-
-    // 1. Build a comprehensive map of all items found in the 'questions' JSON
-    // This handles cases where 'questions' is a map of sections, or just an array
-    const rawQuestions = exam.questions || {};
-    const sourceMap =
-      rawQuestions.sections || !Array.isArray(rawQuestions)
-        ? rawQuestions.sections || rawQuestions
-        : {};
-    const sourceArray = Array.isArray(rawQuestions)
-      ? rawQuestions
-      : Object.values(sourceMap);
-
-    const registerQuestion = (q: any, parentId?: string, index?: number) => {
-      const qId = q.id || `${parentId || 'q'}-${index || Math.random()}`;
-      const normalizedQ = {
-        ...q,
-        id: qId,
-        title: q.title || `Question ${index || ''}`,
-        description: q.problemStatement || q.description || '',
-        type: this.normalizeType(q.type || 'MCQ'),
-        mcqOptions: q.mcqOptions || q.options || q.mcq?.options,
-        codingConfig: q.codingConfig || q.coding,
-        webConfig: q.webConfig || q.web,
-        readingContent:
-          q.readingContent || q.readingConfig?.contentBlocks || q.readingConfig,
-      };
-      questionsMap[qId] = sanitizeQuestionForClient(
-        normalizedQ,
-        includeSensitive,
-      );
-      return qId;
-    };
-
-    // Pre-fill map from source
-    sourceArray.forEach((item: any) => {
-      if (!item || typeof item !== 'object') return;
-      if (Array.isArray(item.questions)) {
-        item.questions.forEach((q: any, i: number) =>
-          registerQuestion(q, item.id || 'sec', i + 1),
-        );
-      } else {
-        registerQuestion(item);
-      }
-    });
-
-    // 2. Process existing sections structure if present in DB
-    if (Array.isArray(exam.sections) && exam.sections.length > 0) {
-      exam.sections.forEach((s: any, sIdx: number) => {
-        const sectionQuestions: any[] = [];
-        (s.questions || []).forEach((sq: any) => {
-          // Check if this ID points to a section entry in our source map
-          const sourceItem = sourceMap[sq.id];
-          if (sourceItem && Array.isArray(sourceItem.questions)) {
-            // Spread sub-questions into this section
-            sourceItem.questions.forEach((lq: any, lqIdx: number) => {
-              const lqId = registerQuestion(lq, sourceItem.id, lqIdx + 1);
-              sectionQuestions.push({
-                id: lqId,
-                status: 'unanswered',
-                number: sectionQuestions.length + 1,
-              });
-            });
-          } else if (questionsMap[sq.id]) {
-            // Standard question
-            sectionQuestions.push({
-              ...sq,
-              number: sectionQuestions.length + 1,
-            });
-          }
-        });
-
-        if (sectionQuestions.length > 0) {
-          finalSections.push({
-            ...s,
-            status: sIdx === 0 ? 'active' : 'locked',
-            questions: sectionQuestions,
-          });
-        }
-      });
-    }
-
-    // 3. If no sections were built from Step 2, build from Step 1's source map
-    if (finalSections.length === 0) {
-      sourceArray.forEach((item: any, idx: number) => {
-        if (!item || typeof item !== 'object') return;
-
-        const sectionQuestions: any[] = [];
-        if (Array.isArray(item.questions)) {
-          item.questions.forEach((q: any, qIdx: number) => {
-            const qId = registerQuestion(q, item.id, qIdx + 1);
-            sectionQuestions.push({
-              id: qId,
-              status: 'unanswered',
-              number: sectionQuestions.length + 1,
-            });
-          });
-
-          finalSections.push({
-            id: item.id || `s${idx + 1}`,
-            title: item.title || `Section ${idx + 1}`,
-            status: finalSections.length === 0 ? 'active' : 'locked',
-            questions: sectionQuestions,
-          });
-        } else {
-          // Handle flat questions by grouping into a default section
-          const qId = registerQuestion(item, 'q', idx + 1);
-          const defaultSection = finalSections.find(
-            (fs) => fs.id === 'default-section',
-          );
-          if (defaultSection) {
-            defaultSection.questions.push({
-              id: qId,
-              status: 'unanswered',
-              number: defaultSection.questions.length + 1,
-            });
-          } else {
-            finalSections.push({
-              id: 'default-section',
-              title: 'Assessment',
-              status: 'active',
-              questions: [{ id: qId, status: 'unanswered', number: 1 }],
-            });
-          }
-        }
-      });
-    }
-
-    const transformed = {
-      ...exam,
-      sections: finalSections,
-      questions: questionsMap,
-    };
-
-    if (!includeSensitive) {
-      return toStudentExamResponseDto(transformed);
-    }
-
-    return transformed;
-  }
-
-  public transformCourseTest(test: any, includeSensitive: boolean = true) {
-    // Course Tests are already stored with 'questions' which is the sections JSON
-    const questionsData = test.questions;
-    // Handle both: arrays (sections list) or object with sections key
-    const sections = Array.isArray(questionsData)
-      ? questionsData
-      : questionsData.sections || [];
-
-    const questionsMap: Record<string, any> = {};
-
-    // Normalize types and preserve all fields
-    const normalizedSections = sections.map((s: any) => ({
-      ...s,
-      questions: s.questions.map((q: any) => {
-        const normalizedType = this.normalizeType(q.type || 'MCQ');
-        const normalizedQ = {
-          ...q,
-          id: q.id,
-          title: q.title || 'Untitled Question',
-          description: q.problemStatement || q.description || '', // Support both field names
-          type: normalizedType,
-          // Preserve specific configs if they exist, or map from flat structure if needed
-          mcqOptions: q.mcqOptions || q.options,
-          codingConfig: q.codingConfig || q.coding,
-          webConfig: q.webConfig || q.web,
-          readingContent:
-            q.readingContent ||
-            q.readingConfig?.contentBlocks ||
-            q.readingConfig,
-        };
-
-        const safeQ = sanitizeQuestionForClient(normalizedQ, includeSensitive);
-
-        // Ensure map gets the full object
-        questionsMap[q.id] = safeQ;
-        return safeQ;
-      }),
-    }));
-
-    let duration = 60;
-    if (test.startDate && test.endDate) {
-      const diffMs =
-        new Date(test.endDate).getTime() - new Date(test.startDate).getTime();
-      duration = Math.floor(diffMs / 60000);
-    }
-
-    return {
-      id: test.id,
-      title: test.title,
-      slug: test.slug,
-      duration: duration,
-      sections: normalizedSections,
-      questions: questionsMap, // This is critical for looking up current question
-      isCourseTest: true,
-      courseTitle: test.course?.title,
-    };
-  }
-
-  public transformCourse(course: any, includeSensitive: boolean = true) {
-    const questionsMap: Record<string, any> = {};
-    const sections = course.modules.map((m: any, mIdx: number) => {
-      const questions = m.units.map((u: any, uIdx: number) => {
-        const qId = u.id;
-        // Transform Unit to UnitQuestion format
-        const unitContent = u.content;
-        const normalizedType = this.normalizeType(u.type);
-
-        const normalizedUnit = {
-          ...unitContent,
-          id: qId,
-          title: u.title,
-          type: normalizedType,
-        };
-        questionsMap[qId] = sanitizeQuestionForClient(
-          normalizedUnit,
-          includeSensitive,
-        );
-        return { id: qId, status: 'unanswered', number: uIdx + 1 };
-      });
-
-      return {
-        id: m.id,
-        title: m.title,
-        status: mIdx === 0 ? 'active' : 'locked',
-        questions: questions,
-      };
-    });
-
-    return {
-      id: course.id,
-      title: course.title,
-      slug: course.slug,
-      sections: sections,
-      questions: questionsMap,
-      isCourse: true,
-    };
   }
 
   /**
@@ -860,6 +653,53 @@ export class ExamService {
   }
 
   /**
+   * Creates the session unless one is already in progress for this student
+   * and exam, and returns whichever exists. The check and the insert run in
+   * one short transaction holding a Postgres advisory lock on (user, exam),
+   * so concurrent starts (double-click, two tabs, retried requests, several
+   * API instances) serialize in the database: the second caller waits, then
+   * sees the first caller's row and resumes it instead of creating another.
+   * This holds even when the Redis lock in startSession gives up.
+   */
+  private async createSessionOnce(
+    userId: string,
+    examId: string,
+    createData: Record<string, unknown>,
+  ) {
+    const lockKey = `exam-session:${userId}:${examId}`;
+    const run = (data: Record<string, unknown>) =>
+      this.prisma.$transaction(
+        async (tx) => {
+          await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))`;
+          const active = await tx.examSession.findFirst({
+            where: { userId, examId, status: 'IN_PROGRESS' },
+            orderBy: { createdAt: 'desc' },
+          });
+          if (active) return active;
+          return tx.examSession.create({ data: data as any });
+        },
+        // Held for a few milliseconds; generous limits only matter when many
+        // students start at once and the connection pool is busy.
+        { maxWait: 10_000, timeout: 10_000 },
+      );
+
+    let session: any;
+    try {
+      session = await run(createData);
+    } catch (error) {
+      if (!isMissingExamSessionAttemptNumberError(error)) {
+        throw error;
+      }
+      const { attemptNumber: _attemptNumber, ...withoutAttempt } = createData;
+      session = await run(withoutAttempt);
+    }
+    if (session?.id) {
+      void this.redis.set(`session:owner:${session.id}`, userId, 'EX', 21600);
+    }
+    return session;
+  }
+
+  /**
    * startSessionUnlocked does a plain read-then-create with no DB unique
    * constraint on (userId, examId, status='IN_PROGRESS') — two concurrent
    * calls (double-clicked "Start Exam", or the exam link opened in two tabs
@@ -879,7 +719,7 @@ export class ExamService {
     metadata?: any,
   ) {
     const lockKey = `examstart:lock:${userId}:${examId}`;
-    const lockToken = `${Date.now()}:${Math.random().toString(36).slice(2)}`;
+    const lockToken = `${Date.now()}:${randomBytes(9).toString('hex')}`;
     let acquired = false;
 
     for (let attempt = 0; attempt < 25; attempt += 1) {
@@ -888,7 +728,9 @@ export class ExamService {
         acquired = true;
         break;
       }
-      await new Promise((resolve) => setTimeout(resolve, 120));
+      await new Promise((resolve) =>
+        setTimeout(resolve, 25 + Math.floor(Math.random() * 20)),
+      );
     }
 
     if (!acquired) {
@@ -898,7 +740,14 @@ export class ExamService {
       console.warn(
         `[ExamService] startSession lock contended for ${lockKey}, proceeding without it`,
       );
-      return this.startSessionUnlocked(userId, examId, ip, deviceId, tabId, metadata);
+      return this.startSessionUnlocked(
+        userId,
+        examId,
+        ip,
+        deviceId,
+        tabId,
+        metadata,
+      );
     }
 
     try {
@@ -927,36 +776,46 @@ export class ExamService {
     metadata?: any,
   ) {
     try {
-      const exam = await this.prisma.exam.findUnique({
-        where: { id: examId },
-        select: {
-          linkedCourseId: true,
-        },
-      });
-
-      let activeSession: any = await this.prisma.examSession.findFirst({
-        where: { userId, examId, status: 'IN_PROGRESS' },
-        orderBy: { createdAt: 'desc' },
-      });
+      let linkedCourseId: string | null = null;
+      const courseCacheKey = `exam:linkedCourse:${examId}`;
+      const cachedCourseId = await this.redis.get(courseCacheKey);
+      if (cachedCourseId !== null) {
+        linkedCourseId = cachedCourseId === 'none' ? null : cachedCourseId;
+      } else {
+        const exam = await this.prisma.exam.findUnique({
+          where: { id: examId },
+          select: { linkedCourseId: true },
+        });
+        linkedCourseId = exam?.linkedCourseId || null;
+        await this.redis.set(
+          courseCacheKey,
+          linkedCourseId || 'none',
+          'EX',
+          3600,
+        );
+      }
 
       let latestSession: any;
       try {
-        latestSession = activeSession || await this.prisma.examSession.findFirst({
+        latestSession = await this.prisma.examSession.findFirst({
           where: { userId, examId },
           orderBy: [{ attemptNumber: 'desc' }, { createdAt: 'desc' }],
         });
       } catch (error) {
-        if (!this.isMissingExamSessionAttemptNumberError(error)) {
+        if (!isMissingExamSessionAttemptNumberError(error)) {
           throw error;
         }
 
-        latestSession = activeSession || await this.prisma.examSession.findFirst({
+        latestSession = await this.prisma.examSession.findFirst({
           where: { userId, examId },
           orderBy: [{ createdAt: 'desc' }],
         });
       }
 
-      if (exam?.linkedCourseId) {
+      const activeSession: any =
+        latestSession?.status === 'IN_PROGRESS' ? latestSession : null;
+
+      if (linkedCourseId) {
         if (latestSession?.status === 'IN_PROGRESS') {
           if (metadata) {
             const currentAnswers =
@@ -988,7 +847,10 @@ export class ExamService {
                 typeof latestSession.answers === 'string'
                   ? JSON.parse(latestSession.answers)
                   : latestSession.answers || {};
-              (latestSession as any).answers = { ...dbAnswers, ...redisAnswers };
+              latestSession.answers = {
+                ...dbAnswers,
+                ...redisAnswers,
+              };
             }
           } catch (e) {
             console.error(
@@ -998,24 +860,27 @@ export class ExamService {
           }
 
           const hasDraftScoreDetails =
-            (latestSession as any).answers &&
-            typeof (latestSession as any).answers === 'object' &&
-            ('_internal_marks' in (latestSession as any).answers ||
-              '_internal_score' in (latestSession as any).answers);
+            latestSession.answers &&
+            typeof latestSession.answers === 'object' &&
+            ('_internal_marks' in latestSession.answers ||
+              '_internal_score' in latestSession.answers);
 
           if (typeof latestSession.score === 'number' || hasDraftScoreDetails) {
             await this.prisma.$executeRaw`
               UPDATE "ExamSession"
               SET "answers" = COALESCE("answers", '{}'::jsonb) - '_internal_marks' - '_internal_score',
                   "score" = NULL,
-                  "updatedAt" = NOW()
+                  "updatedAt" = (NOW() AT TIME ZONE 'UTC')
               WHERE "id" = ${latestSession.id}
                 AND "status" = 'IN_PROGRESS'
             `;
-            (latestSession as any).score = null;
-            if ((latestSession as any).answers && typeof (latestSession as any).answers === 'object') {
-              delete (latestSession as any).answers._internal_marks;
-              delete (latestSession as any).answers._internal_score;
+            latestSession.score = null;
+            if (
+              latestSession.answers &&
+              typeof latestSession.answers === 'object'
+            ) {
+              delete latestSession.answers._internal_marks;
+              delete latestSession.answers._internal_score;
             }
           }
 
@@ -1027,37 +892,48 @@ export class ExamService {
             this.getTabSwitchCounts(latestSession.id),
           ]);
 
-          (latestSession as any).tabSwitchOutCount = tabSwitchCounts.outCount;
-          (latestSession as any).tabSwitchInCount = tabSwitchCounts.inCount;
-          (latestSession as any).feedbackDone = !!feedbackRecord;
+          latestSession.tabSwitchOutCount = tabSwitchCounts.outCount;
+          latestSession.tabSwitchInCount = tabSwitchCounts.inCount;
+          latestSession.feedbackDone = !!feedbackRecord;
           return latestSession;
         }
 
         const nextAttemptNumber = Number(latestSession?.attemptNumber || 0) + 1;
         const createData: Record<string, unknown> = {
-            userId,
-            examId,
-            ipAddress: ip,
-            deviceId,
-            startTime: new Date(),
-            attemptNumber: nextAttemptNumber,
-            answers: metadata ? { _internal_metadata: metadata } : {},
+          userId,
+          examId,
+          ipAddress: ip,
+          deviceId,
+          startTime: new Date(),
+          attemptNumber: nextAttemptNumber,
+          answers: metadata ? { _internal_metadata: metadata } : {},
         };
 
-        try {
-          return await this.prisma.examSession.create({
-            data: createData as any,
-          });
-        } catch (error) {
-          if (!this.isMissingExamSessionAttemptNumberError(error)) {
-            throw error;
-          }
+        return this.createSessionOnce(userId, examId, createData);
+      }
 
-          delete createData.attemptNumber;
-          return await this.prisma.examSession.create({
-            data: createData as any,
-          });
-        }
+      // Standalone exams are single-attempt, the same rule the exam login
+      // flow applies (auth.service). Without this, a signed-in student who
+      // reopened /exam/<slug> skipped that login check and silently got a
+      // brand-new session after submitting — one more recorded attempt per
+      // reload. A finished attempt is returned as-is so the student lands on
+      // their feedback/result screen; the client handles COMPLETED sessions.
+      // Course-linked exams handle retakes above.
+      if (latestSession?.status === 'TERMINATED') {
+        throw new ConflictException('EXAM_TERMINATED');
+      }
+      if (latestSession && latestSession.status !== 'IN_PROGRESS') {
+        const [feedbackRecord, tabSwitchCounts] = await Promise.all([
+          this.prisma.feedback.findFirst({
+            where: { userId, examId },
+            select: { id: true },
+          }),
+          this.getTabSwitchCounts(latestSession.id),
+        ]);
+        latestSession.tabSwitchOutCount = tabSwitchCounts.outCount;
+        latestSession.tabSwitchInCount = tabSwitchCounts.inCount;
+        latestSession.feedbackDone = !!feedbackRecord;
+        return latestSession;
       }
 
       // Find existing session first to resume
@@ -1065,9 +941,6 @@ export class ExamService {
         latestSession?.status === 'IN_PROGRESS' ? latestSession : null;
 
       if (existing) {
-        if (existing.status === 'TERMINATED') {
-          throw new ConflictException('EXAM_TERMINATED');
-        }
         // If metadata changed, we could update it. But typically it stays same for the session.
         // We'll update it if provided to ensure the latest "Name/Roll No" from login is preserved.
         if (metadata) {
@@ -1115,20 +988,16 @@ export class ExamService {
               ? JSON.parse(existing.answers)
               : existing.answers || {};
           // Merge: Redis answers take priority (they're more recent)
-          (existing as any).answers = { ...dbAnswers, ...redisAnswers };
+          existing.answers = { ...dbAnswers, ...redisAnswers };
         }
 
-        (existing as any).tabSwitchOutCount = tabSwitchCounts.outCount;
-        (existing as any).tabSwitchInCount = tabSwitchCounts.inCount;
-        (existing as any).feedbackDone = !!feedbackRecord;
+        existing.tabSwitchOutCount = tabSwitchCounts.outCount;
+        existing.tabSwitchInCount = tabSwitchCounts.inCount;
+        existing.feedbackDone = !!feedbackRecord;
         return existing;
       }
 
-      console.log(
-        `[ExamService] Creating new session for examId: ${examId}, userId: ${userId}`,
-      );
-
-      const createData: any = {
+      const createData: Record<string, unknown> = {
         userId,
         examId,
         ipAddress: ip,
@@ -1138,15 +1007,7 @@ export class ExamService {
         answers: metadata ? { _internal_metadata: metadata } : {},
       };
 
-      try {
-        return await this.prisma.examSession.create({ data: createData });
-      } catch (error) {
-        if (!this.isMissingExamSessionAttemptNumberError(error)) {
-          throw error;
-        }
-        delete createData.attemptNumber;
-        return await this.prisma.examSession.create({ data: createData });
-      }
+      return this.createSessionOnce(userId, examId, createData);
     } catch (e) {
       console.error('[ExamService] Failed to start/resume session', e);
       throw e;
@@ -1163,15 +1024,26 @@ export class ExamService {
     // a real org's exam to the wrong requester off a stale cache entry.
     const cacheKey = `exam:check-status:${slug}`;
     const cached = await this.redis.get(cacheKey);
+    if (cached === '__NOT_FOUND__') {
+      return { quiz: null, error: 'Exam not found' };
+    }
+
     const found: {
       kind: 'exam' | 'test';
       orgId: string | null;
       creatorId: string | null;
       data: any;
-    } | null = cached ? JSON.parse(cached) : await this.findExamOrTestBySlugForStatus(slug);
+    } | null = cached
+      ? JSON.parse(cached)
+      : await this.findExamOrTestBySlugForStatus(slug);
 
-    if (!cached && found) {
-      await this.redis.set(cacheKey, JSON.stringify(found), 'EX', 30);
+    if (!cached) {
+      if (found) {
+        await this.redis.set(cacheKey, JSON.stringify(found), 'EX', 30);
+      } else {
+        // Negative cache to protect DB from 404 scanning storms
+        await this.redis.set(cacheKey, '__NOT_FOUND__', 'EX', 15);
+      }
     }
 
     if (!found) {
@@ -1194,7 +1066,7 @@ export class ExamService {
       return { quiz: null, error: 'Exam is not active' };
     }
 
-    const { totalQuestions } = this.countQuestions(found.data.questions);
+    const { totalQuestions } = countQuestions(found.data.questions);
     return {
       quiz: {
         id: found.data.id,
@@ -1294,7 +1166,8 @@ export class ExamService {
     user?: any,
   ): Promise<boolean> {
     if (String(user?.role || '').toUpperCase() === 'SUPER_ADMIN') return true;
-    if (resource.creatorId && user?.id && resource.creatorId === user.id) return true;
+    if (resource.creatorId && user?.id && resource.creatorId === user.id)
+      return true;
     if (!resource.orgId) {
       return this.isPlatformWideOrglessResource(resource);
     }
@@ -1390,7 +1263,10 @@ export class ExamService {
    * another person's personal exam/course by slug or id. SUPER_ADMIN exempt.
    */
   private assertTenantOrOwnerAccess(
-    resource: { orgId?: string | null; creatorId?: string | null } | null | undefined,
+    resource:
+      | { orgId?: string | null; creatorId?: string | null }
+      | null
+      | undefined,
     user: any,
     message = 'Not found or access denied',
   ): void {
@@ -1527,7 +1403,7 @@ export class ExamService {
   async getFeedbacks(examId: string) {
     return await this.prisma.feedback.findMany({
       where: { examId },
-      include: { user: true },
+      include: { user: { select: { name: true, email: true } } },
       orderBy: { timestamp: 'desc' },
     });
   }
@@ -1559,7 +1435,12 @@ export class ExamService {
 
   public calculateScoreDetails(answers: any, questionsData: any) {
     if (!answers || !questionsData) {
-      return { earnedMarks: 0, totalMarks: 0, percentage: 0, marksByQuestion: {} };
+      return {
+        earnedMarks: 0,
+        totalMarks: 0,
+        percentage: 0,
+        marksByQuestion: {},
+      };
     }
 
     let earnedMarks = 0;
@@ -1601,9 +1482,9 @@ export class ExamService {
             .filter((opt: any) => opt.isCorrect)
             .map((opt: any) => String(opt.id))
             .sort();
-          const selectedIds = (Array.isArray(studentAnswer)
-            ? studentAnswer
-            : [studentAnswer])
+          const selectedIds = (
+            Array.isArray(studentAnswer) ? studentAnswer : [studentAnswer]
+          )
             .filter((value: any) => value !== undefined && value !== null)
             .map((value: any) => String(value))
             .sort();
@@ -1611,7 +1492,9 @@ export class ExamService {
           if (
             correctIds.length > 0 &&
             correctIds.length === selectedIds.length &&
-            correctIds.every((id: string, index: number) => id === selectedIds[index])
+            correctIds.every(
+              (id: string, index: number) => id === selectedIds[index],
+            )
           ) {
             questionScore = questionMarks;
           }
@@ -1712,33 +1595,39 @@ export class ExamService {
     return { issued: true, certificateId: certificate?.id };
   }
 
-  async validateCourseLinkedExamEntry(userId: string, examId: string) {
-    const examSelect: Record<string, boolean> = {
-      id: true,
-      linkedCourseId: true,
-      passingPercentage: true,
-      maxAttempts: true,
-      attemptBufferMins: true,
-    };
-    let exam: any;
-    try {
-      exam = await this.prisma.exam.findUnique({
-        where: { id: examId },
-        select: examSelect as any,
-      });
-    } catch (error) {
-      if (!this.isMissingExamAttemptFieldError(error)) {
-        throw error;
+  async validateCourseLinkedExamEntry(
+    userId: string,
+    examId: string,
+    cachedExam?: any,
+  ) {
+    let exam: any = cachedExam;
+    if (!exam || !exam.linkedCourseId) {
+      const examSelect: Record<string, boolean> = {
+        id: true,
+        linkedCourseId: true,
+        passingPercentage: true,
+        maxAttempts: true,
+        attemptBufferMins: true,
+      };
+      try {
+        exam = await this.prisma.exam.findUnique({
+          where: { id: examId },
+          select: examSelect as any,
+        });
+      } catch (error) {
+        if (!isMissingExamAttemptFieldError(error)) {
+          throw error;
+        }
+
+        delete examSelect.maxAttempts;
+        delete examSelect.attemptBufferMins;
+        delete examSelect.passingPercentage;
+
+        exam = await this.prisma.exam.findUnique({
+          where: { id: examId },
+          select: examSelect as any,
+        });
       }
-
-      delete examSelect.maxAttempts;
-      delete examSelect.attemptBufferMins;
-      delete examSelect.passingPercentage;
-
-      exam = await this.prisma.exam.findUnique({
-        where: { id: examId },
-        select: examSelect as any,
-      });
     }
 
     if (!exam?.linkedCourseId) {
@@ -1770,7 +1659,7 @@ export class ExamService {
           },
         });
       } catch (error) {
-        if (!this.isMissingExamSessionAttemptNumberError(error)) {
+        if (!isMissingExamSessionAttemptNumberError(error)) {
           throw error;
         }
 
@@ -1850,7 +1739,8 @@ export class ExamService {
     const attemptBufferMins = Number(exam.attemptBufferMins ?? 0);
     if (latestAttempt?.endTime && attemptBufferMins > 0) {
       const resumesAt = new Date(
-        new Date(latestAttempt.endTime).getTime() + attemptBufferMins * 60 * 1000,
+        new Date(latestAttempt.endTime).getTime() +
+          attemptBufferMins * 60 * 1000,
       );
       if (resumesAt.getTime() > Date.now()) {
         throw new ConflictException({
@@ -1889,7 +1779,7 @@ export class ExamService {
         select: sessionSelect,
       });
     } catch (error) {
-      if (!this.isMissingExamAttemptFieldError(error)) {
+      if (!isMissingExamAttemptFieldError(error)) {
         throw error;
       }
 
@@ -1913,7 +1803,10 @@ export class ExamService {
     }
 
     let courseThreshold: number | null = null;
-    if (session.exam?.linkedCourseId) {
+    if (
+      session.exam?.passingPercentage == null &&
+      session.exam?.linkedCourseId
+    ) {
       const course = await this.prisma.course.findUnique({
         where: { id: session.exam.linkedCourseId },
         select: { examPassThreshold: true },

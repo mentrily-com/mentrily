@@ -1,33 +1,13 @@
 'use client';
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
-import DOMPurify from 'isomorphic-dompurify';
-
-// The only authoring feature that produces <iframe> in question content is
-// the YouTube embed block (RichTextEditor's @tiptap/extension-youtube) —
-// ADD_TAGS: ['iframe'] below has to allow the tag, but without this hook any
-// Teacher/Admin account (self-serve obtainable) could embed an arbitrary
-// third-party iframe into a question shown inside a monitored, timed exam —
-// a phishing/clickjacking surface aimed straight at students. Strip any
-// iframe whose src isn't a YouTube embed URL.
-const ALLOWED_IFRAME_HOSTS = new Set(['www.youtube.com', 'youtube.com', 'www.youtube-nocookie.com', 'youtube-nocookie.com']);
-DOMPurify.addHook('uponSanitizeElement', (node, data) => {
-    if (data.tagName !== 'iframe') return;
-    const el = node as unknown as HTMLIFrameElement;
-    const src = el.getAttribute?.('src') || '';
-    try {
-        const url = new URL(src, 'https://invalid.local');
-        if (url.protocol === 'https:' && ALLOWED_IFRAME_HOSTS.has(url.hostname)) return;
-    } catch {
-        // fall through to removal
-    }
-    el.remove?.();
-});
+import { sanitizeRichText } from '@/lib/sanitize';
 import SplitPane from './SplitPane';
 import ProblemStatement from './ProblemStatement';
 import MCQOptions from './MCQOptions';
 import AttemptsView, { Attempt } from './AttemptsView';
 import CoursePlayerSkeleton from './Skeletons/CoursePlayerSkeleton';
+import QuestionNavFooter from './QuestionNavFooter';
 
 // Dynamic imports for heavy editor components to optimize bundle size
 const WebEditor = dynamic(() => import('./WebEditor/WebEditor'), {
@@ -142,8 +122,6 @@ export function UnitRendererComponent({
     hideSubmit = false,
     onCheatDetected,
 }: UnitRendererProps) {
-    const purifyConfig = { ADD_TAGS: ['iframe'], ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling'] };
-
     const [isReadingFullScreen, setIsReadingFullScreen] = useState(false);
     const containerRef = React.useRef<HTMLDivElement>(null);
 
@@ -151,6 +129,14 @@ export function UnitRendererComponent({
     const [isRunning, setIsRunning] = useState(false);
     const [terminalLogs, setTerminalLogs] = useState('');
     const [executionResults, setExecutionResults] = useState<any[]>([]);
+
+    // Reset transient execution state when moving between questions
+    React.useEffect(() => {
+        setIsRunning(false);
+        setTerminalLogs('');
+        setExecutionResults([]);
+        setIsReadingFullScreen(false);
+    }, [question.id]);
 
     // Selected language for Coding questions (can be changed by student if allowed)
     const [selectedCodingLang, setSelectedCodingLang] = React.useState<string | null>(null);
@@ -224,12 +210,9 @@ export function UnitRendererComponent({
                         onTabChange={onTabChange}
                         onToggleSidebar={onToggleSidebar}
                         showSidebar={showSidebar}
-                        onPrevious={onPrevious}
-                        onNext={onNext}
                         extraContent={extraHeaderContent}
                         showSidebarToggle={showSidebarToggle}
                         minimal={true} // Hidden tabs for reading
-                        hideNavigationButtons={true} // Hidden < > for reading
                     />
                 )}
 
@@ -237,6 +220,11 @@ export function UnitRendererComponent({
                     {/* Consistent Sidebar Handling */}
                     {showSidebar && sidebar && !isReadingFullScreen && (
                         <>
+                            <div
+                                className="fixed inset-0 z-[95] bg-slate-900/40 backdrop-blur-xs animate-in fade-in cursor-pointer"
+                                onClick={onToggleSidebar}
+                                aria-label="Close curriculum sidebar"
+                            />
                             <div className="absolute inset-y-0 left-0 z-[100] w-[min(300px,calc(100vw-24px))] bg-white shadow-2xl animate-in slide-in-from-left duration-300">
                                 {sidebar}
                             </div>
@@ -337,12 +325,12 @@ export function UnitRendererComponent({
                             <div className="w-16 h-1.5 bg-[var(--brand)] rounded-full mb-12"></div>
 
                             <article
-                                className="prose prose-slate max-w-none text-slate-600 leading-relaxed space-y-6 prose-p:text-slate-600 prose-headings:text-slate-800 prose-code:text-[var(--brand-dark)] prose-code:bg-[var(--brand-lighter)] prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-sm [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-inherit [&_pre_code]:before:content-none [&_pre_code]:after:content-none"
+                                className="prose prose-slate max-w-none text-slate-600 leading-relaxed space-y-6 prose-p:text-slate-600 prose-headings:text-slate-800 prose-code:text-[var(--brand-dark)] prose-code:bg-[var(--brand-lighter)] prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-sm [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-inherit prose-code:before:content-none prose-code:after:content-none"
                                 style={{ fontSize: contentFontSize ? `${contentFontSize}px` : undefined }}
                             >
                                 <div
                                     dangerouslySetInnerHTML={{
-                                        __html: DOMPurify.sanitize(question.description, purifyConfig),
+                                        __html: sanitizeRichText(question.description),
                                     }}
                                 />
 
@@ -379,10 +367,7 @@ export function UnitRendererComponent({
                                                 {block.type === 'text' ? (
                                                     <div
                                                         dangerouslySetInnerHTML={{
-                                                            __html: DOMPurify.sanitize(
-                                                                block.content || '',
-                                                                purifyConfig,
-                                                            ),
+                                                            __html: sanitizeRichText(block.content),
                                                         }}
                                                     />
                                                 ) : block.type === 'video' ? (
@@ -431,43 +416,14 @@ export function UnitRendererComponent({
                                     </div>
                                 )}
                             </article>
-
-                            {!hideNav && !isExamMode && (
-                                <div className="mt-20 pt-8 border-t border-slate-100 flex justify-between items-center text-xs font-bold tracking-widest uppercase text-slate-400">
-                                    <button
-                                        onClick={onPrevious}
-                                        className="hover:text-[var(--brand)] transition-colors flex items-center gap-2"
-                                    >
-                                        <svg
-                                            width="12"
-                                            height="12"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="4"
-                                        >
-                                            <path d="M15 18l-6-6 6-6" />
-                                        </svg>
-                                        Previous
-                                    </button>
-                                    <button onClick={onNext} className="flex items-center gap-2 text-[var(--brand)]">
-                                        Next
-                                        <svg
-                                            width="12"
-                                            height="12"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="4"
-                                        >
-                                            <path d="M9 18l6-6-6-6" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            )}
                         </div>
                     </div>
                 </div>
+
+                {/* Bottom Navigation -- same Previous/Next footer used for every
+                    other question type and for exam mode, so Reading lessons
+                    inside a course don't get a differently-styled nav. */}
+                {!hideNav && !isExamMode && <QuestionNavFooter onPrevious={onPrevious} onNext={onNext} />}
             </div>
         );
     }
@@ -483,102 +439,104 @@ export function UnitRendererComponent({
                 const correctOptionIds = (question.mcqOptions || []).filter((o) => o.isCorrect).map((o) => o.id);
                 return (
                     <div className="h-full" data-element-id="starter-answer-workspace">
-                    <MCQOptions
-                        key={`mcq-${question.id}`}
-                        options={question.mcqOptions || []}
-                        multiSelect={question.type === 'MultiSelect'}
-                        // Cap selection count at the number of correct answers
-                        // this question actually has — previously MultiSelect
-                        // had no cap at all, so a student could select every
-                        // option. The exact-match scoring already rejects an
-                        // over-selection as wrong, but letting the UI accept
-                        // it in the first place invites exactly the "select
-                        // everything and see what sticks" behavior it should
-                        // prevent outright.
-                        maxSelections={question.type === 'MCQ' ? 1 : Math.max(correctOptionIds.length, 1)}
-                        correctIds={correctOptionIds}
-                        selectedIds={hasAttemptSelected ? attemptAnswer : currentAnswer}
-                        onSubmit={onSubmit || ((ids) => console.log('Submitted MCQ:', ids))}
-                        onChange={onAnswerChange}
-                        onReset={() => console.log('Reset MCQ')}
-                        readOnly={hasAttemptSelected}
-                        fontSize={contentFontSize}
-                    />
+                        <MCQOptions
+                            key={`mcq-${question.id}`}
+                            options={question.mcqOptions || []}
+                            multiSelect={question.type === 'MultiSelect'}
+                            // Cap selection count at the number of correct answers
+                            // this question actually has — previously MultiSelect
+                            // had no cap at all, so a student could select every
+                            // option. The exact-match scoring already rejects an
+                            // over-selection as wrong, but letting the UI accept
+                            // it in the first place invites exactly the "select
+                            // everything and see what sticks" behavior it should
+                            // prevent outright.
+                            maxSelections={question.type === 'MCQ' ? 1 : Math.max(correctOptionIds.length, 1)}
+                            correctIds={correctOptionIds}
+                            selectedIds={hasAttemptSelected ? attemptAnswer : currentAnswer}
+                            onSubmit={onSubmit || ((ids) => console.log('Submitted MCQ:', ids))}
+                            onChange={onAnswerChange}
+                            onReset={() => console.log('Reset MCQ')}
+                            readOnly={hasAttemptSelected}
+                            fontSize={contentFontSize}
+                        />
                     </div>
                 );
             case 'Coding':
                 return (
                     <div className="h-full" data-element-id="starter-answer-workspace">
-                    <CodingQuestionRenderer
-                        key={`coding-${question.id}`}
-                        question={question}
-                        hasAttemptSelected={hasAttemptSelected}
-                        attemptAnswer={attemptAnswer}
-                        currentAnswer={currentAnswer}
-                        onAnswerChange={onAnswerChange}
-                        onSubmit={onSubmit}
-                        contentFontSize={contentFontSize || 16}
-                        selectedCodingLang={selectedCodingLang}
-                        onLanguageChange={handleLanguageChange}
-                        isRunning={isRunning}
-                        setIsRunning={setIsRunning}
-                        terminalLogs={terminalLogs}
-                        setTerminalLogs={setTerminalLogs}
-                        executionResults={executionResults}
-                        setExecutionResults={setExecutionResults}
-                        examId={examId}
-                        hideSubmit={hideSubmit}
-                        isExamMode={isExamMode}
-                        onCheatDetected={onCheatDetected}
-                    />
+                        <CodingQuestionRenderer
+                            key={`coding-${question.id}`}
+                            question={question}
+                            hasAttemptSelected={hasAttemptSelected}
+                            attemptAnswer={attemptAnswer}
+                            currentAnswer={currentAnswer}
+                            onAnswerChange={onAnswerChange}
+                            onSubmit={onSubmit}
+                            contentFontSize={contentFontSize || 16}
+                            selectedCodingLang={selectedCodingLang}
+                            onLanguageChange={handleLanguageChange}
+                            isRunning={isRunning}
+                            setIsRunning={setIsRunning}
+                            terminalLogs={terminalLogs}
+                            setTerminalLogs={setTerminalLogs}
+                            executionResults={executionResults}
+                            setExecutionResults={setExecutionResults}
+                            examId={examId}
+                            hideSubmit={hideSubmit}
+                            isExamMode={isExamMode}
+                            onCheatDetected={onCheatDetected}
+                        />
                     </div>
                 );
             case 'Web':
                 return (
                     <div className="h-full" data-element-id="starter-answer-workspace">
-                    <WebEditor
-                        key={`web-${question.id}`}
-                        initialHTML={
-                            hasAttemptSelected
-                                ? attemptAnswer?.html || ''
-                                : (currentAnswer?.html ?? question.webConfig?.initialHTML)
-                        }
-                        initialCSS={
-                            hasAttemptSelected
-                                ? attemptAnswer?.css || ''
-                                : (currentAnswer?.css ?? question.webConfig?.initialCSS)
-                        }
-                        initialJS={
-                            hasAttemptSelected
-                                ? attemptAnswer?.js || ''
-                                : (currentAnswer?.js ?? question.webConfig?.initialJS)
-                        }
-                        showFiles={question.webConfig?.showFiles}
-                        hideTestCases={true}
-                        fontSize={contentFontSize}
-                        testCases={question.webConfig?.testCases}
-                        onChange={onAnswerChange}
-                        onSubmit={onSubmit}
-                        readOnly={hasAttemptSelected}
-                        isExamMode={isExamMode}
-                        onCheatDetected={onCheatDetected}
-                    />
+                        <WebEditor
+                            key={`web-${question.id}`}
+                            initialHTML={
+                                hasAttemptSelected
+                                    ? attemptAnswer?.html || ''
+                                    : (currentAnswer?.html ?? question.webConfig?.initialHTML)
+                            }
+                            initialCSS={
+                                hasAttemptSelected
+                                    ? attemptAnswer?.css || ''
+                                    : (currentAnswer?.css ?? question.webConfig?.initialCSS)
+                            }
+                            initialJS={
+                                hasAttemptSelected
+                                    ? attemptAnswer?.js || ''
+                                    : (currentAnswer?.js ?? question.webConfig?.initialJS)
+                            }
+                            showFiles={question.webConfig?.showFiles}
+                            hideTestCases={true}
+                            fontSize={contentFontSize}
+                            testCases={question.webConfig?.testCases}
+                            onChange={onAnswerChange}
+                            onSubmit={onSubmit}
+                            readOnly={hasAttemptSelected}
+                            isExamMode={isExamMode}
+                            onCheatDetected={onCheatDetected}
+                        />
                     </div>
                 );
             case 'Notebook':
                 return (
                     <div className="h-full" data-element-id="starter-answer-workspace">
-                    <PythonNotebook
-                        key={`notebook-${question.id}`}
-                        initialCode={
-                            hasAttemptSelected ? attemptAnswer : (currentAnswer ?? question.notebookConfig?.initialCode)
-                        }
-                        fontSize={contentFontSize}
-                        onChange={onAnswerChange}
-                        onSubmit={onSubmit}
-                        readOnly={hasAttemptSelected}
-                        isExamMode={isExamMode}
-                    />
+                        <PythonNotebook
+                            key={`notebook-${question.id}`}
+                            initialCode={
+                                hasAttemptSelected
+                                    ? attemptAnswer
+                                    : (currentAnswer ?? question.notebookConfig?.initialCode)
+                            }
+                            fontSize={contentFontSize}
+                            onChange={onAnswerChange}
+                            onSubmit={onSubmit}
+                            readOnly={hasAttemptSelected}
+                            isExamMode={isExamMode}
+                        />
                     </div>
                 );
             // Reading case removed from here as it's handled at top level
@@ -638,23 +596,30 @@ export function UnitRendererComponent({
                     initialLeftWidth={35}
                     leftContent={
                         <div className="flex flex-col h-full overflow-hidden">
+                            {/* The Previous/Next arrows used to live in this header, on top
+                                of the panel. They now live in the bottom QuestionNavFooter
+                                (rendered by ProblemStatement below), matching exam mode in one
+                                shared place instead of course questions having their own,
+                                differently-placed pair. */}
                             {!isExamMode && (
                                 <UnitNavHeader
                                     activeTab={activeTab}
                                     onTabChange={onTabChange}
                                     onToggleSidebar={onToggleSidebar}
                                     showSidebar={showSidebar}
-                                    onPrevious={onPrevious}
-                                    onNext={onNext}
                                     extraContent={extraHeaderContent}
                                     showSidebarToggle={showSidebarToggle}
                                     minimal={hideTabs}
-                                    hideNavigationButtons={isExamMode}
                                 />
                             )}
                             <div className="flex-1 overflow-hidden relative">
                                 {showSidebar && sidebar && (
                                     <>
+                                        <div
+                                            className="fixed inset-0 z-[95] bg-slate-900/40 backdrop-blur-xs animate-in fade-in cursor-pointer"
+                                            onClick={onToggleSidebar}
+                                            aria-label="Close curriculum sidebar"
+                                        />
                                         <div className="absolute inset-y-0 left-0 z-[100] w-[min(300px,calc(100vw-24px))] bg-white shadow-2xl animate-in slide-in-from-left duration-300">
                                             {sidebar}
                                         </div>
@@ -672,8 +637,8 @@ export function UnitRendererComponent({
                                                 !isExamMode && (question.type === 'Coding' || question.type === 'Web')
                                                     ? undefined
                                                     : question.type === 'Coding' || question.type === 'Web'
-                                                    ? 'Implement the solution based on the requirements.'
-                                                    : 'Choose the correct option(s).'
+                                                      ? 'Implement the solution based on the requirements.'
+                                                      : 'Choose the correct option(s).'
                                             }
                                             onPrevious={onPrevious}
                                             onNext={onNext}
@@ -696,10 +661,7 @@ export function UnitRendererComponent({
                                                         {block.type === 'text' ? (
                                                             <div
                                                                 dangerouslySetInnerHTML={{
-                                                                    __html: DOMPurify.sanitize(
-                                                                        block.content || '',
-                                                                        purifyConfig,
-                                                                    ),
+                                                                    __html: sanitizeRichText(block.content),
                                                                 }}
                                                             />
                                                         ) : (
@@ -765,5 +727,5 @@ function arePropsEqual(prevProps: UnitRendererProps, nextProps: UnitRendererProp
 const MemoizedUnitRenderer = React.memo(UnitRendererComponent, arePropsEqual);
 
 export default function UnitRenderer(props: UnitRendererProps) {
-    return <MemoizedUnitRenderer key={`unit-renderer-${props.question.id}`} {...props} />;
+    return <MemoizedUnitRenderer {...props} />;
 }

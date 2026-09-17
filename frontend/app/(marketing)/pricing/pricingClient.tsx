@@ -16,7 +16,7 @@ function PricingToggle({
     setBilling: (b: 'monthly' | 'annual') => void;
 }) {
     return (
-        <div className="grid grid-cols-[96px_56px_160px] items-center justify-center gap-4 mb-14">
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mb-10 sm:mb-14">
             <span
                 className="text-right text-sm font-medium"
                 style={{ color: billing === 'monthly' ? '#0F172A' : '#94A3B8' }}
@@ -289,21 +289,37 @@ function FeatureComparison() {
                                             {cat.features.map((feat) => (
                                                 <div
                                                     key={feat.name}
-                                                    className="grid grid-cols-2 lg:grid-cols-5 gap-2 px-4 py-3 items-center"
+                                                    className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-2 px-4 py-3.5 sm:py-3 items-center"
                                                     style={{ borderBottom: '1px solid #F1F5F9' }}
                                                 >
                                                     <span
-                                                        className="text-sm col-span-2 lg:col-span-1"
+                                                        className="text-sm font-medium col-span-2 sm:col-span-4 lg:col-span-1"
                                                         style={{ color: '#475569' }}
                                                     >
                                                         {feat.name}
                                                     </span>
-                                                    <div className="flex justify-center">{renderValue(feat.free)}</div>
-                                                    <div className="flex justify-center">
+                                                    <div className="flex flex-col items-center gap-1">
+                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 lg:hidden">
+                                                            Free
+                                                        </span>
+                                                        {renderValue(feat.free)}
+                                                    </div>
+                                                    <div className="flex flex-col items-center gap-1">
+                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 lg:hidden">
+                                                            Starter
+                                                        </span>
                                                         {renderValue(feat.starter)}
                                                     </div>
-                                                    <div className="flex justify-center">{renderValue(feat.pro)}</div>
-                                                    <div className="flex justify-center">
+                                                    <div className="flex flex-col items-center gap-1">
+                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#008D98] lg:hidden">
+                                                            Pro
+                                                        </span>
+                                                        {renderValue(feat.pro)}
+                                                    </div>
+                                                    <div className="flex flex-col items-center gap-1">
+                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 lg:hidden">
+                                                            Enterprise
+                                                        </span>
                                                         {renderValue(feat.enterprise)}
                                                     </div>
                                                 </div>

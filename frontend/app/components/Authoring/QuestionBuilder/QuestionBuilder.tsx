@@ -7,24 +7,27 @@ import MCQEditor from './modules/MCQEditor';
 import CodingEditor from './modules/CodingEditor';
 import ReadingEditor from './modules/ReadingEditor';
 import NotebookEditor from './modules/NotebookEditor';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import RichEditorFieldSkeleton from '@/app/components/Skeletons/RichEditorFieldSkeleton';
+import InlineAiMenu from '../AiDrawer/InlineAiMenu';
 
 const RichTextEditor = dynamic(() => import('../RichTextEditor'), {
     ssr: false,
-    loading: () => <DashboardSkeleton type="form" noNavbar />,
+    loading: () => <RichEditorFieldSkeleton />,
 });
 
 const WebEditor = dynamic(() => import('./modules/WebEditor'), {
     ssr: false,
-    loading: () => <DashboardSkeleton type="form" noNavbar />,
+    loading: () => <RichEditorFieldSkeleton />,
 });
 
 interface QuestionBuilderProps {
     question: Question;
     onChange: (updates: Partial<Question>) => void;
+    /** Enables AI actions for this question. */
+    aiKind?: 'course' | 'exam';
 }
 
-export default function QuestionBuilder({ question, onChange }: QuestionBuilderProps) {
+export default function QuestionBuilder({ question, onChange, aiKind }: QuestionBuilderProps) {
     return (
         <div className="flex-1 overflow-y-auto bg-[linear-gradient(180deg,_rgba(248,250,252,0.82),_rgba(255,255,255,1))] p-6 no-scrollbar md:p-8">
             <div className="mx-auto max-w-5xl space-y-8">
@@ -53,6 +56,7 @@ export default function QuestionBuilder({ question, onChange }: QuestionBuilderP
                         </div>
 
                         <div className="flex flex-wrap items-start gap-3 xl:shrink-0">
+                            {aiKind && <InlineAiMenu question={question} kind={aiKind} onApply={onChange} />}
                             <MetaField
                                 label="Points"
                                 icon={<Target size={14} />}

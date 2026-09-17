@@ -1,41 +1,56 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { AdminService } from '@/services/api/AdminService';
-import { AuthService } from '@/services/api/AuthService';
+import { useSession } from '@/hooks/useSession';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/app/components/Common/Toast';
 
 export function useAdminUsers(organizationId?: string) {
     const [searchQuery, setSearchQuery] = useState('');
     const [isUserModalOpen, setIsUserModalOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState<any | null>(null);
-    const [users, setUsers] = useState<any[]>([]);
-    const [userData, setUserData] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
+    const { session } = useSession();
+    const queryClient = useQueryClient();
     const { success, error: toastError } = useToast();
 
-    useEffect(() => {
-        async function load() {
-            try {
-                const [user, data] = await Promise.all([
-                    AuthService.checkSession(),
-                    AdminService.getUsers(organizationId),
-                ]);
-                setUserData(user);
-                setUsers(data);
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        }
-        void load();
-    }, [organizationId]);
+    const queryKey = ['admin-users', organizationId || session?.orgId || 'current'];
 
+    const { data: usersData, isLoading } = useQuery({
+        queryKey,
+        queryFn: () => AdminService.getUsers(organizationId),
+        staleTime: 30_000,
+        gcTime: 5 * 60_000,
+    });
+
+    const [localOverrides, setLocalOverrides] = useState<Record<string, any>>({});
+
+    const users = useMemo(() => {
+        const base = Array.isArray(usersData) ? usersData : [];
+        return base
+            .filter((u: any) => localOverrides[u.id]?.deleted !== true)
+            .map((u: any) => ({
+                ...u,
+                ...(localOverrides[u.id] || {}),
+            }));
+    }, [usersData, localOverrides]);
+
+    const setUsers = (updater: any[] | ((prev: any[]) => any[])) => {
+        if (typeof updater === 'function') {
+            const next = updater(users);
+            queryClient.setQueryData(queryKey, next);
+        } else {
+            queryClient.setQueryData(queryKey, updater);
+        }
+    };
+
+    const userData = session;
     const canManageUsers = userData?.features?.canManageUsers !== false;
+    const loading = isLoading && users.length === 0;
+
     const filteredUsers = useMemo(
         () =>
             users.filter(
-                (user) =>
+                (user: any) =>
                     user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                     user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                     user.id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -47,29 +62,43 @@ export function useAdminUsers(organizationId?: string) {
 
     const handleToggleStatus = async (user: any) => {
         if (!canManageUsers) return;
+        setLocalOverrides((prev) => ({
+            ...prev,
+            [user.id]: { ...(prev[user.id] || {}), isActive: !user.isActive },
+        }));
         try {
             await AdminService.toggleUserStatus(user.id);
-            setUsers((prev) =>
-                prev.map((item) => (item.id === user.id ? { ...item, isActive: !item.isActive } : item)),
-            );
+            await queryClient.invalidateQueries({ queryKey });
             success(`User ${!user.isActive ? 'activated' : 'suspended'} successfully`, 'Status Updated');
         } catch (error: any) {
+            setLocalOverrides((prev) => {
+                const next = { ...prev };
+                delete next[user.id];
+                return next;
+            });
             toastError(error.message || 'Failed to update status', 'Error');
         }
     };
 
     const handleDelete = async (id: string) => {
+        setLocalOverrides((prev) => ({
+            ...prev,
+            [id]: { ...(prev[id] || {}), deleted: true },
+        }));
         try {
             const result = await AdminService.deleteUser(id);
-            setUsers((prev) => prev.filter((user) => user.id !== id));
             setUserToDelete(null);
+            await queryClient.invalidateQueries({ queryKey });
             success(
-                result?.accountDeleted === false
-                    ? 'User removed from this organization'
-                    : 'User deleted successfully',
+                result?.accountDeleted === false ? 'User removed from this organization' : 'User deleted successfully',
                 'Cleanup Process',
             );
         } catch (error: any) {
+            setLocalOverrides((prev) => {
+                const next = { ...prev };
+                delete next[id];
+                return next;
+            });
             toastError(error.message || 'Failed to delete user', 'Error');
         }
     };
@@ -77,12 +106,19 @@ export function useAdminUsers(organizationId?: string) {
     const handleRoleChange = async (user: any, role: string) => {
         if (!canManageUsers || user.role === role) return;
         const previousRole = user.role;
-        setUsers((prev) => prev.map((item) => (item.id === user.id ? { ...item, role } : item)));
+        setLocalOverrides((prev) => ({
+            ...prev,
+            [user.id]: { ...(prev[user.id] || {}), role },
+        }));
         try {
             await AdminService.updateUserRole(user.id, role);
+            await queryClient.invalidateQueries({ queryKey });
             success(`Role updated to ${role.charAt(0)}${role.slice(1).toLowerCase()}`, 'Role Updated');
         } catch (error: any) {
-            setUsers((prev) => prev.map((item) => (item.id === user.id ? { ...item, role: previousRole } : item)));
+            setLocalOverrides((prev) => ({
+                ...prev,
+                [user.id]: { ...(prev[user.id] || {}), role: previousRole },
+            }));
             toastError(error.message || 'Failed to update role', 'Error');
         }
     };

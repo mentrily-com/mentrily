@@ -1,4 +1,4 @@
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { Judge0Strategy } from './judge0.strategy';
 
 describe('Judge0Strategy', () => {
@@ -56,9 +56,46 @@ describe('Judge0Strategy', () => {
     const post = jest.fn();
     const strategy = makeStrategy(post);
 
-    await expect(strategy.execute('dart', 'void main() {}', '')).rejects.toThrow(
-      "Language 'dart' is not supported by Judge0 on this deployment.",
+    await expect(
+      strategy.execute('dart', 'void main() {}', ''),
+    ).rejects.toThrow(
+      "Language 'dart' is not supported by the execution engine.",
     );
     expect(post).not.toHaveBeenCalled();
+  });
+
+  it('retries once when Judge0 drops the connection', async () => {
+    const ok = of({
+      data: { stdout: 'ok', status: { id: 3, description: 'Accepted' } },
+    });
+    const post = jest
+      .fn()
+      .mockReturnValueOnce(
+        throwError(() =>
+          Object.assign(new Error('reset'), { code: 'ECONNRESET' }),
+        ),
+      )
+      .mockReturnValueOnce(ok);
+    const strategy = makeStrategy(post);
+
+    const result = await strategy.execute('python', 'print("ok")', '');
+
+    expect(post).toHaveBeenCalledTimes(2);
+    expect(result.stdout).toBe('ok');
+  });
+
+  it('does not retry client timeouts or bad requests', async () => {
+    for (const error of [
+      Object.assign(new Error('timeout'), { code: 'ECONNABORTED' }),
+      Object.assign(new Error('bad'), { response: { status: 422, data: {} } }),
+    ]) {
+      const post = jest.fn().mockReturnValue(throwError(() => error));
+      const strategy = makeStrategy(post);
+
+      await expect(strategy.execute('python', 'x', '')).rejects.toThrow(
+        'Failed to execute code',
+      );
+      expect(post).toHaveBeenCalledTimes(1);
+    }
   });
 });

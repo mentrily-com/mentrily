@@ -53,9 +53,7 @@ export default function CourseExamSection({
                                 Linked course exam
                             </p>
                             <h4 className="mt-1 text-base font-black text-slate-900">{linkedExam.title}</h4>
-                            <p className="mt-1 text-[11px] font-bold text-slate-500">
-                                /exam/{linkedExam.slug}
-                            </p>
+                            <p className="mt-1 text-[11px] font-bold text-slate-500">/exam/{linkedExam.slug}</p>
                         </div>
                         <button
                             type="button"
@@ -157,7 +155,9 @@ function ThresholdInput({
                     className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm font-black text-slate-700"
                 />
                 {suffix ? (
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">{suffix}</span>
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                        {suffix}
+                    </span>
                 ) : null}
             </div>
         </label>

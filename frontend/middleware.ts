@@ -20,15 +20,27 @@ const isPublicRoute = createRouteMatcher([
     '/exam/login(.*)',
     '/exam/waiting(.*)',
     '/playground(.*)',
+    '/ai',
+    '/chat(.*)',
     '/online-(.*)',
     '/certificate(.*)',
     '/api/webhooks/clerk(.*)',
     '/_next(.*)',
 ]);
 
+const orgSubdomainCache = new Map<string, { org: any; expiresAt: number }>();
+
 async function resolveOrganization(subdomain: string) {
+    const normalized = String(subdomain || '').toLowerCase().trim();
+    if (!normalized) return null;
+
+    const cached = orgSubdomainCache.get(normalized);
+    if (cached && cached.expiresAt > Date.now()) {
+        return cached.org;
+    }
+
     try {
-        const response = await fetch(`${API_BASE}/organization/public?domain=${encodeURIComponent(subdomain)}`, {
+        const response = await fetch(`${API_BASE}/organization/public?domain=${encodeURIComponent(normalized)}`, {
             cache: 'no-store',
             headers: {
                 'x-middleware-org-lookup': '1',
@@ -37,10 +49,12 @@ async function resolveOrganization(subdomain: string) {
         });
 
         if (!response.ok) {
+            orgSubdomainCache.set(normalized, { org: null, expiresAt: Date.now() + 60_000 });
             return null;
         }
 
         const org = await response.json();
+        orgSubdomainCache.set(normalized, { org, expiresAt: Date.now() + 5 * 60_000 });
         return org;
     } catch {
         return null;
@@ -96,8 +110,7 @@ export default clerkMiddleware(async (auth, request) => {
         (sessionClaims?.metadata as Record<string, unknown> | undefined) ||
         (sessionClaims?.public_metadata as Record<string, unknown> | undefined) ||
         (sessionClaims?.unsafe_metadata as Record<string, unknown> | undefined);
-    const claimRole =
-        getStringValue(sessionClaims, 'role') || getStringValue(metadata, 'role');
+    const claimRole = getStringValue(sessionClaims, 'role') || getStringValue(metadata, 'role');
     const claimOrgId =
         String(authSnapshot.orgId || '').trim() ||
         getStringValue(sessionClaims, 'org_id') ||

@@ -4,10 +4,11 @@ import { useEffect } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { usePostHog } from 'posthog-js/react';
 import { setUser } from '@sentry/nextjs';
-import { AuthService } from '@/services/api/AuthService';
+import { useSession } from '@/hooks/useSession';
 
 export default function UserTelemetryBridge() {
     const { isLoaded, isSignedIn } = useAuth();
+    const { session } = useSession();
     const posthog = usePostHog();
 
     useEffect(() => {
@@ -19,39 +20,28 @@ export default function UserTelemetryBridge() {
             return;
         }
 
-        let active = true;
+        if (!session) return;
 
-        const syncUserTelemetry = async () => {
-            const session = await AuthService.checkSession();
-            if (!active || !session) return;
+        const distinctId = String(session.id || (session as any).email || '').trim();
+        const email = String((session as any).email || '').trim();
 
-            const distinctId = String(session.id || session.email || '').trim();
-            const email = String(session.email || '').trim();
-
-            if (distinctId && posthog) {
-                posthog.identify(distinctId, {
-                    email: email || undefined,
-                    role: session.role || undefined,
-                    plan: session.plan || undefined,
-                    orgId: session.orgId || undefined,
-                });
-            }
-
-            setUser({
-                id: distinctId || undefined,
+        if (distinctId && posthog) {
+            posthog.identify(distinctId, {
                 email: email || undefined,
                 role: session.role || undefined,
                 plan: session.plan || undefined,
                 orgId: session.orgId || undefined,
-            } as any);
-        };
+            });
+        }
 
-        void syncUserTelemetry();
-
-        return () => {
-            active = false;
-        };
-    }, [isLoaded, isSignedIn, posthog]);
+        setUser({
+            id: distinctId || undefined,
+            email: email || undefined,
+            role: session.role || undefined,
+            plan: session.plan || undefined,
+            orgId: session.orgId || undefined,
+        } as any);
+    }, [isLoaded, isSignedIn, session, posthog]);
 
     return null;
 }

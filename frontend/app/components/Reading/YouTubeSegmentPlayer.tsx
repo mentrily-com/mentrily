@@ -46,7 +46,10 @@ export default function YouTubeSegmentPlayer({
 
     return (
         <div className={className || 'not-prose my-8'}>
-            <div className="relative w-full overflow-hidden rounded-2xl bg-black shadow-lg" style={{ aspectRatio: '16 / 9' }}>
+            <div
+                className="relative w-full overflow-hidden rounded-2xl bg-black shadow-lg"
+                style={{ aspectRatio: '16 / 9' }}
+            >
                 <iframe
                     src={src}
                     title={title || 'Lesson video'}

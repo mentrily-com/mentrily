@@ -19,17 +19,15 @@ export default function UserCreatedSuccess({ name, invitedEmail, onClose }: User
                 <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">
                     Clerk Invitation Sent
                 </p>
-                <h3 className="mt-2 text-lg font-black tracking-tight text-slate-900">
-                    {name || invitedEmail}
-                </h3>
+                <h3 className="mt-2 text-lg font-black tracking-tight text-slate-900">{name || invitedEmail}</h3>
                 <div className="mt-5 break-all rounded-2xl border border-white bg-white px-5 py-4 text-sm font-black text-slate-700 shadow-inner">
                     {invitedEmail}
                 </div>
                 <div className="mt-5 flex items-start gap-3 rounded-2xl border border-emerald-100 bg-white/80 p-4 text-left">
                     <ShieldCheck className="mt-0.5 shrink-0 text-emerald-600" size={18} />
                     <p className="text-xs font-bold leading-relaxed text-slate-500">
-                        Clerk will deliver the sign-up email. The selected role is applied after the invitee accepts
-                        the invitation.
+                        Clerk will deliver the sign-up email. The selected role is applied after the invitee accepts the
+                        invitation.
                     </p>
                 </div>
                 <button

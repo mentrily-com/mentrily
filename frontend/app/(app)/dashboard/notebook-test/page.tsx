@@ -39,7 +39,7 @@ plt.show()`,
     };
 
     return (
-        <div className="h-screen flex flex-col bg-[#F8FAFC]">
+        <div className="h-screen flex flex-col bg-slate-50">
             <Navbar />
             <div className="flex-1 overflow-hidden">
                 <UnitRenderer question={notebookQuestion} activeTab="question" />

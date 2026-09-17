@@ -8,7 +8,7 @@ import {
 import { ArgumentsHost, Logger, ValidationPipe } from '@nestjs/common';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import helmet from '@fastify/helmet';
-import { randomBytes } from 'crypto';
+import { randomBytes, timingSafeEqual } from 'crypto';
 import * as Sentry from '@sentry/node';
 import { AppModule } from './app.module';
 import {
@@ -78,16 +78,12 @@ async function bootstrap() {
   const fastifyInstance = app.getHttpAdapter().getInstance();
   fastifyInstance.addHook('onRequest', async (req: FastifyRequest) => {
     const cfConnectingIp = req.headers['cf-connecting-ip'];
-    const xForwardedFor = req.headers['x-forwarded-for'];
-
-    if (typeof cfConnectingIp === 'string' && !xForwardedFor) {
-      req.headers['x-forwarded-for'] = cfConnectingIp;
+    if (typeof cfConnectingIp === 'string' && cfConnectingIp.trim()) {
+      req.headers['x-forwarded-for'] = cfConnectingIp.trim();
     }
   });
 
   // Register plugin to allow Authorization header for CORS
-  // @ts-ignore
-  // Force reload
   await app.register(require('./fastify-cors-auth-header.plugin').default);
 
   // Register multipart support for file uploads. Only the certificate
@@ -192,10 +188,16 @@ async function bootstrap() {
         ? headerToken[0]
         : headerToken;
 
+      if (!cookieToken || !normalizedHeaderToken) {
+        return reply.code(403).send({ message: 'Invalid CSRF token' });
+      }
+
+      const cookieBuf = Buffer.from(cookieToken);
+      const headerBuf = Buffer.from(normalizedHeaderToken);
+
       if (
-        !cookieToken ||
-        !normalizedHeaderToken ||
-        cookieToken !== normalizedHeaderToken
+        cookieBuf.length !== headerBuf.length ||
+        !timingSafeEqual(cookieBuf, headerBuf)
       ) {
         return reply.code(403).send({ message: 'Invalid CSRF token' });
       }
@@ -248,20 +250,24 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(Number(process.env.PORT || 3000), '0.0.0.0', (err, address) => {
-    if (err) {
-      console.error(err);
-      process.exit(1);
-    }
-    console.log(`Application is listening on ${address}`);
+  await app.listen(
+    Number(process.env.PORT || 3000),
+    '0.0.0.0',
+    (err, address) => {
+      if (err) {
+        console.error(err);
+        process.exit(1);
+      }
+      console.log(`Application is listening on ${address}`);
 
-    // Initialize PeerServer
-    if (process.env.ENABLE_LOCAL_PEER_SERVER === 'true') {
-      // Using require to avoid potential type issues if @types/peer is missing
-      const { PeerServer } = require('peer');
-      const peerServer = PeerServer({ port: 9001, path: '/peer' });
-      console.log('PeerServer running on port 9001, path /peer');
-    }
-  });
+      // Initialize PeerServer
+      if (process.env.ENABLE_LOCAL_PEER_SERVER === 'true') {
+        // Using require to avoid potential type issues if @types/peer is missing
+        const { PeerServer } = require('peer');
+        const peerServer = PeerServer({ port: 9001, path: '/peer' });
+        console.log('PeerServer running on port 9001, path /peer');
+      }
+    },
+  );
 }
 bootstrap();

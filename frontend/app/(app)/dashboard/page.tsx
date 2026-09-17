@@ -1,12 +1,12 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRequireAuth } from '@/hooks/requireAuthClient';
 import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthService } from '@/services/api/AuthService';
 import RoleSelectionModal from '@/app/components/RoleSelectionModal';
 import { useAuth } from '@clerk/nextjs';
-import BrandedPageLoader from '@/app/components/Common/BrandedPageLoader';
 
 export default function DashboardPage() {
     const [authChecked, setAuthChecked] = useState(false);
@@ -14,8 +14,31 @@ export default function DashboardPage() {
     const [isRedirectingToRoleDashboard, setIsRedirectingToRoleDashboard] = useState(false);
     const [redirectingRole, setRedirectingRole] = useState<'student' | 'teacher' | 'admin' | 'super-admin'>('teacher');
     const isSignedIn = useRequireAuth('/login');
-    const { isLoaded: clerkLoaded, isSignedIn: clerkSignedIn } = useAuth();
+    const { isLoaded: clerkLoaded, isSignedIn: clerkSignedIn, sessionId, userId } = useAuth();
     const router = useRouter();
+    const queryClient = useQueryClient();
+
+    // This page's whole job is a role-based redirect: it fetches the session
+    // once via AuthService directly (not the useSession() hook, so it can
+    // run its own signup-provisioning retry loop). Without this, that fetch
+    // was wasted work -- useSession()'s react-query cache stayed cold, so the
+    // destination layout's useRoleGuard (also backed by useSession()) had to
+    // fetch the exact same session again from scratch, showing a second,
+    // independent loading skeleton for data we'd already just fetched here.
+    // Priming the shared cache with the query key useSession() uses means
+    // the destination layout sees it as already resolved.
+    const primeSessionCache = useCallback(
+        (user: unknown) => {
+            if (!user) return;
+            queryClient.setQueriesData({ queryKey: ['session'] }, user);
+            const targetId = (user as any)?.id || userId;
+            if (targetId) queryClient.setQueryData(['session', targetId], user);
+            if (userId) queryClient.setQueryData(['session', userId], user);
+            if (sessionId) queryClient.setQueryData(['session', sessionId], user);
+            queryClient.setQueryData(['session', 'anonymous'], user);
+        },
+        [queryClient, sessionId, userId],
+    );
     const searchParams = useSearchParams();
     const authFlow = String(searchParams.get('flow') || '')
         .trim()
@@ -62,7 +85,9 @@ export default function DashboardPage() {
         router.replace('/login?error=account_not_found');
     }, [router]);
 
-    const getDestinationByRole = (role?: string): '/dashboard/creator' | '/dashboard/super-admin' | '/dashboard/learner' | null => {
+    const getDestinationByRole = (
+        role?: string,
+    ): '/dashboard/creator' | '/dashboard/super-admin' | '/dashboard/learner' | null => {
         if (role === 'TEACHER' || role === 'ADMIN') return '/dashboard/creator';
         if (role === 'SUPER_ADMIN') return '/dashboard/super-admin';
         if (role === 'STUDENT') return '/dashboard/learner';
@@ -74,7 +99,9 @@ export default function DashboardPage() {
         let cancelled = false;
 
         const loadSession = async () => {
-            AuthService.resetSessionCache();
+            if (shouldProvisionSignup) {
+                AuthService.resetSessionCache();
+            }
             setIsRedirectingToRoleDashboard(false);
 
             // Fresh signups race Clerk token issuance + first-request user
@@ -102,6 +129,7 @@ export default function DashboardPage() {
 
                 const destination = getDestinationByRole(user?.role);
                 if (destination) {
+                    primeSessionCache(user);
                     setAuthChecked(true);
                     setIsRedirectingToRoleDashboard(true);
                     router.replace(destination);
@@ -126,24 +154,32 @@ export default function DashboardPage() {
         return () => {
             cancelled = true;
         };
-    }, [isSignedIn, clerkLoaded, clerkSignedIn, redirectMissingAccount, router, shouldProvisionSignup]);
+    }, [
+        isSignedIn,
+        clerkLoaded,
+        clerkSignedIn,
+        redirectMissingAccount,
+        router,
+        shouldProvisionSignup,
+        primeSessionCache,
+    ]);
 
-    const redirectByRole = (
-        user: { role?: string } | null,
-        preferredDestination?: string,
-    ): boolean => {
+    const redirectByRole = (user: { role?: string } | null, preferredDestination?: string): boolean => {
         const destination = getDestinationByRole(user?.role);
         if (!destination) return false;
+        primeSessionCache(user);
         persistRoleHint(user?.role);
-        const normalizedRole = String(user?.role || '').trim().toUpperCase();
+        const normalizedRole = String(user?.role || '')
+            .trim()
+            .toUpperCase();
         setRedirectingRole(
             normalizedRole === 'STUDENT'
                 ? 'student'
                 : normalizedRole === 'SUPER_ADMIN'
-                    ? 'super-admin'
-                    : normalizedRole === 'ADMIN'
-                        ? 'admin'
-                        : 'teacher',
+                  ? 'super-admin'
+                  : normalizedRole === 'ADMIN'
+                    ? 'admin'
+                    : 'teacher',
         );
         setIsRedirectingToRoleDashboard(true);
         router.replace(preferredDestination || destination);
@@ -181,17 +217,18 @@ export default function DashboardPage() {
             setRedirectingRole('student');
             setIsRedirectingToRoleDashboard(true);
             const updatedUser = await AuthService.selectRole(role);
-            const redirected = redirectByRole(
-                (updatedUser as { role?: string }) || { role },
-                '/dashboard/learner',
-            );
+            const redirected = redirectByRole((updatedUser as { role?: string }) || { role }, '/dashboard/learner');
             if (!redirected) {
                 await resolveAndRedirect('/dashboard/learner');
             }
         } catch (error) {
             setIsRedirectingToRoleDashboard(false);
             const message = String((error as Error)?.message || '').toLowerCase();
-            if (message.includes('already been selected') || message.includes('unauthorized') || message.includes('bad request')) {
+            if (
+                message.includes('already been selected') ||
+                message.includes('unauthorized') ||
+                message.includes('bad request')
+            ) {
                 setRedirectingRole('student');
                 setIsRedirectingToRoleDashboard(true);
                 await resolveAndRedirect('/dashboard/learner');
@@ -220,7 +257,11 @@ export default function DashboardPage() {
         } catch (error) {
             setIsRedirectingToRoleDashboard(false);
             const message = String((error as Error)?.message || '').toLowerCase();
-            if (message.includes('already been selected') || message.includes('unauthorized') || message.includes('bad request')) {
+            if (
+                message.includes('already been selected') ||
+                message.includes('unauthorized') ||
+                message.includes('bad request')
+            ) {
                 persistRoleHint('TEACHER');
                 setRedirectingRole('teacher');
                 setIsRedirectingToRoleDashboard(true);
@@ -232,7 +273,11 @@ export default function DashboardPage() {
     };
 
     if (!authChecked) {
-        return <BrandedPageLoader />;
+        // Destination is still unknown here (role modal vs. an existing
+        // dashboard) -- a skeleton keeps the post-login/post-signup
+        // transition feeling continuous instead of flashing to a blank
+        // white spinner screen for the round trip.
+        return <DashboardSkeleton type="main" noNavbar />;
     }
 
     if (needsRoleSelection) {
@@ -240,7 +285,10 @@ export default function DashboardPage() {
     }
 
     if (isRedirectingToRoleDashboard) {
-        return <DashboardSkeleton type="main" userRole={redirectingRole} />;
+        // Bare /dashboard never renders a navbar of its own (AppShell only
+        // shows one for workspace routes), so this matches the !authChecked
+        // branch above rather than drawing a header nothing else is showing.
+        return <DashboardSkeleton type="main" userRole={redirectingRole} noNavbar />;
     }
 
     return null;

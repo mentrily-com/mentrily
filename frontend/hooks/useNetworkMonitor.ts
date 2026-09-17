@@ -44,26 +44,36 @@ export function useNetworkMonitor() {
                 if (cancelled) return;
 
                 const durationSec = Math.max((endedAt - startedAt) / 1000, 0.05);
-                
+
                 // Estimate a simulated "Mbps" purely based on latency (RTT)
                 // since the app-config payload is too small to measure true bandwidth.
                 // Thresholds in UI are: [0, 2, 5, 10]
                 let calculatedMbps = 0;
-                if (durationSec <= 0.1) calculatedMbps = 25;      // 4 bars (Fast)
-                else if (durationSec <= 0.25) calculatedMbps = 8; // 3 bars (Good)
-                else if (durationSec <= 0.5) calculatedMbps = 4;  // 2 bars (Fair)
-                else calculatedMbps = 1;                          // 1 bar (Slow)
+                if (durationSec <= 0.1)
+                    calculatedMbps = 25; // 4 bars (Fast)
+                else if (durationSec <= 0.25)
+                    calculatedMbps = 8; // 3 bars (Good)
+                else if (durationSec <= 0.5)
+                    calculatedMbps = 4; // 2 bars (Fair)
+                else calculatedMbps = 1; // 1 bar (Slow)
 
                 if (calculatedMbps > 0) {
-                    setStatus((prev) => ({
-                        ...prev,
-                        downlink: calculatedMbps,
-                        rtt: Math.round(durationSec * 1000),
-                    }));
+                    setStatus((prev) => {
+                        const newRtt = Math.round(durationSec * 1000);
+                        if (prev.downlink === calculatedMbps && prev.isOnline && Math.abs(prev.rtt - newRtt) < 50) {
+                            return prev;
+                        }
+                        return {
+                            ...prev,
+                            isOnline: true,
+                            downlink: calculatedMbps,
+                            rtt: newRtt,
+                        };
+                    });
                 }
             } catch {
                 if (!cancelled) {
-                    setStatus((prev) => ({ ...prev, isOnline: false }));
+                    setStatus((prev) => (prev.isOnline === false ? prev : { ...prev, isOnline: false }));
                 }
             }
         };
@@ -73,11 +83,18 @@ export function useNetworkMonitor() {
                 (navigator as any).connection ||
                 (navigator as any).mozConnection ||
                 (navigator as any).webkitConnection;
-            setStatus((prev) => ({
-                ...prev,
-                isOnline: navigator.onLine,
-                effectiveType: conn ? conn.effectiveType : 'unknown',
-            }));
+            setStatus((prev) => {
+                const online = navigator.onLine;
+                const effType = conn ? conn.effectiveType : 'unknown';
+                if (prev.isOnline === online && prev.effectiveType === effType) {
+                    return prev;
+                }
+                return {
+                    ...prev,
+                    isOnline: online,
+                    effectiveType: effType,
+                };
+            });
 
             if (navigator.onLine) {
                 measureRealSpeed();
@@ -104,4 +121,25 @@ export function useNetworkMonitor() {
     }, []);
 
     return status;
+}
+
+export function useNetworkOnlineStatus() {
+    const [isOnline, setIsOnline] = useState<boolean>(() =>
+        typeof navigator !== 'undefined' ? navigator.onLine : true,
+    );
+
+    useEffect(() => {
+        const handleOnline = () => setIsOnline(true);
+        const handleOffline = () => setIsOnline(false);
+
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
+
+    return isOnline;
 }

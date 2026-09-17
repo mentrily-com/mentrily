@@ -27,7 +27,9 @@ export class CourseService {
       (String((error as any)?.meta?.column || '').includes(
         'Exam.passingPercentage',
       ) ||
-        String((error as any)?.meta?.column || '').includes('Exam.maxAttempts') ||
+        String((error as any)?.meta?.column || '').includes(
+          'Exam.maxAttempts',
+        ) ||
         String((error as any)?.meta?.column || '').includes(
           'Exam.attemptBufferMins',
         ))
@@ -43,7 +45,10 @@ export class CourseService {
    * another person's personal course/unit by slug or id. SUPER_ADMIN exempt.
    */
   private assertTenantOrOwnerAccess(
-    resource: { orgId?: string | null; creatorId?: string | null } | null | undefined,
+    resource:
+      | { orgId?: string | null; creatorId?: string | null }
+      | null
+      | undefined,
     user: any,
     message = 'Not found or access denied',
   ): void {
@@ -80,17 +85,25 @@ export class CourseService {
     user: any,
     message = 'Not found or access denied',
   ): Promise<void> {
-    try {
-      this.assertTenantOrOwnerAccess(course, user, message);
+    if (user?.role === 'SUPER_ADMIN') {
       return;
-    } catch (error) {
-      if (!(error instanceof NotFoundException) || !user?.id || !course?.id) {
-        throw error;
+    }
+    if (course.creatorId && user?.id && course.creatorId === user.id) {
+      return;
+    }
+    if (user?.role === 'ADMIN' || user?.role === 'TEACHER') {
+      try {
+        this.assertTenantOrOwnerAccess(course, user, message);
+        return;
+      } catch (error) {
+        if (!(error instanceof NotFoundException) || !user?.id || !course?.id) {
+          throw error;
+        }
       }
     }
 
     const enrolled = await this.prisma.course.count({
-      where: { id: course.id, students: { some: { id: user.id } } },
+      where: { id: course.id, students: { some: { id: user?.id } } },
     });
 
     if (enrolled === 0) {
@@ -98,7 +111,11 @@ export class CourseService {
     }
   }
 
-  private buildCourseQuery(slug: string, scopedOrgId: string | null, userId?: string) {
+  private buildCourseQuery(
+    slug: string,
+    scopedOrgId: string | null,
+    userId?: string,
+  ) {
     const orConditions: any[] = [];
     if (scopedOrgId) orConditions.push({ orgId: scopedOrgId });
     if (userId) orConditions.push({ students: { some: { id: userId } } });
@@ -186,7 +203,11 @@ export class CourseService {
           throw error;
         }
 
-        const fallbackCourseQuery = this.buildCourseQuery(slug, scopedOrgId, user?.id);
+        const fallbackCourseQuery = this.buildCourseQuery(
+          slug,
+          scopedOrgId,
+          user?.id,
+        );
         delete fallbackCourseQuery.include.linkedExam.select.passingPercentage;
         delete fallbackCourseQuery.include.linkedExam.select.maxAttempts;
         delete fallbackCourseQuery.include.linkedExam.select.attemptBufferMins;
@@ -209,7 +230,7 @@ export class CourseService {
       'Course not found or access denied',
     );
 
-    if (!shouldSanitizeSensitiveContent(user)) {
+    if (!shouldSanitizeSensitiveContent(user, course)) {
       return course;
     }
 
@@ -310,6 +331,22 @@ export class CourseService {
       }
     } while (cursor !== '0');
 
+    // Also invalidate public and tenant course catalogs
+    let catalogCursor = '0';
+    do {
+      const [nextCursor, batch] = await this.redis.scan(
+        catalogCursor,
+        'MATCH',
+        'catalog:courses:*',
+        'COUNT',
+        200,
+      );
+      catalogCursor = nextCursor;
+      if (batch && batch.length > 0) {
+        keysToDelete.push(...batch);
+      }
+    } while (catalogCursor !== '0');
+
     const uniqueKeys = Array.from(new Set([...keysToDelete, `course:${slug}`]));
     if (uniqueKeys.length > 0) {
       await this.redis.del(...uniqueKeys);
@@ -338,7 +375,7 @@ export class CourseService {
           user,
           'Unit not found',
         );
-        if (!shouldSanitizeSensitiveContent(user)) {
+        if (!shouldSanitizeSensitiveContent(user, { orgId, creatorId })) {
           return data;
         }
 
@@ -378,8 +415,12 @@ export class CourseService {
         3600,
       );
 
-      await this.assertCourseAccess({ id: courseId, orgId, creatorId }, user, 'Unit not found');
-      if (!shouldSanitizeSensitiveContent(user)) {
+      await this.assertCourseAccess(
+        { id: courseId, orgId, creatorId },
+        user,
+        'Unit not found',
+      );
+      if (!shouldSanitizeSensitiveContent(user, { orgId, creatorId })) {
         return unit;
       }
 
@@ -542,11 +583,20 @@ export class CourseService {
       );
 
       await this.assertCourseAccess(
-        { id: foundCourseId as string, orgId: foundOrgId, creatorId: foundCreatorId },
+        {
+          id: foundCourseId as string,
+          orgId: foundOrgId,
+          creatorId: foundCreatorId,
+        },
         user,
         'Unit not found',
       );
-      if (!shouldSanitizeSensitiveContent(user)) {
+      if (
+        !shouldSanitizeSensitiveContent(user, {
+          orgId: foundOrgId,
+          creatorId: foundCreatorId,
+        })
+      ) {
         return responseData;
       }
 

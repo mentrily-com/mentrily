@@ -15,11 +15,11 @@ import { Redis } from 'ioredis';
 
 const ANSWER_STASH_TTL_SEC = 6 * 60 * 60; // longer than any exam
 
-export const sessionAnswersHashKey = (sessionId: string) =>
+const sessionAnswersHashKey = (sessionId: string) =>
   `session:answers:h:${sessionId}`;
 
 /** Pre-hash format; still read for sessions started before deploy. */
-export const legacySessionAnswersKey = (sessionId: string) =>
+const legacySessionAnswersKey = (sessionId: string) =>
   `session:answers:${sessionId}`;
 
 export async function stashSessionAnswers(

@@ -16,6 +16,9 @@ const getRandomWarning = (type: 'phone_detected' | 'multiple_faces' | 'no_face' 
     return messages[Math.floor(Math.random() * messages.length)];
 };
 
+// Secure module-scoped cache (prevent DevTools/DOM manipulation via window)
+let cachedModels: { objectDetector: any; faceLandmarker: any } | null = null;
+
 export function useProctoringAI({ onViolation, active }: ProctoringConfig) {
     const { warning, error: toastError } = useToast();
     const [isModelLoaded, setIsModelLoaded] = useState(false);
@@ -53,14 +56,13 @@ export function useProctoringAI({ onViolation, active }: ProctoringConfig) {
         let isMounted = true;
 
         async function loadModels() {
-            // Check global cache first
-            if ((window as any).__PROCTOR_MODELS__) {
-                const { objectDetector, faceLandmarker } = (window as any).__PROCTOR_MODELS__;
+            // Check module-scoped cache first
+            if (cachedModels) {
+                const { objectDetector, faceLandmarker } = cachedModels;
                 if (objectDetector && faceLandmarker) {
                     objectDetectorRef.current = objectDetector;
                     faceLandmarkerRef.current = faceLandmarker;
                     setIsModelLoaded(true);
-                    console.log('[ProctoringAI] Models Restored from Cache');
                     return;
                 }
             }
@@ -103,11 +105,10 @@ export function useProctoringAI({ onViolation, active }: ProctoringConfig) {
                     objectDetectorRef.current = objectDetector;
                     faceLandmarkerRef.current = faceLandmarker;
 
-                    // Simple global cache
-                    (window as any).__PROCTOR_MODELS__ = { objectDetector, faceLandmarker };
+                    // Store in secure module closure
+                    cachedModels = { objectDetector, faceLandmarker };
 
                     setIsModelLoaded(true);
-                    console.log('[ProctoringAI] Models Loaded Successfully');
                 }
             } catch (err) {
                 console.error('[ProctoringAI] Failed to load models', err);
@@ -143,9 +144,10 @@ export function useProctoringAI({ onViolation, active }: ProctoringConfig) {
                     audio: false,
                 });
 
-                if (videoRef.current) {
-                    videoRef.current.srcObject = stream;
-                    videoRef.current.addEventListener('loadeddata', predictWebcam);
+                const videoEl = videoRef.current;
+                if (videoEl) {
+                    videoEl.srcObject = stream;
+                    videoEl.addEventListener('loadeddata', predictWebcam);
                 }
             } catch (err) {
                 console.error('Webcam Error', err);
@@ -159,22 +161,38 @@ export function useProctoringAI({ onViolation, active }: ProctoringConfig) {
             if (stream) {
                 stream.getTracks().forEach((track) => track.stop());
             }
+            if (videoRef.current) {
+                videoRef.current.removeEventListener('loadeddata', predictWebcam);
+            }
             if (requestRef.current) {
                 cancelAnimationFrame(requestRef.current);
             }
         };
     }, [active, isModelLoaded]);
 
-    // Snapshot Helper
+    const snapshotCanvasRef = useRef<HTMLCanvasElement | null>(null);
+
+    // Snapshot Helper (reusing single canvas & downscaling to 320px thumbnail to eliminate UI thread hitching)
     const captureSnapshot = useCallback(() => {
         if (!videoRef.current) return undefined;
-        const canvas = document.createElement('canvas'); // Create ephemeral canvas
-        canvas.width = videoRef.current.videoWidth;
-        canvas.height = videoRef.current.videoHeight;
+        const video = videoRef.current;
+        if (video.videoWidth === 0 || video.videoHeight === 0) return undefined;
+
+        if (!snapshotCanvasRef.current && typeof document !== 'undefined') {
+            snapshotCanvasRef.current = document.createElement('canvas');
+        }
+        const canvas = snapshotCanvasRef.current;
+        if (!canvas) return undefined;
+
+        const maxDim = 320;
+        const scale = Math.min(1, maxDim / Math.max(video.videoWidth, video.videoHeight));
+        canvas.width = Math.round(video.videoWidth * scale);
+        canvas.height = Math.round(video.videoHeight * scale);
+
         const ctx = canvas.getContext('2d');
         if (!ctx) return undefined;
-        ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-        return canvas.toDataURL('image/webp', 0.3); // WebP 30% quality (smaller payload)
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        return canvas.toDataURL('image/webp', 0.3); // WebP 30% quality (compact thumbnail)
     }, []);
 
     // The Main Loop
@@ -186,9 +204,12 @@ export function useProctoringAI({ onViolation, active }: ProctoringConfig) {
 
         // Ensure video is playing and has size
         if (video.videoWidth > 0 && video.videoHeight > 0) {
-            // --- 1. Face Landmarker (Every 500ms - Reduced from 200ms) ---
-            if (now - lastFaceCheckRef.current >= 500) {
+            let ranFaceInFrame = false;
+
+            // --- 1. Face Landmarker (Every 600ms) ---
+            if (now - lastFaceCheckRef.current >= 600) {
                 lastFaceCheckRef.current = now;
+                ranFaceInFrame = true;
 
                 if (faceLandmarkerRef.current) {
                     const faceResult = faceLandmarkerRef.current.detectForVideo(video, now);
@@ -293,8 +314,8 @@ export function useProctoringAI({ onViolation, active }: ProctoringConfig) {
                 }
             }
 
-            // --- 2. Object Detector (Every 1000ms - Reduced from 500ms) ---
-            if (now - lastObjectCheckRef.current >= 1000) {
+            // --- 2. Object Detector (Every 1200ms - staggered to never run in same frame as face check) ---
+            if (!ranFaceInFrame && now - lastObjectCheckRef.current >= 1200) {
                 lastObjectCheckRef.current = now;
 
                 if (objectDetectorRef.current) {

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import AdminSettingsSkeleton from '@/app/components/Skeletons/AdminSettingsSkeleton';
 import AdminSettingsView from '@/app/components/Features/Admin/AdminSettingsView';
 import { AdminService } from '@/services/api/AdminService';
 import { useToast } from '@/app/components/Common/Toast';
@@ -83,12 +83,12 @@ export default function CreatorSettingsPage() {
     };
 
     if (loading) {
-        return <DashboardSkeleton type="form" userRole="admin" />;
+        return <AdminSettingsSkeleton />;
     }
 
     if (plan !== 'ENTERPRISE') {
         return (
-            <div className="min-h-screen bg-[#F8FAFC] text-slate-900">
+            <div className="min-h-screen bg-slate-50 text-slate-900">
                 <main className="max-w-[980px] mx-auto px-6 lg:px-12 py-12">
                     <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm p-10 text-center">
                         <h1 className="text-2xl font-black tracking-tight text-slate-900">Enterprise Only</h1>
@@ -109,7 +109,7 @@ export default function CreatorSettingsPage() {
 
     if (role !== 'ADMIN') {
         return (
-            <div className="min-h-screen bg-[#F8FAFC] text-slate-900">
+            <div className="min-h-screen bg-slate-50 text-slate-900">
                 <main className="max-w-[980px] mx-auto px-6 lg:px-12 py-12">
                     <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm p-10 text-center">
                         <h1 className="text-2xl font-black tracking-tight text-slate-900">Admin Access Required</h1>
@@ -123,7 +123,7 @@ export default function CreatorSettingsPage() {
     }
 
     if (settingsLoading) {
-        return <DashboardSkeleton type="form" userRole="admin" />;
+        return <AdminSettingsSkeleton />;
     }
 
     return <AdminSettingsView initialData={settingsData} onSave={handleSave} />;

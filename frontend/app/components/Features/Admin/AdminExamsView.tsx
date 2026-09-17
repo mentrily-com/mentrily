@@ -2,26 +2,16 @@
 import React, { useState } from 'react';
 import { siteConfig } from '@/app/config/site';
 import Link from 'next/link';
-import {
-    Search,
-    Filter,
-    Shield,
-    BookOpen,
-    Eye,
-    Edit3,
-    Activity,
-    UserPlus,
-    Lock,
-} from 'lucide-react';
+import { Search, Filter, Shield, BookOpen, Eye, Edit3, Activity, UserPlus, Lock } from 'lucide-react';
 import CourseDetailsView from '@/app/components/Features/Courses/CourseDetailsView';
 import ExamDetailsModal from '@/app/components/Features/Exams/ExamDetailsModal';
 import EnrollmentModal from '@/app/components/Common/EnrollmentModal';
 import ExamInviteModal from '@/app/components/Features/Exams/ExamInviteModal';
 
 import { AdminService } from '@/services/api/AdminService';
-import { AuthService } from '@/services/api/AuthService';
+import { useSession } from '@/hooks/useSession';
 import { useEffect } from 'react';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import AdminExamsViewSkeleton from '@/app/components/Skeletons/AdminExamsViewSkeleton';
 
 interface AdminExamsViewProps {
     basePath?: string;
@@ -29,13 +19,11 @@ interface AdminExamsViewProps {
     orgPermissions?: {
         canCreateExams?: boolean;
         canCreateCourses?: boolean;
-        allowAppExams?: boolean;
-        allowAIProctoring?: boolean;
-        allowCourseTests?: boolean;
     };
 }
 
-export default function AdminExamsView({ basePath = '/dashboard/creator', organizationId }: AdminExamsViewProps) {
+export default function AdminExamsView({ basePath = '/admin', organizationId }: AdminExamsViewProps) {
+    const { session: userData } = useSession();
     const [activeTab, setActiveTab] = useState<'exams' | 'courses'>('exams');
     const [searchQuery, setSearchQuery] = useState('');
     const [viewingCourse, setViewingCourse] = useState<any | null>(null);
@@ -44,17 +32,10 @@ export default function AdminExamsView({ basePath = '/dashboard/creator', organi
     const [exams, setExams] = useState<any[]>([]);
     const [courses, setCourses] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [userData, setUserData] = useState<any>(null);
     const [invitingExam, setInvitingExam] = useState<any | null>(null);
 
     useEffect(() => {
         let alive = true;
-
-        const loadUser = async () => {
-            const user = await AuthService.checkSession();
-            if (alive) setUserData(user);
-        };
-        void loadUser();
 
         async function load(showLoader = false) {
             if (showLoader) setLoading(true);
@@ -109,7 +90,7 @@ export default function AdminExamsView({ basePath = '/dashboard/creator', organi
     };
 
     if (loading) {
-        return <DashboardSkeleton type="list" />;
+        return <AdminExamsViewSkeleton />;
     }
 
     return (
@@ -124,10 +105,10 @@ export default function AdminExamsView({ basePath = '/dashboard/creator', organi
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-8 border-b border-slate-100 mb-10">
+            <div className="flex gap-4 sm:gap-8 border-b border-slate-100 mb-8 sm:mb-10 overflow-x-auto no-scrollbar">
                 <button
                     onClick={() => setActiveTab('exams')}
-                    className={`pb-4 px-2 text-xs font-black uppercase tracking-widest transition-all relative ${activeTab === 'exams' ? 'text-[var(--brand)]' : 'text-slate-400 hover:text-slate-600'}`}
+                    className={`pb-4 px-2 text-xs font-black uppercase tracking-widest transition-all relative shrink-0 ${activeTab === 'exams' ? 'text-[var(--brand)]' : 'text-slate-400 hover:text-slate-600'}`}
                 >
                     Total Examinations
                     {activeTab === 'exams' && (
@@ -136,7 +117,7 @@ export default function AdminExamsView({ basePath = '/dashboard/creator', organi
                 </button>
                 <button
                     onClick={() => setActiveTab('courses')}
-                    className={`pb-4 px-2 text-xs font-black uppercase tracking-widest transition-all relative ${activeTab === 'courses' ? 'text-[var(--brand)]' : 'text-slate-400 hover:text-slate-600'}`}
+                    className={`pb-4 px-2 text-xs font-black uppercase tracking-widest transition-all relative shrink-0 ${activeTab === 'courses' ? 'text-[var(--brand)]' : 'text-slate-400 hover:text-slate-600'}`}
                 >
                     Active Courses
                     {activeTab === 'courses' && (
@@ -147,31 +128,31 @@ export default function AdminExamsView({ basePath = '/dashboard/creator', organi
 
             {/* Search & Action Bar */}
             <div className="flex flex-col md:flex-row items-center gap-4 mb-8">
-                <div className="relative flex-1">
+                <div className="relative flex-1 w-full">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
                     <input
                         type="text"
                         placeholder={`Search ${activeTab}...`}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-12 pr-4 py-4 bg-white border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:border-[var(--brand)] shadow-sm transition-all"
+                        className="w-full pl-12 pr-4 py-3.5 sm:py-4 bg-white border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:border-[var(--brand)] shadow-sm transition-all"
                     />
                 </div>
-                <div className="flex gap-2">
-                    <button className="flex items-center gap-2 px-6 py-4 bg-white border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:border-[var(--brand)] hover:text-[var(--brand)] transition-all shadow-sm">
+                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                    <button className="flex items-center gap-2 px-4 sm:px-6 py-3.5 sm:py-4 bg-white border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:border-[var(--brand)] hover:text-[var(--brand)] transition-all shadow-sm">
                         <Filter size={14} /> Filter
                     </button>
                     {activeTab === 'exams' ? (
                         orgPermissions.canCreateExams ? (
                             <Link
                                 href={`${basePath}/exams/new`}
-                                className="px-8 py-4 bg-slate-900 text-white font-black text-sm rounded-2xl shadow-xl shadow-slate-200 flex items-center gap-3 hover:scale-105 transition-all active:scale-95"
+                                className="w-full sm:w-auto justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-slate-900 text-white font-black text-sm rounded-2xl shadow-xl shadow-slate-200 flex items-center gap-3 hover:scale-105 transition-all active:scale-95"
                             >
                                 <Shield size={18} />
                                 Create Exam
                             </Link>
                         ) : (
-                            <div className="px-8 py-4 bg-slate-100 text-slate-400 font-black text-sm rounded-2xl flex items-center gap-3 cursor-not-allowed opacity-50">
+                            <div className="w-full sm:w-auto justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-slate-100 text-slate-400 font-black text-sm rounded-2xl flex items-center gap-3 cursor-not-allowed opacity-50">
                                 <Lock size={18} />
                                 Exam Creation Locked
                             </div>
@@ -179,13 +160,13 @@ export default function AdminExamsView({ basePath = '/dashboard/creator', organi
                     ) : orgPermissions.canCreateCourses && orgPermissions.allowCourseTests ? (
                         <Link
                             href={`${basePath}/courses/create`}
-                            className="px-8 py-4 bg-slate-900 text-white font-black text-sm rounded-2xl shadow-xl shadow-slate-200 flex items-center gap-3 hover:scale-105 transition-all active:scale-95"
+                            className="w-full sm:w-auto justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-slate-900 text-white font-black text-sm rounded-2xl shadow-xl shadow-slate-200 flex items-center gap-3 hover:scale-105 transition-all active:scale-95"
                         >
                             <BookOpen size={18} />
                             Create Course
                         </Link>
                     ) : (
-                        <div className="px-8 py-4 bg-slate-100 text-slate-400 font-black text-sm rounded-2xl flex items-center gap-3 cursor-not-allowed opacity-50">
+                        <div className="w-full sm:w-auto justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-slate-100 text-slate-400 font-black text-sm rounded-2xl flex items-center gap-3 cursor-not-allowed opacity-50">
                             <Lock size={18} />
                             Course Creation Locked
                         </div>
@@ -227,186 +208,188 @@ export default function AdminExamsView({ basePath = '/dashboard/creator', organi
                         <tbody className="divide-y divide-slate-50">
                             {activeTab === 'exams'
                                 ? exams
-                                    .filter((ex) => ex.title.toLowerCase().includes(searchQuery.toLowerCase()))
-                                    .map((ex) => (
-                                        <tr key={ex.id} className="hover:bg-slate-50/50 transition-all group">
-                                            <td className="px-8 py-6">
-                                                <div className="flex items-center gap-4">
-                                                    <div
-                                                        className={`w-12 h-12 rounded-2xl flex items-center justify-center ${ex.isActive ? 'bg-rose-50 text-rose-600' : 'bg-slate-50 text-slate-400'}`}
-                                                    >
-                                                        <Shield size={20} />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-black text-slate-800">
-                                                            {ex.title}
-                                                        </p>
-                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                                            {ex.id}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-8 py-6">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-black text-slate-400 text-[10px] uppercase">
-                                                        {(ex.creator?.name || 'S')[0]}
-                                                    </div>
-                                                    <div className="flex flex-col">
-                                                        <p className="text-xs font-black text-slate-700 leading-none mb-0.5">
-                                                            {ex.creator?.name || 'System Admin'}
-                                                        </p>
-                                                        <p className="text-[9px] font-bold text-slate-400 lowercase">
-                                                            {ex.creator?.email || siteConfig.contactEmail}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-8 py-6">
-                                                <p className="text-xs font-black text-slate-700">
-                                                    {ex._count?.submissions || 0} Attempts
-                                                </p>
-                                            </td>
-                                            <td className="px-8 py-6">
-                                                <StatusBadge
-                                                    status={ex.isActive ? 'Active' : 'Inactive'}
-                                                />
-                                            </td>
-                                            <td className="px-8 py-6">
-                                                <p className="text-xs font-black text-slate-700">
-                                                    {formatSchedule(ex.startTime, ex.endTime)}
-                                                </p>
-                                            </td>
-                                            <td className="px-8 py-6">
-                                                <p className="text-xs font-black text-slate-700">
-                                                    {formatDate(ex.createdAt)}
-                                                </p>
-                                            </td>
-                                            <td className="px-8 py-6 text-right">
-                                                <div className="flex items-center justify-end gap-2">
-                                                    <button
-                                                        onClick={() => setViewingExam(ex)}
-                                                        className="p-2 text-slate-300 hover:text-[var(--brand)] hover:bg-slate-50 rounded-xl transition-all"
-                                                        title="View Details"
-                                                    >
-                                                        <Eye size={18} />
-                                                    </button>
-                                                    <Link href={`${basePath}/exams/${ex.id}/monitor`}>
-                                                        <button className="px-4 py-2 bg-rose-50 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-rose-100 transition-all">
-                                                            <Activity size={14} /> Monitor Live
-                                                        </button>
-                                                    </Link>
-                                                    <Link href={`${basePath}/exams/${ex.id}/results`}>
-                                                        <button
-                                                            className="p-2 text-slate-300 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
-                                                            title="Results"
-                                                        >
-                                                            <svg
-                                                                width="18"
-                                                                height="18"
-                                                                viewBox="0 0 24 24"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                strokeWidth="2.5"
-                                                            >
-                                                                <path d="M18 20V10" />
-                                                                <path d="M12 20V4" />
-                                                                <path d="M6 20v-6" />
-                                                            </svg>
-                                                        </button>
-                                                    </Link>
-                                                    <button
-                                                        onClick={() => setInvitingExam(ex)}
-                                                        className="px-4 py-2 bg-[var(--brand-light)] text-[var(--brand)] rounded-xl text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all"
-                                                        title="Send Invites"
-                                                    >
-                                                        Invite
-                                                    </button>
-                                                    <Link href={`${basePath}/exams/${ex.id}/edit`}>
-                                                        <button className="p-2 text-slate-300 hover:text-[var(--brand)] hover:bg-slate-50 rounded-xl transition-all">
-                                                            <Edit3 size={18} />
-                                                        </button>
-                                                    </Link>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
+                                      .filter((ex) => ex.title.toLowerCase().includes(searchQuery.toLowerCase()))
+                                      .map((ex) => (
+                                          <tr key={ex.id} className="hover:bg-slate-50/50 transition-all group">
+                                              <td className="px-8 py-6">
+                                                  <div className="flex items-center gap-4">
+                                                      <div
+                                                          className={`w-12 h-12 rounded-2xl flex items-center justify-center ${ex.isActive ? 'bg-rose-50 text-rose-600' : 'bg-slate-50 text-slate-400'}`}
+                                                      >
+                                                          <Shield size={20} />
+                                                      </div>
+                                                      <div>
+                                                          <p className="text-sm font-black text-slate-800">
+                                                              {ex.title}
+                                                          </p>
+                                                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                                              {ex.id}
+                                                          </p>
+                                                      </div>
+                                                  </div>
+                                              </td>
+                                              <td className="px-8 py-6">
+                                                  <div className="flex items-center gap-3">
+                                                      <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-black text-slate-400 text-[10px] uppercase">
+                                                          {(ex.creator?.name || 'S')[0]}
+                                                      </div>
+                                                      <div className="flex flex-col">
+                                                          <p className="text-xs font-black text-slate-700 leading-none mb-0.5">
+                                                              {ex.creator?.name || 'System Admin'}
+                                                          </p>
+                                                          <p className="text-[9px] font-bold text-slate-400 lowercase">
+                                                              {ex.creator?.email || siteConfig.contactEmail}
+                                                          </p>
+                                                      </div>
+                                                  </div>
+                                              </td>
+                                              <td className="px-8 py-6">
+                                                  <p className="text-xs font-black text-slate-700">
+                                                      {ex._count?.submissions || 0} Attempts
+                                                  </p>
+                                              </td>
+                                              <td className="px-8 py-6">
+                                                  <StatusBadge status={ex.isActive ? 'Active' : 'Inactive'} />
+                                              </td>
+                                              <td className="px-8 py-6">
+                                                  <p className="text-xs font-black text-slate-700">
+                                                      {formatSchedule(ex.startTime, ex.endTime)}
+                                                  </p>
+                                              </td>
+                                              <td className="px-8 py-6">
+                                                  <p className="text-xs font-black text-slate-700">
+                                                      {formatDate(ex.createdAt)}
+                                                  </p>
+                                              </td>
+                                              <td className="px-8 py-6 text-right">
+                                                  <div className="flex items-center justify-end gap-2">
+                                                      <button
+                                                          onClick={() => setViewingExam(ex)}
+                                                          className="p-2 text-slate-300 hover:text-[var(--brand)] hover:bg-slate-50 rounded-xl transition-all"
+                                                          title="View Details"
+                                                      >
+                                                          <Eye size={18} />
+                                                      </button>
+                                                      <Link href={`${basePath}/exams/${ex.id}/monitor`}>
+                                                          <button className="px-4 py-2 bg-rose-50 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-rose-100 transition-all">
+                                                              <Activity size={14} /> Monitor Live
+                                                          </button>
+                                                      </Link>
+                                                      <Link href={`${basePath}/exams/${ex.id}/results`}>
+                                                          <button
+                                                              className="p-2 text-slate-300 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
+                                                              title="Results"
+                                                          >
+                                                              <svg
+                                                                  width="18"
+                                                                  height="18"
+                                                                  viewBox="0 0 24 24"
+                                                                  fill="none"
+                                                                  stroke="currentColor"
+                                                                  strokeWidth="2.5"
+                                                              >
+                                                                  <path d="M18 20V10" />
+                                                                  <path d="M12 20V4" />
+                                                                  <path d="M6 20v-6" />
+                                                              </svg>
+                                                          </button>
+                                                      </Link>
+                                                      <button
+                                                          onClick={() => setInvitingExam(ex)}
+                                                          className="px-4 py-2 bg-[var(--brand-light)] text-[var(--brand)] rounded-xl text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all"
+                                                          title="Send Invites"
+                                                      >
+                                                          Invite
+                                                      </button>
+                                                      <Link href={`${basePath}/exams/${ex.id}/edit`}>
+                                                          <button
+                                                              aria-label="Edit exam"
+                                                              title="Edit Exam"
+                                                              className="p-2 text-slate-300 hover:text-[var(--brand)] hover:bg-slate-50 rounded-xl transition-all"
+                                                          >
+                                                              <Edit3 size={18} />
+                                                          </button>
+                                                      </Link>
+                                                  </div>
+                                              </td>
+                                          </tr>
+                                      ))
                                 : courses
-                                    .filter((cr) => cr.title.toLowerCase().includes(searchQuery.toLowerCase()))
-                                    .map((cr) => (
-                                        <tr key={cr.id} className="hover:bg-slate-50/50 transition-all group">
-                                            <td className="px-8 py-6">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-12 h-12 rounded-2xl bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center">
-                                                        <BookOpen size={20} />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-black text-slate-800">
-                                                            {cr.title}
-                                                        </p>
-                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                                            {cr.id}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-8 py-6">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-black text-slate-400 text-[10px] uppercase">
-                                                        {(cr.creator?.name || 'S')[0]}
-                                                    </div>
-                                                    <div className="flex flex-col">
-                                                        <p className="text-xs font-black text-slate-700 leading-none mb-0.5">
-                                                            {cr.creator?.name || 'System Admin'}
-                                                        </p>
-                                                        <p className="text-[9px] font-bold text-slate-400 lowercase">
-                                                            {cr.creator?.email || siteConfig.contactEmail}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-8 py-6">
-                                                <p className="text-xs font-black text-slate-700">
-                                                    {cr._count?.modules || 0} Sections •{' '}
-                                                    {cr._count?.students || 0} Enrolled
-                                                </p>
-                                            </td>
-                                            <td className="px-8 py-6">
-                                                <StatusBadge status={cr.status || 'Draft'} />
-                                            </td>
-                                            <td className="px-8 py-6">
-                                                <p className="text-xs font-black text-slate-700">
-                                                    {formatDate(cr.createdAt)}
-                                                </p>
-                                            </td>
-                                            <td className="px-8 py-6 text-right">
-                                                <div className="flex items-center justify-end gap-2">
-                                                    <button
-                                                        onClick={() => setViewingCourse(cr)}
-                                                        className="p-2 text-slate-300 hover:text-[var(--brand)] hover:bg-slate-50 rounded-xl transition-all"
-                                                        title="View Details"
-                                                    >
-                                                        <Eye size={18} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => setEnrollingCourse(cr)}
-                                                        className="p-2 text-slate-300 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
-                                                        title="Enroll Users"
-                                                    >
-                                                        <UserPlus size={18} />
-                                                    </button>
-                                                    <Link href={`${basePath}/courses/${cr.id}/edit`}>
-                                                        <button
-                                                            className="p-2 text-slate-300 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all"
-                                                            title="Edit Course"
-                                                        >
-                                                            <Edit3 size={18} />
-                                                        </button>
-                                                    </Link>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                      .filter((cr) => cr.title.toLowerCase().includes(searchQuery.toLowerCase()))
+                                      .map((cr) => (
+                                          <tr key={cr.id} className="hover:bg-slate-50/50 transition-all group">
+                                              <td className="px-8 py-6">
+                                                  <div className="flex items-center gap-4">
+                                                      <div className="w-12 h-12 rounded-2xl bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center">
+                                                          <BookOpen size={20} />
+                                                      </div>
+                                                      <div>
+                                                          <p className="text-sm font-black text-slate-800">
+                                                              {cr.title}
+                                                          </p>
+                                                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                                              {cr.id}
+                                                          </p>
+                                                      </div>
+                                                  </div>
+                                              </td>
+                                              <td className="px-8 py-6">
+                                                  <div className="flex items-center gap-3">
+                                                      <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-black text-slate-400 text-[10px] uppercase">
+                                                          {(cr.creator?.name || 'S')[0]}
+                                                      </div>
+                                                      <div className="flex flex-col">
+                                                          <p className="text-xs font-black text-slate-700 leading-none mb-0.5">
+                                                              {cr.creator?.name || 'System Admin'}
+                                                          </p>
+                                                          <p className="text-[9px] font-bold text-slate-400 lowercase">
+                                                              {cr.creator?.email || siteConfig.contactEmail}
+                                                          </p>
+                                                      </div>
+                                                  </div>
+                                              </td>
+                                              <td className="px-8 py-6">
+                                                  <p className="text-xs font-black text-slate-700">
+                                                      {cr._count?.modules || 0} Sections • {cr._count?.students || 0}{' '}
+                                                      Enrolled
+                                                  </p>
+                                              </td>
+                                              <td className="px-8 py-6">
+                                                  <StatusBadge status={cr.status || 'Draft'} />
+                                              </td>
+                                              <td className="px-8 py-6">
+                                                  <p className="text-xs font-black text-slate-700">
+                                                      {formatDate(cr.createdAt)}
+                                                  </p>
+                                              </td>
+                                              <td className="px-8 py-6 text-right">
+                                                  <div className="flex items-center justify-end gap-2">
+                                                      <button
+                                                          onClick={() => setViewingCourse(cr)}
+                                                          className="p-2 text-slate-300 hover:text-[var(--brand)] hover:bg-slate-50 rounded-xl transition-all"
+                                                          title="View Details"
+                                                      >
+                                                          <Eye size={18} />
+                                                      </button>
+                                                      <button
+                                                          onClick={() => setEnrollingCourse(cr)}
+                                                          className="p-2 text-slate-300 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
+                                                          title="Enroll Users"
+                                                      >
+                                                          <UserPlus size={18} />
+                                                      </button>
+                                                      <Link href={`${basePath}/courses/${cr.id}/edit`}>
+                                                          <button
+                                                              className="p-2 text-slate-300 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all"
+                                                              title="Edit Course"
+                                                          >
+                                                              <Edit3 size={18} />
+                                                          </button>
+                                                      </Link>
+                                                  </div>
+                                              </td>
+                                          </tr>
+                                      ))}
                         </tbody>
                     </table>
                 </div>

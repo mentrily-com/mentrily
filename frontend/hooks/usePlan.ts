@@ -22,6 +22,7 @@ const DEFAULT_USAGE = {
     adminSeats: 0,
     teacherSeats: 0,
     monthlyExams: 0,
+    aiCredits: 0,
 };
 
 const PLAN_RANK: Record<string, number> = {
@@ -38,7 +39,9 @@ const FEATURE_MIN_PLAN: Record<string, string> = {
     impersonation: 'STARTER',
     certificates: 'STARTER',
     pythonNotebook: 'PRO',
-    aiExams: 'PRO',
+    aiExams: 'STARTER',
+    aiStudio: 'FREE',
+    aiProTier: 'PRO',
     bulkImport: 'PRO',
     advancedAnalytics: 'PRO',
     tabSwitch: 'PRO',
@@ -50,12 +53,7 @@ const FEATURE_MIN_PLAN: Record<string, string> = {
     customSlug: 'ENTERPRISE',
 };
 
-function readHintRole():
-    | 'STUDENT'
-    | 'TEACHER'
-    | 'ADMIN'
-    | 'SUPER_ADMIN'
-    | null {
+function readHintRole(): 'STUDENT' | 'TEACHER' | 'ADMIN' | 'SUPER_ADMIN' | null {
     if (typeof document === 'undefined') {
         return null;
     }

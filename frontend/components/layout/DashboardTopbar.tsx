@@ -201,6 +201,7 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
                     <div className="lg:hidden flex min-w-0 items-center gap-2">
                         <button
                             onClick={onMobileMenuClick}
+                            aria-label="Open menu"
                             className="p-1.5 -ml-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                         >
                             <Menu size={20} />
@@ -254,7 +255,8 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
                     {isSuperAdmin && pathname?.includes('/organizations/') && (
                         <button
                             onClick={() => router.push('/dashboard/super-admin/organizations')}
-                            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold uppercase tracking-wider transition-colors cursor-pointer"
+                            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] font-semibold uppercase tracking-wider transition-colors cursor-pointer"
+                            title="Exit back to Super Admin organizations"
                             style={{
                                 backgroundColor: 'var(--color-bg-amber-tint)',
                                 color: '#92400E',
@@ -263,7 +265,9 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
                             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#FEF3C7')}
                             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-bg-amber-tint)')}
                         >
-                            Exit View
+                            <LogOut size={13} className="shrink-0" />
+                            <span className="hidden sm:inline">Exit View</span>
+                            <span className="sm:hidden">Exit</span>
                         </button>
                     )}
 

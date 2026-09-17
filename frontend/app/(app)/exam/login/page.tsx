@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useOrganization } from '@/app/context/OrganizationContext';
 import Loading from '../../loading';
@@ -59,6 +59,39 @@ export default function ExamLoginPage() {
 
     const { organization: orgContext } = useOrganization();
     const [examInfo, setExamInfo] = useState<any>(null);
+    // Only real, known values are shown: an exam with one section doesn't
+    // advertise a section count, and a pass mark appears only when set.
+    const examStats = useMemo(() => {
+        if (!examInfo) return [] as { label: string; value: string }[];
+        const stats: { label: string; value: string }[] = [];
+        const { duration, totalSections, totalQuestions, totalMarks, passingPercentage } = examInfo;
+        if (typeof duration === 'number' && duration > 0) stats.push({ label: 'Duration', value: `${duration} min` });
+        if (typeof totalSections === 'number' && totalSections > 1)
+            stats.push({ label: 'Sections', value: String(totalSections) });
+        if (typeof totalQuestions === 'number' && totalQuestions > 0)
+            stats.push({ label: 'Questions', value: String(totalQuestions) });
+        if (typeof totalMarks === 'number' && totalMarks > 0)
+            stats.push({ label: 'Total marks', value: String(totalMarks) });
+        if (typeof passingPercentage === 'number' && passingPercentage > 0)
+            stats.push({ label: 'Pass mark', value: `${passingPercentage}%` });
+        return stats;
+    }, [examInfo]);
+
+    const examTips = useMemo(() => {
+        const attempts = Number(examInfo?.maxAttempts ?? 1);
+        const minutes = Number(examInfo?.duration);
+        return [
+            'Have your test code ready — your teacher shares it with you.',
+            'Use a stable connection, and close other tabs and apps before you start.',
+            Number.isFinite(minutes) && minutes > 0
+                ? `The ${minutes}-minute timer starts as soon as you enter, and runs until you submit.`
+                : 'The timer starts as soon as you enter, and runs until you submit.',
+            attempts > 1
+                ? `You have ${attempts} attempts at this exam.`
+                : 'You get one attempt, so start when you are ready.',
+        ];
+    }, [examInfo]);
+
     const slugFromQuery = searchParams?.get('slug');
     const afterSignInUrl = `/exam/login${slugFromQuery ? `?slug=${encodeURIComponent(slugFromQuery)}` : ''}`;
     const oauthMode = searchParams.get('oauth');
@@ -109,8 +142,14 @@ export default function ExamLoginPage() {
                     setIsCheckingStatus(false);
                 } catch (err: any) {
                     if (err.message?.includes('IP address is not whitelisted')) {
-                        setError('Your network is not allowed to access this exam. Ask your teacher to add your IP to the allowed list.');
-                    } else if (err.status === 401 || err.message?.includes('401') || err.message?.includes('Access denied')) {
+                        setError(
+                            'Your network is not allowed to access this exam. Ask your teacher to add your IP to the allowed list.',
+                        );
+                    } else if (
+                        err.status === 401 ||
+                        err.message?.includes('401') ||
+                        err.message?.includes('Access denied')
+                    ) {
                         setError('This exam is not accessible right now. Please try again or contact your teacher.');
                     } else {
                         setError('Failed to load exam information. Please check the URL or try again later.');
@@ -137,7 +176,9 @@ export default function ExamLoginPage() {
         } else if (errorType === 'terminated') {
             setError('Your exam session has been terminated by the administrator. Contact your teacher.');
         } else if (errorType === 'ip_blocked') {
-            setError('Your network is not allowed to access this exam. Ask your teacher to add your IP to the allowed list.');
+            setError(
+                'Your network is not allowed to access this exam. Ask your teacher to add your IP to the allowed list.',
+            );
         } else if (errorType === 'app_required') {
             setError('APP_REQUIRED');
         } else if (errorType === 'not_student') {
@@ -411,9 +452,9 @@ export default function ExamLoginPage() {
     }
 
     return (
-        <div className="h-screen w-full bg-slate-50 flex items-center justify-center font-sans overflow-hidden">
-            <div className="w-full h-full flex flex-col md:flex-row bg-white overflow-hidden shadow-2xl">
-                <div className="w-full md:w-1/2 p-8 md:p-12 lg:p-16 flex flex-col justify-center bg-white relative z-10">
+        <div className="min-h-screen md:h-screen w-full bg-slate-50 flex items-center justify-center font-sans overflow-y-auto md:overflow-hidden">
+            <div className="w-full min-h-screen md:min-h-0 md:h-full flex flex-col md:flex-row bg-white shadow-2xl">
+                <div className="w-full md:w-1/2 p-6 sm:p-8 md:p-12 lg:p-16 flex flex-col justify-start md:justify-center bg-white relative z-10 overflow-y-auto">
                     <div className="max-w-md mx-auto w-full">
                         <div className="mb-10">
                             <div className="flex items-center gap-2.5 mb-8">
@@ -430,6 +471,31 @@ export default function ExamLoginPage() {
                             <h1 className="text-3xl font-black text-slate-900 mb-2">Student Login</h1>
                             <p className="text-slate-500 font-medium">Enter your details to access the exam</p>
                         </div>
+
+                        {examInfo?.title && (
+                            <div className="md:hidden mb-6 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                                <div className="flex items-center justify-between gap-2">
+                                    <div className="min-w-0">
+                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-0.5">
+                                            Exam
+                                        </span>
+                                        <p className="text-xs font-bold text-slate-900 truncate">{examInfo.title}</p>
+                                    </div>
+                                    <div className="flex items-center gap-2 shrink-0">
+                                        {typeof examInfo.duration === 'number' && (
+                                            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700">
+                                                {examInfo.duration}m
+                                            </span>
+                                        )}
+                                        {typeof examInfo.totalQuestions === 'number' && (
+                                            <span className="text-[10px] font-bold text-slate-500">
+                                                {examInfo.totalQuestions} Qs
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {isAppRequired ? (
                             <div className="bg-white rounded-2xl border border-indigo-200 overflow-hidden shadow-sm">
@@ -710,12 +776,14 @@ export default function ExamLoginPage() {
                     </div>
                 </div>
 
-                <div className="hidden md:flex w-full md:w-1/2 bg-[#4F46E5] p-8 md:p-12 lg:p-16 text-white flex-col justify-between relative overflow-hidden">
+                <div
+                    className="hidden md:flex w-full md:w-1/2 p-8 md:p-12 lg:p-16 text-white flex-col justify-between relative overflow-hidden"
+                    style={{ background: 'linear-gradient(145deg, #071421 0%, #0B2F3A 52%, #008D98 100%)' }}
+                >
                     <div
                         className="absolute inset-0 opacity-[0.07]"
                         style={{
-                            backgroundImage:
-                                'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
+                            backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
                             backgroundSize: '28px 28px',
                         }}
                     />
@@ -729,36 +797,23 @@ export default function ExamLoginPage() {
                         <h2 className="text-4xl lg:text-5xl font-black tracking-tight mb-3 leading-tight">
                             {examInfo?.title || 'Secure Examination'}
                         </h2>
-                        <p className="text-indigo-100 font-medium text-lg mb-8 max-w-lg leading-relaxed">
+                        <p className="text-indigo-100 font-medium text-lg mb-8 max-w-lg leading-relaxed line-clamp-4">
                             {examInfo?.shortDescription || 'Please authenticate to begin your examination'}
                         </p>
 
-                        {examInfo && (
+                        {examStats.length > 0 && (
                             <div className="flex flex-wrap gap-3 mb-10">
-                                {typeof examInfo.duration === 'number' && (
-                                    <div className="px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/15">
+                                {examStats.map((stat) => (
+                                    <div
+                                        key={stat.label}
+                                        className="px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/15"
+                                    >
                                         <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-200">
-                                            Duration
+                                            {stat.label}
                                         </p>
-                                        <p className="text-lg font-black">{examInfo.duration} min</p>
+                                        <p className="text-lg font-black">{stat.value}</p>
                                     </div>
-                                )}
-                                {typeof examInfo.totalQuestions === 'number' && (
-                                    <div className="px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/15">
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-200">
-                                            Questions
-                                        </p>
-                                        <p className="text-lg font-black">{examInfo.totalQuestions}</p>
-                                    </div>
-                                )}
-                                {typeof examInfo.totalMarks === 'number' && examInfo.totalMarks > 0 && (
-                                    <div className="px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/15">
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-200">
-                                            Total Marks
-                                        </p>
-                                        <p className="text-lg font-black">{examInfo.totalMarks}</p>
-                                    </div>
-                                )}
+                                ))}
                             </div>
                         )}
 
@@ -767,12 +822,11 @@ export default function ExamLoginPage() {
                                 Before you begin
                             </p>
                             <ul className="space-y-2.5">
-                                {[
-                                    'Keep your test code ready — your teacher shared it with you.',
-                                    'Use a stable internet connection and close other tabs.',
-                                    'Once you start, the timer runs until you submit.',
-                                ].map((tip) => (
-                                    <li key={tip} className="flex items-start gap-2.5 text-sm text-indigo-50 font-medium">
+                                {examTips.map((tip) => (
+                                    <li
+                                        key={tip}
+                                        className="flex items-start gap-2.5 text-sm text-indigo-50 font-medium"
+                                    >
                                         <CheckCircle2 size={15} className="mt-0.5 shrink-0 text-emerald-300" />
                                         {tip}
                                     </li>

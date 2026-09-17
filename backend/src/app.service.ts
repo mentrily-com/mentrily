@@ -10,8 +10,34 @@ export class AppService {
     @InjectRedis() private readonly redis: Redis,
   ) {}
 
-  getHello(): string {
-    return 'Hello World!';
+  getHello() {
+    const uptimeSec = Math.floor(process.uptime());
+    const hours = Math.floor(uptimeSec / 3600);
+    const minutes = Math.floor((uptimeSec % 3600) / 60);
+    const seconds = uptimeSec % 60;
+    const uptimeFormatted = `${hours > 0 ? `${hours}h ` : ''}${minutes}m ${seconds}s`;
+
+    return {
+      name: 'Mentrily API Gateway',
+      status: 'online',
+      version: '1.0.0',
+      environment: process.env.NODE_ENV || 'development',
+      message: 'Mentrily Platform API is fully operational and serving requests.',
+      timestamp: new Date().toISOString(),
+      uptime: uptimeFormatted,
+      uptimeSeconds: uptimeSec,
+      system: {
+        nodeVersion: process.version,
+        platform: process.platform,
+        architecture: process.arch,
+      },
+      endpoints: {
+        health: '/api/health',
+        readiness: '/api/ready',
+        serverTime: '/api/time',
+        documentation: 'https://mentrily.com/docs',
+      },
+    };
   }
 
   getHealth() {

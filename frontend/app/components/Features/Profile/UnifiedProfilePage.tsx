@@ -2,11 +2,10 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { UserProfile, useUser } from '@clerk/nextjs';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import ProfilePageSkeleton from '@/app/components/Skeletons/ProfilePageSkeleton';
 import ReportProblemModal from '@/app/components/Common/ReportProblemModal';
 import { AuthService } from '@/services/api/AuthService';
-
-type DashboardRole = 'student' | 'teacher' | 'admin' | 'super-admin';
+import { useSession } from '@/hooks/useSession';
 
 type SessionUser = {
     id?: string;
@@ -17,13 +16,6 @@ type SessionUser = {
     profilePicture?: string;
 };
 
-function mapRoleToDashboardRole(role?: SessionUser['role']): DashboardRole {
-    if (role === 'SUPER_ADMIN') return 'super-admin';
-    if (role === 'ADMIN') return 'admin';
-    if (role === 'TEACHER') return 'teacher';
-    return 'student';
-}
-
 function roleBadgeLabel(role?: SessionUser['role']): string {
     if (role === 'SUPER_ADMIN') return 'Super Admin';
     if (role === 'ADMIN') return 'Organization Admin';
@@ -33,31 +25,13 @@ function roleBadgeLabel(role?: SessionUser['role']): string {
 
 export default function UnifiedProfilePage() {
     const { user: clerkUser } = useUser();
-    const [sessionUser, setSessionUser] = useState<SessionUser | null>(null);
-    const [loading, setLoading] = useState(true);
+    const { session, isLoading: sessionLoading } = useSession();
+    const [localOverrides, setLocalOverrides] = useState<Partial<SessionUser>>({});
+    const sessionUser = { ...(session as SessionUser | null), ...localOverrides } as SessionUser;
+    const loading = sessionLoading;
     const [showReportModal, setShowReportModal] = useState(false);
     const initialClerkNameRef = useRef<string | null>(null);
     const lastSyncedNameRef = useRef<string | null>(null);
-
-    useEffect(() => {
-        let mounted = true;
-
-        const loadSession = async () => {
-            try {
-                const data = await AuthService.checkSession();
-                if (!mounted) return;
-                setSessionUser(data || null);
-            } finally {
-                if (mounted) setLoading(false);
-            }
-        };
-
-        void loadSession();
-
-        return () => {
-            mounted = false;
-        };
-    }, []);
 
     useEffect(() => {
         if (loading || !clerkUser) return;
@@ -80,8 +54,8 @@ export default function UnifiedProfilePage() {
             try {
                 const updatedUser = await AuthService.updateProfile({ name: clerkName });
                 lastSyncedNameRef.current = clerkName;
-                setSessionUser((previous) => ({
-                    ...(previous || {}),
+                setLocalOverrides((previous) => ({
+                    ...previous,
                     ...updatedUser,
                     name: updatedUser?.name || clerkName,
                 }));
@@ -92,8 +66,6 @@ export default function UnifiedProfilePage() {
 
         return () => window.clearTimeout(syncName);
     }, [clerkUser, clerkUser?.fullName, loading, sessionUser?.name]);
-
-    const userRole = mapRoleToDashboardRole(sessionUser?.role);
 
     const displayName = useMemo(() => {
         return sessionUser?.name || clerkUser?.fullName || 'User';
@@ -107,7 +79,7 @@ export default function UnifiedProfilePage() {
     const initial = displayName.charAt(0).toUpperCase();
 
     if (loading) {
-        return <DashboardSkeleton type="form" userRole={userRole} />;
+        return <ProfilePageSkeleton />;
     }
 
     return (

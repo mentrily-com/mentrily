@@ -78,9 +78,7 @@ export async function withClerkAuthorization(headers: HeadersInit = {}): Promise
     const activeOrgId = getActiveOrgId();
     const activePersona = getActivePersona();
 
-    const merged: HeadersInit = token
-        ? { ...headers, Authorization: `Bearer ${token}` }
-        : { ...headers };
+    const merged: HeadersInit = token ? { ...headers, Authorization: `Bearer ${token}` } : { ...headers };
 
     if (activeOrgId) {
         (merged as Record<string, string>)['X-Active-Org-Id'] = activeOrgId;

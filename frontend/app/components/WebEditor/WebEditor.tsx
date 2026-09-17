@@ -151,14 +151,14 @@ export default function WebEditor({
                         <div className="h-full flex flex-col bg-white border-r border-slate-100 relative">
                             {/* File Tabs */}
                             <div className="h-10 border-b border-slate-100 flex items-center px-4 justify-between bg-white z-20">
-                                <div className="flex items-center h-full">
+                                <div className="flex items-center h-full overflow-x-auto no-scrollbar">
                                     {visibleFiles.map((fileType) => {
                                         const fileName = `index.${fileType}` as WebFileName;
                                         return (
                                             <button
                                                 key={fileName}
                                                 onClick={() => setActiveFile(fileName)}
-                                                className={`px-6 h-full flex items-center text-[12px] font-bold transition-all border-b-2 hover:bg-slate-50 ${
+                                                className={`px-3 sm:px-6 h-full flex items-center text-[12px] font-bold transition-all border-b-2 hover:bg-slate-50 shrink-0 ${
                                                     activeFile === fileName
                                                         ? 'border-[var(--brand)] text-slate-700'
                                                         : 'border-transparent text-slate-400'
@@ -197,7 +197,7 @@ export default function WebEditor({
 
             {/* Bottom Action Bar - Hide if Read Only */}
             {!readOnly && (
-                <div className="h-14 bg-white border-t border-slate-100 flex items-center px-6 justify-between shrink-0 z-30">
+                <div className="min-h-[52px] sm:h-14 py-2 sm:py-0 bg-white border-t border-slate-100 flex flex-wrap items-center px-3 sm:px-6 justify-between shrink-0 z-30 gap-2">
                     <div className="flex items-center gap-4">
                         {!hideTestCases && (
                             <>
@@ -285,7 +285,7 @@ export default function WebEditor({
                                     })
                                 }
                                 data-element-id="starter-submit-answer"
-                                className={`px-10 py-3 bg-[var(--brand)] text-white font-black rounded-xl text-[12px] uppercase tracking-widest shadow-lg shadow-[var(--brand-light)] hover:bg-[var(--brand-dark)] hover:-translate-y-0.5 transition-all active:translate-y-0 active:scale-[0.98] flex items-center gap-2`}
+                                className={`px-4 sm:px-10 py-2.5 sm:py-3 bg-[var(--brand)] text-white font-black rounded-xl text-[11px] sm:text-[12px] uppercase tracking-widest shadow-lg shadow-[var(--brand-light)] hover:bg-[var(--brand-dark)] hover:-translate-y-0.5 transition-all active:translate-y-0 active:scale-[0.98] flex items-center gap-2 shrink-0`}
                             >
                                 {submitLabel}
                                 <svg
@@ -332,7 +332,7 @@ export default function WebEditor({
                     padding-top: 15px;
                 }
                 .cm-content {
-                    font-family: 'Geist Mono', 'JetBrains Mono', monospace !important;
+                    font-family: var(--font-jetbrains-mono), ui-monospace, monospace !important;
                     font-size: ${fontSize ? `${fontSize}px` : '14px'} !important;
                     color: #1e293b !important;
                     caret-color: #f77621 !important;

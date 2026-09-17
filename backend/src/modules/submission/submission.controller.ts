@@ -2,7 +2,11 @@ import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { SubmissionService } from './submission.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '../auth/user.decorator';
-import { SaveAnswerDto, SubmitSectionDto, SubmitExamDto } from './dto/submission.dto';
+import {
+  SaveAnswerDto,
+  SubmitSectionDto,
+  SubmitExamDto,
+} from './dto/submission.dto';
 
 @Controller('submission')
 @UseGuards(JwtAuthGuard)

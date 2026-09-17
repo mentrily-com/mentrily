@@ -18,9 +18,11 @@ import {
 import { useRouter } from 'next/navigation';
 
 import { SuperAdminService } from '@/services/api/SuperAdminService';
+import { useToast } from '@/app/components/Common/Toast';
 
 export default function CreateOrganizationView() {
     const router = useRouter();
+    const { error: toastError } = useToast();
     const [isSaving, setIsSaving] = useState(false);
     const [formData, setFormData] = useState<{
         name: string;
@@ -84,7 +86,7 @@ export default function CreateOrganizationView() {
     });
 
     const handleSave = async () => {
-        if (!formData.name) return alert('Organization name is required');
+        if (!formData.name) return toastError('Organization name is required');
 
         setIsSaving(true);
         try {
@@ -120,29 +122,29 @@ export default function CreateOrganizationView() {
                 country: formData.country,
             });
             router.push('/dashboard/super-admin/organizations');
-        } catch (error: any) {
-            console.error('Failed to create organization', error);
-            alert(error.message || 'Failed to create organization');
+        } catch (err: any) {
+            console.error('Failed to create organization', err);
+            toastError(err.message || 'Failed to create organization');
         } finally {
             setIsSaving(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans">
+        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
             {/* Navbar set to Super Admin context */}
 
-            <main className="max-w-[1440px] mx-auto px-6 lg:px-12 py-10 animate-fade-in">
-                <div className="flex items-center justify-between mb-12">
+            <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-10 animate-fade-in">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-12">
                     <div>
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Provision New Tenant</h1>
+                        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Provision New Tenant</h1>
                         <p className="text-slate-400 font-bold text-sm mt-1">
                             Create a new organization instance and configure initial settings.
                         </p>
                     </div>
                     <button
                         onClick={handleSave}
-                        className="px-8 py-4 bg-[var(--brand)] text-white font-black text-sm rounded-2xl shadow-xl shadow-[var(--brand)]/20 flex items-center gap-3 hover:scale-105 transition-all active:scale-95"
+                        className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-[var(--brand)] text-white font-black text-sm rounded-2xl shadow-xl shadow-[var(--brand)]/20 flex items-center justify-center gap-3 hover:scale-105 transition-all active:scale-95"
                     >
                         {isSaving ? (
                             <span className="animate-pulse">Provisioning...</span>
@@ -550,9 +552,7 @@ export default function CreateOrganizationView() {
                                         <PermissionToggle
                                             label="Crisp support chat"
                                             active={formData.crispChat}
-                                            onClick={() =>
-                                                setFormData({ ...formData, crispChat: !formData.crispChat })
-                                            }
+                                            onClick={() => setFormData({ ...formData, crispChat: !formData.crispChat })}
                                         />
                                     </div>
                                 </div>
@@ -638,14 +638,14 @@ export default function CreateOrganizationView() {
 
 function SettingsSection({ icon, title, desc, children }: any) {
     return (
-        <div className="bg-white rounded-[40px] border border-slate-100 p-10 shadow-sm">
-            <div className="flex items-start gap-6 mb-10">
-                <div className="w-16 h-16 rounded-[24px] bg-slate-50 flex items-center justify-center text-slate-400 shrink-0">
+        <div className="bg-white rounded-3xl sm:rounded-[40px] border border-slate-100 p-5 sm:p-8 lg:p-10 shadow-sm">
+            <div className="flex items-start gap-4 sm:gap-6 mb-6 sm:mb-10">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl sm:rounded-[24px] bg-slate-50 flex items-center justify-center text-slate-400 shrink-0">
                     {icon}
                 </div>
                 <div>
-                    <h3 className="text-xl font-black text-slate-800 tracking-tight leading-none mb-2">{title}</h3>
-                    <p className="text-sm font-bold text-slate-400">{desc}</p>
+                    <h3 className="text-lg sm:text-xl font-black text-slate-800 tracking-tight leading-none mb-1.5 sm:mb-2">{title}</h3>
+                    <p className="text-xs sm:text-sm font-bold text-slate-400">{desc}</p>
                 </div>
             </div>
             {children}
@@ -653,11 +653,40 @@ function SettingsSection({ icon, title, desc, children }: any) {
     );
 }
 
+const FORM_CONTROL_TAGS = new Set(['input', 'select', 'textarea']);
+
+// Finds the actual form control inside `children` (which is sometimes the
+// control directly, sometimes wrapped one level in an icon `<div>`) and
+// clones it with the given id, so the <label> below can reference it via
+// htmlFor -- without that, every field in this form was visually labeled
+// but not programmatically associated, so a screen reader announces them
+// as unlabeled inputs. Recurses up to 2 levels since that covers every
+// shape used in this file; falls back to rendering children unmodified
+// (no crash, just no aria wiring) if nothing matches.
+function withControlId(node: React.ReactNode, id: string, depth = 2): React.ReactNode {
+    if (depth < 0 || !React.isValidElement(node)) return node;
+    const element = node as React.ReactElement<any>;
+    if (typeof element.type === 'string' && FORM_CONTROL_TAGS.has(element.type)) {
+        return React.cloneElement(element, { id: element.props.id || id });
+    }
+    const kids = element.props?.children;
+    if (!kids) return node;
+    return React.cloneElement(
+        element,
+        {},
+        React.Children.map(kids, (child) => withControlId(child, id, depth - 1)),
+    );
+}
+
 function InputGroup({ label, children }: any) {
+    const reactId = React.useId();
+    const controlId = `input-group-${reactId}`;
     return (
         <div className="space-y-2 w-full">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{label}</label>
-            {children}
+            <label htmlFor={controlId} className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                {label}
+            </label>
+            {withControlId(children, controlId)}
         </div>
     );
 }

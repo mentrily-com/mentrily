@@ -55,7 +55,7 @@ export default function ImpersonationBanner() {
     if (!impersonation) return null;
 
     return (
-        <div className="w-full bg-slate-900 text-white py-1.5 px-4 sm:px-8 flex items-center justify-between animate-in slide-in-from-top duration-500 z-[1001] sticky top-0 border-b border-white/10 shadow-2xl overflow-hidden">
+        <div className="w-full bg-slate-900 text-white py-1.5 px-4 sm:px-8 flex items-center justify-between animate-in slide-in-from-top duration-500 border-b border-white/10 shadow-md overflow-hidden">
             <div className="flex items-center gap-3 min-w-0">
                 <div className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded-lg shrink-0">
                     <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />

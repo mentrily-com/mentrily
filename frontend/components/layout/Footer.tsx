@@ -8,6 +8,8 @@ import { BrandLogo } from '@/components/brand/BrandLogo';
 
 const productLinks = [
     { label: 'Features', href: '/#features' },
+    { label: 'Mentrily AI', href: '/ai' },
+    { label: 'Chat with AI', href: '/chat' },
     { label: 'Pricing', href: '/pricing' },
     { label: 'Changelog', href: '/changelog' },
     { label: 'Roadmap', href: '/roadmap' },
@@ -186,24 +188,24 @@ export default function Footer() {
                                 onFocus={(e) => (e.currentTarget.style.borderColor = '#008D98')}
                                 onBlur={(e) => (e.currentTarget.style.borderColor = '#E2E8F0')}
                             />
-                                <button
-                                    type="submit"
-                                    disabled={status === 'loading'}
-                                    className="px-3 py-2 text-sm font-medium text-white rounded-lg transition-colors duration-150 cursor-pointer flex items-center gap-1 shrink-0 disabled:opacity-70"
-                                    style={{ backgroundColor: '#008D98' }}
-                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#006F78')}
-                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#008D98')}
-                                >
-                                    {status === 'loading' ? (
-                                        'Joining...'
-                                    ) : status === 'success' ? (
-                                        'Subscribed!'
-                                    ) : (
-                                        <>
-                                            Subscribe <ArrowRight size={14} />
-                                        </>
-                                    )}
-                                </button>
+                            <button
+                                type="submit"
+                                disabled={status === 'loading'}
+                                className="px-3 py-2 text-sm font-medium text-white rounded-lg transition-colors duration-150 cursor-pointer flex items-center gap-1 shrink-0 disabled:opacity-70"
+                                style={{ backgroundColor: '#008D98' }}
+                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#006F78')}
+                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#008D98')}
+                            >
+                                {status === 'loading' ? (
+                                    'Joining...'
+                                ) : status === 'success' ? (
+                                    'Subscribed!'
+                                ) : (
+                                    <>
+                                        Subscribe <ArrowRight size={14} />
+                                    </>
+                                )}
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -215,7 +217,7 @@ export default function Footer() {
                     <p className="text-xs" style={{ color: '#94A3B8' }}>
                         © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
                     </p>
-                    <div className="flex items-center gap-5">
+                    <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-5 gap-y-2 text-center">
                         <Link
                             href="/privacy"
                             className="text-xs transition-colors duration-150 cursor-pointer"

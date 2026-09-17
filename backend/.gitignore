@@ -5,3 +5,5 @@ dist
 
 /generated/prisma
 /k6
+/coverage
+*.rdb

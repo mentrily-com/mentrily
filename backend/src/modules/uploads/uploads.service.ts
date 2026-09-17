@@ -46,7 +46,12 @@ export class UploadsService {
 
   async presign(
     user: any,
-    body: { kind: UploadKind; filename: string; mimeType: string; sizeBytes: number },
+    body: {
+      kind: UploadKind;
+      filename: string;
+      mimeType: string;
+      sizeBytes: number;
+    },
   ) {
     const config = UPLOAD_KINDS[body.kind];
     if (!config) throw new BadRequestException('Unknown upload kind');
@@ -131,10 +136,22 @@ export class UploadsService {
     }
 
     if (config.countsAgainstQuota && user?.orgId) {
+      const uploadSizeMb = Number(
+        (head.contentLength / (1024 * 1024)).toFixed(4),
+      );
+      try {
+        await this.quotaService.checkStorageQuota(user.orgId, uploadSizeMb);
+      } catch (quotaError) {
+        await this.storageService.deleteFile(
+          this.storageService.publicUrl(body.key),
+        );
+        throw quotaError;
+      }
+
       await this.quotaService.incrementCounter(
         user.orgId,
         'storageUsedMb',
-        Number((head.contentLength / (1024 * 1024)).toFixed(4)),
+        uploadSizeMb,
       );
     }
 

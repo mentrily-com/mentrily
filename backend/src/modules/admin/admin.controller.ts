@@ -7,10 +7,10 @@ import {
   Patch,
   Post,
   Body,
-  UnauthorizedException,
   Query,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
+import { AdminCourseAssignmentsService } from './admin-course-assignments.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { OrgFeaturesGuard } from '../auth/guards/org-features.guard';
@@ -32,7 +32,10 @@ import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 @Roles('ADMIN', 'SUPER_ADMIN')
 @RequireOrg()
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(
+    private readonly adminService: AdminService,
+    private readonly adminCourseAssignmentsService: AdminCourseAssignmentsService,
+  ) {}
 
   @Get('stats')
   async getStats(@User() user: any, @Query('orgId') orgId?: string) {
@@ -166,7 +169,11 @@ export class AdminController {
     @Param('courseId') courseId: string,
     @Query('orgId') orgId?: string,
   ) {
-    return this.adminService.getCourseAssignments(courseId, user, orgId);
+    return this.adminCourseAssignmentsService.getCourseAssignments(
+      courseId,
+      user,
+      orgId,
+    );
   }
 
   @Post('courses/:courseId/assignments')
@@ -176,7 +183,7 @@ export class AdminController {
     @Body() body: { teacherId: string },
     @Query('orgId') orgId?: string,
   ) {
-    return this.adminService.assignTeacherToCourse(
+    return this.adminCourseAssignmentsService.assignTeacherToCourse(
       courseId,
       body.teacherId,
       user,
@@ -191,7 +198,7 @@ export class AdminController {
     @Param('teacherId') teacherId: string,
     @Query('orgId') orgId?: string,
   ) {
-    return this.adminService.removeTeacherFromCourse(
+    return this.adminCourseAssignmentsService.removeTeacherFromCourse(
       courseId,
       teacherId,
       user,

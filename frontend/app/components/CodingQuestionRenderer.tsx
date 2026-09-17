@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { PLAYGROUND_LANGUAGES } from './Editor/playgroundLanguages';
 import CoursePlayerSkeleton from './Skeletons/CoursePlayerSkeleton';
@@ -299,21 +299,29 @@ export default function CodingQuestionRenderer({
         return baseLang.initialBody;
     };
 
-    const codingLanguage = {
-        ...baseLang,
-        id: activeLangId as any,
-        header:
-            template.header ||
-            template.head ||
-            (isPrimary ? question.codingConfig?.header || question.codingConfig?.head : '') ||
-            '',
-        footer:
-            template.footer ||
-            template.tail ||
-            (isPrimary ? question.codingConfig?.footer || question.codingConfig?.tail : '') ||
-            '',
-        initialBody: resolveInitialBody(),
-    };
+    const initialBody = useMemo(() => {
+        return resolveInitialBody();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [question.id, activeLangId, hasAttemptSelected, attemptAnswer, mounted]);
+
+    const codingLanguage = useMemo(
+        () => ({
+            ...baseLang,
+            id: activeLangId as any,
+            header:
+                template.header ||
+                template.head ||
+                (isPrimary ? question.codingConfig?.header || question.codingConfig?.head : '') ||
+                '',
+            footer:
+                template.footer ||
+                template.tail ||
+                (isPrimary ? question.codingConfig?.footer || question.codingConfig?.tail : '') ||
+                '',
+            initialBody,
+        }),
+        [baseLang, activeLangId, template, isPrimary, question.codingConfig, initialBody],
+    );
 
     const rawTestCases = question.codingConfig?.testCases || [];
     const showTestCases = question.codingConfig?.showTestCases ?? true;

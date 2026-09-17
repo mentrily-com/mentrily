@@ -50,6 +50,34 @@ const clearStoredSessionSnapshot = () => {
     }
 };
 
+const readStoredSessionSnapshot = () => {
+    if (typeof window === 'undefined') return null;
+    try {
+        const raw = window.localStorage.getItem(SESSION_SNAPSHOT_STORAGE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (parsed?.id && parsed?.cachedAt && Date.now() - Number(parsed.cachedAt) < 60_000) {
+            return parsed;
+        }
+        return null;
+    } catch {
+        return null;
+    }
+};
+
+const writeStoredSessionSnapshot = (session: unknown) => {
+    if (typeof window === 'undefined' || !session || typeof session !== 'object') return;
+    try {
+        window.localStorage.setItem(
+            SESSION_SNAPSHOT_STORAGE_KEY,
+            JSON.stringify({
+                ...(session as Record<string, unknown>),
+                cachedAt: Date.now(),
+            }),
+        );
+    } catch {}
+};
+
 const resetSessionCache = () => {
     inFlightSessionCheck = null;
     lastSessionSnapshot = null;
@@ -64,7 +92,16 @@ export const AuthService = {
     resetSessionCache,
 
     getUser() {
-        return lastSessionSnapshot;
+        if (lastSessionSnapshot && Date.now() - lastSessionAt < 60_000) {
+            return lastSessionSnapshot;
+        }
+        const stored = readStoredSessionSnapshot();
+        if (stored) {
+            lastSessionSnapshot = stored;
+            lastSessionAt = stored.cachedAt || Date.now();
+            return stored;
+        }
+        return null;
     },
 
     async checkSession(
@@ -79,15 +116,28 @@ export const AuthService = {
         const allowProvisioning = options?.allowProvisioning === true;
         const bypassCache = options?.bypassCache === true || Boolean(flow) || allowProvisioning;
         const now = Date.now();
-        if (!strictExisting && !bypassCache && unauthorizedCooldownUntil > now) {
+        if (!bypassCache && unauthorizedCooldownUntil > now) {
             return null;
         }
 
-        if (!strictExisting && !bypassCache && lastSessionSnapshot && now - lastSessionAt < 4000) {
+        // 1. Fast in-memory cache check (60s TTL aligned with TanStack Query staleTime)
+        if (!bypassCache && lastSessionSnapshot && now - lastSessionAt < 60_000) {
             return lastSessionSnapshot;
         }
 
-        if (!strictExisting && !bypassCache && inFlightSessionCheck) {
+        // 2. Fast localStorage snapshot hydration (instant on fresh page navigation)
+        if (!bypassCache && !lastSessionSnapshot) {
+            const stored = readStoredSessionSnapshot();
+            if (stored) {
+                lastSessionSnapshot = stored;
+                lastSessionAt = Number(stored.cachedAt) || now;
+                return stored;
+            }
+        }
+
+        // 3. Shared in-flight deduplication: any number of concurrent components
+        // (useSession, UserTelemetryBridge, etc.) collapse into one single network request
+        if (!bypassCache && inFlightSessionCheck) {
             return inFlightSessionCheck;
         }
 
@@ -115,7 +165,7 @@ export const AuthService = {
                     if (res.status === 403) {
                         throw new Error('FORBIDDEN');
                     }
-                    if (!strictExisting && !bypassCache && res.status === 401) {
+                    if (!bypassCache && res.status === 401) {
                         unauthorizedCooldownUntil = Date.now() + 10000;
                     }
                     return null;
@@ -124,7 +174,8 @@ export const AuthService = {
                 const payload = await res.json();
                 lastSessionSnapshot = payload;
                 lastSessionAt = Date.now();
-                if (!strictExisting && !bypassCache) {
+                writeStoredSessionSnapshot(payload);
+                if (!bypassCache) {
                     unauthorizedCooldownUntil = 0;
                 }
                 return payload;
@@ -261,17 +312,19 @@ export const AuthService = {
             throw new Error('Password update is only available in the browser');
         }
 
-        const clerk = (window as Window & {
-            Clerk?: {
-                user?: {
-                    updatePassword?: (params: {
-                        currentPassword?: string;
-                        newPassword: string;
-                        signOutOfOtherSessions?: boolean;
-                    }) => Promise<unknown>;
+        const clerk = (
+            window as Window & {
+                Clerk?: {
+                    user?: {
+                        updatePassword?: (params: {
+                            currentPassword?: string;
+                            newPassword: string;
+                            signOutOfOtherSessions?: boolean;
+                        }) => Promise<unknown>;
+                    };
                 };
-            };
-        }).Clerk;
+            }
+        ).Clerk;
 
         const updatePassword = clerk?.user?.updatePassword;
         if (!updatePassword) {
@@ -343,7 +396,7 @@ export const AuthService = {
             throw new Error(error.message || 'Failed to switch workspace');
         }
 
-        return await this.checkSession(true);
+        return await this.checkSession(true, { bypassCache: true });
     },
 
     // Returns to the user's home (Learner) persona. Clears the client's
@@ -374,19 +427,33 @@ export const AuthService = {
             throw new Error(error.message || 'Failed to switch to your learner workspace');
         }
 
-        return await this.checkSession(true);
+        return await this.checkSession(true, { bypassCache: true });
     },
 
-    // Act as a learner. No backend mutation needed — flipping the persona flag
-    // makes every subsequent request carry X-Active-Persona: learner, which the
-    // backend resolves as an org-less Student. Lets a creator (even one who was
-    // never a learner) use the learner experience and switch back anytime.
+    // Act as a learner. Sets the persona flag to 'learner' and resets lastActiveOrgId
+    // on the backend via /auth/switch-home so that subsequent requests resolve
+    // cleanly as an org-less Student persona without stale creator org persistence.
     async switchToLearner(): Promise<any> {
         clearStoredSessionSnapshot();
         clearActiveOrgId();
         setActivePersona('learner');
         resetSessionCache();
-        return await this.checkSession(true);
+
+        try {
+            const authHeaders = await withClerkAuthorization(
+                withCsrfHeader('POST', { 'Content-Type': 'application/json' }),
+            );
+            await apiFetch(`${BASE_URL}/auth/switch-home`, {
+                method: 'POST',
+                headers: authHeaders,
+                credentials: 'include',
+                body: JSON.stringify({}),
+            });
+        } catch (e) {
+            console.warn('[AuthService] switch-home notice', e);
+        }
+
+        return await this.checkSession(true, { bypassCache: true });
     },
 
     // Self-serve Creator persona — grants a Teacher membership on the

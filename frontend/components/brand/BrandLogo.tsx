@@ -16,7 +16,9 @@ export function BrandLogo({ className, priority = false }: BrandLogoProps) {
             height={598}
             className={cn('block h-auto w-auto object-contain', className)}
             priority={priority}
-            unoptimized
+            // Widest on-screen use is the ~290px auth-page lockup; `sizes`
+            // keeps the browser from pulling a needlessly large srcset entry.
+            sizes="(max-width: 640px) 250px, 290px"
             draggable={false}
         />
     );

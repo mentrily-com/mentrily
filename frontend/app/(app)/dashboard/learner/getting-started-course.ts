@@ -101,7 +101,11 @@ export const onboardingQuestions: Record<string, UnitQuestion> = {
         moduleTitle: 'How learning works in Mentrily',
         moduleUnits: onboardingCourseModules[0].units,
         mcqOptions: [
-            { id: 'build-skills', text: 'Build practical skills through guided lessons and hands-on practice.', isCorrect: true },
+            {
+                id: 'build-skills',
+                text: 'Build practical skills through guided lessons and hands-on practice.',
+                isCorrect: true,
+            },
             { id: 'only-read', text: 'Only read long notes without any practice or feedback.' },
             { id: 'skip-context', text: 'Skip course context and jump into random tasks.' },
             { id: 'avoid-results', text: 'Avoid seeing progress, attempts, or results.' },
@@ -117,7 +121,11 @@ export const onboardingQuestions: Record<string, UnitQuestion> = {
         moduleTitle: 'How learning works in Mentrily',
         moduleUnits: onboardingCourseModules[0].units,
         mcqOptions: [
-            { id: 'clear-lessons', text: 'Clear lessons that explain what I am learning and why it matters.', isCorrect: true },
+            {
+                id: 'clear-lessons',
+                text: 'Clear lessons that explain what I am learning and why it matters.',
+                isCorrect: true,
+            },
             { id: 'practice', text: 'Practice questions that let me try the idea immediately.', isCorrect: true },
             { id: 'feedback', text: 'Feedback, attempts, and progress so I know what to improve.', isCorrect: true },
             { id: 'guesswork', text: 'Hidden expectations where I have to guess what the course wants.' },
@@ -209,7 +217,11 @@ export const onboardingQuestions: Record<string, UnitQuestion> = {
         moduleTitle: 'Mentrily Readiness Exam',
         moduleUnits: onboardingCourseTests[0].questions,
         mcqOptions: [
-            { id: 'review-submit', text: 'Review the prompt, submit your answer, then check progress or attempts.', isCorrect: true },
+            {
+                id: 'review-submit',
+                text: 'Review the prompt, submit your answer, then check progress or attempts.',
+                isCorrect: true,
+            },
             { id: 'close-tab', text: 'Close the tab before submitting.' },
             { id: 'ignore-feedback', text: 'Ignore results and repeat the same mistake.' },
             { id: 'random-answer', text: 'Pick random answers because the dashboard will fix them.' },
@@ -235,9 +247,20 @@ export const onboardingQuestions: Record<string, UnitQuestion> = {
     },
 };
 
-export function isOnboardingCourseHidden() {
+// Scoped by userId (when known) so hiding the getting-started course, or
+// permanently skipping onboarding, on a shared/lab computer doesn't also
+// hide it for the next person who logs in on that same browser.
+export function getOnboardingHiddenStorageKey(userId?: string) {
+    return userId ? `${MENTRILY_ONBOARDING_STORAGE_KEY}_${userId}` : MENTRILY_ONBOARDING_STORAGE_KEY;
+}
+
+export function getOnboardingSkipStorageKey(userId?: string) {
+    return userId ? `${MENTRILY_ONBOARDING_SKIP_KEY}_${userId}` : MENTRILY_ONBOARDING_SKIP_KEY;
+}
+
+export function isOnboardingCourseHidden(userId?: string) {
     if (typeof window === 'undefined') return false;
-    return window.localStorage.getItem(MENTRILY_ONBOARDING_STORAGE_KEY) === 'true';
+    return window.localStorage.getItem(getOnboardingHiddenStorageKey(userId)) === 'true';
 }
 
 export function getOnboardingQuestion(id: string) {

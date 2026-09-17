@@ -34,11 +34,15 @@ export default async function VerifyCertificatePage({ params }: { params: Promis
         return (
             <main className="min-h-screen bg-slate-100 flex items-center justify-center px-4">
                 <section className="w-full max-w-xl rounded-3xl bg-white border border-rose-100 shadow-sm overflow-hidden">
-                    <header className="bg-rose-500 text-white px-8 py-10 text-center">
+                    <header className="bg-rose-500 text-white px-6 py-10 text-center sm:px-8">
                         <h1 className="text-2xl font-black">Certificate Not Found</h1>
-                        <p className="text-sm mt-2 font-semibold opacity-90">The verification code is invalid or expired.</p>
+                        <p className="text-sm mt-2 font-semibold opacity-90">
+                            The verification code is invalid or expired.
+                        </p>
                     </header>
-                    <div className="px-8 py-6 text-center text-slate-500 font-medium">Code: {code}</div>
+                    <div className="px-6 py-6 text-center text-slate-500 font-medium break-all sm:px-8">
+                        Code: {code}
+                    </div>
                 </section>
             </main>
         );
@@ -49,13 +53,15 @@ export default async function VerifyCertificatePage({ params }: { params: Promis
     return (
         <main className="min-h-screen bg-slate-100 flex items-center justify-center px-4 py-10">
             <section className="w-full max-w-xl rounded-3xl bg-white border border-slate-100 shadow-xl overflow-hidden">
-                <header className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white px-8 py-10 text-center">
-                    <div className="w-14 h-14 rounded-full bg-white/20 mx-auto mb-3 flex items-center justify-center text-2xl">✓</div>
+                <header className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white px-6 py-10 text-center sm:px-8">
+                    <div className="w-14 h-14 rounded-full bg-white/20 mx-auto mb-3 flex items-center justify-center text-2xl">
+                        ✓
+                    </div>
                     <h1 className="text-2xl font-black">Certificate Verified</h1>
                     <p className="text-sm mt-1 font-semibold opacity-90">This certificate is authentic and valid.</p>
                 </header>
 
-                <div className="px-8 py-6">
+                <div className="px-6 py-6 sm:px-8">
                     <Row label="Student Name" value={cert.user?.name || cert.user?.email || 'Student'} />
                     <Row label={cert.type === 'exam' ? 'Exam' : 'Course'} value={cert.title} />
                     <Row label="Organization" value={cert.organization?.name || 'Organization'} />
@@ -64,7 +70,7 @@ export default async function VerifyCertificatePage({ params }: { params: Promis
                     <Row label="Certificate ID" value={cert.id} mono />
                 </div>
 
-                <footer className="px-8 pb-6 text-center text-[11px] text-slate-400 font-semibold">
+                <footer className="px-6 pb-6 text-center text-[11px] text-slate-400 font-semibold sm:px-8">
                     Powered by Mentrily · Verified in real-time
                 </footer>
             </section>
@@ -74,9 +80,13 @@ export default async function VerifyCertificatePage({ params }: { params: Promis
 
 function Row({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
     return (
-        <div className="flex items-center justify-between py-3 border-b border-slate-100 last:border-none gap-6">
-            <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">{label}</span>
-            <span className={`text-sm font-bold text-slate-800 text-right ${mono ? 'font-mono text-xs' : ''}`}>{value}</span>
+        <div className="flex items-start justify-between py-3 border-b border-slate-100 last:border-none gap-3 sm:gap-6">
+            <span className="shrink-0 text-[11px] font-black uppercase tracking-widest text-slate-400">{label}</span>
+            <span
+                className={`min-w-0 flex-1 break-words text-sm font-bold text-slate-800 text-right ${mono ? 'break-all font-mono text-xs' : ''}`}
+            >
+                {value}
+            </span>
         </div>
     );
 }

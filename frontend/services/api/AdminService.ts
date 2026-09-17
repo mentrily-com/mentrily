@@ -80,7 +80,10 @@ export const AdminService = {
         }
     },
 
-    async inviteUser(data: { email: string; name?: string; role?: string; dept?: string; id?: string }, orgId?: string) {
+    async inviteUser(
+        data: { email: string; name?: string; role?: string; dept?: string; id?: string },
+        orgId?: string,
+    ) {
         try {
             const query = orgId ? `?orgId=${orgId}` : '';
             const res = await authFetch(`/admin/users/invite${query}`, {
@@ -172,7 +175,8 @@ export const AdminService = {
 
     async updateSettings(data: any, orgId?: string) {
         try {
-            const logo = data.logo instanceof File ? (await UploadService.uploadFile('org-logo', data.logo)).url : data.logo;
+            const logo =
+                data.logo instanceof File ? (await UploadService.uploadFile('org-logo', data.logo)).url : data.logo;
             const query = orgId ? `?orgId=${orgId}` : '';
             const res = await authFetch(`/admin/settings${query}`, {
                 method: 'PATCH',

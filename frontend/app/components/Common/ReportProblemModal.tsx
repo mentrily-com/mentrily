@@ -129,6 +129,15 @@ export default function ReportProblemModal({ isOpen, onClose, onSubmitted }: Rep
             icon={<AlertTriangle size={22} />}
             size="lg"
             bodyClassName="space-y-6"
+            footer={
+                <button
+                    onClick={handleSubmit}
+                    disabled={isSubmitting || isUploading || !title.trim() || wordCount === 0 || wordCount > MAX_WORDS}
+                    className="w-full py-3.5 rounded-xl bg-[var(--brand)] hover:bg-[var(--brand-dark)] disabled:bg-slate-200 disabled:text-slate-400 text-white font-black text-xs uppercase tracking-[0.18em] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                    <Send size={15} /> {isSubmitting ? 'Submitting...' : 'Submit Report'}
+                </button>
+            }
         >
             <div className="mb-6 p-4 rounded-2xl border border-amber-200 bg-amber-50/70 flex items-start gap-3">
                 <AlertTriangle size={16} className="text-amber-600 mt-0.5 shrink-0" />
@@ -187,7 +196,8 @@ export default function ReportProblemModal({ isOpen, onClose, onSubmitted }: Rep
                                     <img src={att.url} alt={att.name} className="w-full h-28 object-cover" />
                                     <button
                                         onClick={() => removeAttachment(index)}
-                                        className="absolute top-2 right-2 w-6 h-6 rounded-lg bg-black/60 text-white flex items-center justify-center"
+                                        aria-label={`Remove ${att.name || 'attachment'}`}
+                                        className="absolute top-2 right-2 w-6 h-6 rounded-lg bg-black/60 text-white flex items-center justify-center transition-colors hover:bg-black/80"
                                     >
                                         <X size={12} />
                                     </button>
@@ -207,19 +217,10 @@ export default function ReportProblemModal({ isOpen, onClose, onSubmitted }: Rep
                             multiple
                             onChange={handleUpload}
                             className="hidden"
-                            disabled={isUploading || attachments.length >= MAX_IMAGES}
                         />
                     </label>
                 </div>
             </div>
-
-            <button
-                onClick={handleSubmit}
-                disabled={isSubmitting || isUploading || !title.trim() || wordCount === 0 || wordCount > MAX_WORDS}
-                className="w-full mt-8 py-4 rounded-2xl bg-[var(--brand)] hover:bg-[var(--brand-dark)] disabled:bg-slate-200 disabled:text-slate-400 text-white font-black text-xs uppercase tracking-[0.18em] transition-all flex items-center justify-center gap-2"
-            >
-                <Send size={15} /> {isSubmitting ? 'Submitting...' : 'Submit Report'}
-            </button>
         </AppModal>
     );
 }

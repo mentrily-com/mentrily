@@ -50,19 +50,19 @@ enum MembershipStatus {
 }
 
 model User {
-  id                 String   @id @default(uuid())
-  email              String   @unique
-  password           String? // Hashed password
-  clerkId            String?  @unique
-  name               String?
-  profilePicture     String?
-  rollNumber         String?  @unique // Explicitly requested field
-  department         String?
-  role               Role     @default(STUDENT)
-  needsRoleSelection Boolean  @default(false)
-  hasCompletedOnboarding Boolean @default(false)
-  isActive           Boolean  @default(true)
-  mustChangePassword Boolean? @default(false)
+  id                     String   @id @default(uuid())
+  email                  String   @unique
+  password               String? // Hashed password
+  clerkId                String?  @unique
+  name                   String?
+  profilePicture         String?
+  rollNumber             String?  @unique // Explicitly requested field
+  department             String?
+  role                   Role     @default(STUDENT)
+  needsRoleSelection     Boolean  @default(false)
+  hasCompletedOnboarding Boolean  @default(false)
+  isActive               Boolean  @default(true)
+  mustChangePassword     Boolean? @default(false)
 
   sessions  ExamSession[]
   auditLogs AuditLog[]
@@ -87,23 +87,25 @@ model User {
   totalXP          Int       @default(0)
 
   // Course Progress Relation
-  progress         CourseProgress[]
-  questionAttempts QuestionAttempt[]
+  progress              CourseProgress[]
+  questionAttempts      QuestionAttempt[]
   publicCodingQuestions PublicCodingQuestion[] @relation("PublicCodingQuestionCreator")
 
   // Groups & Announcements
-  teacherGroups        StudentGroup[]     @relation("TeacherGroups")
-  groupMemberships     StudentGroup[]     @relation("GroupStudents")
-  teacherAnnouncements Announcement[]     @relation("TeacherAnnouncements")
-  readAnnouncements    AnnouncementRead[]
-  bugReports           BugReport[]        @relation("UserBugReports")
-  fixedBugReports      BugReport[]        @relation("BugReportFixer")
-  aiUsages             AiUsage[]
-  certificates         Certificate[]
+  teacherGroups               StudentGroup[]        @relation("TeacherGroups")
+  groupMemberships            StudentGroup[]        @relation("GroupStudents")
+  teacherAnnouncements        Announcement[]        @relation("TeacherAnnouncements")
+  readAnnouncements           AnnouncementRead[]
+  bugReports                  BugReport[]           @relation("UserBugReports")
+  fixedBugReports             BugReport[]           @relation("BugReportFixer")
+  aiUsages                    AiUsage[]
+  aiConversations             AiConversation[]
+  aiJobs                      AiJob[]
+  certificates                Certificate[]
   createdCertificateTemplates CertificateTemplate[] @relation("CertificateTemplateCreator")
-  assignedCourses     CourseAssignment[] @relation("CourseAssignmentTeacher")
-  madeAssignments     CourseAssignment[] @relation("CourseAssignmentAssigner")
-  assets              Asset[]
+  assignedCourses             CourseAssignment[]    @relation("CourseAssignmentTeacher")
+  madeAssignments             CourseAssignment[]    @relation("CourseAssignmentAssigner")
+  assets                      Asset[]
 
   orgId        String?
   organization Organization? @relation(fields: [orgId], references: [id], onDelete: SetNull)
@@ -120,26 +122,34 @@ model User {
   @@index([role])
   @@index([orgId])
   @@index([orgId, role]) // Seat counting / counter recalc: WHERE orgId AND role IN (...)
+  @@index([orgId, isActive]) // Active seats and user filtering
 }
 
 model Exam {
-  id               String   @id @default(uuid())
-  slug             String
-  title            String
-  shortDescription String?
-  longDescription  String?
-  difficulty       String? // Beginner, Intermediate, Advanced
-  tags             String[] @default([])
-  duration         Int // Duration in minutes
-  totalMarks       Int?
+  id                String   @id @default(uuid())
+  slug              String
+  title             String
+  shortDescription  String?
+  longDescription   String?
+  difficulty        String? // Beginner, Intermediate, Advanced
+  tags              String[] @default([])
+  duration          Int // Duration in minutes
+  totalMarks        Int?
   passingPercentage Int?
-  maxAttempts      Int?
+  maxAttempts       Int?
   attemptBufferMins Int?
 
   // Access & Auth
   testCode         String?
   testCodeType     String? // Permanent, Rotating
   rotationInterval Int?
+  // Set only by TestCodeRotationService (and cleared/reset implicitly by a
+  // teacher's own testCode edit going through the normal update path). Due
+  // time for the next rotation is computed from this, not from `updatedAt`
+  // -- `updatedAt` is bumped by any unrelated write to the exam (title
+  // edits, resultsPublished toggles, aiTokensUsed increments, ...), which
+  // was silently resetting the rotation clock on every unrelated save.
+  codeRotatedAt    DateTime?
   inviteToken      String?
   allowedIPs       String?
 
@@ -165,8 +175,8 @@ model Exam {
   feedbacks   Feedback[]
 
   // Ownership
-  creatorId String?
-  creator   User?   @relation("ExamCreator", fields: [creatorId], references: [id], onDelete: SetNull)
+  creatorId      String?
+  creator        User?   @relation("ExamCreator", fields: [creatorId], references: [id], onDelete: SetNull)
   linkedCourseId String? @unique
   linkedCourse   Course? @relation("ExamLinkedCourse", fields: [linkedCourseId], references: [id], onDelete: SetNull)
 
@@ -177,21 +187,29 @@ model Exam {
   updatedAt DateTime @updatedAt
 
   @@unique([slug, orgId])
+  @@unique([testCode])
   @@index([creatorId])
   @@index([orgId])
   @@index([slug])
-  @@index([testCode])
+  @@index([orgId, updatedAt(sort: Desc)])
+  @@index([creatorId, updatedAt(sort: Desc)])
+  @@index([creatorId, startTime])
+  @@index([isActive, testCodeType])
+  @@index([isActive, testCodeType, rotationInterval])
+  @@index([orgId, isActive])
+  @@index([orgId, isActive, startTime])
+  @@index([orgId, createdAt(sort: Desc)])
 }
 
 model ExamSession {
-  id     String @id @default(uuid())
-  userId String
-  examId String
-  attemptNumber Int @default(1)
+  id            String @id @default(uuid())
+  userId        String
+  examId        String
+  attemptNumber Int    @default(1)
 
-  status    String    @default("IN_PROGRESS") // IN_PROGRESS, COMPLETED, TERMINATED
-  startTime DateTime  @default(now())
-  endTime   DateTime?
+  status       String    @default("IN_PROGRESS") // IN_PROGRESS, COMPLETED, TERMINATED
+  startTime    DateTime  @default(now())
+  endTime      DateTime?
   timeTakenSec Int?
 
   score   Float?
@@ -216,6 +234,11 @@ model ExamSession {
   @@index([userId, status]) // Compound for "active sessions by user"
   @@index([userId, examId, attemptNumber])
   @@index([userId, examId, status]) // Hot path: start/resume session + attempt counting
+  @@index([status, startTime])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([examId, endTime(sort: Desc)])
+  @@index([examId, score])
+  @@index([examId, status])
 }
 
 model Violation {
@@ -232,6 +255,7 @@ model Violation {
   @@index([sessionId])
   @@index([type])
   @@index([sessionId, type])
+  @@index([sessionId, timestamp(sort: Desc)])
 }
 
 model AuditLog {
@@ -243,6 +267,9 @@ model AuditLog {
   timestamp DateTime @default(now())
 
   user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId, timestamp(sort: Desc)])
+  @@index([action, timestamp(sort: Desc)])
 }
 
 model Feedback {
@@ -259,39 +286,40 @@ model Feedback {
 
   @@unique([userId, examId]) // Ensure one feedback per user per exam
   @@index([examId])
+  @@index([examId, timestamp(sort: Desc)])
 }
 
 model Course {
-  id               String   @id @default(uuid())
-  title            String
-  slug             String
-  shortDescription String?
-  longDescription  String?
-  difficulty       String? // Beginner, Intermediate, Advanced
-  tags             String[] @default([])
-  thumbnail        String?
-  courseSummary    String? // AI Generated Syllabus / Cheat Sheet
-  isVisible        Boolean  @default(false)
-  status           String   @default("Draft") // Draft, Published, Archived
-  aiTokensUsed     Int?     @default(0)
+  id                    String   @id @default(uuid())
+  title                 String
+  slug                  String
+  shortDescription      String?
+  longDescription       String?
+  difficulty            String? // Beginner, Intermediate, Advanced
+  tags                  String[] @default([])
+  thumbnail             String?
+  courseSummary         String? // AI Generated Syllabus / Cheat Sheet
+  isVisible             Boolean  @default(false)
+  status                String   @default("Draft") // Draft, Published, Archived
+  aiTokensUsed          Int?     @default(0)
   certificateTemplateId String?
-  completionThreshold   Int     @default(100)
-  linkedExamId          String? @unique
+  completionThreshold   Int      @default(100)
+  linkedExamId          String?  @unique
   examPassThreshold     Int?
-  examUnlockThreshold   Int     @default(100)
+  examUnlockThreshold   Int      @default(100)
 
-  modules CourseModule[]
-  tests   CourseTest[]
+  modules     CourseModule[]
+  tests       CourseTest[]
   assignments CourseAssignment[]
 
   // Implicit many-to-many
   students User[] @relation("CourseStudents")
 
   // Ownership
-  creatorId String?
-  creator   User?   @relation("CourseCreator", fields: [creatorId], references: [id], onDelete: SetNull)
-  linkedExam           Exam?                @relation("ExamLinkedCourse")
-  certificateTemplate  CertificateTemplate? @relation(fields: [certificateTemplateId], references: [id], onDelete: SetNull)
+  creatorId           String?
+  creator             User?                @relation("CourseCreator", fields: [creatorId], references: [id], onDelete: SetNull)
+  linkedExam          Exam?                @relation("ExamLinkedCourse")
+  certificateTemplate CertificateTemplate? @relation(fields: [certificateTemplateId], references: [id], onDelete: SetNull)
 
   orgId        String?
   organization Organization? @relation(fields: [orgId], references: [id], onDelete: Cascade)
@@ -305,6 +333,12 @@ model Course {
   @@index([creatorId])
   @@index([orgId])
   @@index([slug])
+  @@index([certificateTemplateId])
+  @@index([creatorId, updatedAt(sort: Desc)])
+  @@index([orgId, updatedAt(sort: Desc)])
+  @@index([isVisible, orgId])
+  @@index([orgId, createdAt(sort: Desc)])
+  @@index([orgId, status])
 }
 
 model CourseModule {
@@ -340,6 +374,7 @@ model Unit {
   updatedAt DateTime @updatedAt
 
   @@index([moduleId])
+  @@index([moduleId, order])
 }
 
 model CourseTest {
@@ -361,8 +396,10 @@ model CourseTest {
   updatedAt DateTime @updatedAt
 
   @@unique([slug, orgId])
+  @@index([slug])
   @@index([orgId])
   @@index([courseId])
+  @@index([courseId, startDate])
 }
 
 model UnitSubmission {
@@ -370,10 +407,10 @@ model UnitSubmission {
   userId String
   unitId String
 
-  status  String // IN_PROGRESS, COMPLETED
-  content Json // User's code/answer
-  score   Float?
-  startedAt DateTime?
+  status       String // IN_PROGRESS, COMPLETED
+  content      Json // User's code/answer
+  score        Float?
+  startedAt    DateTime?
   timeTakenSec Int?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -388,6 +425,8 @@ model UnitSubmission {
   @@index([unitId])
   @@index([status])
   @@index([userId, unitId, status]) // Compound for progress calculations
+  @@index([userId, status, unitId])
+  @@index([userId, createdAt(sort: Desc)])
   @@index([createdAt]) // Used in weekly activity analytics
 }
 
@@ -423,12 +462,12 @@ model Organization {
   examsPerMonth Int @default(50)
 
   // Plan, Billing & Overrides
-  plan                 Plan      @default(FREE)
-  stripeCustomerId     String?   @unique
-  stripeSubscriptionId String?
-  stripePriceId        String?
-  planExpiresAt        DateTime?
-  billingEmail         String?
+  plan                  Plan      @default(FREE)
+  stripeCustomerId      String?   @unique
+  stripeSubscriptionId  String?
+  stripePriceId         String?
+  planExpiresAt         DateTime?
+  billingEmail          String?
   provisionedFromUserId String?
 
   // Denormalized counters for quota checks
@@ -442,18 +481,20 @@ model Organization {
   primaryColor String? @default("#008D98")
   contact      Json? // Stores address, city, country, phone, supportEmail, adminEmail
 
-  users              User[]
-  courses            Course[]
-  exams              Exam[]
-  courseTests        CourseTest[]
-  aiUsages           AiUsage[]
-  pendingInvites     PendingInvite[]
-  subscriptionEvents SubscriptionEvent[]
-  usageLedger        UsageLedger[]
-  webhookEndpoints   WebhookEndpoint[]
-  certificates       Certificate[]
+  users                User[]
+  courses              Course[]
+  exams                Exam[]
+  courseTests          CourseTest[]
+  aiUsages             AiUsage[]
+  aiConversations      AiConversation[]
+  aiJobs               AiJob[]
+  pendingInvites       PendingInvite[]
+  subscriptionEvents   SubscriptionEvent[]
+  usageLedger          UsageLedger[]
+  webhookEndpoints     WebhookEndpoint[]
+  certificates         Certificate[]
   certificateTemplates CertificateTemplate[]
-  assets             Asset[]
+  assets               Asset[]
 
   // Groups & Announcements
   studentGroups StudentGroup[]
@@ -476,18 +517,19 @@ model Organization {
 
 model CourseAssignment {
   id           String   @id @default(cuid())
-  courseId      String
-  teacherId     String?
-  assignedById  String?
-  createdAt     DateTime @default(now())
+  courseId     String
+  teacherId    String?
+  assignedById String?
+  createdAt    DateTime @default(now())
 
-  course       Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  teacher      User?  @relation("CourseAssignmentTeacher", fields: [teacherId], references: [id], onDelete: SetNull)
-  assignedBy   User?  @relation("CourseAssignmentAssigner", fields: [assignedById], references: [id], onDelete: SetNull)
+  course     Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  teacher    User?  @relation("CourseAssignmentTeacher", fields: [teacherId], references: [id], onDelete: SetNull)
+  assignedBy User?  @relation("CourseAssignmentAssigner", fields: [assignedById], references: [id], onDelete: SetNull)
 
   @@unique([courseId, teacherId])
   @@index([teacherId])
   @@index([courseId])
+  @@index([assignedById])
 }
 
 model Certificate {
@@ -507,15 +549,17 @@ model Certificate {
   issuedAt          DateTime @default(now())
   createdAt         DateTime @default(now())
 
-  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization         @relation(fields: [orgId], references: [id], onDelete: Cascade)
   template     CertificateTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
 
   @@unique([userId, type, resourceId])
   @@unique([qrCode])
   @@index([userId, issuedAt])
   @@index([orgId])
+  @@index([orgId, issuedAt(sort: Desc)])
   @@index([templateId])
+  @@index([resourceId])
 }
 
 model CertificateTemplate {
@@ -531,8 +575,8 @@ model CertificateTemplate {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  creator      User         @relation("CertificateTemplateCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  organization Organization  @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  creator      User          @relation("CertificateTemplateCreator", fields: [creatorId], references: [id], onDelete: Cascade)
   courses      Course[]
   certificates Certificate[]
 
@@ -552,6 +596,7 @@ model UsageLedger {
   organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@index([orgId, createdAt])
+  @@index([orgId, eventType, createdAt])
   @@index([eventType])
 }
 
@@ -583,6 +628,8 @@ model SubscriptionEvent {
   organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@index([orgId, createdAt])
+  @@index([createdAt(sort: Desc)])
+  @@index([eventType, createdAt(sort: Desc)])
 }
 
 model PendingInvite {
@@ -606,6 +653,9 @@ model PendingInvite {
   @@index([orgId])
   @@index([email])
   @@index([expiresAt])
+  @@index([orgId, expiresAt])
+  @@index([orgId, role, expiresAt])
+  @@index([email, expiresAt])
 }
 
 // A person's role in one specific org. User.orgId/role above stay the
@@ -630,6 +680,7 @@ model OrgMembership {
   @@unique([userId, orgId])
   @@index([userId, status])
   @@index([orgId, status])
+  @@index([orgId, role, status])
 }
 
 model Bookmark {
@@ -652,6 +703,8 @@ model Bookmark {
   @@unique([userId, customId])
   @@index([userId])
   @@index([customId])
+  @@index([unitId])
+  @@index([userId, createdAt(sort: Desc)])
 }
 
 model CourseProgress {
@@ -672,6 +725,8 @@ model CourseProgress {
   @@unique([userId, courseId])
   @@index([userId])
   @@index([courseId])
+  @@index([courseId, status])
+  @@index([courseId, percent])
 }
 
 model QuestionAttempt {
@@ -691,6 +746,8 @@ model QuestionAttempt {
   @@index([type])
   @@index([userId, createdAt]) // Used in analytics time-range queries
   @@index([sessionId]) // Used in attempt rollups
+  @@index([sessionId, itemId, createdAt(sort: Desc)])
+  @@index([userId, type, itemId])
 }
 
 // ─── Groups & Announcements ────────────────────────────────────────────────────
@@ -781,25 +838,99 @@ model BugReport {
 
 model AiUsage {
   id               String   @id @default(uuid())
-  orgId            String
+  // Null for org-less personal creators; credits are then scoped to userId.
+  orgId            String?
   userId           String?
   provider         String
   model            String
   operation        String
+  // OmniRoute combo the call was routed through (lite / standard / pro).
+  tier             String?
   promptTokens     Int      @default(0)
   completionTokens Int      @default(0)
   totalTokens      Int      @default(0)
+  cachedTokens     Int      @default(0)
+  credits          Int      @default(0)
+  costUsd          Float?
+  latencyMs        Int?
+  requestId        String?
+  jobId            String?
+  conversationId   String?
   success          Boolean  @default(true)
   errorMessage     String?
   createdAt        DateTime @default(now())
 
-  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  organization Organization? @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([orgId, createdAt])
   @@index([userId, createdAt])
   @@index([provider])
   @@index([operation])
+  @@index([jobId])
+  @@index([conversationId])
+}
+
+model AiConversation {
+  id            String   @id @default(uuid())
+  orgId         String?
+  userId        String
+  title         String   @default("New chat")
+  pinned        Boolean  @default(false)
+  lastMessageAt DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  messages     AiMessage[]
+  organization Organization? @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, lastMessageAt(sort: Desc)])
+  @@index([orgId])
+}
+
+model AiMessage {
+  // UIMessage ids are generated client/server side by the AI SDK.
+  id             String   @id
+  conversationId String
+  role           String
+  parts          Json
+  metadata       Json?
+  createdAt      DateTime @default(now())
+
+  conversation AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+}
+
+model AiJob {
+  id              String    @id @default(uuid())
+  orgId           String?
+  userId          String
+  // course.blueprint | course.full | exam.blueprint | exam.full | quiz
+  kind            String
+  // queued | running | completed | failed | cancelled
+  status          String    @default("queued")
+  input           Json
+  progress        Json?
+  result          Json?
+  error           String?
+  creditsReserved Int       @default(0)
+  creditsUsed     Int       @default(0)
+  conversationId  String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  finishedAt      DateTime?
+
+  organization Organization? @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([orgId, status])
+  @@index([userId, status])
+  @@index([conversationId])
+  @@index([orgId, status, createdAt])
+  @@index([userId, status, createdAt])
 }
 
 model Asset {

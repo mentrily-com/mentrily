@@ -15,6 +15,21 @@ import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
 import { UpdateOrganizationPlanDto } from './dto/update-organization-plan.dto';
 import { UpdateOrganizationLimitsDto } from './dto/update-organization-limits.dto';
+
+const NUMERIC_LIMIT_OVERRIDE_KEYS = [
+  'students',
+  'courses',
+  'examsPerMonth',
+  'storageMb',
+  'seats',
+  'adminSeats',
+  'teacherSeats',
+  'aiCreditsPerMonth',
+  'aiMessagesPerDay',
+  'aiMaxQuestionsPerGeneration',
+  'aiConcurrentJobs',
+  'aiMaxReferences',
+] as const satisfies ReadonlyArray<keyof UpdateOrganizationLimitsDto>;
 import { createClerkClient, type ClerkClient } from '@clerk/backend';
 import { getPublicAppUrl } from '../../config/app-brand';
 
@@ -265,7 +280,6 @@ export class SuperAdminService {
     if (adminEmail) {
       // We now allow existing users to be invited as admins to new organizations
       // since multi-org memberships are supported and Clerk handles ignoreExisting: true.
-
     }
 
     try {
@@ -443,7 +457,12 @@ export class SuperAdminService {
    * org-kind/public-surface flags that gate isolation and exam entry.
    */
   private async clearOrgDerivedCaches(orgId: string, domain?: string | null) {
-    const keys = [`org:kind:${orgId}`, `org:is-public-surface:${orgId}`];
+    const keys = [
+      `org:kind:${orgId}`,
+      `org:is-public-surface:${orgId}`,
+      `org:effective_features:${orgId}`,
+      `ai:plan:${orgId}`,
+    ];
     if (domain) {
       const normalized = domain.toLowerCase();
       keys.push(`org:public:${normalized}`);
@@ -468,9 +487,11 @@ export class SuperAdminService {
     if (data.name !== undefined) safeData.name = data.name;
     if (data.domain !== undefined) safeData.domain = data.domain;
     if (data.slug !== undefined) safeData.slug = data.slug;
-    if (data.customDomain !== undefined) safeData.customDomain = data.customDomain;
+    if (data.customDomain !== undefined)
+      safeData.customDomain = data.customDomain;
     if (data.logo !== undefined) safeData.logo = data.logo;
-    if (data.primaryColor !== undefined) safeData.primaryColor = data.primaryColor;
+    if (data.primaryColor !== undefined)
+      safeData.primaryColor = data.primaryColor;
     if (data.status !== undefined) safeData.status = data.status;
     if (data.maxUsers !== undefined) safeData.maxUsers = Number(data.maxUsers);
     if (data.maxAdminSeats !== undefined) {
@@ -557,6 +578,8 @@ export class SuperAdminService {
       });
     }
 
+    await this.clearOrgDerivedCaches(id);
+
     return updated;
   }
 
@@ -592,13 +615,10 @@ export class SuperAdminService {
         ? (currentFeatures.limitsOverrides as Record<string, unknown>)
         : {};
 
-    const nextOverrides = {
-      ...currentOverrides,
-      ...(data.students !== undefined ? { students: data.students } : {}),
-      ...(data.courses !== undefined ? { courses: data.courses } : {}),
-      ...(data.storageMb !== undefined ? { storageMb: data.storageMb } : {}),
-      ...(data.seats !== undefined ? { seats: data.seats } : {}),
-    };
+    const nextOverrides: Record<string, unknown> = { ...currentOverrides };
+    for (const key of NUMERIC_LIMIT_OVERRIDE_KEYS) {
+      if (data[key] !== undefined) nextOverrides[key] = data[key];
+    }
 
     const nextFeatures = {
       ...currentFeatures,
@@ -765,28 +785,28 @@ export class SuperAdminService {
             data: { orgId: normalizedTargetOrgId },
           }),
           tx.courseTest.updateMany({
-            where: { 
+            where: {
               orgId: sourceOrgId,
-              courseId: { in: courseIds }
+              courseId: { in: courseIds },
             },
             data: { orgId: normalizedTargetOrgId },
           }),
           tx.studentGroup.updateMany({
-            where: { 
+            where: {
               orgId: sourceOrgId,
-              teacherId: normalizedUserId
+              teacherId: normalizedUserId,
             },
             data: { orgId: normalizedTargetOrgId },
           }),
           tx.announcement.updateMany({
-            where: { 
+            where: {
               orgId: sourceOrgId,
-              teacherId: normalizedUserId
+              teacherId: normalizedUserId,
             },
             data: { orgId: normalizedTargetOrgId },
           }),
           tx.user.updateMany({
-            where: { orgId: sourceOrgId },
+            where: { id: normalizedUserId, orgId: sourceOrgId },
             data: { orgId: normalizedTargetOrgId },
           }),
         ]);

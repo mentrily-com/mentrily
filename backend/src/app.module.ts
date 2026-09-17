@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
+import Redis from 'ioredis';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
@@ -25,15 +27,37 @@ import { BillingModule } from './modules/billing/billing.module';
 import { WebhookModule } from './modules/webhook/webhook.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 
+import { UserAwareThrottlerGuard } from './common/guards/user-throttler.guard';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    ThrottlerModule.forRoot([
-      {
-        ttl: Number(process.env.THROTTLE_TTL_MS || 60000),
-        limit: Number(process.env.THROTTLE_LIMIT || 300),
+    // Redis-backed so limits are shared across every backend instance
+    // instead of multiplying with the instance count.
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        const redisUrl = config.get<string>('REDIS_URL');
+        const redis = redisUrl
+          ? new Redis(redisUrl, { maxRetriesPerRequest: 3, family: 4 })
+          : new Redis({
+              host: config.get<string>('REDIS_HOST') || 'localhost',
+              port: Number(config.get('REDIS_PORT') || 6379),
+              maxRetriesPerRequest: 3,
+              family: 4,
+            });
+        return {
+          throttlers: [
+            {
+              ttl: Number(config.get('THROTTLE_TTL_MS') || 60000),
+              limit: Number(config.get('THROTTLE_LIMIT') || 300),
+            },
+          ],
+          storage: new ThrottlerStorageRedisService(redis),
+        };
       },
-    ]),
+    }),
     RedisModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => {
@@ -114,7 +138,7 @@ import { UploadsModule } from './modules/uploads/uploads.module';
     AppService,
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: UserAwareThrottlerGuard,
     },
   ],
 })

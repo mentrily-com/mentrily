@@ -4,26 +4,33 @@ import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Code2, Copy, Link as LinkIcon, X } from 'lucide-react';
 import SplitPane from '@/app/components/SplitPane';
-import PlaygroundEditor from '@/app/components/Playground/PlaygroundEditor';
 import PlaygroundTerminal from '@/app/components/Playground/PlaygroundTerminal';
-import CodingEditor from '@/app/components/Authoring/QuestionBuilder/modules/CodingEditor';
-import CodingQuestionRenderer from '@/app/components/CodingQuestionRenderer';
 import { PLAYGROUND_LANGUAGES } from '@/app/components/Editor/playgroundLanguages';
 import { CodeExecutionService } from '@/services/api/CodeExecutionService';
+
+const PlaygroundEditor = dynamic(() => import('@/app/components/Playground/PlaygroundEditor'), {
+    ssr: false,
+    loading: () => <div className="h-full w-full bg-slate-900/5 animate-pulse rounded-2xl" />,
+});
+
+const CodingEditor = dynamic(() => import('@/app/components/Authoring/QuestionBuilder/modules/CodingEditor'), {
+    ssr: false,
+    loading: () => <div className="h-48 w-full bg-slate-900/5 animate-pulse rounded-2xl" />,
+});
+
+const CodingQuestionRenderer = dynamic(() => import('@/app/components/CodingQuestionRenderer'), {
+    ssr: false,
+    loading: () => <div className="h-full w-full bg-slate-900/5 animate-pulse rounded-2xl" />,
+});
 
 // Tiptap rich-text editor is heavy and only used for the (conditionally
 // rendered) coding-question authoring panel — defer it so the playground shell
 // paints without pulling the editor bundle up front. No ref is passed and it's
 // interactive-only, so ssr:false is safe.
-const RichTextEditor = dynamic(
-    () => import('@/app/components/Authoring/RichTextEditor'),
-    {
-        ssr: false,
-        loading: () => (
-            <div className="min-h-[160px] rounded-[28px] bg-slate-50 animate-pulse" />
-        ),
-    },
-);
+const RichTextEditor = dynamic(() => import('@/app/components/Authoring/RichTextEditor'), {
+    ssr: false,
+    loading: () => <div className="min-h-[160px] rounded-[28px] bg-slate-50 animate-pulse" />,
+});
 
 interface Tab {
     id: number;
@@ -181,11 +188,12 @@ export default function PlaygroundCore({
                 <div className="flex-1 overflow-hidden relative">
                     <SplitPane
                         initialLeftWidth={55}
+                        tabLabels={['Code Editor', 'Output']}
                         leftContent={
                             <div className="h-full flex flex-col bg-white relative">
-                                <div className="h-12 border-b border-slate-100 flex items-center px-4 justify-between bg-white z-20">
-                                    <div className="flex items-center gap-1 h-full min-w-0">
-                                        <div className="pr-4 border-r border-slate-100 mr-2">
+                                <div className="h-12 border-b border-slate-100 flex items-center px-3 sm:px-4 justify-between bg-white z-20 gap-2">
+                                    <div className="flex items-center gap-1 h-full min-w-0 flex-1 overflow-x-auto no-scrollbar">
+                                        <div className="pr-3 sm:pr-4 border-r border-slate-100 mr-1 sm:mr-2 shrink-0">
                                             <select
                                                 value={activeTab.langId}
                                                 onChange={(event) => updateTabLang(event.target.value)}
@@ -203,7 +211,7 @@ export default function PlaygroundCore({
                                             <div
                                                 key={tab.id}
                                                 onClick={() => setActiveTabId(tab.id)}
-                                                className={`group px-6 h-full flex items-center text-[12px] font-bold transition-all border-b-2 relative cursor-pointer ${
+                                                className={`group px-3 sm:px-6 h-full flex items-center text-[12px] font-bold transition-all border-b-2 relative cursor-pointer shrink-0 ${
                                                     activeTabId === tab.id
                                                         ? 'border-[var(--brand)] text-slate-700 bg-slate-50/50'
                                                         : 'border-transparent text-slate-400 hover:bg-slate-50'
@@ -216,6 +224,7 @@ export default function PlaygroundCore({
                                                             event.stopPropagation();
                                                             setShowDeleteConfirm(tab.id);
                                                         }}
+                                                        aria-label={`Close ${tab.name || 'tab'}`}
                                                         className="ml-2 opacity-0 group-hover:opacity-100 p-1 hover:text-red-500 transition-all"
                                                     >
                                                         <X size={10} strokeWidth={3} />
@@ -226,17 +235,17 @@ export default function PlaygroundCore({
 
                                         <button
                                             onClick={addTab}
-                                            className="w-8 h-8 rounded-md flex items-center justify-center text-[var(--brand)] hover:bg-[var(--brand-light)] transition-colors ml-2"
+                                            className="w-8 h-8 rounded-md flex items-center justify-center text-[var(--brand)] hover:bg-[var(--brand-light)] transition-colors ml-2 shrink-0"
                                         >
                                             +
                                         </button>
                                     </div>
 
-                                    <div className="flex items-center gap-4">
+                                    <div className="flex items-center gap-2 sm:gap-4 shrink-0">
                                         <button
                                             onClick={handleClear}
                                             title="Clear Terminal"
-                                            className="p-2 text-slate-400 hover:text-[var(--brand)] transition-all active:rotate-180 duration-500"
+                                            className="p-1.5 sm:p-2 text-slate-400 hover:text-[var(--brand)] transition-all active:rotate-180 duration-500 text-xs"
                                         >
                                             Clear
                                         </button>
@@ -244,7 +253,7 @@ export default function PlaygroundCore({
                                         <button
                                             onClick={handleRun}
                                             disabled={isRunning}
-                                            className={`flex items-center gap-2 px-6 py-1.5 bg-[var(--brand)] text-white text-[11px] font-black uppercase tracking-widest rounded-md hover:bg-[var(--brand-dark)] transition-all active:scale-95 shadow-sm shadow-[var(--brand-light)] ${
+                                            className={`flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-1.5 bg-[var(--brand)] text-white text-[11px] font-black uppercase tracking-widest rounded-md hover:bg-[var(--brand-dark)] transition-all active:scale-95 shadow-sm shadow-[var(--brand-light)] ${
                                                 isRunning ? 'opacity-70 cursor-wait' : ''
                                             }`}
                                         >
@@ -540,6 +549,7 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
                             </div>
                             <button
                                 onClick={onClose}
+                                aria-label="Close dialog"
                                 className="rounded-lg p-2 text-slate-400 hover:bg-slate-50 hover:text-slate-700"
                             >
                                 <X size={18} />

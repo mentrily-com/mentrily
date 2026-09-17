@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -25,12 +26,12 @@ type PublicCourseResponse = {
     };
 };
 
-async function fetchPublicCourse(orgSlug: string, courseSlug: string): Promise<PublicCourseResponse | null> {
+const fetchPublicCourse = cache(async (orgSlug: string, courseSlug: string): Promise<PublicCourseResponse | null> => {
     try {
         const res = await fetch(
             `${API_BASE}/courses/public/${encodeURIComponent(orgSlug)}/${encodeURIComponent(courseSlug)}`,
             {
-                cache: 'no-store',
+                next: { revalidate: 30 },
             },
         );
 
@@ -39,7 +40,7 @@ async function fetchPublicCourse(orgSlug: string, courseSlug: string): Promise<P
     } catch {
         return null;
     }
-}
+});
 
 export async function generateMetadata({
     params,
@@ -83,7 +84,7 @@ export default async function PublicCoursePage({
 
     if (!payload) {
         return (
-            <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex items-center justify-center p-6">
+            <div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center p-6">
                 <div className="max-w-xl w-full bg-white border border-slate-200 rounded-2xl p-8 text-center">
                     <h1 className="text-2xl font-black text-slate-900">Course not found</h1>
                     <p className="mt-2 text-sm font-semibold text-slate-500">This course is not publicly available.</p>
@@ -96,12 +97,22 @@ export default async function PublicCoursePage({
     const showPoweredBy = org.plan === 'FREE';
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] text-slate-900">
+        <div className="min-h-screen bg-slate-50 text-slate-900">
             <main className="max-w-4xl mx-auto px-6 py-10">
                 <section className="bg-white border border-slate-100 rounded-[28px] shadow-sm overflow-hidden">
                     {course.thumbnail && (
                         <div className="relative h-56 w-full">
-                            <Image src={course.thumbnail} alt={course.title} fill className="object-cover" />
+                            {/* Without `sizes`, `fill` defaults to 100vw and a
+                                wide viewport pulls a ~2000px derivative for a
+                                slot that is never wider than this max-w-4xl
+                                column. */}
+                            <Image
+                                src={course.thumbnail}
+                                alt={course.title}
+                                fill
+                                sizes="(max-width: 896px) 100vw, 896px"
+                                className="object-cover"
+                            />
                         </div>
                     )}
 
@@ -148,9 +159,7 @@ export default async function PublicCoursePage({
                 </section>
 
                 {showPoweredBy && (
-                    <footer className="mt-6 text-center text-xs font-bold text-slate-400">
-                        Powered by Mentrily
-                    </footer>
+                    <footer className="mt-6 text-center text-xs font-bold text-slate-400">Powered by Mentrily</footer>
                 )}
             </main>
         </div>

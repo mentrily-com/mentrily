@@ -113,7 +113,10 @@ export class SubmissionService {
    * anyone holding a session UUID could overwrite answers or force-submit
    * another student's exam.
    */
-  async assertSessionOwnership(sessionId: string, userId: string): Promise<void> {
+  async assertSessionOwnership(
+    sessionId: string,
+    userId: string,
+  ): Promise<void> {
     if (!sessionId || !userId) {
       throw new ForbiddenException('Session ownership could not be verified');
     }
@@ -140,24 +143,29 @@ export class SubmissionService {
   async queueAnswer(sessionId: string, answer: any) {
     await stashSessionAnswers(this.redis, sessionId, answer || {});
 
-    await this.submissionQueue.add(
-      'flush_answers',
-      { sessionId },
-      {
-        // BullMQ rejects a custom jobId containing ':' unless splitting on
-        // it yields exactly 3 parts (a legacy repeatable-job carve-out) —
-        // `flush:${sessionId}` split into 2 and threw "Custom Id cannot
-        // contain :" on every single call, meaning this coalescing job was
-        // NEVER successfully scheduled and every submitSection/save-answer
-        // request 500'd. '-' has no such restriction.
-        jobId: `flush-${sessionId}`,
-        delay: FLUSH_DELAY_MS,
-        // jobIds must leave the queue after completion so the next batch
-        // for this session can schedule a fresh flush.
-        removeOnComplete: true,
-        removeOnFail: 50,
-      },
-    );
+    try {
+      await this.submissionQueue.add(
+        'flush_answers',
+        { sessionId },
+        {
+          jobId: `flush-${sessionId}`,
+          delay: FLUSH_DELAY_MS,
+          removeOnComplete: true,
+          removeOnFail: true, // Must be true so failed jobs do not block future flush scheduling
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+            delay: 1000,
+          },
+        },
+      );
+    } catch (err: any) {
+      // If BullMQ indicates job already exists or is active, staged answers remain in Redis
+      // and will be drained by the next scheduled flush.
+      if (!err?.message?.includes('already exists')) {
+        console.warn(`[SubmissionService] queueAnswer add error:`, err?.message);
+      }
+    }
   }
 
   async scheduleAutoSubmit(sessionId: string, delay: number) {
@@ -193,13 +201,25 @@ export class SubmissionService {
     // Idempotency: a double-click or an auto-submit racing a manual submit
     // must not re-run scoring, webhooks, or certificate issuance.
     if (session.status === 'COMPLETED') {
-      const existingScore = (dbAnswers as any)?._internal_score || {};
+      const existingScore = dbAnswers?._internal_score || {};
       return {
         status: 'submitted',
         score: Number(existingScore.percentage ?? 0),
         earnedMarks: Number(existingScore.earnedMarks ?? 0),
         totalMarks: Number(existingScore.totalMarks ?? 0),
       };
+    }
+
+    if (session.status === 'TERMINATED') {
+      throw new ForbiddenException(
+        'Exam session has been terminated due to violations and cannot be submitted.',
+      );
+    }
+
+    if (session.status !== 'IN_PROGRESS') {
+      throw new ForbiddenException(
+        `Exam session is not in progress (current status: ${session.status}).`,
+      );
     }
 
     const redisAnswers = await readStashedSessionAnswers(this.redis, sessionId);
@@ -209,7 +229,7 @@ export class SubmissionService {
       ...redisAnswers,
       ...(finalAnswers || {}),
     };
-    delete (mergedAnswers as any)._final_sync;
+    delete mergedAnswers._final_sync;
 
     const scoreDetails = this.examService.calculateScoreDetails(
       mergedAnswers,
@@ -236,11 +256,10 @@ export class SubmissionService {
       },
     };
 
-    // Conditional write: only the request that flips the status runs the
-    // completion side effects. Anyone who loses the race gets the stored
-    // result via the COMPLETED branch above on retry.
+    // Conditional write: only transition if status is still IN_PROGRESS.
+    // This prevents race conditions and strictly prevents reviving TERMINATED sessions.
     const updated = await this.prisma.examSession.updateMany({
-      where: { id: sessionId, status: { not: 'COMPLETED' } },
+      where: { id: sessionId, status: 'IN_PROGRESS' },
       data: {
         answers: answersWithMarks,
         score: scoreDetails.percentage,
@@ -250,17 +269,40 @@ export class SubmissionService {
       } as any,
     });
 
+    if (updated.count === 0) {
+      // Lost the completion race: another request (auto-submit, or a
+      // duplicate submit) completed the session between our read above and
+      // this write. Return what was actually persisted rather than this
+      // request's own (possibly different) computed values, and leave the
+      // Redis stash untouched -- the winner did its own read/clear at its
+      // own point in time, so clearing here could delete an answer staged
+      // after that winner already finished.
+      const finalSession = await this.prisma.examSession.findUnique({
+        where: { id: sessionId },
+        select: { answers: true },
+      });
+      const rawFinalAnswers = finalSession?.answers;
+      const finalAnswers: any =
+        typeof rawFinalAnswers === 'string'
+          ? JSON.parse(rawFinalAnswers || '{}')
+          : rawFinalAnswers || {};
+      const finalScore = finalAnswers?._internal_score || {};
+      return {
+        status: 'submitted',
+        score: Number(finalScore.percentage ?? 0),
+        earnedMarks: Number(finalScore.earnedMarks ?? 0),
+        totalMarks: Number(finalScore.totalMarks ?? 0),
+      };
+    }
+
     await clearStashedSessionAnswers(this.redis, sessionId);
 
-    if (updated.count > 0) {
-      try {
-        await this.examService.handleExamCompletion(sessionId);
-      } catch (error: any) {
-        console.warn(
-          `[SubmissionService] Exam completion post-processing skipped for session ${sessionId}: ${error?.message || 'unknown_error'}`,
-        );
-      }
-    }
+    // Run certificate issuance & notifications in background without blocking the submission HTTP response
+    void this.examService.handleExamCompletion(sessionId).catch((error: any) => {
+      console.warn(
+        `[SubmissionService] Exam completion post-processing failed for session ${sessionId}: ${error?.message || 'unknown_error'}`,
+      );
+    });
 
     return {
       status: 'submitted',

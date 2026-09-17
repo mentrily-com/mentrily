@@ -3,7 +3,8 @@ import React, { useEffect, useState } from 'react';
 import AdminDashboardView from '@/app/components/Features/Admin/AdminDashboardView';
 import { SuperAdminService } from '@/services/api/SuperAdminService';
 import { AdminService } from '@/services/api/AdminService';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import OrgControlsSkeleton from '@/app/components/Skeletons/OrgControlsSkeleton';
+import { useToast } from '@/app/components/Common/Toast';
 
 type PlanType = 'FREE' | 'STARTER' | 'PRO' | 'ENTERPRISE';
 
@@ -36,6 +37,7 @@ const getErrorMessage = (error: unknown) => {
 
 export default function SuperAdminOrganizationDashboard({ params }: { params: Promise<{ id: string }> }) {
     const { id } = React.use(params);
+    const { success, error: toastError } = useToast();
     const [loading, setLoading] = useState(true);
     const [savingPlan, setSavingPlan] = useState(false);
     const [savingLimits, setSavingLimits] = useState(false);
@@ -105,9 +107,9 @@ export default function SuperAdminOrganizationDashboard({ params }: { params: Pr
         try {
             setSavingPlan(true);
             await SuperAdminService.updateOrganizationPlan(id, selectedPlan);
-            alert('Plan updated successfully');
+            success('Plan updated successfully');
         } catch (error: unknown) {
-            alert(getErrorMessage(error) || 'Failed to update plan');
+            toastError(getErrorMessage(error) || 'Failed to update plan');
         } finally {
             setSavingPlan(false);
         }
@@ -123,38 +125,42 @@ export default function SuperAdminOrganizationDashboard({ params }: { params: Pr
                 seats: Number(limits.seats),
                 maxAdminSeats: Number(limits.maxAdminSeats),
             });
-            alert('Limits updated successfully');
+            success('Limits updated successfully');
         } catch (error: unknown) {
-            alert(getErrorMessage(error) || 'Failed to update limits');
+            toastError(getErrorMessage(error) || 'Failed to update limits');
         } finally {
             setSavingLimits(false);
         }
     };
 
     if (loading) {
-        return <DashboardSkeleton type="main" userRole="super-admin" />;
+        return <OrgControlsSkeleton />;
     }
 
     return (
         <div className="space-y-6">
             <section className="max-w-[1440px] mx-auto px-6 lg:px-12 pt-8">
                 <div className="bg-white rounded-[32px] border border-slate-100 p-6 shadow-sm">
-                    <div className="flex items-center justify-between mb-6">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
                         <div>
                             <h2 className="text-xl font-black text-slate-900">Organization Controls</h2>
                             <p className="text-xs font-bold text-slate-400 mt-1">{orgName}</p>
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-center">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
                             <div className="bg-slate-50 rounded-xl px-3 py-2">
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Users</p>
                                 <p className="text-sm font-black text-slate-700">{usage.users}</p>
                             </div>
                             <div className="bg-slate-50 rounded-xl px-3 py-2">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Admins</p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    Admins
+                                </p>
                                 <p className="text-sm font-black text-slate-700">{usage.admins}</p>
                             </div>
                             <div className="bg-slate-50 rounded-xl px-3 py-2">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Courses</p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    Courses
+                                </p>
                                 <p className="text-sm font-black text-slate-700">{usage.courses}</p>
                             </div>
                             <div className="bg-slate-50 rounded-xl px-3 py-2">

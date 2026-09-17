@@ -19,11 +19,11 @@ import CodeMirrorEditor from '../../CodeMirrorEditor';
 import YouTubeSegmentPlayer from '@/app/components/Reading/YouTubeSegmentPlayer';
 import { CourseService } from '@/services/api/CourseService';
 import AlertModal from '../../../Common/AlertModal';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import RichTextEditorSkeleton from '@/app/components/Skeletons/RichTextEditorSkeleton';
 
 const RichTextEditor = dynamic(() => import('../../RichTextEditor'), {
     ssr: false,
-    loading: () => <DashboardSkeleton type="form" noNavbar />,
+    loading: () => <RichTextEditorSkeleton />,
 });
 
 interface ReadingEditorProps {
@@ -48,14 +48,14 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
     const contentBlocks: ReadingContentBlock[] =
         Array.isArray(question.readingConfig?.contentBlocks) && question.readingConfig.contentBlocks.length > 0
             ? question.readingConfig.contentBlocks.map((block, index) => ({
-                id: block.id || `reading-block-${index + 1}`,
-                type: block.type || 'text',
-                content: block.content || '',
-                videoUrl: block.videoUrl,
-                videoSource: block.videoSource,
-                youtube: block.youtube,
-                runnerConfig: block.runnerConfig,
-            }))
+                  id: block.id || `reading-block-${index + 1}`,
+                  type: block.type || 'text',
+                  content: block.content || '',
+                  videoUrl: block.videoUrl,
+                  videoSource: block.videoSource,
+                  youtube: block.youtube,
+                  runnerConfig: block.runnerConfig,
+              }))
             : [createDefaultContentBlock()];
 
     const config: NonNullable<Question['readingConfig']> = {
@@ -323,7 +323,10 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
                                                     onClick={() =>
                                                         updateBlock(index, {
                                                             videoSource: 'youtube',
-                                                            youtube: block.youtube || { videoId: '', startTimeSeconds: 0 },
+                                                            youtube: block.youtube || {
+                                                                videoId: '',
+                                                                startTimeSeconds: 0,
+                                                            },
                                                         })
                                                     }
                                                     className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors ${
@@ -360,80 +363,83 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
                                                 }}
                                             />
 
-                                            {!isYouTubeBlock(block) && (block.videoUrl ? (
-                                                /* Video Preview */
-                                                <div className="space-y-3">
-                                                    <video
-                                                        src={block.videoUrl}
-                                                        controls
-                                                        className="w-full rounded-2xl border border-slate-200 shadow-sm bg-black max-h-72 object-contain"
-                                                    />
-                                                    <div className="flex items-center justify-between">
-                                                        <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-600">
-                                                            <CheckCircle size={13} />
-                                                            Video uploaded successfully
+                                            {!isYouTubeBlock(block) &&
+                                                (block.videoUrl ? (
+                                                    /* Video Preview */
+                                                    <div className="space-y-3">
+                                                        <video
+                                                            src={block.videoUrl}
+                                                            controls
+                                                            className="w-full rounded-2xl border border-slate-200 shadow-sm bg-black max-h-72 object-contain"
+                                                        />
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-600">
+                                                                <CheckCircle size={13} />
+                                                                Video uploaded successfully
+                                                            </div>
+                                                            <button
+                                                                onClick={() => fileInputRefs.current[block.id]?.click()}
+                                                                className="text-[10px] font-black uppercase tracking-widest text-violet-500 hover:text-violet-700 transition-colors"
+                                                            >
+                                                                Replace Video
+                                                            </button>
                                                         </div>
+                                                    </div>
+                                                ) : uploadStates[block.id] === 'uploading' ? (
+                                                    /* Uploading state with progress */
+                                                    <div className="flex flex-col items-center justify-center py-10 gap-4 px-6">
+                                                        <div className="w-12 h-12 rounded-2xl bg-violet-50 flex items-center justify-center">
+                                                            <Video size={20} className="text-violet-500" />
+                                                        </div>
+                                                        <div className="w-full max-w-sm space-y-2">
+                                                            <div className="flex items-center justify-between">
+                                                                <p className="text-[11px] font-bold text-slate-600 uppercase tracking-widest">
+                                                                    Uploading video...
+                                                                </p>
+                                                                <span className="text-[13px] font-black text-violet-600 tabular-nums">
+                                                                    {uploadProgress[block.id] ?? 0}%
+                                                                </span>
+                                                            </div>
+                                                            {/* Progress bar track */}
+                                                            <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                                                                <div
+                                                                    className="h-full bg-violet-500 rounded-full transition-all duration-200 ease-out"
+                                                                    style={{
+                                                                        width: `${uploadProgress[block.id] ?? 0}%`,
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    /* Upload prompt */
+                                                    <div className="space-y-3">
                                                         <button
                                                             onClick={() => fileInputRefs.current[block.id]?.click()}
-                                                            className="text-[10px] font-black uppercase tracking-widest text-violet-500 hover:text-violet-700 transition-colors"
+                                                            className="w-full border-2 border-dashed border-violet-200 hover:border-violet-400 rounded-2xl py-10 flex flex-col items-center gap-3 transition-all group/upload cursor-pointer bg-white hover:bg-violet-50/40"
                                                         >
-                                                            Replace Video
+                                                            <div className="w-12 h-12 rounded-2xl bg-violet-50 group-hover/upload:bg-violet-100 flex items-center justify-center transition-colors">
+                                                                <Upload size={20} className="text-violet-500" />
+                                                            </div>
+                                                            <div className="text-center">
+                                                                <p className="text-[12px] font-black text-slate-700">
+                                                                    Click to upload video
+                                                                </p>
+                                                                <p className="text-[10px] font-medium text-slate-400 mt-1">
+                                                                    MP4, WebM, OGG or MOV · Max 100MB
+                                                                </p>
+                                                            </div>
                                                         </button>
-                                                    </div>
-                                                </div>
-                                            ) : uploadStates[block.id] === 'uploading' ? (
-                                                /* Uploading state with progress */
-                                                <div className="flex flex-col items-center justify-center py-10 gap-4 px-6">
-                                                    <div className="w-12 h-12 rounded-2xl bg-violet-50 flex items-center justify-center">
-                                                        <Video size={20} className="text-violet-500" />
-                                                    </div>
-                                                    <div className="w-full max-w-sm space-y-2">
-                                                        <div className="flex items-center justify-between">
-                                                            <p className="text-[11px] font-bold text-slate-600 uppercase tracking-widest">
-                                                                Uploading video...
-                                                            </p>
-                                                            <span className="text-[13px] font-black text-violet-600 tabular-nums">
-                                                                {uploadProgress[block.id] ?? 0}%
-                                                            </span>
-                                                        </div>
-                                                        {/* Progress bar track */}
-                                                        <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-                                                            <div
-                                                                className="h-full bg-violet-500 rounded-full transition-all duration-200 ease-out"
-                                                                style={{ width: `${uploadProgress[block.id] ?? 0}%` }}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                /* Upload prompt */
-                                                <div className="space-y-3">
-                                                    <button
-                                                        onClick={() => fileInputRefs.current[block.id]?.click()}
-                                                        className="w-full border-2 border-dashed border-violet-200 hover:border-violet-400 rounded-2xl py-10 flex flex-col items-center gap-3 transition-all group/upload cursor-pointer bg-white hover:bg-violet-50/40"
-                                                    >
-                                                        <div className="w-12 h-12 rounded-2xl bg-violet-50 group-hover/upload:bg-violet-100 flex items-center justify-center transition-colors">
-                                                            <Upload size={20} className="text-violet-500" />
-                                                        </div>
-                                                        <div className="text-center">
-                                                            <p className="text-[12px] font-black text-slate-700">
-                                                                Click to upload video
-                                                            </p>
-                                                            <p className="text-[10px] font-medium text-slate-400 mt-1">
-                                                                MP4, WebM, OGG or MOV · Max 100MB
-                                                            </p>
-                                                        </div>
-                                                    </button>
 
-                                                    {uploadStates[block.id] === 'error' && (
-                                                        <div className="flex items-center gap-2 text-[11px] font-bold text-rose-600 bg-rose-50 px-4 py-2.5 rounded-xl border border-rose-100">
-                                                            <AlertCircle size={13} />
-                                                            {uploadErrors[block.id] ||
-                                                                'Upload failed. Please try again.'}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            ))}
+                                                        {uploadStates[block.id] === 'error' && (
+                                                            <div className="flex items-center gap-2 text-[11px] font-bold text-rose-600 bg-rose-50 px-4 py-2.5 rounded-xl border border-rose-100">
+                                                                <AlertCircle size={13} />
+                                                                {uploadErrors[block.id] ||
+                                                                    'Upload failed. Please try again.'}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
                                         </div>
                                     )}
                                 </div>

@@ -2,8 +2,19 @@ import { useEffect, useRef } from 'react';
 import { MonitoringService } from '@/services/api/MonitoringService';
 import { MonitoringEvent, ViolationEvent } from '@/types/monitoring';
 
-export function useElectronMonitoring(examId: string, studentId: string) {
+export function useElectronMonitoring(
+    examId: string,
+    studentId: string,
+    // Violations detected natively (VM, app switch) go through the exam
+    // socket when one is available: that path validates the session, counts
+    // the switch, enforces the tab-switch limit and reaches the monitoring
+    // dashboard. The HTTP fallback below only records an event server-side
+    // when no socket is wired up.
+    onViolation?: (type: string, message: string, details?: any) => void,
+) {
     const heartbeatInterval = useRef<NodeJS.Timeout | null>(null);
+    const onViolationRef = useRef(onViolation);
+    onViolationRef.current = onViolation;
 
     const logEvent = (eventType: string, message: string, data?: any) => {
         const event: MonitoringEvent = {
@@ -21,6 +32,11 @@ export function useElectronMonitoring(examId: string, studentId: string) {
     };
 
     const logViolation = (type: string, message: string, details?: any) => {
+        if (onViolationRef.current) {
+            onViolationRef.current(type, message, details);
+            return;
+        }
+
         const violation: ViolationEvent = {
             examId,
             studentId,

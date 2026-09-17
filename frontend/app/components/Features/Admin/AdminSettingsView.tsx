@@ -1,17 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { siteConfig } from '@/app/config/site';
-import {
-    Palette,
-    Mail,
-    Save,
-    Globe2,
-    Camera,
-    ShieldAlert,
-    Lock,
-    PauseCircle,
-    PlayCircle,
-} from 'lucide-react';
+import { Palette, Mail, Save, Globe2, Camera, ShieldAlert, Lock, PauseCircle, PlayCircle } from 'lucide-react';
 
 interface AdminSettingsViewProps {
     basePath?: string;
@@ -315,7 +305,9 @@ export default function AdminSettingsView({
                                         }}
                                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                     />
-                                    <div className={`flex items-center gap-4 p-4 border-2 border-dashed ${branding.logo ? 'border-[var(--brand)] bg-[var(--brand-light)]/10' : 'border-slate-100 bg-slate-50/50'} rounded-3xl hover:bg-slate-50 transition-all cursor-pointer`}>
+                                    <div
+                                        className={`flex items-center gap-4 p-4 border-2 border-dashed ${branding.logo ? 'border-[var(--brand)] bg-[var(--brand-light)]/10' : 'border-slate-100 bg-slate-50/50'} rounded-3xl hover:bg-slate-50 transition-all cursor-pointer`}
+                                    >
                                         <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-slate-300 group-hover:text-[var(--brand)] shadow-sm transition-all overflow-hidden">
                                             {branding.logo ? (
                                                 typeof branding.logo === 'string' ? (
@@ -433,9 +425,9 @@ export default function AdminSettingsView({
                                     <span className="text-white font-black text-sm">
                                         {branding.name
                                             ? branding.name
-                                                .split(' ')
-                                                .map((w: any) => w[0])
-                                                .join('')
+                                                  .split(' ')
+                                                  .map((w: any) => w[0])
+                                                  .join('')
                                             : 'L'}
                                     </span>
                                 </div>

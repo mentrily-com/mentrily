@@ -18,8 +18,8 @@ import {
     CreditCard,
     LifeBuoy,
 } from 'lucide-react';
-import { StudentService } from '@/services/api/StudentService';
-import DOMPurify from 'isomorphic-dompurify';
+import { useAnnouncements } from '@/hooks/useAnnouncements';
+import { sanitizeProse } from '@/lib/sanitize';
 import { useSession } from '@/hooks/useSession';
 import CrispWidget from './CrispWidget';
 import { orgHasCrispChat } from '@/lib/crisp';
@@ -72,7 +72,7 @@ function getDashboardRouteForRole(role: NavbarRole) {
     return '/dashboard/super-admin';
 }
 
-export default function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
+function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
     const router = useRouter();
     const pathname = usePathname();
     const { user: clerkUser } = useUser();
@@ -196,9 +196,25 @@ export default function Navbar({ basePath, userRole: roleOverride, examConfig }:
             <ImpersonationBanner />
             {showPaymentFailedBanner && <PaymentFailedBanner />}
             <header className="w-full bg-white/80 backdrop-blur-md border-b border-slate-100">
-                <div className="w-full px-4 py-2.5 lg:px-6 sm:py-3 flex items-center justify-between">
-                    {/* Left - Brand & Primary Nav */}
-                    <div className="flex items-center gap-8 z-10">
+                <div
+                    className={`w-full px-4 py-2.5 lg:px-6 sm:py-3 flex items-center justify-between ${
+                        examConfig ? 'gap-3' : ''
+                    }`}
+                >
+                    {/* Left - Brand & Primary Nav. The exam header packs extra
+                        controls (focus counters, timer, font size, network) into
+                        this row. In exam mode it is three columns: the left and
+                        right groups share the space equally (so the centre stays
+                        centred when it fits), the right group never shrinks below
+                        its controls, and the left group gives up space and scrolls.
+                        The row itself must not scroll: any overflow other than
+                        visible also clips vertically, which cut off the network
+                        tooltip and the profile menu. */}
+                    <div
+                        className={`flex items-center gap-8 z-10 ${
+                            examConfig ? 'min-w-0 flex-1 basis-0 overflow-x-auto no-scrollbar' : ''
+                        }`}
+                    >
                         <div
                             onClick={() => !examConfig && router.push(dashboardRoute)}
                             className={`flex items-center gap-2.5 ${examConfig ? 'cursor-default' : 'cursor-pointer'}`}
@@ -586,9 +602,9 @@ export default function Navbar({ basePath, userRole: roleOverride, examConfig }:
                         )}
                     </div>
 
-                    {/* Center Content - Absolute Center for Exam Mode */}
+                    {/* Center Content - the middle column in exam mode */}
                     {examConfig ? (
-                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                        <div className="hidden shrink-0 sm:block">
                             {examConfig.centerContent}
                         </div>
                     ) : (
@@ -598,7 +614,7 @@ export default function Navbar({ basePath, userRole: roleOverride, examConfig }:
                     )}
 
                     {/* Right - User Actions */}
-                    <div className="flex items-center gap-5">
+                    <div className={`flex items-center gap-5 ${examConfig ? 'min-w-max flex-1 basis-0 justify-end' : ''}`}>
                         {!examConfig && !mustChangePassword && role === 'student' && (
                             <AnnouncementBell enabled={Boolean(isLoaded && isSignedIn && sessionUser?.id)} />
                         )}
@@ -786,9 +802,16 @@ const ContentDropdown = React.memo(function ContentDropdown({
                 setOpen(false);
             }
         }
+        function closeOnEscape(event: KeyboardEvent) {
+            if (event.key === 'Escape') setOpen(false);
+        }
 
         document.addEventListener('mousedown', closeOnOutsideClick);
-        return () => document.removeEventListener('mousedown', closeOnOutsideClick);
+        document.addEventListener('keydown', closeOnEscape);
+        return () => {
+            document.removeEventListener('mousedown', closeOnOutsideClick);
+            document.removeEventListener('keydown', closeOnEscape);
+        };
     }, []);
 
     return (
@@ -797,6 +820,8 @@ const ContentDropdown = React.memo(function ContentDropdown({
                 type="button"
                 data-element-id="nav-content-dropdown"
                 onClick={() => setOpen((prev) => !prev)}
+                aria-haspopup="true"
+                aria-expanded={open}
                 className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 ${
                     active ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-slate-400 hover:text-slate-600'
                 }`}
@@ -865,8 +890,15 @@ const AppsMenu = React.memo(function AppsMenu({ isTeacher }: { isTeacher: boolea
         function close(e: any) {
             if (ref.current && !ref.current.contains(e.target)) setOpen(false);
         }
+        function closeOnEscape(e: KeyboardEvent) {
+            if (e.key === 'Escape') setOpen(false);
+        }
         document.addEventListener('mousedown', close);
-        return () => document.removeEventListener('mousedown', close);
+        document.addEventListener('keydown', closeOnEscape);
+        return () => {
+            document.removeEventListener('mousedown', close);
+            document.removeEventListener('keydown', closeOnEscape);
+        };
     }, []);
 
     const apps = isTeacher
@@ -918,6 +950,65 @@ const AppsMenu = React.memo(function AppsMenu({ isTeacher }: { isTeacher: boolea
               },
           ]
         : [
+              {
+                  label: 'Dashboard',
+                  icon: (
+                      <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                      >
+                          <rect x="3" y="3" width="7" height="7" />
+                          <rect x="14" y="3" width="7" height="7" />
+                          <rect x="14" y="14" width="7" height="7" />
+                          <rect x="3" y="14" width="7" height="7" />
+                      </svg>
+                  ),
+                  path: '/dashboard/learner',
+              },
+              {
+                  label: 'Browse',
+                  icon: (
+                      <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                      >
+                          <circle cx="12" cy="12" r="10" />
+                          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+                      </svg>
+                  ),
+                  path: '/dashboard/learner/browse',
+              },
+              {
+                  label: 'Playground',
+                  icon: (
+                      <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                      >
+                          <polyline points="16 18 22 12 16 6" />
+                          <polyline points="8 6 2 12 8 18" />
+                      </svg>
+                  ),
+                  path: '/playground',
+              },
               {
                   label: 'Assessments',
                   icon: (
@@ -979,12 +1070,34 @@ const AppsMenu = React.memo(function AppsMenu({ isTeacher }: { isTeacher: boolea
                   ),
                   path: '/dashboard/learner/certificates',
               },
+              {
+                  label: 'Analytics',
+                  icon: (
+                      <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                      >
+                          <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+                          <path d="M22 12A10 10 0 0 0 12 2v10z" />
+                      </svg>
+                  ),
+                  path: '/dashboard/learner/analytics',
+              },
           ];
 
     return (
         <div ref={ref} className="relative">
             <button
                 onClick={() => setOpen(!open)}
+                aria-haspopup="true"
+                aria-expanded={open}
+                aria-label="Apps"
                 className="w-10 h-10 rounded-xl border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-50 transition-colors"
             >
                 <svg
@@ -1055,9 +1168,16 @@ function ProfileMenu({
                 setOpen(false);
             }
         }
+        function closeOnEscape(e: KeyboardEvent) {
+            if (e.key === 'Escape') setOpen(false);
+        }
 
         document.addEventListener('mousedown', close);
-        return () => document.removeEventListener('mousedown', close);
+        document.addEventListener('keydown', closeOnEscape);
+        return () => {
+            document.removeEventListener('mousedown', close);
+            document.removeEventListener('keydown', closeOnEscape);
+        };
     }, []);
 
     const getLabel = () => {
@@ -1105,7 +1225,9 @@ function ProfileMenu({
 
     return (
         <div ref={dropdownRef} className="relative flex items-center gap-3 ml-2">
-            <div className="hidden sm:block text-right">
+            {/* In the exam header the name gives up its space below lg; the
+                menu itself shows the name and roll number. */}
+            <div className={`hidden text-right ${examConfig ? 'lg:block' : 'sm:block'}`}>
                 <p className="text-sm font-black text-slate-800 leading-none">{displayName}</p>
                 <p className="text-[9px] font-black text-[var(--brand)] uppercase tracking-widest mt-1">
                     {examConfig?.rollNumber ? `Roll: ${examConfig.rollNumber}` : getLabel()}
@@ -1116,6 +1238,9 @@ function ProfileMenu({
                 <>
                     <button
                         onClick={() => setOpen((value) => !value)}
+                        aria-haspopup="true"
+                        aria-expanded={open}
+                        aria-label={`Account menu for ${displayName}`}
                         className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white font-black text-sm overflow-hidden relative"
                     >
                         {avatarUrl ? (
@@ -1180,6 +1305,9 @@ function ProfileMenu({
                 <>
                     <button
                         onClick={() => setOpen((value) => !value)}
+                        aria-haspopup="true"
+                        aria-expanded={open}
+                        aria-label={`Account menu for ${displayName}`}
                         className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white font-black text-sm overflow-hidden relative"
                     >
                         {avatarUrl ? (
@@ -1325,8 +1453,7 @@ function MenuBtn({
 function AnnouncementBell({ enabled }: { enabled: boolean }) {
     const router = useRouter();
     const [open, setOpen] = useState(false);
-    const [announcements, setAnnouncements] = useState<any[]>([]);
-    const [unreadCount, setUnreadCount] = useState(0);
+    const { announcements, unreadCount, markAsRead } = useAnnouncements(enabled);
     const [selectedAnn, setSelectedAnn] = useState<any>(null);
     const ref = useRef<HTMLDivElement | null>(null);
 
@@ -1334,50 +1461,22 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
         function close(e: any) {
             if (ref.current && !ref.current.contains(e.target)) setOpen(false);
         }
+        function closeOnEscape(e: KeyboardEvent) {
+            if (e.key === 'Escape') setOpen(false);
+        }
         document.addEventListener('mousedown', close);
-        return () => document.removeEventListener('mousedown', close);
+        document.addEventListener('keydown', closeOnEscape);
+        return () => {
+            document.removeEventListener('mousedown', close);
+            document.removeEventListener('keydown', closeOnEscape);
+        };
     }, []);
-
-    const load = async () => {
-        if (!enabled) {
-            setAnnouncements([]);
-            setUnreadCount(0);
-            return;
-        }
-
-        try {
-            const [ann, count] = await Promise.all([
-                StudentService.getAnnouncements(true),
-                StudentService.getUnreadAnnouncementCount(),
-            ]);
-            setAnnouncements(ann);
-            setUnreadCount(count.count || 0);
-        } catch {
-            /* silent */
-        }
-    };
-
-    useEffect(() => {
-        if (!enabled) {
-            return;
-        }
-
-        load();
-        const interval = setInterval(load, 30000); // poll every 30s
-        return () => clearInterval(interval);
-    }, [enabled]);
 
     const handleClick = async (ann: any) => {
         setSelectedAnn(ann);
         setOpen(false);
         if (!ann.isRead) {
-            try {
-                await StudentService.markAnnouncementRead(ann.id);
-                setUnreadCount((prev) => Math.max(prev - 1, 0));
-                setAnnouncements((prev) => prev.map((a) => (a.id === ann.id ? { ...a, isRead: true } : a)));
-            } catch {
-                /* silent */
-            }
+            markAsRead(ann.id);
         }
     };
 
@@ -1391,6 +1490,9 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
             <div ref={ref} className="relative">
                 <button
                     onClick={() => setOpen(!open)}
+                    aria-haspopup="true"
+                    aria-expanded={open}
+                    aria-label="Announcements"
                     className="hidden sm:flex w-10 h-10 rounded-xl border border-slate-100 items-center justify-center text-slate-400 hover:bg-slate-50 hover:text-[var(--brand)] transition-all relative"
                     title="Announcements"
                 >
@@ -1472,10 +1574,11 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                             className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
                             onClick={() => setSelectedAnn(null)}
                         />
-                        <div className="bg-white w-full max-w-2xl rounded-[48px] p-12 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[85vh] overflow-y-auto custom-scrollbar">
+                        <div className="bg-white w-full max-w-2xl rounded-3xl sm:rounded-[48px] p-6 sm:p-12 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[85vh] overflow-y-auto custom-scrollbar">
                             <button
                                 onClick={() => setSelectedAnn(null)}
-                                className="absolute top-10 right-10 w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all hover:scale-110 active:scale-95"
+                                aria-label="Close"
+                                className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl sm:rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all active:scale-95"
                             >
                                 <X size={20} strokeWidth={3} />
                             </button>
@@ -1523,7 +1626,7 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                             <div
                                 className="prose prose-sm max-w-none text-slate-700 mb-8 [&_p]:mb-3 [&_h1]:text-xl [&_h1]:font-black [&_h2]:text-lg [&_h2]:font-black [&_ul]:list-disc [&_ol]:list-decimal [&_li]:ml-4 [&_a]:text-[var(--brand)] [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-[var(--brand-light)] [&_blockquote]:pl-4 [&_blockquote]:italic [&_img]:rounded-2xl [&_img]:max-w-full"
                                 dangerouslySetInnerHTML={{
-                                    __html: DOMPurify.sanitize(String(selectedAnn.content || '')),
+                                    __html: sanitizeProse(selectedAnn.content),
                                 }}
                             />
 
@@ -1571,3 +1674,6 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
         </>
     );
 }
+
+export default React.memo(Navbar);
+

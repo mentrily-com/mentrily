@@ -13,6 +13,11 @@ import { MailService } from '../../services/mail.service';
 import { QuotaService } from './quota.service';
 import { OrgProvisioningService } from '../organization/org-provisioning.service';
 import { MembershipService } from '../organization/membership.service';
+import { AiCreditsService } from '../ai/credits/ai-credits.service';
+import {
+  getAllowedWebOrigins,
+  isAllowedSubdomainOrigin,
+} from '../../config/app-brand';
 const Stripe = require('stripe');
 import {
   PLAN_FEATURES,
@@ -42,6 +47,7 @@ export class BillingService {
     private readonly orgProvisioningService: OrgProvisioningService,
     private readonly membershipService: MembershipService,
     @InjectRedis() private readonly redis: Redis,
+    private readonly aiCredits: AiCreditsService,
   ) {
     this.initializeStripe();
   }
@@ -269,12 +275,16 @@ export class BillingService {
     const stripe = this.getStripeClient();
     const frontendUrl = this.getDefaultFrontendUrl();
 
+    const candidateSuccessUrl = String(successUrl || '').trim();
+    const candidateCancelUrl = String(cancelUrl || '').trim();
     const resolvedSuccessUrl =
-      String(successUrl || '').trim() ||
-      `${frontendUrl}/dashboard/creator/billing?checkout=success`;
+      candidateSuccessUrl && this.isAllowedReturnUrl(candidateSuccessUrl)
+        ? candidateSuccessUrl
+        : `${frontendUrl}/dashboard/creator/billing?checkout=success`;
     const resolvedCancelUrl =
-      String(cancelUrl || '').trim() ||
-      `${frontendUrl}/dashboard/creator/billing?checkout=cancelled`;
+      candidateCancelUrl && this.isAllowedReturnUrl(candidateCancelUrl)
+        ? candidateCancelUrl
+        : `${frontendUrl}/dashboard/creator/billing?checkout=cancelled`;
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -306,10 +316,22 @@ export class BillingService {
    * Stripe path this replaces.
    */
   async requestPlanUpgrade(
-    user: { id: string; name?: string; email: string; orgId?: string | null; plan?: string },
-    data: { requestedPlan?: string; billingInterval?: string; message?: string },
+    user: {
+      id: string;
+      name?: string;
+      email: string;
+      orgId?: string | null;
+      plan?: string;
+    },
+    data: {
+      requestedPlan?: string;
+      billingInterval?: string;
+      message?: string;
+    },
   ) {
-    const requestedPlan = String(data.requestedPlan || '').trim().toUpperCase();
+    const requestedPlan = String(data.requestedPlan || '')
+      .trim()
+      .toUpperCase();
     if (requestedPlan !== 'STARTER' && requestedPlan !== 'PRO') {
       throw new BadRequestException(
         'requestedPlan must be STARTER or PRO — Enterprise requests go through /contact',
@@ -317,10 +339,14 @@ export class BillingService {
     }
 
     const billingInterval =
-      String(data.billingInterval || '').trim().toLowerCase() === 'annual'
+      String(data.billingInterval || '')
+        .trim()
+        .toLowerCase() === 'annual'
         ? 'annual'
         : 'monthly';
-    const message = String(data.message || '').trim().slice(0, 2000);
+    const message = String(data.message || '')
+      .trim()
+      .slice(0, 2000);
 
     const orgId = String(user.orgId || '').trim();
     const org = orgId
@@ -343,13 +369,34 @@ export class BillingService {
     return { success: true };
   }
 
+  /**
+   * `returnUrl` is client-supplied. Without this check, Stripe would happily
+   * redirect an authenticated user's browser -- after a genuine billing
+   * portal session for the real Stripe customer -- to any attacker-chosen
+   * domain, lending a phishing page credibility it hasn't earned.
+   */
+  private isAllowedReturnUrl(url: string): boolean {
+    try {
+      const origin = new URL(url).origin;
+      return (
+        getAllowedWebOrigins(false).includes(origin) ||
+        isAllowedSubdomainOrigin(origin)
+      );
+    } catch {
+      return false;
+    }
+  }
+
   async createPortalSession(orgId: string, returnUrl?: string) {
     const customerId = await this.getOrCreateStripeCustomer(orgId);
     const stripe = this.getStripeClient();
     const frontendUrl = this.getDefaultFrontendUrl();
+    const defaultReturnUrl = `${frontendUrl}/dashboard/creator/billing`;
+    const candidateReturnUrl = String(returnUrl || '').trim();
     const resolvedReturnUrl =
-      String(returnUrl || '').trim() ||
-      `${frontendUrl}/dashboard/creator/billing`;
+      candidateReturnUrl && this.isAllowedReturnUrl(candidateReturnUrl)
+        ? candidateReturnUrl
+        : defaultReturnUrl;
 
     const session = await stripe.billingPortal.sessions.create({
       customer: customerId,
@@ -480,6 +527,7 @@ export class BillingService {
       `org:features:${orgId}`,
       `org:status:${orgId}`,
       `org:effective_features:${orgId}`,
+      `ai:plan:${orgId}`,
     ];
 
     await this.redis.del(...directKeys);
@@ -543,16 +591,26 @@ export class BillingService {
     newPlan?: PlanKey | null;
     metadata?: unknown;
   }): Promise<void> {
-    await this.prisma.subscriptionEvent.create({
-      data: {
-        stripeEventId: params.stripeEventId,
-        eventType: params.eventType,
-        orgId: params.orgId,
-        previousPlan: params.previousPlan || null,
-        newPlan: params.newPlan || null,
-        metadata: (params.metadata as any) || null,
-      },
-    });
+    try {
+      await this.prisma.subscriptionEvent.create({
+        data: {
+          stripeEventId: params.stripeEventId,
+          eventType: params.eventType,
+          orgId: params.orgId,
+          previousPlan: params.previousPlan || null,
+          newPlan: params.newPlan || null,
+          metadata: (params.metadata as any) || null,
+        },
+      });
+    } catch (err: any) {
+      if (err?.code === 'P2002') {
+        this.logger.log(
+          `Subscription event ${params.stripeEventId} already recorded (idempotent duplicate)`,
+        );
+        return;
+      }
+      throw err;
+    }
   }
 
   private async invalidateSessionCacheByClerkIds(
@@ -996,7 +1054,10 @@ export class BillingService {
         plan: 'FREE',
         limits: getEffectivePlanLimits('FREE'),
         features: PLAN_FEATURES.FREE,
-        usage: await this.quotaService.getPersonalUsage(userId),
+        usage: {
+          ...(await this.quotaService.getPersonalUsage(userId)),
+          aiCredits: await this.aiCredits.usedThisMonth({ userId }),
+        },
         billing: {
           stripeCustomerId: null,
           stripeSubscriptionId: null,
@@ -1145,17 +1206,19 @@ export class BillingService {
       new Date().getMonth(),
       1,
     );
-    const [adminSeats, teacherSeats, monthlyExams] = await Promise.all([
-      this.prisma.user.count({ where: { orgId, role: 'ADMIN' } }),
-      this.prisma.user.count({ where: { orgId, role: 'TEACHER' } }),
-      this.prisma.usageLedger.count({
-        where: {
-          orgId,
-          eventType: 'exam.created',
-          createdAt: { gte: monthStart },
-        },
-      }),
-    ]);
+    const [adminSeats, teacherSeats, monthlyExams, aiCredits] =
+      await Promise.all([
+        this.prisma.user.count({ where: { orgId, role: 'ADMIN' } }),
+        this.prisma.user.count({ where: { orgId, role: 'TEACHER' } }),
+        this.prisma.usageLedger.count({
+          where: {
+            orgId,
+            eventType: 'exam.created',
+            createdAt: { gte: monthStart },
+          },
+        }),
+        this.aiCredits.usedThisMonth({ orgId }),
+      ]);
 
     return {
       orgId: org.id,
@@ -1173,6 +1236,7 @@ export class BillingService {
         adminSeats,
         teacherSeats,
         monthlyExams,
+        aiCredits,
       },
       billing: {
         stripeCustomerId: org.stripeCustomerId,

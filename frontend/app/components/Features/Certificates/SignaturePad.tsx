@@ -5,13 +5,7 @@ import SignatureCanvas from 'react-signature-canvas';
 
 type SignatureMode = 'draw' | 'upload';
 
-export default function SignaturePad({
-    value,
-    onChange,
-}: {
-    value?: string;
-    onChange: (dataUrl?: string) => void;
-}) {
+export default function SignaturePad({ value, onChange }: { value?: string; onChange: (dataUrl?: string) => void }) {
     const sigRef = useRef<SignatureCanvas | null>(null);
     const [mode, setMode] = useState<SignatureMode>('draw');
 

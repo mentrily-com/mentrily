@@ -31,7 +31,7 @@ export default function PaymentFailedBanner({ returnUrl }: PaymentFailedBannerPr
     };
 
     return (
-        <div className="w-full bg-red-600 text-white sticky top-0 z-[1200] shadow-sm">
+        <div className="w-full bg-red-600 text-white shadow-sm border-b border-red-700">
             <div className="max-w-[1600px] mx-auto px-4 lg:px-6 py-2.5 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
                     <AlertTriangle size={16} className="shrink-0" />

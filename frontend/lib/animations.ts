@@ -2,9 +2,7 @@ import type { Variants } from 'motion/react';
 
 // ── Reduced-motion media query helper ──
 const prefersReducedMotion =
-    typeof window !== 'undefined'
-        ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        : false;
+    typeof window !== 'undefined' ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false;
 
 const dur = (ms: number) => (prefersReducedMotion ? 0.01 : ms / 1000);
 

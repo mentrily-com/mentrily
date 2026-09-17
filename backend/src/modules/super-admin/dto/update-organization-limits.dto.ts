@@ -53,6 +53,36 @@ export class UpdateOrganizationLimitsDto {
   teacherSeats?: number;
 
   @IsOptional()
+  @Transform(toNumber)
+  @IsInt()
+  @Min(-1)
+  aiCreditsPerMonth?: number;
+
+  @IsOptional()
+  @Transform(toNumber)
+  @IsInt()
+  @Min(-1)
+  aiMessagesPerDay?: number;
+
+  @IsOptional()
+  @Transform(toNumber)
+  @IsInt()
+  @Min(-1)
+  aiMaxQuestionsPerGeneration?: number;
+
+  @IsOptional()
+  @Transform(toNumber)
+  @IsInt()
+  @Min(-1)
+  aiConcurrentJobs?: number;
+
+  @IsOptional()
+  @Transform(toNumber)
+  @IsInt()
+  @Min(-1)
+  aiMaxReferences?: number;
+
+  @IsOptional()
   @IsArray()
   @IsString({ each: true })
   allowedQuestionTypes?: string[];

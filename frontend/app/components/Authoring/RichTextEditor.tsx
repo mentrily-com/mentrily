@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -52,57 +52,57 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
     const linkName = 'link';
     const underlineName = 'underline';
 
-    const _extensions = [
-        StarterKit.configure({
-            codeBlock: {
-                HTMLAttributes: {
-                    class: 'rounded-lg bg-slate-900 text-slate-100 p-4 font-mono text-sm my-4 border border-slate-700',
+    const extensions = useMemo(() => {
+        const _extensions = [
+            StarterKit.configure({
+                codeBlock: {
+                    HTMLAttributes: {
+                        class: 'rounded-lg bg-slate-900 text-slate-100 p-4 font-mono text-sm my-4 border border-slate-700',
+                    },
                 },
-            },
-            code: {
-                HTMLAttributes: {
-                    class: 'rounded bg-slate-100 dark:bg-slate-800 px-1 py-0.5 font-mono text-sm border border-slate-200 dark:border-slate-700 font-bold text-[var(--brand)]',
+                code: {
+                    HTMLAttributes: {
+                        class: 'rounded bg-slate-100 dark:bg-slate-800 px-1 py-0.5 font-mono text-sm border border-slate-200 dark:border-slate-700 font-bold text-[var(--brand)]',
+                    },
                 },
-            },
-        }),
-        // Use standard Underline extension
-        Underline,
-        Subscript,
-        Superscript,
-        TextAlign.configure({
-            types: ['heading', 'paragraph'],
-        }),
-        // Configure Link
-        Link.configure({
-            openOnClick: false,
-            HTMLAttributes: {
-                class: 'text-[var(--brand)] underline cursor-pointer hover:text-[var(--brand-dark)]',
-            },
-        }),
-        Image.configure({
-            HTMLAttributes: {
-                class: 'rounded-2xl max-w-full h-auto my-4 shadow-lg',
-            },
-        }),
-        Youtube.configure({
-            inline: false,
-            HTMLAttributes: {
-                class: 'w-full aspect-video rounded-xl shadow-lg my-4 overflow-hidden border border-slate-200 dark:border-slate-700',
-            },
-        }),
-    ];
+            }),
+            // Use standard Underline extension
+            Underline,
+            Subscript,
+            Superscript,
+            TextAlign.configure({
+                types: ['heading', 'paragraph'],
+            }),
+            // Configure Link
+            Link.configure({
+                openOnClick: false,
+                HTMLAttributes: {
+                    class: 'text-[var(--brand)] underline cursor-pointer hover:text-[var(--brand-dark)]',
+                },
+            }),
+            Image.configure({
+                HTMLAttributes: {
+                    class: 'rounded-2xl max-w-full h-auto my-4 shadow-lg',
+                },
+            }),
+            Youtube.configure({
+                inline: false,
+                HTMLAttributes: {
+                    class: 'w-full aspect-video rounded-xl shadow-lg my-4 overflow-hidden border border-slate-200 dark:border-slate-700',
+                },
+            }),
+        ];
 
-    const dedupeExtensions = (exts: any[]) => {
         const map = new Map<string, any>();
-        for (const e of exts) {
+        for (const e of _extensions) {
             const name = (e && (e as any).name) || (typeof e === 'function' && (e as any)().name) || '';
             if (!map.has(name)) map.set(name, e);
         }
         return Array.from(map.values());
-    };
+    }, []);
 
     const editor = useEditor({
-        extensions: dedupeExtensions(_extensions),
+        extensions,
         content: content,
         immediatelyRender: false,
         onUpdate: ({ editor }) => {
@@ -422,14 +422,14 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
                     color: #f8fafc !important;
                     padding: 1.5rem !important;
                     border-radius: 1rem !important;
-                    font-family: 'Geist Mono', 'JetBrains Mono', monospace !important;
+                    font-family: var(--font-jetbrains-mono), ui-monospace, monospace !important;
                     font-size: 0.875rem !important;
                     line-height: 1.5 !important;
                     border: 1px solid #1e293b !important;
                     margin: 1.5rem 0 !important;
                 }
                 .prose code {
-                    font-family: 'Geist Mono', 'JetBrains Mono', monospace !important;
+                    font-family: var(--font-jetbrains-mono), ui-monospace, monospace !important;
                     color: var(--brand) !important;
                     background-color: transparent !important;
                     padding: 0 !important;
@@ -441,6 +441,10 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
                     border-radius: 0.4rem !important;
                     color: var(--brand) !important;
                     font-size: 0.9em !important;
+                }
+                .prose :not(pre) > code::before,
+                .prose :not(pre) > code::after {
+                    content: none !important;
                 }
                 .dark .prose :not(pre) > code {
                     background-color: #1e293b !important;

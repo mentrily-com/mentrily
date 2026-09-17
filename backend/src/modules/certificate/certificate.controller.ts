@@ -12,6 +12,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
+import { Throttle } from '@nestjs/throttler';
 import { CertificateService } from './certificate.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OrgStatusGuard } from '../auth/guards/org-status.guard';
@@ -111,6 +112,7 @@ export class CertificateController {
     throw new BadRequestException('No signature file provided');
   }
 
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
   @Get('certificate/verify/:code')
   async verifyCertificate(@Param('code') code: string) {
     return this.certificateService.verifyCertificate(code);

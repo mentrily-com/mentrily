@@ -25,13 +25,6 @@ export default function ExamWaitingRoom() {
 
         const fetchStatus = async () => {
             try {
-                // Determine API URL based on environment or import AuthService/ExamService
-                // Assuming ExamService is available in global scope or imported.
-                // We need to import ExamService.
-                // Since I cannot change imports in this chunk easily without context,
-                // I will assume I can add the import at the top or use fetch directly.
-                // using fetch directly for safety if imports are tricky in replace_block
-
                 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
                 const res = await fetch(`${BASE_URL}/exam/${slug}/public-status`);
                 if (res.ok) {
@@ -51,11 +44,6 @@ export default function ExamWaitingRoom() {
                 }
             } catch (e) {
                 console.error(e);
-            } finally {
-                // If we are redirecting, we don't want to set loading to false
-                // because it might cause a flicker before the next page loads.
-                // However, router.push is async-ish in terms of effect.
-                // In waiting room, it's safer to just let it be if it's already loading.
             }
             setLoading(false);
         };
@@ -63,21 +51,32 @@ export default function ExamWaitingRoom() {
         fetchStatus();
     }, [slug, router]);
 
+    // Redirect is a side effect of the value and stays keyed to `timeLeft`,
+    // but the interval itself only needs to exist once countdown starts —
+    // see the identical fix on the main exam page for why depending on the
+    // ticking value here would recreate the timer every second.
     useEffect(() => {
         if (timeLeft === null) return;
         if (timeLeft <= 0) {
             router.push(`/exam/login?slug=${slug}`);
-            return;
         }
+    }, [timeLeft, router, slug]);
+
+    useEffect(() => {
+        if (timeLeft === null || timeLeft <= 0) return;
 
         const timer = setInterval(() => {
             setTimeLeft((prev) => {
-                if (prev === null || prev <= 0) return 0;
+                if (prev === null || prev <= 0) {
+                    clearInterval(timer);
+                    return 0;
+                }
                 return prev - 1;
             });
         }, 1000);
         return () => clearInterval(timer);
-    }, [timeLeft, router, slug]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [timeLeft === null]);
 
     const formatTime = (seconds: number) => {
         if (seconds < 0) return '00:00:00';
@@ -88,9 +87,9 @@ export default function ExamWaitingRoom() {
     };
 
     return (
-        <div className="h-screen w-full bg-slate-50 flex items-center justify-center font-sans overflow-hidden relative">
+        <div className="min-h-screen w-full bg-slate-50 flex items-center justify-center font-sans overflow-y-auto md:overflow-hidden relative py-20 md:py-0">
             {/* Minimal Header with Logo */}
-            <div className="absolute top-0 left-0 w-full p-8 z-20">
+            <div className="absolute top-0 left-0 w-full p-4 sm:p-8 z-20">
                 <BrandLockup
                     orgName={orgContext?.name}
                     orgLogo={orgContext?.logo}
@@ -101,27 +100,27 @@ export default function ExamWaitingRoom() {
                 />
             </div>
 
-            <div className="max-w-4xl w-full flex flex-col items-center justify-center text-center px-6 relative z-10">
-                <div className="space-y-12">
+            <div className="max-w-4xl w-full flex flex-col items-center justify-center text-center px-4 sm:px-6 relative z-10 my-auto">
+                <div className="space-y-8 sm:space-y-12">
                     <div>
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold tracking-wider uppercase mb-8">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold tracking-wider uppercase mb-6 sm:mb-8">
                             <span className="w-2 h-2 rounded-full bg-indigo-600"></span>
                             Exam Waiting Room
                         </div>
-                        <h1 className="text-5xl md:text-7xl font-black text-slate-900 tracking-tight leading-tight mb-6">
+                        <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-slate-900 tracking-tight leading-tight mb-4 sm:mb-6">
                             {examTitle} <br className="hidden md:block" /> starts in...
                         </h1>
-                        <p className="text-lg text-slate-500 font-medium max-w-xl mx-auto leading-relaxed">
+                        <p className="text-base sm:text-lg text-slate-500 font-medium max-w-xl mx-auto leading-relaxed px-2">
                             {loading
                                 ? 'Checking exam status...'
                                 : 'Please stay on this page. You will be automatically redirected to the secure login portal when the timer hits zero.'}
                         </p>
                     </div>
 
-                    <div className="space-y-6">
+                    <div className="space-y-4 sm:space-y-6">
                         <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Time Remaining</div>
                         <div className="inline-block relative">
-                            <div className="text-8xl md:text-9xl font-black text-slate-900 font-mono tracking-tight tabular-nums">
+                            <div className="text-4xl sm:text-7xl md:text-8xl lg:text-9xl font-black text-slate-900 font-mono tracking-tight tabular-nums">
                                 {timeLeft !== null ? formatTime(timeLeft) : '--:--:--'}
                             </div>
                             {/* Static underline decoration */}

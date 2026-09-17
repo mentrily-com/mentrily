@@ -573,7 +573,9 @@ export class MailService {
     const orgName = this.escapeHtml(params.orgName || 'No organization');
     const currentPlan = this.escapeHtml(params.currentPlan);
     const requestedPlan = this.escapeHtml(params.requestedPlan);
-    const billingInterval = this.escapeHtml(params.billingInterval || 'monthly');
+    const billingInterval = this.escapeHtml(
+      params.billingInterval || 'monthly',
+    );
     const message = params.message?.trim()
       ? this.escapeHtml(params.message).replace(/\n/g, '<br>')
       : '<em>(no message provided)</em>';
@@ -629,7 +631,7 @@ export class MailService {
               Authorization: `Bearer ${resendApiKey}`,
               'Content-Type': 'application/json',
             },
-          }
+          },
         );
       } else if (mailjetHasKeys) {
         await axios.post(
@@ -656,7 +658,10 @@ export class MailService {
         );
       }
     } catch (error: any) {
-      this.logger.error('Failed to send upgrade request email — request was still received', error?.response?.data || error.message);
+      this.logger.error(
+        'Failed to send upgrade request email — request was still received',
+        error?.response?.data || error.message,
+      );
       // Do not re-throw: the upgrade request was received successfully.
       // A mail delivery failure should not surface as a 500 to the user.
     }

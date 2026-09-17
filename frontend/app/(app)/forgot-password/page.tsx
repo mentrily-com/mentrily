@@ -158,16 +158,15 @@ export default function ForgotPasswordPage() {
             <div className="flex-1 flex items-center justify-center p-4 sm:p-8 lg:p-12">
                 <div className="flex w-full max-w-[460px] flex-col items-center">
                     <div className="mb-6 flex w-full justify-center sm:mb-7">
-                        <Link href="/login">
-                            <BrandLockup
-                                orgName={orgContext?.name}
-                                orgLogo={orgContext?.logo}
-                                defaultLogoClassName="h-12 max-w-[250px] sm:h-14 sm:max-w-[290px]"
-                                iconClassName="h-12 w-12"
-                                textClassName="text-2xl font-bold"
-                                priority
-                            />
-                        </Link>
+                        <BrandLockup
+                            orgName={orgContext?.name}
+                            orgLogo={orgContext?.logo}
+                            defaultLogoClassName="h-12 max-w-[250px] sm:h-14 sm:max-w-[290px]"
+                            iconClassName="h-12 w-12"
+                            textClassName="text-2xl font-bold"
+                            href="/"
+                            priority
+                        />
                     </div>
 
                     <div className="w-full rounded-3xl border border-white/70 bg-white/90 p-6 shadow-2xl shadow-slate-200/80 backdrop-blur sm:p-8">

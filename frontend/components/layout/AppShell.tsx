@@ -77,7 +77,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     if (!isWorkspaceRoute) {
         if (shouldUseLearnerPlaygroundShell) {
             return (
-                <div className="min-h-screen bg-[#F8FAFC] text-slate-900">
+                <div className="min-h-screen bg-slate-50 text-slate-900">
                     <Navbar userRole="student" />
                     <div className="relative h-[calc(100vh-4rem)] min-h-0 overflow-hidden">
                         <main className="h-full min-h-0 overflow-hidden">{children}</main>
@@ -94,7 +94,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         // above): PublicPlaygroundShell already renders its own header /
         // sign-in affordances for anonymous visitors.
         if (isPlaygroundRoute) {
-            return <div className="h-screen min-h-0 overflow-hidden bg-[#F8FAFC]">{children}</div>;
+            return <div className="h-screen min-h-0 overflow-hidden bg-slate-50">{children}</div>;
         }
 
         return <>{children}</>;

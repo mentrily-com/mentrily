@@ -1,14 +1,14 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Job } from 'bullmq';
+import { Job, UnrecoverableError } from 'bullmq';
 import { Inject, Logger } from '@nestjs/common';
 import type { IExecutionStrategy } from './strategies/execution-strategy.interface';
 
 @Processor('code-execution', {
   limiter: {
-    max: 3, // Reduced to 3/sec to stay safely under the strict 5/sec API limit
+    max: Number(process.env.CODE_EXEC_LIMITER_MAX || 15),
     duration: 1000,
   },
-  concurrency: 1, // Force sequential processing to prevent burst rate-limiting
+  concurrency: Number(process.env.CODE_EXEC_CONCURRENCY || 15), // Allow up to 15 concurrent submissions to execute in parallel
   // Optimize for serverless Redis (reduce command usage)
   stalledInterval: 300000,
   maxStalledCount: 3,
@@ -25,7 +25,11 @@ export class CodeExecutionProcessor extends WorkerHost {
   }
 
   async process(job: Job<any, any, string>): Promise<any> {
-    const { language, code, stdin } = job.data;
+    const { language, code, stdin, deadline } = job.data;
+    if (typeof deadline === 'number' && Date.now() > deadline) {
+      // The caller already timed out; running it now only delays live jobs.
+      throw new UnrecoverableError('Execution request expired before it ran');
+    }
     this.logger.debug(
       `Processing code execution job ${job.id} for language: ${language}`,
     );

@@ -4,7 +4,7 @@ import CourseEditor from '@/app/components/Features/Courses/CourseEditor';
 import { useRouter } from 'next/navigation';
 import AlertModal from '@/app/components/Common/AlertModal';
 import { TeacherService } from '@/services/api/TeacherService';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import CourseEditFormSkeleton from '@/app/components/Skeletons/CourseEditFormSkeleton';
 
 export default function SuperAdminOrganizationCourseEdit({
     params,
@@ -58,7 +58,7 @@ export default function SuperAdminOrganizationCourseEdit({
         }
     };
 
-    if (loading) return <DashboardSkeleton type="form" userRole="super-admin" />;
+    if (loading) return <CourseEditFormSkeleton />;
     if (error) return <div className="p-8 text-center text-red-500 font-bold">{error}</div>;
 
     return (

@@ -12,12 +12,17 @@ import { Server, Socket } from 'socket.io';
 import { verifyToken } from '@clerk/backend';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Redis } from 'ioredis';
-import { createAdapter } from '@socket.io/redis-adapter';
+import {
+  closeSocketRedisAdapter,
+  ensureSocketRedisAdapter,
+} from '../common/socket-redis-adapter';
 import { OnModuleDestroy } from '@nestjs/common';
 import {
   getAllowedWebOrigins,
   isAllowedSubdomainOrigin,
 } from '../../config/app-brand';
+
+import { PrismaService } from '../../services/prisma/prisma.service';
 
 @WebSocketGateway({
   namespace: 'notifications',
@@ -46,13 +51,16 @@ export class NotificationGateway
     OnGatewayDisconnect,
     OnModuleDestroy
 {
-  constructor(@InjectRedis() private readonly redis: Redis) {}
+  constructor(
+    @InjectRedis() private readonly redis: Redis,
+    private readonly prisma: PrismaService,
+  ) {}
 
   @WebSocketServer()
   server: Server;
 
-  private redisPubClient: Redis | null = null;
-  private redisSubClient: Redis | null = null;
+  private installedAdapter = false;
+  private rootServer: any = null;
 
   // Map socketId → userId for cleanup
   private connectedUsers = new Map<string, string>();
@@ -79,26 +87,23 @@ export class NotificationGateway
     return null;
   }
 
-  async afterInit(server: Server) {
-    this.redisPubClient = this.redis.duplicate();
-    this.redisSubClient = this.redis.duplicate();
+  afterInit(server: Server) {
     const ioTarget: any = server || this.server;
     const rootServer =
       typeof ioTarget?.adapter === 'function' ? ioTarget : ioTarget?.server;
 
-    if (!rootServer || typeof rootServer.adapter !== 'function') {
-      throw new Error('Socket.IO root server adapter API is unavailable');
-    }
-
-    rootServer.adapter(createAdapter(this.redisPubClient, this.redisSubClient));
+    // Shared across gateways: installing a second adapter on the same server
+    // leaves the first one subscribed, so serverCount() over-counts and every
+    // cluster-wide call (fetchSockets) waits for a reply that never arrives.
+    this.installedAdapter = ensureSocketRedisAdapter(rootServer, this.redis);
+    this.rootServer = rootServer;
     console.log('[NotificationGateway] Initialized');
   }
 
   async onModuleDestroy() {
-    await Promise.all([
-      this.redisPubClient?.quit(),
-      this.redisSubClient?.quit(),
-    ]);
+    if (this.installedAdapter) {
+      await closeSocketRedisAdapter(this.rootServer);
+    }
   }
 
   async handleConnection(client: Socket) {
@@ -115,8 +120,27 @@ export class NotificationGateway
       client.data.userId = userId;
       this.connectedUsers.set(client.id, userId);
 
-      // Join user-specific room so we can target them
+      // Join user-specific room so we can target by Clerk ID
       client.join(`user_${userId}`);
+
+      // Also lookup internal database User ID and join that room
+      try {
+        const dbUser = await this.prisma.user.findFirst({
+          where: {
+            OR: [{ clerkId: userId }, { id: userId }],
+          },
+          select: { id: true },
+        });
+        if (dbUser && dbUser.id !== userId) {
+          client.data.dbUserId = dbUser.id;
+          client.join(`user_${dbUser.id}`);
+        }
+      } catch (dbErr) {
+        console.warn(
+          `[NotificationGateway] Could not resolve DB user for ${userId}:`,
+          dbErr,
+        );
+      }
 
       console.log(
         `[NotificationGateway] User ${userId} connected (${client.id})`,
@@ -160,11 +184,7 @@ export class NotificationGateway
       return;
     }
 
-    let emitter: any = this.server;
-    for (const room of roomIds) {
-      emitter = emitter.to(room);
-    }
-    emitter.emit('new_announcement', announcement);
+    this.server.to(roomIds).emit('new_announcement', announcement);
 
     console.log(
       `[NotificationGateway] Broadcast announcement "${announcement.title}" to ${roomIds.length} students`,

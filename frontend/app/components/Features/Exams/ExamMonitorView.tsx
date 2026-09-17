@@ -1,9 +1,10 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { TeacherService, Student } from '@/services/api/TeacherService';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import ExamMonitorSkeleton from '@/app/components/Skeletons/ExamMonitorSkeleton';
 import { useToast } from '@/app/components/Common/Toast';
 import AppModal from '@/app/components/Common/AppModal';
+import AlertModal from '@/app/components/Common/AlertModal';
 import { io, Socket } from 'socket.io-client';
 import { getClerkToken } from '@/lib/clerk-token';
 
@@ -36,6 +37,13 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
     const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
     const [students, setStudents] = useState<Student[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [alertConfig, setAlertConfig] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        type?: 'danger' | 'warning' | 'info';
+        onConfirm: () => void;
+    }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
 
     useEffect(() => {
         const loadData = async () => {
@@ -128,50 +136,17 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
             initPeer();
 
             // 3. Listeners
-            socket.on('live_violation', async (data: any) => {
-                console.log('Live Violation Received (RAW):', data);
-                if (data.details) console.log('Details Type:', typeof data.details, 'Length:', data.details.length);
-
-                // Check for Redis Reference
-                if (data.details && data.details.startsWith('violation_img:')) {
-                    // Fetch Image Async
-                    socket!.emit('get_violation_image', { imageKey: data.details }, (response: any) => {
-                        if (response && response.imageData) {
-                            // Update the violation object with the real image
-                            setViolations((prev) => {
-                                const updated = [...prev];
-                                // Find if we already added it (race condition safety)
-                                const existingIndex = updated.findIndex(
-                                    (v) => v.timestamp === data.timestamp && v.userId === data.userId,
-                                );
-
-                                if (existingIndex >= 0) {
-                                    updated[existingIndex] = {
-                                        ...updated[existingIndex],
-                                        details: response.imageData,
-                                    };
-                                    return updated;
-                                } else {
-                                    // Add new with image
-                                    return [{ ...data, details: response.imageData }, ...prev];
-                                }
-                            });
-                        }
-                    });
-
-                    // Add placeholder initially?
-                    // For simplicity, let's just add it, and if the fetch works, we update.
-                    // BUT updating state async is tricky.
-
-                    // Let's Add it to state with the Key, and have a separate Effect or component resolve it?
-                    // Or just do it here:
-
-                    // Add initially with key (it will fail string check in render, showing text, which is fine)
-                    setViolations((prev) => [data, ...prev]);
-                } else {
-                    setViolations((prev) => [data, ...prev]);
-                }
-
+            //
+            // Previously this branched on `data.details.startsWith('violation_img:')`
+            // to fetch an image via a `get_violation_image` ack -- but the backend
+            // never emits that prefix and has no handler for that event (confirmed
+            // by searching backend/src), so the branch always fell through to a
+            // dead, never-resolving emit, and `details` being a server-sent object
+            // (e.g. the HEARTBEAT_GAP violation's `{ gapMs }`, per
+            // MonitoringGateway) rather than a string would crash `.startsWith`
+            // outright and break this listener for the rest of the session.
+            socket.on('live_violation', (data: any) => {
+                setViolations((prev) => [data, ...prev]);
                 warning(`Violation: ${data.userId} - ${data.type}`);
             });
         };
@@ -235,7 +210,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
     const buttonHoverClass = 'hover:text-[var(--brand)] hover:border-[var(--brand-light)]';
 
     if (isLoading && students.length === 0) {
-        return <DashboardSkeleton type="list" userRole={userRole} noNavbar />;
+        return <ExamMonitorSkeleton />;
     }
 
     return (
@@ -262,10 +237,10 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto">
                         <button
                             onClick={() => setView('ai-proctoring')}
-                            className={`relative flex items-center gap-3 px-6 py-3 rounded-2xl border transition-all ${view === 'ai-proctoring' ? `${activeBgClass} text-white border-transparent shadow-xl ${activeShadowClass}` : `bg-white border-slate-100 text-slate-600 hover:border-[var(--brand-light)] shadow-sm`}`}
+                            className={`relative flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl border transition-all ${view === 'ai-proctoring' ? `${activeBgClass} text-white border-transparent shadow-xl ${activeShadowClass}` : `bg-white border-slate-100 text-slate-600 hover:border-[var(--brand-light)] shadow-sm`}`}
                         >
                             <svg
                                 width="18"
@@ -278,14 +253,14 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                 <path d="M15 10l5 5-5 5" />
                                 <path d="M4 4v7a4 4 0 0 0 4 4h12" />
                             </svg>
-                            <span className="text-[11px] font-black uppercase tracking-widest">AI Proctoring</span>
+                            <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest">AI Proctoring</span>
                             <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 animate-pulse border-2 border-white"></div>
                         </button>
 
                         {/* Feedback Toggle Button */}
                         <button
                             onClick={() => setView('feedback')}
-                            className={`relative flex items-center gap-3 px-6 py-3 rounded-2xl border transition-all ${view === 'feedback' ? `${activeBgClass} text-white border-transparent shadow-xl ${activeShadowClass}` : `bg-white border-slate-100 text-slate-600 hover:border-[var(--brand-light)] shadow-sm`}`}
+                            className={`relative flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl border transition-all ${view === 'feedback' ? `${activeBgClass} text-white border-transparent shadow-xl ${activeShadowClass}` : `bg-white border-slate-100 text-slate-600 hover:border-[var(--brand-light)] shadow-sm`}`}
                         >
                             <svg
                                 width="18"
@@ -297,13 +272,13 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                             >
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                             </svg>
-                            <span className="text-[11px] font-black uppercase tracking-widest">Feedback Center</span>
+                            <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest">Feedback Center</span>
                             {unseenCount > 0 && (
                                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 border-2 border-white rounded-full animate-bounce"></div>
                             )}
                         </button>
 
-                        <div className="flex items-center gap-3 bg-white px-5 py-3 rounded-2xl border border-slate-100 shadow-sm">
+                        <div className="flex items-center gap-2 sm:gap-3 bg-white px-3 sm:px-5 py-2.5 sm:py-3 rounded-2xl border border-slate-100 shadow-sm">
                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></div>
                             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                                 Synced • <span className="text-slate-800">{new Date().toLocaleTimeString()}</span>
@@ -315,17 +290,17 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                 {view === 'monitor' ? (
                     <>
                         {/* KPI Grid - 5 Cards */}
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-                            {stats.map((s) => (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-8">
+                            {stats.map((s, idx) => (
                                 <div
                                     key={s.label}
-                                    className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm"
+                                    className={`bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm ${idx === 4 ? 'col-span-2 sm:col-span-1' : ''}`}
                                 >
                                     <p className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 mb-1">
                                         {s.label}
                                     </p>
                                     <p
-                                        className={`text-2xl font-black ${s.color === 'text-indigo-600' && userRole === 'admin' ? 'text-orange-600' : s.color}`}
+                                        className={`text-xl sm:text-2xl font-black ${s.color === 'text-indigo-600' && userRole === 'admin' ? 'text-orange-600' : s.color}`}
                                     >
                                         {s.value}
                                     </p>
@@ -418,7 +393,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                                 </td>
                                                 <td className="px-4 py-5 text-center">
                                                     {student.vmDetected ? (
-                                                        <span className="bg-rose-50 text-rose-600 px-3 py-1 rounded-lg text-[9px] font-black border border-rose-100 uppercase tracking-widest">
+                                                        <span className="bg-rose-50 text-rose-600 px-3 py-1 rounded-full text-[9px] font-black border border-rose-100 uppercase tracking-widest">
                                                             DETECTED
                                                         </span>
                                                     ) : (
@@ -428,7 +403,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                                     )}
                                                 </td>
                                                 <td className="px-6 py-5 text-right">
-                                                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <div className="flex items-center justify-end gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                                                         <button
                                                             onClick={() => setSelectedStudent(student)}
                                                             className={`p-2 bg-white border border-slate-100 rounded-lg text-slate-400 ${buttonHoverClass} transition-all shadow-sm`}
@@ -698,39 +673,56 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                     footer={
                         <div className="flex justify-end">
                             <button
-                                onClick={async () => {
+                                onClick={() => {
                                     if (selectedStudent.status === 'Terminated') {
-                                        if (
-                                            confirm(
+                                        setAlertConfig({
+                                            isOpen: true,
+                                            title: 'Un-terminate Session?',
+                                            message:
                                                 'Are you sure you want to un-terminate this session? The student will be able to log in again.',
-                                            )
-                                        ) {
-                                            try {
-                                                await TeacherService.unterminateSession(examId, selectedStudent.id);
-                                                success(`Session for ${selectedStudent.name} restored successfully`);
-                                                setSelectedStudent(null);
-                                                const studentData = await TeacherService.getMonitoredStudents(examId);
-                                                setStudents(studentData);
-                                            } catch {
-                                                error('Failed to un-terminate session');
-                                            }
-                                        }
+                                            type: 'warning',
+                                            onConfirm: async () => {
+                                                setAlertConfig((prev) => ({ ...prev, isOpen: false }));
+                                                try {
+                                                    await TeacherService.unterminateSession(
+                                                        examId,
+                                                        selectedStudent.id,
+                                                    );
+                                                    success(
+                                                        `Session for ${selectedStudent.name} restored successfully`,
+                                                    );
+                                                    setSelectedStudent(null);
+                                                    const studentData =
+                                                        await TeacherService.getMonitoredStudents(examId);
+                                                    setStudents(studentData);
+                                                } catch {
+                                                    error('Failed to un-terminate session');
+                                                }
+                                            },
+                                        });
                                     } else {
-                                        if (
-                                            confirm(
+                                        setAlertConfig({
+                                            isOpen: true,
+                                            title: 'Terminate Session?',
+                                            message:
                                                 'Are you sure you want to terminate this student session? They will be logged out immediately.',
-                                            )
-                                        ) {
-                                            try {
-                                                await TeacherService.terminateSession(examId, selectedStudent.id);
-                                                success(`Session for ${selectedStudent.name} terminated successfully`);
-                                                setSelectedStudent(null);
-                                                const studentData = await TeacherService.getMonitoredStudents(examId);
-                                                setStudents(studentData);
-                                            } catch {
-                                                error('Failed to terminate session');
-                                            }
-                                        }
+                                            type: 'danger',
+                                            onConfirm: async () => {
+                                                setAlertConfig((prev) => ({ ...prev, isOpen: false }));
+                                                try {
+                                                    await TeacherService.terminateSession(examId, selectedStudent.id);
+                                                    success(
+                                                        `Session for ${selectedStudent.name} terminated successfully`,
+                                                    );
+                                                    setSelectedStudent(null);
+                                                    const studentData =
+                                                        await TeacherService.getMonitoredStudents(examId);
+                                                    setStudents(studentData);
+                                                } catch {
+                                                    error('Failed to terminate session');
+                                                }
+                                            },
+                                        });
                                     }
                                 }}
                                 className={`w-full px-6 py-3.5 text-white font-black text-[11px] uppercase tracking-[0.1em] rounded-2xl hover:scale-105 transition-all shadow-xl active:scale-95 sm:w-auto sm:px-10 ${selectedStudent.status === 'Terminated' ? 'bg-emerald-600 shadow-emerald-200' : 'bg-rose-600 shadow-rose-200'}`}
@@ -819,7 +811,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                     <div className="flex flex-wrap gap-4 items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-[24px] sm:p-6 sm:rounded-[32px]">
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
                             <div
-                                className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest border ${selectedStudent.vmDetected ? 'bg-rose-50 border-rose-200 text-rose-600' : 'bg-emerald-50 border-emerald-200 text-emerald-600'}`}
+                                className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border ${selectedStudent.vmDetected ? 'bg-rose-50 border-rose-200 text-rose-600' : 'bg-emerald-50 border-emerald-200 text-emerald-600'}`}
                             >
                                 VM: {selectedStudent.vmDetected ? `DETECTED (${selectedStudent.vmType})` : 'NONE'}
                             </div>
@@ -888,6 +880,16 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                     </div>
                 </AppModal>
             )}
+
+            <AlertModal
+                isOpen={alertConfig.isOpen}
+                title={alertConfig.title}
+                message={alertConfig.message}
+                type={alertConfig.type || 'danger'}
+                confirmLabel={alertConfig.type === 'warning' ? 'Restore' : 'Terminate'}
+                onConfirm={alertConfig.onConfirm}
+                onCancel={() => setAlertConfig((prev) => ({ ...prev, isOpen: false }))}
+            />
         </div>
     );
 }

@@ -2,6 +2,7 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { createHmac } from 'crypto';
 import { Injectable, Logger } from '@nestjs/common';
+import { safePost } from '../../common/safe-http';
 
 @Processor('webhook-dispatch', {
   stalledInterval: 300000,
@@ -33,16 +34,22 @@ export class WebhookProcessor extends WorkerHost {
       .update(body)
       .digest('hex');
 
-    const response = await fetch(String(endpoint.url), {
-      method: 'POST',
+    // Endpoint URLs are operator-supplied, so dispatch goes through the
+    // SSRF-filtered client: an endpoint pointing at cloud metadata or a
+    // service on the VM's private network is refused before connecting.
+    const response = await safePost(String(endpoint.url), body, {
       headers: {
         'Content-Type': 'application/json',
         'X-Webhook-Signature': signature,
       },
-      body,
+      timeout: 10000,
+      // Deliver the exact bytes that were signed, and never throw on a
+      // non-2xx so the status check below still drives BullMQ retries.
+      transformRequest: [(data) => data],
+      validateStatus: () => true,
     });
 
-    if (!response.ok) {
+    if (response.status < 200 || response.status >= 300) {
       throw new Error(`Webhook dispatch failed with status ${response.status}`);
     }
   }

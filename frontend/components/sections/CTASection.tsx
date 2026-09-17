@@ -166,11 +166,24 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
                     >
                         <div className="flex items-center justify-center gap-3 mb-2">
                             <div className="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center text-white shrink-0">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="3"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg>
                             </div>
                             <h3 className="text-lg font-black text-white">Check your email!</h3>
                         </div>
-                        <p className="text-sm text-teal-100/70 font-medium">We just sent your platform invite link. See you inside!</p>
+                        <p className="text-sm text-teal-100/70 font-medium">
+                            We just sent your platform invite link. See you inside!
+                        </p>
                     </motion.div>
                 ) : (
                     <motion.form
@@ -232,10 +245,8 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
                     </motion.form>
                 )}
 
-                {(status === 'error' && !ctaHref) && (
-                    <p className="mt-4 text-xs font-bold text-rose-400">
-                        Something went wrong. Please try again.
-                    </p>
+                {status === 'error' && !ctaHref && (
+                    <p className="mt-4 text-xs font-bold text-rose-400">Something went wrong. Please try again.</p>
                 )}
 
                 {/* Trust badges */}
@@ -245,15 +256,24 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
                     transition={{ delay: 0.4 }}
                     className="mt-8 flex flex-wrap items-center justify-center gap-6"
                 >
-                    <span className="flex items-center gap-2 text-xs font-bold" style={{ color: 'rgba(148,163,184,0.8)' }}>
+                    <span
+                        className="flex items-center gap-2 text-xs font-bold"
+                        style={{ color: 'rgba(148,163,184,0.8)' }}
+                    >
                         <CreditCard size={14} style={{ color: '#5EEAD4' }} />
                         No credit card required
                     </span>
-                    <span className="flex items-center gap-2 text-xs font-bold" style={{ color: 'rgba(148,163,184,0.8)' }}>
+                    <span
+                        className="flex items-center gap-2 text-xs font-bold"
+                        style={{ color: 'rgba(148,163,184,0.8)' }}
+                    >
                         <Infinity size={14} style={{ color: '#5EEAD4' }} />
                         Free forever plan
                     </span>
-                    <span className="flex items-center gap-2 text-xs font-bold" style={{ color: 'rgba(148,163,184,0.8)' }}>
+                    <span
+                        className="flex items-center gap-2 text-xs font-bold"
+                        style={{ color: 'rgba(148,163,184,0.8)' }}
+                    >
                         <Shield size={14} style={{ color: '#5EEAD4' }} />
                         Cancel anytime
                     </span>

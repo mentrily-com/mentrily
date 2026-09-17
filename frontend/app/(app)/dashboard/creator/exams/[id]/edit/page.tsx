@@ -2,14 +2,14 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import DashboardSkeleton from '@/app/components/Skeletons/DashboardSkeleton';
+import ExamEditSkeleton from '@/app/components/Skeletons/ExamEditSkeleton';
 import AlertModal from '@/app/components/Common/AlertModal';
 import { TeacherService } from '@/services/api/TeacherService';
 import { usePlan } from '@/hooks/usePlan';
 
 const ExamBuilder = dynamic(() => import('@/app/components/Authoring/ExamBuilder'), {
     ssr: false,
-    loading: () => <DashboardSkeleton type="form" userRole="teacher" noNavbar />,
+    loading: () => <ExamEditSkeleton />,
 });
 
 export default function EditExamPage({ params }: { params: Promise<{ id: string }> }) {
@@ -52,18 +52,23 @@ export default function EditExamPage({ params }: { params: Promise<{ id: string 
             setTimeout(() => router.push('/dashboard/creator/exams'), 1000);
         } catch (e) {
             console.error('Delete failed', e);
-            alert('Delete failed');
+            setAlertConfig({
+                isOpen: true,
+                title: 'Error',
+                message: 'Delete failed',
+                type: 'danger',
+            });
         }
     };
 
-    if (loading) return <DashboardSkeleton type="form" userRole={dashboardRole} />;
+    if (loading) return <ExamEditSkeleton />;
     if (!exam)
         return (
             <div className="p-12 text-center font-black uppercase tracking-widest text-rose-500">Exam Not Found</div>
         );
 
     return (
-        <Suspense fallback={<DashboardSkeleton type="form" userRole={dashboardRole} />}>
+        <Suspense fallback={<ExamEditSkeleton />}>
             <div className="animate-fade-in h-[calc(100vh-var(--topbar-height)-36px)]">
                 <ExamBuilder
                     initialData={exam as any}
