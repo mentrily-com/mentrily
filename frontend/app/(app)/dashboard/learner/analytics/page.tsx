@@ -1255,7 +1255,7 @@ function StatTile({
             <div className="flex items-center justify-between mb-3">
                 <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-widest">{label}</span>
                 <div
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110 ${toneClasses[tone]}`}
+                    className={`w-7 h-7 rounded-lg flex items-center justify-center transition-transform group-${toneClasses[tone]}`}
                 >
                     <Icon size={14} />
                 </div>

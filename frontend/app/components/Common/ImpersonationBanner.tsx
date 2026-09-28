@@ -79,7 +79,7 @@ export default function ImpersonationBanner() {
 
             <button
                 onClick={handleExit}
-                className="flex items-center gap-2 px-3 py-1 bg-[var(--brand)] hover:scale-105 text-white rounded-lg text-[10px] font-semibold uppercase tracking-widest transition-all shadow-sm active:scale-95 group shrink-0"
+                className="flex items-center gap-2 px-3 py-1 bg-[var(--brand)] text-white rounded-lg text-[10px] font-semibold uppercase tracking-widest transition-all shadow-sm active:scale-95 group shrink-0"
             >
                 <span className="hidden sm:inline">Exit View</span>
                 <span className="sm:hidden">Exit</span>

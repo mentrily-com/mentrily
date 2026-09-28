@@ -2006,7 +2006,7 @@ export default function PublicExamPage() {
                 ) : (
                     <button
                         onClick={() => setIsSubmitModalOpen(true)}
-                        className="px-8 py-2 bg-[var(--brand)] text-white text-sm font-semibold rounded-lg hover:scale-105 active:scale-95 transition-all"
+                        className="px-8 py-2 bg-[var(--brand)] text-white text-sm font-semibold rounded-lg active:scale-95 transition-all"
                     >
                         Submit Section
                     </button>

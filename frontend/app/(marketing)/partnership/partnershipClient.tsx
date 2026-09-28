@@ -180,7 +180,6 @@ function PartnershipHero() {
                         className="relative flex items-center justify-center lg:justify-end"
                     >
                         <div className="relative w-full max-w-[480px] min-h-[380px] aspect-auto sm:aspect-[4/3]">
-                            <div className="absolute -inset-4 bg-gradient-to-tr from-teal-500/10 to-blue-500/10 blur-3xl rounded-full" />
 
                             <motion.div
                                 initial={{ y: 20, rotate: -2 }}

@@ -299,13 +299,13 @@ export default function DashboardPage() {
                         {/* STREAK CARD RESTORED */}
                         <div
                             data-element-id="learner-streak"
-                            className="bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] rounded-lg p-6 sm:p-8 text-white shadow-sm text-center relative overflow-hidden group"
+                            className="bg-[var(--brand)] rounded-lg p-6 sm:p-8 text-white shadow-sm text-center relative overflow-hidden group"
                         >
                             <div className="relative z-10">
                                 <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-4 text-orange-100/80">
                                     Daily Streak
                                 </p>
-                                <div className="text-7xl font-semibold mb-4 group-hover:scale-110 transition-transform">
+                                <div className="text-7xl font-semibold mb-4 group-transition-transform">
                                     {stats?.streak || 0}
                                 </div>
                                 <p className="text-sm font-medium opacity-80">
@@ -457,13 +457,13 @@ export default function DashboardPage() {
                     <div className="bg-white w-full max-w-2xl rounded-lg p-5 shadow-lg relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[calc(100dvh-72px)] overflow-y-auto custom-scrollbar sm:max-h-[85vh] sm:rounded-lg sm:p-12">
                         <button
                             onClick={() => setSelectedAnnouncement(null)}
-                            className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-400 transition-all hover:scale-110 active:scale-95 sm:top-10 sm:right-10 sm:h-12 sm:w-12"
+                            className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-400 transition-all active:scale-95 sm:top-10 sm:right-10 sm:h-12 sm:w-12"
                         >
                             <X size={20} strokeWidth={3} />
                         </button>
 
                         <div className="flex items-start gap-4 mb-6 pr-12 sm:gap-5 sm:mb-8 sm:pr-0">
-                            <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center flex-shrink-0 shadow-sm">
+                            <div className="w-14 h-14 rounded-lg bg-[var(--brand)] flex items-center justify-center flex-shrink-0 shadow-sm">
                                 <Megaphone size={24} className="text-white" />
                             </div>
                             <div>
@@ -559,7 +559,7 @@ function QuickLink({ icon, label, sub }: { icon: React.ReactNode; label: string;
     // link.
     return (
         <div className="w-full flex items-center gap-4 p-4 rounded-lg hover:bg-gray-50 border border-transparent hover:border-gray-100 transition-all text-left group">
-            <div className="w-10 h-10 rounded-lg bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+            <div className="w-10 h-10 rounded-lg bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center flex-shrink-0 group-transition-transform">
                 {icon}
             </div>
             <div>

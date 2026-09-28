@@ -644,7 +644,7 @@ function AddButton({
     return (
         <button
             onClick={onClick}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-white rounded-full text-[10px] font-semibold uppercase tracking-widest shadow-lg transition-transform hover:scale-110 ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-white rounded-full text-[10px] font-semibold uppercase tracking-widest shadow-lg transition-transform ${
                 variant === 'video'
                     ? 'bg-violet-500'
                     : 'bg-[var(--brand)] shadow-sm'

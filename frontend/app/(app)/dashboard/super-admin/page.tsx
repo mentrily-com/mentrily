@@ -198,7 +198,7 @@ export default function SuperAdminDashboardPage() {
                                         </div>
                                         <div className="h-2 rounded-full bg-white/10">
                                             <div
-                                                className="h-full rounded-full bg-gradient-to-r from-sky-400 via-blue-300 to-emerald-300 transition-all duration-500"
+                                                className="h-full rounded-full bg-[var(--brand)] transition-all duration-500"
                                                 style={{ width: `${percent > 0 ? Math.max(percent, 5) : 0}%` }}
                                             />
                                         </div>

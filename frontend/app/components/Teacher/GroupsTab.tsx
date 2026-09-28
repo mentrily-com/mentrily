@@ -258,7 +258,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                         else onClose();
                     }}
                     aria-label="Close"
-                    className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-lg sm:rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-400 transition-all hover:scale-110 active:scale-95"
+                    className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-lg sm:rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-400 transition-all active:scale-95"
                 >
                     <X size={20} strokeWidth={3} />
                 </button>
@@ -361,14 +361,14 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
                         onUpdated();
                     }}
                     aria-label="Close"
-                    className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-lg sm:rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-400 transition-all hover:scale-110 active:scale-95"
+                    className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-lg sm:rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-400 transition-all active:scale-95"
                 >
                     <X size={20} strokeWidth={3} />
                 </button>
 
                 {/* Header */}
                 <div className="mb-8 flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center shadow-sm">
+                    <div className="w-16 h-16 rounded-lg bg-[var(--brand)] flex items-center justify-center shadow-sm">
                         <Users size={28} className="text-white" />
                     </div>
                     <div className="flex-1">

@@ -642,7 +642,7 @@ export default function ExamBuilder({
                                     <button
                                         onClick={addSection}
                                         aria-label="Add exam section"
-                                        className="text-[var(--brand)] hover:scale-110 transition-transform"
+                                        className="text-[var(--brand)] transition-transform"
                                     >
                                         <Plus size={16} strokeWidth={3} />
                                     </button>

@@ -19,7 +19,7 @@ function QuickActionCard({ title, desc, count, icon, color, link }: QuickActionC
             <div className="bg-white p-6 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-all h-full">
                 <div className="flex items-start justify-between mb-6">
                     <div
-                        className={`w-12 h-12 rounded-lg flex items-center justify-center ${color} group-hover:scale-110 transition-transform`}
+                        className={`w-12 h-12 rounded-lg flex items-center justify-center ${color} group-transition-transform`}
                     >
                         {icon}
                     </div>

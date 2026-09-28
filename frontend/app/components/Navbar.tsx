@@ -1241,7 +1241,7 @@ function ProfileMenu({
                         aria-haspopup="true"
                         aria-expanded={open}
                         aria-label={`Account menu for ${displayName}`}
-                        className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white font-semibold text-sm overflow-hidden relative"
+                        className="w-10 h-10 rounded-lg bg-[var(--brand)] flex items-center justify-center text-white font-semibold text-sm overflow-hidden relative"
                     >
                         {avatarUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -1254,7 +1254,7 @@ function ProfileMenu({
                     {open && (
                         <div className="absolute right-0 top-full mt-3 w-64 rounded-lg bg-white shadow-lg ring-1 ring-gray-200/60 z-50 overflow-hidden animate-fade-in">
                             <div className="px-4 py-4 border-b border-gray-100 flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] text-white font-semibold flex items-center justify-center overflow-hidden shrink-0">
+                                <div className="w-12 h-12 rounded-lg bg-[var(--brand)] text-white font-semibold flex items-center justify-center overflow-hidden shrink-0">
                                     {avatarUrl ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
@@ -1308,7 +1308,7 @@ function ProfileMenu({
                         aria-haspopup="true"
                         aria-expanded={open}
                         aria-label={`Account menu for ${displayName}`}
-                        className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white font-semibold text-sm overflow-hidden relative"
+                        className="w-10 h-10 rounded-lg bg-[var(--brand)] flex items-center justify-center text-white font-semibold text-sm overflow-hidden relative"
                     >
                         {avatarUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -1321,7 +1321,7 @@ function ProfileMenu({
                     {open && (
                         <div className="absolute right-0 top-full mt-3 w-72 rounded-lg bg-white shadow-lg ring-1 ring-gray-200/60 z-50 overflow-hidden animate-fade-in">
                             <div className="px-4 py-4 border-b border-gray-100 flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] text-white font-semibold flex items-center justify-center overflow-hidden shrink-0">
+                                <div className="w-12 h-12 rounded-lg bg-[var(--brand)] text-white font-semibold flex items-center justify-center overflow-hidden shrink-0">
                                     {avatarUrl ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
@@ -1584,7 +1584,7 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                             </button>
 
                             <div className="flex items-start gap-5 mb-8">
-                                <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center flex-shrink-0 shadow-sm">
+                                <div className="w-14 h-14 rounded-lg bg-[var(--brand)] flex items-center justify-center flex-shrink-0 shadow-sm">
                                     <Megaphone size={24} className="text-white" />
                                 </div>
                                 <div>

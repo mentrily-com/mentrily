@@ -725,7 +725,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                         });
                                     }
                                 }}
-                                className={`w-full px-6 py-3.5 text-white font-semibold text-[11px] uppercase tracking-[0.1em] rounded-lg hover:scale-105 transition-all shadow-md active:scale-95 sm:w-auto sm:px-10 ${selectedStudent.status === 'Terminated' ? 'bg-emerald-600' : 'bg-rose-600'}`}
+                                className={`w-full px-6 py-3.5 text-white font-semibold text-[11px] uppercase tracking-[0.1em] rounded-lg transition-all shadow-md active:scale-95 sm:w-auto sm:px-10 ${selectedStudent.status === 'Terminated' ? 'bg-emerald-600' : 'bg-rose-600'}`}
                             >
                                 {selectedStudent.status === 'Terminated'
                                     ? 'Restore & Unblock Session'

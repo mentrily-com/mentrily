@@ -874,7 +874,7 @@ export default function CourseBuilder({
                                     <button
                                         onClick={addSection}
                                         aria-label={activeTab === 'unit' ? 'Add learning module' : 'Add exam module'}
-                                        className="text-[var(--brand)] hover:scale-110 transition-transform"
+                                        className="text-[var(--brand)] transition-transform"
                                     >
                                         <Plus size={16} strokeWidth={3} />
                                     </button>
@@ -1155,7 +1155,7 @@ export default function CourseBuilder({
                                         <label className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
                                             Long Description (Detailed Curriculum)
                                         </label>
-                                        <button className="flex items-center gap-2 text-[var(--brand)] text-[10px] font-semibold uppercase tracking-widest hover:scale-105 transition-transform group">
+                                        <button className="flex items-center gap-2 text-[var(--brand)] text-[10px] font-semibold uppercase tracking-widest transition-transform group">
                                             <Sparkles size={14} className="group-hover:animate-pulse" />
                                             AI Content Writer
                                         </button>

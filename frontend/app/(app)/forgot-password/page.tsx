@@ -438,7 +438,7 @@ export default function ForgotPasswordPage() {
                                                 Reset Password
                                                 <CheckCircle2
                                                     size={16}
-                                                    className="group-hover:scale-110 transition-transform duration-150"
+                                                    className="group-transition-transform duration-150"
                                                 />
                                             </>
                                         )}

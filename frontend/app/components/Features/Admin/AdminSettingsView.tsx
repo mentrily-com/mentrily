@@ -77,7 +77,7 @@ export default function AdminSettingsView({
                             }
                         }
                     }}
-                    className="px-8 py-4 bg-[var(--brand)] text-white font-semibold text-sm rounded-lg shadow-sm flex items-center gap-3 hover:scale-105 transition-all active:scale-95"
+                    className="px-8 py-4 bg-[var(--brand)] text-white font-semibold text-sm rounded-lg shadow-sm flex items-center gap-3 transition-all active:scale-95"
                 >
                     {isSaving ? (
                         <span className="animate-pulse">Saving...</span>
@@ -283,7 +283,7 @@ export default function AdminSettingsView({
                                         <button
                                             key={c}
                                             onClick={() => setBranding({ ...branding, primaryColor: c })}
-                                            className="w-8 h-8 rounded-full border-2 border-white shadow-sm hover:scale-110 transition-transform"
+                                            className="w-8 h-8 rounded-full border-2 border-white shadow-sm transition-transform"
                                             style={{ backgroundColor: c }}
                                         ></button>
                                     ))}

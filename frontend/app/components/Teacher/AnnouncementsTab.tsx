@@ -133,7 +133,7 @@ export default function AnnouncementsTab() {
                         >
                             <div className="flex items-start justify-between gap-4">
                                 <div className="flex items-start gap-4 flex-1">
-                                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center flex-shrink-0 shadow-sm">
+                                    <div className="w-12 h-12 rounded-lg bg-[var(--brand)] flex items-center justify-center flex-shrink-0 shadow-sm">
                                         <Megaphone size={20} className="text-white" />
                                     </div>
                                     <div className="flex-1 min-w-0">

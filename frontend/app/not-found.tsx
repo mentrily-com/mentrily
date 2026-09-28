@@ -33,7 +33,7 @@ export default function NotFound() {
                         <div className="flex flex-wrap gap-4">
                             <Link
                                 href="/"
-                                className="px-8 py-4 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-lg transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
+                                className="px-8 py-4 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-lg transition-all active:scale-95 flex items-center gap-2"
                             >
                                 Back to Home
                             </Link>

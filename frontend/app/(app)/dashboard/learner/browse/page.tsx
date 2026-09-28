@@ -160,7 +160,7 @@ export default function BrowseCoursesPage() {
                                                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                                             />
                                         ) : (
-                                            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)]">
+                                            <div className="flex h-full w-full items-center justify-center bg-[var(--brand)]">
                                                 <span className="px-6 text-center text-lg font-semibold tracking-tight text-white/90">
                                                     {course.title}
                                                 </span>

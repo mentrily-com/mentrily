@@ -100,32 +100,28 @@ export default function TeacherDashboardPage() {
             value: studentsUsed,
             hint: 'Active roster',
             icon: <Users size={18} />,
-            gradient: 'from-sky-500/10 to-blue-500/10',
-            iconColor: 'text-sky-600',
+            iconColor: 'text-gray-600',
         },
         {
             label: 'Courses',
             value: Number(stats?.activeCourses || 0),
             hint: 'Published + draft',
             icon: <BookOpen size={18} />,
-            gradient: 'from-emerald-500/10 to-teal-500/10',
-            iconColor: 'text-emerald-600',
+            iconColor: 'text-gray-600',
         },
         {
             label: 'Exams',
             value: Number(stats?.totalExams || 0),
             hint: 'This workspace',
             icon: <ClipboardList size={18} />,
-            gradient: 'from-indigo-500/10 to-violet-500/10',
-            iconColor: 'text-indigo-600',
+            iconColor: 'text-gray-600',
         },
         {
             label: 'Certificates',
             value: Number(statsRecord.certificatesIssued || 0),
             hint: 'Issued',
             icon: <Award size={18} />,
-            gradient: 'from-amber-500/10 to-orange-500/10',
-            iconColor: 'text-amber-600',
+            iconColor: 'text-gray-600',
         },
     ];
 
@@ -289,7 +285,7 @@ export default function TeacherDashboardPage() {
                     >
                         <div className="flex items-center justify-between">
                             <div
-                                className={`inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br ${card.gradient} ${card.iconColor}`}
+                                className={`inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 ${card.iconColor}`}
                             >
                                 {card.icon}
                             </div>
@@ -729,7 +725,7 @@ function UsageMeter({
                     initial={{ width: 0 }}
                     animate={{ width: `${limit > 0 ? percent : 18}%` }}
                     transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.3 }}
-                    className="h-full rounded-full bg-gradient-to-r from-sky-400 via-blue-400 to-emerald-400"
+                    className="h-full rounded-full bg-[var(--brand)]"
                 />
             </div>
         </div>

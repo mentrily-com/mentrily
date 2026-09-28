@@ -59,7 +59,7 @@ const ExamSidebar = React.memo(function ExamSidebar({
                         {showCollapseToggle && (
                             <button
                                 onClick={onToggleCollapse}
-                                className="touch-manipulation flex items-center justify-center w-9 h-9 sm:w-8 sm:h-8 bg-white border border-gray-200 rounded-full shadow-lg text-gray-500 hover:text-[var(--brand)] transition-all hover:scale-110 active:scale-95 cursor-pointer"
+                                className="touch-manipulation flex items-center justify-center w-9 h-9 sm:w-8 sm:h-8 bg-white border border-gray-200 rounded-full shadow-lg text-gray-500 hover:text-[var(--brand)] transition-all active:scale-95 cursor-pointer"
                                 title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
                             >
                                 <svg
@@ -80,7 +80,7 @@ const ExamSidebar = React.memo(function ExamSidebar({
 
                         <button
                             onClick={onToggleHidden}
-                            className="touch-manipulation flex items-center justify-center w-9 h-16 sm:w-8 sm:h-16 bg-white border border-gray-200 rounded-full shadow-lg text-gray-500 hover:text-[var(--brand)] transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                            className="touch-manipulation flex items-center justify-center w-9 h-16 sm:w-8 sm:h-16 bg-white border border-gray-200 rounded-full shadow-lg text-gray-500 hover:text-[var(--brand)] transition-all active:scale-95 cursor-pointer"
                             title="Hide Sidebar"
                         >
                             <svg
@@ -194,7 +194,7 @@ const ExamSidebar = React.memo(function ExamSidebar({
                                                     disabled={isLocked || isSubmitted}
                                                     className={`
                                                         w-8 h-8 rounded-lg flex items-center justify-center text-xs font-medium border transition-all
-                                                        ${isLocked || isSubmitted ? 'cursor-not-allowed opacity-60' : 'hover:scale-110 active:scale-95 cursor-pointer'}
+                                                        ${isLocked || isSubmitted ? 'cursor-not-allowed opacity-60' : 'active:scale-95 cursor-pointer'}
                                                         ${statusColor}
                                                     `}
                                                     title={
@@ -243,7 +243,7 @@ const ExamSidebar = React.memo(function ExamSidebar({
                         // `hover:pr-2` tweened padding, a layout property, so hovering this
                         // handle reflowed on every frame -- during a live proctored exam.
                         // The scale already carries the affordance and is composited.
-                        className="touch-manipulation flex items-center justify-center w-9 h-16 sm:w-8 sm:h-16 bg-white border border-gray-200 rounded-r-full shadow-lg text-gray-500 transition-[transform,color] duration-200 hover:text-[var(--brand)] hover:scale-105 active:scale-95 cursor-pointer"
+                        className="touch-manipulation flex items-center justify-center w-9 h-16 sm:w-8 sm:h-16 bg-white border border-gray-200 rounded-r-full shadow-lg text-gray-500 transition-[transform,color] duration-200 hover:text-[var(--brand)] active:scale-95 cursor-pointer"
                         title="Show Sidebar"
                     >
                         <svg

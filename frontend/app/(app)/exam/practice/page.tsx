@@ -702,7 +702,7 @@ export default function PracticeExamPage() {
             <button
                 data-tour="practice-submit"
                 onClick={() => setIsSubmitViewOpen(true)}
-                className="rounded-lg bg-[var(--brand)] px-8 py-2 text-sm font-semibold text-white transition-all hover:scale-105 active:scale-95"
+                className="rounded-lg bg-[var(--brand)] px-8 py-2 text-sm font-semibold text-white transition-all active:scale-95"
             >
                 Submit Section
             </button>

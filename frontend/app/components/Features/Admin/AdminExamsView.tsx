@@ -146,7 +146,7 @@ export default function AdminExamsView({ basePath = '/admin', organizationId }: 
                         orgPermissions.canCreateExams ? (
                             <Link
                                 href={`${basePath}/exams/new`}
-                                className="w-full sm:w-auto justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-gray-900 text-white font-semibold text-sm rounded-lg shadow-md flex items-center gap-3 hover:scale-105 transition-all active:scale-95"
+                                className="w-full sm:w-auto justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-gray-900 text-white font-semibold text-sm rounded-lg shadow-md flex items-center gap-3 transition-all active:scale-95"
                             >
                                 <Shield size={18} />
                                 Create Exam
@@ -160,7 +160,7 @@ export default function AdminExamsView({ basePath = '/admin', organizationId }: 
                     ) : orgPermissions.canCreateCourses && orgPermissions.allowCourseTests ? (
                         <Link
                             href={`${basePath}/courses/create`}
-                            className="w-full sm:w-auto justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-gray-900 text-white font-semibold text-sm rounded-lg shadow-md flex items-center gap-3 hover:scale-105 transition-all active:scale-95"
+                            className="w-full sm:w-auto justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-gray-900 text-white font-semibold text-sm rounded-lg shadow-md flex items-center gap-3 transition-all active:scale-95"
                         >
                             <BookOpen size={18} />
                             Create Course

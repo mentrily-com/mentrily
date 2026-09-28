@@ -62,7 +62,7 @@ export default function UnitSidebar({
                 <button
                     onClick={() => onPrevSection && onPrevSection()}
                     title="Previous Section"
-                    className="p-1.5 text-[var(--brand)] hover:scale-110 transition-all shrink-0 bg-white shadow-sm border border-gray-200 rounded-md"
+                    className="p-1.5 text-[var(--brand)] transition-all shrink-0 bg-white shadow-sm border border-gray-200 rounded-md"
                 >
                     <svg
                         width="10"
@@ -83,7 +83,7 @@ export default function UnitSidebar({
                 <button
                     onClick={() => onNextSection && onNextSection()}
                     title="Next Section"
-                    className="p-1.5 text-[var(--brand)] hover:scale-110 transition-all shrink-0 bg-white shadow-sm border border-gray-200 rounded-md"
+                    className="p-1.5 text-[var(--brand)] transition-all shrink-0 bg-white shadow-sm border border-gray-200 rounded-md"
                 >
                     <svg
                         width="10"

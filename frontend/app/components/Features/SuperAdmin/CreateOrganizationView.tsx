@@ -144,7 +144,7 @@ export default function CreateOrganizationView() {
                     </div>
                     <button
                         onClick={handleSave}
-                        className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-[var(--brand)] text-white font-semibold text-sm rounded-lg shadow-sm flex items-center justify-center gap-3 hover:scale-105 transition-all active:scale-95"
+                        className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-[var(--brand)] text-white font-semibold text-sm rounded-lg shadow-sm flex items-center justify-center gap-3 transition-all active:scale-95"
                     >
                         {isSaving ? (
                             <span className="animate-pulse">Provisioning...</span>
@@ -321,7 +321,7 @@ export default function CreateOrganizationView() {
                                             <button
                                                 key={c}
                                                 onClick={() => setFormData({ ...formData, primaryColor: c })}
-                                                className="w-8 h-8 rounded-full border-2 border-white shadow-sm hover:scale-110 transition-transform"
+                                                className="w-8 h-8 rounded-full border-2 border-white shadow-sm transition-transform"
                                                 style={{ backgroundColor: c }}
                                             ></button>
                                         ))}
