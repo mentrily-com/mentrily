@@ -75,7 +75,7 @@ function getNavGroups(role: NavbarRole, sessionUser: Record<string, unknown> | n
     if (role === 'super-admin') {
         return [
             {
-                label: 'OVERVIEW',
+                label: 'ADMIN',
                 items: [
                     {
                         label: 'Dashboard',
@@ -86,13 +86,17 @@ function getNavGroups(role: NavbarRole, sessionUser: Record<string, unknown> | n
                             </N>
                         ),
                     },
-                ],
-            },
-            {
-                label: 'MANAGEMENT',
-                items: [
                     {
-                        label: 'Organizations',
+                        label: 'Users & roles',
+                        path: '/dashboard/super-admin/users',
+                        icon: (
+                            <N>
+                                <Users size={iconSize} />
+                            </N>
+                        ),
+                    },
+                    {
+                        label: 'Organisations',
                         path: '/dashboard/super-admin/organizations',
                         icon: (
                             <N>
@@ -101,24 +105,52 @@ function getNavGroups(role: NavbarRole, sessionUser: Record<string, unknown> | n
                         ),
                     },
                     {
-                        label: 'All Users',
-                        path: '/dashboard/super-admin/users',
+                        label: 'Billing',
+                        path: '/dashboard/super-admin/billing',
                         icon: (
                             <N>
-                                <Users size={iconSize} />
+                                <CreditCard size={iconSize} />
+                            </N>
+                        ),
+                    },
+                    {
+                        label: 'Audit logs',
+                        path: '/dashboard/super-admin/audit-logs',
+                        icon: (
+                            <N>
+                                <ClipboardList size={iconSize} />
                             </N>
                         ),
                     },
                 ],
             },
             {
+                label: 'PLATFORM',
                 items: [
                     {
-                        label: 'Profile',
-                        path: '/dashboard/super-admin/profile',
+                        label: 'Settings',
+                        path: '/dashboard/super-admin/settings',
                         icon: (
                             <N>
-                                <User size={iconSize} />
+                                <Settings size={iconSize} />
+                            </N>
+                        ),
+                    },
+                    {
+                        label: 'API & integrations',
+                        path: '/dashboard/super-admin/api',
+                        icon: (
+                            <N>
+                                <Code size={iconSize} />
+                            </N>
+                        ),
+                    },
+                    {
+                        label: 'Security',
+                        path: '/dashboard/super-admin/security',
+                        icon: (
+                            <N>
+                                <Lock size={iconSize} />
                             </N>
                         ),
                     },
@@ -130,7 +162,7 @@ function getNavGroups(role: NavbarRole, sessionUser: Record<string, unknown> | n
     if (role === 'admin') {
         const items: NavGroup[] = [
             {
-                label: 'OVERVIEW',
+                label: 'TEACH',
                 items: [
                     {
                         label: 'Dashboard',
@@ -140,21 +172,6 @@ function getNavGroups(role: NavbarRole, sessionUser: Record<string, unknown> | n
                                 <LayoutDashboard size={iconSize} />
                             </N>
                         ),
-                    },
-                ],
-            },
-            {
-                label: 'SCHOOL',
-                items: [
-                    {
-                        label: 'AI Studio',
-                        path: '/dashboard/creator/ai',
-                        icon: (
-                            <N>
-                                <Sparkles size={iconSize} />
-                            </N>
-                        ),
-                        badge: 'New',
                     },
                     {
                         label: 'Courses',
@@ -166,6 +183,15 @@ function getNavGroups(role: NavbarRole, sessionUser: Record<string, unknown> | n
                         ),
                     },
                     {
+                        label: 'Question bank',
+                        path: '/dashboard/creator/questions',
+                        icon: (
+                            <N>
+                                <ClipboardList size={iconSize} />
+                            </N>
+                        ),
+                    },
+                    {
                         label: 'Exams',
                         path: '/dashboard/creator/exams',
                         icon: (
@@ -175,37 +201,18 @@ function getNavGroups(role: NavbarRole, sessionUser: Record<string, unknown> | n
                         ),
                     },
                     {
-                        label: 'Certificates',
-                        path: '/dashboard/creator/certificates',
+                        label: 'Gradebook',
+                        path: '/dashboard/creator/gradebook',
                         icon: (
                             <N>
-                                <Award size={iconSize} />
-                            </N>
-                        ),
-                        badge: 'Soon',
-                    },
-                    {
-                        label: 'Users',
-                        path: '/dashboard/creator/users',
-                        icon: (
-                            <N>
-                                <Users size={iconSize} />
-                            </N>
-                        ),
-                    },
-                    {
-                        label: 'Manage Users',
-                        path: '/dashboard/creator/manage-users',
-                        icon: (
-                            <N>
-                                <UserPlus size={iconSize} />
+                                <BarChart3 size={iconSize} />
                             </N>
                         ),
                     },
                 ],
             },
             {
-                label: 'GROWTH',
+                label: 'INSIGHTS',
                 items: [
                     {
                         label: 'Analytics',
@@ -215,15 +222,32 @@ function getNavGroups(role: NavbarRole, sessionUser: Record<string, unknown> | n
                                 <PieChart size={iconSize} />
                             </N>
                         ),
-                        badge: 'Pro',
+                    },
+                    {
+                        label: 'AI Studio',
+                        path: '/dashboard/creator/ai',
+                        icon: (
+                            <N>
+                                <Sparkles size={iconSize} />
+                            </N>
+                        ),
                     },
                 ],
             },
             {
-                label: 'ACCOUNT',
+                label: 'MANAGE',
                 items: [
                     {
-                        label: 'Billing & Plan',
+                        label: 'Users & roles',
+                        path: '/dashboard/creator/users',
+                        icon: (
+                            <N>
+                                <Users size={iconSize} />
+                            </N>
+                        ),
+                    },
+                    {
+                        label: 'Billing & plan',
                         path: '/dashboard/creator/billing',
                         icon: (
                             <N>
@@ -233,10 +257,8 @@ function getNavGroups(role: NavbarRole, sessionUser: Record<string, unknown> | n
                     },
                 ],
             },
-        ];
-
-        if (isEnterprise) {
-            items.push({
+            {
+                label: 'ACCOUNT',
                 items: [
                     {
                         label: 'Settings',
@@ -246,25 +268,10 @@ function getNavGroups(role: NavbarRole, sessionUser: Record<string, unknown> | n
                                 <Settings size={iconSize} />
                             </N>
                         ),
-                        badge: 'Enterprise',
                     },
                 ],
-            });
-        }
-
-        items.push({
-            items: [
-                {
-                    label: 'Profile',
-                    path: '/dashboard/creator/profile',
-                    icon: (
-                        <N>
-                            <User size={iconSize} />
-                        </N>
-                    ),
-                },
-            ],
-        });
+            },
+        ];
 
         return items;
     }
@@ -272,7 +279,7 @@ function getNavGroups(role: NavbarRole, sessionUser: Record<string, unknown> | n
     if (role === 'teacher') {
         const items: NavGroup[] = [
             {
-                label: 'OVERVIEW',
+                label: 'TEACH',
                 items: [
                     {
                         label: 'Dashboard',
@@ -283,27 +290,21 @@ function getNavGroups(role: NavbarRole, sessionUser: Record<string, unknown> | n
                             </N>
                         ),
                     },
-                ],
-            },
-            {
-                label: 'MY WORK',
-                items: [
                     {
-                        label: 'AI Studio',
-                        path: '/dashboard/creator/ai',
-                        icon: (
-                            <N>
-                                <Sparkles size={iconSize} />
-                            </N>
-                        ),
-                        badge: 'New',
-                    },
-                    {
-                        label: 'My Courses',
+                        label: 'Courses',
                         path: '/dashboard/creator/courses',
                         icon: (
                             <N>
                                 <BookOpen size={iconSize} />
+                            </N>
+                        ),
+                    },
+                    {
+                        label: 'Question bank',
+                        path: '/dashboard/creator/questions',
+                        icon: (
+                            <N>
+                                <ClipboardList size={iconSize} />
                             </N>
                         ),
                     },
@@ -317,29 +318,19 @@ function getNavGroups(role: NavbarRole, sessionUser: Record<string, unknown> | n
                         ),
                     },
                     {
-                        label: 'Certificates',
-                        path: '/dashboard/creator/certificates',
+                        label: 'Gradebook',
+                        path: '/dashboard/creator/gradebook',
                         icon: (
                             <N>
-                                <Award size={iconSize} />
+                                <BarChart3 size={iconSize} />
                             </N>
                         ),
-                        badge: 'Soon',
                     },
                 ],
             },
             {
                 label: 'INSIGHTS',
                 items: [
-                    {
-                        label: 'Users',
-                        path: '/dashboard/creator/users',
-                        icon: (
-                            <N>
-                                <Users size={iconSize} />
-                            </N>
-                        ),
-                    },
                     {
                         label: 'Analytics',
                         path: '/dashboard/creator/analytics',
@@ -348,31 +339,20 @@ function getNavGroups(role: NavbarRole, sessionUser: Record<string, unknown> | n
                                 <PieChart size={iconSize} />
                             </N>
                         ),
-                        badge: 'Pro',
                     },
-                ],
-            },
-        ];
-
-        if (canManageTeacherBilling) {
-            items.push({
-                label: 'ACCOUNT',
-                items: [
                     {
-                        label: 'Billing & Plan',
-                        path: '/dashboard/creator/billing',
+                        label: 'AI Studio',
+                        path: '/dashboard/creator/ai',
                         icon: (
                             <N>
-                                <CreditCard size={iconSize} />
+                                <Sparkles size={iconSize} />
                             </N>
                         ),
                     },
                 ],
-            });
-        }
-
-        if (isEnterprise) {
-            items.push({
+            },
+            {
+                label: 'ACCOUNT',
                 items: [
                     {
                         label: 'Settings',
@@ -382,25 +362,10 @@ function getNavGroups(role: NavbarRole, sessionUser: Record<string, unknown> | n
                                 <Settings size={iconSize} />
                             </N>
                         ),
-                        badge: 'Enterprise',
                     },
                 ],
-            });
-        }
-
-        items.push({
-            items: [
-                {
-                    label: 'Profile',
-                    path: '/dashboard/creator/profile',
-                    icon: (
-                        <N>
-                            <User size={iconSize} />
-                        </N>
-                    ),
-                },
-            ],
-        });
+            },
+        ];
 
         return items;
     }
@@ -408,10 +373,20 @@ function getNavGroups(role: NavbarRole, sessionUser: Record<string, unknown> | n
     // student
     return [
         {
+            label: 'LEARN',
             items: [
                 {
-                    label: 'My Courses',
+                    label: 'Dashboard',
                     path: '/dashboard/learner',
+                    icon: (
+                        <N>
+                            <LayoutDashboard size={iconSize} />
+                        </N>
+                    ),
+                },
+                {
+                    label: 'My courses',
+                    path: '/dashboard/learner/browse',
                     icon: (
                         <N>
                             <BookOpen size={iconSize} />
@@ -419,11 +394,34 @@ function getNavGroups(role: NavbarRole, sessionUser: Record<string, unknown> | n
                     ),
                 },
                 {
-                    label: 'My Exams',
+                    label: 'Exams',
                     path: '/dashboard/learner/test',
                     icon: (
                         <N>
                             <ClipboardList size={iconSize} />
+                        </N>
+                    ),
+                },
+                {
+                    label: 'Calendar',
+                    path: '/dashboard/learner/calendar',
+                    icon: (
+                        <N>
+                            <PieChart size={iconSize} />
+                        </N>
+                    ),
+                },
+            ],
+        },
+        {
+            label: 'LIBRARY',
+            items: [
+                {
+                    label: 'Bookmarks',
+                    path: '/dashboard/learner/bookmarks',
+                    icon: (
+                        <N>
+                            <Bookmark size={iconSize} />
                         </N>
                     ),
                 },
@@ -436,24 +434,11 @@ function getNavGroups(role: NavbarRole, sessionUser: Record<string, unknown> | n
                         </N>
                     ),
                 },
-                {
-                    label: 'Bookmarks',
-                    path: '/dashboard/learner/bookmarks',
-                    icon: (
-                        <N>
-                            <Bookmark size={iconSize} />
-                        </N>
-                    ),
-                },
-                {
-                    label: 'Analytics',
-                    path: '/dashboard/learner/analytics',
-                    icon: (
-                        <N>
-                            <BarChart3 size={iconSize} />
-                        </N>
-                    ),
-                },
+            ],
+        },
+        {
+            label: 'ACCOUNT',
+            items: [
                 {
                     label: 'Profile',
                     path: '/dashboard/learner/profile',
@@ -706,15 +691,16 @@ export default function DashboardSidebar({
                                                         isDisabled ? 'opacity-40 cursor-not-allowed' : ''
                                                     }`}
                                                     style={{
-                                                        height: 40,
-                                                        padding: isEffectiveCollapsed ? '0 12px' : '0 12px',
+                                                        height: 36,
+                                                        padding: isEffectiveCollapsed ? '0 12px' : '6px 12px',
                                                         justifyContent: isEffectiveCollapsed ? 'center' : 'flex-start',
                                                         backgroundColor: active
                                                             ? 'var(--color-bg-blue-tint)'
                                                             : 'transparent',
                                                         color: active
-                                                            ? 'var(--brand, #008D98)'
+                                                            ? 'var(--brand-dark, #006a72)'
                                                             : 'var(--color-text-secondary)',
+                                                        fontSize: '13px',
                                                     }}
                                                     onMouseEnter={(e) => {
                                                         if (!active && !isDisabled) {
@@ -743,7 +729,7 @@ export default function DashboardSidebar({
                                                     {active && (
                                                         <span
                                                             className="absolute left-0 top-[8px] bottom-[8px] w-[2px] rounded-full"
-                                                            style={{ backgroundColor: 'var(--brand, #008D98)' }}
+                                                            style={{ backgroundColor: 'var(--brand-dark, #006a72)' }}
                                                         />
                                                     )}
 
@@ -751,7 +737,7 @@ export default function DashboardSidebar({
                                                     <span
                                                         style={{
                                                             color: active
-                                                                ? 'var(--brand, #008D98)'
+                                                                ? 'var(--brand-dark, #006a72)'
                                                                 : 'var(--color-text-muted)',
                                                         }}
                                                     >
@@ -821,11 +807,12 @@ export default function DashboardSidebar({
                                         title={isEffectiveCollapsed ? item.label : undefined}
                                         className="relative w-full flex items-center gap-2.5 rounded-lg transition-all duration-150 text-sm font-medium cursor-pointer"
                                         style={{
-                                            height: 40,
-                                            padding: isEffectiveCollapsed ? '0 12px' : '0 12px',
+                                            height: 36,
+                                            padding: isEffectiveCollapsed ? '0 12px' : '6px 12px',
                                             justifyContent: isEffectiveCollapsed ? 'center' : 'flex-start',
                                             backgroundColor: active ? 'var(--color-bg-blue-tint)' : 'transparent',
-                                            color: active ? 'var(--brand, #008D98)' : 'var(--color-text-secondary)',
+                                            color: active ? 'var(--brand-dark, #006a72)' : 'var(--color-text-secondary)',
+                                            fontSize: '13px',
                                         }}
                                         onMouseEnter={(e) => {
                                             if (!active) {
@@ -856,12 +843,12 @@ export default function DashboardSidebar({
                                         {active && (
                                             <span
                                                 className="absolute left-0 top-[8px] bottom-[8px] w-[2px] rounded-full"
-                                                style={{ backgroundColor: 'var(--brand, #008D98)' }}
+                                                style={{ backgroundColor: 'var(--brand-dark, #006a72)' }}
                                             />
                                         )}
                                         <span
                                             style={{
-                                                color: active ? 'var(--brand, #008D98)' : 'var(--color-text-muted)',
+                                                color: active ? 'var(--brand-dark, #006a72)' : 'var(--color-text-muted)',
                                             }}
                                         >
                                             {item.icon}

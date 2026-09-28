@@ -1,14 +1,9 @@
 import type { Metadata } from 'next';
-import { DM_Sans, JetBrains_Mono } from 'next/font/google';
+import { GeistSans } from 'geist/font/sans';
+import { GeistMono } from 'geist/font/mono';
 import localFont from 'next/font/local';
 import './globals.css';
 import { siteConfig } from './config/site';
-
-const dmSans = DM_Sans({
-    variable: '--font-dm-sans',
-    subsets: ['latin'],
-    weight: ['400', '500', '600', '700'],
-});
 
 const fraunces = localFont({
     src: [
@@ -23,12 +18,6 @@ const fraunces = localFont({
     ],
     variable: '--font-fraunces',
     display: 'swap',
-});
-
-const jetbrainsMono = JetBrains_Mono({
-    variable: '--font-jetbrains-mono',
-    subsets: ['latin'],
-    weight: ['400', '500', '600', '700'],
 });
 
 export const metadata: Metadata = {
@@ -92,15 +81,15 @@ export default function RootLayout({
                 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
                 <style>{`
           :root {
-            --brand: #008D98;
-            --brand-light: #008D9820;
-            --brand-lighter: #008D9808;
-            --brand-dark: #008D98;
+            --brand: #007c85;
+            --brand-light: #eefbfc;
+            --brand-lighter: #d8f5f7;
+            --brand-dark: #006a72;
           }
         `}</style>
             </head>
             <body
-                className={`${dmSans.variable} ${fraunces.variable} ${jetbrainsMono.variable} font-sans antialiased`}
+                className={`${GeistSans.variable} ${GeistMono.variable} ${fraunces.variable} font-sans antialiased`}
             >
                 {children}
             </body>

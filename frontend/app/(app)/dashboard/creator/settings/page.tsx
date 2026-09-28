@@ -31,7 +31,7 @@ export default function CreatorSettingsPage() {
                     name: data?.name || '',
                     subdomain: String(data?.domain || '').split('.')[0] || '',
                     email: data?.contact?.supportEmail || data?.contact?.adminEmail || '',
-                    primaryColor: data?.primaryColor || '#008D98',
+                    primaryColor: data?.primaryColor || '#007c85',
                     logo: data?.logo || null,
                     permissions: {
                         ...(data?.features || {}),

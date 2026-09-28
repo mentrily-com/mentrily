@@ -77,7 +77,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     if (!isWorkspaceRoute) {
         if (shouldUseLearnerPlaygroundShell) {
             return (
-                <div className="min-h-screen bg-slate-50 text-slate-900">
+                <div className="min-h-screen" style={{ background: 'var(--color-bg-subtle)', color: 'var(--color-text-primary)' }}>
                     <Navbar userRole="student" />
                     <div className="relative h-[calc(100vh-4rem)] min-h-0 overflow-hidden">
                         <main className="h-full min-h-0 overflow-hidden">{children}</main>
@@ -94,15 +94,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         // above): PublicPlaygroundShell already renders its own header /
         // sign-in affordances for anonymous visitors.
         if (isPlaygroundRoute) {
-            return <div className="h-screen min-h-0 overflow-hidden bg-slate-50">{children}</div>;
+            return <div className="h-screen min-h-0 overflow-hidden" style={{ background: 'var(--color-bg-subtle)' }}>{children}</div>;
         }
 
         return <>{children}</>;
     }
 
-    const shellBackground = isCreatorWorkspace
-        ? 'radial-gradient(circle at top left, rgba(59,130,246,0.08), transparent 28%), radial-gradient(circle at bottom right, rgba(249,115,22,0.08), transparent 24%), var(--color-bg-subtle)'
-        : 'var(--color-bg-subtle)';
+    const shellBackground = 'var(--color-bg-subtle)';
     const mainClassName = isPlaygroundRoute
         ? 'dashboard-content h-[calc(100vh-var(--topbar-height))] overflow-hidden'
         : 'dashboard-content';

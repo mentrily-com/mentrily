@@ -81,7 +81,7 @@ export default function CreateOrganizationView() {
         crispChat: false,
 
         // Branding - default
-        primaryColor: '#008D98',
+        primaryColor: '#007c85',
         logo: '',
     });
 
@@ -317,7 +317,7 @@ export default function CreateOrganizationView() {
                                         />
                                     </div>
                                     <div className="flex gap-2">
-                                        {['#6366f1', '#008D98', '#0ea5e9', '#10b981', '#f43f5e'].map((c) => (
+                                        {['#6366f1', '#007c85', '#0ea5e9', '#10b981', '#f43f5e'].map((c) => (
                                             <button
                                                 key={c}
                                                 onClick={() => setFormData({ ...formData, primaryColor: c })}

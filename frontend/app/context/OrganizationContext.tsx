@@ -141,7 +141,7 @@ export function OrganizationProvider({
                     const orgData = {
                         name: data.name,
                         logo: data.logo,
-                        primaryColor: data.primaryColor || '#008D98',
+                        primaryColor: data.primaryColor || '#007c85',
                         domain: data.domain,
                     };
                     setOrganization(orgData);

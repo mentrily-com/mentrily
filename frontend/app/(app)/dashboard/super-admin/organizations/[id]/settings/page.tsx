@@ -62,7 +62,7 @@ export default function SuperAdminOrganizationSettings({ params }: { params: Pro
                 domain: updatedData.subdomain ? `${updatedData.subdomain}.${siteConfig.domain}` : orgData.domain,
                 status: updatedData.status,
                 maxUsers: Number(updatedData.maxUsers) || 100,
-                primaryColor: updatedData.primaryColor || '#008D98',
+                primaryColor: updatedData.primaryColor || '#007c85',
                 logo: updatedData.logo || null,
                 features: updatedData.permissions,
                 contact: {

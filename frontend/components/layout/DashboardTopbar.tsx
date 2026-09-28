@@ -202,7 +202,16 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
                         <button
                             onClick={onMobileMenuClick}
                             aria-label="Open menu"
-                            className="p-1.5 -ml-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                            className="p-1.5 -ml-1.5 rounded-lg transition-colors cursor-pointer"
+                            style={{ color: 'var(--color-text-muted)' }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.color = 'var(--color-text-primary)';
+                                e.currentTarget.style.backgroundColor = 'var(--color-bg-muted)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.color = 'var(--color-text-muted)';
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                            }}
                         >
                             <Menu size={20} />
                         </button>
@@ -241,7 +250,7 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
                             style={{
                                 backgroundColor: 'var(--color-bg-red-tint)',
                                 color: 'var(--color-text-danger)',
-                                border: '1px solid #FECACA',
+                                border: '1px solid var(--color-border-subtle)',
                             }}
                         >
                             Password Change Required
@@ -310,7 +319,7 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
                             </p>
                             <p
                                 className="text-[10px] font-medium uppercase tracking-wider mt-0.5"
-                                style={{ color: 'var(--brand, #008D98)' }}
+                                style={{ color: 'var(--brand-dark, #006a72)' }}
                             >
                                 {getRoleLabel()}
                             </p>
@@ -320,7 +329,7 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
                         <button
                             onClick={() => setProfileOpen(!profileOpen)}
                             className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-semibold text-sm overflow-hidden cursor-pointer shrink-0"
-                            style={{ backgroundColor: 'var(--brand, #008D98)' }}
+                            style={{ backgroundColor: 'var(--brand, #007c85)' }}
                             aria-label="Profile menu"
                         >
                             {avatarUrl ? (
@@ -360,7 +369,7 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
                                 >
                                     <div
                                         className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-semibold overflow-hidden shrink-0"
-                                        style={{ backgroundColor: 'var(--brand, #008D98)' }}
+                                        style={{ backgroundColor: 'var(--brand, #007c85)' }}
                                     >
                                         {avatarUrl ? (
                                             // eslint-disable-next-line @next/next/no-img-element
@@ -392,7 +401,7 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
                                             className="inline-flex mt-1 px-2 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wider"
                                             style={{
                                                 backgroundColor: 'var(--color-bg-blue-tint)',
-                                                color: 'var(--brand, #008D98)',
+                                                color: 'var(--brand-dark, #006a72)',
                                             }}
                                         >
                                             {getRoleLabel()}

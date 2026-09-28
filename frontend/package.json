@@ -74,6 +74,7 @@
         "crisp-sdk-web": "^1.0.25",
         "driver.js": "^1.4.0",
         "framer-motion": "^12.38.0",
+        "geist": "^1.7.2",
         "graphql": "^16.13.2",
         "isomorphic-dompurify": "^2.35.0",
         "katex": "0.16.47",

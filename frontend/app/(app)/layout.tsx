@@ -84,7 +84,7 @@ async function getInitialOrganization(): Promise<InitialOrgBranding> {
         return {
             name: headerName || subdomain,
             logo: headerLogo || null,
-            primaryColor: headerPrimaryColor || '#008D98',
+            primaryColor: headerPrimaryColor || '#007c85',
             domain: headerDomain,
             subdomain,
         };
@@ -112,7 +112,7 @@ async function getInitialOrganization(): Promise<InitialOrgBranding> {
         return {
             name: data.name,
             logo: data.logo,
-            primaryColor: data.primaryColor || '#008D98',
+            primaryColor: data.primaryColor || '#007c85',
             domain: data.domain,
             subdomain,
         };
@@ -142,7 +142,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         getInitialOrganization(),
         getInitialSessionHint(),
     ]);
-    const initialBrand = initialOrganization?.primaryColor || '#008D98';
+    const initialBrand = initialOrganization?.primaryColor || '#007c85';
 
     return (
         <>
@@ -163,7 +163,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                         <ClerkTokenBridge />
                         <UserTelemetryBridge />
                         <PWARegister />
-                        <NextTopLoader color="#008D98" showSpinner={false} speed={400} />
+                        <NextTopLoader color="#007c85" showSpinner={false} speed={400} />
                         <ApolloProvider>
                             <OrganizationProvider initialOrganization={initialOrganization}>
                                 <ToastProvider>
