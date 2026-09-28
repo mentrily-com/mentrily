@@ -617,7 +617,7 @@ export default function AnalyticsPage() {
                                                     {['', 'Mon', '', 'Wed', '', 'Fri', ''].map((d, i) => (
                                                         <span
                                                             key={i}
-                                                            className="h-4 text-[8px] font-semibold text-gray-400 uppercase leading-4"
+                                                            className="h-4 text-[10px] font-semibold text-gray-400 uppercase leading-4"
                                                         >
                                                             {d}
                                                         </span>

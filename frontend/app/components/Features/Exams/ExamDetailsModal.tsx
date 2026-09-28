@@ -291,7 +291,7 @@ function SecurityPill({ icon, label, value, sub, brandTextClass }: any) {
             </div>
             <p className="text-base font-semibold text-gray-800 leading-none">{value}</p>
             <p
-                className={`text-[8px] font-medium ${brandTextClass.replace('text-', 'text-').replace('600', '500')} uppercase tracking-tighter mt-1`}
+                className={`text-[10px] font-medium ${brandTextClass.replace('text-', 'text-').replace('600', '500')} uppercase tracking-tighter mt-1`}
             >
                 {sub}
             </p>

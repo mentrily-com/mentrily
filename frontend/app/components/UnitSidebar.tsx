@@ -109,7 +109,7 @@ export default function UnitSidebar({
                     >
                         <div className="flex flex-col items-center w-6 min-w-[24px]">
                             <span
-                                className={`text-[8px] font-semibold uppercase mb-0.5 ${unit.active ? 'text-[var(--brand)]' : 'text-gray-400'}`}
+                                className={`text-[10px] font-semibold uppercase mb-0.5 ${unit.active ? 'text-[var(--brand)]' : 'text-gray-400'}`}
                             >
                                 {unit.type}
                             </span>

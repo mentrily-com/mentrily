@@ -114,7 +114,7 @@ function Grid({ items }: { items: typeof partnerBenefits }) {
                     className="p-8 rounded-lg border border-gray-100 bg-white hover:border-teal-500/20 hover:shadow-lg transition-all duration-300 group"
                 >
                     <div
-                        className="w-14 h-14 rounded-lg flex items-center justify-center mb-8 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110"
+                        className="w-14 h-14 rounded-lg flex items-center justify-center mb-8 transition-transform duration-300 group-hover:rotate-6"
                         style={{ backgroundColor: `${item.color}10`, color: item.color }}
                     >
                         <item.icon size={28} />

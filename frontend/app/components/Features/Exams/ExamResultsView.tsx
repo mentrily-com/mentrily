@@ -279,7 +279,7 @@ export default function ExamResultsView({
                         </ResponsiveContainer>
                         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                             <span className="text-2xl font-semibold text-gray-800 leading-none">{results.length}</span>
-                            <span className="text-[8px] font-semibold text-gray-300 uppercase">Total</span>
+                            <span className="text-[10px] font-semibold text-gray-300 uppercase">Total</span>
                         </div>
                     </div>
                     <div className="mt-4 flex justify-center gap-6">
@@ -309,7 +309,7 @@ export default function ExamResultsView({
                             <h3 className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-1">
                                 Point Distribution
                             </h3>
-                            <p className="text-[8px] font-medium text-gray-300 uppercase">
+                            <p className="text-[10px] font-medium text-gray-300 uppercase">
                                 Student frequency per score bracket
                             </p>
                         </div>
@@ -382,13 +382,13 @@ export default function ExamResultsView({
                             {results.slice(0, 5).map((r) => (
                                 <div
                                     key={r.rollNo}
-                                    className="w-6 h-6 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[8px] font-semibold text-gray-400 uppercase"
+                                    className="w-6 h-6 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[10px] font-semibold text-gray-400 uppercase"
                                 >
                                     {r.name[0]}
                                 </div>
                             ))}
                             {results.length > 5 && (
-                                <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[8px] font-semibold text-gray-400">
+                                <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[10px] font-semibold text-gray-400">
                                     +{results.length - 5}
                                 </div>
                             )}
@@ -468,7 +468,7 @@ export default function ExamResultsView({
                                     </td>
                                     <td className="px-4 py-5 text-center">
                                         <span
-                                            className={`px-2 py-0.5 rounded-md text-[8px] font-semibold uppercase tracking-wider ${r.status === 'Passed' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}
+                                            className={`px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider ${r.status === 'Passed' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}
                                         >
                                             {r.status}
                                         </span>
@@ -550,12 +550,12 @@ function CompactStatTile({ label, value, sub, trend }: any) {
             <div className="flex items-end gap-2">
                 <p className="text-xl font-semibold text-gray-800 leading-none">{value}</p>
                 <span
-                    className={`text-[8px] font-semibold px-1.5 py-0.5 rounded ${trend === 'up' ? 'text-emerald-500 bg-emerald-50' : trend === 'down' ? 'text-rose-500 bg-rose-50' : 'text-gray-400 bg-gray-50'}`}
+                    className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${trend === 'up' ? 'text-emerald-500 bg-emerald-50' : trend === 'down' ? 'text-rose-500 bg-rose-50' : 'text-gray-400 bg-gray-50'}`}
                 >
                     {trend === 'up' ? '▲' : '▼'}
                 </span>
             </div>
-            <p className="text-[8px] font-medium text-gray-300 uppercase mt-2">{sub}</p>
+            <p className="text-[10px] font-medium text-gray-300 uppercase mt-2">{sub}</p>
         </div>
     );
 }

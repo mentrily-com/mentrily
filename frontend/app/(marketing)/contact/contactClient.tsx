@@ -322,7 +322,7 @@ function ContactForm() {
                                     >
                                         <div className="flex items-start gap-4">
                                             <div
-                                                className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110"
+                                                className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-transform duration-300"
                                                 style={{
                                                     backgroundColor: card.title.includes('Partnership')
                                                         ? '#CCFBF1'

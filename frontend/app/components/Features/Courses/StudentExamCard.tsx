@@ -175,7 +175,7 @@ export default function StudentExamCard({
                             <div className="flex items-center gap-2">
                                 <p className="truncate text-[11px] font-semibold text-gray-800">{exam.title}</p>
                                 <span
-                                    className={`shrink-0 rounded-md border px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-wider ${statusTone}`}
+                                    className={`shrink-0 rounded-md border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${statusTone}`}
                                 >
                                     {statusLabel}
                                 </span>

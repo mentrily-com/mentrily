@@ -1118,7 +1118,7 @@ export default function ExamBuilder({
                                                                 );
                                                             }
                                                         }}
-                                                        className="text-[8px] font-semibold uppercase text-[var(--brand)] hover:underline"
+                                                        className="text-[10px] font-semibold uppercase text-[var(--brand)] hover:underline"
                                                     >
                                                         Copy My IP
                                                     </button>
