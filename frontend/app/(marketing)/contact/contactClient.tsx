@@ -81,7 +81,7 @@ function ContactForm() {
     };
 
     return (
-        <div ref={ref} className="pt-24 pb-0" style={{ backgroundColor: '#FFFFFF' }}>
+        <div ref={ref} className="pt-24 pb-0 bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <motion.div
@@ -91,25 +91,20 @@ function ContactForm() {
                     className="text-center mb-14"
                 >
                     <h1
+                        className="text-gray-900"
                         style={{
                             fontFamily: 'var(--font-display), Georgia, serif',
                             fontSize: 'clamp(36px, 5vw, 56px)',
                             fontWeight: 400,
                             lineHeight: 1.1,
                             letterSpacing: '-0.03em',
-                            color: '#0F172A',
                         }}
                     >
                         Contact us
                     </h1>
                     <p
-                        className="mt-4 max-w-lg mx-auto"
-                        style={{
-                            fontFamily: 'var(--font-body)',
-                            fontSize: '17px',
-                            lineHeight: 1.65,
-                            color: '#475569',
-                        }}
+                        className="mt-4 max-w-lg mx-auto text-[17px] leading-relaxed text-gray-500"
+                        style={{ fontFamily: 'var(--font-body)' }}
                     >
                         We reply fast. Sales inquiries get a response within 4 hours.
                     </p>
@@ -123,38 +118,22 @@ function ContactForm() {
                         animate={inView ? { opacity: 1, x: 0 } : {}}
                         transition={{ delay: 0.1, duration: 0.5 }}
                     >
-                        <div
-                            className="p-6 sm:p-8 rounded-lg"
-                            style={{
-                                backgroundColor: '#FFFFFF',
-                                border: '1px solid #E2E8F0',
-                                boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-                            }}
-                        >
+                        <div className="p-6 sm:p-8 rounded-lg bg-white border border-gray-200 shadow-sm">
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                                 {/* Name */}
                                 <div>
-                                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#0F172A' }}>
+                                    <label className="block text-sm font-medium mb-1.5 text-gray-900">
                                         Name
                                     </label>
                                     <input
                                         {...register('name', { required: 'Name is required' })}
-                                        className="w-full px-4 py-2.5 text-sm rounded-lg border outline-none transition-colors duration-150"
-                                        style={{
-                                            backgroundColor: '#F8FAFC',
-                                            borderColor: errors.name ? '#EF4444' : '#E2E8F0',
-                                            color: '#0F172A',
-                                        }}
-                                        onFocus={(e) => {
-                                            if (!errors.name) e.currentTarget.style.borderColor = '#007c85';
-                                        }}
-                                        onBlur={(e) => {
-                                            if (!errors.name) e.currentTarget.style.borderColor = '#dce0e6';
-                                        }}
+                                        className={`w-full px-4 py-2.5 text-sm rounded-lg border outline-none transition-colors duration-150 bg-gray-50 text-gray-900 ${
+                                            errors.name ? 'border-red-500' : 'border-gray-200 focus:border-[var(--brand)]'
+                                        }`}
                                         placeholder="Your name"
                                     />
                                     {errors.name && (
-                                        <p className="text-xs mt-1" style={{ color: '#EF4444' }}>
+                                        <p className="text-xs mt-1 text-red-500">
                                             {errors.name.message}
                                         </p>
                                     )}
@@ -162,7 +141,7 @@ function ContactForm() {
 
                                 {/* Email */}
                                 <div>
-                                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#0F172A' }}>
+                                    <label className="block text-sm font-medium mb-1.5 text-gray-900">
                                         Email
                                     </label>
                                     <input
@@ -171,22 +150,13 @@ function ContactForm() {
                                             required: 'Email is required',
                                             pattern: { value: /^\S+@\S+$/i, message: 'Invalid email' },
                                         })}
-                                        className="w-full px-4 py-2.5 text-sm rounded-lg border outline-none transition-colors duration-150"
-                                        style={{
-                                            backgroundColor: '#F8FAFC',
-                                            borderColor: errors.email ? '#EF4444' : '#E2E8F0',
-                                            color: '#0F172A',
-                                        }}
-                                        onFocus={(e) => {
-                                            if (!errors.email) e.currentTarget.style.borderColor = '#007c85';
-                                        }}
-                                        onBlur={(e) => {
-                                            if (!errors.email) e.currentTarget.style.borderColor = '#dce0e6';
-                                        }}
+                                        className={`w-full px-4 py-2.5 text-sm rounded-lg border outline-none transition-colors duration-150 bg-gray-50 text-gray-900 ${
+                                            errors.email ? 'border-red-500' : 'border-gray-200 focus:border-[var(--brand)]'
+                                        }`}
                                         placeholder="you@school.com"
                                     />
                                     {errors.email && (
-                                        <p className="text-xs mt-1" style={{ color: '#EF4444' }}>
+                                        <p className="text-xs mt-1 text-red-500">
                                             {errors.email.message}
                                         </p>
                                     )}
@@ -194,17 +164,14 @@ function ContactForm() {
 
                                 {/* Category */}
                                 <div>
-                                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#0F172A' }}>
+                                    <label className="block text-sm font-medium mb-1.5 text-gray-900">
                                         Category
                                     </label>
                                     <select
                                         {...register('category', { required: 'Please select a category' })}
-                                        className="w-full px-4 py-2.5 text-sm rounded-lg border outline-none transition-colors duration-150 cursor-pointer"
-                                        style={{
-                                            backgroundColor: '#F8FAFC',
-                                            borderColor: errors.category ? '#EF4444' : '#E2E8F0',
-                                            color: '#0F172A',
-                                        }}
+                                        className={`w-full px-4 py-2.5 text-sm rounded-lg border outline-none transition-colors duration-150 cursor-pointer bg-gray-50 text-gray-900 ${
+                                            errors.category ? 'border-red-500' : 'border-gray-200 focus:border-[var(--brand)]'
+                                        }`}
                                         defaultValue={defaultCategory}
                                     >
                                         <option value="" disabled>
@@ -217,7 +184,7 @@ function ContactForm() {
                                         ))}
                                     </select>
                                     {errors.category && (
-                                        <p className="text-xs mt-1" style={{ color: '#EF4444' }}>
+                                        <p className="text-xs mt-1 text-red-500">
                                             {errors.category.message}
                                         </p>
                                     )}
@@ -225,7 +192,7 @@ function ContactForm() {
 
                                 {/* Message */}
                                 <div>
-                                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#0F172A' }}>
+                                    <label className="block text-sm font-medium mb-1.5 text-gray-900">
                                         Message
                                     </label>
                                     <textarea
@@ -234,22 +201,13 @@ function ContactForm() {
                                             minLength: { value: 10, message: 'At least 10 characters' },
                                         })}
                                         rows={4}
-                                        className="w-full px-4 py-2.5 text-sm rounded-lg border outline-none transition-colors duration-150 resize-none"
-                                        style={{
-                                            backgroundColor: '#F8FAFC',
-                                            borderColor: errors.message ? '#EF4444' : '#E2E8F0',
-                                            color: '#0F172A',
-                                        }}
-                                        onFocus={(e) => {
-                                            if (!errors.message) e.currentTarget.style.borderColor = '#007c85';
-                                        }}
-                                        onBlur={(e) => {
-                                            if (!errors.message) e.currentTarget.style.borderColor = '#dce0e6';
-                                        }}
+                                        className={`w-full px-4 py-2.5 text-sm rounded-lg border outline-none transition-colors duration-150 resize-none bg-gray-50 text-gray-900 ${
+                                            errors.message ? 'border-red-500' : 'border-gray-200 focus:border-[var(--brand)]'
+                                        }`}
                                         placeholder="How can we help?"
                                     />
                                     {errors.message && (
-                                        <p className="text-xs mt-1" style={{ color: '#EF4444' }}>
+                                        <p className="text-xs mt-1 text-red-500">
                                             {errors.message.message}
                                         </p>
                                     )}
@@ -259,16 +217,11 @@ function ContactForm() {
                                 <button
                                     type="submit"
                                     disabled={submitState === 'loading'}
-                                    className="w-full py-3 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2"
-                                    style={{
-                                        backgroundColor: submitState === 'success' ? '#10B981' : '#007c85',
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        if (submitState === 'idle') e.currentTarget.style.backgroundColor = '#005359';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        if (submitState === 'idle') e.currentTarget.style.backgroundColor = '#007c85';
-                                    }}
+                                    className={`w-full py-3 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 ${
+                                        submitState === 'success'
+                                            ? 'bg-emerald-500'
+                                            : 'bg-[var(--brand)] hover:bg-[var(--brand-dark)]'
+                                    }`}
                                 >
                                     {submitState === 'loading' && <Loader2 size={16} className="animate-spin" />}
                                     {submitState === 'success' && <Check size={16} />}
@@ -277,7 +230,7 @@ function ContactForm() {
                                     {submitState === 'success' && "We've received your message."}
                                 </button>
                                 {submitError && (
-                                    <p className="text-sm" style={{ color: '#EF4444' }}>
+                                    <p className="text-sm text-red-500">
                                         {submitError}
                                     </p>
                                 )}
@@ -296,63 +249,39 @@ function ContactForm() {
                         <div className="space-y-3">
                             {useCaseCTAs.map((card) => {
                                 const Icon = card.icon;
+                                const isPartnership = card.title.includes('Partnership');
                                 return (
                                     <div
                                         key={card.title}
-                                        className="p-5 rounded-lg transition-all duration-300 cursor-pointer group"
-                                        style={{
-                                            backgroundColor: card.title.includes('Partnership') ? '#F0FDFA' : '#FFFFFF',
-                                            border: card.title.includes('Partnership')
-                                                ? '1px solid #99F6E4'
-                                                : '1px solid #E2E8F0',
-                                            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.transform = 'translateY(-4px)';
-                                            e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.06)';
-                                            if (!card.title.includes('Partnership'))
-                                                e.currentTarget.style.borderColor = '#CBD5E1';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.transform = 'translateY(0)';
-                                            e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
-                                            if (!card.title.includes('Partnership'))
-                                                e.currentTarget.style.borderColor = '#E2E8F0';
-                                        }}
+                                        className={`p-5 rounded-lg transition-all duration-300 cursor-pointer group shadow-sm hover:-translate-y-1 hover:shadow-md ${
+                                            isPartnership
+                                                ? 'bg-teal-50 border border-teal-200'
+                                                : 'bg-white border border-gray-200 hover:border-gray-300'
+                                        }`}
                                     >
                                         <div className="flex items-start gap-4">
                                             <div
-                                                className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-transform duration-300"
-                                                style={{
-                                                    backgroundColor: card.title.includes('Partnership')
-                                                        ? '#CCFBF1'
-                                                        : '#eefbfc',
-                                                }}
+                                                className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+                                                    isPartnership ? 'bg-teal-100' : 'bg-teal-50'
+                                                }`}
                                             >
-                                                <Icon size={20} style={{ color: '#007c85' }} />
+                                                <Icon size={20} className="text-[var(--brand)]" />
                                             </div>
                                             <div className="flex-1">
                                                 <div className="flex items-center justify-between mb-1">
-                                                    <h4 className="text-sm font-medium" style={{ color: '#0F172A' }}>
+                                                    <h4 className="text-sm font-medium text-gray-900">
                                                         {card.title}
                                                     </h4>
                                                 </div>
-                                                <p
-                                                    className="text-xs mb-3 leading-relaxed"
-                                                    style={{ color: '#475569' }}
-                                                >
+                                                <p className="text-xs mb-3 leading-relaxed text-gray-500">
                                                     {card.description}
                                                 </p>
                                                 <Link
                                                     href={card.href}
                                                     target={card.external ? '_blank' : undefined}
                                                     rel={card.external ? 'noopener noreferrer' : undefined}
-                                                    className="inline-flex items-center gap-1.5 text-xs font-medium transition-colors duration-200"
-                                                    style={{ color: '#006a72' }}
+                                                    className="inline-flex items-center gap-1.5 text-xs font-medium transition-colors duration-200 text-[var(--brand-dark)]"
                                                 >
-                                                    {/* The nudge is a transform on the arrow rather than an
-                                                        animated `gap`: gap is a layout property, so tweening it
-                                                        reflowed the card on every frame of the hover. */}
                                                     {card.cta}{' '}
                                                     <ArrowRight
                                                         size={14}

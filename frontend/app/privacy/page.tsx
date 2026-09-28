@@ -3,19 +3,19 @@ import React from 'react';
 export default function PrivacyPolicy() {
     return (
         <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            <h1 className="text-4xl font-medium mb-8 text-[#0F172A]">Privacy Policy</h1>
+            <h1 className="text-4xl font-medium mb-8 text-gray-900">Privacy Policy</h1>
 
-            <div className="prose prose-slate max-w-none text-[#475569]">
+            <div className="prose prose-gray max-w-none text-gray-500">
                 <p className="mb-4">Last updated: {new Date().toLocaleDateString()}</p>
 
-                <h2 className="text-2xl font-semibold mt-8 mb-4 text-[#0F172A]">1. Introduction</h2>
+                <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900">1. Introduction</h2>
                 <p className="mb-4">
                     Welcome to Mentrily. We respect your privacy and are committed to protecting your personal data.
                     This privacy policy will inform you as to how we look after your personal data when you visit our
                     website and tell you about your privacy rights and how the law protects you.
                 </p>
 
-                <h2 className="text-2xl font-semibold mt-8 mb-4 text-[#0F172A]">2. The Data We Collect About You</h2>
+                <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900">2. The Data We Collect About You</h2>
                 <p className="mb-4">
                     We may collect, use, store and transfer different kinds of personal data about you which we have
                     grouped together as follows:
@@ -38,7 +38,7 @@ export default function PrivacyPolicy() {
                     </li>
                 </ul>
 
-                <h2 className="text-2xl font-semibold mt-8 mb-4 text-[#0F172A]">3. How We Use Your Personal Data</h2>
+                <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900">3. How We Use Your Personal Data</h2>
                 <p className="mb-4">
                     We will only use your personal data when the law allows us to. Most commonly, we will use your
                     personal data in the following circumstances:
@@ -54,7 +54,7 @@ export default function PrivacyPolicy() {
                     <li>Where we need to comply with a legal or regulatory obligation.</li>
                 </ul>
 
-                <h2 className="text-2xl font-semibold mt-8 mb-4 text-[#0F172A]">4. Data Security</h2>
+                <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900">4. Data Security</h2>
                 <p className="mb-4">
                     We have put in place appropriate security measures to prevent your personal data from being
                     accidentally lost, used or accessed in an unauthorised way, altered or disclosed. In addition, we
@@ -62,7 +62,7 @@ export default function PrivacyPolicy() {
                     who have a business need to know.
                 </p>
 
-                <h2 className="text-2xl font-semibold mt-8 mb-4 text-[#0F172A]">5. Your Legal Rights</h2>
+                <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900">5. Your Legal Rights</h2>
                 <p className="mb-4">
                     Under certain circumstances, you have rights under data protection laws in relation to your personal
                     data, including the right to request access, correction, erasure, restriction, transfer, to object

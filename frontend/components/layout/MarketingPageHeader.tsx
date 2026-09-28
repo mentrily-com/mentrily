@@ -29,24 +29,19 @@ export function MarketingPageHeader({ title, description, badge }: MarketingPage
                         </span>
                     )}
                     <h1
+                        className="text-gray-900"
                         style={{
                             fontFamily: 'var(--font-display), Georgia, serif',
                             fontSize: 'clamp(36px, 5vw, 64px)',
                             fontWeight: 400,
                             lineHeight: 1.1,
                             letterSpacing: '-0.03em',
-                            color: '#0F172A',
                         }}
                     >
                         {title}
                     </h1>
                     <p
-                        className="mt-6 text-lg sm:text-xl max-w-2xl mx-auto"
-                        style={{
-                            fontFamily: 'var(--font-body)',
-                            lineHeight: 1.6,
-                            color: '#475569',
-                        }}
+                        className="mt-6 text-lg sm:text-xl max-w-2xl mx-auto text-gray-500 leading-relaxed"
                     >
                         {description}
                     </p>

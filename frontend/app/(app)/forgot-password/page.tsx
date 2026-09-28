@@ -175,8 +175,7 @@ export default function ForgotPasswordPage() {
                             <>
                                 <div className="mb-8">
                                     <h1
-                                        className="text-2xl font-medium tracking-tight mb-1.5"
-                                        style={{ color: '#0F172A' }}
+                                        className="text-2xl font-medium tracking-tight mb-1.5 text-gray-900"
                                     >
                                         Reset your password
                                     </h1>
@@ -201,8 +200,7 @@ export default function ForgotPasswordPage() {
                                 <form onSubmit={handleRequestOtp} className="space-y-5">
                                     <div>
                                         <label
-                                            className="block text-sm font-medium mb-1.5"
-                                            style={{ color: '#0F172A' }}
+                                            className="block text-sm font-medium mb-1.5 text-gray-900"
                                         >
                                             Email
                                         </label>
@@ -222,16 +220,14 @@ export default function ForgotPasswordPage() {
                                                 className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150"
                                                 style={{
                                                     backgroundColor: '#FFFFFF',
-                                                    borderColor: '#E2E8F0',
-                                                    color: '#0F172A',
-                                                }}
+                                                    borderColor: '#dce0e6',                                                }}
                                                 onFocus={(e) => {
                                                     e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
                                                     e.currentTarget.style.boxShadow =
                                                         '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
                                                 }}
                                                 onBlur={(e) => {
-                                                    e.currentTarget.style.borderColor = '#E2E8F0';
+                                                    e.currentTarget.style.borderColor = '#dce0e6';
                                                     e.currentTarget.style.boxShadow = 'none';
                                                 }}
                                             />
@@ -271,14 +267,13 @@ export default function ForgotPasswordPage() {
                             <>
                                 <div className="mb-8">
                                     <h1
-                                        className="text-2xl font-medium tracking-tight mb-1.5"
-                                        style={{ color: '#0F172A' }}
+                                        className="text-2xl font-medium tracking-tight mb-1.5 text-gray-900"
                                     >
                                         Set a new password
                                     </h1>
                                     <p className="text-sm" style={{ color: '#94A3B8' }}>
                                         Enter the code sent to{' '}
-                                        <span className="font-medium" style={{ color: '#0F172A' }}>
+                                        <span className="font-medium text-gray-900">
                                             {email}
                                         </span>{' '}
                                         and choose a new password.
@@ -302,8 +297,7 @@ export default function ForgotPasswordPage() {
                                     {/* Code */}
                                     <div>
                                         <label
-                                            className="block text-sm font-medium mb-1.5"
-                                            style={{ color: '#0F172A' }}
+                                            className="block text-sm font-medium mb-1.5 text-gray-900"
                                         >
                                             Verification code
                                         </label>
@@ -323,16 +317,14 @@ export default function ForgotPasswordPage() {
                                                 className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150 tracking-widest"
                                                 style={{
                                                     backgroundColor: '#FFFFFF',
-                                                    borderColor: '#E2E8F0',
-                                                    color: '#0F172A',
-                                                }}
+                                                    borderColor: '#dce0e6',                                                }}
                                                 onFocus={(e) => {
                                                     e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
                                                     e.currentTarget.style.boxShadow =
                                                         '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
                                                 }}
                                                 onBlur={(e) => {
-                                                    e.currentTarget.style.borderColor = '#E2E8F0';
+                                                    e.currentTarget.style.borderColor = '#dce0e6';
                                                     e.currentTarget.style.boxShadow = 'none';
                                                 }}
                                             />
@@ -342,8 +334,7 @@ export default function ForgotPasswordPage() {
                                     {/* New password */}
                                     <div>
                                         <label
-                                            className="block text-sm font-medium mb-1.5"
-                                            style={{ color: '#0F172A' }}
+                                            className="block text-sm font-medium mb-1.5 text-gray-900"
                                         >
                                             New password
                                         </label>
@@ -363,16 +354,14 @@ export default function ForgotPasswordPage() {
                                                 className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150"
                                                 style={{
                                                     backgroundColor: '#FFFFFF',
-                                                    borderColor: '#E2E8F0',
-                                                    color: '#0F172A',
-                                                }}
+                                                    borderColor: '#dce0e6',                                                }}
                                                 onFocus={(e) => {
                                                     e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
                                                     e.currentTarget.style.boxShadow =
                                                         '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
                                                 }}
                                                 onBlur={(e) => {
-                                                    e.currentTarget.style.borderColor = '#E2E8F0';
+                                                    e.currentTarget.style.borderColor = '#dce0e6';
                                                     e.currentTarget.style.boxShadow = 'none';
                                                 }}
                                             />
@@ -382,8 +371,7 @@ export default function ForgotPasswordPage() {
                                     {/* Confirm password */}
                                     <div>
                                         <label
-                                            className="block text-sm font-medium mb-1.5"
-                                            style={{ color: '#0F172A' }}
+                                            className="block text-sm font-medium mb-1.5 text-gray-900"
                                         >
                                             Confirm password
                                         </label>
@@ -403,16 +391,14 @@ export default function ForgotPasswordPage() {
                                                 className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150"
                                                 style={{
                                                     backgroundColor: '#FFFFFF',
-                                                    borderColor: '#E2E8F0',
-                                                    color: '#0F172A',
-                                                }}
+                                                    borderColor: '#dce0e6',                                                }}
                                                 onFocus={(e) => {
                                                     e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
                                                     e.currentTarget.style.boxShadow =
                                                         '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
                                                 }}
                                                 onBlur={(e) => {
-                                                    e.currentTarget.style.borderColor = '#E2E8F0';
+                                                    e.currentTarget.style.borderColor = '#dce0e6';
                                                     e.currentTarget.style.boxShadow = 'none';
                                                 }}
                                             />
@@ -456,7 +442,7 @@ export default function ForgotPasswordPage() {
                                 >
                                     <CheckCircle2 size={32} />
                                 </div>
-                                <h2 className="text-2xl font-medium tracking-tight mb-2" style={{ color: '#0F172A' }}>
+                                <h2 className="text-2xl font-medium tracking-tight mb-2 text-gray-900">
                                     Password reset!
                                 </h2>
                                 <p className="text-sm mb-8" style={{ color: '#94A3B8' }}>

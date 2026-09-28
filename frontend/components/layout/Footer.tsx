@@ -65,18 +65,13 @@ export default function Footer() {
     };
 
     return (
-        <footer
-            style={{
-                backgroundColor: '#F8FAFC',
-                borderTop: '1px solid #E2E8F0',
-            }}
-        >
+        <footer className="bg-gray-50 border-t border-gray-200">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-12">
                     {/* Col 1: Brand */}
                     <div className="sm:col-span-2 lg:col-span-1">
                         <BrandLogo className="h-9 max-w-[180px]" />
-                        <p className="mt-3 text-sm leading-relaxed max-w-xs" style={{ color: '#475569' }}>
+                        <p className="mt-3 text-sm leading-relaxed max-w-xs text-gray-500">
                             The course platform for educators who want courses, exams, certificates, and learner
                             progress in one place.
                         </p>
@@ -100,7 +95,7 @@ export default function Footer() {
 
                     {/* Col 2: Product */}
                     <div>
-                        <h4 className="text-sm font-semibold mb-4" style={{ color: '#0F172A' }}>
+                        <h4 className="text-sm font-semibold mb-4 text-gray-900">
                             Product
                         </h4>
                         <ul className="space-y-2.5">
@@ -108,10 +103,7 @@ export default function Footer() {
                                 <li key={link.label}>
                                     <Link
                                         href={link.href}
-                                        className="text-sm transition-colors duration-150 cursor-pointer"
-                                        style={{ color: '#475569' }}
-                                        onMouseEnter={(e) => (e.currentTarget.style.color = '#006a72')}
-                                        onMouseLeave={(e) => (e.currentTarget.style.color = '#475569')}
+                                        className="text-sm transition-colors duration-150 cursor-pointer text-gray-500 hover:text-[var(--brand-dark)]"
                                     >
                                         {link.label}
                                     </Link>
@@ -122,7 +114,7 @@ export default function Footer() {
 
                     {/* Col 3: Company */}
                     <div>
-                        <h4 className="text-sm font-semibold mb-4" style={{ color: '#0F172A' }}>
+                        <h4 className="text-sm font-semibold mb-4 text-gray-900">
                             Company
                         </h4>
                         <ul className="space-y-2.5">
@@ -130,10 +122,7 @@ export default function Footer() {
                                 <li key={link.label}>
                                     <Link
                                         href={link.href}
-                                        className="text-sm transition-colors duration-150 cursor-pointer"
-                                        style={{ color: '#475569' }}
-                                        onMouseEnter={(e) => (e.currentTarget.style.color = '#006a72')}
-                                        onMouseLeave={(e) => (e.currentTarget.style.color = '#475569')}
+                                        className="text-sm transition-colors duration-150 cursor-pointer text-gray-500 hover:text-[var(--brand-dark)]"
                                     >
                                         {link.label}
                                     </Link>
@@ -144,7 +133,7 @@ export default function Footer() {
 
                     {/* Col 4: Playground */}
                     <div>
-                        <h4 className="text-sm font-semibold mb-4" style={{ color: '#0F172A' }}>
+                        <h4 className="text-sm font-semibold mb-4 text-gray-900">
                             Playground
                         </h4>
                         <ul className="space-y-2.5">
@@ -152,10 +141,7 @@ export default function Footer() {
                                 <li key={link.label}>
                                     <Link
                                         href={link.href}
-                                        className="text-sm transition-colors duration-150 cursor-pointer"
-                                        style={{ color: '#475569' }}
-                                        onMouseEnter={(e) => (e.currentTarget.style.color = '#006a72')}
-                                        onMouseLeave={(e) => (e.currentTarget.style.color = '#475569')}
+                                        className="text-sm transition-colors duration-150 cursor-pointer text-gray-500 hover:text-[var(--brand-dark)]"
                                     >
                                         {link.label}
                                     </Link>
@@ -166,10 +152,10 @@ export default function Footer() {
 
                     {/* Col 5: Newsletter */}
                     <div>
-                        <h4 className="text-sm font-semibold mb-4" style={{ color: '#0F172A' }}>
+                        <h4 className="text-sm font-semibold mb-4 text-gray-900">
                             Newsletter
                         </h4>
-                        <p className="text-sm mb-4" style={{ color: '#475569' }}>
+                        <p className="text-sm mb-4 text-gray-500">
                             Get product updates and tips for educators.
                         </p>
                         <form onSubmit={handleSubscribe} className="flex gap-2">
@@ -179,22 +165,12 @@ export default function Footer() {
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="you@school.com"
                                 required
-                                className="flex-1 px-3 py-2 text-sm rounded-lg border outline-none transition-colors duration-150 min-w-0"
-                                style={{
-                                    backgroundColor: '#F1F5F9',
-                                    borderColor: '#E2E8F0',
-                                    color: '#0F172A',
-                                }}
-                                onFocus={(e) => (e.currentTarget.style.borderColor = '#007c85')}
-                                onBlur={(e) => (e.currentTarget.style.borderColor = '#E2E8F0')}
+                                className="flex-1 px-3 py-2 text-sm rounded-lg border outline-none transition-colors duration-150 min-w-0 bg-gray-100 border-gray-200 text-gray-900 focus:border-[var(--brand)]"
                             />
                             <button
                                 type="submit"
                                 disabled={status === 'loading'}
-                                className="px-3 py-2 text-sm font-medium text-white rounded-lg transition-colors duration-150 cursor-pointer flex items-center gap-1 shrink-0 disabled:opacity-70"
-                                style={{ backgroundColor: '#007c85' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#005359')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#007c85')}
+                                className="px-3 py-2 text-sm font-medium text-white rounded-lg transition-colors duration-150 cursor-pointer flex items-center gap-1 shrink-0 disabled:opacity-70 bg-[var(--brand)] hover:bg-[var(--brand-dark)]"
                             >
                                 {status === 'loading' ? (
                                     'Joining...'
@@ -212,7 +188,7 @@ export default function Footer() {
             </div>
 
             {/* Bottom bar */}
-            <div className="border-t px-4 sm:px-6 lg:px-8" style={{ borderColor: '#E2E8F0' }}>
+            <div className="border-t px-4 sm:px-6 lg:px-8" style={{ borderColor: '#dce0e6' }}>
                 <div className="max-w-7xl mx-auto py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
                     <p className="text-xs" style={{ color: '#94A3B8' }}>
                         © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.

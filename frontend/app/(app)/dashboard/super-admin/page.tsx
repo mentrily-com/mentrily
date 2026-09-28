@@ -523,7 +523,7 @@ export default function SuperAdminDashboardPage() {
                         </div>
 
                         <div
-                            className="prose prose-slate max-w-none text-sm font-medium text-gray-700"
+                            className="prose prose-gray max-w-none text-sm font-medium text-gray-700"
                             dangerouslySetInnerHTML={{
                                 __html: sanitizeProse(selectedBug.description),
                             }}

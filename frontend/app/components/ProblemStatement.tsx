@@ -217,7 +217,7 @@ function ProblemStatementComponent({
                         style={{ fontSize: fontSize ? `${fontSize}px` : '15px' }}
                     >
                         <div
-                            className="prose prose-slate max-w-none prose-p:text-inherit prose-headings:text-gray-800 prose-code:text-[var(--brand-dark)] prose-code:bg-[var(--brand-lighter)] prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-sm prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:border prose-pre:border-gray-700 prose-pre:overflow-x-auto prose-pre:max-w-full [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-inherit prose-code:before:content-none prose-code:after:content-none"
+                            className="prose prose-gray max-w-none prose-p:text-inherit prose-headings:text-gray-800 prose-code:text-[var(--brand-dark)] prose-code:bg-[var(--brand-lighter)] prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-sm prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:border prose-pre:border-gray-700 prose-pre:overflow-x-auto prose-pre:max-w-full [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-inherit prose-code:before:content-none prose-code:after:content-none"
                             dangerouslySetInnerHTML={{
                                 __html: sanitizedDescription,
                             }}

@@ -115,7 +115,7 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
                 class: `prose max-w-none focus:outline-none ${compact ? 'min-h-[180px] p-4' : 'min-h-[400px] p-8'} transition-colors duration-300 ${
                     isDarkMode
                         ? 'prose-invert bg-gray-900 text-gray-100 placeholder:text-gray-600'
-                        : 'prose-slate bg-white text-gray-700 placeholder:text-gray-400'
+                        : 'prose-gray bg-white text-gray-700 placeholder:text-gray-400'
                 }`,
             },
         },

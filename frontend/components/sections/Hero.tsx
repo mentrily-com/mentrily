@@ -52,7 +52,7 @@ export default function Hero() {
                 <div
                     className="absolute inset-0"
                     style={{
-                        backgroundImage: 'radial-gradient(#CBD5E1 0.8px, transparent 0.8px)',
+                        backgroundImage: 'radial-gradient(#dce0e6 0.8px, transparent 0.8px)',
                         backgroundSize: '28px 28px',
                         opacity: 0.25,
                     }}
@@ -64,7 +64,7 @@ export default function Hero() {
                     {/* ── Left: Copy ── */}
                     <div className="max-w-xl">
                         {/* Headline */}
-                        <motion.h1 variants={heroWordStagger} initial="hidden" animate="visible" className="mb-6">
+                        <motion.h1 variants={heroWordStagger} initial="hidden" animate="visible" className="mb-6 text-gray-900">
                             {['Your', 'school.', 'Your', 'brand.'].map((word, i) => (
                                 <motion.span
                                     key={i}
@@ -76,7 +76,6 @@ export default function Hero() {
                                         fontWeight: 300,
                                         lineHeight: 1.08,
                                         letterSpacing: '-0.03em',
-                                        color: '#0F172A',
                                     }}
                                 >
                                     {word}
@@ -90,11 +89,9 @@ export default function Hero() {
                                     style={{
                                         fontFamily: 'var(--font-display), Georgia, serif',
                                         fontSize: 'clamp(38px, 5.2vw, 68px)',
-                                        fontWeight: 500,
-                                        fontStyle: 'italic',
+                                                fontStyle: 'italic',
                                         lineHeight: 1.08,
                                         letterSpacing: '-0.03em',
-                                        color: '#0F172A',
                                     }}
                                 >
                                     Launch
@@ -109,7 +106,6 @@ export default function Hero() {
                                         fontStyle: 'italic',
                                         lineHeight: 1.08,
                                         letterSpacing: '-0.03em',
-                                        color: '#0F172A',
                                     }}
                                 >
                                     today.
@@ -133,12 +129,11 @@ export default function Hero() {
                             initial={{ opacity: 0, y: 14 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.42, duration: 0.32, ease: [0.25, 0.1, 0.25, 1] }}
-                            className="mb-8 leading-relaxed max-w-lg"
+                            className="mb-8 leading-relaxed max-w-lg text-gray-500"
                             style={{
                                 fontFamily: 'var(--font-body), system-ui, sans-serif',
                                 fontSize: '18px',
                                 lineHeight: 1.7,
-                                color: '#475569',
                                 fontWeight: 500,
                             }}
                         >
@@ -181,7 +176,7 @@ export default function Hero() {
                                     className="inline-flex items-center px-7 py-3.5 text-sm font-semibold rounded-lg border transition-all duration-200 cursor-pointer"
                                     style={{
                                         color: '#006a72',
-                                        borderColor: '#E2E8F0',
+                                        borderColor: '#dce0e6',
                                         backgroundColor: 'rgba(255,255,255,0.7)',
                                         backdropFilter: 'blur(8px)',
                                     }}
@@ -192,7 +187,7 @@ export default function Hero() {
                                     }}
                                     onMouseLeave={(e) => {
                                         e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.7)';
-                                        e.currentTarget.style.borderColor = '#E2E8F0';
+                                        e.currentTarget.style.borderColor = '#dce0e6';
                                         e.currentTarget.style.boxShadow = 'none';
                                     }}
                                 >

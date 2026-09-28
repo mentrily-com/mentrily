@@ -100,7 +100,7 @@ export default function SocialProof() {
                 }}
             />
             {/* Bottom border */}
-            <div className="absolute bottom-0 left-0 right-0 h-px" style={{ backgroundColor: '#E2E8F0' }} />
+            <div className="absolute bottom-0 left-0 right-0 h-px" style={{ backgroundColor: '#dce0e6' }} />
 
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-2 gap-y-6 sm:gap-0">
@@ -133,7 +133,6 @@ export default function SocialProof() {
                                 <span
                                     className="text-2xl sm:text-3xl font-medium tabular-nums"
                                     style={{
-                                        color: '#0F172A',
                                         fontFamily: 'var(--font-body), system-ui, sans-serif',
                                     }}
                                 >

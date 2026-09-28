@@ -23,24 +23,23 @@ export default function Features() {
                         <div className="w-8 h-0.5" style={{ backgroundColor: '#007c85' }} />
                     </div>
                     <h2
+                        className="text-gray-900"
                         style={{
                             fontFamily: 'var(--font-display), Georgia, serif',
                             fontSize: 'clamp(32px, 4vw, 48px)',
                             fontWeight: 400,
                             lineHeight: 1.1,
                             letterSpacing: '-0.02em',
-                            color: '#0F172A',
                         }}
                     >
                         Everything your school needs
                     </h2>
                     <p
-                        className="mt-4 max-w-xl mx-auto"
+                        className="mt-4 max-w-xl mx-auto text-gray-500"
                         style={{
                             fontFamily: 'var(--font-body)',
                             fontSize: '16px',
                             lineHeight: 1.65,
-                            color: '#64748B',
                         }}
                     >
                         From course creation to certificate delivery — one platform, zero stitching.
@@ -125,24 +124,22 @@ function FeatureRow({
                 className={direction === 'right' ? 'lg:order-2' : 'lg:order-1'}
             >
                 <h3
-                    className="mb-4"
+                    className="mb-4 text-gray-900"
                     style={{
                         fontFamily: 'var(--font-display), Georgia, serif',
                         fontSize: 'clamp(24px, 3vw, 30px)',
                         fontWeight: 400,
                         lineHeight: 1.2,
-                        color: '#0F172A',
                     }}
                 >
                     {title}
                 </h3>
                 <p
-                    className="leading-relaxed max-w-md mb-5"
+                    className="leading-relaxed max-w-md mb-5 text-gray-500"
                     style={{
                         fontFamily: 'var(--font-body)',
                         fontSize: '16px',
                         lineHeight: 1.65,
-                        color: '#475569',
                     }}
                 >
                     {description}
@@ -151,7 +148,7 @@ function FeatureRow({
                 {/* Highlight bullets */}
                 <ul className="space-y-2">
                     {highlights.map((item) => (
-                        <li key={item} className="flex items-center gap-2.5 text-sm" style={{ color: '#475569' }}>
+                        <li key={item} className="flex items-center gap-2.5 text-sm text-gray-500">
                             <svg
                                 width="16"
                                 height="16"

@@ -3,9 +3,9 @@ import React from 'react';
 export default function TermsOfService() {
     return (
         <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            <h1 className="text-4xl font-medium mb-8 text-[#0F172A]">Terms of Service</h1>
+            <h1 className="text-4xl font-medium mb-8 text-gray-900">Terms of Service</h1>
 
-            <div className="prose prose-slate max-w-none text-[#475569]">
+            <div className="prose prose-gray max-w-none text-gray-500">
                 <p className="mb-4 text-sm font-semibold text-gray-500">
                     Last updated: {new Date().toLocaleDateString()}
                 </p>
@@ -18,7 +18,7 @@ export default function TermsOfService() {
                     you do not agree with any of these Terms, you are prohibited from using or accessing this site.
                 </p>
 
-                <h2 className="text-2xl font-semibold mt-10 mb-4 text-[#0F172A]">1. Acceptance of Terms</h2>
+                <h2 className="text-2xl font-semibold mt-10 mb-4 text-gray-900">1. Acceptance of Terms</h2>
                 <p className="mb-4">
                     By registering for an account, accessing, or using the Services, you acknowledge that you have read,
                     understood, and agree to be bound by these Terms. If you are accepting these Terms on behalf of a
@@ -26,7 +26,7 @@ export default function TermsOfService() {
                     to bind such entity to these Terms.
                 </p>
 
-                <h2 className="text-2xl font-semibold mt-10 mb-4 text-[#0F172A]">2. Description of Service</h2>
+                <h2 className="text-2xl font-semibold mt-10 mb-4 text-gray-900">2. Description of Service</h2>
                 <p className="mb-4">
                     Mentrily provides a comprehensive SaaS platform enabling educators and organizations to build,
                     manage, and scale branded online schools, courses, exams, and certificates. We reserve the right to
@@ -35,7 +35,7 @@ export default function TermsOfService() {
                     the Services.
                 </p>
 
-                <h2 className="text-2xl font-semibold mt-10 mb-4 text-[#0F172A]">3. Account Registration & Security</h2>
+                <h2 className="text-2xl font-semibold mt-10 mb-4 text-gray-900">3. Account Registration & Security</h2>
                 <p className="mb-4">
                     To use certain features of the Service, you must register for an account. You agree to:
                 </p>
@@ -53,7 +53,7 @@ export default function TermsOfService() {
                     </li>
                 </ul>
 
-                <h2 className="text-2xl font-semibold mt-10 mb-4 text-[#0F172A]">
+                <h2 className="text-2xl font-semibold mt-10 mb-4 text-gray-900">
                     4. Subscriptions, Billing, and Payments
                 </h2>
                 <p className="mb-4">
@@ -80,7 +80,7 @@ export default function TermsOfService() {
                     </li>
                 </ul>
 
-                <h2 className="text-2xl font-semibold mt-10 mb-4 text-[#0F172A]">
+                <h2 className="text-2xl font-semibold mt-10 mb-4 text-gray-900">
                     5. User Content & Intellectual Property
                 </h2>
                 <p className="mb-4">
@@ -96,7 +96,7 @@ export default function TermsOfService() {
                     distribute, sell, or lease any part of our Services without explicit written permission.
                 </p>
 
-                <h2 className="text-2xl font-semibold mt-10 mb-4 text-[#0F172A]">
+                <h2 className="text-2xl font-semibold mt-10 mb-4 text-gray-900">
                     6. Acceptable Use and Prohibited Conduct
                 </h2>
                 <p className="mb-4">You agree not to use the Services to:</p>
@@ -112,7 +112,7 @@ export default function TermsOfService() {
                     <li>Spam, solicit, or phish users of the Services.</li>
                 </ul>
 
-                <h2 className="text-2xl font-semibold mt-10 mb-4 text-[#0F172A]">7. Third-Party Services</h2>
+                <h2 className="text-2xl font-semibold mt-10 mb-4 text-gray-900">7. Third-Party Services</h2>
                 <p className="mb-4">
                     The Services may contain links to third-party websites or services that are not owned or controlled
                     by Mentrily. Mentrily has no control over, and assumes no responsibility for, the content, privacy
@@ -121,7 +121,7 @@ export default function TermsOfService() {
                     caused by your use of any such third-party content or services.
                 </p>
 
-                <h2 className="text-2xl font-semibold mt-10 mb-4 text-[#0F172A]">8. Disclaimer of Warranties</h2>
+                <h2 className="text-2xl font-semibold mt-10 mb-4 text-gray-900">8. Disclaimer of Warranties</h2>
                 <p className="mb-4 uppercase font-semibold">
                     The services are provided on an "as is" and "as available" basis. Mentrily expressly disclaims all
                     warranties of any kind, whether express or implied, including, but not limited to, the implied
@@ -135,7 +135,7 @@ export default function TermsOfService() {
                     expectations.
                 </p>
 
-                <h2 className="text-2xl font-semibold mt-10 mb-4 text-[#0F172A]">9. Limitation of Liability</h2>
+                <h2 className="text-2xl font-semibold mt-10 mb-4 text-gray-900">9. Limitation of Liability</h2>
                 <p className="mb-4 uppercase font-semibold">
                     In no event shall Mentrily, its directors, employees, partners, agents, suppliers, or affiliates, be
                     liable for any indirect, incidental, special, consequential, or punitive damages, including without
@@ -148,7 +148,7 @@ export default function TermsOfService() {
                     <li>Unauthorized access, use, or alteration of your transmissions or content.</li>
                 </ul>
 
-                <h2 className="text-2xl font-semibold mt-10 mb-4 text-[#0F172A]">10. Indemnification</h2>
+                <h2 className="text-2xl font-semibold mt-10 mb-4 text-gray-900">10. Indemnification</h2>
                 <p className="mb-4">
                     You agree to defend, indemnify, and hold harmless Mentrily and its licensee and licensors, and their
                     employees, contractors, agents, officers, and directors, from and against any and all claims,
@@ -157,7 +157,7 @@ export default function TermsOfService() {
                     any person using your account and password, or b) a breach of these Terms.
                 </p>
 
-                <h2 className="text-2xl font-semibold mt-10 mb-4 text-[#0F172A]">11. Termination</h2>
+                <h2 className="text-2xl font-semibold mt-10 mb-4 text-gray-900">11. Termination</h2>
                 <p className="mb-4">
                     We may terminate or suspend your account and bar access to the Services immediately, without prior
                     notice or liability, under our sole discretion, for any reason whatsoever and without limitation,
@@ -165,7 +165,7 @@ export default function TermsOfService() {
                     simply discontinue using the Services.
                 </p>
 
-                <h2 className="text-2xl font-semibold mt-10 mb-4 text-[#0F172A]">
+                <h2 className="text-2xl font-semibold mt-10 mb-4 text-gray-900">
                     12. Governing Law and Dispute Resolution
                 </h2>
                 <p className="mb-4">
@@ -175,7 +175,7 @@ export default function TermsOfService() {
                     claims in small claims court if your claims qualify.
                 </p>
 
-                <h2 className="text-2xl font-semibold mt-10 mb-4 text-[#0F172A]">13. Changes to Terms</h2>
+                <h2 className="text-2xl font-semibold mt-10 mb-4 text-gray-900">13. Changes to Terms</h2>
                 <p className="mb-4">
                     We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a
                     revision is material, we will provide at least 30 days' notice prior to any new terms taking effect.
@@ -184,7 +184,7 @@ export default function TermsOfService() {
                     revised terms.
                 </p>
 
-                <h2 className="text-2xl font-semibold mt-10 mb-4 text-[#0F172A]">14. Contact Information</h2>
+                <h2 className="text-2xl font-semibold mt-10 mb-4 text-gray-900">14. Contact Information</h2>
                 <p className="mb-4">
                     If you have any questions about these Terms, please contact us at support@mentrily.com.
                 </p>

@@ -144,7 +144,7 @@ export default function AiLandingPage() {
                     aria-hidden
                     className="pointer-events-none absolute inset-0"
                     style={{
-                        backgroundImage: 'radial-gradient(#CBD5E1 0.8px, transparent 0.8px)',
+                        backgroundImage: 'radial-gradient(#dce0e6 0.8px, transparent 0.8px)',
                         backgroundSize: '28px 28px',
                         opacity: 0.25,
                     }}
@@ -235,7 +235,7 @@ export default function AiLandingPage() {
             </section>
 
             {/* Commands */}
-            <section style={{ backgroundColor: '#F8FAFC' }}>
+            <section className="bg-gray-50">
                 <div className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 md:grid-cols-[1fr_1.5fr] lg:px-8">
                     <div>
                         <h2

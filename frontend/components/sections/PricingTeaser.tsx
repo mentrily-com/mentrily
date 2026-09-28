@@ -42,8 +42,7 @@ export default function PricingTeaser() {
     return (
         <section
             ref={ref}
-            className="py-20 sm:py-28 relative overflow-hidden"
-            style={{ backgroundColor: '#F8FAFC', borderTop: '1px solid #E2E8F0' }}
+            className="py-20 sm:py-28 relative overflow-hidden bg-gray-50 border-t border-gray-200"
         >
             {/* Background radial gradient */}
             <div className="absolute inset-0 pointer-events-none">
@@ -81,7 +80,6 @@ export default function PricingTeaser() {
                             fontWeight: 400,
                             lineHeight: 1.1,
                             letterSpacing: '-0.02em',
-                            color: '#0F172A',
                         }}
                     >
                         Clear limits, clean upgrade path
@@ -108,7 +106,7 @@ export default function PricingTeaser() {
                             }`}
                             style={{
                                 backgroundColor: tier.highlighted ? '#FFFFFF' : '#FFFFFF',
-                                border: tier.highlighted ? '2px solid transparent' : '1px solid #E2E8F0',
+                                border: tier.highlighted ? '2px solid transparent' : '1px solid #dce0e6',
                                 backgroundImage: tier.highlighted
                                     ? 'linear-gradient(#FFFFFF, #FFFFFF), linear-gradient(135deg, #007c85, #10B981)'
                                     : 'none',
@@ -149,7 +147,7 @@ export default function PricingTeaser() {
                                 </span>
                             )}
 
-                            <h3 className="text-sm font-semibold mb-1" style={{ color: '#0F172A' }}>
+                            <h3 className="text-sm font-semibold mb-1 text-gray-900">
                                 {tier.name}
                             </h3>
                             <p className="text-xs mb-3" style={{ color: '#94A3B8' }}>
@@ -157,8 +155,7 @@ export default function PricingTeaser() {
                             </p>
                             <div className="flex items-baseline gap-1 mb-5">
                                 <span
-                                    className="text-4xl font-medium"
-                                    style={{ color: '#0F172A', fontFamily: 'var(--font-body)' }}
+                                    className="text-4xl font-medium text-gray-900"
                                 >
                                     {tier.price}
                                 </span>
@@ -171,8 +168,7 @@ export default function PricingTeaser() {
                                 {tier.features.map((f) => (
                                     <li
                                         key={f}
-                                        className="flex items-center gap-2.5 text-sm"
-                                        style={{ color: '#475569' }}
+                                        className="flex items-center gap-2.5 text-sm text-gray-500"
                                     >
                                         <div
                                             className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
@@ -193,7 +189,7 @@ export default function PricingTeaser() {
                                         ? 'linear-gradient(135deg, #007c85, #005359)'
                                         : 'transparent',
                                     color: tier.highlighted ? '#FFFFFF' : '#006a72',
-                                    border: tier.highlighted ? 'none' : '1px solid #E2E8F0',
+                                    border: tier.highlighted ? 'none' : '1px solid #dce0e6',
                                     boxShadow: tier.highlighted ? '0 4px 12px rgba(0,141,152,0.2)' : 'none',
                                 }}
                             >

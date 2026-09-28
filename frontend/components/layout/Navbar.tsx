@@ -77,28 +77,13 @@ export default function Navbar() {
                     <div className="hidden md:flex items-center gap-3">
                         <Link
                             href="/login"
-                            className="px-4 py-2 text-sm font-medium rounded-lg border transition-all duration-150 cursor-pointer"
-                            style={{
-                                color: '#475569',
-                                borderColor: '#E2E8F0',
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = '#F8FAFC';
-                                e.currentTarget.style.borderColor = '#007c85';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.backgroundColor = 'transparent';
-                                e.currentTarget.style.borderColor = '#E2E8F0';
-                            }}
+                            className="px-4 py-2 text-sm font-medium rounded-lg border transition-all duration-150 cursor-pointer text-gray-500 border-gray-200 hover:bg-gray-50 hover:border-[var(--brand)]"
                         >
                             Sign In
                         </Link>
                         <Link
                             href="/signup"
-                            className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer"
-                            style={{ backgroundColor: '#007c85' }}
-                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#005359')}
-                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#007c85')}
+                            className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer bg-[var(--brand)] hover:bg-[var(--brand-dark)]"
                         >
                             Start Free
                         </Link>
@@ -107,8 +92,7 @@ export default function Navbar() {
                     {/* Mobile Hamburger */}
                     <button
                         onClick={() => setMobileOpen(!mobileOpen)}
-                        className="md:hidden p-2 rounded-lg cursor-pointer"
-                        style={{ color: '#0F172A' }}
+                        className="md:hidden p-2 rounded-lg cursor-pointer text-gray-900"
                         aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
                         aria-haspopup="true"
                         aria-expanded={mobileOpen}
@@ -131,15 +115,13 @@ export default function Navbar() {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: '100%' }}
                         transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-                        className="fixed inset-0 z-[60] md:hidden focus:outline-none overflow-y-auto"
-                        style={{ backgroundColor: '#FFFFFF' }}
+                        className="fixed inset-0 z-[60] md:hidden focus:outline-none overflow-y-auto bg-white"
                     >
                         <div className="flex items-center justify-between px-4 h-16 sticky top-0 bg-white z-10">
                             <BrandLogo className="h-8 max-w-[160px]" priority />
                             <button
                                 onClick={() => setMobileOpen(false)}
-                                className="p-2 rounded-lg cursor-pointer"
-                                style={{ color: '#0F172A' }}
+                                className="p-2 rounded-lg cursor-pointer text-gray-900"
                                 aria-label="Close menu"
                             >
                                 <X size={24} />
@@ -157,8 +139,7 @@ export default function Navbar() {
                                     <Link
                                         href={link.href}
                                         onClick={() => setMobileOpen(false)}
-                                        className="text-2xl font-medium cursor-pointer"
-                                        style={{ color: '#0F172A' }}
+                                        className="text-2xl font-medium cursor-pointer text-gray-900"
                                     >
                                         {link.label}
                                     </Link>
@@ -169,8 +150,7 @@ export default function Navbar() {
                                 <Link
                                     href="/login"
                                     onClick={() => setMobileOpen(false)}
-                                    className="px-6 py-3 text-center text-sm font-medium rounded-lg border cursor-pointer"
-                                    style={{ color: '#475569', borderColor: '#E2E8F0' }}
+                                    className="px-6 py-3 text-center text-sm font-medium rounded-lg border cursor-pointer text-gray-500 border-gray-200"
                                 >
                                     Sign In
                                 </Link>

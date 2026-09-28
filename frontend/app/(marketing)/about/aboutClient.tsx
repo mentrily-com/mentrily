@@ -34,9 +34,7 @@ function OpeningDeclaration() {
                         fontWeight: 300,
                         fontStyle: 'italic',
                         lineHeight: 1.2,
-                        letterSpacing: '-0.02em',
-                        color: '#0F172A',
-                    }}
+                        letterSpacing: '-0.02em',                    }}
                 >
                     Most LMS tools were built in a world where teaching tech meant uploading a PDF.
                 </motion.h1>
@@ -52,9 +50,7 @@ function OpeningDeclaration() {
                         style={{
                             fontFamily: 'var(--font-body)',
                             fontSize: '17px',
-                            lineHeight: 1.65,
-                            color: '#475569',
-                        }}
+                            lineHeight: 1.65,                        }}
                     >
                         The world moved on. Bootcamps replaced textbooks. Live coding replaced slide decks. Students
                         expect to write code, run it, and get feedback — not download a Word document. But the tools
@@ -66,9 +62,7 @@ function OpeningDeclaration() {
                         style={{
                             fontFamily: 'var(--font-body)',
                             fontSize: '17px',
-                            lineHeight: 1.65,
-                            color: '#475569',
-                        }}
+                            lineHeight: 1.65,                        }}
                     >
                         Mentrily exists because we believe every educator deserves a platform that matches how people
                         actually learn to code today. A platform that&apos;s theirs — their brand, their domain, their
@@ -87,8 +81,7 @@ function Mission() {
     return (
         <section
             ref={ref}
-            className="py-16 sm:py-20"
-            style={{ backgroundColor: '#F8FAFC', borderTop: '1px solid #E2E8F0' }}
+            className="py-16 sm:py-20 bg-gray-50 border-t border-gray-200"
         >
             <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <motion.div
@@ -104,9 +97,7 @@ function Mission() {
                             fontFamily: 'var(--font-display), Georgia, serif',
                             fontSize: 'clamp(20px, 3vw, 28px)',
                             fontWeight: 400,
-                            lineHeight: 1.4,
-                            color: '#0F172A',
-                        }}
+                            lineHeight: 1.4,                        }}
                     >
                         We built Mentrily so that any educator — from a solo bootcamp founder to a university department
                         — can launch a school that actually matches how people learn to code today.
@@ -122,7 +113,7 @@ function ProductPhilosophy() {
     const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.12 });
 
     return (
-        <section ref={ref} className="py-16 sm:py-20" style={{ borderTop: '1px solid #E2E8F0' }}>
+        <section ref={ref} className="py-16 sm:py-20" style={{ borderTop: '1px solid #dce0e6' }}>
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, y: 28 }}
@@ -146,9 +137,7 @@ function ProductPhilosophy() {
                             style={{
                                 fontFamily: 'var(--font-display), Georgia, serif',
                                 fontSize: '22px',
-                                fontWeight: 400,
-                                color: '#0F172A',
-                            }}
+                                fontWeight: 400,                            }}
                         >
                             Built for educators who code.
                         </h3>
@@ -165,7 +154,7 @@ function ProductPhilosophy() {
                                         className="w-1.5 h-1.5 rounded-full mt-2 shrink-0"
                                         style={{ backgroundColor: '#007c85' }}
                                     />
-                                    <p className="text-sm leading-relaxed" style={{ color: '#475569' }}>
+                                    <p className="text-sm leading-relaxed text-gray-500">
                                         {item}
                                     </p>
                                 </li>
@@ -183,9 +172,7 @@ function ProductPhilosophy() {
                             style={{
                                 fontFamily: 'var(--font-display), Georgia, serif',
                                 fontSize: '22px',
-                                fontWeight: 400,
-                                color: '#0F172A',
-                            }}
+                                fontWeight: 400,                            }}
                         >
                             Built for coders who teach.
                         </h3>
@@ -202,7 +189,7 @@ function ProductPhilosophy() {
                                         className="w-1.5 h-1.5 rounded-full mt-2 shrink-0"
                                         style={{ backgroundColor: '#007c85' }}
                                     />
-                                    <p className="text-sm leading-relaxed" style={{ color: '#475569' }}>
+                                    <p className="text-sm leading-relaxed text-gray-500">
                                         {item}
                                     </p>
                                 </li>
@@ -241,8 +228,7 @@ function Values() {
     return (
         <section
             ref={ref}
-            className="py-16 sm:py-20"
-            style={{ backgroundColor: '#F8FAFC', borderTop: '1px solid #E2E8F0' }}
+            className="py-16 sm:py-20 bg-gray-50 border-t border-gray-200"
         >
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
@@ -269,27 +255,26 @@ function Values() {
                             className="p-6 rounded-lg transition-all duration-200 cursor-pointer"
                             style={{
                                 backgroundColor: '#FFFFFF',
-                                border: '1px solid #E2E8F0',
+                                border: '1px solid #dce0e6',
                                 boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
                             }}
                             onMouseEnter={(e) => {
                                 e.currentTarget.style.transform = 'translateY(-2px)';
                                 e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)';
-                                e.currentTarget.style.borderColor = '#CBD5E1';
+                                e.currentTarget.style.borderColor = '#9fa5b0';
                             }}
                             onMouseLeave={(e) => {
                                 e.currentTarget.style.transform = 'translateY(0)';
                                 e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
-                                e.currentTarget.style.borderColor = '#E2E8F0';
+                                e.currentTarget.style.borderColor = '#dce0e6';
                             }}
                         >
                             <h4
-                                className="text-base font-semibold mb-2"
-                                style={{ color: '#0F172A', fontFamily: 'var(--font-body)' }}
+                                className="text-base font-semibold mb-2 text-gray-900"
                             >
                                 {val.title}
                             </h4>
-                            <p className="text-sm leading-relaxed" style={{ color: '#475569' }}>
+                            <p className="text-sm leading-relaxed text-gray-500">
                                 {val.description}
                             </p>
                         </motion.div>
@@ -312,7 +297,7 @@ function Timeline() {
     ];
 
     return (
-        <section ref={ref} className="py-16 sm:py-20" style={{ borderTop: '1px solid #E2E8F0' }}>
+        <section ref={ref} className="py-16 sm:py-20" style={{ borderTop: '1px solid #dce0e6' }}>
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, y: 28 }}
@@ -328,7 +313,7 @@ function Timeline() {
                 {/* Desktop horizontal timeline */}
                 <div className="hidden sm:block relative">
                     {/* Connecting line */}
-                    <div className="absolute top-6 left-[12%] right-[12%] h-0.5" style={{ backgroundColor: '#E2E8F0' }}>
+                    <div className="absolute top-6 left-[12%] right-[12%] h-0.5" style={{ backgroundColor: '#dce0e6' }}>
                         <motion.div
                             initial={{ width: '0%' }}
                             animate={inView ? { width: '100%' } : {}}
@@ -382,7 +367,7 @@ function Timeline() {
                                         {m.year}
                                     </motion.div>
                                 </div>
-                                <p className="text-sm font-medium" style={{ color: '#0F172A' }}>
+                                <p className="text-sm font-medium text-gray-900">
                                     {m.label}
                                 </p>
                             </motion.div>
@@ -410,7 +395,7 @@ function Timeline() {
                             >
                                 {m.year}
                             </div>
-                            <p className="text-sm font-medium" style={{ color: '#0F172A' }}>
+                            <p className="text-sm font-medium text-gray-900">
                                 {m.label}
                             </p>
                         </motion.div>
@@ -445,8 +430,7 @@ function Team() {
     return (
         <section
             ref={ref}
-            className="py-16 sm:py-20"
-            style={{ backgroundColor: '#F8FAFC', borderTop: '1px solid #E2E8F0' }}
+            className="py-16 sm:py-20 bg-gray-50 border-t border-gray-200"
         >
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
@@ -470,7 +454,7 @@ function Team() {
                             className="text-center p-6 rounded-lg transition-all duration-200"
                             style={{
                                 backgroundColor: '#FFFFFF',
-                                border: '1px solid #E2E8F0',
+                                border: '1px solid #dce0e6',
                                 boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
                             }}
                         >
@@ -480,13 +464,13 @@ function Team() {
                             >
                                 {m.initials}
                             </div>
-                            <h4 className="text-sm font-semibold mb-0.5" style={{ color: '#0F172A' }}>
+                            <h4 className="text-sm font-semibold mb-0.5 text-gray-900">
                                 {m.name}
                             </h4>
                             <p className="text-xs mb-3" style={{ color: '#006a72' }}>
                                 {m.title}
                             </p>
-                            <p className="text-xs leading-relaxed" style={{ color: '#475569' }}>
+                            <p className="text-xs leading-relaxed text-gray-500">
                                 {m.bio}
                             </p>
                         </motion.div>

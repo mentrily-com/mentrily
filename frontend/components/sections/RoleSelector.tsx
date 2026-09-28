@@ -59,7 +59,7 @@ export default function RoleSelector() {
     const activePersona = personas.find((p) => p.id === role)!;
 
     return (
-        <section ref={ref} className="py-20 sm:py-28 relative overflow-hidden" style={{ backgroundColor: '#F8FAFC' }}>
+        <section ref={ref} className="py-20 sm:py-28 relative overflow-hidden bg-gray-50">
             {/* Subtle background mesh */}
             <div className="absolute inset-0 pointer-events-none">
                 <div
@@ -96,7 +96,6 @@ export default function RoleSelector() {
                             fontWeight: 400,
                             lineHeight: 1.1,
                             letterSpacing: '-0.02em',
-                            color: '#0F172A',
                         }}
                     >
                         Who are you?
@@ -117,7 +116,7 @@ export default function RoleSelector() {
                             className="relative p-5 rounded-lg text-left transition-all duration-250 cursor-pointer group"
                             style={{
                                 backgroundColor: role === persona.id ? '#FFFFFF' : 'rgba(255,255,255,0.5)',
-                                border: role === persona.id ? `2px solid ${persona.accent}` : '2px solid #E2E8F0',
+                                border: role === persona.id ? `2px solid ${persona.accent}` : '2px solid #dce0e6',
                                 boxShadow:
                                     role === persona.id
                                         ? `0 4px 20px ${persona.accent}22, 0 2px 8px rgba(0,0,0,0.04)`
@@ -135,7 +134,7 @@ export default function RoleSelector() {
                             <h3
                                 className="text-base font-semibold mb-0.5"
                                 style={{
-                                    color: role === persona.id ? persona.accent : '#0F172A',
+                                    color: role === persona.id ? persona.accent : '#181e29',
                                     fontFamily: 'var(--font-body)',
                                 }}
                             >
@@ -177,15 +176,15 @@ export default function RoleSelector() {
                                             className="flex h-full items-start gap-3 rounded-lg p-4 text-left transition-all duration-200 cursor-pointer group"
                                             style={{
                                                 backgroundColor: '#FFFFFF',
-                                                border: '1px solid #E2E8F0',
+                                                border: '1px solid #dce0e6',
                                                 boxShadow: '0 2px 10px rgba(15,23,42,0.04)',
                                             }}
                                             onMouseEnter={(e) => {
-                                                e.currentTarget.style.borderColor = '#E2E8F0';
+                                                e.currentTarget.style.borderColor = '#dce0e6';
                                                 e.currentTarget.style.boxShadow = `0 8px 24px ${activePersona.accent}18`;
                                             }}
                                             onMouseLeave={(e) => {
-                                                e.currentTarget.style.borderColor = '#E2E8F0';
+                                                e.currentTarget.style.borderColor = '#dce0e6';
                                                 e.currentTarget.style.boxShadow = '0 2px 10px rgba(15,23,42,0.04)';
                                             }}
                                         >
@@ -196,8 +195,7 @@ export default function RoleSelector() {
                                                 <Icon size={16} style={{ color: activePersona.accent }} />
                                             </div>
                                             <p
-                                                className="text-sm leading-relaxed pt-1"
-                                                style={{ color: '#475569', fontFamily: 'var(--font-body)' }}
+                                                className="text-sm leading-relaxed pt-1 text-gray-500"
                                             >
                                                 {item.text}
                                             </p>

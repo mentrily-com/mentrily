@@ -19,7 +19,7 @@ function PricingToggle({
         <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mb-10 sm:mb-14">
             <span
                 className="text-right text-sm font-medium"
-                style={{ color: billing === 'monthly' ? '#0F172A' : '#94A3B8' }}
+                style={{ color: billing === 'monthly' ? '#181e29' : '#9fa5b0' }}
             >
                 Monthly
             </span>
@@ -39,7 +39,7 @@ function PricingToggle({
                 />
             </button>
             <div className="flex items-center gap-2">
-                <span className="text-sm font-medium" style={{ color: billing === 'annual' ? '#0F172A' : '#94A3B8' }}>
+                <span className="text-sm font-medium" style={{ color: billing === 'annual' ? '#181e29' : '#9fa5b0' }}>
                     Annual
                 </span>
                 <span
@@ -102,7 +102,7 @@ function PricingCards({ billing }: { billing: 'monthly' | 'annual' }) {
                             </span>
                         )}
 
-                        <h3 className="text-sm font-semibold mb-1" style={{ color: '#0F172A' }}>
+                        <h3 className="text-sm font-semibold mb-1 text-gray-900">
                             {tier.name}
                         </h3>
 
@@ -118,8 +118,7 @@ function PricingCards({ billing }: { billing: 'monthly' | 'annual' }) {
                                     className="flex items-baseline gap-1"
                                 >
                                     <span
-                                        className="text-3xl font-semibold"
-                                        style={{ color: '#0F172A', fontFamily: 'var(--font-body)' }}
+                                        className="text-3xl font-semibold text-gray-900"
                                     >
                                         {price}
                                     </span>
@@ -135,7 +134,7 @@ function PricingCards({ billing }: { billing: 'monthly' | 'annual' }) {
                             )}
                         </div>
 
-                        <p className="text-xs leading-relaxed mb-4" style={{ color: '#475569' }}>
+                        <p className="text-xs leading-relaxed mb-4 text-gray-500">
                             {tier.description}
                         </p>
 
@@ -147,8 +146,7 @@ function PricingCards({ billing }: { billing: 'monthly' | 'annual' }) {
                             {Object.entries(tier.limits).map(([limitName, v]) => (
                                 <p
                                     key={`${tier.id}-${limitName}`}
-                                    className="text-xs font-medium"
-                                    style={{ color: '#0F172A' }}
+                                    className="text-xs font-medium text-gray-900"
                                 >
                                     {v}
                                 </p>
@@ -158,7 +156,7 @@ function PricingCards({ billing }: { billing: 'monthly' | 'annual' }) {
                         {/* Features */}
                         <ul className="space-y-2 mb-6 flex-1">
                             {tier.features.map((f) => (
-                                <li key={f} className="flex items-start gap-2 text-xs" style={{ color: '#475569' }}>
+                                <li key={f} className="flex items-start gap-2 text-xs text-gray-500">
                                     <Check size={14} style={{ color: '#10B981' }} className="shrink-0 mt-0.5" />
                                     {f}
                                 </li>
@@ -178,7 +176,7 @@ function PricingCards({ billing }: { billing: 'monthly' | 'annual' }) {
                                 if (tier.highlighted) {
                                     e.currentTarget.style.backgroundColor = '#005359';
                                 } else {
-                                    e.currentTarget.style.backgroundColor = '#F8FAFC';
+                                    e.currentTarget.style.backgroundColor = '#f9fafc';
                                     e.currentTarget.style.borderColor = '#007c85';
                                 }
                             }}
@@ -212,7 +210,7 @@ function FeatureComparison() {
         if (val === true) return <Check size={16} style={{ color: '#10B981' }} />;
         if (val === false) return <X size={16} style={{ color: '#EF4444' }} />;
         return (
-            <span className="text-xs font-medium" style={{ color: '#475569' }}>
+            <span className="text-xs font-medium text-gray-500">
                 {val}
             </span>
         );
@@ -225,17 +223,14 @@ function FeatureComparison() {
                 style={{
                     fontFamily: 'var(--font-display), Georgia, serif',
                     fontSize: '24px',
-                    fontWeight: 400,
-                    color: '#0F172A',
-                }}
+                    fontWeight: 400,                }}
             >
                 Compare all features
             </h3>
 
             {/* Header row (desktop) */}
             <div
-                className="hidden lg:grid grid-cols-5 gap-0 mb-2 px-4 py-3 rounded-lg"
-                style={{ backgroundColor: '#F8FAFC' }}
+                className="hidden lg:grid grid-cols-5 gap-0 mb-2 px-4 py-3 rounded-lg bg-gray-50"
             >
                 <div className="text-xs font-semibold" style={{ color: '#94A3B8' }}>
                     Feature
@@ -268,7 +263,7 @@ function FeatureComparison() {
                                     border: '1px solid #dce0e6',
                                 }}
                             >
-                                <span className="text-sm font-semibold" style={{ color: '#0F172A' }}>
+                                <span className="text-sm font-semibold text-gray-900">
                                     {cat.name}
                                 </span>
                                 <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
@@ -293,8 +288,7 @@ function FeatureComparison() {
                                                     style={{ borderBottom: '1px solid #F1F5F9' }}
                                                 >
                                                     <span
-                                                        className="text-sm font-medium col-span-2 sm:col-span-4 lg:col-span-1"
-                                                        style={{ color: '#475569' }}
+                                                        className="text-sm font-medium col-span-2 sm:col-span-4 lg:col-span-1 text-gray-500"
                                                     >
                                                         {feat.name}
                                                     </span>
@@ -347,9 +341,7 @@ function FAQ() {
                 style={{
                     fontFamily: 'var(--font-display), Georgia, serif',
                     fontSize: '24px',
-                    fontWeight: 400,
-                    color: '#0F172A',
-                }}
+                    fontWeight: 400,                }}
             >
                 Frequently asked questions
             </h3>
@@ -370,7 +362,7 @@ function FAQ() {
                                 onClick={() => setOpenIndex(isOpen ? null : i)}
                                 className="w-full flex items-center justify-between px-5 py-4 text-left cursor-pointer"
                             >
-                                <span className="text-sm font-medium pr-4" style={{ color: '#0F172A' }}>
+                                <span className="text-sm font-medium pr-4 text-gray-900">
                                     {item.question}
                                 </span>
                                 <motion.div
@@ -392,7 +384,7 @@ function FAQ() {
                                         className="overflow-hidden"
                                     >
                                         <div className="px-5 pb-4">
-                                            <p className="text-sm leading-relaxed" style={{ color: '#475569' }}>
+                                            <p className="text-sm leading-relaxed text-gray-500">
                                                 {item.answer}
                                             </p>
                                         </div>
@@ -428,9 +420,7 @@ export default function PricingPage() {
                             fontSize: 'clamp(36px, 5vw, 56px)',
                             fontWeight: 400,
                             lineHeight: 1.1,
-                            letterSpacing: '-0.03em',
-                            color: '#0F172A',
-                        }}
+                            letterSpacing: '-0.03em',                        }}
                     >
                         Pricing
                     </h1>
@@ -439,9 +429,7 @@ export default function PricingPage() {
                         style={{
                             fontFamily: 'var(--font-body)',
                             fontSize: '17px',
-                            lineHeight: 1.65,
-                            color: '#475569',
-                        }}
+                            lineHeight: 1.65,                        }}
                     >
                         One price covers your whole school. No per-student fees. No surprise charges.
                     </p>
@@ -459,9 +447,7 @@ export default function PricingPage() {
                         style={{
                             fontFamily: 'var(--font-display), Georgia, serif',
                             fontSize: '24px',
-                            fontWeight: 400,
-                            color: '#0F172A',
-                        }}
+                            fontWeight: 400,                        }}
                     >
                         Ready to launch your school?
                     </h3>

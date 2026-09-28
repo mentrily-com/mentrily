@@ -68,15 +68,15 @@ export default function NotFound() {
                                 </defs>
 
                                 {/* Background Elements - Subtle Particles */}
-                                <circle cx="50" cy="100" r="4" fill="#CBD5E1" opacity="0.6" />
-                                <circle cx="450" cy="80" r="6" fill="#CBD5E1" opacity="0.4" />
-                                <circle cx="400" cy="400" r="8" fill="#CBD5E1" opacity="0.3" />
-                                <circle cx="80" cy="380" r="5" fill="#CBD5E1" opacity="0.5" />
+                                <circle cx="50" cy="100" r="4" fill="#dce0e6" opacity="0.6" />
+                                <circle cx="450" cy="80" r="6" fill="#dce0e6" opacity="0.4" />
+                                <circle cx="400" cy="400" r="8" fill="#dce0e6" opacity="0.3" />
+                                <circle cx="80" cy="380" r="5" fill="#dce0e6" opacity="0.5" />
 
                                 {/* Floating Platform */}
                                 <g transform="translate(100, 320)">
-                                    <path d="M150 50 L300 0 L150 -50 L0 0 Z" fill="#E2E8F0" />
-                                    <path d="M0 0 L150 50 V80 L0 30 Z" fill="#CBD5E1" />
+                                    <path d="M150 50 L300 0 L150 -50 L0 0 Z" fill="#dce0e6" />
+                                    <path d="M0 0 L150 50 V80 L0 30 Z" fill="#dce0e6" />
                                     <path d="M300 0 L150 50 V80 L300 30 Z" fill="#94A3B8" />
                                 </g>
 
@@ -92,7 +92,7 @@ export default function NotFound() {
                                 <g transform="translate(190, 120)">
                                     {/* Bottom Block */}
                                     <path d="M60 140 L120 120 L60 100 L0 120 Z" fill="#64748B" />
-                                    <path d="M0 120 L60 140 V180 L0 160 Z" fill="#475569" />
+                                    <path d="M0 120 L60 140 V180 L0 160 Z" fill="#686f7b" />
                                     <path d="M120 120 L60 140 V180 L120 160 Z" fill="#334155" />
 
                                     {/* Floating Top Block (The 'Zero' Void) */}
@@ -114,7 +114,7 @@ export default function NotFound() {
                                     {/* Disconnected Cable */}
                                     <path
                                         d="M60 160 C 60 200, 120 200, 160 220"
-                                        stroke="#CBD5E1"
+                                        stroke="#dce0e6"
                                         strokeWidth="4"
                                         strokeDasharray="8 8"
                                         fill="none"

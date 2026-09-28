@@ -31,8 +31,7 @@ export default function HowItWorks() {
     return (
         <section
             ref={ref}
-            className="py-20 sm:py-28 relative overflow-hidden"
-            style={{ backgroundColor: '#F8FAFC', borderTop: '1px solid #E2E8F0' }}
+            className="py-20 sm:py-28 relative overflow-hidden bg-gray-50 border-t border-gray-200"
         >
             {/* Background accent */}
             <div className="absolute inset-0 pointer-events-none">
@@ -71,7 +70,6 @@ export default function HowItWorks() {
                             fontWeight: 400,
                             lineHeight: 1.1,
                             letterSpacing: '-0.02em',
-                            color: '#0F172A',
                         }}
                     >
                         Three steps to your own school
@@ -82,7 +80,7 @@ export default function HowItWorks() {
                 <div className="relative">
                     {/* Connecting line (desktop only) */}
                     <div className="hidden lg:block absolute top-[60px] left-[16%] right-[16%]">
-                        <div className="relative h-0.5" style={{ backgroundColor: '#E2E8F0' }}>
+                        <div className="relative h-0.5" style={{ backgroundColor: '#dce0e6' }}>
                             <motion.div
                                 initial={{ width: '0%' }}
                                 animate={inView ? { width: '100%' } : {}}
@@ -148,14 +146,12 @@ export default function HowItWorks() {
                                     </div>
 
                                     <h3
-                                        className="text-lg font-semibold mb-2"
-                                        style={{ color: '#0F172A', fontFamily: 'var(--font-body)' }}
+                                        className="text-lg font-semibold mb-2 text-gray-900"
                                     >
                                         {step.title}
                                     </h3>
                                     <p
-                                        className="text-sm leading-relaxed max-w-xs mx-auto mb-1"
-                                        style={{ color: '#475569' }}
+                                        className="text-sm leading-relaxed max-w-xs mx-auto mb-1 text-gray-500"
                                     >
                                         {step.description}
                                     </p>

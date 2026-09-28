@@ -89,10 +89,7 @@ function SectionTitle({ title, subtitle }: { title: string; subtitle?: string })
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
         >
-            <h2
-                className="text-3xl sm:text-4xl font-display text-gray-900 mb-4"
-                style={{ fontFamily: 'var(--font-display)' }}
-            >
+            <h2 className="text-3xl sm:text-4xl font-display text-gray-900 mb-4">
                 {title}
             </h2>
             {subtitle && <p className="text-gray-600 max-w-2xl mx-auto">{subtitle}</p>}
@@ -139,13 +136,13 @@ function PartnershipHero() {
                         transition={{ duration: 0.6 }}
                     >
                         <h1
+                            className="text-gray-900"
                             style={{
                                 fontFamily: 'var(--font-display), Georgia, serif',
                                 fontSize: 'clamp(36px, 5vw, 64px)',
                                 fontWeight: 400,
                                 lineHeight: 1.1,
                                 letterSpacing: '-0.03em',
-                                color: '#0F172A',
                             }}
                         >
                             Grow with Mentrily. <br />
@@ -296,10 +293,7 @@ export default function PartnershipPage() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.6 }}
                     >
-                        <h2
-                            className="text-3xl sm:text-4xl font-display text-gray-900 mb-6"
-                            style={{ fontFamily: 'var(--font-display)' }}
-                        >
+                        <h2 className="text-3xl sm:text-4xl font-display text-gray-900 mb-6">
                             Scale your business with Mentrily
                         </h2>
                         <p className="text-gray-600 mb-8 leading-relaxed">

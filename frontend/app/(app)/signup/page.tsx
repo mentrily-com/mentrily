@@ -506,7 +506,7 @@ export default function SignupPage() {
                     <div className="w-full rounded-lg border border-white/70 bg-white p-6 shadow-lg sm:p-8">
                         {/* Heading */}
                         <div className="mb-8">
-                            <h1 className="text-2xl font-medium tracking-tight mb-1.5" style={{ color: '#0F172A' }}>
+                            <h1 className="text-2xl font-medium tracking-tight mb-1.5 text-gray-900">
                                 {pendingVerification
                                     ? 'Verify your email'
                                     : isInvitationFlow
@@ -542,19 +542,19 @@ export default function SignupPage() {
                                     className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-lg text-sm font-medium border transition-all duration-150 cursor-pointer mb-6 disabled:opacity-70 disabled:cursor-not-allowed"
                                     style={{
                                         backgroundColor: '#FFFFFF',
-                                        borderColor: '#E2E8F0',
-                                        color: '#334155',
+                                        borderColor: '#dce0e6',
+                                        color: '#464d5b',
                                     }}
                                     onMouseEnter={(e) => {
                                         if (!isGoogleLoading && !isLoading) {
-                                            e.currentTarget.style.backgroundColor = '#F8FAFC';
-                                            e.currentTarget.style.borderColor = '#CBD5E1';
+                                            e.currentTarget.style.backgroundColor = '#f9fafc';
+                                            e.currentTarget.style.borderColor = '#9fa5b0';
                                         }
                                     }}
                                     onMouseLeave={(e) => {
                                         if (!isGoogleLoading && !isLoading) {
-                                            e.currentTarget.style.backgroundColor = '#FFFFFF';
-                                            e.currentTarget.style.borderColor = '#E2E8F0';
+                                            e.currentTarget.style.backgroundColor = 'white';
+                                            e.currentTarget.style.borderColor = '#dce0e6';
                                         }
                                     }}
                                 >
@@ -585,11 +585,11 @@ export default function SignupPage() {
 
                                 {/* Divider */}
                                 <div className="flex items-center gap-3 mb-6">
-                                    <div className="h-px flex-1" style={{ backgroundColor: '#E2E8F0' }} />
+                                    <div className="h-px flex-1" style={{ backgroundColor: '#dce0e6' }} />
                                     <span className="text-xs font-medium" style={{ color: '#94A3B8' }}>
                                         or
                                     </span>
-                                    <div className="h-px flex-1" style={{ backgroundColor: '#E2E8F0' }} />
+                                    <div className="h-px flex-1" style={{ backgroundColor: '#dce0e6' }} />
                                 </div>
 
                                 {isInvitationFlow && (
@@ -612,8 +612,7 @@ export default function SignupPage() {
                                     <div className="grid grid-cols-2 gap-3">
                                         <div>
                                             <label
-                                                className="block text-sm font-medium mb-1.5"
-                                                style={{ color: '#0F172A' }}
+                                                className="block text-sm font-medium mb-1.5 text-gray-900"
                                             >
                                                 First name
                                             </label>
@@ -633,16 +632,14 @@ export default function SignupPage() {
                                                     className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150"
                                                     style={{
                                                         backgroundColor: '#FFFFFF',
-                                                        borderColor: '#E2E8F0',
-                                                        color: '#0F172A',
-                                                    }}
+                                                        borderColor: '#dce0e6',                                                    }}
                                                     onFocus={(e) => {
                                                         e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
                                                         e.currentTarget.style.boxShadow =
                                                             '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
                                                     }}
                                                     onBlur={(e) => {
-                                                        e.currentTarget.style.borderColor = '#E2E8F0';
+                                                        e.currentTarget.style.borderColor = '#dce0e6';
                                                         e.currentTarget.style.boxShadow = 'none';
                                                     }}
                                                 />
@@ -650,8 +647,7 @@ export default function SignupPage() {
                                         </div>
                                         <div>
                                             <label
-                                                className="block text-sm font-medium mb-1.5"
-                                                style={{ color: '#0F172A' }}
+                                                className="block text-sm font-medium mb-1.5 text-gray-900"
                                             >
                                                 Last name
                                             </label>
@@ -664,16 +660,14 @@ export default function SignupPage() {
                                                 className="w-full py-3 px-4 text-sm rounded-lg border outline-none transition-all duration-150"
                                                 style={{
                                                     backgroundColor: '#FFFFFF',
-                                                    borderColor: '#E2E8F0',
-                                                    color: '#0F172A',
-                                                }}
+                                                    borderColor: '#dce0e6',                                                }}
                                                 onFocus={(e) => {
                                                     e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
                                                     e.currentTarget.style.boxShadow =
                                                         '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
                                                 }}
                                                 onBlur={(e) => {
-                                                    e.currentTarget.style.borderColor = '#E2E8F0';
+                                                    e.currentTarget.style.borderColor = '#dce0e6';
                                                     e.currentTarget.style.boxShadow = 'none';
                                                 }}
                                             />
@@ -683,8 +677,7 @@ export default function SignupPage() {
                                     {!isInvitationFlow && (
                                         <div>
                                             <label
-                                                className="block text-sm font-medium mb-1.5"
-                                                style={{ color: '#0F172A' }}
+                                                className="block text-sm font-medium mb-1.5 text-gray-900"
                                             >
                                                 Email
                                             </label>
@@ -704,16 +697,14 @@ export default function SignupPage() {
                                                     className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150"
                                                     style={{
                                                         backgroundColor: '#FFFFFF',
-                                                        borderColor: '#E2E8F0',
-                                                        color: '#0F172A',
-                                                    }}
+                                                        borderColor: '#dce0e6',                                                    }}
                                                     onFocus={(e) => {
                                                         e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
                                                         e.currentTarget.style.boxShadow =
                                                             '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
                                                     }}
                                                     onBlur={(e) => {
-                                                        e.currentTarget.style.borderColor = '#E2E8F0';
+                                                        e.currentTarget.style.borderColor = '#dce0e6';
                                                         e.currentTarget.style.boxShadow = 'none';
                                                     }}
                                                 />
@@ -724,8 +715,7 @@ export default function SignupPage() {
                                     {/* Password */}
                                     <div>
                                         <label
-                                            className="block text-sm font-medium mb-1.5"
-                                            style={{ color: '#0F172A' }}
+                                            className="block text-sm font-medium mb-1.5 text-gray-900"
                                         >
                                             Password
                                         </label>
@@ -745,26 +735,23 @@ export default function SignupPage() {
                                                 className="w-full py-3 pl-11 pr-11 text-sm rounded-lg border outline-none transition-all duration-150"
                                                 style={{
                                                     backgroundColor: '#FFFFFF',
-                                                    borderColor: '#E2E8F0',
-                                                    color: '#0F172A',
-                                                }}
+                                                    borderColor: '#dce0e6',                                                }}
                                                 onFocus={(e) => {
                                                     e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
                                                     e.currentTarget.style.boxShadow =
                                                         '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
                                                 }}
                                                 onBlur={(e) => {
-                                                    e.currentTarget.style.borderColor = '#E2E8F0';
+                                                    e.currentTarget.style.borderColor = '#dce0e6';
                                                     e.currentTarget.style.boxShadow = 'none';
                                                 }}
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => setShowPassword(!showPassword)}
-                                                className="absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors duration-150 cursor-pointer"
-                                                style={{ color: '#CBD5E1' }}
-                                                onMouseEnter={(e) => (e.currentTarget.style.color = '#64748B')}
-                                                onMouseLeave={(e) => (e.currentTarget.style.color = '#CBD5E1')}
+                                                className="absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors duration-150 cursor-pointer text-gray-400"
+                                                onMouseEnter={(e) => (e.currentTarget.style.color = '#686f7b')}
+                                                onMouseLeave={(e) => (e.currentTarget.style.color = '#9fa5b0')}
                                             >
                                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                             </button>
@@ -849,7 +836,7 @@ export default function SignupPage() {
 
                                 {/* Code input */}
                                 <div>
-                                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#0F172A' }}>
+                                    <label className="block text-sm font-medium mb-1.5 text-gray-900">
                                         Verification code
                                     </label>
                                     <div className="relative">
@@ -868,16 +855,14 @@ export default function SignupPage() {
                                             className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150 tracking-widest"
                                             style={{
                                                 backgroundColor: '#FFFFFF',
-                                                borderColor: '#E2E8F0',
-                                                color: '#0F172A',
-                                            }}
+                                                borderColor: '#dce0e6',                                            }}
                                             onFocus={(e) => {
                                                 e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
                                                 e.currentTarget.style.boxShadow =
                                                     '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
                                             }}
                                             onBlur={(e) => {
-                                                e.currentTarget.style.borderColor = '#E2E8F0';
+                                                e.currentTarget.style.borderColor = '#dce0e6';
                                                 e.currentTarget.style.boxShadow = 'none';
                                             }}
                                         />

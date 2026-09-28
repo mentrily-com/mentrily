@@ -58,7 +58,6 @@ export default function Testimonials() {
                             fontWeight: 400,
                             lineHeight: 1.1,
                             letterSpacing: '-0.02em',
-                            color: '#0F172A',
                         }}
                     >
                         Educators trust Mentrily
@@ -83,7 +82,7 @@ export default function Testimonials() {
                             className="relative p-6 rounded-lg transition-all duration-250 cursor-pointer group"
                             style={{
                                 background: 'linear-gradient(180deg, #FFFFFF 0%, #FAFBFF 100%)',
-                                border: '1px solid #E2E8F0',
+                                border: '1px solid #dce0e6',
                                 boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.03)',
                             }}
                             onMouseEnter={(e) => {
@@ -96,7 +95,7 @@ export default function Testimonials() {
                                 e.currentTarget.style.transform = 'translateY(0)';
                                 e.currentTarget.style.boxShadow =
                                     '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.03)';
-                                e.currentTarget.style.borderColor = '#E2E8F0';
+                                e.currentTarget.style.borderColor = '#dce0e6';
                             }}
                         >
                             {/* Large quote icon with gradient */}
@@ -127,8 +126,7 @@ export default function Testimonials() {
                             </div>
 
                             <p
-                                className="text-sm leading-relaxed mb-6"
-                                style={{ color: '#475569', fontFamily: 'var(--font-body)' }}
+                                className="text-sm leading-relaxed mb-6 text-gray-500"
                             >
                                 &ldquo;{t.quote}&rdquo;
                             </p>
@@ -148,7 +146,7 @@ export default function Testimonials() {
                                     {t.initials}
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium" style={{ color: '#0F172A' }}>
+                                    <p className="text-sm font-medium text-gray-900">
                                         {t.name}
                                     </p>
                                     <p className="text-xs" style={{ color: '#94A3B8' }}>
