@@ -525,8 +525,7 @@ export default function SignupPage() {
                         {/* Error */}
                         {error && (
                             <div
-                                className="mb-5 px-4 py-3 rounded-lg text-sm font-medium text-center"
-                                style={{ backgroundColor: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}
+                                className="mb-5 px-4 py-3 rounded-lg text-sm font-medium text-center bg-red-50 border border-red-200 text-red-600"
                             >
                                 {error}
                             </div>
@@ -568,21 +567,16 @@ export default function SignupPage() {
 
                                 {/* Divider */}
                                 <div className="flex items-center gap-3 mb-6">
-                                    <div className="h-px flex-1" style={{ backgroundColor: '#dce0e6' }} />
+                                    <div className="h-px flex-1 bg-gray-300" />
                                     <span className="text-xs font-medium text-gray-400">
                                         or
                                     </span>
-                                    <div className="h-px flex-1" style={{ backgroundColor: '#dce0e6' }} />
+                                    <div className="h-px flex-1 bg-gray-300" />
                                 </div>
 
                                 {isInvitationFlow && (
                                     <div
-                                        className="mb-6 px-4 py-3 rounded-lg text-sm"
-                                        style={{
-                                            backgroundColor: '#F0FDFA',
-                                            border: '1px solid #99F6E4',
-                                            color: '#115E59',
-                                        }}
+                                        className="mb-6 px-4 py-3 rounded-lg text-sm bg-teal-50 border border-teal-200 text-teal-800"
                                     >
                                         This invitation already contains the invited email address. Set your password to
                                         activate the account.
@@ -739,12 +733,7 @@ export default function SignupPage() {
                             <form onSubmit={handleVerify} className="space-y-5">
                                 {/* Info banner */}
                                 <div
-                                    className="px-4 py-3 rounded-lg text-sm text-center"
-                                    style={{
-                                        backgroundColor: '#eefbfc',
-                                        border: '1px solid #eefbfc',
-                                        color: 'var(--brand-dark)',
-                                    }}
+                                    className="px-4 py-3 rounded-lg text-sm text-center bg-[#eefbfc] border border-[#eefbfc] text-[var(--brand-dark)]"
                                 >
                                     We sent a verification code to <br />
                                     <span className="font-semibold">{email}</span>
@@ -797,8 +786,7 @@ export default function SignupPage() {
                             Already have an account?{' '}
                             <Link
                                 href="/login"
-                                className="font-medium transition-colors duration-150 cursor-pointer"
-                                style={{ color: 'var(--brand, #007c85)' }}
+                                className="font-medium transition-colors duration-150 cursor-pointer text-[var(--brand)]"
                             >
                                 Sign in
                             </Link>

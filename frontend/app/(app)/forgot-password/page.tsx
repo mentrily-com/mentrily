@@ -185,12 +185,7 @@ export default function ForgotPasswordPage() {
 
                                 {error && (
                                     <div
-                                        className="mb-5 px-4 py-3 rounded-lg text-sm font-medium text-center"
-                                        style={{
-                                            backgroundColor: '#FEF2F2',
-                                            border: '1px solid #FECACA',
-                                            color: '#DC2626',
-                                        }}
+                                        className="mb-5 px-4 py-3 rounded-lg text-sm font-medium text-center bg-red-50 border border-red-200 text-red-600"
                                     >
                                         {error}
                                     </div>
@@ -258,12 +253,7 @@ export default function ForgotPasswordPage() {
 
                                 {error && (
                                     <div
-                                        className="mb-5 px-4 py-3 rounded-lg text-sm font-medium text-center"
-                                        style={{
-                                            backgroundColor: '#FEF2F2',
-                                            border: '1px solid #FECACA',
-                                            color: '#DC2626',
-                                        }}
+                                        className="mb-5 px-4 py-3 rounded-lg text-sm font-medium text-center bg-red-50 border border-red-200 text-red-600"
                                     >
                                         {error}
                                     </div>
@@ -361,8 +351,7 @@ export default function ForgotPasswordPage() {
                         {step === 'success' && (
                             <div className="text-center">
                                 <div
-                                    className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"
-                                    style={{ backgroundColor: '#F0FDF4', color: '#10B981' }}
+                                    className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 bg-emerald-50 text-emerald-500"
                                 >
                                     <CheckCircle2 size={32} />
                                 </div>

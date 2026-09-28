@@ -544,18 +544,17 @@ export default function LoginPage() {
 
                         {/* Divider */}
                         <div className="flex items-center gap-3 mb-6">
-                            <div className="h-px flex-1" style={{ backgroundColor: '#dce0e6' }} />
+                            <div className="h-px flex-1 bg-gray-300" />
                             <span className="text-xs font-medium text-gray-400">
                                 or
                             </span>
-                            <div className="h-px flex-1" style={{ backgroundColor: '#dce0e6' }} />
+                            <div className="h-px flex-1 bg-gray-300" />
                         </div>
 
                         {/* Error */}
                         {error && (
                             <div
-                                className="mb-5 px-4 py-3 rounded-lg text-sm font-medium text-center"
-                                style={{ backgroundColor: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}
+                                className="mb-5 px-4 py-3 rounded-lg text-sm font-medium text-center bg-red-50 border border-red-200 text-red-600"
                             >
                                 {error}
                             </div>
@@ -592,8 +591,7 @@ export default function LoginPage() {
                                         </label>
                                         <Link
                                             href="/forgot-password"
-                                            className="text-xs font-medium transition-colors duration-150 cursor-pointer"
-                                            style={{ color: 'var(--brand, #007c85)' }}
+                                            className="text-xs font-medium transition-colors duration-150 cursor-pointer text-[var(--brand)]"
                                         >
                                             Forgot password?
                                         </Link>
@@ -717,8 +715,7 @@ export default function LoginPage() {
                             Don&apos;t have an account?{' '}
                             <Link
                                 href="/signup"
-                                className="font-medium transition-colors duration-150 cursor-pointer"
-                                style={{ color: 'var(--brand, #007c85)' }}
+                                className="font-medium transition-colors duration-150 cursor-pointer text-[var(--brand)]"
                             >
                                 Create one
                             </Link>
