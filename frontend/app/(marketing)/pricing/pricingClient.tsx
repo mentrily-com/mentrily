@@ -271,7 +271,7 @@ function FeatureComparison() {
                                                         {renderValue(feat.starter)}
                                                     </div>
                                                     <div className="flex flex-col items-center gap-1">
-                                                        <span className="text-[10px] font-medium uppercase tracking-wider text-[#006a72] lg:hidden">
+                                                        <span className="text-[10px] font-medium uppercase tracking-wider text-[var(--brand-dark)] lg:hidden">
                                                             Pro
                                                         </span>
                                                         {renderValue(feat.pro)}

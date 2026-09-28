@@ -159,15 +159,16 @@ export default function PricingTeaser() {
 
                             <Link
                                 href={tier.href}
-                                className="block w-full py-2.5 text-center text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer"
-                                style={{
-                                    background: tier.highlighted
-                                        ? 'linear-gradient(135deg, #007c85, #005359)'
-                                        : 'transparent',
-                                    color: tier.highlighted ? '#FFFFFF' : '#006a72',
-                                    border: tier.highlighted ? 'none' : '1px solid #dce0e6',
-                                    boxShadow: tier.highlighted ? '0 4px 12px rgba(0,141,152,0.2)' : 'none',
-                                }}
+                                className={`block w-full py-2.5 text-center text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
+                                    tier.highlighted
+                                        ? 'text-white shadow-md'
+                                        : 'bg-transparent text-[var(--brand-dark)] border border-gray-300'
+                                }`}
+                                style={
+                                    tier.highlighted
+                                        ? { background: 'linear-gradient(135deg, #007c85, #005359)' }
+                                        : undefined
+                                }
                             >
                                 {tier.cta}
                             </Link>
