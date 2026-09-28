@@ -150,19 +150,7 @@ export default function Hero() {
                             >
                                 <Link
                                     href="/signup"
-                                    className="group inline-flex items-center gap-2 px-7 py-3.5 text-sm font-semibold text-white rounded-lg transition-all duration-200 cursor-pointer"
-                                    style={{
-                                        background: 'linear-gradient(135deg, #007c85 0%, #005359 100%)',
-                                        boxShadow: '0 4px 16px rgba(0,141,152,0.25)',
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,141,152,0.35)';
-                                        e.currentTarget.style.transform = 'translateY(-1px)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,141,152,0.25)';
-                                        e.currentTarget.style.transform = 'translateY(0)';
-                                    }}
+                                    className="group inline-flex items-center gap-2 px-7 py-3.5 text-sm font-semibold text-white rounded-lg shadow-sm hover:shadow-md hover:-translate-y-px transition-all duration-200 cursor-pointer bg-[var(--brand)] hover:bg-[var(--brand-dark)]"
                                 >
                                     Start for Free
                                     <ArrowRight
@@ -172,23 +160,7 @@ export default function Hero() {
                                 </Link>
                                 <Link
                                     href="/pricing"
-                                    className="inline-flex items-center px-7 py-3.5 text-sm font-semibold rounded-lg border transition-all duration-200 cursor-pointer"
-                                    style={{
-                                        color: '#006a72',
-                                        borderColor: '#dce0e6',
-                                        backgroundColor: 'rgba(255,255,255,0.7)',
-                                        backdropFilter: 'blur(8px)',
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.backgroundColor = '#FFFFFF';
-                                        e.currentTarget.style.borderColor = '#007c85';
-                                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,141,152,0.1)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.7)';
-                                        e.currentTarget.style.borderColor = '#dce0e6';
-                                        e.currentTarget.style.boxShadow = 'none';
-                                    }}
+                                    className="inline-flex items-center px-7 py-3.5 text-sm font-semibold rounded-lg border border-gray-300 bg-white text-[var(--brand-dark)] hover:border-[var(--brand)] hover:shadow-sm transition-all duration-200 cursor-pointer"
                                 >
                                     See Pricing
                                 </Link>
@@ -215,28 +187,11 @@ export default function Hero() {
                             ease: [0.16, 1, 0.3, 1],
                         }}
                         className="hidden lg:flex justify-center"
-                        style={{ perspective: '1200px' }}
                     >
                         <button
                             type="button"
-                            className="relative w-[min(56vw,880px)] overflow-hidden rounded-lg text-left transition-all duration-500 xl:w-[min(57vw,920px)]"
-                            style={{
-                                border: '1px solid rgba(226,232,240,0.8)',
-                                boxShadow:
-                                    '0 32px 80px rgba(15,23,42,0.12), 0 12px 32px rgba(15,23,42,0.08), 0 0 0 1px rgba(255,255,255,0.5) inset',
-                                transformStyle: 'preserve-3d',
-                            }}
+                            className="relative w-[min(56vw,880px)] overflow-hidden rounded-lg text-left border border-gray-200 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-200 xl:w-[min(57vw,920px)]"
                             onClick={() => setPreviewImage(heroImage)}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.transform = 'rotateY(-2deg) rotateX(1deg) translateY(-4px)';
-                                e.currentTarget.style.boxShadow =
-                                    '0 40px 100px rgba(0,141,152,0.15), 0 16px 40px rgba(15,23,42,0.1), 0 0 0 1px rgba(0,141,152,0.1) inset';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.transform = 'rotateY(0) rotateX(0) translateY(0)';
-                                e.currentTarget.style.boxShadow =
-                                    '0 32px 80px rgba(15,23,42,0.12), 0 12px 32px rgba(15,23,42,0.08), 0 0 0 1px rgba(255,255,255,0.5) inset';
-                            }}
                         >
                             {/* Screenshot */}
                             <div className="relative aspect-[1919/938] overflow-hidden bg-gray-50">
@@ -249,10 +204,7 @@ export default function Hero() {
                                     className="object-cover"
                                 />
                                 <div
-                                    className="pointer-events-none absolute inset-0"
-                                    style={{
-                                        boxShadow: 'inset 0 0 0 1px rgba(226,232,240,0.5)',
-                                    }}
+                                    className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-gray-200/50"
                                 />
                             </div>
                         </button>

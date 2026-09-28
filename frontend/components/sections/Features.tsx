@@ -177,13 +177,7 @@ function FeatureRow({
                 }`}
             >
                 <div
-                    className="transition-all duration-300 cursor-pointer"
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-4px)';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                    }}
+                    className="transition-all duration-300 cursor-pointer hover:-translate-y-1"
                 >
                     <BrowserFrame>{mockup}</BrowserFrame>
                 </div>

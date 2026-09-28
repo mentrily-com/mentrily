@@ -452,10 +452,7 @@ export default function PricingPage() {
                     </h3>
                     <Link
                         href="/signup"
-                        className="inline-flex items-center gap-2 px-7 py-3.5 text-sm font-semibold text-white rounded-lg transition-colors duration-150 cursor-pointer"
-                        style={{ backgroundColor: '#007c85' }}
-                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#005359')}
-                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#007c85')}
+                        className="inline-flex items-center gap-2 px-7 py-3.5 text-sm font-semibold text-white rounded-lg transition-colors duration-150 cursor-pointer bg-[var(--brand)] hover:bg-[var(--brand-dark)]"
                     >
                         Get Started Free <ArrowRight size={16} />
                     </Link>

@@ -141,19 +141,7 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
                     >
                         <Link
                             href={ctaHref}
-                            className="inline-flex items-center justify-center px-10 py-4 text-base font-semibold text-white rounded-lg transition-all duration-200 cursor-pointer gap-2"
-                            style={{
-                                background: 'linear-gradient(135deg, #007c85, #005359)',
-                                boxShadow: '0 4px 16px rgba(0,141,152,0.3)',
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,141,152,0.45)';
-                                e.currentTarget.style.transform = 'translateY(-1px)';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,141,152,0.3)';
-                                e.currentTarget.style.transform = 'translateY(0)';
-                            }}
+                            className="inline-flex items-center justify-center px-10 py-4 text-base font-semibold text-white rounded-lg shadow-sm hover:shadow-md hover:-translate-y-px transition-all duration-200 cursor-pointer gap-2 bg-[var(--brand)] hover:bg-[var(--brand-dark)]"
                         >
                             {displayCtaText} <ArrowRight size={20} />
                         </Link>
@@ -220,19 +208,7 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
                         <button
                             type="submit"
                             disabled={status === 'loading'}
-                            className="px-6 py-3.5 text-sm font-semibold text-white rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-70"
-                            style={{
-                                background: 'linear-gradient(135deg, #007c85, #005359)',
-                                boxShadow: '0 4px 16px rgba(0,141,152,0.3)',
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,141,152,0.45)';
-                                e.currentTarget.style.transform = 'translateY(-1px)';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,141,152,0.3)';
-                                e.currentTarget.style.transform = 'translateY(0)';
-                            }}
+                            className="px-6 py-3.5 text-sm font-semibold text-white rounded-lg shadow-sm hover:shadow-md hover:-translate-y-px transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-70 bg-[var(--brand)] hover:bg-[var(--brand-dark)]"
                         >
                             {status === 'loading' ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />

@@ -101,38 +101,17 @@ export default function PricingTeaser() {
                                 duration: 0.48,
                                 ease: [0.25, 0.1, 0.25, 1],
                             }}
-                            className={`relative p-6 rounded-lg transition-all duration-250 cursor-pointer ${
-                                tier.highlighted ? 'animate-glow-pulse' : ''
+                            className={`relative p-6 rounded-lg transition-all duration-200 cursor-pointer hover:-translate-y-0.5 ${
+                                tier.highlighted ? 'shadow-md hover:shadow-lg' : 'shadow-sm hover:shadow-md'
                             }`}
                             style={{
-                                backgroundColor: tier.highlighted ? '#FFFFFF' : '#FFFFFF',
+                                backgroundColor: '#FFFFFF',
                                 border: tier.highlighted ? '2px solid transparent' : '1px solid #dce0e6',
                                 backgroundImage: tier.highlighted
                                     ? 'linear-gradient(#FFFFFF, #FFFFFF), linear-gradient(135deg, #007c85, #10B981)'
                                     : 'none',
                                 backgroundOrigin: 'border-box',
                                 backgroundClip: tier.highlighted ? 'padding-box, border-box' : 'border-box',
-                                boxShadow: tier.highlighted
-                                    ? '0 8px 32px rgba(0,141,152,0.12), 0 2px 8px rgba(0,0,0,0.04)'
-                                    : '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.03)',
-                            }}
-                            onMouseEnter={(e) => {
-                                if (!tier.highlighted) {
-                                    e.currentTarget.style.transform = 'translateY(-3px)';
-                                    e.currentTarget.style.boxShadow =
-                                        '0 8px 24px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04)';
-                                } else {
-                                    e.currentTarget.style.transform = 'translateY(-4px) scale(1.01)';
-                                }
-                            }}
-                            onMouseLeave={(e) => {
-                                if (!tier.highlighted) {
-                                    e.currentTarget.style.transform = 'translateY(0)';
-                                    e.currentTarget.style.boxShadow =
-                                        '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.03)';
-                                } else {
-                                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                                }
                             }}
                         >
                             {tier.highlighted && (

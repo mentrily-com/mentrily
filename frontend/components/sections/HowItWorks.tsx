@@ -111,25 +111,7 @@ export default function HowItWorks() {
                                     {/* Step card */}
                                     <div className="flex justify-center mb-5">
                                         <div
-                                            className="w-[120px] h-[120px] rounded-lg flex flex-col items-center justify-center relative transition-all duration-300"
-                                            style={{
-                                                backgroundColor: 'rgba(255,255,255,0.85)',
-                                                backdropFilter: 'blur(12px)',
-                                                border: '1px solid rgba(226,232,240,0.8)',
-                                                boxShadow: '0 4px 20px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)',
-                                            }}
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.boxShadow =
-                                                    '0 8px 32px rgba(0,141,152,0.12), 0 2px 8px rgba(0,0,0,0.04)';
-                                                e.currentTarget.style.borderColor = 'rgba(0,141,152,0.2)';
-                                                e.currentTarget.style.transform = 'translateY(-2px)';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.currentTarget.style.boxShadow =
-                                                    '0 4px 20px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)';
-                                                e.currentTarget.style.borderColor = 'rgba(226,232,240,0.8)';
-                                                e.currentTarget.style.transform = 'translateY(0)';
-                                            }}
+                                            className="w-[120px] h-[120px] rounded-lg flex flex-col items-center justify-center relative bg-white border border-gray-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-[var(--brand-light)] transition-all duration-200"
                                         >
                                             <Icon size={32} style={{ color: '#007c85' }} />
                                             {/* Step number badge */}

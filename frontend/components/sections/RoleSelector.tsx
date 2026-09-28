@@ -172,20 +172,7 @@ export default function RoleSelector() {
                                             initial={{ opacity: 0, x: 12 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: i * 0.06, duration: 0.35 }}
-                                            className="flex h-full items-start gap-3 rounded-lg p-4 text-left transition-all duration-200 cursor-pointer group"
-                                            style={{
-                                                backgroundColor: '#FFFFFF',
-                                                border: '1px solid #dce0e6',
-                                                boxShadow: '0 2px 10px rgba(15,23,42,0.04)',
-                                            }}
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.borderColor = '#dce0e6';
-                                                e.currentTarget.style.boxShadow = `0 8px 24px ${activePersona.accent}18`;
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.currentTarget.style.borderColor = '#dce0e6';
-                                                e.currentTarget.style.boxShadow = '0 2px 10px rgba(15,23,42,0.04)';
-                                            }}
+                                            className="flex h-full items-start gap-3 rounded-lg p-4 text-left bg-white border border-gray-300 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group"
                                         >
                                             <div
                                                 className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
