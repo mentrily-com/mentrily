@@ -11,16 +11,16 @@ export default function Features() {
     const [previewImage, setPreviewImage] = useState<PreviewImage | null>(null);
 
     return (
-        <section className="py-20 sm:py-28" style={{ backgroundColor: '#FFFFFF' }} id="features">
+        <section className="py-20 sm:py-28 bg-white" id="features">
             <div className="max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section heading */}
                 <div className="text-center mb-16 sm:mb-20">
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#007c85' }} />
-                        <span className="text-sm font-medium uppercase tracking-widest" style={{ color: '#006a72' }}>
+                        <div className="w-8 h-0.5 bg-[var(--brand)]" />
+                        <span className="text-sm font-medium uppercase tracking-widest text-[var(--brand-dark)]">
                             Platform
                         </span>
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#007c85' }} />
+                        <div className="w-8 h-0.5 bg-[var(--brand)]" />
                     </div>
                     <h2
                         className="text-gray-900"

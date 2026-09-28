@@ -213,19 +213,7 @@ export default function ForgotPasswordPage() {
                                                 value={email}
                                                 onChange={(e) => setEmail(e.target.value)}
                                                 placeholder="name@company.com"
-                                                className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150"
-                                                style={{
-                                                    backgroundColor: '#FFFFFF',
-                                                    borderColor: '#dce0e6',                                                }}
-                                                onFocus={(e) => {
-                                                    e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
-                                                    e.currentTarget.style.boxShadow =
-                                                        '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
-                                                }}
-                                                onBlur={(e) => {
-                                                    e.currentTarget.style.borderColor = '#dce0e6';
-                                                    e.currentTarget.style.boxShadow = 'none';
-                                                }}
+                                                className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border border-gray-300 bg-white outline-none transition-all duration-150 focus:border-[var(--brand)] focus:ring-3 focus:ring-[var(--brand-light)]"
                                             />
                                         </div>
                                     </div>
@@ -233,14 +221,7 @@ export default function ForgotPasswordPage() {
                                     <button
                                         type="submit"
                                         disabled={isLoading}
-                                        className="w-full py-3 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed"
-                                        style={{ backgroundColor: 'var(--brand, #007c85)' }}
-                                        onMouseEnter={(e) => {
-                                            if (!isLoading) e.currentTarget.style.opacity = '0.9';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.opacity = '1';
-                                        }}
+                                        className="w-full py-3 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed bg-[var(--brand)] hover:bg-[var(--brand-dark)]"
                                     >
                                         {isLoading ? (
                                             <Loader2 size={18} className="animate-spin" />
@@ -307,18 +288,6 @@ export default function ForgotPasswordPage() {
                                                 onChange={(e) => setCode(e.target.value)}
                                                 placeholder="123456"
                                                 className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150 tracking-widest"
-                                                style={{
-                                                    backgroundColor: '#FFFFFF',
-                                                    borderColor: '#dce0e6',                                                }}
-                                                onFocus={(e) => {
-                                                    e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
-                                                    e.currentTarget.style.boxShadow =
-                                                        '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
-                                                }}
-                                                onBlur={(e) => {
-                                                    e.currentTarget.style.borderColor = '#dce0e6';
-                                                    e.currentTarget.style.boxShadow = 'none';
-                                                }}
                                             />
                                         </div>
                                     </div>
@@ -340,19 +309,7 @@ export default function ForgotPasswordPage() {
                                                 value={password}
                                                 onChange={(e) => setPassword(e.target.value)}
                                                 placeholder="••••••••"
-                                                className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150"
-                                                style={{
-                                                    backgroundColor: '#FFFFFF',
-                                                    borderColor: '#dce0e6',                                                }}
-                                                onFocus={(e) => {
-                                                    e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
-                                                    e.currentTarget.style.boxShadow =
-                                                        '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
-                                                }}
-                                                onBlur={(e) => {
-                                                    e.currentTarget.style.borderColor = '#dce0e6';
-                                                    e.currentTarget.style.boxShadow = 'none';
-                                                }}
+                                                className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border border-gray-300 bg-white outline-none transition-all duration-150 focus:border-[var(--brand)] focus:ring-3 focus:ring-[var(--brand-light)]"
                                             />
                                         </div>
                                     </div>
@@ -374,19 +331,7 @@ export default function ForgotPasswordPage() {
                                                 value={confirmPassword}
                                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                                 placeholder="••••••••"
-                                                className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150"
-                                                style={{
-                                                    backgroundColor: '#FFFFFF',
-                                                    borderColor: '#dce0e6',                                                }}
-                                                onFocus={(e) => {
-                                                    e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
-                                                    e.currentTarget.style.boxShadow =
-                                                        '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
-                                                }}
-                                                onBlur={(e) => {
-                                                    e.currentTarget.style.borderColor = '#dce0e6';
-                                                    e.currentTarget.style.boxShadow = 'none';
-                                                }}
+                                                className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border border-gray-300 bg-white outline-none transition-all duration-150 focus:border-[var(--brand)] focus:ring-3 focus:ring-[var(--brand-light)]"
                                             />
                                         </div>
                                     </div>
@@ -394,14 +339,7 @@ export default function ForgotPasswordPage() {
                                     <button
                                         type="submit"
                                         disabled={isLoading}
-                                        className="w-full py-3 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed mt-1"
-                                        style={{ backgroundColor: 'var(--brand, #007c85)' }}
-                                        onMouseEnter={(e) => {
-                                            if (!isLoading) e.currentTarget.style.opacity = '0.9';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.opacity = '1';
-                                        }}
+                                        className="w-full py-3 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed mt-1 bg-[var(--brand)] hover:bg-[var(--brand-dark)]"
                                     >
                                         {isLoading ? (
                                             <Loader2 size={18} className="animate-spin" />
@@ -436,10 +374,7 @@ export default function ForgotPasswordPage() {
                                 </p>
                                 <button
                                     onClick={() => router.push('/dashboard/learner')}
-                                    className="w-full py-3 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group"
-                                    style={{ backgroundColor: '#10B981' }}
-                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#059669')}
-                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#10B981')}
+                                    className="w-full py-3 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group bg-emerald-500 hover:bg-emerald-600"
                                 >
                                     Go to Dashboard
                                     <ArrowRight
@@ -454,10 +389,7 @@ export default function ForgotPasswordPage() {
                         <div className="mt-8 text-center">
                             <Link
                                 href="/login"
-                                className="inline-flex items-center gap-2 text-sm font-medium transition-colors duration-150 cursor-pointer group text-gray-400"
-                                
-                                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--brand, #007c85)')}
-                                onMouseLeave={(e) => (e.currentTarget.style.color = '#9fa5b0')}
+                                className="inline-flex items-center gap-2 text-sm font-medium transition-colors duration-150 cursor-pointer group text-gray-400 hover:text-[var(--brand)]"
                             >
                                 <ArrowLeft
                                     size={14}

@@ -192,7 +192,6 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
                                 backgroundColor: 'rgba(255,255,255,0.08)',
                                 border: '1px solid rgba(255,255,255,0.12)',
                                 color: '#FFFFFF',
-                                backdropFilter: 'blur(8px)',
                             }}
                             onFocus={(e) => {
                                 e.currentTarget.style.borderColor = 'rgba(0,141,152,0.5)';

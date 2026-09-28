@@ -539,24 +539,7 @@ export default function SignupPage() {
                                     type="button"
                                     disabled={isGoogleLoading || isLoading}
                                     onClick={signUpWithGoogle}
-                                    className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-lg text-sm font-medium border transition-all duration-150 cursor-pointer mb-6 disabled:opacity-70 disabled:cursor-not-allowed"
-                                    style={{
-                                        backgroundColor: '#FFFFFF',
-                                        borderColor: '#dce0e6',
-                                        color: '#464d5b',
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        if (!isGoogleLoading && !isLoading) {
-                                            e.currentTarget.style.backgroundColor = '#f9fafc';
-                                            e.currentTarget.style.borderColor = '#9fa5b0';
-                                        }
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        if (!isGoogleLoading && !isLoading) {
-                                            e.currentTarget.style.backgroundColor = 'white';
-                                            e.currentTarget.style.borderColor = '#dce0e6';
-                                        }
-                                    }}
+                                    className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-lg text-sm font-medium border border-gray-300 bg-white text-gray-700 transition-all duration-150 cursor-pointer mb-6 disabled:opacity-70 disabled:cursor-not-allowed hover:bg-gray-50 hover:border-gray-400"
                                 >
                                     {isGoogleLoading ? (
                                         <Loader2 size={18} className="animate-spin text-gray-400" />
@@ -626,19 +609,7 @@ export default function SignupPage() {
                                                     value={firstName}
                                                     onChange={(e) => setFirstName(e.target.value)}
                                                     placeholder="John"
-                                                    className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150"
-                                                    style={{
-                                                        backgroundColor: '#FFFFFF',
-                                                        borderColor: '#dce0e6',                                                    }}
-                                                    onFocus={(e) => {
-                                                        e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
-                                                        e.currentTarget.style.boxShadow =
-                                                            '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
-                                                    }}
-                                                    onBlur={(e) => {
-                                                        e.currentTarget.style.borderColor = '#dce0e6';
-                                                        e.currentTarget.style.boxShadow = 'none';
-                                                    }}
+                                                    className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border border-gray-300 bg-white outline-none transition-all duration-150 focus:border-[var(--brand)] focus:ring-3 focus:ring-[var(--brand-light)]"
                                                 />
                                             </div>
                                         </div>
@@ -653,19 +624,7 @@ export default function SignupPage() {
                                                 value={lastName}
                                                 onChange={(e) => setLastName(e.target.value)}
                                                 placeholder="Doe"
-                                                className="w-full py-3 px-4 text-sm rounded-lg border outline-none transition-all duration-150"
-                                                style={{
-                                                    backgroundColor: '#FFFFFF',
-                                                    borderColor: '#dce0e6',                                                }}
-                                                onFocus={(e) => {
-                                                    e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
-                                                    e.currentTarget.style.boxShadow =
-                                                        '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
-                                                }}
-                                                onBlur={(e) => {
-                                                    e.currentTarget.style.borderColor = '#dce0e6';
-                                                    e.currentTarget.style.boxShadow = 'none';
-                                                }}
+                                                className="w-full py-3 px-4 text-sm rounded-lg border border-gray-300 bg-white outline-none transition-all duration-150 focus:border-[var(--brand)] focus:ring-3 focus:ring-[var(--brand-light)]"
                                             />
                                         </div>
                                     </div>
@@ -687,19 +646,7 @@ export default function SignupPage() {
                                                     value={email}
                                                     onChange={(e) => setEmail(e.target.value)}
                                                     placeholder="name@company.com"
-                                                    className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150"
-                                                    style={{
-                                                        backgroundColor: '#FFFFFF',
-                                                        borderColor: '#dce0e6',                                                    }}
-                                                    onFocus={(e) => {
-                                                        e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
-                                                        e.currentTarget.style.boxShadow =
-                                                            '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
-                                                    }}
-                                                    onBlur={(e) => {
-                                                        e.currentTarget.style.borderColor = '#dce0e6';
-                                                        e.currentTarget.style.boxShadow = 'none';
-                                                    }}
+                                                    className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border border-gray-300 bg-white outline-none transition-all duration-150 focus:border-[var(--brand)] focus:ring-3 focus:ring-[var(--brand-light)]"
                                                 />
                                             </div>
                                         </div>
@@ -722,26 +669,12 @@ export default function SignupPage() {
                                                 value={password}
                                                 onChange={(e) => setPassword(e.target.value)}
                                                 placeholder="••••••••"
-                                                className="w-full py-3 pl-11 pr-11 text-sm rounded-lg border outline-none transition-all duration-150"
-                                                style={{
-                                                    backgroundColor: '#FFFFFF',
-                                                    borderColor: '#dce0e6',                                                }}
-                                                onFocus={(e) => {
-                                                    e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
-                                                    e.currentTarget.style.boxShadow =
-                                                        '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
-                                                }}
-                                                onBlur={(e) => {
-                                                    e.currentTarget.style.borderColor = '#dce0e6';
-                                                    e.currentTarget.style.boxShadow = 'none';
-                                                }}
+                                                className="w-full py-3 pl-11 pr-11 text-sm rounded-lg border border-gray-300 bg-white outline-none transition-all duration-150 focus:border-[var(--brand)] focus:ring-3 focus:ring-[var(--brand-light)]"
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => setShowPassword(!showPassword)}
-                                                className="absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors duration-150 cursor-pointer text-gray-400"
-                                                onMouseEnter={(e) => (e.currentTarget.style.color = '#686f7b')}
-                                                onMouseLeave={(e) => (e.currentTarget.style.color = '#9fa5b0')}
+                                                className="absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors duration-150 cursor-pointer text-gray-400 hover:text-gray-500"
                                             >
                                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                             </button>
@@ -785,14 +718,7 @@ export default function SignupPage() {
                                     <button
                                         type="submit"
                                         disabled={isLoading}
-                                        className="w-full py-3 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed mt-1"
-                                        style={{ backgroundColor: 'var(--brand, #007c85)' }}
-                                        onMouseEnter={(e) => {
-                                            if (!isLoading) e.currentTarget.style.opacity = '0.9';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.opacity = '1';
-                                        }}
+                                        className="w-full py-3 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed mt-1 bg-[var(--brand)] hover:bg-[var(--brand-dark)]"
                                     >
                                         {isLoading ? (
                                             <Loader2 size={18} className="animate-spin" />
@@ -841,18 +767,6 @@ export default function SignupPage() {
                                             onChange={(e) => setCode(e.target.value)}
                                             placeholder="123456"
                                             className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150 tracking-widest"
-                                            style={{
-                                                backgroundColor: '#FFFFFF',
-                                                borderColor: '#dce0e6',                                            }}
-                                            onFocus={(e) => {
-                                                e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
-                                                e.currentTarget.style.boxShadow =
-                                                    '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
-                                            }}
-                                            onBlur={(e) => {
-                                                e.currentTarget.style.borderColor = '#dce0e6';
-                                                e.currentTarget.style.boxShadow = 'none';
-                                            }}
                                         />
                                     </div>
                                 </div>
@@ -861,14 +775,7 @@ export default function SignupPage() {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full py-3 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed"
-                                    style={{ backgroundColor: 'var(--brand, #007c85)' }}
-                                    onMouseEnter={(e) => {
-                                        if (!isLoading) e.currentTarget.style.opacity = '0.9';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.opacity = '1';
-                                    }}
+                                    className="w-full py-3 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed bg-[var(--brand)] hover:bg-[var(--brand-dark)]"
                                 >
                                     {isLoading ? (
                                         <Loader2 size={18} className="animate-spin" />

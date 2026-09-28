@@ -90,7 +90,7 @@ function Mission() {
                     transition={{ duration: 0.48 }}
                 >
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-12 h-0.5" style={{ backgroundColor: '#007c85' }} />
+                        <div className="w-12 h-0.5 bg-[var(--brand)]" />
                     </div>
                     <p
                         style={{
@@ -113,7 +113,7 @@ function ProductPhilosophy() {
     const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.12 });
 
     return (
-        <section ref={ref} className="py-16 sm:py-20" style={{ borderTop: '1px solid #dce0e6' }}>
+        <section ref={ref} className="py-16 sm:py-20 border-t border-gray-300">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, y: 28 }}
@@ -122,7 +122,7 @@ function ProductPhilosophy() {
                     className="text-center mb-12"
                 >
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-12 h-0.5" style={{ backgroundColor: '#007c85' }} />
+                        <div className="w-12 h-0.5 bg-[var(--brand)]" />
                     </div>
                 </motion.div>
 
@@ -150,10 +150,7 @@ function ProductPhilosophy() {
                                 'Track learner progress around real submissions, attempts, and practical work.',
                             ].map((item) => (
                                 <li key={item} className="flex items-start gap-3">
-                                    <div
-                                        className="w-1.5 h-1.5 rounded-full mt-2 shrink-0"
-                                        style={{ backgroundColor: '#007c85' }}
-                                    />
+                                    <div className="w-1.5 h-1.5 rounded-full mt-2 shrink-0 bg-[var(--brand)]" />
                                     <p className="text-sm leading-relaxed text-gray-500">
                                         {item}
                                     </p>
@@ -185,10 +182,7 @@ function ProductPhilosophy() {
                                 'Fast previews, saved attempts, and submission history make debugging teachable.',
                             ].map((item) => (
                                 <li key={item} className="flex items-start gap-3">
-                                    <div
-                                        className="w-1.5 h-1.5 rounded-full mt-2 shrink-0"
-                                        style={{ backgroundColor: '#007c85' }}
-                                    />
+                                    <div className="w-1.5 h-1.5 rounded-full mt-2 shrink-0 bg-[var(--brand)]" />
                                     <p className="text-sm leading-relaxed text-gray-500">
                                         {item}
                                     </p>
@@ -238,7 +232,7 @@ function Values() {
                     className="text-center mb-12"
                 >
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-12 h-0.5" style={{ backgroundColor: '#007c85' }} />
+                        <div className="w-12 h-0.5 bg-[var(--brand)]" />
                     </div>
                 </motion.div>
 
@@ -252,22 +246,7 @@ function Values() {
                                 delay: 0.1 + i * 0.12,
                                 duration: 0.48,
                             }}
-                            className="p-6 rounded-lg transition-all duration-200 cursor-pointer"
-                            style={{
-                                backgroundColor: '#FFFFFF',
-                                border: '1px solid #dce0e6',
-                                boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.transform = 'translateY(-2px)';
-                                e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)';
-                                e.currentTarget.style.borderColor = '#9fa5b0';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.transform = 'translateY(0)';
-                                e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
-                                e.currentTarget.style.borderColor = '#dce0e6';
-                            }}
+                            className="p-6 rounded-lg bg-white border border-gray-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-gray-400 transition-all duration-200 cursor-pointer"
                         >
                             <h4
                                 className="text-base font-semibold mb-2 text-gray-900"
@@ -297,7 +276,7 @@ function Timeline() {
     ];
 
     return (
-        <section ref={ref} className="py-16 sm:py-20" style={{ borderTop: '1px solid #dce0e6' }}>
+        <section ref={ref} className="py-16 sm:py-20 border-t border-gray-300">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, y: 28 }}
@@ -306,7 +285,7 @@ function Timeline() {
                     className="text-center mb-14"
                 >
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-12 h-0.5" style={{ backgroundColor: '#007c85' }} />
+                        <div className="w-12 h-0.5 bg-[var(--brand)]" />
                     </div>
                 </motion.div>
 
@@ -440,7 +419,7 @@ function Team() {
                     className="text-center mb-12"
                 >
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-12 h-0.5" style={{ backgroundColor: '#007c85' }} />
+                        <div className="w-12 h-0.5 bg-[var(--brand)]" />
                     </div>
                 </motion.div>
 
@@ -451,12 +430,7 @@ function Team() {
                             initial={{ opacity: 0, y: 28 }}
                             animate={inView ? { opacity: 1, y: 0 } : {}}
                             transition={{ delay: 0.1 + i * 0.1, duration: 0.48 }}
-                            className="text-center p-6 rounded-lg transition-all duration-200"
-                            style={{
-                                backgroundColor: '#FFFFFF',
-                                border: '1px solid #dce0e6',
-                                boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-                            }}
+                            className="text-center p-6 rounded-lg bg-white border border-gray-300 shadow-sm transition-all duration-200"
                         >
                             <div
                                 className="w-16 h-16 rounded-full flex items-center justify-center text-lg font-semibold text-white mx-auto mb-4"
@@ -467,7 +441,7 @@ function Team() {
                             <h4 className="text-sm font-semibold mb-0.5 text-gray-900">
                                 {m.name}
                             </h4>
-                            <p className="text-xs mb-3" style={{ color: '#006a72' }}>
+                            <p className="text-xs mb-3 text-[var(--brand-dark)]">
                                 {m.title}
                             </p>
                             <p className="text-xs leading-relaxed text-gray-500">

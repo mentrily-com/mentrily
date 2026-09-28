@@ -67,11 +67,11 @@ export default function PricingTeaser() {
                     className="text-center mb-14"
                 >
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#007c85' }} />
-                        <span className="text-sm font-medium uppercase tracking-widest" style={{ color: '#006a72' }}>
+                        <div className="w-8 h-0.5 bg-[var(--brand)]" />
+                        <span className="text-sm font-medium uppercase tracking-widest text-[var(--brand-dark)]">
                             Pricing
                         </span>
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#007c85' }} />
+                        <div className="w-8 h-0.5 bg-[var(--brand)]" />
                     </div>
                     <h2
                         style={{
@@ -150,10 +150,9 @@ export default function PricingTeaser() {
                                         className="flex items-center gap-2.5 text-sm text-gray-500"
                                     >
                                         <div
-                                            className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
-                                            style={{ backgroundColor: '#ECFDF5' }}
+                                            className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 bg-emerald-50"
                                         >
-                                            <Check size={12} style={{ color: '#10B981' }} strokeWidth={3} />
+                                            <Check size={12} className="text-emerald-500" strokeWidth={3} />
                                         </div>
                                         {f}
                                     </li>

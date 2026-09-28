@@ -157,7 +157,7 @@ function PricingCards({ billing }: { billing: 'monthly' | 'annual' }) {
                         <ul className="space-y-2 mb-6 flex-1">
                             {tier.features.map((f) => (
                                 <li key={f} className="flex items-start gap-2 text-xs text-gray-500">
-                                    <Check size={14} style={{ color: '#10B981' }} className="shrink-0 mt-0.5" />
+                                    <Check size={14} className="shrink-0 mt-0.5 text-emerald-500" />
                                     {f}
                                 </li>
                             ))}
@@ -166,28 +166,11 @@ function PricingCards({ billing }: { billing: 'monthly' | 'annual' }) {
                         {/* CTA */}
                         <Link
                             href={tier.ctaHref}
-                            className="block w-full py-2.5 text-center text-sm font-semibold rounded-lg transition-colors duration-150 cursor-pointer mt-auto"
-                            style={{
-                                backgroundColor: tier.highlighted ? '#007c85' : 'transparent',
-                                color: tier.highlighted ? '#FFFFFF' : '#006a72',
-                                border: tier.highlighted ? 'none' : '1px solid #dce0e6',
-                            }}
-                            onMouseEnter={(e) => {
-                                if (tier.highlighted) {
-                                    e.currentTarget.style.backgroundColor = '#005359';
-                                } else {
-                                    e.currentTarget.style.backgroundColor = '#f9fafc';
-                                    e.currentTarget.style.borderColor = '#007c85';
-                                }
-                            }}
-                            onMouseLeave={(e) => {
-                                if (tier.highlighted) {
-                                    e.currentTarget.style.backgroundColor = '#007c85';
-                                } else {
-                                    e.currentTarget.style.backgroundColor = 'transparent';
-                                    e.currentTarget.style.borderColor = '#dce0e6';
-                                }
-                            }}
+                            className={`block w-full py-2.5 text-center text-sm font-semibold rounded-lg transition-colors duration-150 cursor-pointer mt-auto ${
+                                tier.highlighted
+                                    ? 'bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)]'
+                                    : 'bg-transparent text-[var(--brand-dark)] border border-gray-300 hover:bg-gray-50 hover:border-[var(--brand)]'
+                            }`}
                         >
                             {tier.cta}
                         </Link>
@@ -207,7 +190,7 @@ function FeatureComparison() {
     };
 
     const renderValue = (val: string | boolean) => {
-        if (val === true) return <Check size={16} style={{ color: '#10B981' }} />;
+        if (val === true) return <Check size={16} className="text-emerald-500" />;
         if (val === false) return <X size={16} style={{ color: '#EF4444' }} />;
         return (
             <span className="text-xs font-medium text-gray-500">

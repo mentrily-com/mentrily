@@ -35,7 +35,7 @@ export default function Testimonials() {
     const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.12 });
 
     return (
-        <section ref={ref} className="py-20 sm:py-28" style={{ backgroundColor: '#FFFFFF' }}>
+        <section ref={ref} className="py-20 sm:py-28 bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section heading */}
                 <motion.div
@@ -45,11 +45,11 @@ export default function Testimonials() {
                     className="text-center mb-14"
                 >
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#007c85' }} />
-                        <span className="text-sm font-medium uppercase tracking-widest" style={{ color: '#006a72' }}>
+                        <div className="w-8 h-0.5 bg-[var(--brand)]" />
+                        <span className="text-sm font-medium uppercase tracking-widest text-[var(--brand-dark)]">
                             Testimonials
                         </span>
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#007c85' }} />
+                        <div className="w-8 h-0.5 bg-[var(--brand)]" />
                     </div>
                     <h2
                         style={{
@@ -79,23 +79,9 @@ export default function Testimonials() {
                                 duration: 0.48,
                                 ease: [0.25, 0.1, 0.25, 1],
                             }}
-                            className="relative p-6 rounded-lg transition-all duration-250 cursor-pointer group"
+                            className="relative p-6 rounded-lg border border-gray-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group"
                             style={{
                                 background: 'linear-gradient(180deg, #FFFFFF 0%, #f9fafc 100%)',
-                                border: '1px solid #dce0e6',
-                                boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.03)',
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.transform = 'translateY(-3px)';
-                                e.currentTarget.style.boxShadow =
-                                    '0 8px 24px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04)';
-                                e.currentTarget.style.borderColor = t.color + '30';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.transform = 'translateY(0)';
-                                e.currentTarget.style.boxShadow =
-                                    '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.03)';
-                                e.currentTarget.style.borderColor = '#dce0e6';
                             }}
                         >
                             {/* Large quote icon with gradient */}
@@ -138,10 +124,7 @@ export default function Testimonials() {
                             <div className="flex items-center gap-3">
                                 <div
                                     className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold text-white"
-                                    style={{
-                                        background: `linear-gradient(135deg, ${t.color}, ${t.color}CC)`,
-                                        boxShadow: `0 2px 8px ${t.color}30`,
-                                    }}
+                                    style={{ backgroundColor: t.color }}
                                 >
                                     {t.initials}
                                 </div>

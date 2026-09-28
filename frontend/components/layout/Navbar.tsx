@@ -50,23 +50,20 @@ export default function Navbar() {
                     <div className="hidden md:flex items-center gap-8">
                         {navLinks.map((link) => {
                             const active = pathname === link.href;
-                            const rest = active ? '#006a72' : '#555d69';
                             return (
                                 <Link
                                     key={link.href}
                                     href={link.href}
                                     aria-current={active ? 'page' : undefined}
-                                    className="relative text-sm font-medium transition-colors duration-150 cursor-pointer group"
-                                    style={{ color: rest }}
-                                    onMouseEnter={(e) => (e.currentTarget.style.color = '#006a72')}
-                                    onMouseLeave={(e) => (e.currentTarget.style.color = rest)}
+                                    className={`relative text-sm font-medium transition-colors duration-150 cursor-pointer group ${
+                                        active ? 'text-[var(--brand-dark)]' : 'text-gray-600 hover:text-[var(--brand-dark)]'
+                                    }`}
                                 >
                                     {link.label}
                                     <span
-                                        className={`absolute -bottom-1 left-0 h-0.5 w-full origin-left transition-transform duration-200 group-hover:scale-x-100 ${
+                                        className={`absolute -bottom-1 left-0 h-0.5 w-full origin-left bg-[var(--brand)] transition-transform duration-200 group-hover:scale-x-100 ${
                                             active ? 'scale-x-100' : 'scale-x-0'
                                         }`}
-                                        style={{ backgroundColor: '#007c85' }}
                                     />
                                 </Link>
                             );
@@ -157,8 +154,7 @@ export default function Navbar() {
                                 <Link
                                     href="/signup"
                                     onClick={() => setMobileOpen(false)}
-                                    className="px-6 py-3 text-center text-sm font-semibold text-white rounded-lg cursor-pointer"
-                                    style={{ backgroundColor: '#007c85' }}
+                                    className="px-6 py-3 text-center text-sm font-semibold text-white rounded-lg cursor-pointer bg-[var(--brand)]"
                                 >
                                     Start Free
                                 </Link>

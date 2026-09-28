@@ -57,11 +57,11 @@ export default function HowItWorks() {
                     className="text-center mb-16"
                 >
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#007c85' }} />
-                        <span className="text-sm font-medium uppercase tracking-widest" style={{ color: '#006a72' }}>
+                        <div className="w-8 h-0.5 bg-[var(--brand)]" />
+                        <span className="text-sm font-medium uppercase tracking-widest text-[var(--brand-dark)]">
                             How it works
                         </span>
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#007c85' }} />
+                        <div className="w-8 h-0.5 bg-[var(--brand)]" />
                     </div>
                     <h2
                         style={{
