@@ -160,15 +160,15 @@ export default function DraftPanel({
 
     return (
         <aside className="flex h-full min-h-0 flex-col bg-white">
-            <header className="flex items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
+            <header className="flex items-start justify-between gap-3 border-b border-gray-100 px-5 py-4">
                 <div className="min-w-0">
-                    <p className="text-xs text-slate-500">{label}</p>
-                    <h2 className="truncate text-base font-semibold text-slate-900">{title}</h2>
+                    <p className="text-xs text-gray-500">{label}</p>
+                    <h2 className="truncate text-base font-semibold text-gray-900">{title}</h2>
                 </div>
                 <button
                     type="button"
                     onClick={onClose}
-                    className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                    className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
                     aria-label="Close panel"
                 >
                     <X size={18} />
@@ -186,7 +186,7 @@ export default function DraftPanel({
             ) : (
                 <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
                     {!job ? (
-                        <Loader2 className="mx-auto mt-10 animate-spin text-slate-300" />
+                        <Loader2 className="mx-auto mt-10 animate-spin text-gray-300" />
                     ) : job.status === 'failed' || job.status === 'cancelled' ? (
                         <div className="space-y-3 rounded-2xl border border-rose-100 bg-rose-50/60 p-4 text-sm">
                             <p className="flex items-start gap-2 text-rose-800">
@@ -229,7 +229,7 @@ export default function DraftPanel({
                         />
                     ) : blueprint && job.result?.type === 'blueprint' ? (
                         <div className="space-y-4">
-                            <p className="text-sm text-slate-600">Adjust the outline, then write the full {noun}.</p>
+                            <p className="text-sm text-gray-600">Adjust the outline, then write the full {noun}.</p>
                             <BlueprintEditor
                                 blueprint={blueprint}
                                 onChange={setBlueprint}
@@ -239,9 +239,9 @@ export default function DraftPanel({
                     ) : draft ? (
                         <div className="space-y-4">
                             {edit && (
-                                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                                <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
                                     <p className="flex items-start gap-2">
-                                        <PenLine size={14} className="mt-1 shrink-0 text-slate-400" />
+                                        <PenLine size={14} className="mt-1 shrink-0 text-gray-400" />
                                         <span>
                                             {edit.changes.length
                                                 ? edit.summary
@@ -249,7 +249,7 @@ export default function DraftPanel({
                                         </span>
                                     </p>
                                     {edit.changes.length > 0 && (
-                                        <ul className="mt-2 space-y-0.5 pl-6 text-xs text-slate-500">
+                                        <ul className="mt-2 space-y-0.5 pl-6 text-xs text-gray-500">
                                             {edit.changes.slice(0, 8).map((c) => (
                                                 <li key={c.id}>{c.summary}</li>
                                             ))}
@@ -260,7 +260,7 @@ export default function DraftPanel({
                                         <button
                                             type="button"
                                             onClick={() => onOpenJob(parentJobId)}
-                                            className="mt-2 pl-6 text-xs font-medium text-slate-600 underline hover:text-slate-900"
+                                            className="mt-2 pl-6 text-xs font-medium text-gray-600 underline hover:text-gray-900"
                                         >
                                             See the previous version
                                         </button>
@@ -308,7 +308,7 @@ export default function DraftPanel({
             )}
 
             {job?.status === 'completed' && !changeset && (blueprint || draft) && (
-                <footer className="border-t border-slate-100 px-5 py-4">
+                <footer className="border-t border-gray-100 px-5 py-4">
                     {job.result?.type === 'blueprint' && blueprint ? (
                         <button
                             type="button"
@@ -334,7 +334,7 @@ export default function DraftPanel({
                                 type="button"
                                 onClick={saveDraft}
                                 disabled={busy !== null || selected.size === 0 || Boolean(saved)}
-                                className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-800 hover:bg-slate-50 disabled:opacity-50"
+                                className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-medium text-gray-800 hover:bg-gray-50 disabled:opacity-50"
                             >
                                 {busy === 'save' ? 'Saving…' : saved ? 'Saved' : 'Save as draft'}
                             </button>

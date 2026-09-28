@@ -43,29 +43,29 @@ function RoadmapList() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={inView ? { opacity: 1, y: 0 } : {}}
                             transition={{ delay: i * 0.1, duration: 0.5 }}
-                            className="p-8 rounded-3xl border border-slate-100 bg-slate-50/50 flex flex-col"
+                            className="p-8 rounded-3xl border border-gray-100 bg-gray-50/50 flex flex-col"
                         >
                             <div className="flex items-center justify-between mb-6">
                                 <span className="text-xs font-bold uppercase tracking-widest text-teal-600">
                                     {item.quarter}
                                 </span>
-                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[10px] font-bold text-slate-500 uppercase">
+                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white border border-gray-200 text-[10px] font-bold text-gray-500 uppercase">
                                     {item.status === 'In Progress' && <Clock size={12} className="text-amber-500" />}
-                                    {item.status === 'Planned' && <Circle size={12} className="text-slate-400" />}
+                                    {item.status === 'Planned' && <Circle size={12} className="text-gray-400" />}
                                     {item.status === 'Researching' && (
-                                        <Circle size={12} className="text-slate-400 border-dashed" />
+                                        <Circle size={12} className="text-gray-400 border-dashed" />
                                     )}
                                     {item.status}
                                 </div>
                             </div>
 
-                            <h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3>
-                            <p className="text-sm text-slate-600 leading-relaxed mb-6 flex-1">{item.description}</p>
+                            <h3 className="text-xl font-bold text-gray-900 mb-3">{item.title}</h3>
+                            <p className="text-sm text-gray-600 leading-relaxed mb-6 flex-1">{item.description}</p>
 
-                            <ul className="space-y-3 pt-6 border-t border-slate-200">
+                            <ul className="space-y-3 pt-6 border-t border-gray-200">
                                 {item.items.map((sub, idx) => (
-                                    <li key={idx} className="flex items-start gap-2 text-xs text-slate-500">
-                                        <div className="mt-1 w-1 h-1 rounded-full bg-slate-400 shrink-0" />
+                                    <li key={idx} className="flex items-start gap-2 text-xs text-gray-500">
+                                        <div className="mt-1 w-1 h-1 rounded-full bg-gray-400 shrink-0" />
                                         {sub}
                                     </li>
                                 ))}

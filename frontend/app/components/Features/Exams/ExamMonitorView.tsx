@@ -182,7 +182,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
     };
 
     const stats = [
-        { label: 'Total Students', value: students.length, color: 'text-slate-800' },
+        { label: 'Total Students', value: students.length, color: 'text-gray-800' },
         {
             label: 'Active Now',
             value: students.filter((s) => s.status === 'In Progress').length,
@@ -222,7 +222,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                         <div className="flex items-center gap-3 mb-1">
                             <button
                                 onClick={() => setView('monitor')}
-                                className={`text-2xl font-extrabold tracking-tight transition-all ${view === 'monitor' ? `text-slate-900 border-b-4 ${activeBorderClass}` : 'text-slate-400 hover:text-slate-600'}`}
+                                className={`text-2xl font-extrabold tracking-tight transition-all ${view === 'monitor' ? `text-gray-900 border-b-4 ${activeBorderClass}` : 'text-gray-400 hover:text-gray-600'}`}
                             >
                                 Student Activity Monitor
                             </button>
@@ -232,15 +232,15 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                 Live
                             </span>
                         </div>
-                        <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">
-                            Exam: <span className="text-slate-600">JavaScript Fundamentals</span> • ID: {examId}
+                        <p className="text-gray-400 font-bold text-xs uppercase tracking-widest">
+                            Exam: <span className="text-gray-600">JavaScript Fundamentals</span> • ID: {examId}
                         </p>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto">
                         <button
                             onClick={() => setView('ai-proctoring')}
-                            className={`relative flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl border transition-all ${view === 'ai-proctoring' ? `${activeBgClass} text-white border-transparent shadow-xl ${activeShadowClass}` : `bg-white border-slate-100 text-slate-600 hover:border-[var(--brand-light)] shadow-sm`}`}
+                            className={`relative flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl border transition-all ${view === 'ai-proctoring' ? `${activeBgClass} text-white border-transparent shadow-xl ${activeShadowClass}` : `bg-white border-gray-100 text-gray-600 hover:border-[var(--brand-light)] shadow-sm`}`}
                         >
                             <svg
                                 width="18"
@@ -260,7 +260,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                         {/* Feedback Toggle Button */}
                         <button
                             onClick={() => setView('feedback')}
-                            className={`relative flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl border transition-all ${view === 'feedback' ? `${activeBgClass} text-white border-transparent shadow-xl ${activeShadowClass}` : `bg-white border-slate-100 text-slate-600 hover:border-[var(--brand-light)] shadow-sm`}`}
+                            className={`relative flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl border transition-all ${view === 'feedback' ? `${activeBgClass} text-white border-transparent shadow-xl ${activeShadowClass}` : `bg-white border-gray-100 text-gray-600 hover:border-[var(--brand-light)] shadow-sm`}`}
                         >
                             <svg
                                 width="18"
@@ -278,10 +278,10 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                             )}
                         </button>
 
-                        <div className="flex items-center gap-2 sm:gap-3 bg-white px-3 sm:px-5 py-2.5 sm:py-3 rounded-2xl border border-slate-100 shadow-sm">
+                        <div className="flex items-center gap-2 sm:gap-3 bg-white px-3 sm:px-5 py-2.5 sm:py-3 rounded-2xl border border-gray-100 shadow-sm">
                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></div>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                                Synced • <span className="text-slate-800">{new Date().toLocaleTimeString()}</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                Synced • <span className="text-gray-800">{new Date().toLocaleTimeString()}</span>
                             </span>
                         </div>
                     </div>
@@ -294,9 +294,9 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                             {stats.map((s, idx) => (
                                 <div
                                     key={s.label}
-                                    className={`bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm ${idx === 4 ? 'col-span-2 sm:col-span-1' : ''}`}
+                                    className={`bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-sm ${idx === 4 ? 'col-span-2 sm:col-span-1' : ''}`}
                                 >
-                                    <p className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 mb-1">
+                                    <p className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1">
                                         {s.label}
                                     </p>
                                     <p
@@ -309,66 +309,66 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                         </div>
 
                         {/* Monitor Table */}
-                        <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm overflow-hidden">
+                        <div className="bg-white rounded-[24px] border border-gray-100 shadow-sm overflow-hidden">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
-                                        <tr className="bg-slate-50/50 border-b border-slate-100">
-                                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 min-w-[280px]">
+                                        <tr className="bg-gray-50/50 border-b border-gray-100">
+                                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 min-w-[280px]">
                                                 Student Info
                                             </th>
-                                            <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">
+                                            <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">
                                                 Status
                                             </th>
-                                            <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">
+                                            <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">
                                                 Tab Out
                                             </th>
-                                            <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">
+                                            <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">
                                                 Tab In
                                             </th>
-                                            <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center uppercase">
+                                            <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center uppercase">
                                                 VM Detection
                                             </th>
-                                            <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">
+                                            <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">
                                                 Actions
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-50">
+                                    <tbody className="divide-y divide-gray-50">
                                         {students.map((student) => (
                                             <tr
                                                 key={student.id}
-                                                className={`group transition-colors ${student.isHighRisk ? 'bg-rose-50/10 hover:bg-rose-50/20' : 'hover:bg-slate-50/30'}`}
+                                                className={`group transition-colors ${student.isHighRisk ? 'bg-rose-50/10 hover:bg-rose-50/20' : 'hover:bg-gray-50/30'}`}
                                             >
                                                 <td className="px-6 py-5">
                                                     <div className="flex items-center gap-4">
                                                         <div
-                                                            className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs shrink-0 shadow-sm ring-1 ring-black/5 ${student.vmDetected ? 'bg-rose-100 text-rose-600' : 'bg-slate-100 text-slate-400'}`}
+                                                            className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs shrink-0 shadow-sm ring-1 ring-black/5 ${student.vmDetected ? 'bg-rose-100 text-rose-600' : 'bg-gray-100 text-gray-400'}`}
                                                         >
                                                             {student.name[0]}
                                                         </div>
                                                         <div className="flex-1 min-w-0">
-                                                            <p className="text-sm font-black text-slate-800 leading-none truncate mb-1">
+                                                            <p className="text-sm font-black text-gray-800 leading-none truncate mb-1">
                                                                 {student.name}
                                                             </p>
                                                             <div className="flex items-center gap-2">
-                                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
                                                                     {student.rollNumber}
                                                                 </span>
                                                                 {student.section && student.section !== 'N/A' && (
                                                                     <>
-                                                                        <span className="text-[10px] font-bold text-slate-300">
+                                                                        <span className="text-[10px] font-bold text-gray-300">
                                                                             •
                                                                         </span>
-                                                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                                                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
                                                                             Sec {student.section}
                                                                         </span>
                                                                     </>
                                                                 )}
-                                                                <span className="text-[10px] font-bold text-slate-300">
+                                                                <span className="text-[10px] font-bold text-gray-300">
                                                                     •
                                                                 </span>
-                                                                <span className="text-[10px] font-bold text-slate-400 truncate">
+                                                                <span className="text-[10px] font-bold text-gray-400 truncate">
                                                                     {student.email}
                                                                 </span>
                                                             </div>
@@ -381,7 +381,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                                     >
                                                         {student.status}
                                                     </span>
-                                                    <p className="text-[11px] font-black text-slate-500 uppercase mt-1.5">
+                                                    <p className="text-[11px] font-black text-gray-500 uppercase mt-1.5">
                                                         {student.lastActivity}
                                                     </p>
                                                 </td>
@@ -397,7 +397,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                                             DETECTED
                                                         </span>
                                                     ) : (
-                                                        <span className="text-[9px] font-bold text-slate-300 uppercase">
+                                                        <span className="text-[9px] font-bold text-gray-300 uppercase">
                                                             SAFE
                                                         </span>
                                                     )}
@@ -406,7 +406,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                                     <div className="flex items-center justify-end gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                                                         <button
                                                             onClick={() => setSelectedStudent(student)}
-                                                            className={`p-2 bg-white border border-slate-100 rounded-lg text-slate-400 ${buttonHoverClass} transition-all shadow-sm`}
+                                                            className={`p-2 bg-white border border-gray-100 rounded-lg text-gray-400 ${buttonHoverClass} transition-all shadow-sm`}
                                                             title="View Detailed Log"
                                                         >
                                                             <svg
@@ -423,7 +423,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                                         </button>
                                                         <button
                                                             onClick={() => setSelectedStudent(student)}
-                                                            className="p-2 bg-white border border-slate-100 rounded-lg text-slate-400 hover:text-rose-600 hover:border-rose-100 transition-all shadow-sm"
+                                                            className="p-2 bg-white border border-gray-100 rounded-lg text-gray-400 hover:text-rose-600 hover:border-rose-100 transition-all shadow-sm"
                                                             title="Force Terminate Session"
                                                         >
                                                             <svg
@@ -452,8 +452,8 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                     /* FEEDBACK VIEW */
                     <div className="animate-in slide-in-from-right duration-500">
                         <div className="flex items-center justify-between mb-8">
-                            <h2 className="text-xl font-black text-slate-800">Student Feedbacks</h2>
-                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                            <h2 className="text-xl font-black text-gray-800">Student Feedbacks</h2>
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
                                 {unseenCount} New Feedbacks
                             </p>
                         </div>
@@ -463,7 +463,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                 <div
                                     key={f.id}
                                     onClick={() => markAsSeen(f.id)}
-                                    className={`relative p-8 rounded-[32px] border transition-all cursor-pointer ${f.isSeen ? 'bg-white border-slate-100 hover:shadow-lg hover:shadow-slate-100/50' : 'bg-[var(--brand-lighter)] border-[var(--brand-light)] shadow-xl shadow-[var(--brand)]/5'}`}
+                                    className={`relative p-8 rounded-[32px] border transition-all cursor-pointer ${f.isSeen ? 'bg-white border-gray-100 hover:shadow-lg hover:shadow-gray-100/50' : 'bg-[var(--brand-lighter)] border-[var(--brand-light)] shadow-xl shadow-[var(--brand)]/5'}`}
                                 >
                                     {!f.isSeen && (
                                         <div
@@ -472,14 +472,14 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                     )}
 
                                     <div className="flex items-center gap-4 mb-6">
-                                        <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center font-black text-lg text-slate-400 uppercase">
+                                        <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center font-black text-lg text-gray-400 uppercase">
                                             {f.userName[0]}
                                         </div>
                                         <div>
-                                            <h3 className="text-base font-black text-slate-800 leading-none mb-1">
+                                            <h3 className="text-base font-black text-gray-800 leading-none mb-1">
                                                 {f.userName}
                                             </h3>
-                                            <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                                            <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">
                                                 {f.time} • {f.userEmail}
                                             </p>
                                         </div>
@@ -500,18 +500,18 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                         ))}
                                     </div>
 
-                                    <p className="text-slate-600 text-sm font-medium leading-relaxed italic">
+                                    <p className="text-gray-600 text-sm font-medium leading-relaxed italic">
                                         &quot;{f.comment}&quot;
                                     </p>
 
-                                    <div className="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
+                                    <div className="mt-8 pt-6 border-t border-gray-50 flex items-center justify-between">
                                         <span
-                                            className={`text-[10px] font-black uppercase tracking-widest ${f.isSeen ? 'text-slate-300' : 'text-[var(--brand)]'}`}
+                                            className={`text-[10px] font-black uppercase tracking-widest ${f.isSeen ? 'text-gray-300' : 'text-[var(--brand)]'}`}
                                         >
                                             {f.isSeen ? 'Message Noted' : 'Mark as Read'}
                                         </span>
                                         <button
-                                            className={`text-[10px] font-black text-slate-400 hover:text-[var(--brand)] transition-colors uppercase tracking-widest`}
+                                            className={`text-[10px] font-black text-gray-400 hover:text-[var(--brand)] transition-colors uppercase tracking-widest`}
                                         >
                                             Reply →
                                         </button>
@@ -525,9 +525,9 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                 {view === 'ai-proctoring' && (
                     <div className="animate-in slide-in-from-right duration-500 grid grid-cols-1 lg:grid-cols-3 gap-8 h-[calc(100vh-200px)]">
                         {/* Left: Violation Feed */}
-                        <div className="lg:col-span-1 bg-white rounded-[32px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
-                            <div className="p-6 border-b border-slate-50 bg-slate-50/30 flex justify-between items-center">
-                                <h3 className="font-black text-slate-800 text-sm uppercase tracking-widest">
+                        <div className="lg:col-span-1 bg-white rounded-[32px] border border-gray-100 shadow-sm flex flex-col overflow-hidden">
+                            <div className="p-6 border-b border-gray-50 bg-gray-50/30 flex justify-between items-center">
+                                <h3 className="font-black text-gray-800 text-sm uppercase tracking-widest">
                                     Live Violations
                                 </h3>
                                 <span className="bg-rose-100 text-rose-600 px-2 py-1 rounded-lg text-[10px] font-black">
@@ -536,7 +536,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                             </div>
                             <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
                                 {violations.length === 0 && (
-                                    <div className="h-full flex flex-col items-center justify-center text-slate-300 gap-2">
+                                    <div className="h-full flex flex-col items-center justify-center text-gray-300 gap-2">
                                         <svg
                                             width="24"
                                             height="24"
@@ -557,16 +557,16 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                 {violations.map((v, i) => (
                                     <div
                                         key={i}
-                                        className="p-4 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                                        className="p-4 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all cursor-pointer group"
                                         onClick={() => requestStream(v.userId)}
                                     >
                                         <div className="flex items-center gap-3 mb-3">
-                                            <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center font-bold text-xs text-slate-500">
+                                            <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center font-bold text-xs text-gray-500">
                                                 {v.userId[0]}
                                             </div>
                                             <div>
-                                                <p className="text-xs font-black text-slate-800">{v.userId}</p>
-                                                <p className="text-[10px] font-bold text-slate-400">
+                                                <p className="text-xs font-black text-gray-800">{v.userId}</p>
+                                                <p className="text-[10px] font-bold text-gray-400">
                                                     {new Date(v.timestamp).toLocaleTimeString()}
                                                 </p>
                                             </div>
@@ -574,11 +574,11 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                                 {v.type}
                                             </span>
                                         </div>
-                                        <p className="text-xs font-medium text-slate-600 mb-3">{v.message}</p>
+                                        <p className="text-xs font-medium text-gray-600 mb-3">{v.message}</p>
                                         {v.details &&
                                             typeof v.details === 'string' &&
                                             v.details.startsWith('data:image') && (
-                                                <div className="rounded-xl overflow-hidden border border-slate-100 relative group-hover:ring-2 ring-[var(--brand)] transition-all">
+                                                <div className="rounded-xl overflow-hidden border border-gray-100 relative group-hover:ring-2 ring-[var(--brand)] transition-all">
                                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                                     <img
                                                         src={v.details}
@@ -599,12 +599,12 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
 
                         {/* Right: Live Stage */}
                         <div className="lg:col-span-2 bg-black rounded-[32px] overflow-hidden shadow-2xl relative flex flex-col">
-                            <div className="flex-1 relative bg-slate-900 flex items-center justify-center">
+                            <div className="flex-1 relative bg-gray-900 flex items-center justify-center">
                                 {activeStream ? (
                                     <video ref={videoRef} autoPlay className="w-full h-full object-contain" />
                                 ) : (
-                                    <div className="text-slate-600 flex flex-col items-center gap-4">
-                                        <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center animate-pulse">
+                                    <div className="text-gray-600 flex flex-col items-center gap-4">
+                                        <div className="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center animate-pulse">
                                             <svg
                                                 width="24"
                                                 height="24"
@@ -617,7 +617,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                                 <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
                                             </svg>
                                         </div>
-                                        <p className="text-sm font-black uppercase tracking-widest text-slate-500">
+                                        <p className="text-sm font-black uppercase tracking-widest text-gray-500">
                                             Select a student/violation to view live feed
                                         </p>
                                     </div>
@@ -625,7 +625,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                             </div>
 
                             {/* Controls / Info Bar */}
-                            <div className="h-16 bg-slate-800/80 backdrop-blur-md border-t border-slate-700 flex items-center justify-between px-6">
+                            <div className="h-16 bg-gray-800/80 backdrop-blur-md border-t border-gray-700 flex items-center justify-between px-6">
                                 {activeStream ? (
                                     <>
                                         <div className="flex items-center gap-3">
@@ -645,7 +645,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                         </button>
                                     </>
                                 ) : (
-                                    <span className="text-xs font-bold text-slate-500">Waiting for connection...</span>
+                                    <span className="text-xs font-bold text-gray-500">Waiting for connection...</span>
                                 )}
                             </div>
                         </div>
@@ -808,34 +808,34 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                     </div>
 
                     {/* VM & Time Strip */}
-                    <div className="flex flex-wrap gap-4 items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-[24px] sm:p-6 sm:rounded-[32px]">
+                    <div className="flex flex-wrap gap-4 items-center justify-between p-4 bg-gray-50 border border-gray-100 rounded-[24px] sm:p-6 sm:rounded-[32px]">
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
                             <div
                                 className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border ${selectedStudent.vmDetected ? 'bg-rose-50 border-rose-200 text-rose-600' : 'bg-emerald-50 border-emerald-200 text-emerald-600'}`}
                             >
                                 VM: {selectedStudent.vmDetected ? `DETECTED (${selectedStudent.vmType})` : 'NONE'}
                             </div>
-                            <div className="hidden h-6 w-[1px] bg-slate-200 sm:block"></div>
+                            <div className="hidden h-6 w-[1px] bg-gray-200 sm:block"></div>
                             <div className="flex flex-wrap items-center gap-4 sm:gap-6">
                                 <div className="flex flex-col">
-                                    <span className="text-[9px] font-black uppercase text-slate-300">Started</span>
-                                    <span className="text-xs font-black text-slate-700">
+                                    <span className="text-[9px] font-black uppercase text-gray-300">Started</span>
+                                    <span className="text-xs font-black text-gray-700">
                                         {selectedStudent.startTime}
                                     </span>
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-[9px] font-black uppercase text-slate-300">Ends At</span>
-                                    <span className="text-xs font-black text-slate-700">{selectedStudent.endTime}</span>
+                                    <span className="text-[9px] font-black uppercase text-gray-300">Ends At</span>
+                                    <span className="text-xs font-black text-gray-700">{selectedStudent.endTime}</span>
                                 </div>
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <span className="text-xs font-bold text-slate-400">Current Health:</span>
+                            <span className="text-xs font-bold text-gray-400">Current Health:</span>
                             <div className="flex gap-1">
                                 {[1, 2, 3, 4, 5].map((i) => (
                                     <div
                                         key={i}
-                                        className={`w-3 h-1.5 rounded-full ${i <= (selectedStudent.vmDetected ? 2 : 5) ? (selectedStudent.vmDetected ? 'bg-rose-400' : 'bg-emerald-400') : 'bg-slate-200'}`}
+                                        className={`w-3 h-1.5 rounded-full ${i <= (selectedStudent.vmDetected ? 2 : 5) ? (selectedStudent.vmDetected ? 'bg-rose-400' : 'bg-emerald-400') : 'bg-gray-200'}`}
                                     ></div>
                                 ))}
                             </div>
@@ -845,27 +845,27 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                     {/* Detailed Event Logs */}
                     <div>
                         <div className="flex items-center gap-4 mb-6">
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
                                 Comprehensive Event Logs
                             </span>
-                            <div className="h-[1px] flex-1 bg-slate-100"></div>
+                            <div className="h-[1px] flex-1 bg-gray-100"></div>
                         </div>
                         <div className="space-y-4">
                             {selectedStudent.logs.map((log, idx) => (
                                 <div
                                     key={idx}
-                                    className="flex flex-col gap-3 p-4 rounded-[20px] border border-slate-50 bg-white hover:border-slate-100 hover:shadow-sm transition-all group sm:flex-row sm:items-start sm:gap-6 sm:p-5 sm:rounded-[24px]"
+                                    className="flex flex-col gap-3 p-4 rounded-[20px] border border-gray-50 bg-white hover:border-gray-100 hover:shadow-sm transition-all group sm:flex-row sm:items-start sm:gap-6 sm:p-5 sm:rounded-[24px]"
                                 >
-                                    <span className="text-xs font-black text-slate-400 tabular-nums sm:min-w-[100px]">
+                                    <span className="text-xs font-black text-gray-400 tabular-nums sm:min-w-[100px]">
                                         {log.time}
                                     </span>
                                     <div className="flex-1">
                                         <p
-                                            className={`text-sm font-black mb-0.5 ${log.event === 'VM Detection' || (log.event === 'Tab Switch' && log.description.includes('Out')) ? 'text-rose-600' : 'text-slate-800'}`}
+                                            className={`text-sm font-black mb-0.5 ${log.event === 'VM Detection' || (log.event === 'Tab Switch' && log.description.includes('Out')) ? 'text-rose-600' : 'text-gray-800'}`}
                                         >
                                             {log.event}
                                         </p>
-                                        <p className="text-xs font-bold text-slate-400">{log.description}</p>
+                                        <p className="text-xs font-bold text-gray-400">{log.description}</p>
                                     </div>
                                     <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                                         <span
@@ -895,11 +895,11 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
 }
 function MetricBadge({ value, danger, highlight }: any) {
     if (value === 0 && !highlight)
-        return <span className="text-slate-300 font-bold text-xs ring-1 ring-slate-100 px-2.5 py-1 rounded-lg">0</span>;
+        return <span className="text-gray-300 font-bold text-xs ring-1 ring-gray-100 px-2.5 py-1 rounded-lg">0</span>;
     return (
         <span
             className={`px-4 py-1.5 rounded-xl font-black text-xs shadow-sm ring-1 ${
-                danger ? 'bg-rose-50 text-rose-600 ring-rose-100' : 'bg-slate-50 text-slate-600 ring-slate-100'
+                danger ? 'bg-rose-50 text-rose-600 ring-rose-100' : 'bg-gray-50 text-gray-600 ring-gray-100'
             }`}
         >
             {value}
@@ -911,21 +911,21 @@ function LegendItem({ dot, label }: any) {
     return (
         <div className="flex items-center gap-2">
             <div className={`w-1.5 h-1.5 rounded-full ${dot}`}></div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{label}</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">{label}</span>
         </div>
     );
 }
 
 function InfoItem({ label, value, icon }: any) {
     return (
-        <div className="p-5 rounded-3xl bg-slate-50 border border-slate-100 hover:bg-white transition-all group">
+        <div className="p-5 rounded-3xl bg-gray-50 border border-gray-100 hover:bg-white transition-all group">
             <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 rounded-lg bg-white text-slate-400 group-hover:text-[var(--brand)] transition-colors shadow-sm">
+                <div className="p-2 rounded-lg bg-white text-gray-400 group-hover:text-[var(--brand)] transition-colors shadow-sm">
                     {icon}
                 </div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{label}</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">{label}</p>
             </div>
-            <p className="text-base font-black text-slate-800">{value}</p>
+            <p className="text-base font-black text-gray-800">{value}</p>
         </div>
     );
 }

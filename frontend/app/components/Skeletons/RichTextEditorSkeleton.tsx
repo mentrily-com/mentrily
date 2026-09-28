@@ -14,20 +14,20 @@
  */
 export default function RichTextEditorSkeleton() {
     return (
-        <div className="border border-slate-200 rounded-[32px] overflow-hidden">
-            <div className="flex flex-wrap items-center gap-1 p-3 border-b border-slate-200 bg-slate-50">
+        <div className="border border-gray-200 rounded-[32px] overflow-hidden">
+            <div className="flex flex-wrap items-center gap-1 p-3 border-b border-gray-200 bg-gray-50">
                 {[1, 2, 3, 4, 5, 6, 7].map((i) => (
                     <div key={i} className="flex gap-0.5 rounded-xl bg-white/10 p-0.5">
-                        <div className="h-7 w-7 animate-pulse rounded-lg bg-slate-200" />
-                        <div className="h-7 w-7 animate-pulse rounded-lg bg-slate-200" />
+                        <div className="h-7 w-7 animate-pulse rounded-lg bg-gray-200" />
+                        <div className="h-7 w-7 animate-pulse rounded-lg bg-gray-200" />
                     </div>
                 ))}
             </div>
             <div className="min-h-[400px] p-8 space-y-3 bg-white">
-                <div className="h-4 w-3/4 animate-pulse rounded bg-slate-100" />
-                <div className="h-4 w-full animate-pulse rounded bg-slate-100" />
-                <div className="h-4 w-5/6 animate-pulse rounded bg-slate-100" />
-                <div className="h-4 w-2/3 animate-pulse rounded bg-slate-100" />
+                <div className="h-4 w-3/4 animate-pulse rounded bg-gray-100" />
+                <div className="h-4 w-full animate-pulse rounded bg-gray-100" />
+                <div className="h-4 w-5/6 animate-pulse rounded bg-gray-100" />
+                <div className="h-4 w-2/3 animate-pulse rounded bg-gray-100" />
             </div>
         </div>
     );

@@ -75,7 +75,7 @@ export default function UserManagementModal({ isOpen, onClose, orgName, onImport
                 size="md"
                 bodyClassName="space-y-5 sm:space-y-6"
                 footer={
-                    <p className="text-center text-[9px] font-black uppercase tracking-[0.2em] text-slate-300">
+                    <p className="text-center text-[9px] font-black uppercase tracking-[0.2em] text-gray-300">
                         Institutional Access Management • {siteConfig.name} Admin
                     </p>
                 }
@@ -95,10 +95,10 @@ export default function UserManagementModal({ isOpen, onClose, orgName, onImport
                         </p>
                     </div>
                 </div>
-                <div className="grid grid-cols-1 gap-2 p-1 bg-slate-100 rounded-2xl sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-2 p-1 bg-gray-100 rounded-2xl sm:grid-cols-2">
                     <button
                         onClick={() => setActiveTab('invite')}
-                        className={`flex items-center justify-center gap-2 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'invite' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                        className={`flex items-center justify-center gap-2 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'invite' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                     >
                         <UserPlus size={14} /> Single Invite
                     </button>
@@ -110,7 +110,7 @@ export default function UserManagementModal({ isOpen, onClose, orgName, onImport
                             }
                             setActiveTab('bulk');
                         }}
-                        className={`flex items-center justify-center gap-2 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'bulk' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                        className={`flex items-center justify-center gap-2 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'bulk' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                     >
                         <FileUp size={14} /> CSV Invites
                     </button>

@@ -93,7 +93,7 @@ function StartChatting({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
         <Link
             href="/chat"
             className={`group inline-flex items-center gap-2 rounded-xl px-7 py-3.5 text-sm font-semibold transition ${
-                tone === 'dark' ? 'bg-white text-slate-900 hover:bg-slate-100' : 'text-white'
+                tone === 'dark' ? 'bg-white text-gray-900 hover:bg-gray-100' : 'text-white'
             }`}
             style={
                 tone === 'light'
@@ -157,7 +157,7 @@ export default function AiLandingPage() {
                 <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-end lg:gap-16">
                         <h1
-                            className="text-slate-900"
+                            className="text-gray-900"
                             style={{
                                 fontFamily: 'var(--font-display), Georgia, serif',
                                 fontSize: 'clamp(40px, 5.6vw, 76px)',
@@ -170,7 +170,7 @@ export default function AiLandingPage() {
                             <br className="hidden sm:block" /> Mentrily AI builds it.
                         </h1>
                         <div className="lg:pb-2">
-                            <p className="max-w-lg text-lg leading-relaxed text-slate-600">
+                            <p className="max-w-lg text-lg leading-relaxed text-gray-600">
                                 Mentrily AI turns one sentence into an outline you can edit, writes the lessons and
                                 questions, checks the answers, and puts everything in your course or exam builder.
                             </p>
@@ -178,12 +178,12 @@ export default function AiLandingPage() {
                                 <StartChatting />
                                 <Link
                                     href="/pricing"
-                                    className="inline-flex items-center rounded-xl border border-slate-200 bg-white/70 px-7 py-3.5 text-sm font-semibold text-[#006a72] backdrop-blur hover:border-[#007c85] hover:bg-white"
+                                    className="inline-flex items-center rounded-xl border border-gray-200 bg-white/70 px-7 py-3.5 text-sm font-semibold text-[#006a72] backdrop-blur hover:border-[#007c85] hover:bg-white"
                                 >
                                     See pricing
                                 </Link>
                             </div>
-                            <p className="mt-4 text-sm text-slate-500">Free to start. No credit card needed.</p>
+                            <p className="mt-4 text-sm text-gray-500">Free to start. No credit card needed.</p>
                         </div>
                     </div>
                     <div className="mt-14 lg:mt-16">
@@ -193,10 +193,10 @@ export default function AiLandingPage() {
             </section>
 
             {/* How it works */}
-            <section className="border-t border-slate-100 bg-white">
+            <section className="border-t border-gray-100 bg-white">
                 <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
                     <h2
-                        className="max-w-2xl text-slate-900"
+                        className="max-w-2xl text-gray-900"
                         style={{
                             fontFamily: 'var(--font-display), Georgia, serif',
                             fontSize: 'clamp(30px, 3.4vw, 42px)',
@@ -223,10 +223,10 @@ export default function AiLandingPage() {
                                         >
                                             {i + 1}
                                         </span>
-                                        <Icon size={18} className="text-slate-400" aria-hidden />
+                                        <Icon size={18} className="text-gray-400" aria-hidden />
                                     </div>
-                                    <h3 className="mt-4 text-lg font-semibold text-slate-900">{step.title}</h3>
-                                    <p className="mt-2 text-[15px] leading-7 text-slate-600">{step.body}</p>
+                                    <h3 className="mt-4 text-lg font-semibold text-gray-900">{step.title}</h3>
+                                    <p className="mt-2 text-[15px] leading-7 text-gray-600">{step.body}</p>
                                 </li>
                             );
                         })}
@@ -239,7 +239,7 @@ export default function AiLandingPage() {
                 <div className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 md:grid-cols-[1fr_1.5fr] lg:px-8">
                     <div>
                         <h2
-                            className="text-slate-900"
+                            className="text-gray-900"
                             style={{
                                 fontFamily: 'var(--font-display), Georgia, serif',
                                 fontSize: 'clamp(30px, 3.4vw, 42px)',
@@ -250,9 +250,9 @@ export default function AiLandingPage() {
                         >
                             One assistant for building and teaching
                         </h2>
-                        <p className="mt-4 text-[15px] leading-7 text-slate-600">
+                        <p className="mt-4 text-[15px] leading-7 text-gray-600">
                             Type{' '}
-                            <kbd className="rounded border border-slate-300 bg-white px-1.5 font-mono text-xs text-slate-700">
+                            <kbd className="rounded border border-gray-300 bg-white px-1.5 font-mono text-xs text-gray-700">
                                 /
                             </kbd>{' '}
                             in the chat to pick a command, or just ask about what you teach.
@@ -264,20 +264,20 @@ export default function AiLandingPage() {
                             { heading: 'Teach better', items: COMMANDS.filter((c) => !BUILD_IDS.has(c.command.id)) },
                         ].map((group) => (
                             <div key={group.heading}>
-                                <h3 className="text-sm font-semibold text-slate-900">{group.heading}</h3>
+                                <h3 className="text-sm font-semibold text-gray-900">{group.heading}</h3>
                                 <ul className="mt-4 space-y-4">
                                     {group.items.map((c) => {
                                         const Icon = c.icon;
                                         return (
                                             <li key={c.label} className="flex gap-3">
-                                                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white text-slate-600 ring-1 ring-slate-200">
+                                                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white text-gray-600 ring-1 ring-gray-200">
                                                     <Icon size={16} aria-hidden />
                                                 </span>
                                                 <span>
-                                                    <span className="block font-mono text-sm text-slate-900">
+                                                    <span className="block font-mono text-sm text-gray-900">
                                                         /{c.label}
                                                     </span>
-                                                    <span className="block text-sm text-slate-600">
+                                                    <span className="block text-sm text-gray-600">
                                                         {c.description}
                                                     </span>
                                                 </span>
@@ -296,11 +296,11 @@ export default function AiLandingPage() {
                 <div className="mx-auto grid max-w-6xl gap-14 px-4 py-20 sm:px-6 md:grid-cols-2 lg:px-8">
                     <div>
                         <GraduationCap size={22} className="text-[var(--brand)]" aria-hidden />
-                        <h2 className="mt-4 text-2xl font-semibold tracking-tight text-slate-900">
+                        <h2 className="mt-4 text-2xl font-semibold tracking-tight text-gray-900">
                             Also right where you build
                         </h2>
-                        <p className="mt-3 text-[15px] leading-7 text-slate-600">
-                            Open <strong className="font-semibold text-slate-800">AI Generate</strong> inside the course
+                        <p className="mt-3 text-[15px] leading-7 text-gray-600">
+                            Open <strong className="font-semibold text-gray-800">AI Generate</strong> inside the course
                             or exam builder for the same outline-first flow. On any single question, the AI menu makes
                             it harder or easier, writes better wrong answers, or rewrites it, and shows you the change
                             before you keep it.
@@ -308,12 +308,12 @@ export default function AiLandingPage() {
                     </div>
                     <div>
                         <CheckCircle2 size={22} className="text-[var(--brand)]" aria-hidden />
-                        <h2 className="mt-4 text-2xl font-semibold tracking-tight text-slate-900">
+                        <h2 className="mt-4 text-2xl font-semibold tracking-tight text-gray-900">
                             Checked before you see it
                         </h2>
                         <ul className="mt-3 space-y-3">
                             {QUALITY.map((line) => (
-                                <li key={line} className="flex gap-2.5 text-[15px] leading-7 text-slate-600">
+                                <li key={line} className="flex gap-2.5 text-[15px] leading-7 text-gray-600">
                                     <CheckCircle2 size={16} className="mt-1.5 shrink-0 text-emerald-600" aria-hidden />
                                     {line}
                                 </li>
@@ -324,10 +324,10 @@ export default function AiLandingPage() {
             </section>
 
             {/* FAQ */}
-            <section className="border-t border-slate-100 bg-white">
+            <section className="border-t border-gray-100 bg-white">
                 <div className="mx-auto max-w-3xl px-4 py-20 sm:px-6 lg:px-8">
                     <h2
-                        className="text-slate-900"
+                        className="text-gray-900"
                         style={{
                             fontFamily: 'var(--font-display), Georgia, serif',
                             fontSize: 'clamp(30px, 3.4vw, 42px)',
@@ -338,19 +338,19 @@ export default function AiLandingPage() {
                     >
                         Questions teachers ask
                     </h2>
-                    <div className="mt-10 divide-y divide-slate-200 border-y border-slate-200">
+                    <div className="mt-10 divide-y divide-gray-200 border-y border-gray-200">
                         {FAQS.map((f) => (
                             <details key={f.q} className="group py-5 [&_summary::-webkit-details-marker]:hidden">
-                                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-semibold text-slate-900">
+                                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-semibold text-gray-900">
                                     {f.q}
                                     <span
                                         aria-hidden
-                                        className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-slate-200 text-slate-500 transition group-open:rotate-45"
+                                        className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-gray-200 text-gray-500 transition group-open:rotate-45"
                                     >
                                         +
                                     </span>
                                 </summary>
-                                <p className="mt-3 text-[15px] leading-7 text-slate-600">{f.a}</p>
+                                <p className="mt-3 text-[15px] leading-7 text-gray-600">{f.a}</p>
                             </details>
                         ))}
                     </div>
@@ -381,7 +381,7 @@ export default function AiLandingPage() {
                         >
                             Your next course is one message away.
                         </h2>
-                        <p className="mt-3 text-slate-300">Free accounts include monthly AI credits.</p>
+                        <p className="mt-3 text-gray-300">Free accounts include monthly AI credits.</p>
                     </div>
                     <StartChatting tone="dark" />
                 </div>

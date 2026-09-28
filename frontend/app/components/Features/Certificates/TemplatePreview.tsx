@@ -20,9 +20,9 @@ const PRESET_STYLES: Record<PresetKey, { border: string; bg: string; title: stri
     classic: {
         border: 'border-amber-600',
         bg: 'bg-white',
-        title: 'text-slate-900',
+        title: 'text-gray-900',
         accent: 'text-[var(--brand)]',
-        muted: 'text-slate-500',
+        muted: 'text-gray-500',
     },
     modern: {
         border: 'border-sky-600',
@@ -32,18 +32,18 @@ const PRESET_STYLES: Record<PresetKey, { border: string; bg: string; title: stri
         muted: 'text-sky-600',
     },
     minimal: {
-        border: 'border-slate-300',
+        border: 'border-gray-300',
         bg: 'bg-white',
-        title: 'text-slate-900',
-        accent: 'text-slate-700',
-        muted: 'text-slate-500',
+        title: 'text-gray-900',
+        accent: 'text-gray-700',
+        muted: 'text-gray-500',
     },
     dark: {
-        border: 'border-slate-800',
-        bg: 'bg-slate-900',
+        border: 'border-gray-800',
+        bg: 'bg-gray-900',
         title: 'text-white',
         accent: 'text-orange-300',
-        muted: 'text-slate-300',
+        muted: 'text-gray-300',
     },
 };
 
@@ -76,7 +76,7 @@ export default function TemplatePreview({
             }
         >
             <div className="absolute inset-0 bg-white/75" />
-            {value.preset === 'dark' && <div className="absolute inset-0 bg-slate-950/45" />}
+            {value.preset === 'dark' && <div className="absolute inset-0 bg-gray-950/45" />}
 
             <div className="relative h-full px-12 py-10 flex flex-col items-center justify-center text-center">
                 <p className={`text-sm font-bold tracking-wide ${preset.muted}`}>{orgName}</p>
@@ -95,7 +95,7 @@ export default function TemplatePreview({
             </div>
 
             <div
-                className={`absolute ${qrPositionClass[value.qrPosition]} rounded-md bg-white/90 p-2 border border-slate-200`}
+                className={`absolute ${qrPositionClass[value.qrPosition]} rounded-md bg-white/90 p-2 border border-gray-200`}
             >
                 <QRCodeSVG value="https://mentrily.example/certificate/verify/preview" size={58} level="M" />
             </div>

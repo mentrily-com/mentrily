@@ -17,7 +17,7 @@ export default function UpgradeBanner({
         <div className="rounded-2xl border border-[var(--brand-light)] bg-[var(--brand-light)]/25 p-4 flex items-center justify-between gap-4">
             <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-[var(--brand)]">{title}</p>
-                <p className="text-xs font-bold text-slate-600 mt-1">{message}</p>
+                <p className="text-xs font-bold text-gray-600 mt-1">{message}</p>
             </div>
             <button
                 type="button"

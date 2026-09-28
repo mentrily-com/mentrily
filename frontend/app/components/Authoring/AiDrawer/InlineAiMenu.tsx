@@ -35,13 +35,13 @@ function Summary({ q }: { q: Question }) {
         [q],
     );
     return (
-        <div className="space-y-2 text-sm text-slate-700">
-            <p className="font-semibold text-slate-900">{q.title}</p>
+        <div className="space-y-2 text-sm text-gray-700">
+            <p className="font-semibold text-gray-900">{q.title}</p>
             <p className="whitespace-pre-line leading-6">{text || 'No text'}</p>
             {q.options && (
                 <ul className="space-y-1">
                     {q.options.map((o) => (
-                        <li key={o.id} className={`rounded-md px-2 py-1 text-xs ${o.isCorrect ? 'bg-emerald-50 text-emerald-800' : 'bg-slate-50'}`}>
+                        <li key={o.id} className={`rounded-md px-2 py-1 text-xs ${o.isCorrect ? 'bg-emerald-50 text-emerald-800' : 'bg-gray-50'}`}>
                             {o.isCorrect ? 'Correct: ' : ''}
                             {o.text}
                         </li>
@@ -49,12 +49,12 @@ function Summary({ q }: { q: Question }) {
                 </ul>
             )}
             {q.codingConfig && (
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-gray-500">
                     {q.codingConfig.testCases.length} test cases ({q.codingConfig.testCases.filter((t) => !t.isPublic).length} hidden),{' '}
                     {q.marks} pts
                 </p>
             )}
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-gray-400">
                 {q.difficulty}, {q.marks} {q.marks === 1 ? 'pt' : 'pts'}
             </p>
         </div>
@@ -136,17 +136,17 @@ export default function InlineAiMenu({
                 {running ? 'Working…' : 'AI'}
             </button>
             {open && (
-                <div role="menu" className="absolute right-0 top-full z-40 mt-2 w-72 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-xl">
+                <div role="menu" className="absolute right-0 top-full z-40 mt-2 w-72 overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-xl">
                     {ops.map((o) => (
                         <button
                             key={o.op}
                             type="button"
                             role="menuitem"
                             onClick={() => run(o.op)}
-                            className="block w-full px-3.5 py-2 text-left hover:bg-slate-50 focus:bg-slate-50 focus:outline-none"
+                            className="block w-full px-3.5 py-2 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none"
                         >
-                            <span className="block text-sm font-medium text-slate-900">{o.label}</span>
-                            <span className="block text-xs text-slate-500">{o.description}</span>
+                            <span className="block text-sm font-medium text-gray-900">{o.label}</span>
+                            <span className="block text-xs text-gray-500">{o.description}</span>
                         </button>
                     ))}
                 </div>
@@ -163,7 +163,7 @@ export default function InlineAiMenu({
                         <button
                             type="button"
                             onClick={() => setSuggestion(null)}
-                            className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                            className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                         >
                             Discard
                         </button>
@@ -186,8 +186,8 @@ export default function InlineAiMenu({
                         )}
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                                <p className="text-xs font-medium text-slate-500">Current</p>
-                                <div className="rounded-xl border border-slate-200 p-3">
+                                <p className="text-xs font-medium text-gray-500">Current</p>
+                                <div className="rounded-xl border border-gray-200 p-3">
                                     <Summary q={question} />
                                 </div>
                             </div>

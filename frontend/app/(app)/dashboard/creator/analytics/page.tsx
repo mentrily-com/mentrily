@@ -280,8 +280,8 @@ export default function CreatorAnalyticsPage() {
     if (role !== 'ADMIN') {
         return (
             <div className="flex flex-col items-center justify-center py-20 text-center space-y-4 font-sans animate-fade-in">
-                <h2 className="text-xl font-bold text-slate-800">Access Restricted</h2>
-                <p className="text-sm text-slate-500 max-w-sm">
+                <h2 className="text-xl font-bold text-gray-800">Access Restricted</h2>
+                <p className="text-sm text-gray-500 max-w-sm">
                     Only Organization Admins have access to the Analytics dashboard.
                 </p>
                 <Link
@@ -401,22 +401,22 @@ export default function CreatorAnalyticsPage() {
         <div className="animate-fade-in font-sans pb-10">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-slate-800">Analytics</h1>
-                    <p className="text-sm font-medium mt-1 text-slate-500">
+                    <h1 className="text-2xl font-bold tracking-tight text-gray-800">Analytics</h1>
+                    <p className="text-sm font-medium mt-1 text-gray-500">
                         Precision analytics for courses, exams, activity, and engagement.
                     </p>
                     {refreshedAtLabel && (
-                        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mt-2">
+                        <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mt-2">
                             Data refreshed at: {refreshedAtLabel}
                         </p>
                     )}
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2 bg-white rounded-lg p-1 border shadow-sm border-slate-200">
+                <div className="flex flex-wrap items-center gap-2 bg-white rounded-lg p-1 border shadow-sm border-gray-200">
                     <select
                         value={rangePreset}
                         onChange={(event) => setRangePreset(event.target.value as RangePreset)}
-                        className="px-3 py-2 rounded-md bg-transparent text-xs font-semibold text-slate-600 outline-none hover:bg-slate-50 cursor-pointer transition-colors"
+                        className="px-3 py-2 rounded-md bg-transparent text-xs font-semibold text-gray-600 outline-none hover:bg-gray-50 cursor-pointer transition-colors"
                     >
                         <option value="7d">Last 7 days</option>
                         <option value="30d">Last 30 days</option>
@@ -429,13 +429,13 @@ export default function CreatorAnalyticsPage() {
                                 type="date"
                                 value={startDate}
                                 onChange={(event) => setStartDate(event.target.value)}
-                                className="px-3 py-2 rounded-md bg-transparent border border-slate-200 text-xs font-semibold text-slate-600 outline-none"
+                                className="px-3 py-2 rounded-md bg-transparent border border-gray-200 text-xs font-semibold text-gray-600 outline-none"
                             />
                             <input
                                 type="date"
                                 value={endDate}
                                 onChange={(event) => setEndDate(event.target.value)}
-                                className="px-3 py-2 rounded-md bg-transparent border border-slate-200 text-xs font-semibold text-slate-600 outline-none"
+                                className="px-3 py-2 rounded-md bg-transparent border border-gray-200 text-xs font-semibold text-gray-600 outline-none"
                             />
                         </>
                     )}
@@ -451,7 +451,7 @@ export default function CreatorAnalyticsPage() {
                                 })),
                             )
                         }
-                        className="px-3 py-2 rounded-md bg-[var(--color-bg-subtle)] text-[10px] font-semibold uppercase tracking-wider text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                        className="px-3 py-2 rounded-md bg-[var(--color-bg-subtle)] text-[10px] font-semibold uppercase tracking-wider text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
                     >
                         Export Trends CSV
                     </button>
@@ -459,7 +459,7 @@ export default function CreatorAnalyticsPage() {
             </div>
 
             <PlanGate feature="advancedAnalytics" requiredPlan="Pro">
-                <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 md:p-8">
+                <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
                         <MetricCard label="Exam Attempts" value={Number(source.overview?.totalExamAttempts || 0)} />
                         <MetricCard
@@ -471,15 +471,15 @@ export default function CreatorAnalyticsPage() {
                     </div>
 
                     <div className="mt-8 grid grid-cols-1 xl:grid-cols-3 gap-6">
-                        <div className="xl:col-span-2 rounded-2xl border border-slate-100 p-5 bg-slate-50/40">
+                        <div className="xl:col-span-2 rounded-2xl border border-gray-100 p-5 bg-gray-50/40">
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-sm font-black uppercase tracking-widest text-slate-600">
+                                <h3 className="text-sm font-black uppercase tracking-widest text-gray-600">
                                     Activity Trends
                                 </h3>
                                 <select
                                     value={trendGranularity}
                                     onChange={(event) => setTrendGranularity(event.target.value as TrendGranularity)}
-                                    className="px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] font-black uppercase tracking-widest text-slate-500"
+                                    className="px-2 py-1.5 rounded-lg border border-gray-200 bg-white text-[10px] font-black uppercase tracking-widest text-gray-500"
                                 >
                                     <option value="daily">Daily</option>
                                     <option value="weekly">Weekly</option>
@@ -520,31 +520,31 @@ export default function CreatorAnalyticsPage() {
                             </div>
                         </div>
 
-                        <div className="rounded-2xl border border-slate-100 p-5 bg-slate-50/40 space-y-5">
+                        <div className="rounded-2xl border border-gray-100 p-5 bg-gray-50/40 space-y-5">
                             <div>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                                     Retention (Week 1)
                                 </p>
-                                <p className="text-2xl font-black text-slate-900 mt-1">
+                                <p className="text-2xl font-black text-gray-900 mt-1">
                                     {Number(latestRetention?.retentionRate || 0).toFixed(1)}%
                                 </p>
                             </div>
                             <div>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                                     Top Teacher
                                 </p>
-                                <p className="text-sm font-black text-slate-900 mt-1">
+                                <p className="text-sm font-black text-gray-900 mt-1">
                                     {topTeacher?.teacherName || 'N/A'}
                                 </p>
-                                <p className="text-xs font-bold text-slate-500 mt-1">
+                                <p className="text-xs font-bold text-gray-500 mt-1">
                                     Avg Score: {Number(topTeacher?.averageExamScore || 0).toFixed(1)}%
                                 </p>
                             </div>
                             <div>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                                     Avg Exam Time
                                 </p>
-                                <p className="text-xl font-black text-slate-900 mt-1">
+                                <p className="text-xl font-black text-gray-900 mt-1">
                                     {toMinuteString(avgExamTimeSec)}
                                 </p>
                             </div>
@@ -552,16 +552,16 @@ export default function CreatorAnalyticsPage() {
                     </div>
                 </section>
 
-                <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 md:p-8">
+                <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8">
                     <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-600">
+                        <h3 className="text-sm font-black uppercase tracking-widest text-gray-600">
                             Per-exam Analytics
                         </h3>
                         <div className="flex gap-2">
                             <select
                                 value={selectedExamId}
                                 onChange={(event) => setSelectedExamId(event.target.value)}
-                                className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-black text-slate-600"
+                                className="px-3 py-2 rounded-xl border border-gray-200 bg-white text-xs font-black text-gray-600"
                             >
                                 <option value="all">All Exams</option>
                                 {source.examRows.map((exam) => (
@@ -585,7 +585,7 @@ export default function CreatorAnalyticsPage() {
                                         })),
                                     )
                                 }
-                                className="px-3 py-2 rounded-xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest"
+                                className="px-3 py-2 rounded-xl bg-gray-900 text-white text-[10px] font-black uppercase tracking-widest"
                             >
                                 Export Exams CSV
                             </button>
@@ -593,8 +593,8 @@ export default function CreatorAnalyticsPage() {
                     </div>
 
                     <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                        <div className="xl:col-span-2 rounded-2xl border border-slate-100 p-5">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">
+                        <div className="xl:col-span-2 rounded-2xl border border-gray-100 p-5">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">
                                 Score Distribution Histogram
                             </p>
                             <div className="h-[280px]">
@@ -613,8 +613,8 @@ export default function CreatorAnalyticsPage() {
                             </div>
                         </div>
 
-                        <div className="rounded-2xl border border-slate-100 p-5 flex flex-col">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">
+                        <div className="rounded-2xl border border-gray-100 p-5 flex flex-col">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">
                                 Pass / Fail
                             </p>
                             <div className="h-[220px] relative">
@@ -634,13 +634,13 @@ export default function CreatorAnalyticsPage() {
                                     </PieChart>
                                 </ResponsiveContainer>
                                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                    <span className="text-xl font-black text-slate-900">
+                                    <span className="text-xl font-black text-gray-900">
                                         {totalPass + totalFail > 0
                                             ? Math.round((totalPass / (totalPass + totalFail)) * 100)
                                             : 0}
                                         %
                                     </span>
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                                         Pass Rate
                                     </span>
                                 </div>
@@ -648,8 +648,8 @@ export default function CreatorAnalyticsPage() {
                         </div>
                     </div>
 
-                    <div className="mt-6 rounded-2xl border border-slate-100 p-5">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">
+                    <div className="mt-6 rounded-2xl border border-gray-100 p-5">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">
                             Question Difficulty Analysis
                         </p>
                         <div className="h-[260px]">
@@ -675,9 +675,9 @@ export default function CreatorAnalyticsPage() {
                     </div>
                 </section>
 
-                <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 md:p-8">
+                <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8">
                     <div className="flex items-center justify-between mb-5">
-                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-600">
+                        <h3 className="text-sm font-black uppercase tracking-widest text-gray-600">
                             Per-course Analytics
                         </h3>
                         <button
@@ -694,7 +694,7 @@ export default function CreatorAnalyticsPage() {
                                     })),
                                 )
                             }
-                            className="px-3 py-2 rounded-xl bg-white border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-600"
+                            className="px-3 py-2 rounded-xl bg-white border border-gray-200 text-[10px] font-black uppercase tracking-widest text-gray-600"
                         >
                             Export Courses CSV
                         </button>
@@ -702,44 +702,44 @@ export default function CreatorAnalyticsPage() {
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[900px]">
                             <thead>
-                                <tr className="border-b border-slate-100 text-left">
-                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                <tr className="border-b border-gray-100 text-left">
+                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">
                                         Course
                                     </th>
-                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">
                                         Completion
                                     </th>
-                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">
                                         Drop-off Point
                                     </th>
-                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">
                                         Avg Time / Unit
                                     </th>
-                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">
                                         Students
                                     </th>
-                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">
                                         Modules
                                     </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {source.courseRows.map((row) => (
-                                    <tr key={row.courseId} className="border-b border-slate-50">
-                                        <td className="py-3 text-sm font-black text-slate-800">{row.title}</td>
-                                        <td className="py-3 text-xs font-bold text-slate-600">
+                                    <tr key={row.courseId} className="border-b border-gray-50">
+                                        <td className="py-3 text-sm font-black text-gray-800">{row.title}</td>
+                                        <td className="py-3 text-xs font-bold text-gray-600">
                                             {Number(row.completionRate || 0).toFixed(1)}%
                                         </td>
-                                        <td className="py-3 text-xs font-bold text-slate-600">
+                                        <td className="py-3 text-xs font-bold text-gray-600">
                                             Module {row.dropoffModule}
                                         </td>
-                                        <td className="py-3 text-xs font-bold text-slate-600">
+                                        <td className="py-3 text-xs font-bold text-gray-600">
                                             {toMinuteString(Number(row.averageTimePerUnitSec || 0))}
                                         </td>
-                                        <td className="py-3 text-xs font-bold text-slate-600">
+                                        <td className="py-3 text-xs font-bold text-gray-600">
                                             {row.enrolledStudents}
                                         </td>
-                                        <td className="py-3 text-xs font-bold text-slate-600">{row.moduleCount}</td>
+                                        <td className="py-3 text-xs font-bold text-gray-600">{row.moduleCount}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -747,8 +747,8 @@ export default function CreatorAnalyticsPage() {
                     </div>
                 </section>
 
-                <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 md:p-8">
-                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-600 mb-5">
+                <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8">
+                    <h3 className="text-sm font-black uppercase tracking-widest text-gray-600 mb-5">
                         Activity Heatmap (Day/Hour)
                     </h3>
                     <div className="overflow-x-auto">
@@ -756,7 +756,7 @@ export default function CreatorAnalyticsPage() {
                             <div className="grid grid-cols-[80px_repeat(24,minmax(20px,1fr))] gap-1 mb-2">
                                 <div />
                                 {Array.from({ length: 24 }, (_, hour) => (
-                                    <div key={hour} className="text-[9px] text-center font-black text-slate-400">
+                                    <div key={hour} className="text-[9px] text-center font-black text-gray-400">
                                         {hour}
                                     </div>
                                 ))}
@@ -767,7 +767,7 @@ export default function CreatorAnalyticsPage() {
                                     key={dayLabel}
                                     className="grid grid-cols-[80px_repeat(24,minmax(20px,1fr))] gap-1 mb-1"
                                 >
-                                    <div className="text-[10px] font-black text-slate-500 flex items-center">
+                                    <div className="text-[10px] font-black text-gray-500 flex items-center">
                                         {dayLabel}
                                     </div>
                                     {Array.from({ length: 24 }, (_, hour) => {
@@ -789,8 +789,8 @@ export default function CreatorAnalyticsPage() {
                     </div>
                 </section>
 
-                <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 md:p-8">
-                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-600 mb-4">
+                <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8">
+                    <h3 className="text-sm font-black uppercase tracking-widest text-gray-600 mb-4">
                         Activity Area View
                     </h3>
                     <div className="h-[260px]">
@@ -819,8 +819,8 @@ export default function CreatorAnalyticsPage() {
             </PlanGate>
 
             {role === 'ADMIN' && (
-                <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 md:p-8 mt-6">
-                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-600 mb-5">
+                <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8 mt-6">
+                    <h3 className="text-sm font-black uppercase tracking-widest text-gray-600 mb-5">
                         Storage Usage Leaderboard
                     </h3>
                     <StorageLeaderboard />

@@ -133,7 +133,7 @@ export default function ReportProblemModal({ isOpen, onClose, onSubmitted }: Rep
                 <button
                     onClick={handleSubmit}
                     disabled={isSubmitting || isUploading || !title.trim() || wordCount === 0 || wordCount > MAX_WORDS}
-                    className="w-full py-3.5 rounded-xl bg-[var(--brand)] hover:bg-[var(--brand-dark)] disabled:bg-slate-200 disabled:text-slate-400 text-white font-black text-xs uppercase tracking-[0.18em] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-3.5 rounded-xl bg-[var(--brand)] hover:bg-[var(--brand-dark)] disabled:bg-gray-200 disabled:text-gray-400 text-white font-black text-xs uppercase tracking-[0.18em] transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                     <Send size={15} /> {isSubmitting ? 'Submitting...' : 'Submit Report'}
                 </button>
@@ -148,7 +148,7 @@ export default function ReportProblemModal({ isOpen, onClose, onSubmitted }: Rep
 
             <div className="space-y-6">
                 <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">
                         Title
                     </label>
                     <input
@@ -157,16 +157,16 @@ export default function ReportProblemModal({ isOpen, onClose, onSubmitted }: Rep
                         onChange={(e) => setTitle(e.target.value)}
                         placeholder="Short summary of the issue"
                         maxLength={120}
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-[var(--brand)]/5 focus:border-[var(--brand)] transition-all"
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-bold text-gray-700 outline-none focus:ring-4 focus:ring-[var(--brand)]/5 focus:border-[var(--brand)] transition-all"
                     />
-                    <p className="text-[10px] font-bold text-slate-400 mt-2">{title.length}/120</p>
+                    <p className="text-[10px] font-bold text-gray-400 mt-2">{title.length}/120</p>
                 </div>
 
                 <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">
                         Description
                     </label>
-                    <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                    <div className="border border-gray-200 rounded-2xl overflow-hidden">
                         <RichTextEditor
                             content={description}
                             onChange={setDescription}
@@ -174,14 +174,14 @@ export default function ReportProblemModal({ isOpen, onClose, onSubmitted }: Rep
                         />
                     </div>
                     <p
-                        className={`text-[10px] font-bold mt-2 ${wordCount > MAX_WORDS ? 'text-rose-500' : 'text-slate-400'}`}
+                        className={`text-[10px] font-bold mt-2 ${wordCount > MAX_WORDS ? 'text-rose-500' : 'text-gray-400'}`}
                     >
                         {wordCount}/{MAX_WORDS} words
                     </p>
                 </div>
 
                 <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">
                         Attach Photos (Max 5)
                     </label>
 
@@ -190,7 +190,7 @@ export default function ReportProblemModal({ isOpen, onClose, onSubmitted }: Rep
                             {attachments.map((att, index) => (
                                 <div
                                     key={`${att.url}-${index}`}
-                                    className="relative border border-slate-100 rounded-xl overflow-hidden bg-slate-50"
+                                    className="relative border border-gray-100 rounded-xl overflow-hidden bg-gray-50"
                                 >
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img src={att.url} alt={att.name} className="w-full h-28 object-cover" />
@@ -206,9 +206,9 @@ export default function ReportProblemModal({ isOpen, onClose, onSubmitted }: Rep
                         </div>
                     )}
 
-                    <label className="flex items-center gap-2 px-4 py-3 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-[var(--brand)] hover:bg-[var(--brand-light)]/30 transition-all">
-                        <Paperclip size={16} className="text-slate-400" />
-                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest">
+                    <label className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer hover:border-[var(--brand)] hover:bg-[var(--brand-light)]/30 transition-all">
+                        <Paperclip size={16} className="text-gray-400" />
+                        <span className="text-xs font-black text-gray-400 uppercase tracking-widest">
                             {isUploading ? 'Uploading...' : 'Upload Images'}
                         </span>
                         <input

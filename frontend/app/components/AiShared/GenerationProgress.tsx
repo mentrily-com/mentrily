@@ -29,7 +29,7 @@ export default function GenerationProgress({ job, onCancel }: { job: AiJob; onCa
         <div className="space-y-5" aria-live="polite">
             <div className="space-y-2">
                 <div className="flex items-center justify-between gap-3">
-                    <p className="flex items-center gap-2 text-sm font-medium text-slate-800">
+                    <p className="flex items-center gap-2 text-sm font-medium text-gray-800">
                         {active && <Loader2 size={15} className="animate-spin text-[var(--brand)]" />}
                         {progress?.message || (job.status === 'queued' ? 'Waiting to start…' : 'Working…')}
                     </p>
@@ -37,19 +37,19 @@ export default function GenerationProgress({ job, onCancel }: { job: AiJob; onCa
                         <button
                             type="button"
                             onClick={onCancel}
-                            className="rounded-lg px-2.5 py-1 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                            className="rounded-lg px-2.5 py-1 text-xs font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900"
                         >
                             Cancel
                         </button>
                     )}
                 </div>
-                <div className="h-1 overflow-hidden rounded-full bg-slate-100">
+                <div className="h-1 overflow-hidden rounded-full bg-gray-100">
                     <div
                         className="h-full rounded-full bg-[var(--brand)] transition-[width] duration-700 ease-out motion-reduce:transition-none"
                         style={{ width: `${pct}%` }}
                     />
                 </div>
-                <p className="text-xs tabular-nums text-slate-400">
+                <p className="text-xs tabular-nums text-gray-400">
                     {creditsLabel(progress?.creditsUsed ?? job.creditsUsed)} used so far
                 </p>
             </div>
@@ -66,7 +66,7 @@ export default function GenerationProgress({ job, onCancel }: { job: AiJob; onCa
                                           ? 'bg-rose-100 text-rose-600'
                                           : section.status === 'running'
                                             ? 'bg-[var(--color-brand-light)] text-[var(--brand-dark)] ring-2 ring-[var(--brand)]/30'
-                                            : 'bg-slate-100 text-slate-400'
+                                            : 'bg-gray-100 text-gray-400'
                                 }`}
                             >
                                 {section.status === 'done' ? (
@@ -78,11 +78,11 @@ export default function GenerationProgress({ job, onCancel }: { job: AiJob; onCa
                                 )}
                             </span>
                             {i < sections.length - 1 && (
-                                <span className="absolute left-[9px] top-6 h-[calc(100%-12px)] w-px bg-slate-200" aria-hidden />
+                                <span className="absolute left-[9px] top-6 h-[calc(100%-12px)] w-px bg-gray-200" aria-hidden />
                             )}
                             <div className="flex items-baseline justify-between gap-2">
-                                <p className="truncate text-sm font-medium text-slate-900">{section.title}</p>
-                                <span className="shrink-0 text-xs tabular-nums text-slate-400">
+                                <p className="truncate text-sm font-medium text-gray-900">{section.title}</p>
+                                <span className="shrink-0 text-xs tabular-nums text-gray-400">
                                     {section.status === 'running'
                                         ? 'Writing…'
                                         : section.status === 'failed'
@@ -95,7 +95,7 @@ export default function GenerationProgress({ job, onCancel }: { job: AiJob; onCa
                                     {Array.from({ length: Math.min(section.questionCount, 3) }).map((_, k) => (
                                         <div
                                             key={k}
-                                            className="h-3 animate-pulse rounded bg-slate-100 motion-reduce:animate-none"
+                                            className="h-3 animate-pulse rounded bg-gray-100 motion-reduce:animate-none"
                                             style={{ width: `${88 - k * 17}%` }}
                                         />
                                     ))}
@@ -109,8 +109,8 @@ export default function GenerationProgress({ job, onCancel }: { job: AiJob; onCa
                                         const Icon = info?.icon;
                                         const status = REVIEW_STATUS[q.status] ?? REVIEW_STATUS.ok;
                                         return (
-                                            <li key={k} className="flex items-center gap-2 text-xs text-slate-600">
-                                                {Icon && <Icon size={12} className="shrink-0 text-slate-400" />}
+                                            <li key={k} className="flex items-center gap-2 text-xs text-gray-600">
+                                                {Icon && <Icon size={12} className="shrink-0 text-gray-400" />}
                                                 <span className="min-w-0 flex-1 truncate">{q.title}</span>
                                                 {q.status !== 'ok' && (
                                                     <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium ${status.className}`}>

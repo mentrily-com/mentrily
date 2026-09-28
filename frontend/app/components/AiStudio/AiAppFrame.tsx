@@ -47,10 +47,10 @@ export default function AiAppFrame({
     };
 
     return (
-        <div className="flex h-dvh overflow-hidden bg-white text-slate-900">
+        <div className="flex h-dvh overflow-hidden bg-white text-gray-900">
             <aside
                 aria-label="Mentrily AI sidebar"
-                className={`fixed inset-y-0 left-0 z-50 flex w-[272px] flex-col border-r border-slate-200 bg-slate-50 transition-transform duration-200 md:static md:z-auto md:translate-x-0 ${
+                className={`fixed inset-y-0 left-0 z-50 flex w-[272px] flex-col border-r border-gray-200 bg-gray-50 transition-transform duration-200 md:static md:z-auto md:translate-x-0 ${
                     mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
                 } ${collapsed ? 'md:hidden' : ''}`}
             >
@@ -68,7 +68,7 @@ export default function AiAppFrame({
                     <button
                         type="button"
                         onClick={() => setCollapsedPersisted(true)}
-                        className="hidden rounded-lg p-2 text-slate-500 hover:bg-slate-200/70 hover:text-slate-900 md:block"
+                        className="hidden rounded-lg p-2 text-gray-500 hover:bg-gray-200/70 hover:text-gray-900 md:block"
                         aria-label="Close sidebar"
                         title="Close sidebar"
                     >
@@ -77,7 +77,7 @@ export default function AiAppFrame({
                     <button
                         type="button"
                         onClick={() => onMobileOpenChange(false)}
-                        className="rounded-lg p-2 text-slate-500 hover:bg-slate-200/70 md:hidden"
+                        className="rounded-lg p-2 text-gray-500 hover:bg-gray-200/70 md:hidden"
                         aria-label="Close sidebar"
                     >
                         <X size={18} />
@@ -90,7 +90,7 @@ export default function AiAppFrame({
                     type="button"
                     aria-label="Close sidebar"
                     onClick={() => onMobileOpenChange(false)}
-                    className="fixed inset-0 z-40 bg-slate-900/25 md:hidden"
+                    className="fixed inset-0 z-40 bg-gray-900/25 md:hidden"
                 />
             )}
 
@@ -99,7 +99,7 @@ export default function AiAppFrame({
                     <button
                         type="button"
                         onClick={() => onMobileOpenChange(true)}
-                        className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 md:hidden"
+                        className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 md:hidden"
                         aria-label="Open sidebar"
                     >
                         <PanelLeftOpen size={18} />
@@ -108,14 +108,14 @@ export default function AiAppFrame({
                         <button
                             type="button"
                             onClick={() => setCollapsedPersisted(false)}
-                            className="hidden rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 md:block"
+                            className="hidden rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 md:block"
                             aria-label="Open sidebar"
                             title="Open sidebar"
                         >
                             <PanelLeftOpen size={18} />
                         </button>
                     )}
-                    <span className="px-1.5 text-[15px] font-semibold text-slate-800">Mentrily AI</span>
+                    <span className="px-1.5 text-[15px] font-semibold text-gray-800">Mentrily AI</span>
                     <div className="ml-auto flex items-center gap-2">{topbarRight}</div>
                 </header>
                 <div className="relative flex min-h-0 flex-1">

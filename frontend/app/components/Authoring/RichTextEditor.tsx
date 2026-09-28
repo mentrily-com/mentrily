@@ -57,12 +57,12 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
             StarterKit.configure({
                 codeBlock: {
                     HTMLAttributes: {
-                        class: 'rounded-lg bg-slate-900 text-slate-100 p-4 font-mono text-sm my-4 border border-slate-700',
+                        class: 'rounded-lg bg-gray-900 text-gray-100 p-4 font-mono text-sm my-4 border border-gray-700',
                     },
                 },
                 code: {
                     HTMLAttributes: {
-                        class: 'rounded bg-slate-100 dark:bg-slate-800 px-1 py-0.5 font-mono text-sm border border-slate-200 dark:border-slate-700 font-bold text-[var(--brand)]',
+                        class: 'rounded bg-gray-100 dark:bg-gray-800 px-1 py-0.5 font-mono text-sm border border-gray-200 dark:border-gray-700 font-bold text-[var(--brand)]',
                     },
                 },
             }),
@@ -88,7 +88,7 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
             Youtube.configure({
                 inline: false,
                 HTMLAttributes: {
-                    class: 'w-full aspect-video rounded-xl shadow-lg my-4 overflow-hidden border border-slate-200 dark:border-slate-700',
+                    class: 'w-full aspect-video rounded-xl shadow-lg my-4 overflow-hidden border border-gray-200 dark:border-gray-700',
                 },
             }),
         ];
@@ -114,8 +114,8 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
             attributes: {
                 class: `prose max-w-none focus:outline-none ${compact ? 'min-h-[180px] p-4' : 'min-h-[400px] p-8'} transition-colors duration-300 ${
                     isDarkMode
-                        ? 'prose-invert bg-slate-900 text-slate-100 placeholder:text-slate-600'
-                        : 'prose-slate bg-white text-slate-700 placeholder:text-slate-400'
+                        ? 'prose-invert bg-gray-900 text-gray-100 placeholder:text-gray-600'
+                        : 'prose-slate bg-white text-gray-700 placeholder:text-gray-400'
                 }`,
             },
         },
@@ -191,11 +191,11 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
 
     return (
         <div
-            className={`border rounded-[32px] overflow-hidden transition-all duration-300 ${isDarkMode ? 'border-slate-700 shadow-2xl shadow-black/50' : 'border-slate-200 shadow-sm'}`}
+            className={`border rounded-[32px] overflow-hidden transition-all duration-300 ${isDarkMode ? 'border-gray-700 shadow-2xl shadow-black/50' : 'border-gray-200 shadow-sm'}`}
         >
             {/* Toolbar */}
             <div
-                className={`flex flex-wrap items-center gap-1 p-3 border-b sticky top-0 z-10 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`}
+                className={`flex flex-wrap items-center gap-1 p-3 border-b sticky top-0 z-10 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'}`}
             >
                 <div className="flex bg-white/10 rounded-xl p-0.5 gap-0.5 shadow-inner">
                     <ToolbarBtn
@@ -388,14 +388,14 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
                 </div>
 
                 <div className="ml-auto flex items-center gap-2">
-                    <div className={`h-6 w-[1px] ${isDarkMode ? 'bg-slate-700' : 'bg-slate-200'}`}></div>
+                    <div className={`h-6 w-[1px] ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
                     <button
                         type="button"
                         onClick={() => setIsDarkMode(!isDarkMode)}
                         className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
                             isDarkMode
                                 ? 'bg-[var(--brand)] text-white hover:brightness-110 shadow-lg shadow-[var(--brand)]/20'
-                                : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                         }`}
                     >
                         {isDarkMode ? <Sun size={14} /> : <Moon size={14} />}
@@ -405,11 +405,11 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
             </div>
 
             {/* Editor Area */}
-            <div className={`relative ${isDarkMode ? 'bg-slate-900' : 'bg-white'}`}>
+            <div className={`relative ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
                 <EditorContent editor={editor} />
                 {(content === '' || content === '<p></p>') && (
                     <div
-                        className={`absolute top-8 left-8 pointer-events-none font-medium italic ${isDarkMode ? 'text-slate-600' : 'text-slate-300'}`}
+                        className={`absolute top-8 left-8 pointer-events-none font-medium italic ${isDarkMode ? 'text-gray-600' : 'text-gray-300'}`}
                     >
                         {placeholder || 'Start typing your content...'}
                     </div>
@@ -479,8 +479,8 @@ function ToolbarBtn({
                         ? 'bg-[var(--brand)] text-white shadow-lg shadow-[var(--brand)]/30'
                         : 'bg-[var(--brand)] text-white shadow-lg'
                     : dark
-                      ? 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
-                      : 'text-slate-500 hover:text-slate-900 hover:bg-white'
+                      ? 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+                      : 'text-gray-500 hover:text-gray-900 hover:bg-white'
             }`}
         >
             {icon}
@@ -489,5 +489,5 @@ function ToolbarBtn({
 }
 
 function Divider({ dark }: { dark: boolean }) {
-    return <div className={`w-[1px] h-6 mx-1 ${dark ? 'bg-white/10' : 'bg-slate-200 font-thin'}`}></div>;
+    return <div className={`w-[1px] h-6 mx-1 ${dark ? 'bg-white/10' : 'bg-gray-200 font-thin'}`}></div>;
 }

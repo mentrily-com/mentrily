@@ -50,7 +50,7 @@ function ChangelogList() {
     return (
         <section ref={ref} className="py-20 bg-white">
             <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="relative border-l border-slate-200 ml-4 sm:ml-0 pl-8 sm:pl-0">
+                <div className="relative border-l border-gray-200 ml-4 sm:ml-0 pl-8 sm:pl-0">
                     {changes.map((change, i) => (
                         <motion.div
                             key={change.version}
@@ -64,20 +64,20 @@ function ChangelogList() {
 
                             <div className="mb-4 sm:mb-0">
                                 <time className="text-sm font-semibold text-teal-600 block mb-1">{change.date}</time>
-                                <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500">
+                                <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500">
                                     {change.type}
                                 </span>
                             </div>
 
                             <div>
-                                <h3 className="text-xl font-bold text-slate-900 mb-4">
+                                <h3 className="text-xl font-bold text-gray-900 mb-4">
                                     {change.title}{' '}
-                                    <span className="text-slate-400 font-normal ml-2">{change.version}</span>
+                                    <span className="text-gray-400 font-normal ml-2">{change.version}</span>
                                 </h3>
                                 <ul className="space-y-3">
                                     {change.items.map((item, idx) => (
-                                        <li key={idx} className="flex items-start gap-3 text-slate-600">
-                                            <div className="mt-2 w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0" />
+                                        <li key={idx} className="flex items-start gap-3 text-gray-600">
+                                            <div className="mt-2 w-1.5 h-1.5 rounded-full bg-gray-300 shrink-0" />
                                             <span className="text-sm leading-relaxed">{item}</span>
                                         </li>
                                     ))}

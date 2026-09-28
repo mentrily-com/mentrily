@@ -42,15 +42,15 @@ function Stepper({
 }) {
     return (
         <div className="space-y-1.5">
-            <label htmlFor={id} className="block text-xs font-medium text-slate-600">
+            <label htmlFor={id} className="block text-xs font-medium text-gray-600">
                 {label}
             </label>
-            <div className="flex h-10 items-center rounded-xl border border-slate-200 bg-white">
+            <div className="flex h-10 items-center rounded-xl border border-gray-200 bg-white">
                 <button
                     type="button"
                     onClick={() => onChange(Math.max(min, value - 1))}
                     disabled={value <= min}
-                    className="grid h-full w-9 place-items-center text-slate-500 hover:text-slate-900 disabled:opacity-30"
+                    className="grid h-full w-9 place-items-center text-gray-500 hover:text-gray-900 disabled:opacity-30"
                     aria-label={`Fewer ${label.toLowerCase()}`}
                 >
                     <Minus size={14} />
@@ -66,13 +66,13 @@ function Stepper({
                         const n = Math.round(Number(e.target.value));
                         if (Number.isFinite(n)) onChange(Math.min(max, Math.max(min, n)));
                     }}
-                    className="h-full w-full min-w-0 bg-transparent text-center text-sm font-semibold tabular-nums text-slate-900 outline-none"
+                    className="h-full w-full min-w-0 bg-transparent text-center text-sm font-semibold tabular-nums text-gray-900 outline-none"
                 />
                 <button
                     type="button"
                     onClick={() => onChange(Math.min(max, value + 1))}
                     disabled={value >= max}
-                    className="grid h-full w-9 place-items-center text-slate-500 hover:text-slate-900 disabled:opacity-30"
+                    className="grid h-full w-9 place-items-center text-gray-500 hover:text-gray-900 disabled:opacity-30"
                     aria-label={`More ${label.toLowerCase()}`}
                 >
                     <Plus size={14} />
@@ -124,7 +124,7 @@ export default function BriefFields({
         <div className="space-y-5">
             {showTopic && (
                 <div className="space-y-1.5">
-                    <label htmlFor={`${uid}-topic`} className="block text-xs font-medium text-slate-600">
+                    <label htmlFor={`${uid}-topic`} className="block text-xs font-medium text-gray-600">
                         What should it cover?
                     </label>
                     <textarea
@@ -138,13 +138,13 @@ export default function BriefFields({
                                 ? 'e.g. Mid-term on Python lists and loops: indexing, slicing, list methods, for-loops'
                                 : 'e.g. Python lists for beginners: creating lists, indexing, slicing and list methods'
                         }
-                        className="w-full resize-none rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm leading-6 text-slate-900 outline-none transition focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/10"
+                        className="w-full resize-none rounded-xl border border-gray-200 bg-white px-3.5 py-3 text-sm leading-6 text-gray-900 outline-none transition focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/10"
                     />
                 </div>
             )}
 
             <div className="space-y-1.5">
-                <label htmlFor={`${uid}-aud`} className="block text-xs font-medium text-slate-600">
+                <label htmlFor={`${uid}-aud`} className="block text-xs font-medium text-gray-600">
                     Who is it for?
                 </label>
                 <input
@@ -153,7 +153,7 @@ export default function BriefFields({
                     onChange={(e) => set('audience', e.target.value)}
                     maxLength={300}
                     placeholder="e.g. Grade 9 students new to programming"
-                    className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm text-slate-900 outline-none transition focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/10"
+                    className="h-10 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none transition focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/10"
                 />
             </div>
 
@@ -177,14 +177,14 @@ export default function BriefFields({
                     onChange={(v) => set('questionsPerSection', v)}
                 />
             </div>
-            <p className={`-mt-2 text-xs tabular-nums ${overLimit ? 'font-medium text-amber-700' : 'text-slate-400'}`}>
+            <p className={`-mt-2 text-xs tabular-nums ${overLimit ? 'font-medium text-amber-700' : 'text-gray-400'}`}>
                 {overLimit
                     ? `${total} items is over your plan's limit of ${maxQuestions} per generation.`
                     : `${total} item${total === 1 ? '' : 's'} in total`}
             </p>
 
             <fieldset className="space-y-2">
-                <legend className="text-xs font-medium text-slate-600">Question types</legend>
+                <legend className="text-xs font-medium text-gray-600">Question types</legend>
                 <div className="flex flex-wrap gap-2">
                     {TYPES_FOR_KIND[brief.kind].map((type) => {
                         const info = AI_TYPES[type];
@@ -200,7 +200,7 @@ export default function BriefFields({
                                 className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition ${
                                     active
                                         ? 'border-[var(--brand)] bg-[var(--color-brand-light)] text-[var(--brand-dark)]'
-                                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
                                 } ${locked ? 'opacity-60' : ''}`}
                             >
                                 {locked ? <Lock size={12} /> : <Icon size={13} />}
@@ -213,7 +213,7 @@ export default function BriefFields({
 
             {brief.types.includes('Coding') && (
                 <fieldset className="space-y-2">
-                    <legend className="text-xs font-medium text-slate-600">Coding languages</legend>
+                    <legend className="text-xs font-medium text-gray-600">Coding languages</legend>
                     <div className="flex gap-2">
                         {(['python', 'javascript'] as const).map((lang) => {
                             const active = (brief.codingLanguages ?? ['python']).includes(lang);
@@ -230,7 +230,7 @@ export default function BriefFields({
                                     className={`rounded-lg border px-2.5 py-1.5 text-xs font-medium ${
                                         active
                                             ? 'border-[var(--brand)] bg-[var(--color-brand-light)] text-[var(--brand-dark)]'
-                                            : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                                            : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
                                     }`}
                                 >
                                     {lang === 'python' ? 'Python' : 'JavaScript'}
@@ -242,8 +242,8 @@ export default function BriefFields({
             )}
 
             <fieldset className="space-y-2">
-                <legend className="text-xs font-medium text-slate-600">Difficulty</legend>
-                <div className="grid grid-cols-4 rounded-xl border border-slate-200 bg-slate-50 p-1">
+                <legend className="text-xs font-medium text-gray-600">Difficulty</legend>
+                <div className="grid grid-cols-4 rounded-xl border border-gray-200 bg-gray-50 p-1">
                     {DIFFICULTIES.map((d) => (
                         <button
                             key={d}
@@ -251,7 +251,7 @@ export default function BriefFields({
                             aria-pressed={brief.difficulty === d}
                             onClick={() => set('difficulty', d)}
                             className={`rounded-lg py-1.5 text-xs font-medium transition ${
-                                brief.difficulty === d ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+                                brief.difficulty === d ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-800'
                             }`}
                         >
                             {d}
@@ -261,7 +261,7 @@ export default function BriefFields({
             </fieldset>
 
             <div className="space-y-2">
-                <p className="text-xs font-medium text-slate-600">Reference material</p>
+                <p className="text-xs font-medium text-gray-600">Reference material</p>
                 <ReferencePicker
                     value={references}
                     onChange={onReferencesChange}
@@ -273,7 +273,7 @@ export default function BriefFields({
             </div>
 
             <fieldset className="space-y-2">
-                <legend className="text-xs font-medium text-slate-600">Quality</legend>
+                <legend className="text-xs font-medium text-gray-600">Quality</legend>
                 <div className="grid grid-cols-2 gap-2">
                     {(
                         [
@@ -296,14 +296,14 @@ export default function BriefFields({
                                 className={`rounded-xl border px-3 py-2.5 text-left transition ${
                                     active
                                         ? 'border-[var(--brand)] bg-[var(--color-brand-light)]'
-                                        : 'border-slate-200 bg-white hover:border-slate-300'
+                                        : 'border-gray-200 bg-white hover:border-gray-300'
                                 }`}
                             >
-                                <span className="flex items-center gap-1.5 text-sm font-semibold text-slate-900">
-                                    {locked && <Lock size={12} className="text-slate-400" />}
+                                <span className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
+                                    {locked && <Lock size={12} className="text-gray-400" />}
                                     {opt.title}
                                 </span>
-                                <span className="text-xs text-slate-500">{opt.body}</span>
+                                <span className="text-xs text-gray-500">{opt.body}</span>
                             </button>
                         );
                     })}
@@ -315,7 +315,7 @@ export default function BriefFields({
                     type="button"
                     onClick={() => setMoreOpen((o) => !o)}
                     aria-expanded={moreOpen}
-                    className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-800"
+                    className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-gray-800"
                 >
                     <ChevronDown size={14} className={`transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
                     More options
@@ -323,7 +323,7 @@ export default function BriefFields({
                 {moreOpen && (
                     <div className="mt-3 space-y-4">
                         <div className="space-y-1.5">
-                            <label htmlFor={`${uid}-out`} className="block text-xs font-medium text-slate-600">
+                            <label htmlFor={`${uid}-out`} className="block text-xs font-medium text-gray-600">
                                 Learning outcomes
                             </label>
                             <textarea
@@ -333,19 +333,19 @@ export default function BriefFields({
                                 rows={2}
                                 maxLength={1500}
                                 placeholder="e.g. Learners can slice lists, choose the right list method and loop over lists"
-                                className="w-full resize-none rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/10"
+                                className="w-full resize-none rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/10"
                             />
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-1.5">
-                                <label htmlFor={`${uid}-lang`} className="block text-xs font-medium text-slate-600">
+                                <label htmlFor={`${uid}-lang`} className="block text-xs font-medium text-gray-600">
                                     Content language
                                 </label>
                                 <select
                                     id={`${uid}-lang`}
                                     value={brief.language ?? 'English'}
                                     onChange={(e) => set('language', e.target.value)}
-                                    className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-[var(--brand)]"
+                                    className="h-10 w-full rounded-xl border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none focus:border-[var(--brand)]"
                                 >
                                     {LANGUAGES.map((l) => (
                                         <option key={l}>{l}</option>
@@ -354,7 +354,7 @@ export default function BriefFields({
                             </div>
                             {brief.kind === 'exam' && (
                                 <div className="space-y-1.5">
-                                    <label htmlFor={`${uid}-marks`} className="block text-xs font-medium text-slate-600">
+                                    <label htmlFor={`${uid}-marks`} className="block text-xs font-medium text-gray-600">
                                         Total marks
                                     </label>
                                     <input
@@ -367,7 +367,7 @@ export default function BriefFields({
                                             set('totalMarks', e.target.value ? Math.max(1, Math.round(Number(e.target.value))) : undefined)
                                         }
                                         placeholder="Any"
-                                        className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm tabular-nums text-slate-900 outline-none focus:border-[var(--brand)]"
+                                        className="h-10 w-full rounded-xl border border-gray-200 bg-white px-3 text-sm tabular-nums text-gray-900 outline-none focus:border-[var(--brand)]"
                                     />
                                 </div>
                             )}

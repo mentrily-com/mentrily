@@ -22,13 +22,13 @@ export default function BookmarksPage() {
         removeBookmark(bookmarkId);
     };
     return (
-        <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
-            <div className="border-b border-slate-100">
+        <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
+            <div className="border-b border-gray-100">
                 <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 flex flex-wrap items-center gap-4 sm:gap-10">
                     <button className="py-4 text-sm font-black text-[var(--brand)] border-b-2 border-[var(--brand)] px-1">
                         Bookmarks
                     </button>
-                    <div className="text-xs font-bold text-slate-400">{bookmarks.length} saved units</div>
+                    <div className="text-xs font-bold text-gray-400">{bookmarks.length} saved units</div>
                 </div>
             </div>
 
@@ -36,12 +36,12 @@ export default function BookmarksPage() {
                 {loading ? (
                     <LearnerBookmarksSkeleton />
                 ) : bookmarks.length === 0 ? (
-                    <div className="text-center py-20 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-100">
+                    <div className="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-100">
                         <div className="w-16 h-16 bg-white rounded-2xl mx-auto flex items-center justify-center shadow-sm mb-4 text-2xl">
                             🔖
                         </div>
-                        <h3 className="text-xl font-black text-slate-800 mb-2">No bookmarks yet</h3>
-                        <p className="text-slate-500 max-w-sm mx-auto mb-8 font-medium">
+                        <h3 className="text-xl font-black text-gray-800 mb-2">No bookmarks yet</h3>
+                        <p className="text-gray-500 max-w-sm mx-auto mb-8 font-medium">
                             Save important lessons, questions or code snippets so you can find them easily later.
                         </p>
                         <Link
@@ -52,30 +52,30 @@ export default function BookmarksPage() {
                         </Link>
                     </div>
                 ) : (
-                    <div className="overflow-hidden bg-white border border-slate-100 rounded-xl shadow-sm">
+                    <div className="overflow-hidden bg-white border border-gray-100 rounded-xl shadow-sm">
                         <table className="hidden w-full text-left border-collapse md:table">
                             <thead>
-                                <tr className="bg-slate-50/50 border-b border-slate-100">
-                                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-500">
+                                <tr className="bg-gray-50/50 border-b border-gray-100">
+                                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-500">
                                         Topic
                                     </th>
-                                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-500">
+                                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-500">
                                         Module
                                     </th>
-                                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-500">
+                                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-500">
                                         Course
                                     </th>
-                                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-500">
+                                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-500">
                                         Saved On
                                     </th>
-                                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-500 text-right">
+                                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-500 text-right">
                                         Actions
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-50">
+                            <tbody className="divide-y divide-gray-50">
                                 {bookmarks.map((b) => (
-                                    <tr key={b.id} className="hover:bg-slate-50/40 transition-colors group">
+                                    <tr key={b.id} className="hover:bg-gray-50/40 transition-colors group">
                                         <td className="px-6 py-5">
                                             <Link
                                                 href={`/dashboard/learner/unit/${b.unitId}`}
@@ -84,25 +84,25 @@ export default function BookmarksPage() {
                                                 {b.unitTitle}
                                                 <ExternalLink className="w-3.5 h-3.5 opacity-0 group-hover/link:opacity-100 transition-opacity" />
                                             </Link>
-                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 block px-2 py-0.5 bg-slate-100 rounded-md w-fit">
+                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1 block px-2 py-0.5 bg-gray-100 rounded-md w-fit">
                                                 {b.unitType}
                                             </span>
                                         </td>
                                         <td className="px-6 py-5">
-                                            <span className="text-sm font-medium text-slate-700">{b.moduleTitle}</span>
+                                            <span className="text-sm font-medium text-gray-700">{b.moduleTitle}</span>
                                         </td>
                                         <td className="px-6 py-5">
-                                            <span className="text-sm font-medium text-slate-500">{b.courseTitle}</span>
+                                            <span className="text-sm font-medium text-gray-500">{b.courseTitle}</span>
                                         </td>
                                         <td className="px-6 py-5">
-                                            <span className="text-sm font-medium text-slate-400">
+                                            <span className="text-sm font-medium text-gray-400">
                                                 {new Date(b.bookmarkedAt).toLocaleDateString()}
                                             </span>
                                         </td>
                                         <td className="px-6 py-5 text-right">
                                             <button
                                                 onClick={() => handleRemoveBookmark(b.id)}
-                                                className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                                className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                                                 title="Remove Bookmark"
                                             >
                                                 <Trash2 size={18} />
@@ -112,7 +112,7 @@ export default function BookmarksPage() {
                                 ))}
                             </tbody>
                         </table>
-                        <div className="divide-y divide-slate-100 md:hidden">
+                        <div className="divide-y divide-gray-100 md:hidden">
                             {bookmarks.map((b) => (
                                 <article key={b.id} className="p-4">
                                     <div className="flex items-start justify-between gap-3">
@@ -124,36 +124,36 @@ export default function BookmarksPage() {
                                                 {b.unitTitle}
                                                 <ExternalLink className="h-3.5 w-3.5 shrink-0" />
                                             </Link>
-                                            <span className="mt-2 block w-fit rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                            <span className="mt-2 block w-fit rounded-md bg-gray-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-gray-400">
                                                 {b.unitType}
                                             </span>
                                         </div>
                                         <button
                                             onClick={() => handleRemoveBookmark(b.id)}
-                                            className="rounded-lg p-2 text-slate-300 transition-all hover:bg-red-50 hover:text-red-500"
+                                            className="rounded-lg p-2 text-gray-300 transition-all hover:bg-red-50 hover:text-red-500"
                                             title="Remove Bookmark"
                                         >
                                             <Trash2 size={18} />
                                         </button>
                                     </div>
-                                    <div className="mt-4 grid grid-cols-1 gap-2 rounded-2xl bg-slate-50 p-3 text-xs sm:grid-cols-2">
+                                    <div className="mt-4 grid grid-cols-1 gap-2 rounded-2xl bg-gray-50 p-3 text-xs sm:grid-cols-2">
                                         <div>
-                                            <p className="font-black uppercase tracking-widest text-slate-400">
+                                            <p className="font-black uppercase tracking-widest text-gray-400">
                                                 Module
                                             </p>
-                                            <p className="mt-1 font-bold text-slate-700">{b.moduleTitle}</p>
+                                            <p className="mt-1 font-bold text-gray-700">{b.moduleTitle}</p>
                                         </div>
                                         <div>
-                                            <p className="font-black uppercase tracking-widest text-slate-400">Saved</p>
-                                            <p className="mt-1 font-bold text-slate-500">
+                                            <p className="font-black uppercase tracking-widest text-gray-400">Saved</p>
+                                            <p className="mt-1 font-bold text-gray-500">
                                                 {new Date(b.bookmarkedAt).toLocaleDateString()}
                                             </p>
                                         </div>
                                         <div className="sm:col-span-2">
-                                            <p className="font-black uppercase tracking-widest text-slate-400">
+                                            <p className="font-black uppercase tracking-widest text-gray-400">
                                                 Course
                                             </p>
-                                            <p className="mt-1 font-bold text-slate-500">{b.courseTitle}</p>
+                                            <p className="mt-1 font-bold text-gray-500">{b.courseTitle}</p>
                                         </div>
                                     </div>
                                 </article>

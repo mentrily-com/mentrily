@@ -183,7 +183,7 @@ const ExamCountdownTimer = React.memo(function ExamCountdownTimer({
 const ExamNetworkIndicator = React.memo(function ExamNetworkIndicator() {
     const { isOnline, downlink } = useNetworkMonitor();
     return (
-        <div className="relative group hidden items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-help border border-slate-100 lg:flex">
+        <div className="relative group hidden items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-help border border-gray-100 lg:flex">
             <div className="flex items-end gap-0.5 h-3.5 mb-0.5">
                 {[1, 2, 3, 4].map((bar) => {
                     const barThresholds = [0, 2, 5, 10];
@@ -191,7 +191,7 @@ const ExamNetworkIndicator = React.memo(function ExamNetworkIndicator() {
                     return (
                         <div
                             key={bar}
-                            className={`w-1 rounded-sm transition-all duration-300 ${isActive ? 'bg-emerald-500' : 'bg-slate-200'} ${!isOnline ? 'bg-rose-400' : ''}`}
+                            className={`w-1 rounded-sm transition-all duration-300 ${isActive ? 'bg-emerald-500' : 'bg-gray-200'} ${!isOnline ? 'bg-rose-400' : ''}`}
                             style={{ height: `${25 * bar}%` }}
                         />
                     );
@@ -202,17 +202,17 @@ const ExamNetworkIndicator = React.memo(function ExamNetworkIndicator() {
             )}
 
             {/* Tooltip */}
-            <div className="absolute invisible group-hover:visible top-full left-1/2 -translate-x-1/2 mt-3 p-3 bg-white text-slate-900 text-[10px] font-bold rounded-xl whitespace-nowrap shadow-2xl z-50 border border-slate-100 ring-4 ring-slate-900/5 transition-all">
+            <div className="absolute invisible group-hover:visible top-full left-1/2 -translate-x-1/2 mt-3 p-3 bg-white text-gray-900 text-[10px] font-bold rounded-xl whitespace-nowrap shadow-2xl z-50 border border-gray-100 ring-4 ring-gray-900/5 transition-all">
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between gap-8">
-                        <span className="text-slate-400 uppercase tracking-tighter">Net Status</span>
+                        <span className="text-gray-400 uppercase tracking-tighter">Net Status</span>
                         <span className={isOnline ? 'text-emerald-500 font-black' : 'text-rose-500 font-black'}>
                             {isOnline ? 'ONLINE' : 'OFFLINE'}
                         </span>
                     </div>
                     {isOnline && (
-                        <div className="flex items-center justify-between gap-8 border-t border-slate-50 pt-2">
-                            <span className="text-slate-400 uppercase tracking-tighter">Sync Speed</span>
+                        <div className="flex items-center justify-between gap-8 border-t border-gray-50 pt-2">
+                            <span className="text-gray-400 uppercase tracking-tighter">Sync Speed</span>
                             <span className="text-indigo-600 font-black">
                                 {downlink > 0 ? `${downlink} Mbps` : 'Detecting...'}
                             </span>
@@ -1933,8 +1933,8 @@ export default function PublicExamPage() {
                 <div className="hidden items-center gap-4 ml-4 sm:flex">
                     <div
                         className={`
-                        bg-white border border-slate-100 rounded-xl px-3 py-1.5 flex items-center gap-3 transition-shadow duration-300
-                        ${windowFocus.in === 0 && windowFocus.out === 0 ? 'shadow-none' : 'shadow-md shadow-slate-200/50'}
+                        bg-white border border-gray-100 rounded-xl px-3 py-1.5 flex items-center gap-3 transition-shadow duration-300
+                        ${windowFocus.in === 0 && windowFocus.out === 0 ? 'shadow-none' : 'shadow-md shadow-gray-200/50'}
                     `}
                     >
                         <div className="flex items-center gap-1.5" title="Switched In (Focused)">
@@ -1956,7 +1956,7 @@ export default function PublicExamPage() {
                             </div>
                             <span className="text-xs font-black text-emerald-700">{windowFocus.in}</span>
                         </div>
-                        <div className="w-[1px] h-3 bg-slate-100" />
+                        <div className="w-[1px] h-3 bg-gray-100" />
                         <div className="flex items-center gap-1.5" title="Switched Out (Blurred)">
                             <div className="w-5 h-5 rounded-md bg-rose-50 flex items-center justify-center text-rose-600">
                                 <svg
@@ -1985,7 +1985,7 @@ export default function PublicExamPage() {
                     !areAllSectionsSubmitted && !isCurrentSectionSubmitted ? (
                         <button
                             onClick={() => setIsSubmitModalOpen(false)}
-                            className="flex items-center gap-2 px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-bold rounded-xl transition-all"
+                            className="flex items-center gap-2 px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-bold rounded-xl transition-all"
                         >
                             <svg
                                 width="18"
@@ -2023,10 +2023,10 @@ export default function PublicExamPage() {
                     {/* Font-size stepper and network indicator: conveniences, not
                         essential -- shown from lg up so the timer, Submit and the
                         profile menu (which are) always have room in the header. */}
-                    <div className="hidden items-center gap-1 bg-white border border-slate-100 rounded-xl p-1 lg:flex">
+                    <div className="hidden items-center gap-1 bg-white border border-gray-100 rounded-xl p-1 lg:flex">
                         <button
                             onClick={() => setFontSize((prev) => Math.max(12, prev - 1))}
-                            className="w-7 h-7 flex items-center justify-center hover:bg-slate-50 rounded-lg text-slate-500 hover:text-[var(--brand)] transition-colors"
+                            className="w-7 h-7 flex items-center justify-center hover:bg-gray-50 rounded-lg text-gray-500 hover:text-[var(--brand)] transition-colors"
                         >
                             <svg
                                 width="16"
@@ -2041,7 +2041,7 @@ export default function PublicExamPage() {
                         </button>
                         <button
                             onClick={() => setFontSize((prev) => Math.min(30, prev + 1))}
-                            className="w-7 h-7 flex items-center justify-center hover:bg-slate-50 rounded-lg text-slate-500 hover:text-[var(--brand)] transition-colors"
+                            className="w-7 h-7 flex items-center justify-center hover:bg-gray-50 rounded-lg text-gray-500 hover:text-[var(--brand)] transition-colors"
                         >
                             <svg
                                 width="16"
@@ -2063,7 +2063,7 @@ export default function PublicExamPage() {
                     {!isElectronRuntime && (
                         <button
                             onClick={toggleFullscreen}
-                            className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-500 rounded-xl border border-slate-100 transition-all"
+                            className="p-2 bg-gray-50 hover:bg-gray-100 text-gray-500 rounded-xl border border-gray-100 transition-all"
                         >
                             <svg
                                 width="16"
@@ -2111,7 +2111,7 @@ export default function PublicExamPage() {
                 id: currentQuestionId as string,
                 type: 'Reading',
                 title: isLoading ? 'Loading...' : `Question ${currentQuestionId}`,
-                description: `<div class="flex items-center justify-center h-full text-slate-300 font-black text-2xl uppercase tracking-widest">${isLoading ? 'Loading Content...' : 'Content Not Available'}</div>`,
+                description: `<div class="flex items-center justify-center h-full text-gray-300 font-black text-2xl uppercase tracking-widest">${isLoading ? 'Loading Content...' : 'Content Not Available'}</div>`,
             } as UnitQuestion)
         );
     }, [questionsMap, currentQuestionId, isLoading]);
@@ -2126,11 +2126,11 @@ export default function PublicExamPage() {
     // Render simple error message if exam not found
     if (isNotFound) {
         return (
-            <div className="h-screen w-full bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+            <div className="h-screen w-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
                 <div className="max-w-md w-full text-center space-y-6">
-                    <div className="text-6xl font-black text-slate-300">404</div>
-                    <h1 className="text-3xl font-bold text-slate-800">Exam Not Found</h1>
-                    <p className="text-lg text-slate-600">
+                    <div className="text-6xl font-black text-gray-300">404</div>
+                    <h1 className="text-3xl font-bold text-gray-800">Exam Not Found</h1>
+                    <p className="text-lg text-gray-600">
                         The exam you are looking for does not exist or is no longer available.
                     </p>
                     <button
@@ -2147,10 +2147,10 @@ export default function PublicExamPage() {
     if (examBlock) {
         const toneClasses =
             examBlock.tone === 'rose'
-                ? 'from-rose-950 via-slate-950 to-slate-900 border-rose-400/25 text-rose-100 bg-rose-500/10'
+                ? 'from-rose-950 via-gray-950 to-gray-900 border-rose-400/25 text-rose-100 bg-rose-500/10'
                 : examBlock.tone === 'amber'
-                  ? 'from-amber-950 via-slate-950 to-slate-900 border-amber-400/25 text-amber-100 bg-amber-500/10'
-                  : 'from-slate-950 via-slate-900 to-slate-800 border-slate-400/20 text-slate-100 bg-slate-500/10';
+                  ? 'from-amber-950 via-gray-950 to-gray-900 border-amber-400/25 text-amber-100 bg-amber-500/10'
+                  : 'from-gray-950 via-gray-900 to-gray-800 border-gray-400/20 text-gray-100 bg-gray-500/10';
 
         return (
             <div
@@ -2175,7 +2175,7 @@ export default function PublicExamPage() {
                     </div>
                     <p className="text-xs font-black uppercase tracking-[0.35em] text-white/45">Course Exam</p>
                     <h1 className="mt-3 text-3xl font-black text-white">{examBlock.title}</h1>
-                    <p className="mx-auto mt-4 max-w-md text-sm font-semibold leading-6 text-slate-300">
+                    <p className="mx-auto mt-4 max-w-md text-sm font-semibold leading-6 text-gray-300">
                         {examBlock.description}
                     </p>
                     <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
@@ -2187,7 +2187,7 @@ export default function PublicExamPage() {
                         </button>
                         <button
                             onClick={() => router.push(examBlock.actionHref || '/dashboard/learner')}
-                            className="rounded-xl bg-white px-5 py-3 text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-slate-200"
+                            className="rounded-xl bg-white px-5 py-3 text-sm font-black uppercase tracking-widest text-gray-950 transition hover:bg-gray-200"
                         >
                             {examBlock.actionLabel || 'Back to Dashboard'}
                         </button>
@@ -2210,19 +2210,19 @@ export default function PublicExamPage() {
     // Show error wall when all socket retries are exhausted before first connect
     if (socketFailed) {
         return (
-            <div className="h-screen w-full bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4">
+            <div className="h-screen w-full bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center p-4">
                 <div className="max-w-md w-full text-center space-y-6">
                     <div className="text-6xl mb-2">📡</div>
                     <h1 className="text-2xl font-bold text-white">Cannot Connect to Exam</h1>
-                    <p className="text-slate-400 text-sm leading-relaxed">
+                    <p className="text-gray-400 text-sm leading-relaxed">
                         The exam requires a live connection to the server for answer saving and proctoring. We
                         couldn&apos;t establish that connection — this is usually a network issue.
                     </p>
-                    <div className="bg-slate-700/50 rounded-lg p-4 text-left space-y-1">
-                        <p className="text-slate-300 text-xs font-semibold uppercase tracking-wider">
+                    <div className="bg-gray-700/50 rounded-lg p-4 text-left space-y-1">
+                        <p className="text-gray-300 text-xs font-semibold uppercase tracking-wider">
                             Try the following
                         </p>
-                        <ul className="text-slate-400 text-sm space-y-1 list-disc list-inside">
+                        <ul className="text-gray-400 text-sm space-y-1 list-disc list-inside">
                             <li>Check your internet connection</li>
                             <li>Disable a VPN if active</li>
                             <li>Try a different network (hotspot)</li>
@@ -2237,7 +2237,7 @@ export default function PublicExamPage() {
                         </button>
                         <button
                             onClick={() => router.push(`/exam/login?slug=${examId}`)}
-                            className="px-6 py-3 bg-slate-600 hover:bg-slate-500 text-white font-semibold rounded-lg transition"
+                            className="px-6 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold rounded-lg transition"
                         >
                             Back to Login
                         </button>
@@ -2353,7 +2353,7 @@ export default function PublicExamPage() {
                     <div
                         className={`group/cam relative overflow-hidden transition-all duration-300 pointer-events-auto ${
                             isWebcamMinimized
-                                ? 'w-auto h-auto bg-slate-900/95 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 cursor-pointer hover:bg-slate-800 ring-1 ring-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.35)]'
+                                ? 'w-auto h-auto bg-gray-900/95 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 cursor-pointer hover:bg-gray-800 ring-1 ring-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.35)]'
                                 : 'w-28 h-20 sm:w-40 sm:h-28 rounded-xl sm:rounded-2xl shadow-[0_6px_18px_rgba(15,23,42,0.18)]'
                         }`}
                         onClick={isWebcamMinimized ? () => setIsWebcamMinimized(false) : undefined}
@@ -2376,7 +2376,7 @@ export default function PublicExamPage() {
                                     <span
                                         className={`h-2 w-2 rounded-full ${isModelLoaded ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400 animate-pulse'}`}
                                     />
-                                    <Video className="w-3.5 h-3.5 text-slate-300" />
+                                    <Video className="w-3.5 h-3.5 text-gray-300" />
                                     <span className="text-[11px] font-bold tracking-tight">Proctoring Active</span>
                                 </span>
                                 <button
@@ -2385,7 +2385,7 @@ export default function PublicExamPage() {
                                         e.stopPropagation();
                                         setIsWebcamMinimized(false);
                                     }}
-                                    className="ml-1 p-0.5 rounded text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+                                    className="ml-1 p-0.5 rounded text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
                                     title="Expand Camera Preview"
                                     aria-label="Expand Camera Preview"
                                 >

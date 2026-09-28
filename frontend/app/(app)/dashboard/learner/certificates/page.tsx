@@ -79,13 +79,13 @@ export default function LearnerCertificatesPage() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
-            <div className="border-b border-slate-100 bg-white/90 backdrop-blur-sm">
+        <div className="min-h-screen bg-gray-50 text-gray-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
+            <div className="border-b border-gray-100 bg-white/90 backdrop-blur-sm">
                 <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 flex flex-wrap items-center gap-4 sm:gap-10">
                     <button className="py-4 text-sm font-black text-[var(--brand)] border-b-2 border-[var(--brand)] px-1">
                         My Certificates
                     </button>
-                    <div className="text-xs font-bold text-slate-400">
+                    <div className="text-xs font-bold text-gray-400">
                         {loading ? 'Loading credentials...' : `${certificates.length} issued certificates`}
                     </div>
                 </div>
@@ -120,14 +120,14 @@ export default function LearnerCertificatesPage() {
                         </div>
                     </section>
                 ) : certificates.length === 0 ? (
-                    <section className="mt-6 rounded-[30px] border-2 border-dashed border-slate-200 bg-white p-6 text-center shadow-sm sm:p-10">
+                    <section className="mt-6 rounded-[30px] border-2 border-dashed border-gray-200 bg-white p-6 text-center shadow-sm sm:p-10">
                         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-[var(--brand-lighter)] text-[var(--brand)]">
                             <Award size={28} />
                         </div>
-                        <h2 className="mt-5 text-2xl font-black tracking-tight text-slate-900">
+                        <h2 className="mt-5 text-2xl font-black tracking-tight text-gray-900">
                             No certificates issued yet
                         </h2>
-                        <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-slate-500">
+                        <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-gray-500">
                             Complete courses or pass linked exams to unlock certificates. When one is issued, it will
                             show up here with a direct download action.
                         </p>
@@ -140,7 +140,7 @@ export default function LearnerCertificatesPage() {
                             </Link>
                             <Link
                                 href="/dashboard/learner/test"
-                                className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 sm:w-auto"
+                                className="w-full rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 sm:w-auto"
                             >
                                 Review my results
                             </Link>
@@ -151,7 +151,7 @@ export default function LearnerCertificatesPage() {
                         {certificates.map((certificate) => (
                             <article
                                 key={certificate.id}
-                                className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_14px_36px_rgba(15,23,42,0.06)] sm:p-6"
+                                className="rounded-[28px] border border-gray-200 bg-white p-5 shadow-[0_14px_36px_rgba(15,23,42,0.06)] sm:p-6"
                             >
                                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                                     <div className="flex min-w-0 items-start gap-4">
@@ -159,15 +159,15 @@ export default function LearnerCertificatesPage() {
                                             <Award size={22} />
                                         </div>
                                         <div className="min-w-0">
-                                            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+                                            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-gray-400">
                                                 {(certificate.type || 'Certificate').replace(/_/g, ' ')}
                                             </p>
-                                            <h2 className="mt-1 text-lg font-black tracking-tight text-slate-950 sm:text-xl">
+                                            <h2 className="mt-1 text-lg font-black tracking-tight text-gray-950 sm:text-xl">
                                                 {certificate.title || 'Certificate'}
                                             </h2>
                                         </div>
                                     </div>
-                                    <span className="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
+                                    <span className="rounded-full bg-gray-100 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">
                                         {certificate.issuedAt
                                             ? new Date(certificate.issuedAt).toLocaleDateString()
                                             : 'Pending'}
@@ -182,11 +182,11 @@ export default function LearnerCertificatesPage() {
                                     <DetailCard label="Score" value={formatPercent(certificate.score)} />
                                 </div>
 
-                                <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
-                                    <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+                                <div className="mt-6 rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3">
+                                    <p className="text-[11px] font-black uppercase tracking-[0.22em] text-gray-400">
                                         Resource ID
                                     </p>
-                                    <p className="mt-1 truncate text-sm font-semibold text-slate-700">
+                                    <p className="mt-1 truncate text-sm font-semibold text-gray-700">
                                         {certificate.resourceId || certificate.id}
                                     </p>
                                 </div>
@@ -195,7 +195,7 @@ export default function LearnerCertificatesPage() {
                                     type="button"
                                     onClick={() => handleDownload(certificate.id)}
                                     disabled={downloadId === certificate.id}
-                                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-black text-white transition-colors hover:bg-slate-800 disabled:cursor-wait disabled:opacity-70"
+                                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-sm font-black text-white transition-colors hover:bg-gray-800 disabled:cursor-wait disabled:opacity-70"
                                 >
                                     {downloadId === certificate.id ? (
                                         <>
@@ -220,9 +220,9 @@ export default function LearnerCertificatesPage() {
 
 function DetailCard({ label, value }: { label: string; value: string }) {
     return (
-        <div className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
-            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">{label}</p>
-            <p className="mt-1 text-lg font-black tracking-tight text-slate-950">{value}</p>
+        <div className="rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3">
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-gray-400">{label}</p>
+            <p className="mt-1 text-lg font-black tracking-tight text-gray-950">{value}</p>
         </div>
     );
 }

@@ -93,7 +93,7 @@ export default function ExamResultPage({ params }: { params: Promise<{ sessionId
         );
     }
     if (!resultData)
-        return <div className="p-10 text-center text-slate-500">Result not found or not published yet.</div>;
+        return <div className="p-10 text-center text-gray-500">Result not found or not published yet.</div>;
 
     const userAnswer = resultData.answers?.[currentQuestion?.id];
     const questionTotalMarks =
@@ -128,11 +128,11 @@ export default function ExamResultPage({ params }: { params: Promise<{ sessionId
     return (
         <div className="h-full bg-white flex flex-col overflow-hidden">
             {/* Header with Score Info */}
-            <div className="bg-white border-b border-slate-100 px-4 py-3 sm:px-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="bg-white border-b border-gray-100 px-4 py-3 sm:px-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex min-w-0 items-start gap-3">
                     <button
                         onClick={() => setIsSidebarHidden(!isSidebarHidden)}
-                        className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-100 bg-slate-50 text-slate-500 transition-colors hover:text-[var(--brand)] md:hidden"
+                        className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gray-100 bg-gray-50 text-gray-500 transition-colors hover:text-[var(--brand)] md:hidden"
                         aria-label={isSidebarHidden ? 'Show questions' : 'Hide questions'}
                     >
                         <svg
@@ -149,10 +149,10 @@ export default function ExamResultPage({ params }: { params: Promise<{ sessionId
                         </svg>
                     </button>
                     <div className="min-w-0">
-                        <h1 className="truncate text-base font-black text-slate-800 sm:text-lg">
+                        <h1 className="truncate text-base font-black text-gray-800 sm:text-lg">
                             {resultData.details.examTitle}
                         </h1>
-                        <p className="text-xs text-slate-500 font-bold">
+                        <p className="text-xs text-gray-500 font-bold">
                             Submitted: {new Date(resultData.details.submittedAt).toLocaleString()}
                         </p>
                     </div>
@@ -169,10 +169,10 @@ export default function ExamResultPage({ params }: { params: Promise<{ sessionId
                         </div>
                     </div>
                     <div className="min-w-[132px] flex-1 text-left sm:flex-none sm:text-right">
-                        <div className="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Score</div>
+                        <div className="text-xs text-gray-400 font-bold uppercase tracking-wider">Total Score</div>
                         <div className="text-xl font-black text-[var(--brand)]">
                             {resultData.details.score}{' '}
-                            <span className="text-slate-300 text-sm">/ {resultData.details.totalMarks}</span>
+                            <span className="text-gray-300 text-sm">/ {resultData.details.totalMarks}</span>
                         </div>
                     </div>
                 </div>
@@ -181,7 +181,7 @@ export default function ExamResultPage({ params }: { params: Promise<{ sessionId
             <div className="flex-1 flex overflow-hidden relative">
                 {!isSidebarHidden && (
                     <div
-                        className="absolute inset-0 z-40 bg-slate-900/10 md:hidden"
+                        className="absolute inset-0 z-40 bg-gray-900/10 md:hidden"
                         onClick={() => setIsSidebarHidden(true)}
                     />
                 )}

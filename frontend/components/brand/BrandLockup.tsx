@@ -86,7 +86,7 @@ export function BrandLockup({
                 {!collapsed && (
                     <span
                         className={cn(
-                            'min-w-0 truncate text-sm font-semibold tracking-tight text-slate-900',
+                            'min-w-0 truncate text-sm font-semibold tracking-tight text-gray-900',
                             textClassName,
                         )}
                     >

@@ -195,9 +195,9 @@ export default function AiStudio({
         const locked = (
             <div className="grid h-full place-items-center p-6">
                 <div className="max-w-sm text-center">
-                    <Lock className="mx-auto text-slate-400" />
-                    <h1 className="mt-3 text-lg font-semibold text-slate-900">AI Studio isn&apos;t on your plan</h1>
-                    <p className="mt-1 text-sm text-slate-500">Upgrade to plan courses and exams with AI.</p>
+                    <Lock className="mx-auto text-gray-400" />
+                    <h1 className="mt-3 text-lg font-semibold text-gray-900">AI Studio isn&apos;t on your plan</h1>
+                    <p className="mt-1 text-sm text-gray-500">Upgrade to plan courses and exams with AI.</p>
                     <Link
                         href="/dashboard/creator/billing"
                         className="mt-4 inline-block rounded-xl bg-[var(--brand)] px-4 py-2 text-sm font-semibold text-white"
@@ -220,7 +220,7 @@ export default function AiStudio({
             );
         }
         return (
-            <div className="h-[calc(100vh-var(--topbar-height)-36px)] rounded-2xl border border-slate-200 bg-white">
+            <div className="h-[calc(100vh-var(--topbar-height)-36px)] rounded-2xl border border-gray-200 bg-white">
                 {locked}
             </div>
         );
@@ -247,7 +247,7 @@ export default function AiStudio({
             {[60, 85, 45].map((w, i) => (
                 <div
                     key={i}
-                    className={`h-10 animate-pulse rounded-2xl bg-slate-100 ${i % 2 === 0 ? 'ml-auto' : ''}`}
+                    className={`h-10 animate-pulse rounded-2xl bg-gray-100 ${i % 2 === 0 ? 'ml-auto' : ''}`}
                     style={{ width: `${w}%` }}
                 />
             ))}
@@ -273,7 +273,7 @@ export default function AiStudio({
     );
 
     const panel = panelJobId ? (
-        <div className="absolute inset-0 z-40 flex flex-col bg-white lg:static lg:z-auto lg:w-[420px] lg:border-l lg:border-slate-200 xl:w-[460px]">
+        <div className="absolute inset-0 z-40 flex flex-col bg-white lg:static lg:z-auto lg:w-[420px] lg:border-l lg:border-gray-200 xl:w-[460px]">
             <DraftPanel
                 jobId={panelJobId}
                 conversationId={activeId}
@@ -307,10 +307,10 @@ export default function AiStudio({
     }
 
     return (
-        <div className="relative flex h-[calc(100vh-var(--topbar-height)-36px)] min-h-[520px] overflow-hidden rounded-2xl border border-slate-200 bg-white">
+        <div className="relative flex h-[calc(100vh-var(--topbar-height)-36px)] min-h-[520px] overflow-hidden rounded-2xl border border-gray-200 bg-white">
             {/* Conversations */}
             <div
-                className={`absolute inset-y-0 left-0 z-30 w-72 border-r border-slate-200 bg-slate-50 transition-transform duration-200 md:static md:z-auto md:w-64 md:translate-x-0 ${
+                className={`absolute inset-y-0 left-0 z-30 w-72 border-r border-gray-200 bg-gray-50 transition-transform duration-200 md:static md:z-auto md:w-64 md:translate-x-0 ${
                     listOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full'
                 }`}
             >
@@ -321,27 +321,27 @@ export default function AiStudio({
                     type="button"
                     aria-label="Close chats"
                     onClick={() => setListOpen(false)}
-                    className="absolute inset-0 z-20 bg-slate-900/20 md:hidden"
+                    className="absolute inset-0 z-20 bg-gray-900/20 md:hidden"
                 />
             )}
 
             {/* Thread */}
             <section className="flex min-w-0 flex-1 flex-col" aria-label="Chat">
-                <div className="flex items-center gap-2 border-b border-slate-100 px-3 py-2">
+                <div className="flex items-center gap-2 border-b border-gray-100 px-3 py-2">
                     <button
                         type="button"
                         onClick={() => setListOpen(true)}
-                        className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 md:hidden"
+                        className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 md:hidden"
                         aria-label="Show chats"
                     >
                         <PanelLeft size={18} />
                     </button>
-                    <span className="flex items-center gap-1.5 text-sm font-semibold text-slate-900">
+                    <span className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
                         <Sparkles size={15} className="text-[var(--brand)]" /> AI Studio
                     </span>
                     <Link
                         href={fullScreenHref}
-                        className="ml-auto inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                        className="ml-auto inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900"
                         title="Open Mentrily AI in full screen"
                     >
                         <Maximize2 size={14} />

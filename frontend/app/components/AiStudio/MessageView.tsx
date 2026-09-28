@@ -63,7 +63,7 @@ function MessageView({
                     {(cmd || refs.length > 0) && (
                         <div className="flex flex-wrap justify-end gap-1.5">
                             {cmd && (
-                                <span className="rounded-md bg-slate-900 px-1.5 py-0.5 text-[11px] font-medium text-white">
+                                <span className="rounded-md bg-gray-900 px-1.5 py-0.5 text-[11px] font-medium text-white">
                                     /{cmd.label}
                                 </span>
                             )}
@@ -78,7 +78,7 @@ function MessageView({
                             ))}
                         </div>
                     )}
-                    <div className="whitespace-pre-wrap rounded-2xl rounded-br-md bg-slate-100 px-4 py-2.5 text-[15px] leading-6 text-slate-900">
+                    <div className="whitespace-pre-wrap rounded-2xl rounded-br-md bg-gray-100 px-4 py-2.5 text-[15px] leading-6 text-gray-900">
                         {shown}
                     </div>
                 </div>
@@ -101,7 +101,7 @@ function MessageView({
             {message.parts.map((part, i) => {
                 if (part.type === 'text') {
                     return (
-                        <div key={i} className="studio-md text-[15px] leading-7 text-slate-800">
+                        <div key={i} className="studio-md text-[15px] leading-7 text-gray-800">
                             <Streamdown plugins={streamdownPlugins} isAnimating={streaming && isLast}>
                                 {part.text}
                             </Streamdown>
@@ -148,7 +148,7 @@ function MessageView({
                         );
                     }
                     return (
-                        <p key={i} className="flex items-center gap-1.5 text-xs text-slate-400">
+                        <p key={i} className="flex items-center gap-1.5 text-xs text-gray-400">
                             <PenLine size={12} /> Preparing the edit…
                         </p>
                     );
@@ -157,7 +157,7 @@ function MessageView({
                     const name = part.type.slice(5);
                     const done = 'state' in part && part.state === 'output-available';
                     return (
-                        <p key={i} className="flex items-center gap-1.5 text-xs text-slate-400">
+                        <p key={i} className="flex items-center gap-1.5 text-xs text-gray-400">
                             <Search size={12} />
                             {TOOL_LABEL[name] ?? 'Looked something up'}
                             {!done && '…'}
@@ -167,11 +167,11 @@ function MessageView({
                 return null;
             })}
             {!streaming && text && (
-                <div className="flex items-center gap-1 pt-1 text-slate-400 opacity-0 transition group-hover:opacity-100 focus-within:opacity-100">
+                <div className="flex items-center gap-1 pt-1 text-gray-400 opacity-0 transition group-hover:opacity-100 focus-within:opacity-100">
                     <button
                         type="button"
                         onClick={copy}
-                        className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-xs hover:bg-slate-100 hover:text-slate-700"
+                        className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-xs hover:bg-gray-100 hover:text-gray-700"
                     >
                         {copied ? <Check size={13} /> : <Copy size={13} />}
                         {copied ? 'Copied' : 'Copy'}
@@ -180,7 +180,7 @@ function MessageView({
                         <button
                             type="button"
                             onClick={onRegenerate}
-                            className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-xs hover:bg-slate-100 hover:text-slate-700"
+                            className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-xs hover:bg-gray-100 hover:text-gray-700"
                         >
                             <RotateCcw size={13} /> Regenerate
                         </button>

@@ -606,7 +606,7 @@ export default function PracticeExamPage() {
             <div className="ml-4 flex items-center gap-2" data-tour="practice-badge">
                 <button
                     onClick={() => router.push('/dashboard/learner')}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-600 transition-all hover:border-[var(--brand)] hover:text-[var(--brand)] active:scale-95"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-600 transition-all hover:border-[var(--brand)] hover:text-[var(--brand)] active:scale-95"
                     title="Leave practice and return to your dashboard"
                 >
                     <svg
@@ -630,7 +630,7 @@ export default function PracticeExamPage() {
                     have room on narrow viewports. */}
                 <button
                     onClick={startGuide}
-                    className="hidden items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-600 transition-all hover:border-[var(--brand)] hover:text-[var(--brand)] active:scale-95 sm:inline-flex"
+                    className="hidden items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-600 transition-all hover:border-[var(--brand)] hover:text-[var(--brand)] active:scale-95 sm:inline-flex"
                     title="Replay the guided tour"
                 >
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -642,8 +642,8 @@ export default function PracticeExamPage() {
                 </button>
                 <div
                     data-tour="practice-focus"
-                    className={`hidden items-center gap-3 rounded-xl border border-slate-100 bg-white px-3 py-1.5 transition-shadow duration-300 sm:flex ${
-                        windowFocus.in === 0 && windowFocus.out === 0 ? 'shadow-none' : 'shadow-md shadow-slate-200/50'
+                    className={`hidden items-center gap-3 rounded-xl border border-gray-100 bg-white px-3 py-1.5 transition-shadow duration-300 sm:flex ${
+                        windowFocus.in === 0 && windowFocus.out === 0 ? 'shadow-none' : 'shadow-md shadow-gray-200/50'
                     }`}
                     title="Tab/window switches — real exams record these"
                 >
@@ -666,7 +666,7 @@ export default function PracticeExamPage() {
                         </div>
                         <span className="text-xs font-black text-emerald-700">{windowFocus.in}</span>
                     </div>
-                    <div className="h-3 w-[1px] bg-slate-100" />
+                    <div className="h-3 w-[1px] bg-gray-100" />
                     <div className="flex items-center gap-1.5" title="Switched Out (Blurred)">
                         <div className="flex h-5 w-5 items-center justify-center rounded-md bg-rose-50 text-rose-600">
                             <svg
@@ -693,7 +693,7 @@ export default function PracticeExamPage() {
             !submittedSections.has(currentSectionId) ? (
                 <button
                     onClick={() => setIsSubmitViewOpen(false)}
-                    className="flex items-center gap-2 rounded-xl bg-slate-100 px-6 py-2 text-sm font-bold text-slate-600 transition-all hover:bg-slate-200"
+                    className="flex items-center gap-2 rounded-xl bg-gray-100 px-6 py-2 text-sm font-bold text-gray-600 transition-all hover:bg-gray-200"
                 >
                     Back to Questions
                 </button>
@@ -725,10 +725,10 @@ export default function PracticeExamPage() {
                 </div>
                 {/* Font-size stepper -- convenience, not essential; shown from
                     lg up (same treatment as the real exam page). */}
-                <div className="hidden items-center gap-1 rounded-xl border border-slate-100 bg-white p-1 lg:flex">
+                <div className="hidden items-center gap-1 rounded-xl border border-gray-100 bg-white p-1 lg:flex">
                     <button
                         onClick={() => setFontSize((prev) => Math.max(12, prev - 1))}
-                        className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-50 hover:text-[var(--brand)]"
+                        className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-50 hover:text-[var(--brand)]"
                         aria-label="Decrease font size"
                     >
                         <svg
@@ -744,7 +744,7 @@ export default function PracticeExamPage() {
                     </button>
                     <button
                         onClick={() => setFontSize((prev) => Math.min(30, prev + 1))}
-                        className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-50 hover:text-[var(--brand)]"
+                        className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-50 hover:text-[var(--brand)]"
                         aria-label="Increase font size"
                     >
                         <svg
@@ -764,7 +764,7 @@ export default function PracticeExamPage() {
                 {/* WiFi Signal Icon with Tooltip — same live network indicator the
                     real exam shows, so practice looks identical. Hidden below
                     sm: for the same reason as the font-size stepper above. */}
-                <div className="relative group hidden items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-help border border-slate-100 lg:flex">
+                <div className="relative group hidden items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-help border border-gray-100 lg:flex">
                     <div className="flex items-end gap-0.5 h-3.5 mb-0.5">
                         {[1, 2, 3, 4].map((bar) => {
                             const barThresholds = [0, 2, 5, 10];
@@ -772,7 +772,7 @@ export default function PracticeExamPage() {
                             return (
                                 <div
                                     key={bar}
-                                    className={`w-1 rounded-sm transition-all duration-300 ${isActive ? 'bg-emerald-500' : 'bg-slate-200'} ${!netOnline ? 'bg-rose-400' : ''}`}
+                                    className={`w-1 rounded-sm transition-all duration-300 ${isActive ? 'bg-emerald-500' : 'bg-gray-200'} ${!netOnline ? 'bg-rose-400' : ''}`}
                                     style={{ height: `${25 * bar}%` }}
                                 />
                             );
@@ -781,10 +781,10 @@ export default function PracticeExamPage() {
                     {!netOnline && (
                         <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 border-2 border-white rounded-full animate-pulse" />
                     )}
-                    <div className="absolute invisible group-hover:visible top-full left-1/2 -translate-x-1/2 mt-3 p-3 bg-white text-slate-900 text-[10px] font-bold rounded-xl whitespace-nowrap shadow-2xl z-50 border border-slate-100 ring-4 ring-slate-900/5 transition-all">
+                    <div className="absolute invisible group-hover:visible top-full left-1/2 -translate-x-1/2 mt-3 p-3 bg-white text-gray-900 text-[10px] font-bold rounded-xl whitespace-nowrap shadow-2xl z-50 border border-gray-100 ring-4 ring-gray-900/5 transition-all">
                         <div className="flex flex-col gap-2">
                             <div className="flex items-center justify-between gap-8">
-                                <span className="text-slate-400 uppercase tracking-tighter">Net Status</span>
+                                <span className="text-gray-400 uppercase tracking-tighter">Net Status</span>
                                 <span
                                     className={netOnline ? 'text-emerald-500 font-black' : 'text-rose-500 font-black'}
                                 >
@@ -792,8 +792,8 @@ export default function PracticeExamPage() {
                                 </span>
                             </div>
                             {netOnline && (
-                                <div className="flex items-center justify-between gap-8 border-t border-slate-50 pt-2">
-                                    <span className="text-slate-400 uppercase tracking-tighter">Sync Speed</span>
+                                <div className="flex items-center justify-between gap-8 border-t border-gray-50 pt-2">
+                                    <span className="text-gray-400 uppercase tracking-tighter">Sync Speed</span>
                                     <span className="text-indigo-600 font-black">
                                         {netDownlink > 0 ? `${netDownlink} Mbps` : 'Detecting...'}
                                     </span>
@@ -807,7 +807,7 @@ export default function PracticeExamPage() {
                 {/* Fullscreen toggle — matches the real exam toolbar. */}
                 <button
                     onClick={toggleFullscreen}
-                    className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-500 rounded-xl border border-slate-100 transition-all"
+                    className="p-2 bg-gray-50 hover:bg-gray-100 text-gray-500 rounded-xl border border-gray-100 transition-all"
                     aria-label="Toggle fullscreen"
                 >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -823,32 +823,32 @@ export default function PracticeExamPage() {
 
     if (isFinished) {
         return (
-            <div className="flex h-screen w-full items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-5">
-                <div className="w-full max-w-xl rounded-[2rem] border border-slate-200 bg-white p-8 text-center shadow-[0_24px_80px_rgba(15,23,42,0.12)] sm:p-12 animate-in fade-in zoom-in-95 duration-500">
+            <div className="flex h-screen w-full items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-5">
+                <div className="w-full max-w-xl rounded-[2rem] border border-gray-200 bg-white p-8 text-center shadow-[0_24px_80px_rgba(15,23,42,0.12)] sm:p-12 animate-in fade-in zoom-in-95 duration-500">
                     <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-50 text-4xl">
                         🎉
                     </div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400">
+                    <p className="text-[11px] font-black uppercase tracking-[0.3em] text-gray-400">
                         Practice Complete
                     </p>
-                    <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-900">
+                    <h1 className="mt-3 text-3xl font-black tracking-tight text-gray-900">
                         You know your way around now
                     </h1>
-                    <p className="mx-auto mt-4 max-w-md text-sm font-semibold leading-6 text-slate-500">
-                        You got <span className="font-black text-slate-900">{score.correct}</span> of{' '}
-                        <span className="font-black text-slate-900">{score.total}</span> orientation questions right.
+                    <p className="mx-auto mt-4 max-w-md text-sm font-semibold leading-6 text-gray-500">
+                        You got <span className="font-black text-gray-900">{score.correct}</span> of{' '}
+                        <span className="font-black text-gray-900">{score.total}</span> orientation questions right.
                         Nothing was recorded — real exams will look and behave exactly like this.
                     </p>
                     <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
                         <button
                             onClick={restartPractice}
-                            className="rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-black uppercase tracking-widest text-slate-700 transition hover:bg-slate-50"
+                            className="rounded-xl border border-gray-200 bg-white px-6 py-3 text-sm font-black uppercase tracking-widest text-gray-700 transition hover:bg-gray-50"
                         >
                             Practice Again
                         </button>
                         <button
                             onClick={() => router.push('/dashboard/learner')}
-                            className="rounded-xl bg-slate-950 px-6 py-3 text-sm font-black uppercase tracking-widest text-white transition hover:bg-slate-800"
+                            className="rounded-xl bg-gray-950 px-6 py-3 text-sm font-black uppercase tracking-widest text-white transition hover:bg-gray-800"
                         >
                             Go to My Dashboard
                         </button>
@@ -948,7 +948,7 @@ export default function PracticeExamPage() {
             {lockdownAlert && (
                 <div className="fixed left-1/2 top-32 z-[1000000001] w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 animate-in fade-in slide-in-from-top-3 duration-300">
                     <div
-                        className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-900/95 p-4 shadow-2xl backdrop-blur-md"
+                        className="flex items-start gap-3 rounded-2xl border border-gray-200 bg-gray-900/95 p-4 shadow-2xl backdrop-blur-md"
                         role="alert"
                     >
                         <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white">
@@ -968,11 +968,11 @@ export default function PracticeExamPage() {
                         </div>
                         <div className="min-w-0 flex-1">
                             <h4 className="text-xs font-black uppercase tracking-wider text-white">Exam lockdown</h4>
-                            <p className="mt-1 text-xs font-semibold leading-5 text-slate-300">{lockdownAlert}</p>
+                            <p className="mt-1 text-xs font-semibold leading-5 text-gray-300">{lockdownAlert}</p>
                         </div>
                         <button
                             onClick={() => setLockdownAlert(null)}
-                            className="shrink-0 rounded-lg p-1 text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
+                            className="shrink-0 rounded-lg p-1 text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
                             aria-label="Dismiss warning"
                         >
                             <svg

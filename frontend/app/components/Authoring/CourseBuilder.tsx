@@ -526,7 +526,7 @@ export default function CourseBuilder({
     ];
 
     return (
-        <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.10)]">
+        <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-3xl border border-gray-200/80 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.10)]">
             {/* ignoreUserOnboardingFlag: keep this tour's completion
                 independent of the shared backend flag other creator/admin
                 tours used to write to — see dashboard/creator/page.tsx
@@ -557,13 +557,13 @@ export default function CourseBuilder({
                     ]}
                 />
             ) : null}
-            <div className="sticky top-0 z-40 border-b border-slate-200 glass-card">
+            <div className="sticky top-0 z-40 border-b border-gray-200 glass-card">
                 {/* Unified Toolbar */}
                 <div className="flex items-center justify-between gap-2 sm:gap-3 px-3 py-2 sm:px-4 sm:py-2.5 md:px-5 overflow-x-auto no-scrollbar">
                     <div className="flex min-w-0 flex-1 items-center gap-2">
                         <button
                             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                            className="shrink-0 rounded-xl p-2 text-slate-400 transition-colors hover:bg-slate-50 hover:text-[var(--brand)]"
+                            className="shrink-0 rounded-xl p-2 text-gray-400 transition-colors hover:bg-gray-50 hover:text-[var(--brand)]"
                             title={isSidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
                         >
                             {isSidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
@@ -576,7 +576,7 @@ export default function CourseBuilder({
                             type="text"
                             aria-label="Course title"
                             placeholder="Course Title..."
-                            className="min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 py-1.5 text-sm font-semibold text-slate-800 outline-none transition-all placeholder:text-slate-300 focus:border-[var(--brand-light)] focus:bg-slate-50 md:text-base"
+                            className="min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 py-1.5 text-sm font-semibold text-gray-800 outline-none transition-all placeholder:text-gray-300 focus:border-[var(--brand-light)] focus:bg-gray-50 md:text-base"
                             value={course.title}
                             onChange={(e) => setCourse((prev) => ({ ...prev, title: e.target.value }))}
                         />
@@ -602,7 +602,7 @@ export default function CourseBuilder({
                     <div className="flex items-center justify-end gap-1.5 md:gap-2">
                         <button
                             onClick={resetDraft}
-                            className="cursor-pointer rounded-xl p-2.5 text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-600"
+                            className="cursor-pointer rounded-xl p-2.5 text-gray-400 transition-colors hover:bg-gray-50 hover:text-gray-600"
                             title="Reset local draft"
                         >
                             <RotateCcw size={16} />
@@ -618,7 +618,7 @@ export default function CourseBuilder({
                                         onConfirm: onDelete,
                                     })
                                 }
-                                className="cursor-pointer rounded-xl p-2.5 text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500"
+                                className="cursor-pointer rounded-xl p-2.5 text-gray-400 transition-colors hover:bg-rose-50 hover:text-rose-500"
                                 title="Delete course"
                             >
                                 <Trash2 size={16} />
@@ -627,7 +627,7 @@ export default function CourseBuilder({
                         <button
                             onClick={() => setPreviewMode(previewMode ? null : 'desktop')}
                             disabled={!activeQuestion}
-                            className={`cursor-pointer rounded-xl p-2.5 transition-colors disabled:opacity-30 ${previewMode ? 'bg-[var(--brand)] text-white' : 'text-slate-400 hover:bg-slate-50 hover:text-[var(--brand)]'}`}
+                            className={`cursor-pointer rounded-xl p-2.5 transition-colors disabled:opacity-30 ${previewMode ? 'bg-[var(--brand)] text-white' : 'text-gray-400 hover:bg-gray-50 hover:text-[var(--brand)]'}`}
                             title={
                                 activeQuestion
                                     ? previewMode
@@ -638,7 +638,7 @@ export default function CourseBuilder({
                         >
                             {previewMode ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
-                        <div className="mx-1 h-5 w-px bg-slate-200" />
+                        <div className="mx-1 h-5 w-px bg-gray-200" />
                         <button
                             type="button"
                             aria-label="AI Generate"
@@ -806,28 +806,28 @@ export default function CourseBuilder({
                 {/* Sidebar Overlay (Mobile) */}
                 {!isSidebarCollapsed && (
                     <div
-                        className="absolute inset-0 bg-slate-900/20 backdrop-blur-sm z-40 lg:hidden animate-in fade-in"
+                        className="absolute inset-0 bg-gray-900/20 backdrop-blur-sm z-40 lg:hidden animate-in fade-in"
                         onClick={() => setIsSidebarCollapsed(true)}
                     />
                 )}
                 {/* Left Sidebar: Sidebar Structure */}
                 <div
-                    className={`flex min-h-0 shrink-0 flex-col overflow-hidden border-r border-slate-200 bg-slate-50/95 backdrop-blur-xl transition-all duration-300 ease-in-out absolute inset-y-0 left-0 z-50 lg:relative lg:bg-slate-50/60 ${isSidebarCollapsed ? 'w-0 border-none -translate-x-full lg:translate-x-0' : 'w-[280px] sm:w-80 translate-x-0 shadow-2xl lg:shadow-none'}`}
+                    className={`flex min-h-0 shrink-0 flex-col overflow-hidden border-r border-gray-200 bg-gray-50/95 backdrop-blur-xl transition-all duration-300 ease-in-out absolute inset-y-0 left-0 z-50 lg:relative lg:bg-gray-50/60 ${isSidebarCollapsed ? 'w-0 border-none -translate-x-full lg:translate-x-0' : 'w-[280px] sm:w-80 translate-x-0 shadow-2xl lg:shadow-none'}`}
                 >
-                    <div className="border-b border-slate-200 bg-white px-4 py-3">
-                        <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                    <div className="border-b border-gray-200 bg-white px-4 py-3">
+                        <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-500">
                             <span>
-                                <span className="text-slate-900 font-bold">{totalUnits}</span> units
+                                <span className="text-gray-900 font-bold">{totalUnits}</span> units
                             </span>
-                            <span className="h-3 w-px bg-slate-200" />
+                            <span className="h-3 w-px bg-gray-200" />
                             <span>
-                                <span className="text-slate-900 font-bold">{totalQuestions}</span> qs
+                                <span className="text-gray-900 font-bold">{totalQuestions}</span> qs
                             </span>
-                            <span className="h-3 w-px bg-slate-200" />
+                            <span className="h-3 w-px bg-gray-200" />
                             <span>
-                                <span className="text-slate-900 font-bold">{totalTests}</span> tests
+                                <span className="text-gray-900 font-bold">{totalTests}</span> tests
                             </span>
-                            <span className="h-3 w-px bg-slate-200" />
+                            <span className="h-3 w-px bg-gray-200" />
                             <span>
                                 <span className="text-[var(--brand)] font-bold">{activeQuestionCount}</span> active
                             </span>
@@ -835,14 +835,14 @@ export default function CourseBuilder({
                     </div>
 
                     {/* Unit / Test Tab Switcher */}
-                    <div className="border-b border-slate-200 bg-white px-4 py-2.5">
-                        <div className="flex gap-1 rounded-xl bg-slate-100 p-0.5">
+                    <div className="border-b border-gray-200 bg-white px-4 py-2.5">
+                        <div className="flex gap-1 rounded-xl bg-gray-100 p-0.5">
                             <button
                                 onClick={() => {
                                     setActiveTab('unit');
                                     setActiveStep('builder');
                                 }}
-                                className={`cursor-pointer flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'unit' && activeStep === 'builder' ? 'bg-slate-950 text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                                className={`cursor-pointer flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'unit' && activeStep === 'builder' ? 'bg-gray-950 text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                             >
                                 <Layout size={11} /> Units
                             </button>
@@ -852,14 +852,14 @@ export default function CourseBuilder({
                                         setActiveTab('test');
                                         setActiveStep('builder');
                                     }}
-                                    className={`cursor-pointer flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'test' && activeStep === 'builder' ? 'bg-slate-950 text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                                    className={`cursor-pointer flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'test' && activeStep === 'builder' ? 'bg-gray-950 text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                                 >
                                     <FileText size={11} /> Tests
                                 </button>
                             )}
                             <button
                                 onClick={() => setActiveStep('metadata')}
-                                className={`cursor-pointer flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all ${activeStep === 'metadata' ? 'bg-[var(--brand)] text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                                className={`cursor-pointer flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all ${activeStep === 'metadata' ? 'bg-[var(--brand)] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                             >
                                 <Settings size={11} /> Guidelines
                             </button>
@@ -869,7 +869,7 @@ export default function CourseBuilder({
                     <div className="flex-1 overflow-y-auto p-4 no-scrollbar">
                         {activeStep === 'builder' ? (
                             <>
-                                <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center justify-between">
+                                <h3 className="text-[11px] font-black uppercase tracking-widest text-gray-400 mb-6 flex items-center justify-between">
                                     {activeTab === 'unit' ? 'Learning Modules' : 'Exam Modules'}
                                     <button
                                         onClick={addSection}
@@ -991,9 +991,9 @@ export default function CourseBuilder({
                                         {/*
                                         <div
                                             data-element-id="course-builder-linked-exam"
-                                            className="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm space-y-3"
+                                            className="p-4 bg-white border border-gray-100 rounded-2xl shadow-sm space-y-3"
                                         >
-                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                                                 Certificate Assignment
                                             </p>
                                             <ComingSoon
@@ -1010,7 +1010,7 @@ export default function CourseBuilder({
                                                         certificateTemplateId: event.target.value || undefined,
                                                     }))
                                                 }
-                                                className="w-full cursor-not-allowed px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm font-bold text-slate-400"
+                                                className="w-full cursor-not-allowed px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm font-bold text-gray-400"
                                             >
                                                 <option value="">No certificate template</option>
                                                 {certificateTemplates.map((template) => (
@@ -1021,7 +1021,7 @@ export default function CourseBuilder({
                                             </select>
 
                                             <label className="block">
-                                                <span className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">
+                                                <span className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">
                                                     Completion Required
                                                 </span>
                                                 <div className="relative">
@@ -1039,9 +1039,9 @@ export default function CourseBuilder({
                                                                 ),
                                                             }))
                                                         }
-                                                        className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm font-black text-slate-700"
+                                                        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm font-black text-gray-700"
                                                     />
-                                                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                                                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">
                                                         %
                                                     </span>
                                                 </div>
@@ -1053,14 +1053,14 @@ export default function CourseBuilder({
                             </>
                         ) : (
                             <div className="space-y-6">
-                                <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-6">
+                                <h3 className="text-[11px] font-black uppercase tracking-widest text-gray-400 mb-6">
                                     Course Settings
                                 </h3>
-                                <div className="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm space-y-4">
+                                <div className="p-4 bg-white border border-gray-100 rounded-2xl shadow-sm space-y-4">
                                     <div className="w-12 h-12 bg-[var(--brand-light)] text-[var(--brand)] rounded-xl flex items-center justify-center">
                                         <BarChart3 size={20} />
                                     </div>
-                                    <p className="text-[10px] font-black text-slate-800 uppercase leading-tight">
+                                    <p className="text-[10px] font-black text-gray-800 uppercase leading-tight">
                                         Manage the high-level details of this curriculum.
                                     </p>
                                 </div>
@@ -1076,14 +1076,14 @@ export default function CourseBuilder({
                     ) : activeStep === 'metadata' ? (
                         <div className="flex-1 overflow-y-auto p-5 md:p-6 animate-in fade-in slide-in-from-right-4 duration-500">
                             <div className="mx-auto max-w-5xl space-y-6">
-                                <div className="rounded-[28px] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur">
-                                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+                                <div className="rounded-[28px] border border-gray-200 bg-white/90 p-6 shadow-sm backdrop-blur">
+                                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-500">
                                         Course story
                                     </p>
-                                    <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-800">
+                                    <h2 className="mt-2 text-3xl font-black tracking-tight text-gray-800">
                                         Main curriculum metadata
                                     </h2>
-                                    <p className="mt-2 text-sm font-medium leading-6 text-slate-500">
+                                    <p className="mt-2 text-sm font-medium leading-6 text-gray-500">
                                         Define how the course appears to learners, how difficult it feels, and what
                                         support content helps them trust the experience before they begin.
                                     </p>
@@ -1091,7 +1091,7 @@ export default function CourseBuilder({
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="space-y-2">
-                                        <label className="text-[11px] font-black uppercase tracking-widest text-slate-400">
+                                        <label className="text-[11px] font-black uppercase tracking-widest text-gray-400">
                                             Content Status
                                         </label>
                                         <div className="flex items-center gap-4">
@@ -1108,7 +1108,7 @@ export default function CourseBuilder({
                                                 }}
                                             />
                                             <span
-                                                className={`text-xs font-black uppercase tracking-widest ${course.status === 'Published' ? 'text-emerald-500' : 'text-slate-400'}`}
+                                                className={`text-xs font-black uppercase tracking-widest ${course.status === 'Published' ? 'text-emerald-500' : 'text-gray-400'}`}
                                             >
                                                 {course.status || 'Draft'}
                                             </span>
@@ -1116,7 +1116,7 @@ export default function CourseBuilder({
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-[11px] font-black uppercase tracking-widest text-slate-400">
+                                        <label className="text-[11px] font-black uppercase tracking-widest text-gray-400">
                                             Difficulty Level
                                         </label>
                                         <div className="flex gap-2">
@@ -1126,7 +1126,7 @@ export default function CourseBuilder({
                                                     onClick={() =>
                                                         setCourse((prev) => ({ ...prev, difficulty: level }))
                                                     }
-                                                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${course.difficulty === level ? 'bg-[var(--brand)] border-[var(--brand)] text-white shadow-lg' : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'}`}
+                                                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${course.difficulty === level ? 'bg-[var(--brand)] border-[var(--brand)] text-white shadow-lg' : 'bg-white border-gray-100 text-gray-400 hover:border-gray-200'}`}
                                                 >
                                                     {level}
                                                 </button>
@@ -1136,12 +1136,12 @@ export default function CourseBuilder({
                                 </div>
 
                                 <div className="space-y-3">
-                                    <label className="text-[11px] font-black uppercase tracking-widest text-slate-400">
+                                    <label className="text-[11px] font-black uppercase tracking-widest text-gray-400">
                                         Short Catchy Tagline
                                     </label>
                                     <input
                                         type="text"
-                                        className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-base font-bold text-slate-700 outline-none focus:border-[var(--brand-light)] transition-all shadow-inner"
+                                        className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-base font-bold text-gray-700 outline-none focus:border-[var(--brand-light)] transition-all shadow-inner"
                                         placeholder="e.g. Master React Hooks in 2 weeks..."
                                         value={course.shortDescription || ''}
                                         onChange={(e) =>
@@ -1152,7 +1152,7 @@ export default function CourseBuilder({
 
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between">
-                                        <label className="text-[11px] font-black uppercase tracking-widest text-slate-400">
+                                        <label className="text-[11px] font-black uppercase tracking-widest text-gray-400">
                                             Long Description (Detailed Curriculum)
                                         </label>
                                         <button className="flex items-center gap-2 text-[var(--brand)] text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform group">
@@ -1172,23 +1172,23 @@ export default function CourseBuilder({
                     ) : activeStep === 'builder' && activeTab === 'test' && activeSection && !activeQuestion ? (
                         <div className="flex-1 overflow-y-auto p-5 md:p-6 animate-in fade-in slide-in-from-right-4 duration-500">
                             <div className="mx-auto max-w-5xl space-y-6">
-                                <div className="rounded-[28px] border border-slate-200 bg-white/90 p-6 shadow-sm">
-                                    <h2 className="mb-2 text-2xl font-black tracking-tight text-slate-800">
+                                <div className="rounded-[28px] border border-gray-200 bg-white/90 p-6 shadow-sm">
+                                    <h2 className="mb-2 text-2xl font-black tracking-tight text-gray-800">
                                         Test Schedule
                                     </h2>
-                                    <p className="text-sm font-medium text-slate-400">
+                                    <p className="text-sm font-medium text-gray-400">
                                         Configure when this test is available to students.
                                     </p>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                                        <label className="text-[11px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
                                             <Calendar size={14} /> Start Date & Time
                                         </label>
                                         <input
                                             type="datetime-local"
-                                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:border-[var(--brand)] transition-all"
+                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-700 outline-none focus:border-[var(--brand)] transition-all"
                                             value={formatISOToInput((activeSection as any).startDate) || ''}
                                             onChange={(e) => {
                                                 const val = e.target.value; // 'YYYY-MM-DDTHH:mm'
@@ -1202,12 +1202,12 @@ export default function CourseBuilder({
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                                        <label className="text-[11px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
                                             <Calendar size={14} /> End Date & Time
                                         </label>
                                         <input
                                             type="datetime-local"
-                                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:border-[var(--brand)] transition-all"
+                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-700 outline-none focus:border-[var(--brand)] transition-all"
                                             value={formatISOToInput((activeSection as any).endDate) || ''}
                                             onChange={(e) => {
                                                 const val = e.target.value; // 'YYYY-MM-DDTHH:mm'
@@ -1268,14 +1268,14 @@ export default function CourseBuilder({
                             }}
                         />
                     ) : (
-                        <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center text-slate-300">
+                        <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center text-gray-300">
                             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white shadow-sm">
                                 <Settings size={40} />
                             </div>
-                            <p className="text-sm font-black uppercase tracking-widest text-slate-500">
+                            <p className="text-sm font-black uppercase tracking-widest text-gray-500">
                                 Select a question to start authoring
                             </p>
-                            <p className="max-w-md text-sm leading-6 text-slate-400">
+                            <p className="max-w-md text-sm leading-6 text-gray-400">
                                 Use the left map to open a unit or test, then choose an existing question or add a new
                                 one to continue building.
                             </p>
@@ -1343,7 +1343,7 @@ function VisibilityToggle({ active, onClick }: { active: boolean; onClick: () =>
     return (
         <button
             onClick={onClick}
-            className={`w-14 h-7 rounded-full relative transition-all duration-300 ${active ? 'bg-emerald-500' : 'bg-slate-200'}`}
+            className={`w-14 h-7 rounded-full relative transition-all duration-300 ${active ? 'bg-emerald-500' : 'bg-gray-200'}`}
         >
             <div
                 className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300 ${active ? 'translate-x-7' : ''}`}
@@ -1354,18 +1354,18 @@ function VisibilityToggle({ active, onClick }: { active: boolean; onClick: () =>
 
 function OverviewChip({ label, value }: { label: string; value: number }) {
     return (
-        <div className="rounded-full border border-slate-200 bg-white px-4 py-2 shadow-sm">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">{label}</span>
-            <span className="ml-2 text-sm font-semibold text-slate-950">{value}</span>
+        <div className="rounded-full border border-gray-200 bg-white px-4 py-2 shadow-sm">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-500">{label}</span>
+            <span className="ml-2 text-sm font-semibold text-gray-950">{value}</span>
         </div>
     );
 }
 
 function SidebarMetric({ label, value }: { label: string; value: number }) {
     return (
-        <div className="rounded-2xl border border-slate-200 bg-white px-3 py-3 shadow-sm">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">{label}</p>
-            <p className="mt-1 text-lg font-semibold tracking-tight text-slate-950">{value}</p>
+        <div className="rounded-2xl border border-gray-200 bg-white px-3 py-3 shadow-sm">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-500">{label}</p>
+            <p className="mt-1 text-lg font-semibold tracking-tight text-gray-950">{value}</p>
         </div>
     );
 }
@@ -1422,13 +1422,13 @@ function CourseSectionRow({
         <div ref={setNodeRef} style={style} className="space-y-1">
             <div
                 onClick={onSelect}
-                className={`group flex items-center gap-3 px-4 py-3 rounded-2xl cursor-pointer transition-all border ${isActive ? 'bg-white border-[var(--brand-light)] shadow-md shadow-[var(--brand)]/5 text-slate-900' : 'bg-transparent border-transparent text-slate-500 hover:bg-white hover:border-slate-100 hover:shadow-sm'}`}
+                className={`group flex items-center gap-3 px-4 py-3 rounded-2xl cursor-pointer transition-all border ${isActive ? 'bg-white border-[var(--brand-light)] shadow-md shadow-[var(--brand)]/5 text-gray-900' : 'bg-transparent border-transparent text-gray-500 hover:bg-white hover:border-gray-100 hover:shadow-sm'}`}
             >
                 <span
                     {...attributes}
                     {...listeners}
                     onClick={(e) => e.stopPropagation()}
-                    className="touch-none text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing"
+                    className="touch-none text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing"
                 >
                     <GripVertical size={14} />
                 </span>
@@ -1439,12 +1439,12 @@ function CourseSectionRow({
                         onClick={(e) => e.stopPropagation()}
                         onChange={(e) => onRename(e.target.value)}
                         placeholder={namePlaceholder}
-                        className="text-xs font-black flex-1 bg-transparent border-b border-transparent focus:border-[var(--brand-light)] outline-none text-slate-900"
+                        className="text-xs font-black flex-1 bg-transparent border-b border-transparent focus:border-[var(--brand-light)] outline-none text-gray-900"
                     />
                 ) : (
                     <span className="text-xs font-black flex-1 truncate">{section.title}</span>
                 )}
-                <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                <span className="rounded-full bg-gray-100 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-gray-500">
                     {questions.length}
                 </span>
                 <button
@@ -1452,7 +1452,7 @@ function CourseSectionRow({
                         e.stopPropagation();
                         onDelete();
                     }}
-                    className="opacity-0 group-hover:opacity-100 p-1 text-slate-300 hover:text-red-500 transition-all"
+                    className="opacity-0 group-hover:opacity-100 p-1 text-gray-300 hover:text-red-500 transition-all"
                 >
                     <Trash2 size={12} />
                 </button>
@@ -1483,7 +1483,7 @@ function CourseSectionRow({
                         </button>
 
                         {showAddMenu && (
-                            <div className="absolute left-0 top-full z-50 w-48 bg-white border border-slate-100 rounded-2xl shadow-2xl p-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                            <div className="absolute left-0 top-full z-50 w-48 bg-white border border-gray-100 rounded-2xl shadow-2xl p-2 animate-in fade-in slide-in-from-top-2 duration-200">
                                 <AddMenuItem
                                     onClick={() => onAddQuestion('MCQ')}
                                     label="Single Choice (MCQ)"
@@ -1564,7 +1564,7 @@ function CourseQuestionRow({
             ref={setNodeRef}
             style={style}
             onClick={onSelect}
-            className={`group/q flex items-center gap-2.5 px-3 py-2 rounded-xl cursor-pointer transition-all border ${isActive ? 'bg-[var(--brand-light)] border-[var(--brand-light)] text-[var(--brand-dark)]' : 'bg-transparent border-transparent text-slate-400 hover:text-slate-600'}`}
+            className={`group/q flex items-center gap-2.5 px-3 py-2 rounded-xl cursor-pointer transition-all border ${isActive ? 'bg-[var(--brand-light)] border-[var(--brand-light)] text-[var(--brand-dark)]' : 'bg-transparent border-transparent text-gray-400 hover:text-gray-600'}`}
         >
             <span
                 {...attributes}
@@ -1611,10 +1611,10 @@ function AddMenuItem({
                 }
                 onClick();
             }}
-            className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 transition-all ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-slate-50'}`}
+            className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 transition-all ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-50'}`}
         >
-            <span className="text-slate-400 group-hover:text-[var(--brand)] transition-colors uppercase">{icon}</span>
-            <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest whitespace-nowrap">
+            <span className="text-gray-400 group-hover:text-[var(--brand)] transition-colors uppercase">{icon}</span>
+            <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest whitespace-nowrap">
                 {label}
             </span>
         </button>

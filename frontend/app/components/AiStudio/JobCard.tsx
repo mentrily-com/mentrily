@@ -85,7 +85,7 @@ export default function JobCard({
             type="button"
             onClick={() => onOpen(effectiveId)}
             className={`group mt-3 flex w-full max-w-md items-center gap-3 rounded-2xl border bg-white p-3 text-left transition hover:border-[var(--color-border-brand)] ${
-                active ? 'border-[var(--brand)] ring-4 ring-[var(--brand)]/10' : 'border-slate-200'
+                active ? 'border-[var(--brand)] ring-4 ring-[var(--brand)]/10' : 'border-gray-200'
             }`}
         >
             <span
@@ -94,10 +94,10 @@ export default function JobCard({
                 {failed ? <AlertTriangle size={18} /> : <Icon size={18} />}
             </span>
             <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-semibold text-slate-900">
+                <span className="block truncate text-sm font-semibold text-gray-900">
                     {noun}: {data.title}
                 </span>
-                <span className="mt-0.5 flex items-center gap-1.5 truncate text-xs text-slate-500">
+                <span className="mt-0.5 flex items-center gap-1.5 truncate text-xs text-gray-500">
                     {running && <Loader2 size={12} className="shrink-0 animate-spin text-[var(--brand)]" />}
                     {line}
                 </span>

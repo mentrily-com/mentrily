@@ -432,7 +432,7 @@ export default function AnalyticsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 font-sans selection:bg-[var(--brand-light)]">
+        <div className="min-h-screen bg-gray-50 font-sans selection:bg-[var(--brand-light)]">
             {/* TEACHER VIEW BANNER -- sticks to the top of this page's own
                 scroll container (the navbar lives outside it, in a separate
                 flex row, so no navbar-height offset is needed here). */}
@@ -470,13 +470,13 @@ export default function AnalyticsPage() {
                 own scroll container (the navbar lives outside it, in a
                 separate flex row, so no navbar-height offset is needed
                 here). */}
-            <div className="sticky top-0 z-40 bg-white border-b border-slate-200/60 shadow-sm transition-all duration-300">
+            <div className="sticky top-0 z-40 bg-white border-b border-gray-200/60 shadow-sm transition-all duration-300">
                 <div className="max-w-[1440px] mx-auto px-4 sm:px-8 py-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex flex-col">
-                        <h1 className="text-lg font-black text-slate-900 tracking-tight leading-none mb-1">
+                        <h1 className="text-lg font-black text-gray-900 tracking-tight leading-none mb-1">
                             Performance Analytics
                         </h1>
-                        <p className="text-[10px] font-bold text-slate-400">
+                        <p className="text-[10px] font-bold text-gray-400">
                             Tracking progress across all coding modules
                         </p>
                     </div>
@@ -484,23 +484,23 @@ export default function AnalyticsPage() {
                     <div className="flex items-center overflow-x-auto no-scrollbar">
                         <button
                             onClick={() => setActiveTab('overview')}
-                            className={`px-4 sm:px-6 py-3 sm:py-4 text-[11px] font-black uppercase tracking-widest transition-all relative group whitespace-nowrap ${activeTab === 'overview' ? 'text-[var(--brand)]' : 'text-slate-400 hover:text-slate-600'}`}
+                            className={`px-4 sm:px-6 py-3 sm:py-4 text-[11px] font-black uppercase tracking-widest transition-all relative group whitespace-nowrap ${activeTab === 'overview' ? 'text-[var(--brand)]' : 'text-gray-400 hover:text-gray-600'}`}
                         >
                             <span className="relative z-10">Overview</span>
                             {activeTab === 'overview' && (
                                 <div className="absolute bottom-0 left-0 w-full h-1 bg-[var(--brand)] rounded-t-full" />
                             )}
-                            <div className="absolute inset-x-2 inset-y-2 bg-slate-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl -z-0" />
+                            <div className="absolute inset-x-2 inset-y-2 bg-gray-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl -z-0" />
                         </button>
                         <button
                             onClick={() => setActiveTab('attempts')}
-                            className={`px-4 sm:px-6 py-3 sm:py-4 text-[11px] font-black uppercase tracking-widest transition-all relative group whitespace-nowrap ${activeTab === 'attempts' ? 'text-[var(--brand)]' : 'text-slate-400 hover:text-slate-600'}`}
+                            className={`px-4 sm:px-6 py-3 sm:py-4 text-[11px] font-black uppercase tracking-widest transition-all relative group whitespace-nowrap ${activeTab === 'attempts' ? 'text-[var(--brand)]' : 'text-gray-400 hover:text-gray-600'}`}
                         >
                             <span className="relative z-10">Detailed Attempts</span>
                             {activeTab === 'attempts' && (
                                 <div className="absolute bottom-0 left-0 w-full h-1 bg-[var(--brand)] rounded-t-full" />
                             )}
-                            <div className="absolute inset-x-2 inset-y-2 bg-slate-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl -z-0" />
+                            <div className="absolute inset-x-2 inset-y-2 bg-gray-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl -z-0" />
                         </button>
                     </div>
                 </div>
@@ -561,11 +561,11 @@ export default function AnalyticsPage() {
                             </div>
 
                             {/* CONSISTENCY HEATMAP */}
-                            <div className="bg-white rounded-[20px] border border-slate-200/60 shadow-sm p-5 sm:p-7">
+                            <div className="bg-white rounded-[20px] border border-gray-200/60 shadow-sm p-5 sm:p-7">
                                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-5">
                                     <div>
-                                        <h3 className="text-base font-black text-slate-800">Practice Consistency</h3>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                                        <h3 className="text-base font-black text-gray-800">Practice Consistency</h3>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
                                             Last {HEATMAP_WEEKS} weeks · {heatmap.activeDays} active day
                                             {heatmap.activeDays === 1 ? '' : 's'}
                                         </p>
@@ -578,7 +578,7 @@ export default function AnalyticsPage() {
                                             </span>
                                         )}
                                         <div className="flex items-center gap-1.5">
-                                            <span className="text-[9px] font-black text-slate-400 uppercase">Less</span>
+                                            <span className="text-[9px] font-black text-gray-400 uppercase">Less</span>
                                             {[0, 1, 2, 3, 4].map((lvl) => (
                                                 <div
                                                     key={lvl}
@@ -591,7 +591,7 @@ export default function AnalyticsPage() {
                                                     }}
                                                 />
                                             ))}
-                                            <span className="text-[9px] font-black text-slate-400 uppercase">More</span>
+                                            <span className="text-[9px] font-black text-gray-400 uppercase">More</span>
                                         </div>
                                     </div>
                                 </div>
@@ -604,7 +604,7 @@ export default function AnalyticsPage() {
                                                 {heatmap.monthLabels.map((m) => (
                                                     <span
                                                         key={`${m.label}-${m.index}`}
-                                                        className="absolute text-[9px] font-black text-slate-400 uppercase"
+                                                        className="absolute text-[9px] font-black text-gray-400 uppercase"
                                                         style={{ left: `${m.index * 20}px` }}
                                                     >
                                                         {m.label}
@@ -617,7 +617,7 @@ export default function AnalyticsPage() {
                                                     {['', 'Mon', '', 'Wed', '', 'Fri', ''].map((d, i) => (
                                                         <span
                                                             key={i}
-                                                            className="h-4 text-[8px] font-black text-slate-400 uppercase leading-4"
+                                                            className="h-4 text-[8px] font-black text-gray-400 uppercase leading-4"
                                                         >
                                                             {d}
                                                         </span>
@@ -628,7 +628,7 @@ export default function AnalyticsPage() {
                                                         {week.map((cell, di) => (
                                                             <div
                                                                 key={di}
-                                                                className="w-4 h-4 rounded-[4px] transition-transform hover:scale-125 hover:ring-2 hover:ring-slate-300"
+                                                                className="w-4 h-4 rounded-[4px] transition-transform hover:scale-125 hover:ring-2 hover:ring-gray-300"
                                                                 style={{
                                                                     backgroundColor: cell.future
                                                                         ? 'transparent'
@@ -655,34 +655,34 @@ export default function AnalyticsPage() {
                                     </div>
 
                                     {/* Summary rail */}
-                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:grid-cols-1 lg:w-56 lg:border-l lg:border-slate-100 lg:pl-8 shrink-0">
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:grid-cols-1 lg:w-56 lg:border-l lg:border-gray-100 lg:pl-8 shrink-0">
                                         <div>
-                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">
                                                 This week
                                             </p>
-                                            <p className="text-lg font-black text-slate-800 leading-none">
+                                            <p className="text-lg font-black text-gray-800 leading-none">
                                                 {heatmap.thisWeek}
-                                                <span className="text-[10px] font-bold text-slate-400 ml-1.5">
+                                                <span className="text-[10px] font-bold text-gray-400 ml-1.5">
                                                     attempts
                                                 </span>
                                             </p>
                                         </div>
                                         <div>
-                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">
                                                 Active days
                                             </p>
-                                            <p className="text-lg font-black text-slate-800 leading-none">
+                                            <p className="text-lg font-black text-gray-800 leading-none">
                                                 {heatmap.activeDays}
-                                                <span className="text-[10px] font-bold text-slate-400 ml-1.5">
+                                                <span className="text-[10px] font-bold text-gray-400 ml-1.5">
                                                     total
                                                 </span>
                                             </p>
                                         </div>
                                         <div>
-                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">
                                                 Busiest day
                                             </p>
-                                            <p className="text-lg font-black text-slate-800 leading-none">
+                                            <p className="text-lg font-black text-gray-800 leading-none">
                                                 {heatmap.busiest
                                                     ? heatmap.busiest.date.toLocaleDateString(undefined, {
                                                           month: 'short',
@@ -690,7 +690,7 @@ export default function AnalyticsPage() {
                                                       })
                                                     : '—'}
                                                 {heatmap.busiest && (
-                                                    <span className="text-[10px] font-bold text-slate-400 ml-1.5">
+                                                    <span className="text-[10px] font-bold text-gray-400 ml-1.5">
                                                         {heatmap.busiest.count} attempts
                                                     </span>
                                                 )}
@@ -700,7 +700,7 @@ export default function AnalyticsPage() {
                                 </div>
                                 {heatCellTip && (
                                     <div
-                                        className="fixed z-[60] px-2.5 py-1.5 rounded-lg bg-slate-900 text-white text-[10px] font-bold pointer-events-none -translate-x-1/2 -translate-y-full whitespace-nowrap shadow-xl"
+                                        className="fixed z-[60] px-2.5 py-1.5 rounded-lg bg-gray-900 text-white text-[10px] font-bold pointer-events-none -translate-x-1/2 -translate-y-full whitespace-nowrap shadow-xl"
                                         style={{ left: heatCellTip.x, top: heatCellTip.y - 6 }}
                                     >
                                         {heatCellTip.text}
@@ -710,11 +710,11 @@ export default function AnalyticsPage() {
 
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 {/* DAILY ACTIVITY — stacked bars, last 14 days */}
-                                <div className="lg:col-span-2 bg-white rounded-[20px] border border-slate-200/60 shadow-sm p-5 sm:p-7">
+                                <div className="lg:col-span-2 bg-white rounded-[20px] border border-gray-200/60 shadow-sm p-5 sm:p-7">
                                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
                                         <div>
-                                            <h3 className="text-base font-black text-slate-800">Daily Activity</h3>
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                                            <h3 className="text-base font-black text-gray-800">Daily Activity</h3>
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
                                                 Submissions over the last 14 days
                                             </p>
                                         </div>
@@ -724,7 +724,7 @@ export default function AnalyticsPage() {
                                                     className="w-2.5 h-2.5 rounded-[3px]"
                                                     style={{ backgroundColor: PASSED_COLOR }}
                                                 />
-                                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                                                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">
                                                     Passed
                                                 </span>
                                             </div>
@@ -733,7 +733,7 @@ export default function AnalyticsPage() {
                                                     className="w-2.5 h-2.5 rounded-[3px]"
                                                     style={{ backgroundColor: FAILED_COLOR }}
                                                 />
-                                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                                                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">
                                                     Failed
                                                 </span>
                                             </div>
@@ -793,9 +793,9 @@ export default function AnalyticsPage() {
                                 </div>
 
                                 {/* OUTCOME DONUT */}
-                                <div className="bg-white rounded-[20px] border border-slate-200/60 shadow-sm p-5 sm:p-7 flex flex-col">
-                                    <h3 className="text-base font-black text-slate-800">Outcomes</h3>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 mb-4">
+                                <div className="bg-white rounded-[20px] border border-gray-200/60 shadow-sm p-5 sm:p-7 flex flex-col">
+                                    <h3 className="text-base font-black text-gray-800">Outcomes</h3>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5 mb-4">
                                         All submissions
                                     </p>
                                     <div className="h-[200px] w-full relative">
@@ -837,10 +837,10 @@ export default function AnalyticsPage() {
                                             </PieChart>
                                         </ResponsiveContainer>
                                         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                            <span className="text-3xl font-black text-slate-800 leading-none">
+                                            <span className="text-3xl font-black text-gray-800 leading-none">
                                                 {stats.successRate}%
                                             </span>
-                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1.5">
+                                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1.5">
                                                 Success rate
                                             </span>
                                         </div>
@@ -852,9 +852,9 @@ export default function AnalyticsPage() {
                                                     className="w-2.5 h-2.5 rounded-[3px]"
                                                     style={{ backgroundColor: PASSED_COLOR }}
                                                 />
-                                                <span className="text-xs font-bold text-slate-600">Passed</span>
+                                                <span className="text-xs font-bold text-gray-600">Passed</span>
                                             </div>
-                                            <span className="text-xs font-black text-slate-800">
+                                            <span className="text-xs font-black text-gray-800">
                                                 {stats.passedAttempts}
                                             </span>
                                         </div>
@@ -864,20 +864,20 @@ export default function AnalyticsPage() {
                                                     className="w-2.5 h-2.5 rounded-[3px]"
                                                     style={{ backgroundColor: FAILED_COLOR }}
                                                 />
-                                                <span className="text-xs font-bold text-slate-600">Failed</span>
+                                                <span className="text-xs font-bold text-gray-600">Failed</span>
                                             </div>
-                                            <span className="text-xs font-black text-slate-800">
+                                            <span className="text-xs font-black text-gray-800">
                                                 {stats.failedAttempts}
                                             </span>
                                         </div>
-                                        <div className="flex items-center justify-between px-1 pt-2.5 border-t border-slate-100">
+                                        <div className="flex items-center justify-between px-1 pt-2.5 border-t border-gray-100">
                                             <div className="flex items-center gap-2.5">
-                                                <Sparkles size={12} className="text-slate-400" />
-                                                <span className="text-xs font-bold text-slate-600">
+                                                <Sparkles size={12} className="text-gray-400" />
+                                                <span className="text-xs font-bold text-gray-600">
                                                     First-try solves
                                                 </span>
                                             </div>
-                                            <span className="text-xs font-black text-slate-800">
+                                            <span className="text-xs font-black text-gray-800">
                                                 {stats.firstTryRate}%
                                             </span>
                                         </div>
@@ -887,12 +887,12 @@ export default function AnalyticsPage() {
 
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 {/* COURSE PROGRESS */}
-                                <div className="bg-white rounded-[20px] border border-slate-200/60 shadow-sm p-5 sm:p-7">
+                                <div className="bg-white rounded-[20px] border border-gray-200/60 shadow-sm p-5 sm:p-7">
                                     <div className="flex items-center gap-2.5 mb-1">
                                         <GraduationCap size={16} className="text-[var(--brand)]" />
-                                        <h3 className="text-base font-black text-slate-800">Course Progress</h3>
+                                        <h3 className="text-base font-black text-gray-800">Course Progress</h3>
                                     </div>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6">
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6">
                                         Questions cleared per enrolled course
                                     </p>
                                     {courseProgress.length > 0 ? (
@@ -900,16 +900,16 @@ export default function AnalyticsPage() {
                                             {courseProgress.map((course: any) => (
                                                 <div key={course.name}>
                                                     <div className="flex items-baseline justify-between mb-1.5 gap-3">
-                                                        <span className="text-xs font-black text-slate-700 truncate">
+                                                        <span className="text-xs font-black text-gray-700 truncate">
                                                             {course.name}
                                                         </span>
-                                                        <span className="text-[10px] font-black text-slate-400 shrink-0">
+                                                        <span className="text-[10px] font-black text-gray-400 shrink-0">
                                                             {course.completed !== null
                                                                 ? `${course.completed}/${course.attempted} · ${course.pct}%`
                                                                 : `${course.pct}%`}
                                                         </span>
                                                     </div>
-                                                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                                    <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                                                         <div
                                                             className="h-full rounded-full bg-[var(--brand)] transition-all duration-700"
                                                             style={{ width: `${course.pct}%` }}
@@ -920,7 +920,7 @@ export default function AnalyticsPage() {
                                         </div>
                                     ) : (
                                         <div className="py-10 text-center">
-                                            <p className="text-xs font-bold text-slate-400">
+                                            <p className="text-xs font-bold text-gray-400">
                                                 Start a course to track your progress here.
                                             </p>
                                         </div>
@@ -928,12 +928,12 @@ export default function AnalyticsPage() {
                                 </div>
 
                                 {/* QUESTION TYPES */}
-                                <div className="bg-white rounded-[20px] border border-slate-200/60 shadow-sm p-5 sm:p-7">
+                                <div className="bg-white rounded-[20px] border border-gray-200/60 shadow-sm p-5 sm:p-7">
                                     <div className="flex items-center gap-2.5 mb-1">
                                         <TrendingUp size={16} className="text-[var(--brand)]" />
-                                        <h3 className="text-base font-black text-slate-800">By Question Type</h3>
+                                        <h3 className="text-base font-black text-gray-800">By Question Type</h3>
                                     </div>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6">
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6">
                                         Where you&apos;re strongest
                                     </p>
                                     {typeBreakdown.length > 0 ? (
@@ -944,21 +944,21 @@ export default function AnalyticsPage() {
                                                 return (
                                                     <div
                                                         key={t.type}
-                                                        className="flex items-center gap-4 p-3 rounded-xl border border-slate-100 hover:border-slate-200 transition-colors"
+                                                        className="flex items-center gap-4 p-3 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors"
                                                     >
                                                         <div className="w-9 h-9 rounded-lg bg-[var(--brand-lighter)] text-[var(--brand)] flex items-center justify-center shrink-0">
                                                             <Icon size={16} />
                                                         </div>
                                                         <div className="flex-1 min-w-0">
                                                             <div className="flex items-baseline justify-between gap-3 mb-1">
-                                                                <span className="text-xs font-black text-slate-700">
+                                                                <span className="text-xs font-black text-gray-700">
                                                                     {meta.label}
                                                                 </span>
-                                                                <span className="text-[10px] font-black text-slate-400 shrink-0">
+                                                                <span className="text-[10px] font-black text-gray-400 shrink-0">
                                                                     {t.completed}/{t.units} cleared
                                                                 </span>
                                                             </div>
-                                                            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                                            <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
                                                                 <div
                                                                     className="h-full rounded-full transition-all duration-700"
                                                                     style={{
@@ -973,7 +973,7 @@ export default function AnalyticsPage() {
                                                                 />
                                                             </div>
                                                         </div>
-                                                        <span className="text-sm font-black text-slate-800 w-11 text-right shrink-0">
+                                                        <span className="text-sm font-black text-gray-800 w-11 text-right shrink-0">
                                                             {t.pct}%
                                                         </span>
                                                     </div>
@@ -982,7 +982,7 @@ export default function AnalyticsPage() {
                                         </div>
                                     ) : (
                                         <div className="py-10 text-center">
-                                            <p className="text-xs font-bold text-slate-400">
+                                            <p className="text-xs font-bold text-gray-400">
                                                 Attempt questions to see your strengths by type.
                                             </p>
                                         </div>
@@ -996,14 +996,14 @@ export default function AnalyticsPage() {
                         {/* Filter Section */}
                         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                             <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
-                                <span className="text-[11px] font-black uppercase text-slate-400 tracking-widest">
+                                <span className="text-[11px] font-black uppercase text-gray-400 tracking-widest">
                                     Filter Course
                                 </span>
                                 <div className="relative w-full sm:w-auto">
                                     <select
                                         value={selectedCourse}
                                         onChange={(e) => setSelectedCourse(e.target.value)}
-                                        className="w-full appearance-none bg-white border border-slate-200 rounded-xl px-5 py-2.5 pr-12 text-xs font-black text-slate-700 focus:outline-none focus:ring-4 focus:ring-[var(--brand-light)] transition-all cursor-pointer shadow-sm"
+                                        className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-5 py-2.5 pr-12 text-xs font-black text-gray-700 focus:outline-none focus:ring-4 focus:ring-[var(--brand-light)] transition-all cursor-pointer shadow-sm"
                                     >
                                         {availableCourses.map((course) => (
                                             <option key={course} value={course}>
@@ -1011,7 +1011,7 @@ export default function AnalyticsPage() {
                                             </option>
                                         ))}
                                     </select>
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
                                         <svg
                                             width="14"
                                             height="14"
@@ -1030,10 +1030,10 @@ export default function AnalyticsPage() {
                                 <input
                                     type="text"
                                     placeholder="Search assessment results..."
-                                    className="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-12 pr-6 text-xs font-bold placeholder:text-slate-400 focus:outline-none focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/5 transition-all shadow-sm"
+                                    className="w-full bg-white border border-gray-200 rounded-2xl py-3 pl-12 pr-6 text-xs font-bold placeholder:text-gray-400 focus:outline-none focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/5 transition-all shadow-sm"
                                 />
                                 <svg
-                                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
                                     width="18"
                                     height="18"
                                     viewBox="0 0 24 24"
@@ -1048,50 +1048,50 @@ export default function AnalyticsPage() {
                         </div>
 
                         {/* Detailed Table */}
-                        <div className="bg-white border border-slate-100 rounded-[28px] sm:rounded-[32px] overflow-hidden shadow-sm">
-                            <div className="hidden items-center px-10 py-5 bg-slate-50/50 border-b border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400 md:flex">
+                        <div className="bg-white border border-gray-100 rounded-[28px] sm:rounded-[32px] overflow-hidden shadow-sm">
+                            <div className="hidden items-center px-10 py-5 bg-gray-50/50 border-b border-gray-100 text-[10px] font-black uppercase tracking-widest text-gray-400 md:flex">
                                 <div className="flex-1">Questions</div>
                                 <div className="w-40 text-center">Category</div>
                                 <div className="w-40 text-right mr-10">Latest Status</div>
                             </div>
 
-                            <div className="divide-y divide-slate-50">
+                            <div className="divide-y divide-gray-50">
                                 {filteredQuestions.map((q) => (
                                     <div key={q.id} className="bg-white">
                                         <div
                                             onClick={() => toggleExpand(q.id)}
-                                            className={`flex flex-col gap-3 px-4 py-5 hover:bg-slate-50/30 cursor-pointer transition-all duration-300 group md:flex-row md:items-center md:px-10 md:py-6 ${expandedIds.includes(q.id) ? 'bg-slate-50/20' : ''}`}
+                                            className={`flex flex-col gap-3 px-4 py-5 hover:bg-gray-50/30 cursor-pointer transition-all duration-300 group md:flex-row md:items-center md:px-10 md:py-6 ${expandedIds.includes(q.id) ? 'bg-gray-50/20' : ''}`}
                                         >
                                             <div className="flex-1 flex min-w-0 items-center gap-4 md:gap-6">
                                                 <span
-                                                    className={`text-[12px] font-black w-6 transition-colors ${expandedIds.includes(q.id) ? 'text-[var(--brand)]' : 'text-slate-300'}`}
+                                                    className={`text-[12px] font-black w-6 transition-colors ${expandedIds.includes(q.id) ? 'text-[var(--brand)]' : 'text-gray-300'}`}
                                                 >
                                                     {q.id}.
                                                 </span>
                                                 <div className="min-w-0">
-                                                    <span className="text-sm font-black text-slate-800 group-hover:text-[var(--brand)] transition-colors">
+                                                    <span className="text-sm font-black text-gray-800 group-hover:text-[var(--brand)] transition-colors">
                                                         {q.title}
                                                     </span>
                                                     <div className="flex gap-2 mt-1">
                                                         {q.attempts.length > 0 && (
-                                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                                                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">
                                                                 {q.attempts.length} attempts
                                                             </span>
                                                         )}
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="w-fit md:w-40 text-left md:text-center text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 border border-slate-100 px-3 py-1 rounded-lg inline-block md:self-center md:mx-auto">
+                                            <div className="w-fit md:w-40 text-left md:text-center text-[10px] font-black text-gray-400 uppercase tracking-widest bg-gray-50 border border-gray-100 px-3 py-1 rounded-lg inline-block md:self-center md:mx-auto">
                                                 {q.type}
                                             </div>
                                             <div className="w-full md:w-40 flex items-center justify-between md:justify-end gap-3 text-right md:mr-10">
                                                 <span
-                                                    className={`text-[11px] font-black px-3 py-1 rounded-lg ${q.status === 'Submitted' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-400'}`}
+                                                    className={`text-[11px] font-black px-3 py-1 rounded-lg ${q.status === 'Submitted' ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-50 text-gray-400'}`}
                                                 >
                                                     {q.status}
                                                 </span>
                                                 <div
-                                                    className={`p-2 rounded-xl transition-all ${expandedIds.includes(q.id) ? 'rotate-180 bg-[var(--brand-light)] text-[var(--brand)]' : 'text-slate-300'}`}
+                                                    className={`p-2 rounded-xl transition-all ${expandedIds.includes(q.id) ? 'rotate-180 bg-[var(--brand-light)] text-[var(--brand)]' : 'text-gray-300'}`}
                                                 >
                                                     <svg
                                                         width="14"
@@ -1108,11 +1108,11 @@ export default function AnalyticsPage() {
                                         </div>
 
                                         {expandedIds.includes(q.id) && (
-                                            <div className="px-4 pb-6 pt-4 bg-slate-50/10 sm:px-10 sm:pb-10">
+                                            <div className="px-4 pb-6 pt-4 bg-gray-50/10 sm:px-10 sm:pb-10">
                                                 {q.attempts.length > 0 ? (
                                                     <div className="max-w-4xl mx-auto space-y-4">
                                                         <div className="flex flex-wrap items-center justify-center gap-3 mb-6 sm:gap-8">
-                                                            <div className="flex items-center gap-2 text-[10px] font-black text-slate-400">
+                                                            <div className="flex items-center gap-2 text-[10px] font-black text-gray-400">
                                                                 <div className="w-2 h-2 rounded-full bg-emerald-500" />{' '}
                                                                 Success:{' '}
                                                                 {
@@ -1121,7 +1121,7 @@ export default function AnalyticsPage() {
                                                                     ).length
                                                                 }
                                                             </div>
-                                                            <div className="flex items-center gap-2 text-[10px] font-black text-slate-400">
+                                                            <div className="flex items-center gap-2 text-[10px] font-black text-gray-400">
                                                                 <div className="w-2 h-2 rounded-full bg-rose-500" />{' '}
                                                                 Failed:{' '}
                                                                 {
@@ -1132,13 +1132,13 @@ export default function AnalyticsPage() {
                                                             </div>
                                                         </div>
 
-                                                        <div className="border border-slate-100 rounded-[24px] bg-white overflow-hidden shadow-sm">
-                                                            <div className="hidden grid-cols-3 px-8 py-3 bg-slate-50/50 border-b border-slate-50 text-[9px] font-black uppercase tracking-widest text-slate-400 text-center sm:grid">
+                                                        <div className="border border-gray-100 rounded-[24px] bg-white overflow-hidden shadow-sm">
+                                                            <div className="hidden grid-cols-3 px-8 py-3 bg-gray-50/50 border-b border-gray-50 text-[9px] font-black uppercase tracking-widest text-gray-400 text-center sm:grid">
                                                                 <div>Date & Time</div>
                                                                 <div>Test Cases</div>
                                                                 <div>Outcome</div>
                                                             </div>
-                                                            <div className="divide-y divide-slate-50">
+                                                            <div className="divide-y divide-gray-50">
                                                                 {q.attempts.map((attempt: Attempt, idx: number) => {
                                                                     const isTeacherView =
                                                                         !!searchParams.get('studentId');
@@ -1153,12 +1153,12 @@ export default function AnalyticsPage() {
                                                                                     );
                                                                                 }
                                                                             }}
-                                                                            className={`grid grid-cols-1 gap-2 px-4 py-4 text-[11px] font-bold text-slate-600 transition-colors sm:grid-cols-3 sm:px-8 sm:text-center ${!isTeacherView ? 'cursor-pointer hover:bg-slate-50/50' : ''}`}
+                                                                            className={`grid grid-cols-1 gap-2 px-4 py-4 text-[11px] font-bold text-gray-600 transition-colors sm:grid-cols-3 sm:px-8 sm:text-center ${!isTeacherView ? 'cursor-pointer hover:bg-gray-50/50' : ''}`}
                                                                         >
-                                                                            <div className="font-mono text-slate-400">
+                                                                            <div className="font-mono text-gray-400">
                                                                                 {attempt.date}
                                                                             </div>
-                                                                            <div className="text-slate-800">
+                                                                            <div className="text-gray-800">
                                                                                 {attempt.testCases}
                                                                             </div>
                                                                             <div>
@@ -1175,11 +1175,11 @@ export default function AnalyticsPage() {
                                                         </div>
                                                     </div>
                                                 ) : (
-                                                    <div className="text-center py-12 rounded-[24px] bg-white border-2 border-dashed border-slate-100 flex flex-col items-center">
-                                                        <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-xl mb-4 text-slate-300">
+                                                    <div className="text-center py-12 rounded-[24px] bg-white border-2 border-dashed border-gray-100 flex flex-col items-center">
+                                                        <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-xl mb-4 text-gray-300">
                                                             ∅
                                                         </div>
-                                                        <p className="text-xs font-bold text-slate-400 italic">
+                                                        <p className="text-xs font-bold text-gray-400 italic">
                                                             No attempt logs found for this specific assessment.
                                                         </p>
                                                     </div>
@@ -1189,7 +1189,7 @@ export default function AnalyticsPage() {
                                     </div>
                                 ))}
                                 {questions.length === 0 && (
-                                    <div className="px-10 py-10 text-center text-slate-500 font-bold uppercase tracking-widest text-[11px]">
+                                    <div className="px-10 py-10 text-center text-gray-500 font-bold uppercase tracking-widest text-[11px]">
                                         No assessment history found
                                     </div>
                                 )}
@@ -1205,14 +1205,14 @@ export default function AnalyticsPage() {
 function EmptyState({ isTeacherView }: { isTeacherView: boolean }) {
     const router = useRouter();
     return (
-        <div className="bg-white rounded-[24px] border border-slate-200/60 shadow-sm px-6 py-16 sm:py-24 flex flex-col items-center text-center animate-in fade-in duration-500">
+        <div className="bg-white rounded-[24px] border border-gray-200/60 shadow-sm px-6 py-16 sm:py-24 flex flex-col items-center text-center animate-in fade-in duration-500">
             <div className="w-16 h-16 rounded-2xl bg-[var(--brand-lighter)] text-[var(--brand)] flex items-center justify-center mb-6">
                 <TrendingUp size={28} />
             </div>
-            <h2 className="text-xl font-black text-slate-900 mb-2">
+            <h2 className="text-xl font-black text-gray-900 mb-2">
                 {isTeacherView ? 'No activity yet' : 'Your analytics start here'}
             </h2>
-            <p className="text-sm font-medium text-slate-500 max-w-md leading-relaxed mb-8">
+            <p className="text-sm font-medium text-gray-500 max-w-md leading-relaxed mb-8">
                 {isTeacherView
                     ? "This student hasn't attempted any questions yet. Their progress, consistency, and strengths will appear here once they start practicing."
                     : 'Attempt your first question and this page comes alive — daily activity, practice streaks, success rates, and course-by-course strengths.'}
@@ -1247,21 +1247,21 @@ function StatTile({
         emerald: 'bg-emerald-50 text-emerald-600',
         amber: 'bg-amber-50 text-amber-600',
         rose: 'bg-rose-50 text-rose-600',
-        slate: 'bg-slate-100 text-slate-500',
+        slate: 'bg-gray-100 text-gray-500',
     };
 
     return (
-        <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-4 hover:border-[var(--brand-light)] hover:shadow-md transition-all group">
+        <div className="bg-white rounded-2xl border border-gray-200/60 shadow-sm p-4 hover:border-[var(--brand-light)] hover:shadow-md transition-all group">
             <div className="flex items-center justify-between mb-3">
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
+                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{label}</span>
                 <div
                     className={`w-7 h-7 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110 ${toneClasses[tone]}`}
                 >
                     <Icon size={14} />
                 </div>
             </div>
-            <p className="text-2xl font-black text-slate-900 leading-none tracking-tight">{value}</p>
-            <p className="text-[10px] font-bold text-slate-400 mt-1.5 truncate">{sub}</p>
+            <p className="text-2xl font-black text-gray-900 leading-none tracking-tight">{value}</p>
+            <p className="text-[10px] font-bold text-gray-400 mt-1.5 truncate">{sub}</p>
         </div>
     );
 }

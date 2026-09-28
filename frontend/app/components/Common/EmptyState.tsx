@@ -27,12 +27,12 @@ interface EmptyStateProps {
  */
 export default function EmptyState({ icon, title, description, action, className = '' }: EmptyStateProps) {
     return (
-        <div className={`text-center py-16 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-100 ${className}`}>
-            <div className="w-16 h-16 bg-white rounded-2xl mx-auto flex items-center justify-center shadow-sm mb-4 text-slate-400">
+        <div className={`text-center py-16 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-100 ${className}`}>
+            <div className="w-16 h-16 bg-white rounded-2xl mx-auto flex items-center justify-center shadow-sm mb-4 text-gray-400">
                 {icon}
             </div>
-            <h3 className="text-lg font-black text-slate-800 mb-2">{title}</h3>
-            {description && <p className="text-slate-500 max-w-sm mx-auto mb-6 text-sm font-medium">{description}</p>}
+            <h3 className="text-lg font-black text-gray-800 mb-2">{title}</h3>
+            {description && <p className="text-gray-500 max-w-sm mx-auto mb-6 text-sm font-medium">{description}</p>}
             {action &&
                 (action.href ? (
                     <Link

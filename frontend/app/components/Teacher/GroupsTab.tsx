@@ -80,9 +80,9 @@ export default function GroupsTab({ onEnrollGroupInCourse }: GroupsTabProps) {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[1, 2, 3].map((i) => (
-                    <div key={i} className="bg-white rounded-[32px] border border-slate-100 p-8 animate-pulse">
-                        <div className="h-6 bg-slate-100 rounded-xl w-1/2 mb-4" />
-                        <div className="h-4 bg-slate-50 rounded-lg w-1/3" />
+                    <div key={i} className="bg-white rounded-[32px] border border-gray-100 p-8 animate-pulse">
+                        <div className="h-6 bg-gray-100 rounded-xl w-1/2 mb-4" />
+                        <div className="h-4 bg-gray-50 rounded-lg w-1/3" />
                     </div>
                 ))}
             </div>
@@ -93,13 +93,13 @@ export default function GroupsTab({ onEnrollGroupInCourse }: GroupsTabProps) {
         <>
             <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
-                    <div className="bg-white border border-slate-200 rounded-2xl px-4 py-2 flex items-center gap-3 shadow-sm">
-                        <FolderOpen size={18} className="text-slate-400" />
+                    <div className="bg-white border border-gray-200 rounded-2xl px-4 py-2 flex items-center gap-3 shadow-sm">
+                        <FolderOpen size={18} className="text-gray-400" />
                         <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 leading-none">
                                 Total Groups
                             </p>
-                            <p className="text-lg font-black text-slate-800 leading-none mt-1">{groups.length}</p>
+                            <p className="text-lg font-black text-gray-800 leading-none mt-1">{groups.length}</p>
                         </div>
                     </div>
                 </div>
@@ -112,12 +112,12 @@ export default function GroupsTab({ onEnrollGroupInCourse }: GroupsTabProps) {
             </div>
 
             {groups.length === 0 ? (
-                <div className="bg-white rounded-[32px] border border-slate-100 p-16 text-center">
-                    <div className="w-20 h-20 rounded-[24px] bg-slate-50 flex items-center justify-center mx-auto mb-6">
-                        <Users size={32} className="text-slate-300" />
+                <div className="bg-white rounded-[32px] border border-gray-100 p-16 text-center">
+                    <div className="w-20 h-20 rounded-[24px] bg-gray-50 flex items-center justify-center mx-auto mb-6">
+                        <Users size={32} className="text-gray-300" />
                     </div>
-                    <h3 className="text-xl font-black text-slate-800 mb-2">No Groups Yet</h3>
-                    <p className="text-sm font-bold text-slate-400 mb-6">
+                    <h3 className="text-xl font-black text-gray-800 mb-2">No Groups Yet</h3>
+                    <p className="text-sm font-bold text-gray-400 mb-6">
                         Create your first student group to manage enrollments efficiently.
                     </p>
                     <button
@@ -132,18 +132,18 @@ export default function GroupsTab({ onEnrollGroupInCourse }: GroupsTabProps) {
                     {groups.map((group) => (
                         <div
                             key={group.id}
-                            className="bg-white rounded-[32px] border border-slate-100 shadow-sm p-8 hover:border-[var(--brand-light)] hover:shadow-md transition-all group/card"
+                            className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 hover:border-[var(--brand-light)] hover:shadow-md transition-all group/card"
                         >
                             <div className="flex items-start justify-between mb-6">
                                 <div>
-                                    <h3 className="text-lg font-black text-slate-800 tracking-tight">{group.name}</h3>
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">
+                                    <h3 className="text-lg font-black text-gray-800 tracking-tight">{group.name}</h3>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mt-1">
                                         {group._count?.students || group.students?.length || 0} Students
                                     </p>
                                 </div>
                                 <button
                                     onClick={() => handleDeleteGroup(group.id)}
-                                    className="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all opacity-0 group-hover/card:opacity-100"
+                                    className="p-2 text-gray-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all opacity-0 group-hover/card:opacity-100"
                                 >
                                     <Trash2 size={16} />
                                 </button>
@@ -154,7 +154,7 @@ export default function GroupsTab({ onEnrollGroupInCourse }: GroupsTabProps) {
                                 {(group.students || []).slice(0, 5).map((st: any, idx: number) => (
                                     <div
                                         key={st.id}
-                                        className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 border-2 border-white flex items-center justify-center text-[10px] font-black text-slate-500 shadow-sm"
+                                        className="w-9 h-9 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 border-2 border-white flex items-center justify-center text-[10px] font-black text-gray-500 shadow-sm"
                                     >
                                         {st.name?.[0] || '?'}
                                     </div>
@@ -169,7 +169,7 @@ export default function GroupsTab({ onEnrollGroupInCourse }: GroupsTabProps) {
                             <div className="flex gap-2">
                                 <button
                                     onClick={() => setManageGroup(group)}
-                                    className="flex-1 px-4 py-3 rounded-2xl bg-slate-50 text-slate-600 hover:bg-[var(--brand-light)] hover:text-[var(--brand)] transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1"
+                                    className="flex-1 px-4 py-3 rounded-2xl bg-gray-50 text-gray-600 hover:bg-[var(--brand-light)] hover:text-[var(--brand)] transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1"
                                 >
                                     <Edit3 size={12} /> Manage
                                 </button>
@@ -248,7 +248,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
     return (
         <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4">
             <div
-                className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+                className="absolute inset-0 bg-gray-900/60 backdrop-blur-md"
                 onClick={step === 'name' ? onClose : undefined}
             />
             <div className="bg-white w-full max-w-xl rounded-3xl sm:rounded-[48px] p-6 sm:p-12 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[85vh] overflow-y-auto custom-scrollbar">
@@ -258,7 +258,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                         else onClose();
                     }}
                     aria-label="Close"
-                    className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl sm:rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all hover:scale-110 active:scale-95"
+                    className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl sm:rounded-2xl bg-gray-50 hover:bg-gray-100 text-gray-400 transition-all hover:scale-110 active:scale-95"
                 >
                     <X size={20} strokeWidth={3} />
                 </button>
@@ -266,14 +266,14 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                 {step === 'name' ? (
                     <>
                         <div className="mb-8">
-                            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Create Group</h2>
-                            <p className="text-sm font-bold text-slate-400 mt-1">
+                            <h2 className="text-2xl font-black text-gray-900 tracking-tight">Create Group</h2>
+                            <p className="text-sm font-bold text-gray-400 mt-1">
                                 Organize students for easy management.
                             </p>
                         </div>
 
                         <div>
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">
                                 Group Name
                             </label>
                             <input
@@ -281,7 +281,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder="e.g., Section A - Data Structures"
-                                className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/5 transition-all"
+                                className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-bold outline-none focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/5 transition-all"
                                 onKeyDown={(e) => e.key === 'Enter' && handleCreateName()}
                                 autoFocus
                             />
@@ -290,7 +290,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                         <button
                             onClick={handleCreateName}
                             disabled={isCreating || !name.trim()}
-                            className="w-full mt-8 py-5 bg-[var(--brand)] hover:bg-[var(--brand-dark)] disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-[24px] font-black text-xs uppercase tracking-[0.2em] transition-all shadow-xl shadow-[var(--brand)]/20 active:scale-95 flex items-center justify-center gap-2"
+                            className="w-full mt-8 py-5 bg-[var(--brand)] hover:bg-[var(--brand-dark)] disabled:bg-gray-200 disabled:text-gray-400 text-white rounded-[24px] font-black text-xs uppercase tracking-[0.2em] transition-all shadow-xl shadow-[var(--brand)]/20 active:scale-95 flex items-center justify-center gap-2"
                         >
                             {isCreating ? (
                                 <>
@@ -350,7 +350,7 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
     return (
         <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4">
             <div
-                className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+                className="absolute inset-0 bg-gray-900/60 backdrop-blur-md"
                 onClick={() => {
                     onUpdated();
                 }}
@@ -361,7 +361,7 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
                         onUpdated();
                     }}
                     aria-label="Close"
-                    className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl sm:rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all hover:scale-110 active:scale-95"
+                    className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl sm:rounded-2xl bg-gray-50 hover:bg-gray-100 text-gray-400 transition-all hover:scale-110 active:scale-95"
                 >
                     <X size={20} strokeWidth={3} />
                 </button>
@@ -378,7 +378,7 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
                                     type="text"
                                     value={groupName}
                                     onChange={(e) => setGroupName(e.target.value)}
-                                    className="text-2xl font-black text-slate-900 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1 outline-none focus:border-[var(--brand)]"
+                                    className="text-2xl font-black text-gray-900 bg-gray-50 border border-gray-200 rounded-xl px-3 py-1 outline-none focus:border-[var(--brand)]"
                                     autoFocus
                                     onKeyDown={(e) => e.key === 'Enter' && handleRenameSave()}
                                 />
@@ -391,16 +391,16 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
                             </div>
                         ) : (
                             <div className="flex items-center gap-2">
-                                <h2 className="text-2xl font-black text-slate-900 tracking-tight">{groupName}</h2>
+                                <h2 className="text-2xl font-black text-gray-900 tracking-tight">{groupName}</h2>
                                 <button
                                     onClick={() => setIsEditingName(true)}
-                                    className="p-1 text-slate-300 hover:text-[var(--brand)] transition-colors"
+                                    className="p-1 text-gray-300 hover:text-[var(--brand)] transition-colors"
                                 >
                                     <Edit3 size={14} />
                                 </button>
                             </div>
                         )}
-                        <p className="text-sm font-bold text-slate-400">{students.length} students</p>
+                        <p className="text-sm font-bold text-gray-400">{students.length} students</p>
                     </div>
                 </div>
 
@@ -408,7 +408,7 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
                 <div className="flex items-center justify-between mb-6 gap-3">
                     <div className="relative flex-1">
                         <Search
-                            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300"
+                            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300"
                             size={14}
                             strokeWidth={3}
                         />
@@ -417,7 +417,7 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
                             placeholder="Search students..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/5 transition-all w-full"
+                            className="pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold outline-none focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/5 transition-all w-full"
                         />
                     </div>
                     <button
@@ -447,29 +447,29 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
                 {/* Student list */}
                 <div className="flex-1 overflow-y-auto custom-scrollbar space-y-2">
                     {filteredStudents.length === 0 ? (
-                        <div className="text-center py-12 text-slate-400 font-bold text-sm">
+                        <div className="text-center py-12 text-gray-400 font-bold text-sm">
                             {students.length === 0 ? 'No students in this group yet.' : 'No matching students.'}
                         </div>
                     ) : (
                         filteredStudents.map((st) => (
                             <div
                                 key={st.id}
-                                className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-colors group/student"
+                                className="flex items-center justify-between p-4 rounded-2xl hover:bg-gray-50 transition-colors group/student"
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center font-black text-slate-500 text-sm shadow-inner border border-white">
+                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center font-black text-gray-500 text-sm shadow-inner border border-white">
                                         {st.name?.[0] || '?'}
                                     </div>
                                     <div>
-                                        <p className="text-sm font-black text-slate-800">{st.name}</p>
-                                        <p className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
+                                        <p className="text-sm font-black text-gray-800">{st.name}</p>
+                                        <p className="text-[10px] font-bold text-gray-400 flex items-center gap-1">
                                             <Mail size={8} /> {st.email}
                                         </p>
                                     </div>
                                 </div>
                                 <button
                                     onClick={() => handleRemoveStudent(st.id)}
-                                    className="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all sm:opacity-0 sm:group-hover/student:opacity-100 opacity-100"
+                                    className="p-2 text-gray-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all sm:opacity-0 sm:group-hover/student:opacity-100 opacity-100"
                                     title="Remove from group"
                                 >
                                     <X size={16} strokeWidth={3} />
@@ -609,7 +609,7 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
     };
 
     return (
-        <div className={compact ? 'p-6 bg-slate-50 rounded-2xl border border-slate-100' : ''}>
+        <div className={compact ? 'p-6 bg-gray-50 rounded-2xl border border-gray-100' : ''}>
             {!compact && (
                 <div className="mb-6">
                     <div className="flex items-center gap-3 mb-1">
@@ -617,8 +617,8 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
                             <UserPlus size={20} />
                         </div>
                         <div>
-                            <h3 className="text-xl font-black text-slate-800 tracking-tight">Add Students</h3>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            <h3 className="text-xl font-black text-gray-800 tracking-tight">Add Students</h3>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                                 {groupName}
                             </p>
                         </div>
@@ -627,13 +627,13 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
             )}
 
             {/* Tabs */}
-            <div className="flex gap-2 p-1 bg-slate-50 rounded-2xl mb-6">
+            <div className="flex gap-2 p-1 bg-gray-50 rounded-2xl mb-6">
                 <button
                     onClick={() => {
                         setActiveTab('single');
                         setError(null);
                     }}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'single' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'single' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     <FileText size={12} /> Custom Add
                 </button>
@@ -642,7 +642,7 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
                         setActiveTab('bulk');
                         setError(null);
                     }}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'bulk' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'bulk' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     <Upload size={12} /> Bulk CSV
                 </button>
@@ -651,7 +651,7 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
             {activeTab === 'single' ? (
                 <form onSubmit={handleSingleAdd} className="space-y-4">
                     <div>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-1.5 block">
                             Student Email Address
                         </label>
                         <input
@@ -659,7 +659,7 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="e.g., student@university.edu"
-                            className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/5 transition-all placeholder:text-slate-300"
+                            className="w-full px-5 py-3.5 bg-white border border-gray-200 rounded-2xl text-sm font-bold outline-none focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/5 transition-all placeholder:text-gray-300"
                             required
                             autoFocus
                         />
@@ -687,13 +687,13 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
                 <div className="space-y-4">
                     <div
                         onClick={() => fileInputRef.current?.click()}
-                        className="border-2 border-dashed border-slate-200 rounded-[20px] bg-white p-8 flex flex-col items-center text-center cursor-pointer hover:border-[var(--brand-light)] hover:bg-slate-50 transition-all group"
+                        className="border-2 border-dashed border-gray-200 rounded-[20px] bg-white p-8 flex flex-col items-center text-center cursor-pointer hover:border-[var(--brand-light)] hover:bg-gray-50 transition-all group"
                     >
-                        <div className="w-10 h-10 rounded-2xl bg-slate-50 shadow-sm flex items-center justify-center text-slate-400 group-hover:text-[var(--brand)] transition-colors mb-3">
+                        <div className="w-10 h-10 rounded-2xl bg-gray-50 shadow-sm flex items-center justify-center text-gray-400 group-hover:text-[var(--brand)] transition-colors mb-3">
                             <Upload size={20} />
                         </div>
-                        <p className="text-sm font-black text-slate-700 mb-1">Upload CSV File</p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        <p className="text-sm font-black text-gray-700 mb-1">Upload CSV File</p>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                             Click to select file
                         </p>
                         <input
@@ -725,7 +725,7 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
                     )}
 
                     {isProcessing && (
-                        <div className="flex items-center justify-center gap-2 py-4 text-sm font-bold text-slate-400">
+                        <div className="flex items-center justify-center gap-2 py-4 text-sm font-bold text-gray-400">
                             <Loader2 size={16} className="animate-spin" /> Processing CSV...
                         </div>
                     )}
@@ -735,7 +735,7 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
             {compact && (
                 <button
                     onClick={onDone}
-                    className="w-full mt-4 py-2 text-slate-400 font-black text-[10px] uppercase tracking-widest hover:text-slate-600 transition-colors"
+                    className="w-full mt-4 py-2 text-gray-400 font-black text-[10px] uppercase tracking-widest hover:text-gray-600 transition-colors"
                 >
                     Done
                 </button>

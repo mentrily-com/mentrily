@@ -98,22 +98,22 @@ export default function AttemptsView({
         <div className="flex flex-col h-full bg-white overflow-hidden">
             {/* Dropdown Filter Header */}
             {!hideFilter && (
-                <div className="px-4 py-4 sm:px-8 sm:py-5 border-b border-slate-50 bg-slate-50/20 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
+                <div className="px-4 py-4 sm:px-8 sm:py-5 border-b border-gray-50 bg-gray-50/20 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-400">
                         Filter Attempts
                     </span>
                     <div className="relative inline-block w-full group sm:w-56">
                         <select
                             value={filter}
                             onChange={(e) => setFilter(e.target.value as any)}
-                            className="w-full appearance-none bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-[12px] font-bold text-slate-700 cursor-pointer outline-none hover:border-[var(--brand)] hover:shadow-sm transition-all focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand-lighter)]"
+                            className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-[12px] font-bold text-gray-700 cursor-pointer outline-none hover:border-[var(--brand)] hover:shadow-sm transition-all focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand-lighter)]"
                         >
                             <option value="all">ALL ({counts.all})</option>
                             <option value="failed">Failed ({counts.failed})</option>
                             <option value="success">Successful ({counts.success})</option>
                             <option value="error">Error ({counts.error})</option>
                         </select>
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 transition-transform group-hover:text-[var(--brand)]">
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 transition-transform group-hover:text-[var(--brand)]">
                             <svg
                                 width="12"
                                 height="12"
@@ -132,7 +132,7 @@ export default function AttemptsView({
             )}
 
             {/* Table Header */}
-            <div className="hidden px-8 py-4 border-b border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-400 sm:flex">
+            <div className="hidden px-8 py-4 border-b border-gray-100 text-[11px] font-black uppercase tracking-widest text-gray-400 sm:flex">
                 <div className="flex-[2]">Attempts</div>
                 <div className="flex-1 text-center">Test cases</div>
                 <div className="flex-1 text-right">Status</div>
@@ -150,16 +150,16 @@ export default function AttemptsView({
                             key={attempt.id}
                             onClick={() => onSelect?.(attempt)}
                             className={`
-                                flex flex-col gap-3 px-4 py-4 border-b border-slate-50 transition-all group cursor-pointer sm:flex-row sm:px-8
-                                ${selectedAttemptId === attempt.id ? 'bg-indigo-50/50 border-indigo-100' : 'hover:bg-slate-50'}
+                                flex flex-col gap-3 px-4 py-4 border-b border-gray-50 transition-all group cursor-pointer sm:flex-row sm:px-8
+                                ${selectedAttemptId === attempt.id ? 'bg-indigo-50/50 border-indigo-100' : 'hover:bg-gray-50'}
                             `}
                         >
                             <div className="flex-[2] flex flex-col gap-1">
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <span className="text-[11px] font-black text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded min-w-[30px] text-center">
+                                    <span className="text-[11px] font-black text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded min-w-[30px] text-center">
                                         #{attemptNumber}
                                     </span>
-                                    <span className="min-w-0 break-words text-[13px] font-medium text-slate-600">
+                                    <span className="min-w-0 break-words text-[13px] font-medium text-gray-600">
                                         {formatTimestamp(attempt)}
                                     </span>
                                 </div>
@@ -172,7 +172,7 @@ export default function AttemptsView({
                             <div
                                 className={`flex-1 text-left text-[13px] font-bold sm:text-center ${displayStatus === 'success' ? 'text-emerald-500' : 'text-rose-400'}`}
                             >
-                                <span className="mr-2 text-[10px] font-black uppercase tracking-widest text-slate-300 sm:hidden">
+                                <span className="mr-2 text-[10px] font-black uppercase tracking-widest text-gray-300 sm:hidden">
                                     Test cases
                                 </span>
                                 {attempt.testCases ||
@@ -189,7 +189,7 @@ export default function AttemptsView({
                                           : 'text-orange-500'
                                 }`}
                             >
-                                <span className="mr-2 text-[10px] font-black uppercase tracking-widest text-slate-300 sm:hidden">
+                                <span className="mr-2 text-[10px] font-black uppercase tracking-widest text-gray-300 sm:hidden">
                                     Status
                                 </span>
                                 {statusText}
@@ -198,7 +198,7 @@ export default function AttemptsView({
                     );
                 })}
                 {filteredAttempts.length === 0 && (
-                    <div className="p-12 text-center text-slate-400 text-sm font-medium">0 attempts found</div>
+                    <div className="p-12 text-center text-gray-400 text-sm font-medium">0 attempts found</div>
                 )}
             </div>
         </div>

@@ -90,14 +90,14 @@
     --side-panel-width: 340px;
 
     /* AUXILIARY COLORS (keep for backward compat) */
-    --slate-50: #f9fafc;
-    --slate-100: #f4f6f9;
-    --slate-200: #dce0e6;
-    --slate-400: #9fa5b0;
-    --slate-500: #686f7b;
-    --slate-600: #555d69;
-    --slate-700: #464d5b;
-    --slate-900: #181e29;
+    --gray-50: #f9fafc;
+    --gray-100: #f4f6f9;
+    --gray-200: #dce0e6;
+    --gray-400: #9fa5b0;
+    --gray-500: #686f7b;
+    --gray-600: #555d69;
+    --gray-700: #464d5b;
+    --gray-900: #181e29;
 
     /* Marketing tokens alias */
     --sc-bg-base: #ffffff;
@@ -141,7 +141,29 @@ html.dark {
     --font-mono: var(--font-geist-mono), ui-monospace, monospace;
     --font-display: var(--font-fraunces), Georgia, serif;
 
-    /* Tailwind color tokens */
+    /* Gray palette (replaces Tailwind slate) */
+    --color-gray-50: #f9fafc;
+    --color-gray-100: #f4f6f9;
+    --color-gray-200: #ebeef3;
+    --color-gray-300: #dce0e6;
+    --color-gray-400: #9fa5b0;
+    --color-gray-500: #686f7b;
+    --color-gray-600: #555d69;
+    --color-gray-700: #464d5b;
+    --color-gray-800: #2e3643;
+    --color-gray-900: #181e29;
+    --color-gray-950: #0d1219;
+
+    /* Brand palette */
+    --color-teal-50: #eefbfc;
+    --color-teal-100: #d8f5f7;
+    --color-teal-200: #a3e9ef;
+    --color-teal-400: #28b9c4;
+    --color-teal-600: #007c85;
+    --color-teal-700: #006a72;
+    --color-teal-800: #005359;
+
+    /* Semantic shortcuts */
     --color-sc-brand: #007c85;
     --color-sc-brand-dark: #006a72;
     --color-sc-brand-light: #eefbfc;
@@ -179,29 +201,29 @@ html.dark .bg-\[\#f9fafc\] {
     background-color: #0d1219 !important;
 }
 
-html.dark .bg-slate-50,
-html.dark .bg-slate-100,
-html.dark .bg-slate-200,
+html.dark .bg-gray-50,
+html.dark .bg-gray-100,
+html.dark .bg-gray-200,
 html.dark [class*='bg-white'] {
     background-color: #181e29 !important;
 }
 
-html.dark .border-slate-50,
-html.dark .border-slate-100,
-html.dark .border-slate-200,
+html.dark .border-gray-50,
+html.dark .border-gray-100,
+html.dark .border-gray-200,
 html.dark [class*='border-white'] {
     border-color: #464d5b !important;
 }
 
-html.dark .text-slate-900,
-html.dark .text-slate-800,
-html.dark .text-slate-700,
-html.dark .text-slate-600 {
+html.dark .text-gray-900,
+html.dark .text-gray-800,
+html.dark .text-gray-700,
+html.dark .text-gray-600 {
     color: #dce0e6 !important;
 }
 
-html.dark .text-slate-500,
-html.dark .text-slate-400 {
+html.dark .text-gray-500,
+html.dark .text-gray-400 {
     color: #9fa5b0 !important;
 }
 

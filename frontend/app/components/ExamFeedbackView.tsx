@@ -31,9 +31,9 @@ export default function ExamFeedbackView({ onSubmitFeedback, verdict }: ExamFeed
     };
 
     return (
-        <div className="w-full h-full bg-slate-50 flex flex-col font-sans overflow-hidden relative animate-in fade-in duration-500">
+        <div className="w-full h-full bg-gray-50 flex flex-col font-sans overflow-hidden relative animate-in fade-in duration-500">
             {/* Background Decoration */}
-            <div className="absolute top-0 left-0 w-full h-64 bg-slate-100/50 -z-10 skew-y-2 origin-top-left transform" />
+            <div className="absolute top-0 left-0 w-full h-64 bg-gray-100/50 -z-10 skew-y-2 origin-top-left transform" />
 
             <div className="flex-1 flex flex-col items-center justify-center p-6 max-w-2xl mx-auto w-full">
                 {/* Logo Area */}
@@ -48,11 +48,11 @@ export default function ExamFeedbackView({ onSubmitFeedback, verdict }: ExamFeed
                     <div className="h-1 w-12 bg-indigo-500 rounded-full" />
                 </div>
 
-                <div className="w-full bg-white rounded-3xl sm:rounded-[2.5rem] p-5 sm:p-10 shadow-2xl shadow-slate-200/60 border border-slate-100 text-center relative overflow-hidden">
+                <div className="w-full bg-white rounded-3xl sm:rounded-[2.5rem] p-5 sm:p-10 shadow-2xl shadow-gray-200/60 border border-gray-100 text-center relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-2 bg-indigo-500" />
 
-                    <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2 tracking-tight">How was your experience?</h1>
-                    <p className="text-slate-500 font-medium mb-8 sm:mb-10 text-base sm:text-lg">
+                    <h1 className="text-2xl sm:text-3xl font-black text-gray-900 mb-2 tracking-tight">How was your experience?</h1>
+                    <p className="text-gray-500 font-medium mb-8 sm:mb-10 text-base sm:text-lg">
                         Your feedback helps us make exams better for everyone.
                     </p>
                     {verdict ? (
@@ -67,7 +67,7 @@ export default function ExamFeedbackView({ onSubmitFeedback, verdict }: ExamFeed
                                 {verdict.passed ? 'Passed' : 'Failed'}
                                 {typeof verdict.score === 'number' ? ` - ${Math.round(verdict.score)}%` : ''}
                             </p>
-                            <p className="mt-1 text-xs font-semibold text-slate-600">
+                            <p className="mt-1 text-xs font-semibold text-gray-600">
                                 Passing threshold: {verdict.passingPercentage ?? 70}%
                             </p>
                         </div>
@@ -87,7 +87,7 @@ export default function ExamFeedbackView({ onSubmitFeedback, verdict }: ExamFeed
                                         ${
                                             (hoveredRating || rating) >= star
                                                 ? 'bg-indigo-600 text-white scale-110 shadow-xl shadow-indigo-200 ring-4 ring-indigo-50'
-                                                : 'bg-slate-50 text-slate-300 hover:bg-slate-100 hover:text-slate-400'
+                                                : 'bg-gray-50 text-gray-300 hover:bg-gray-100 hover:text-gray-400'
                                         }
                                         active:scale-95
                                     `}
@@ -111,7 +111,7 @@ export default function ExamFeedbackView({ onSubmitFeedback, verdict }: ExamFeed
                             placeholder="Add a comment (optional)..."
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
-                            className="w-full h-32 px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none placeholder:text-slate-400"
+                            className="w-full h-32 px-6 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none placeholder:text-gray-400"
                         />
                     </div>
 
@@ -123,14 +123,14 @@ export default function ExamFeedbackView({ onSubmitFeedback, verdict }: ExamFeed
                             ${
                                 rating > 0
                                     ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200 active:scale-95'
-                                    : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                             }
                         `}
                     >
                         Submit Feedback
                     </button>
 
-                    <p className="mt-6 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                    <p className="mt-6 text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
                         Powered by {displayName} &bull; {new Date().getFullYear()}
                     </p>
                 </div>

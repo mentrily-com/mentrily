@@ -37,10 +37,10 @@ export default function StudioRecentActivity({ activities }: StudioRecentActivit
         >
             <div className="flex items-start justify-between gap-3">
                 <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Live activity</p>
-                    <h3 className="mt-1.5 text-lg font-semibold tracking-tight text-slate-950">Learner signals</h3>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-400">Live activity</p>
+                    <h3 className="mt-1.5 text-lg font-semibold tracking-tight text-gray-950">Learner signals</h3>
                 </div>
-                <span className="rounded-full bg-slate-100/80 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                <span className="rounded-full bg-gray-100/80 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">
                     {activities.length} items
                 </span>
             </div>
@@ -63,11 +63,11 @@ export default function StudioRecentActivity({ activities }: StudioRecentActivit
                         );
                     })
                 ) : (
-                    <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-slate-200 bg-slate-50/60 p-6 text-center">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-400">
+                    <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-gray-200 bg-gray-50/60 p-6 text-center">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-gray-400">
                             <BookOpen size={18} />
                         </div>
-                        <p className="text-sm font-medium text-slate-400">No recent activity yet.</p>
+                        <p className="text-sm font-medium text-gray-400">No recent activity yet.</p>
                     </div>
                 )}
             </div>
@@ -98,7 +98,7 @@ function ActivityItem({
             initial="hidden"
             animate="visible"
             custom={index}
-            className="rounded-xl border border-slate-200/60 bg-slate-50/50 p-3 transition-colors duration-200 hover:border-slate-300 hover:bg-white"
+            className="rounded-xl border border-gray-200/60 bg-gray-50/50 p-3 transition-colors duration-200 hover:border-gray-300 hover:bg-white"
         >
             <div className="flex items-start gap-3">
                 <div
@@ -107,9 +107,9 @@ function ActivityItem({
                     {icon}
                 </div>
                 <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-slate-950">{title}</p>
-                    <p className="mt-0.5 text-[13px] leading-5 text-slate-500">{subtitle}</p>
-                    <span className="mt-1 inline-block text-[10px] font-medium uppercase tracking-[0.14em] text-slate-400">
+                    <p className="truncate text-sm font-semibold text-gray-950">{title}</p>
+                    <p className="mt-0.5 text-[13px] leading-5 text-gray-500">{subtitle}</p>
+                    <span className="mt-1 inline-block text-[10px] font-medium uppercase tracking-[0.14em] text-gray-400">
                         {time}
                     </span>
                 </div>

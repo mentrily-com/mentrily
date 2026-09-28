@@ -32,7 +32,7 @@ export default async function VerifyCertificatePage({ params }: { params: Promis
 
     if (!data?.valid) {
         return (
-            <main className="min-h-screen bg-slate-100 flex items-center justify-center px-4">
+            <main className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
                 <section className="w-full max-w-xl rounded-3xl bg-white border border-rose-100 shadow-sm overflow-hidden">
                     <header className="bg-rose-500 text-white px-6 py-10 text-center sm:px-8">
                         <h1 className="text-2xl font-black">Certificate Not Found</h1>
@@ -40,7 +40,7 @@ export default async function VerifyCertificatePage({ params }: { params: Promis
                             The verification code is invalid or expired.
                         </p>
                     </header>
-                    <div className="px-6 py-6 text-center text-slate-500 font-medium break-all sm:px-8">
+                    <div className="px-6 py-6 text-center text-gray-500 font-medium break-all sm:px-8">
                         Code: {code}
                     </div>
                 </section>
@@ -51,8 +51,8 @@ export default async function VerifyCertificatePage({ params }: { params: Promis
     const cert = data.certificate;
 
     return (
-        <main className="min-h-screen bg-slate-100 flex items-center justify-center px-4 py-10">
-            <section className="w-full max-w-xl rounded-3xl bg-white border border-slate-100 shadow-xl overflow-hidden">
+        <main className="min-h-screen bg-gray-100 flex items-center justify-center px-4 py-10">
+            <section className="w-full max-w-xl rounded-3xl bg-white border border-gray-100 shadow-xl overflow-hidden">
                 <header className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white px-6 py-10 text-center sm:px-8">
                     <div className="w-14 h-14 rounded-full bg-white/20 mx-auto mb-3 flex items-center justify-center text-2xl">
                         ✓
@@ -70,7 +70,7 @@ export default async function VerifyCertificatePage({ params }: { params: Promis
                     <Row label="Certificate ID" value={cert.id} mono />
                 </div>
 
-                <footer className="px-6 pb-6 text-center text-[11px] text-slate-400 font-semibold sm:px-8">
+                <footer className="px-6 pb-6 text-center text-[11px] text-gray-400 font-semibold sm:px-8">
                     Powered by Mentrily · Verified in real-time
                 </footer>
             </section>
@@ -80,10 +80,10 @@ export default async function VerifyCertificatePage({ params }: { params: Promis
 
 function Row({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
     return (
-        <div className="flex items-start justify-between py-3 border-b border-slate-100 last:border-none gap-3 sm:gap-6">
-            <span className="shrink-0 text-[11px] font-black uppercase tracking-widest text-slate-400">{label}</span>
+        <div className="flex items-start justify-between py-3 border-b border-gray-100 last:border-none gap-3 sm:gap-6">
+            <span className="shrink-0 text-[11px] font-black uppercase tracking-widest text-gray-400">{label}</span>
             <span
-                className={`min-w-0 flex-1 break-words text-sm font-bold text-slate-800 text-right ${mono ? 'break-all font-mono text-xs' : ''}`}
+                className={`min-w-0 flex-1 break-words text-sm font-bold text-gray-800 text-right ${mono ? 'break-all font-mono text-xs' : ''}`}
             >
                 {value}
             </span>

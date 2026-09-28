@@ -221,18 +221,18 @@ export default function CodeEditor(props: CodeEditorProps) {
     return (
         <div
             ref={containerRef}
-            className={`flex flex-col bg-white border border-slate-200 rounded-lg overflow-hidden relative transition-all duration-300 ${
+            className={`flex flex-col bg-white border border-gray-200 rounded-lg overflow-hidden relative transition-all duration-300 ${
                 isFullScreen ? 'h-screen w-screen z-[9999] rounded-none' : 'h-full ' + (props.className || '')
             }`}
         >
             {/* ... Top Bar & Header ... */}
             {!props.hideTopBar && (
-                <div className="px-4 py-3 bg-white border-b border-slate-100 flex items-center justify-between z-[60]">
+                <div className="px-4 py-3 bg-white border-b border-gray-100 flex items-center justify-between z-[60]">
                     {!props.hideLanguageSelector ? (
                         <select
                             value={currentLang.id}
                             onChange={handleLanguageChange}
-                            className="bg-[#f8f9fa] border border-slate-200 rounded px-3 py-1.5 text-[11px] font-bold text-slate-600 outline-none hover:border-slate-300 transition-colors"
+                            className="bg-[#f8f9fa] border border-gray-200 rounded px-3 py-1.5 text-[11px] font-bold text-gray-600 outline-none hover:border-gray-300 transition-colors"
                         >
                             {SUPPORTED_LANGUAGES.map((lang) => (
                                 <option key={lang.id} value={lang.id}>
@@ -244,7 +244,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                         <div>{props.customToolbarContent}</div>
                     )}
 
-                    <div className="flex items-center gap-5 text-slate-400">
+                    <div className="flex items-center gap-5 text-gray-400">
                         {props.options?.readOnly && (
                             <div className="flex items-center gap-1.5 px-2 py-1 bg-amber-50 border border-amber-100 rounded text-[9px] font-black text-amber-600 uppercase tracking-widest">
                                 <svg
@@ -315,22 +315,22 @@ export default function CodeEditor(props: CodeEditorProps) {
 
             {currentLang.header?.trim() && (
                 <div
-                    className="bg-[#f8f9fa] border-b border-slate-100 px-4 py-2 cursor-pointer hover:bg-slate-100 transition-colors group select-none relative z-50"
+                    className="bg-[#f8f9fa] border-b border-gray-100 px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors group select-none relative z-50"
                     onClick={() => setIsHeaderExpanded(!isHeaderExpanded)}
                 >
                     {!isHeaderExpanded ? (
                         <div className="flex items-center gap-2">
-                            <span className="text-[8px] text-slate-400 rotate-0">▼</span>
-                            <span className="text-[13px] font-mono text-slate-700 font-medium shrink-0 truncate max-w-[90%]">
+                            <span className="text-[8px] text-gray-400 rotate-0">▼</span>
+                            <span className="text-[13px] font-mono text-gray-700 font-medium shrink-0 truncate max-w-[90%]">
                                 {getFirstLine(currentLang.header)} <span className="text-[var(--brand)] ml-1">↔</span>
                             </span>
                         </div>
                     ) : (
                         <div className="flex flex-col">
                             <div className="flex items-center gap-2 mb-2">
-                                <span className="text-[8px] text-slate-400">▼</span>
+                                <span className="text-[8px] text-gray-400">▼</span>
                             </div>
-                            <pre className="text-[13px] font-mono text-slate-500 leading-relaxed whitespace-pre-wrap">
+                            <pre className="text-[13px] font-mono text-gray-500 leading-relaxed whitespace-pre-wrap">
                                 {currentLang.header}
                             </pre>
                         </div>
@@ -343,7 +343,7 @@ export default function CodeEditor(props: CodeEditorProps) {
             {/* TERMINAL DRAWER */}
             <div
                 ref={terminalDrawerRef}
-                className={`absolute bottom-[60px] left-0 right-0 flex flex-col bg-white border-t border-slate-200 ease-in-out z-[100] ${isResizingTerminal ? '' : 'transition-all duration-300'} ${
+                className={`absolute bottom-[60px] left-0 right-0 flex flex-col bg-white border-t border-gray-200 ease-in-out z-[100] ${isResizingTerminal ? '' : 'transition-all duration-300'} ${
                     isTerminalOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
                 } ${isResizingTerminal ? 'select-none' : ''}`}
                 style={{ height: isTerminalOpen ? `${terminalHeight}px` : '0px' }}
@@ -358,7 +358,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                 className={`text-[12px] font-bold h-full border-b-2 transition-all px-2 flex items-center capitalize ${
                                     activeTab === t
                                         ? 'border-[#e67e22] text-[#e67e22]'
-                                        : 'border-transparent text-slate-400 hover:text-slate-600'
+                                        : 'border-transparent text-gray-400 hover:text-gray-600'
                                 }`}
                             >
                                 {t === 'testcases' ? 'Test Cases' : t}
@@ -367,7 +367,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                     </div>
                     <button
                         onClick={() => setIsTerminalOpen(false)}
-                        className="p-1 px-3 text-slate-400 hover:text-slate-600 transition-transform active:scale-90"
+                        className="p-1 px-3 text-gray-400 hover:text-gray-600 transition-transform active:scale-90"
                     >
                         <svg
                             width="12"
@@ -398,14 +398,14 @@ export default function CodeEditor(props: CodeEditorProps) {
                                                       ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
                                                       : tc.passed === false
                                                         ? 'bg-red-50 text-red-600 border-red-200'
-                                                        : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
+                                                        : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
                                             }`}
                                         >
                                             <span>Case {idx + 1}</span>
                                         </button>
                                     ))}
                                     {(!props.testCases || props.testCases.length === 0) && (
-                                        <div className="text-slate-400 text-xs italic p-2">
+                                        <div className="text-gray-400 text-xs italic p-2">
                                             No test cases available.
                                         </div>
                                     )}
@@ -427,8 +427,8 @@ export default function CodeEditor(props: CodeEditorProps) {
                                 {props.testCases && props.testCases[selectedTestCase] ? (
                                     <>
                                         {props.testCases[selectedTestCase].isPublic === false ? (
-                                            <div className="flex flex-col items-center justify-center h-full gap-4 opacity-50 p-8 border-2 border-dashed border-slate-200 rounded-xl">
-                                                <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-400">
+                                            <div className="flex flex-col items-center justify-center h-full gap-4 opacity-50 p-8 border-2 border-dashed border-gray-200 rounded-xl">
+                                                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-400">
                                                     <svg
                                                         width="24"
                                                         height="24"
@@ -444,10 +444,10 @@ export default function CodeEditor(props: CodeEditorProps) {
                                                     </svg>
                                                 </div>
                                                 <div className="text-center">
-                                                    <h3 className="text-sm font-black text-slate-700 uppercase tracking-wider">
+                                                    <h3 className="text-sm font-black text-gray-700 uppercase tracking-wider">
                                                         Hidden Test Case
                                                     </h3>
-                                                    <p className="text-xs text-slate-500 mt-1">
+                                                    <p className="text-xs text-gray-500 mt-1">
                                                         Input and output are hidden for this case.
                                                     </p>
                                                 </div>
@@ -463,30 +463,30 @@ export default function CodeEditor(props: CodeEditorProps) {
                                             <>
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                     <div className="flex flex-col gap-2">
-                                                        <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider">
+                                                        <span className="text-[10px] uppercase font-black text-gray-400 tracking-wider">
                                                             Input
                                                         </span>
-                                                        <div className="bg-slate-50 p-4 rounded-xl text-[13px] font-mono border border-slate-100/50 whitespace-pre-wrap text-slate-700">
+                                                        <div className="bg-gray-50 p-4 rounded-xl text-[13px] font-mono border border-gray-100/50 whitespace-pre-wrap text-gray-700">
                                                             {props.testCases[selectedTestCase].input}
                                                         </div>
                                                     </div>
                                                     <div className="flex flex-col gap-2">
-                                                        <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider">
+                                                        <span className="text-[10px] uppercase font-black text-gray-400 tracking-wider">
                                                             Expected
                                                         </span>
-                                                        <div className="bg-slate-50 p-4 rounded-xl text-[13px] font-mono border border-slate-100/50 text-[#e67e22] whitespace-pre-wrap">
+                                                        <div className="bg-gray-50 p-4 rounded-xl text-[13px] font-mono border border-gray-100/50 text-[#e67e22] whitespace-pre-wrap">
                                                             {props.testCases[selectedTestCase].expected ??
                                                                 props.testCases[selectedTestCase].expectedOutput}
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div className="flex flex-col gap-2">
-                                                    <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider">
+                                                    <span className="text-[10px] uppercase font-black text-gray-400 tracking-wider">
                                                         Actual Output
                                                     </span>
                                                     {props.testCases[selectedTestCase].actualOutput !== undefined ? (
                                                         <div
-                                                            className={`bg-white border-2 ${props.testCases[selectedTestCase].passed ? 'border-emerald-100 bg-emerald-50/20' : 'border-red-100 bg-red-50/20'} p-4 rounded-xl text-[13px] font-mono whitespace-pre-wrap text-slate-700`}
+                                                            className={`bg-white border-2 ${props.testCases[selectedTestCase].passed ? 'border-emerald-100 bg-emerald-50/20' : 'border-red-100 bg-red-50/20'} p-4 rounded-xl text-[13px] font-mono whitespace-pre-wrap text-gray-700`}
                                                         >
                                                             {props.testCases[selectedTestCase].actualOutput}
                                                             {props.testCases[selectedTestCase].error && (
@@ -496,7 +496,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                                             )}
                                                         </div>
                                                     ) : (
-                                                        <div className="bg-white border-2 border-dashed border-slate-100 h-20 rounded-xl flex items-center justify-center text-slate-300 italic text-xs">
+                                                        <div className="bg-white border-2 border-dashed border-gray-100 h-20 rounded-xl flex items-center justify-center text-gray-300 italic text-xs">
                                                             Waiting for execution...
                                                         </div>
                                                     )}
@@ -505,7 +505,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                         )}
                                     </>
                                 ) : (
-                                    <div className="flex items-center justify-center h-full text-slate-400 text-sm">
+                                    <div className="flex items-center justify-center h-full text-gray-400 text-sm">
                                         Select a test case to view details
                                     </div>
                                 )}
@@ -514,7 +514,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                     )}
 
                     {activeTab === 'terminal' && (
-                        <div className="h-full rounded-xl bg-slate-900 p-6 font-mono text-[13px] text-emerald-400 shadow-inner overflow-y-auto whitespace-pre-wrap">
+                        <div className="h-full rounded-xl bg-gray-900 p-6 font-mono text-[13px] text-emerald-400 shadow-inner overflow-y-auto whitespace-pre-wrap">
                             <div className="flex items-center gap-2 mb-2 opacity-50">
                                 <span className="w-2 h-2 rounded-full bg-red-400"></span>
                                 <span className="w-2 h-2 rounded-full bg-yellow-400"></span>
@@ -525,15 +525,15 @@ export default function CodeEditor(props: CodeEditorProps) {
                     )}
 
                     {activeTab === 'input' && (
-                        <div className="flex h-full flex-col overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm">
-                            <div className="bg-slate-50 px-4 py-2 border-b border-slate-100 flex justify-between items-center">
-                                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                        <div className="flex h-full flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+                            <div className="bg-gray-50 px-4 py-2 border-b border-gray-100 flex justify-between items-center">
+                                <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
                                     Standard Input (stdin)
                                 </span>
-                                <span className="text-[10px] text-slate-400 font-mono">custom mode</span>
+                                <span className="text-[10px] text-gray-400 font-mono">custom mode</span>
                             </div>
                             <textarea
-                                className="flex-1 w-full bg-white p-4 text-[13px] font-mono outline-none focus:ring-1 focus:ring-orange-100 transition-all resize-none text-slate-700"
+                                className="flex-1 w-full bg-white p-4 text-[13px] font-mono outline-none focus:ring-1 focus:ring-orange-100 transition-all resize-none text-gray-700"
                                 placeholder="Type your custom input here..."
                                 value={customInput}
                                 onChange={(e) => setCustomInput(e.target.value)}
@@ -544,16 +544,16 @@ export default function CodeEditor(props: CodeEditorProps) {
             </div>
 
             {!props.hideRunBar && (
-                <div className="flex flex-col bg-white border-t border-slate-200 relative">
+                <div className="flex flex-col bg-white border-t border-gray-200 relative">
                     {currentLang.footer?.trim() && (
                         <div
-                            className="bg-[#f8f9fa] px-4 py-2 cursor-pointer hover:bg-slate-100 transition-colors select-none border-b border-slate-100 relative z-20"
+                            className="bg-[#f8f9fa] px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors select-none border-b border-gray-100 relative z-20"
                             onClick={() => setIsFooterExpanded(!isFooterExpanded)}
                         >
                             {!isFooterExpanded ? (
                                 <div className="flex items-center gap-2">
-                                    <span className="text-[8px] text-slate-400 -rotate-90">▼</span>
-                                    <span className="text-[13px] font-mono text-slate-700 font-medium shrink-0 truncate max-w-[90%]">
+                                    <span className="text-[8px] text-gray-400 -rotate-90">▼</span>
+                                    <span className="text-[13px] font-mono text-gray-700 font-medium shrink-0 truncate max-w-[90%]">
                                         {getFirstLine(currentLang.footer)}{' '}
                                         <span className="text-[var(--brand)] ml-1">↔</span>
                                     </span>
@@ -561,9 +561,9 @@ export default function CodeEditor(props: CodeEditorProps) {
                             ) : (
                                 <div className="flex flex-col">
                                     <div className="flex items-center gap-2 mb-2">
-                                        <span className="text-[8px] text-slate-400">▼</span>
+                                        <span className="text-[8px] text-gray-400">▼</span>
                                     </div>
-                                    <pre className="text-[13px] font-mono text-slate-500 leading-relaxed whitespace-pre-wrap">
+                                    <pre className="text-[13px] font-mono text-gray-500 leading-relaxed whitespace-pre-wrap">
                                         {currentLang.footer}
                                     </pre>
                                 </div>
@@ -582,7 +582,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                 className={`group flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 border rounded-lg text-[11px] sm:text-[12px] font-bold transition-all shadow-sm active:scale-95 cursor-pointer relative ${
                                     isTerminalOpen
                                         ? 'bg-[var(--brand-light)] border-[var(--brand-light)] text-[var(--brand)]'
-                                        : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
+                                        : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'
                                 }`}
                             >
                                 <svg
@@ -623,7 +623,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                             }
                                         }}
                                         title="Reset Code"
-                                        className="text-slate-400 hover:text-slate-600 transition-all p-1.5 sm:p-2 active:rotate-180 duration-500"
+                                        className="text-gray-400 hover:text-gray-600 transition-all p-1.5 sm:p-2 active:rotate-180 duration-500"
                                     >
                                         <svg
                                             width="20"
@@ -642,11 +642,11 @@ export default function CodeEditor(props: CodeEditorProps) {
                                     <button
                                         onClick={handleRun}
                                         disabled={props.isExecuting}
-                                        className={`px-3.5 sm:px-6 py-2 sm:py-3 bg-slate-100 text-slate-700 font-bold rounded-xl text-[11px] sm:text-[12px] uppercase tracking-wider sm:tracking-widest hover:bg-slate-200 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait flex items-center gap-1.5 sm:gap-2`}
+                                        className={`px-3.5 sm:px-6 py-2 sm:py-3 bg-gray-100 text-gray-700 font-bold rounded-xl text-[11px] sm:text-[12px] uppercase tracking-wider sm:tracking-widest hover:bg-gray-200 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait flex items-center gap-1.5 sm:gap-2`}
                                     >
                                         {props.isExecuting ? (
                                             <>
-                                                <div className="w-3 h-3 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin"></div>
+                                                <div className="w-3 h-3 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
                                                 Running...
                                             </>
                                         ) : (

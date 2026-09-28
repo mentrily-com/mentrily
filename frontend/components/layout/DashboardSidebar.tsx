@@ -584,7 +584,7 @@ export default function DashboardSidebar({
             {mobileOpen && (
                 <div
                     aria-hidden="true"
-                    className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[998] lg:hidden animate-in fade-in"
+                    className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-[998] lg:hidden animate-in fade-in"
                     onClick={onMobileClose}
                 />
             )}
@@ -634,7 +634,7 @@ export default function DashboardSidebar({
                         <button
                             type="button"
                             onClick={onMobileClose}
-                            className="p-1.5 -mr-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg lg:hidden transition-colors cursor-pointer"
+                            className="p-1.5 -mr-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg lg:hidden transition-colors cursor-pointer"
                             aria-label="Close navigation"
                         >
                             <X size={18} />

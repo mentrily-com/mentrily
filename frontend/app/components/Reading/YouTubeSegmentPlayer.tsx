@@ -60,7 +60,7 @@ export default function YouTubeSegmentPlayer({
                 />
             </div>
             {hasSegment && (
-                <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-gray-400">
                     Lesson segment · {formatTimestamp(start)}
                     {end > start ? ` – ${formatTimestamp(end)}` : ''}
                 </p>

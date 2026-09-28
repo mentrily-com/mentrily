@@ -382,7 +382,7 @@ export default function LoginPage() {
     if (isSignedIn || isRedirectingAuthenticatedUser) {
         if (redirectingRoleHint === 'teacher' || redirectingRoleHint === 'admin') {
             return (
-                <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
+                <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
                     <div className="max-w-[1440px] mx-auto">
                         <CreatorDashboardSkeleton />
                     </div>
@@ -391,7 +391,7 @@ export default function LoginPage() {
         }
         if (redirectingRoleHint === 'super-admin') {
             return (
-                <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
+                <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
                     <div className="max-w-[1440px] mx-auto">
                         <SuperAdminDashboardSkeleton />
                     </div>
@@ -500,7 +500,7 @@ export default function LoginPage() {
                         />
                     </div>
 
-                    <div className="w-full rounded-3xl border border-white/70 bg-white/90 p-6 shadow-2xl shadow-slate-200/80 backdrop-blur sm:p-8">
+                    <div className="w-full rounded-3xl border border-white/70 bg-white/90 p-6 shadow-2xl shadow-gray-200/80 backdrop-blur sm:p-8">
                         {/* Heading */}
                         <div className="mb-8">
                             <h1 className="text-2xl font-bold tracking-tight mb-1.5" style={{ color: '#0F172A' }}>
@@ -536,7 +536,7 @@ export default function LoginPage() {
                             }}
                         >
                             {isGoogleLoading ? (
-                                <Loader2 size={18} className="animate-spin text-slate-400" />
+                                <Loader2 size={18} className="animate-spin text-gray-400" />
                             ) : (
                                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                                     <path
@@ -702,14 +702,14 @@ export default function LoginPage() {
                             </form>
                         ) : (
                             <form onSubmit={handleSecondFactorSubmit} className="space-y-5">
-                                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
                                     <div className="flex items-start gap-3">
                                         <div className="w-10 h-10 rounded-xl bg-[var(--brand-light)]/40 text-[var(--brand)] flex items-center justify-center shrink-0">
                                             <KeyRound size={18} />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-slate-900">Verify your sign-in</p>
-                                            <p className="text-xs text-slate-500 mt-1">
+                                            <p className="text-sm font-bold text-gray-900">Verify your sign-in</p>
+                                            <p className="text-xs text-gray-500 mt-1">
                                                 Enter the verification code sent to {secondFactorTarget || email}.
                                             </p>
                                         </div>
@@ -788,7 +788,7 @@ export default function LoginPage() {
                                         setSecondFactorTarget('');
                                         setError('');
                                     }}
-                                    className="w-full py-3 text-sm font-semibold rounded-xl transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 border border-slate-200 text-slate-600 bg-white disabled:opacity-60 disabled:cursor-not-allowed"
+                                    className="w-full py-3 text-sm font-semibold rounded-xl transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 border border-gray-200 text-gray-600 bg-white disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
                                     <ArrowLeft size={16} />
                                     Back to password

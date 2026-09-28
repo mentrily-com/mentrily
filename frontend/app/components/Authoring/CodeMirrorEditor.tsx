@@ -125,7 +125,7 @@ export default function CodeMirrorEditor({
     return (
         <div
             ref={editorRef}
-            className={`rounded-xl overflow-hidden border ${className} ${effectiveTheme === 'dark' ? 'border-slate-700' : 'border-slate-200'}`}
+            className={`rounded-xl overflow-hidden border ${className} ${effectiveTheme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}
         />
     );
 }

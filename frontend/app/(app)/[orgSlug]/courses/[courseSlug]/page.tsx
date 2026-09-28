@@ -84,10 +84,10 @@ export default async function PublicCoursePage({
 
     if (!payload) {
         return (
-            <div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center p-6">
-                <div className="max-w-xl w-full bg-white border border-slate-200 rounded-2xl p-8 text-center">
-                    <h1 className="text-2xl font-black text-slate-900">Course not found</h1>
-                    <p className="mt-2 text-sm font-semibold text-slate-500">This course is not publicly available.</p>
+            <div className="min-h-screen bg-gray-50 text-gray-900 flex items-center justify-center p-6">
+                <div className="max-w-xl w-full bg-white border border-gray-200 rounded-2xl p-8 text-center">
+                    <h1 className="text-2xl font-black text-gray-900">Course not found</h1>
+                    <p className="mt-2 text-sm font-semibold text-gray-500">This course is not publicly available.</p>
                 </div>
             </div>
         );
@@ -97,9 +97,9 @@ export default async function PublicCoursePage({
     const showPoweredBy = org.plan === 'FREE';
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900">
+        <div className="min-h-screen bg-gray-50 text-gray-900">
             <main className="max-w-4xl mx-auto px-6 py-10">
-                <section className="bg-white border border-slate-100 rounded-[28px] shadow-sm overflow-hidden">
+                <section className="bg-white border border-gray-100 rounded-[28px] shadow-sm overflow-hidden">
                     {course.thumbnail && (
                         <div className="relative h-56 w-full">
                             {/* Without `sizes`, `fill` defaults to 100vw and a
@@ -125,23 +125,23 @@ export default async function PublicCoursePage({
                                     {org.name.slice(0, 1).toUpperCase()}
                                 </div>
                             )}
-                            <p className="text-xs font-black uppercase tracking-widest text-slate-500">{org.name}</p>
+                            <p className="text-xs font-black uppercase tracking-widest text-gray-500">{org.name}</p>
                         </div>
 
-                        <h1 className="text-3xl font-black tracking-tight text-slate-900">{course.title}</h1>
-                        <p className="mt-3 text-sm font-semibold text-slate-600">
+                        <h1 className="text-3xl font-black tracking-tight text-gray-900">{course.title}</h1>
+                        <p className="mt-3 text-sm font-semibold text-gray-600">
                             {course.shortDescription || course.longDescription || 'No description provided.'}
                         </p>
 
                         <div className="mt-8">
-                            <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-3">
+                            <h2 className="text-sm font-black uppercase tracking-widest text-gray-500 mb-3">
                                 Modules
                             </h2>
                             <ul className="space-y-2">
                                 {course.modules.map((module, index) => (
                                     <li
                                         key={module.id}
-                                        className="rounded-xl border border-slate-200 bg-slate-50/50 p-3 text-sm font-bold text-slate-700"
+                                        className="rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-sm font-bold text-gray-700"
                                     >
                                         {index + 1}. {module.title}
                                     </li>
@@ -159,7 +159,7 @@ export default async function PublicCoursePage({
                 </section>
 
                 {showPoweredBy && (
-                    <footer className="mt-6 text-center text-xs font-bold text-slate-400">Powered by Mentrily</footer>
+                    <footer className="mt-6 text-center text-xs font-bold text-gray-400">Powered by Mentrily</footer>
                 )}
             </main>
         </div>

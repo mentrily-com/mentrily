@@ -183,29 +183,29 @@ export default function EnrollmentModal({ isOpen, onClose, courseTitle, courseId
             panelClassName="max-w-xl"
             bodyClassName="space-y-5"
             footer={
-                <p className="text-center text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
+                <p className="text-center text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
                     Secure Student Data Management • {siteConfig.name} Authoring
                 </p>
             }
         >
-            <div className="grid grid-cols-1 gap-2 p-1 bg-slate-100 rounded-2xl sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-2 p-1 bg-gray-100 rounded-2xl sm:grid-cols-3">
                 <button
                     onClick={() => setActiveTab('single')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'single' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'single' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     <FileText size={14} />
                     Custom Add
                 </button>
                 <button
                     onClick={() => setActiveTab('bulk')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'bulk' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'bulk' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     <Upload size={14} />
                     Bulk Enroll
                 </button>
                 <button
                     onClick={() => setActiveTab('group')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'group' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'group' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     <Users size={14} />
                     By Group
@@ -217,15 +217,15 @@ export default function EnrollmentModal({ isOpen, onClose, courseTitle, courseId
                     <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500 mb-4">
                         <CheckCircle2 size={32} />
                     </div>
-                    <h3 className="text-lg font-black text-slate-800 mb-2">Enrollment Successful!</h3>
-                    <p className="text-sm text-slate-500 font-medium">Students have been enrolled in {courseTitle}.</p>
+                    <h3 className="text-lg font-black text-gray-800 mb-2">Enrollment Successful!</h3>
+                    <p className="text-sm text-gray-500 font-medium">Students have been enrolled in {courseTitle}.</p>
                 </div>
             ) : (
                 <div className="min-h-[220px]">
                     {activeTab === 'single' && (
                         <form onSubmit={handleSingleEnroll} className="space-y-6">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
                                     Student Email Address
                                 </label>
                                 <input
@@ -233,7 +233,7 @@ export default function EnrollmentModal({ isOpen, onClose, courseTitle, courseId
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="e.g., student@university.edu"
-                                    className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:border-[var(--brand)] transition-all placeholder:text-slate-300"
+                                    className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold outline-none focus:border-[var(--brand)] transition-all placeholder:text-gray-300"
                                     required
                                 />
                             </div>
@@ -257,13 +257,13 @@ export default function EnrollmentModal({ isOpen, onClose, courseTitle, courseId
                         <div className="space-y-6">
                             <div
                                 onClick={() => fileInputRef.current?.click()}
-                                className="border-2 border-dashed border-slate-100 rounded-[22px] bg-slate-50/50 p-6 flex flex-col items-center text-center cursor-pointer hover:border-[var(--brand-light)] hover:bg-slate-50 transition-all group sm:rounded-[24px] sm:p-10"
+                                className="border-2 border-dashed border-gray-100 rounded-[22px] bg-gray-50/50 p-6 flex flex-col items-center text-center cursor-pointer hover:border-[var(--brand-light)] hover:bg-gray-50 transition-all group sm:rounded-[24px] sm:p-10"
                             >
-                                <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-slate-400 group-hover:text-[var(--brand)] transition-colors mb-4">
+                                <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-gray-400 group-hover:text-[var(--brand)] transition-colors mb-4">
                                     <Upload size={24} />
                                 </div>
-                                <p className="text-sm font-black text-slate-800 mb-1">Upload CSV File</p>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                <p className="text-sm font-black text-gray-800 mb-1">Upload CSV File</p>
+                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                                     Click or drag and drop your file
                                 </p>
                                 <input
@@ -305,22 +305,22 @@ export default function EnrollmentModal({ isOpen, onClose, courseTitle, courseId
                         <div className="space-y-6">
                             {groupsLoading ? (
                                 <div className="py-12 flex items-center justify-center">
-                                    <Loader2 size={24} className="animate-spin text-slate-300" />
+                                    <Loader2 size={24} className="animate-spin text-gray-300" />
                                 </div>
                             ) : groups.length === 0 ? (
                                 <div className="py-10 text-center">
-                                    <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center mx-auto mb-4">
-                                        <Users size={24} className="text-slate-300" />
+                                    <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
+                                        <Users size={24} className="text-gray-300" />
                                     </div>
-                                    <p className="text-sm font-black text-slate-700 mb-1">No Groups Yet</p>
-                                    <p className="text-xs font-bold text-slate-400">
+                                    <p className="text-sm font-black text-gray-700 mb-1">No Groups Yet</p>
+                                    <p className="text-xs font-bold text-gray-400">
                                         Create groups first in the Students &amp; Groups page.
                                     </p>
                                 </div>
                             ) : (
                                 <>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
                                             Select a Group
                                         </label>
                                         <div className="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar">
@@ -331,7 +331,7 @@ export default function EnrollmentModal({ isOpen, onClose, courseTitle, courseId
                                                     className={`w-full flex items-center justify-between px-5 py-4 rounded-2xl border transition-all ${
                                                         selectedGroupId === g.id
                                                             ? 'bg-[var(--brand-light)] border-[var(--brand)] text-[var(--brand-dark)]'
-                                                            : 'bg-slate-50 border-slate-100 hover:border-slate-200 text-slate-700'
+                                                            : 'bg-gray-50 border-gray-100 hover:border-gray-200 text-gray-700'
                                                     }`}
                                                 >
                                                     <span className="text-sm font-black">{g.name}</span>

@@ -10,17 +10,17 @@ import { CodeExecutionService } from '@/services/api/CodeExecutionService';
 
 const PlaygroundEditor = dynamic(() => import('@/app/components/Playground/PlaygroundEditor'), {
     ssr: false,
-    loading: () => <div className="h-full w-full bg-slate-900/5 animate-pulse rounded-2xl" />,
+    loading: () => <div className="h-full w-full bg-gray-900/5 animate-pulse rounded-2xl" />,
 });
 
 const CodingEditor = dynamic(() => import('@/app/components/Authoring/QuestionBuilder/modules/CodingEditor'), {
     ssr: false,
-    loading: () => <div className="h-48 w-full bg-slate-900/5 animate-pulse rounded-2xl" />,
+    loading: () => <div className="h-48 w-full bg-gray-900/5 animate-pulse rounded-2xl" />,
 });
 
 const CodingQuestionRenderer = dynamic(() => import('@/app/components/CodingQuestionRenderer'), {
     ssr: false,
-    loading: () => <div className="h-full w-full bg-slate-900/5 animate-pulse rounded-2xl" />,
+    loading: () => <div className="h-full w-full bg-gray-900/5 animate-pulse rounded-2xl" />,
 });
 
 // Tiptap rich-text editor is heavy and only used for the (conditionally
@@ -29,7 +29,7 @@ const CodingQuestionRenderer = dynamic(() => import('@/app/components/CodingQues
 // interactive-only, so ssr:false is safe.
 const RichTextEditor = dynamic(() => import('@/app/components/Authoring/RichTextEditor'), {
     ssr: false,
-    loading: () => <div className="min-h-[160px] rounded-[28px] bg-slate-50 animate-pulse" />,
+    loading: () => <div className="min-h-[160px] rounded-[28px] bg-gray-50 animate-pulse" />,
 });
 
 interface Tab {
@@ -191,13 +191,13 @@ export default function PlaygroundCore({
                         tabLabels={['Code Editor', 'Output']}
                         leftContent={
                             <div className="h-full flex flex-col bg-white relative">
-                                <div className="h-12 border-b border-slate-100 flex items-center px-3 sm:px-4 justify-between bg-white z-20 gap-2">
+                                <div className="h-12 border-b border-gray-100 flex items-center px-3 sm:px-4 justify-between bg-white z-20 gap-2">
                                     <div className="flex items-center gap-1 h-full min-w-0 flex-1 overflow-x-auto no-scrollbar">
-                                        <div className="pr-3 sm:pr-4 border-r border-slate-100 mr-1 sm:mr-2 shrink-0">
+                                        <div className="pr-3 sm:pr-4 border-r border-gray-100 mr-1 sm:mr-2 shrink-0">
                                             <select
                                                 value={activeTab.langId}
                                                 onChange={(event) => updateTabLang(event.target.value)}
-                                                className="text-[12px] font-bold text-slate-600 bg-transparent outline-none cursor-pointer hover:text-[var(--brand)] transition-colors"
+                                                className="text-[12px] font-bold text-gray-600 bg-transparent outline-none cursor-pointer hover:text-[var(--brand)] transition-colors"
                                             >
                                                 {PLAYGROUND_LANGUAGES.map((lang) => (
                                                     <option key={lang.id} value={lang.id}>
@@ -213,8 +213,8 @@ export default function PlaygroundCore({
                                                 onClick={() => setActiveTabId(tab.id)}
                                                 className={`group px-3 sm:px-6 h-full flex items-center text-[12px] font-bold transition-all border-b-2 relative cursor-pointer shrink-0 ${
                                                     activeTabId === tab.id
-                                                        ? 'border-[var(--brand)] text-slate-700 bg-slate-50/50'
-                                                        : 'border-transparent text-slate-400 hover:bg-slate-50'
+                                                        ? 'border-[var(--brand)] text-gray-700 bg-gray-50/50'
+                                                        : 'border-transparent text-gray-400 hover:bg-gray-50'
                                                 }`}
                                             >
                                                 {tab.name}
@@ -245,7 +245,7 @@ export default function PlaygroundCore({
                                         <button
                                             onClick={handleClear}
                                             title="Clear Terminal"
-                                            className="p-1.5 sm:p-2 text-slate-400 hover:text-[var(--brand)] transition-all active:rotate-180 duration-500 text-xs"
+                                            className="p-1.5 sm:p-2 text-gray-400 hover:text-[var(--brand)] transition-all active:rotate-180 duration-500 text-xs"
                                         >
                                             Clear
                                         </button>
@@ -281,12 +281,12 @@ export default function PlaygroundCore({
                     />
 
                     {showDeleteConfirm && (
-                        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+                        <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
                             <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full animate-in zoom-in duration-200">
-                                <h3 className="text-xl font-bold text-slate-800 mb-2">Delete this page?</h3>
-                                <p className="text-slate-500 text-sm mb-8 leading-relaxed">
+                                <h3 className="text-xl font-bold text-gray-800 mb-2">Delete this page?</h3>
+                                <p className="text-gray-500 text-sm mb-8 leading-relaxed">
                                     You are about to delete{' '}
-                                    <span className="font-bold text-slate-700">
+                                    <span className="font-bold text-gray-700">
                                         &ldquo;{tabs.find((tab) => tab.id === showDeleteConfirm)?.name}&rdquo;
                                     </span>
                                     . This action cannot be undone.
@@ -294,7 +294,7 @@ export default function PlaygroundCore({
                                 <div className="flex gap-4">
                                     <button
                                         onClick={() => setShowDeleteConfirm(null)}
-                                        className="flex-1 px-4 py-3 border border-slate-200 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50 transition-colors"
+                                        className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm font-bold text-gray-500 hover:bg-gray-50 transition-colors"
                                     >
                                         Cancel
                                     </button>
@@ -382,13 +382,13 @@ function PublicCompilerSurface({
     }, [onCreateQuestion]);
 
     return (
-        <div className="public-compiler-surface relative flex h-[70vh] max-h-[720px] min-h-[420px] flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-            <div className="flex h-10 items-center justify-between border-b border-slate-100 px-3">
+        <div className="public-compiler-surface relative flex h-[70vh] max-h-[720px] min-h-[420px] flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div className="flex h-10 items-center justify-between border-b border-gray-100 px-3">
                 <div className="min-w-0">
-                    <h1 className="truncate text-xs font-black text-slate-800">
+                    <h1 className="truncate text-xs font-black text-gray-800">
                         Online {selectedLanguageLabel} Compiler
                     </h1>
-                    <p className="hidden truncate text-[10px] font-medium text-slate-400 md:block">
+                    <p className="hidden truncate text-[10px] font-medium text-gray-400 md:block">
                         Run code instantly in the Mentrily playground.
                     </p>
                 </div>
@@ -502,7 +502,7 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
     };
 
     return (
-        <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-gray-950/50 p-4 backdrop-blur-sm">
             <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
                 {shareUrl ? (
                     <div className="p-6">
@@ -510,15 +510,15 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
                             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-600 text-white">
                                 <LinkIcon size={22} />
                             </div>
-                            <h2 className="text-xl font-black text-slate-900">Your question link is ready</h2>
-                            <p className="mt-1 text-sm font-semibold text-slate-600">
+                            <h2 className="text-xl font-black text-gray-900">Your question link is ready</h2>
+                            <p className="mt-1 text-sm font-semibold text-gray-600">
                                 Share this link with friends. Anonymous links stay active for 3 days.
                             </p>
                             <div className="mt-5 flex gap-2">
                                 <input
                                     readOnly
                                     value={shareUrl}
-                                    className="min-w-0 flex-1 rounded-xl border border-emerald-100 bg-white px-3 py-2 text-sm font-semibold text-slate-700"
+                                    className="min-w-0 flex-1 rounded-xl border border-emerald-100 bg-white px-3 py-2 text-sm font-semibold text-gray-700"
                                 />
                                 <button
                                     onClick={copy}
@@ -540,17 +540,17 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
                     </div>
                 ) : (
                     <>
-                        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+                        <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
                             <div>
-                                <h2 className="text-lg font-black text-slate-800">Create a coding question</h2>
-                                <p className="text-xs font-semibold text-slate-500">
+                                <h2 className="text-lg font-black text-gray-800">Create a coding question</h2>
+                                <p className="text-xs font-semibold text-gray-500">
                                     Anonymous links are valid for 3 days. Sign in to keep links valid for 30 days.
                                 </p>
                             </div>
                             <button
                                 onClick={onClose}
                                 aria-label="Close dialog"
-                                className="rounded-lg p-2 text-slate-400 hover:bg-slate-50 hover:text-slate-700"
+                                className="rounded-lg p-2 text-gray-400 hover:bg-gray-50 hover:text-gray-700"
                             >
                                 <X size={18} />
                             </button>
@@ -559,7 +559,7 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
                         <div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-5">
                             <div className="grid gap-4 md:grid-cols-[0.7fr_1.3fr]">
                                 <label className="space-y-2">
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                                         Title
                                     </span>
                                     <input
@@ -567,11 +567,11 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
                                         onChange={(event) =>
                                             setQuestion((prev: any) => ({ ...prev, title: event.target.value }))
                                         }
-                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold outline-none focus:border-[var(--brand)]"
+                                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-bold outline-none focus:border-[var(--brand)]"
                                     />
                                 </label>
                                 <div className="space-y-2">
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                                         Problem Statement
                                     </span>
                                     <div className="rounded-[28px]">
@@ -599,10 +599,10 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
                             )}
                         </div>
 
-                        <div className="flex justify-end gap-3 border-t border-slate-100 px-5 py-4">
+                        <div className="flex justify-end gap-3 border-t border-gray-100 px-5 py-4">
                             <button
                                 onClick={onClose}
-                                className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-500"
+                                className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-bold text-gray-500"
                             >
                                 Close
                             </button>

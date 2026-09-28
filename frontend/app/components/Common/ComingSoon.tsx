@@ -13,13 +13,13 @@ type ComingSoonProps = {
 const variantClasses = {
     page: 'min-h-[68vh] rounded-[36px] p-8 md:p-12',
     inline: 'rounded-[28px] p-5 md:p-6',
-    modal: 'fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/55 px-4 py-8 backdrop-blur-sm',
+    modal: 'fixed inset-0 z-[120] flex items-center justify-center bg-gray-950/55 px-4 py-8 backdrop-blur-sm',
 };
 
 function ComingSoonCard({ title, description, eta, variant = 'page', onClose }: ComingSoonProps) {
     return (
         <div
-            className={`relative overflow-hidden border border-slate-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.12)] ${
+            className={`relative overflow-hidden border border-gray-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.12)] ${
                 variant === 'modal' ? 'w-full max-w-2xl rounded-[32px] p-7 md:p-9' : variantClasses[variant]
             }`}
         >
@@ -34,14 +34,14 @@ function ComingSoonCard({ title, description, eta, variant = 'page', onClose }: 
                             Coming Soon
                         </div>
                         <div className="flex items-start gap-4">
-                            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-lg shadow-slate-300/50">
+                            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gray-950 text-white shadow-lg shadow-gray-300/50">
                                 <Rocket size={22} />
                             </div>
                             <div>
-                                <h1 className="text-2xl font-black tracking-tight text-slate-950 md:text-4xl">
+                                <h1 className="text-2xl font-black tracking-tight text-gray-950 md:text-4xl">
                                     {title}
                                 </h1>
-                                <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 md:text-base">
+                                <p className="mt-3 max-w-2xl text-sm leading-7 text-gray-600 md:text-base">
                                     {description}
                                 </p>
                             </div>
@@ -51,7 +51,7 @@ function ComingSoonCard({ title, description, eta, variant = 'page', onClose }: 
                         <button
                             type="button"
                             onClick={onClose}
-                            className="rounded-xl border border-slate-200 bg-white/80 p-2 text-slate-400 transition-colors hover:border-slate-300 hover:text-slate-700"
+                            className="rounded-xl border border-gray-200 bg-white/80 p-2 text-gray-400 transition-colors hover:border-gray-300 hover:text-gray-700"
                             aria-label="Close"
                         >
                             <X size={16} />
@@ -60,23 +60,23 @@ function ComingSoonCard({ title, description, eta, variant = 'page', onClose }: 
                 </div>
 
                 <div className="mt-8 grid gap-3 md:grid-cols-3">
-                    <div className="rounded-2xl border border-slate-200/80 bg-slate-50/90 p-4">
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
+                    <div className="rounded-2xl border border-gray-200/80 bg-gray-50/90 p-4">
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">
                             What to expect
                         </p>
-                        <p className="mt-2 text-sm font-semibold text-slate-800">
+                        <p className="mt-2 text-sm font-semibold text-gray-800">
                             A polished workflow built into the current dashboard experience.
                         </p>
                     </div>
-                    <div className="rounded-2xl border border-slate-200/80 bg-slate-50/90 p-4">
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Status</p>
-                        <p className="mt-2 text-sm font-semibold text-slate-800">
+                    <div className="rounded-2xl border border-gray-200/80 bg-gray-50/90 p-4">
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Status</p>
+                        <p className="mt-2 text-sm font-semibold text-gray-800">
                             Planned and reserved in the product flow, but not open for use yet.
                         </p>
                     </div>
-                    <div className="rounded-2xl border border-slate-200/80 bg-slate-50/90 p-4">
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">ETA</p>
-                        <p className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-slate-800">
+                    <div className="rounded-2xl border border-gray-200/80 bg-gray-50/90 p-4">
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">ETA</p>
+                        <p className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-gray-800">
                             <Clock3 size={14} className="text-[var(--brand)]" />
                             {eta || 'In an upcoming release'}
                         </p>

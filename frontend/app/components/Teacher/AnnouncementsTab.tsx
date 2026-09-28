@@ -74,10 +74,10 @@ export default function AnnouncementsTab() {
         return (
             <div className="space-y-4">
                 {[1, 2].map((i) => (
-                    <div key={i} className="bg-white rounded-[32px] border border-slate-100 p-8 animate-pulse">
-                        <div className="h-5 bg-slate-100 rounded-xl w-1/3 mb-4" />
-                        <div className="h-3 bg-slate-50 rounded-lg w-2/3 mb-2" />
-                        <div className="h-3 bg-slate-50 rounded-lg w-1/2" />
+                    <div key={i} className="bg-white rounded-[32px] border border-gray-100 p-8 animate-pulse">
+                        <div className="h-5 bg-gray-100 rounded-xl w-1/3 mb-4" />
+                        <div className="h-3 bg-gray-50 rounded-lg w-2/3 mb-2" />
+                        <div className="h-3 bg-gray-50 rounded-lg w-1/2" />
                     </div>
                 ))}
             </div>
@@ -88,13 +88,13 @@ export default function AnnouncementsTab() {
         <>
             <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
-                    <div className="bg-white border border-slate-200 rounded-2xl px-4 py-2 flex items-center gap-3 shadow-sm">
-                        <Megaphone size={18} className="text-slate-400" />
+                    <div className="bg-white border border-gray-200 rounded-2xl px-4 py-2 flex items-center gap-3 shadow-sm">
+                        <Megaphone size={18} className="text-gray-400" />
                         <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 leading-none">
                                 Total
                             </p>
-                            <p className="text-lg font-black text-slate-800 leading-none mt-1">
+                            <p className="text-lg font-black text-gray-800 leading-none mt-1">
                                 {announcements.length}
                             </p>
                         </div>
@@ -115,12 +115,12 @@ export default function AnnouncementsTab() {
             </div>
 
             {announcements.length === 0 ? (
-                <div className="bg-white rounded-[32px] border border-slate-100 p-16 text-center">
-                    <div className="w-20 h-20 rounded-[24px] bg-slate-50 flex items-center justify-center mx-auto mb-6">
-                        <Megaphone size={32} className="text-slate-300" />
+                <div className="bg-white rounded-[32px] border border-gray-100 p-16 text-center">
+                    <div className="w-20 h-20 rounded-[24px] bg-gray-50 flex items-center justify-center mx-auto mb-6">
+                        <Megaphone size={32} className="text-gray-300" />
                     </div>
-                    <h3 className="text-xl font-black text-slate-800 mb-2">No Announcements Yet</h3>
-                    <p className="text-sm font-bold text-slate-400 mb-6">
+                    <h3 className="text-xl font-black text-gray-800 mb-2">No Announcements Yet</h3>
+                    <p className="text-sm font-bold text-gray-400 mb-6">
                         Send your first announcement to student groups.
                     </p>
                 </div>
@@ -129,7 +129,7 @@ export default function AnnouncementsTab() {
                     {announcements.map((ann) => (
                         <div
                             key={ann.id}
-                            className="bg-white rounded-[32px] border border-slate-100 shadow-sm p-8 hover:border-[var(--brand-light)] transition-all group/ann"
+                            className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 hover:border-[var(--brand-light)] transition-all group/ann"
                         >
                             <div className="flex items-start justify-between gap-4">
                                 <div className="flex items-start gap-4 flex-1">
@@ -137,7 +137,7 @@ export default function AnnouncementsTab() {
                                         <Megaphone size={20} className="text-white" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <h3 className="text-base font-black text-slate-800 mb-1">{ann.title}</h3>
+                                        <h3 className="text-base font-black text-gray-800 mb-1">{ann.title}</h3>
                                         <div className="flex flex-wrap gap-1.5 mb-3">
                                             {ann.groups?.map((g: any) => (
                                                 <span
@@ -149,7 +149,7 @@ export default function AnnouncementsTab() {
                                             ))}
                                         </div>
                                         <div
-                                            className="text-xs font-bold text-slate-500 line-clamp-2 prose prose-sm max-w-none"
+                                            className="text-xs font-bold text-gray-500 line-clamp-2 prose prose-sm max-w-none"
                                             dangerouslySetInnerHTML={{
                                                 __html: sanitizeProse(ann.content),
                                             }}
@@ -163,7 +163,7 @@ export default function AnnouncementsTab() {
                                                         key={idx}
                                                         type="button"
                                                         onClick={() => handleDownload(att.url, att.name)}
-                                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 rounded-xl text-[10px] font-black text-slate-600 transition-colors border border-slate-100 cursor-pointer"
+                                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-xl text-[10px] font-black text-gray-600 transition-colors border border-gray-100 cursor-pointer"
                                                     >
                                                         <AttachmentIcon type={att.type} /> {att.name}
                                                     </button>
@@ -175,25 +175,25 @@ export default function AnnouncementsTab() {
 
                                 <div className="flex items-center gap-3 flex-shrink-0">
                                     <div className="text-right">
-                                        <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                                        <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">
                                             {new Date(ann.createdAt).toLocaleDateString('en-US', {
                                                 month: 'short',
                                                 day: 'numeric',
                                             })}
                                         </p>
-                                        <p className="text-[10px] font-bold text-slate-300">
+                                        <p className="text-[10px] font-bold text-gray-300">
                                             {ann._count?.reads || 0} read
                                         </p>
                                     </div>
                                     <button
                                         onClick={() => setEditingAnnouncement(ann)}
-                                        className="p-2 text-slate-300 hover:text-[var(--brand)] hover:bg-[var(--brand-light)]/40 rounded-xl transition-all opacity-0 group-hover/ann:opacity-100"
+                                        className="p-2 text-gray-300 hover:text-[var(--brand)] hover:bg-[var(--brand-light)]/40 rounded-xl transition-all opacity-0 group-hover/ann:opacity-100"
                                     >
                                         <Pencil size={16} />
                                     </button>
                                     <button
                                         onClick={() => handleDelete(ann.id)}
-                                        className="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all opacity-0 group-hover/ann:opacity-100"
+                                        className="p-2 text-gray-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all opacity-0 group-hover/ann:opacity-100"
                                     >
                                         <Trash2 size={16} />
                                     </button>
@@ -355,21 +355,21 @@ function ComposeAnnouncementModal({
 
     return (
         <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={onClose} />
+            <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-md" onClick={onClose} />
             <div className="bg-white w-full max-w-3xl rounded-3xl sm:rounded-[48px] p-6 sm:p-12 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[85vh] overflow-y-auto custom-scrollbar">
                 <button
                     onClick={onClose}
                     aria-label="Close dialog"
-                    className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl sm:rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all active:scale-95"
+                    className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl sm:rounded-2xl bg-gray-50 hover:bg-gray-100 text-gray-400 transition-all active:scale-95"
                 >
                     <X size={20} strokeWidth={3} />
                 </button>
 
                 <div className="mb-8">
-                    <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+                    <h2 className="text-2xl font-black text-gray-900 tracking-tight">
                         {isEditing ? 'Edit Announcement' : 'New Announcement'}
                     </h2>
-                    <p className="text-sm font-bold text-slate-400 mt-1">
+                    <p className="text-sm font-bold text-gray-400 mt-1">
                         {isEditing
                             ? 'Update and resend to selected student groups.'
                             : 'Compose and send to your student groups.'}
@@ -379,7 +379,7 @@ function ComposeAnnouncementModal({
                 <div className="space-y-6">
                     {/* Title */}
                     <div>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">
                             Title
                         </label>
                         <input
@@ -387,14 +387,14 @@ function ComposeAnnouncementModal({
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="Announcement title..."
-                            className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/5 transition-all"
+                            className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-bold outline-none focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/5 transition-all"
                         />
                     </div>
 
                     {/* Groups selector */}
                     <div>
                         <div className="flex items-center justify-between mb-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                                 Select Groups
                             </label>
                             <button
@@ -412,7 +412,7 @@ function ComposeAnnouncementModal({
                                     className={`px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 flex items-center gap-1.5 border ${
                                         selectedGroupIds.includes(g.id)
                                             ? 'bg-[var(--brand)] text-white border-[var(--brand)] shadow-lg shadow-[var(--brand)]/20'
-                                            : 'bg-white text-slate-500 border-slate-200 hover:border-[var(--brand-light)] hover:text-[var(--brand)]'
+                                            : 'bg-white text-gray-500 border-gray-200 hover:border-[var(--brand-light)] hover:text-[var(--brand)]'
                                     }`}
                                 >
                                     {selectedGroupIds.includes(g.id) && <Check size={12} strokeWidth={3} />}
@@ -427,10 +427,10 @@ function ComposeAnnouncementModal({
 
                     {/* Rich Text Editor */}
                     <div>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">
                             Content
                         </label>
-                        <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                        <div className="border border-gray-200 rounded-2xl overflow-hidden">
                             <RichTextEditor
                                 content={content}
                                 onChange={setContent}
@@ -441,7 +441,7 @@ function ComposeAnnouncementModal({
 
                     {/* File Attachments */}
                     <div>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">
                             Attachments
                         </label>
 
@@ -450,15 +450,15 @@ function ComposeAnnouncementModal({
                                 {attachments.map((att, idx) => (
                                     <div
                                         key={idx}
-                                        className="flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-100 rounded-xl"
+                                        className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-100 rounded-xl"
                                     >
                                         <AttachmentIcon type={att.type} />
-                                        <span className="text-xs font-bold text-slate-600 truncate max-w-[150px]">
+                                        <span className="text-xs font-bold text-gray-600 truncate max-w-[150px]">
                                             {att.name}
                                         </span>
                                         <button
                                             onClick={() => removeAttachment(idx)}
-                                            className="text-slate-300 hover:text-rose-500 transition-colors"
+                                            className="text-gray-300 hover:text-rose-500 transition-colors"
                                         >
                                             <X size={12} strokeWidth={3} />
                                         </button>
@@ -467,9 +467,9 @@ function ComposeAnnouncementModal({
                             </div>
                         )}
 
-                        <label className="flex items-center gap-2 px-5 py-3 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-[var(--brand)] hover:bg-[var(--brand-light)]/30 transition-all">
-                            <Paperclip size={16} className="text-slate-400" />
-                            <span className="text-xs font-black text-slate-400 uppercase tracking-widest">
+                        <label className="flex items-center gap-2 px-5 py-3 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer hover:border-[var(--brand)] hover:bg-[var(--brand-light)]/30 transition-all">
+                            <Paperclip size={16} className="text-gray-400" />
+                            <span className="text-xs font-black text-gray-400 uppercase tracking-widest">
                                 {isUploading ? 'Uploading...' : 'Attach Files (PDF, Images, Docs...)'}
                             </span>
                             <input
@@ -488,7 +488,7 @@ function ComposeAnnouncementModal({
                 <button
                     onClick={handleSend}
                     disabled={isSending || !title.trim() || selectedGroupIds.length === 0}
-                    className="w-full mt-8 py-5 bg-[var(--brand)] hover:bg-[var(--brand-dark)] disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-[24px] font-black text-xs uppercase tracking-[0.2em] transition-all shadow-xl shadow-[var(--brand)]/20 active:scale-95 flex items-center justify-center gap-2"
+                    className="w-full mt-8 py-5 bg-[var(--brand)] hover:bg-[var(--brand-dark)] disabled:bg-gray-200 disabled:text-gray-400 text-white rounded-[24px] font-black text-xs uppercase tracking-[0.2em] transition-all shadow-xl shadow-[var(--brand)]/20 active:scale-95 flex items-center justify-center gap-2"
                 >
                     <Send size={16} />{' '}
                     {isSending

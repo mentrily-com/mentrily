@@ -155,10 +155,10 @@ export default function ChatThread({
             <div ref={scrollRef} onScroll={onScroll} className="relative min-h-0 flex-1 overflow-y-auto">
                 {messages.length === 0 ? (
                     <div className="mx-auto flex h-full max-w-2xl flex-col justify-center px-5 py-10">
-                        <h1 className="font-display text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
+                        <h1 className="font-display text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
                             What are you teaching next?
                         </h1>
-                        <p className="mt-3 max-w-lg text-[15px] leading-7 text-slate-500">
+                        <p className="mt-3 max-w-lg text-[15px] leading-7 text-gray-500">
                             Ask a question, or start with a command to plan a course, build an exam or write a quiz you
                             can drop straight into your builder.
                         </p>
@@ -173,18 +173,18 @@ export default function ChatThread({
                                         onClick={() =>
                                             setPrefill({ command: s.command, text: s.text, nonce: Date.now() })
                                         }
-                                        className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 text-left transition hover:border-[var(--color-border-brand)] hover:bg-[var(--color-brand-light)]/40"
+                                        className="flex items-start gap-3 rounded-2xl border border-gray-200 bg-white p-3.5 text-left transition hover:border-[var(--color-border-brand)] hover:bg-[var(--color-brand-light)]/40"
                                     >
                                         {Icon && (
-                                            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-slate-100 text-slate-600">
+                                            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-gray-100 text-gray-600">
                                                 <Icon size={15} />
                                             </span>
                                         )}
                                         <span className="min-w-0">
-                                            <span className="block text-xs font-medium text-slate-500">
+                                            <span className="block text-xs font-medium text-gray-500">
                                                 /{info?.label}
                                             </span>
-                                            <span className="block text-sm leading-5 text-slate-800">{s.text}</span>
+                                            <span className="block text-sm leading-5 text-gray-800">{s.text}</span>
                                         </span>
                                     </button>
                                 );
@@ -210,7 +210,7 @@ export default function ChatThread({
                             />
                         ))}
                         {(status === 'submitted' || pendingReply) && (
-                            <p className="flex items-center gap-2 text-sm text-slate-500" aria-live="polite">
+                            <p className="flex items-center gap-2 text-sm text-gray-500" aria-live="polite">
                                 <Loader2 size={15} className="animate-spin text-[var(--brand)]" />
                                 {pendingReply ? 'Still writing the reply…' : 'Thinking…'}
                             </p>
@@ -224,7 +224,7 @@ export default function ChatThread({
                     <button
                         type="button"
                         onClick={() => setAtBottom(true)}
-                        className="absolute -top-10 left-1/2 grid h-8 w-8 -translate-x-1/2 place-items-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-md hover:text-slate-900"
+                        className="absolute -top-10 left-1/2 grid h-8 w-8 -translate-x-1/2 place-items-center rounded-full border border-gray-200 bg-white text-gray-500 shadow-md hover:text-gray-900"
                         aria-label="Scroll to latest"
                     >
                         <ArrowDown size={15} />
@@ -233,13 +233,13 @@ export default function ChatThread({
                 {resumed && (
                     <div
                         role="status"
-                        className="mb-2 flex items-start gap-2 rounded-xl border border-[var(--color-border-brand)] bg-[var(--color-brand-light)]/50 px-3 py-2 text-xs text-slate-700"
+                        className="mb-2 flex items-start gap-2 rounded-xl border border-[var(--color-border-brand)] bg-[var(--color-brand-light)]/50 px-3 py-2 text-xs text-gray-700"
                     >
                         <span className="min-w-0 flex-1">Your prompt is ready. Review it and press send.</span>
                         <button
                             type="button"
                             onClick={onDismissResumed}
-                            className="shrink-0 rounded p-0.5 text-slate-400 hover:text-slate-700"
+                            className="shrink-0 rounded p-0.5 text-gray-400 hover:text-gray-700"
                             aria-label="Dismiss"
                         >
                             <X size={13} />
@@ -254,7 +254,7 @@ export default function ChatThread({
                     onLocked={onLocked}
                     prefill={prefill}
                 />
-                <p className="mt-2 text-center text-[11px] text-slate-400">
+                <p className="mt-2 text-center text-[11px] text-gray-400">
                     AI can make mistakes. Review generated content before learners see it.
                 </p>
             </div>

@@ -78,7 +78,7 @@ export default function MCQOptions({
         <div className="flex h-full min-h-0 flex-col bg-white">
             <div className="min-h-0 flex-1 overflow-y-auto p-4 pb-4 sm:p-8 no-scrollbar">
                 <div className="max-w-3xl mx-auto space-y-4">
-                    <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-6">
+                    <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-6">
                         {readOnly
                             ? 'Submitted Answer'
                             : multiSelect
@@ -99,8 +99,8 @@ export default function MCQOptions({
                                         ? 'border-[var(--brand)] bg-[var(--brand-lighter)] ring-1 ring-[var(--brand)]'
                                         : readOnly && isCorrect
                                           ? 'border-emerald-300 bg-emerald-50'
-                                          : 'border-slate-100' +
-                                            (!isInteractionDisabled ? ' hover:border-slate-200 hover:bg-slate-50' : '')
+                                          : 'border-gray-100' +
+                                            (!isInteractionDisabled ? ' hover:border-gray-200 hover:bg-gray-50' : '')
                                 } ${isInteractionDisabled && !isSelected && !isCorrect ? 'opacity-50 grayscale-[0.5]' : ''}`}
                             >
                                 <div className="flex items-start gap-3 sm:gap-4 z-10 relative">
@@ -108,8 +108,8 @@ export default function MCQOptions({
                                         className={`w-6 h-6 rounded-${multiSelect ? 'md' : 'full'} border-2 flex items-center justify-center shrink-0 transition-colors ${
                                             isSelected
                                                 ? 'border-[var(--brand)] bg-[var(--brand)] text-white'
-                                                : 'border-slate-200 text-transparent' +
-                                                  (!isInteractionDisabled ? ' group-hover:border-slate-300' : '')
+                                                : 'border-gray-200 text-transparent' +
+                                                  (!isInteractionDisabled ? ' group-hover:border-gray-300' : '')
                                         }`}
                                     >
                                         {multiSelect ? (
@@ -132,7 +132,7 @@ export default function MCQOptions({
                                         )}
                                     </div>
                                     <span
-                                        className={`min-w-0 flex-1 break-words font-medium leading-relaxed ${isSelected ? 'text-[var(--brand-dark)]' : 'text-slate-600'}`}
+                                        className={`min-w-0 flex-1 break-words font-medium leading-relaxed ${isSelected ? 'text-[var(--brand-dark)]' : 'text-gray-600'}`}
                                         style={{ fontSize: fontSize ? `${fontSize}px` : undefined }}
                                     >
                                         {option.text}
@@ -151,10 +151,10 @@ export default function MCQOptions({
 
             {/* Bottom Actions Bar - Hide if Read Only */}
             {!readOnly && (
-                <div className="shrink-0 border-t border-slate-100 bg-white p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 z-20 w-full">
+                <div className="shrink-0 border-t border-gray-100 bg-white p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 z-20 w-full">
                     <button
                         onClick={handleReset}
-                        className="flex-1 px-6 py-2.5 rounded-xl text-slate-500 font-bold hover:bg-slate-50 hover:text-slate-700 transition-colors flex items-center justify-center gap-2 sm:flex-none"
+                        className="flex-1 px-6 py-2.5 rounded-xl text-gray-500 font-bold hover:bg-gray-50 hover:text-gray-700 transition-colors flex items-center justify-center gap-2 sm:flex-none"
                     >
                         <svg
                             width="16"
@@ -178,7 +178,7 @@ export default function MCQOptions({
                         disabled={selectedIds.length === 0}
                         className={`px-8 py-2.5 rounded-xl font-black transition-all flex items-center gap-2 ${
                             selectedIds.length === 0
-                                ? 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                                ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
                                 : 'bg-[var(--brand)] text-white hover:brightness-105 active:scale-95'
                         } flex-1 justify-center sm:flex-none`}
                     >

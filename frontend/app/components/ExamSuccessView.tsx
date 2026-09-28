@@ -46,24 +46,24 @@ export default function ExamSuccessView({ userDetails, onDone, verdict }: ExamSu
                         </svg>
                     </div>
 
-                    <h1 className="text-3xl sm:text-4xl font-black text-slate-900 mb-3 tracking-tight text-center">
+                    <h1 className="text-3xl sm:text-4xl font-black text-gray-900 mb-3 tracking-tight text-center">
                         Exam Submitted Successfully!
                     </h1>
-                    <p className="text-slate-500 font-medium mb-8 sm:mb-12 text-base sm:text-lg text-center max-w-lg">
+                    <p className="text-gray-500 font-medium mb-8 sm:mb-12 text-base sm:text-lg text-center max-w-lg">
                         You have completed all sections. Your submission has been securely recorded and locked.
                     </p>
 
                     {/* User Details Card */}
-                    <div className="w-full bg-slate-50/80 backdrop-blur-sm rounded-3xl sm:rounded-[2.5rem] border border-slate-100 p-5 sm:p-10 mb-8 sm:mb-12 shadow-sm transition-all hover:shadow-md">
-                        <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-6 sm:mb-8 border-b border-slate-200/60 pb-6 sm:pb-8">
-                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white border border-slate-200 flex items-center justify-center text-xl sm:text-2xl font-black text-slate-700 shadow-sm">
+                    <div className="w-full bg-gray-50/80 backdrop-blur-sm rounded-3xl sm:rounded-[2.5rem] border border-gray-100 p-5 sm:p-10 mb-8 sm:mb-12 shadow-sm transition-all hover:shadow-md">
+                        <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-6 sm:mb-8 border-b border-gray-200/60 pb-6 sm:pb-8">
+                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white border border-gray-200 flex items-center justify-center text-xl sm:text-2xl font-black text-gray-700 shadow-sm">
                                 {userDetails.name ? userDetails.name.charAt(0) : '?'}
                             </div>
                             <div className="min-w-0 flex-1">
-                                <h2 className="truncate text-xl sm:text-2xl font-black text-slate-900">
+                                <h2 className="truncate text-xl sm:text-2xl font-black text-gray-900">
                                     {userDetails.name}
                                 </h2>
-                                <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">
+                                <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">
                                     Student ID: {userDetails.rollId}
                                 </p>
                             </div>
@@ -78,19 +78,19 @@ export default function ExamSuccessView({ userDetails, onDone, verdict }: ExamSu
 
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8">
                             <div className="min-w-0">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">
                                     Exam Title
                                 </p>
-                                <p className="break-words text-slate-800 font-bold">{userDetails.examName}</p>
+                                <p className="break-words text-gray-800 font-bold">{userDetails.examName}</p>
                             </div>
                             <div className="min-w-0">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">
                                     Submitted At
                                 </p>
-                                <p className="break-words text-slate-800 font-bold">{userDetails.submittedAt}</p>
+                                <p className="break-words text-gray-800 font-bold">{userDetails.submittedAt}</p>
                             </div>
                             <div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">
                                     Status
                                 </p>
                                 <span
@@ -105,10 +105,10 @@ export default function ExamSuccessView({ userDetails, onDone, verdict }: ExamSu
                             </div>
                             {verdict ? (
                                 <div className="min-w-0">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">
                                         Verdict
                                     </p>
-                                    <p className="break-words text-slate-800 font-bold">
+                                    <p className="break-words text-gray-800 font-bold">
                                         {verdict.passed ? 'Passed' : 'Failed'}
                                         {typeof verdict.score === 'number' ? ` - ${Math.round(verdict.score)}%` : ''} /
                                         Pass at {verdict.passingPercentage ?? 70}%
@@ -119,7 +119,7 @@ export default function ExamSuccessView({ userDetails, onDone, verdict }: ExamSu
                     </div>
 
                     <div className="flex flex-col items-center gap-6 w-full max-w-md">
-                        <p className="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <p className="text-center text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                             You can now safely close this window.
                         </p>
@@ -128,7 +128,7 @@ export default function ExamSuccessView({ userDetails, onDone, verdict }: ExamSu
             </div>
 
             {/* Footer */}
-            <div className="p-4 sm:p-8 border-t border-slate-100 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+            <div className="p-4 sm:p-8 border-t border-gray-100 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
                 <span>
                     &copy; {new Date().getFullYear()} {displayName}
                 </span>

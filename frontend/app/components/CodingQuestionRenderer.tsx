@@ -374,7 +374,7 @@ export default function CodingQuestionRenderer({
             <select
                 value={activeLangId}
                 onChange={(e) => onLanguageChange(normalizeLanguageId(e.target.value))}
-                className="bg-[#f8f9fa] border border-slate-200 rounded px-2 py-1 text-[11px] font-bold text-slate-600 outline-none hover:border-slate-300 transition-colors"
+                className="bg-[#f8f9fa] border border-gray-200 rounded px-2 py-1 text-[11px] font-bold text-gray-600 outline-none hover:border-gray-300 transition-colors"
             >
                 {(allowedLangs && allowedLangs.length > 0 ? allowedLangs : PLAYGROUND_LANGUAGES.map((l) => l.id)).map(
                     (lid: string) => {
@@ -387,7 +387,7 @@ export default function CodingQuestionRenderer({
                     },
                 )}
             </select>
-            <div className="text-sm text-slate-500 font-bold">Language</div>
+            <div className="text-sm text-gray-500 font-bold">Language</div>
         </div>
     );
 

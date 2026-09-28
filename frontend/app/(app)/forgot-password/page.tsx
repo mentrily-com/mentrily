@@ -169,7 +169,7 @@ export default function ForgotPasswordPage() {
                         />
                     </div>
 
-                    <div className="w-full rounded-3xl border border-white/70 bg-white/90 p-6 shadow-2xl shadow-slate-200/80 backdrop-blur sm:p-8">
+                    <div className="w-full rounded-3xl border border-white/70 bg-white/90 p-6 shadow-2xl shadow-gray-200/80 backdrop-blur sm:p-8">
                         {/* ── Step 1: Email ── */}
                         {step === 'email' && (
                             <>

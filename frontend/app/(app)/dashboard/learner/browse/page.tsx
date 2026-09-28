@@ -93,12 +93,12 @@ export default function BrowseCoursesPage() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+        <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
             <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-10 animate-fade-in">
                 <div className="flex flex-col gap-4 mb-6 sm:mb-10 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h2 className="text-2xl font-black tracking-tight text-slate-800">Browse Courses</h2>
-                        <p className="mt-1 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                        <h2 className="text-2xl font-black tracking-tight text-gray-800">Browse Courses</h2>
+                        <p className="mt-1 text-xs font-bold text-gray-400 uppercase tracking-widest">
                             Explore the catalog and enroll instantly
                         </p>
                     </div>
@@ -108,9 +108,9 @@ export default function BrowseCoursesPage() {
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Search courses..."
-                            className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[var(--brand)] transition-all shadow-sm sm:w-72"
+                            className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-2xl text-sm font-bold outline-none focus:border-[var(--brand)] transition-all shadow-sm sm:w-72"
                         />
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                             <svg
                                 width="18"
                                 height="18"
@@ -126,13 +126,13 @@ export default function BrowseCoursesPage() {
                     </div>
                 </div>
 
-                <p className="mb-6 -mt-3 text-[11px] font-medium leading-relaxed text-slate-500 sm:mb-10">
+                <p className="mb-6 -mt-3 text-[11px] font-medium leading-relaxed text-gray-500 sm:mb-10">
                     We don&apos;t claim ownership of the videos or content featured in these courses — they&apos;re
                     included for demonstration purposes. A full course marketplace is a coming-soon feature.
                 </p>
 
                 {filteredCourses.length === 0 ? (
-                    <div className="text-center py-20 text-slate-400 font-bold">
+                    <div className="text-center py-20 text-gray-400 font-bold">
                         {courses.length === 0
                             ? 'No courses are open for enrollment yet. Check back soon!'
                             : 'No courses match your search.'}
@@ -148,10 +148,10 @@ export default function BrowseCoursesPage() {
                             return (
                                 <div
                                     key={course.id}
-                                    className="group flex flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition-all hover:border-[var(--brand-light)] hover:shadow-md"
+                                    className="group flex flex-col overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm transition-all hover:border-[var(--brand-light)] hover:shadow-md"
                                 >
                                     {/* Thumbnail */}
-                                    <div className="relative h-40 w-full overflow-hidden bg-slate-100">
+                                    <div className="relative h-40 w-full overflow-hidden bg-gray-100">
                                         {course.thumbnail ? (
                                             // eslint-disable-next-line @next/next/no-img-element
                                             <img
@@ -169,7 +169,7 @@ export default function BrowseCoursesPage() {
                                         {course.difficulty && (
                                             <span
                                                 className={`absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-widest shadow-sm ${
-                                                    DIFFICULTY_STYLES[course.difficulty] || 'bg-slate-50 text-slate-500'
+                                                    DIFFICULTY_STYLES[course.difficulty] || 'bg-gray-50 text-gray-500'
                                                 }`}
                                             >
                                                 {course.difficulty}
@@ -179,15 +179,15 @@ export default function BrowseCoursesPage() {
 
                                     {/* Body */}
                                     <div className="flex flex-1 flex-col p-5">
-                                        <h3 className="mb-1 text-lg font-black leading-snug text-slate-800">
+                                        <h3 className="mb-1 text-lg font-black leading-snug text-gray-800">
                                             {course.title}
                                         </h3>
                                         {course.shortDescription && (
-                                            <p className="mb-3 text-sm font-semibold leading-6 text-slate-500 line-clamp-2">
+                                            <p className="mb-3 text-sm font-semibold leading-6 text-gray-500 line-clamp-2">
                                                 {course.shortDescription}
                                             </p>
                                         )}
-                                        <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                        <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-gray-400">
                                             {course.sections} Sections · {course.totalUnits} Learning Units
                                             {course.hasFinalExam ? ' · Final Exam' : ''}
                                         </p>
@@ -197,7 +197,7 @@ export default function BrowseCoursesPage() {
                                                 {course.tags.slice(0, 3).map((tag) => (
                                                     <span
                                                         key={tag}
-                                                        className="rounded-full bg-slate-50 px-2.5 py-1 text-[10px] font-bold text-slate-500"
+                                                        className="rounded-full bg-gray-50 px-2.5 py-1 text-[10px] font-bold text-gray-500"
                                                     >
                                                         {tag}
                                                     </span>
@@ -211,11 +211,11 @@ export default function BrowseCoursesPage() {
                                                     href={`/dashboard/learner/module/${course.slug}`}
                                                     className="block space-y-2.5"
                                                 >
-                                                    <div className="flex justify-between text-[10px] font-black uppercase text-slate-400">
+                                                    <div className="flex justify-between text-[10px] font-black uppercase text-gray-400">
                                                         <span>{enrolledInfo?.status || 'Enrolled'}</span>
                                                         <span className="text-[var(--brand)]">{percent}%</span>
                                                     </div>
-                                                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-50 shadow-inner">
+                                                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-50 shadow-inner">
                                                         <div
                                                             className="h-full rounded-full bg-[var(--brand)] transition-all duration-1000"
                                                             style={{ width: `${percent}%` }}

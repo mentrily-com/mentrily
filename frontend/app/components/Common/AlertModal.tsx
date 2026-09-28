@@ -66,12 +66,12 @@ export default function AlertModal({
                     )}
                 </svg>
             </div>
-            <h3 className="text-lg font-black text-slate-800 mb-2 tracking-tight sm:text-xl">{title}</h3>
-            <p className="text-slate-500 text-sm font-medium mb-8 leading-relaxed">{message}</p>
+            <h3 className="text-lg font-black text-gray-800 mb-2 tracking-tight sm:text-xl">{title}</h3>
+            <p className="text-gray-500 text-sm font-medium mb-8 leading-relaxed">{message}</p>
             <div className="flex flex-col-reverse gap-3 sm:flex-row">
                 <button
                     onClick={onCancel}
-                    className="flex-1 px-4 py-3.5 bg-slate-50 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all"
+                    className="flex-1 px-4 py-3.5 bg-gray-50 rounded-2xl text-xs font-black uppercase tracking-widest text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-all"
                 >
                     {cancelLabel}
                 </button>

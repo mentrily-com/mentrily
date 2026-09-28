@@ -53,11 +53,11 @@ function ProblemStatementComponent({
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain no-scrollbar">
                 {/* Header / Navigation */}
                 {!hideHeader && (
-                    <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-100">
+                    <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-100">
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={onPrevious}
-                                className="p-2 hover:bg-slate-50 rounded-lg text-slate-400 hover:text-slate-600 transition-colors"
+                                className="p-2 hover:bg-gray-50 rounded-lg text-gray-400 hover:text-gray-600 transition-colors"
                             >
                                 <svg
                                     width="20"
@@ -72,7 +72,7 @@ function ProblemStatementComponent({
                             </button>
                             <button
                                 onClick={onNext}
-                                className="p-2 hover:bg-slate-50 rounded-lg text-slate-400 hover:text-slate-600 transition-colors"
+                                className="p-2 hover:bg-gray-50 rounded-lg text-gray-400 hover:text-gray-600 transition-colors"
                             >
                                 <svg
                                     width="20"
@@ -95,7 +95,7 @@ function ProblemStatementComponent({
                                 ${
                                     isMarkedForReview
                                         ? 'bg-amber-50 border-amber-200 text-amber-600 shadow-sm shadow-amber-200/50'
-                                        : 'bg-slate-50 border-slate-100 text-slate-400 hover:bg-slate-100'
+                                        : 'bg-gray-50 border-gray-100 text-gray-400 hover:bg-gray-100'
                                 }
                             `}
                             >
@@ -121,7 +121,7 @@ function ProblemStatementComponent({
                 {/* Problem Title */}
                 <div className="px-4 py-3 sm:px-8 sm:py-8">
                     <div className="mb-2 flex items-start justify-between gap-3 sm:gap-4">
-                        <h1 className="min-w-0 break-words text-base font-black tracking-tight text-slate-800 sm:text-2xl">
+                        <h1 className="min-w-0 break-words text-base font-black tracking-tight text-gray-800 sm:text-2xl">
                             {title}
                         </h1>
 
@@ -133,7 +133,7 @@ function ProblemStatementComponent({
                                 className={`shrink-0 rounded-xl border p-2 transition-all sm:p-2.5 ${
                                     isMarkedForReview
                                         ? 'bg-amber-50 border-amber-200 text-amber-600 shadow-sm shadow-amber-200/50'
-                                        : 'bg-white border-slate-100 text-slate-300 hover:text-slate-500 hover:border-slate-200'
+                                        : 'bg-white border-gray-100 text-gray-300 hover:text-gray-500 hover:border-gray-200'
                                 }
                             `}
                                 title={isMarkedForReview ? 'Unmark for Review' : 'Mark for Review'}
@@ -159,7 +159,7 @@ function ProblemStatementComponent({
                                 className={`shrink-0 rounded-xl border p-2 transition-all sm:p-2.5 ${
                                     isBookmarked
                                         ? 'bg-indigo-50 border-indigo-200 text-indigo-600'
-                                        : 'bg-white border-slate-100 text-slate-300 hover:text-slate-500 hover:border-slate-200'
+                                        : 'bg-white border-gray-100 text-gray-300 hover:text-gray-500 hover:border-gray-200'
                                 }
                             `}
                                 title={isBookmarked ? 'Remove Bookmark' : 'Bookmark Question'}
@@ -213,19 +213,19 @@ function ProblemStatementComponent({
 
                     {/* Description */}
                     <div
-                        className="space-y-3 leading-relaxed text-slate-600 sm:space-y-6"
+                        className="space-y-3 leading-relaxed text-gray-600 sm:space-y-6"
                         style={{ fontSize: fontSize ? `${fontSize}px` : '15px' }}
                     >
                         <div
-                            className="prose prose-slate max-w-none prose-p:text-inherit prose-headings:text-slate-800 prose-code:text-[var(--brand-dark)] prose-code:bg-[var(--brand-lighter)] prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-sm prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-pre:border prose-pre:border-slate-700 prose-pre:overflow-x-auto prose-pre:max-w-full [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-inherit prose-code:before:content-none prose-code:after:content-none"
+                            className="prose prose-slate max-w-none prose-p:text-inherit prose-headings:text-gray-800 prose-code:text-[var(--brand-dark)] prose-code:bg-[var(--brand-lighter)] prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-sm prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:border prose-pre:border-gray-700 prose-pre:overflow-x-auto prose-pre:max-w-full [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-inherit prose-code:before:content-none prose-code:after:content-none"
                             dangerouslySetInnerHTML={{
                                 __html: sanitizedDescription,
                             }}
                         ></div>
 
                         {task && (
-                            <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-3 sm:p-6">
-                                <h3 className="mb-2 flex items-center gap-2 text-sm font-bold text-slate-800 sm:mb-3 sm:text-base">
+                            <div className="rounded-2xl border border-gray-100 bg-gray-50/50 p-3 sm:p-6">
+                                <h3 className="mb-2 flex items-center gap-2 text-sm font-bold text-gray-800 sm:mb-3 sm:text-base">
                                     <span className="h-5 w-1.5 rounded-full bg-[var(--brand)] sm:h-6"></span>
                                     Task
                                 </h3>
@@ -235,27 +235,27 @@ function ProblemStatementComponent({
 
                         {exampleInput && (
                             <div className="space-y-4">
-                                <h3 className="text-slate-800 font-bold flex items-center gap-2">
-                                    <span className="w-1.5 h-6 bg-slate-200 rounded-full"></span>
+                                <h3 className="text-gray-800 font-bold flex items-center gap-2">
+                                    <span className="w-1.5 h-6 bg-gray-200 rounded-full"></span>
                                     Example
                                 </h3>
                                 <div className="grid grid-cols-1 gap-4">
                                     <div className="space-y-2 min-w-0">
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                                             Input
                                         </span>
-                                        <div className="w-full overflow-hidden rounded-xl border border-slate-100 bg-slate-50">
-                                            <pre className="p-4 font-mono text-sm text-slate-700 overflow-x-auto whitespace-pre max-w-full">
+                                        <div className="w-full overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
+                                            <pre className="p-4 font-mono text-sm text-gray-700 overflow-x-auto whitespace-pre max-w-full">
                                                 {exampleInput}
                                             </pre>
                                         </div>
                                     </div>
                                     {exampleOutput && (
                                         <div className="space-y-2 min-w-0">
-                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                                                 Output
                                             </span>
-                                            <div className="w-full overflow-hidden rounded-xl border border-slate-100 bg-slate-50">
+                                            <div className="w-full overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
                                                 <pre className="p-4 font-mono text-sm text-[#e67e22] overflow-x-auto whitespace-pre max-w-full">
                                                     {exampleOutput}
                                                 </pre>

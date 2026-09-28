@@ -28,19 +28,19 @@ export default function SignaturePad({ value, onChange }: { value?: string; onCh
     };
 
     return (
-        <div className="rounded-2xl border border-slate-200 p-3 bg-white">
+        <div className="rounded-2xl border border-gray-200 p-3 bg-white">
             <div className="flex items-center gap-2 mb-3">
                 <button
                     type="button"
                     onClick={() => setMode('draw')}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider ${mode === 'draw' ? 'bg-[var(--brand)] text-white' : 'bg-slate-100 text-slate-600'}`}
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider ${mode === 'draw' ? 'bg-[var(--brand)] text-white' : 'bg-gray-100 text-gray-600'}`}
                 >
                     Draw
                 </button>
                 <button
                     type="button"
                     onClick={() => setMode('upload')}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider ${mode === 'upload' ? 'bg-[var(--brand)] text-white' : 'bg-slate-100 text-slate-600'}`}
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider ${mode === 'upload' ? 'bg-[var(--brand)] text-white' : 'bg-gray-100 text-gray-600'}`}
                 >
                     Upload
                 </button>
@@ -48,7 +48,7 @@ export default function SignaturePad({ value, onChange }: { value?: string; onCh
 
             {mode === 'draw' ? (
                 <div className="space-y-2">
-                    <div className="w-full h-[140px] border-2 border-dashed border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+                    <div className="w-full h-[140px] border-2 border-dashed border-gray-200 rounded-xl overflow-hidden bg-gray-50">
                         <SignatureCanvas
                             ref={sigRef}
                             penColor="#0f172a"
@@ -63,7 +63,7 @@ export default function SignaturePad({ value, onChange }: { value?: string; onCh
                                 sigRef.current?.clear();
                                 onChange(undefined);
                             }}
-                            className="px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider bg-slate-100 text-slate-600"
+                            className="px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider bg-gray-100 text-gray-600"
                         >
                             Clear
                         </button>
@@ -77,14 +77,14 @@ export default function SignaturePad({ value, onChange }: { value?: string; onCh
                     </div>
                 </div>
             ) : (
-                <label className="w-full h-[140px] border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 flex items-center justify-center text-xs font-bold text-slate-500 cursor-pointer">
+                <label className="w-full h-[140px] border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 flex items-center justify-center text-xs font-bold text-gray-500 cursor-pointer">
                     Upload Signature Image
                     <input type="file" accept="image/*" className="hidden" onChange={handleUpload} />
                 </label>
             )}
 
             {value && (
-                <div className="mt-3 rounded-lg border border-slate-100 bg-slate-50 p-2">
+                <div className="mt-3 rounded-lg border border-gray-100 bg-gray-50 p-2">
                     <img src={value} alt="Signature preview" className="h-12 w-auto object-contain" />
                 </div>
             )}

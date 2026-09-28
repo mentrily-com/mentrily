@@ -260,7 +260,7 @@ export default function AiDrawer({ kind, storageKey, availableTypes, defaultRefe
                             type="button"
                             onClick={startOutline}
                             disabled={busy}
-                            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                            className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
                             title="Discard this outline and generate a new one"
                         >
                             <RotateCcw size={15} /> Redo
@@ -283,7 +283,7 @@ export default function AiDrawer({ kind, storageKey, availableTypes, defaultRefe
                         <button
                             type="button"
                             onClick={reset}
-                            className="rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                            className="rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
                         >
                             Start over
                         </button>
@@ -312,7 +312,7 @@ export default function AiDrawer({ kind, storageKey, availableTypes, defaultRefe
                 type="button"
                 aria-label="Close AI panel"
                 onClick={onClose}
-                className="absolute inset-0 bg-slate-900/20 backdrop-blur-[1px]"
+                className="absolute inset-0 bg-gray-900/20 backdrop-blur-[1px]"
             />
             <div
                 ref={panelRef}
@@ -322,10 +322,10 @@ export default function AiDrawer({ kind, storageKey, availableTypes, defaultRefe
                 tabIndex={-1}
                 className="relative flex h-full w-full max-w-[560px] flex-col bg-white shadow-2xl focus:outline-none sm:rounded-l-3xl"
             >
-                <header className="space-y-4 border-b border-slate-100 px-5 pb-4 pt-5 sm:px-6">
+                <header className="space-y-4 border-b border-gray-100 px-5 pb-4 pt-5 sm:px-6">
                     <div className="flex items-start justify-between gap-3">
                         <div>
-                            <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+                            <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
                                 <Sparkles size={18} className="text-[var(--brand)]" />
                                 Generate with AI
                             </h2>
@@ -336,13 +336,13 @@ export default function AiDrawer({ kind, storageKey, availableTypes, defaultRefe
                         <button
                             type="button"
                             onClick={onClose}
-                            className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                            className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
                             aria-label="Close"
                         >
                             <X size={18} />
                         </button>
                     </div>
-                    <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1 text-sm">
+                    <div className="flex items-center gap-1 rounded-xl bg-gray-100 p-1 text-sm">
                         {(
                             [
                                 { id: 'generate', label: 'Generate' },
@@ -354,7 +354,7 @@ export default function AiDrawer({ kind, storageKey, availableTypes, defaultRefe
                                 type="button"
                                 onClick={() => setTab(t.id)}
                                 aria-pressed={tab === t.id}
-                                className={`flex-1 rounded-lg py-1.5 font-medium transition ${tab === t.id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
+                                className={`flex-1 rounded-lg py-1.5 font-medium transition ${tab === t.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-800'}`}
                             >
                                 {t.label}
                             </button>
@@ -365,17 +365,17 @@ export default function AiDrawer({ kind, storageKey, availableTypes, defaultRefe
                             {STEPS.map((s, i) => (
                                 <li key={s.id} className="flex items-center gap-2">
                                     <span
-                                        className={`flex items-center gap-1.5 ${i === stepIndex ? 'font-semibold text-slate-900' : i < stepIndex ? 'text-[var(--brand-dark)]' : 'text-slate-400'}`}
+                                        className={`flex items-center gap-1.5 ${i === stepIndex ? 'font-semibold text-gray-900' : i < stepIndex ? 'text-[var(--brand-dark)]' : 'text-gray-400'}`}
                                         aria-current={i === stepIndex ? 'step' : undefined}
                                     >
                                         <span
-                                            className={`grid h-5 w-5 place-items-center rounded-full text-[10px] tabular-nums ${i === stepIndex ? 'bg-slate-900 text-white' : i < stepIndex ? 'bg-[var(--color-brand-light)] text-[var(--brand-dark)]' : 'bg-slate-100 text-slate-400'}`}
+                                            className={`grid h-5 w-5 place-items-center rounded-full text-[10px] tabular-nums ${i === stepIndex ? 'bg-gray-900 text-white' : i < stepIndex ? 'bg-[var(--color-brand-light)] text-[var(--brand-dark)]' : 'bg-gray-100 text-gray-400'}`}
                                         >
                                             {i + 1}
                                         </span>
                                         {s.label}
                                     </span>
-                                    {i < STEPS.length - 1 && <span className="h-px w-4 bg-slate-200" aria-hidden />}
+                                    {i < STEPS.length - 1 && <span className="h-px w-4 bg-gray-200" aria-hidden />}
                                 </li>
                             ))}
                         </ol>
@@ -402,11 +402,11 @@ export default function AiDrawer({ kind, storageKey, availableTypes, defaultRefe
                                 <button
                                     type="button"
                                     onClick={() => patch({ step: 'brief' })}
-                                    className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-800"
+                                    className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-gray-800"
                                 >
                                     <ArrowLeft size={13} /> Edit brief
                                 </button>
-                                <p className="text-sm text-slate-600">
+                                <p className="text-sm text-gray-600">
                                     Rename, reorder or change items before the content is written.
                                 </p>
                                 <BlueprintEditor
@@ -415,7 +415,7 @@ export default function AiDrawer({ kind, storageKey, availableTypes, defaultRefe
                                     maxQuestions={maxQuestions}
                                 />
                                 {!canWrite && (
-                                    <p className="rounded-xl bg-[var(--brand-light)] px-3.5 py-3 text-sm text-slate-700">
+                                    <p className="rounded-xl bg-[var(--brand-light)] px-3.5 py-3 text-sm text-gray-700">
                                         Writing the full {noun} needs the Starter plan or higher. Your outline stays here while you upgrade.
                                     </p>
                                 )}
@@ -429,7 +429,7 @@ export default function AiDrawer({ kind, storageKey, availableTypes, defaultRefe
                         ) : outlineJob.data ? (
                             <GenerationProgress job={outlineJob.data} onCancel={() => cancelJob(state.outlineJobId)} />
                         ) : (
-                            <Loader2 className="mx-auto mt-10 animate-spin text-slate-300" />
+                            <Loader2 className="mx-auto mt-10 animate-spin text-gray-300" />
                         )
                     ) : state.step === 'write' ? (
                         writeFailed ? (
@@ -441,17 +441,17 @@ export default function AiDrawer({ kind, storageKey, availableTypes, defaultRefe
                         ) : writeJob.data ? (
                             <GenerationProgress job={writeJob.data} onCancel={() => cancelJob(state.writeJobId)} />
                         ) : (
-                            <Loader2 className="mx-auto mt-10 animate-spin text-slate-300" />
+                            <Loader2 className="mx-auto mt-10 animate-spin text-gray-300" />
                         )
                     ) : draft ? (
                         <DraftReview draft={draft} selected={selected} onSelectedChange={setSelected} />
                     ) : (
-                        <Loader2 className="mx-auto mt-10 animate-spin text-slate-300" />
+                        <Loader2 className="mx-auto mt-10 animate-spin text-gray-300" />
                     )}
                 </div>
 
                 {tab === 'generate' && footer && (
-                    <footer className="border-t border-slate-100 px-5 py-4 sm:px-6">{footer}</footer>
+                    <footer className="border-t border-gray-100 px-5 py-4 sm:px-6">{footer}</footer>
                 )}
             </div>
             {modal}

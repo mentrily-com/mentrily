@@ -195,7 +195,7 @@ function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
             )}
             <ImpersonationBanner />
             {showPaymentFailedBanner && <PaymentFailedBanner />}
-            <header className="w-full bg-white/80 backdrop-blur-md border-b border-slate-100">
+            <header className="w-full bg-white/80 backdrop-blur-md border-b border-gray-100">
                 <div
                     className={`w-full px-4 py-2.5 lg:px-6 sm:py-3 flex items-center justify-between ${
                         examConfig ? 'gap-3' : ''
@@ -233,7 +233,7 @@ function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
                         </div>
 
                         {!examConfig && !mustChangePassword && (
-                            <nav className="hidden md:flex items-center gap-1 ml-4 bg-slate-50 p-1 rounded-xl">
+                            <nav className="hidden md:flex items-center gap-1 ml-4 bg-gray-50 p-1 rounded-xl">
                                 <NavItem
                                     active={isDashboard}
                                     onClick={() => router.push(basePath || dashboardRoute)}
@@ -653,10 +653,10 @@ function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
                                 </button>
 
                                 {/* Playground Dropdown */}
-                                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-2xl ring-1 ring-slate-200/60 py-2 z-50 opacity-0 invisible group-hover/playground:opacity-100 group-hover/playground:visible transition-all duration-200 translate-y-2 group-hover/playground:translate-y-0">
+                                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-2xl ring-1 ring-gray-200/60 py-2 z-50 opacity-0 invisible group-hover/playground:opacity-100 group-hover/playground:visible transition-all duration-200 translate-y-2 group-hover/playground:translate-y-0">
                                     <button
                                         onClick={() => router.push('/playground')}
-                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold text-slate-600 hover:bg-slate-50 hover:text-[var(--brand)] transition-all"
+                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold text-gray-600 hover:bg-gray-50 hover:text-[var(--brand)] transition-all"
                                     >
                                         <div className="w-8 h-8 rounded-lg bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center">
                                             <svg
@@ -674,7 +674,7 @@ function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
                                     </button>
                                     <button
                                         onClick={() => router.push('/playground/web')}
-                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold text-slate-600 hover:bg-slate-50 hover:text-[var(--brand)] transition-all"
+                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold text-gray-600 hover:bg-gray-50 hover:text-[var(--brand)] transition-all"
                                     >
                                         <div className="w-8 h-8 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center">
                                             <svg
@@ -693,7 +693,7 @@ function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
                                     </button>
                                     <button
                                         onClick={() => router.push('/playground/pynb')}
-                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold text-slate-600 hover:bg-slate-50 hover:text-[var(--brand)] transition-all"
+                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold text-gray-600 hover:bg-gray-50 hover:text-[var(--brand)] transition-all"
                                     >
                                         <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center">
                                             <svg
@@ -713,7 +713,7 @@ function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
                             </div>
                         )}
 
-                        <div className="h-8 w-[1px] bg-slate-100 mx-1"></div>
+                        <div className="h-8 w-[1px] bg-gray-100 mx-1"></div>
 
                         <div className="flex items-center gap-2">
                             {basePath?.includes('/dashboard/super-admin') && (
@@ -764,21 +764,21 @@ const NavItem = React.memo(function NavItem({
         <button
             onClick={!disabled ? onClick : undefined}
             className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 
-        ${active ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-slate-400 hover:text-slate-600'}
+        ${active ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}
         ${disabled ? 'opacity-40 cursor-not-allowed grayscale-[0.5]' : 'cursor-pointer'}
       `}
         >
             {React.isValidElement(icon) &&
                 React.cloneElement(icon as React.ReactElement<any>, {
-                    className: active ? 'stroke-[var(--brand)]' : 'stroke-slate-400',
+                    className: active ? 'stroke-[var(--brand)]' : 'stroke-gray-400',
                 })}
-            <span className={active ? 'text-slate-900' : ''}>{label}</span>
+            <span className={active ? 'text-gray-900' : ''}>{label}</span>
             {badge && (
-                <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest bg-slate-100 text-slate-500">
+                <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest bg-gray-100 text-gray-500">
                     {badge}
                 </span>
             )}
-            {disabled && <Lock size={12} className="ml-1 text-slate-400" />}
+            {disabled && <Lock size={12} className="ml-1 text-gray-400" />}
         </button>
     );
 });
@@ -823,7 +823,7 @@ const ContentDropdown = React.memo(function ContentDropdown({
                 aria-haspopup="true"
                 aria-expanded={open}
                 className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 ${
-                    active ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-slate-400 hover:text-slate-600'
+                    active ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'
                 }`}
             >
                 <svg
@@ -835,7 +835,7 @@ const ContentDropdown = React.memo(function ContentDropdown({
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className={active ? 'stroke-[var(--brand)]' : 'stroke-slate-400'}
+                    className={active ? 'stroke-[var(--brand)]' : 'stroke-gray-400'}
                 >
                     <rect x="4" y="4" width="16" height="16" rx="2" />
                     <path d="M12 11h4" />
@@ -845,7 +845,7 @@ const ContentDropdown = React.memo(function ContentDropdown({
                     <path d="M8 16h.01" />
                     <path d="M8 8h.01" />
                 </svg>
-                <span className={active ? 'text-slate-900' : ''}>{label}</span>
+                <span className={active ? 'text-gray-900' : ''}>{label}</span>
                 <svg
                     width="12"
                     height="12"
@@ -860,7 +860,7 @@ const ContentDropdown = React.memo(function ContentDropdown({
             </button>
 
             {open && (
-                <div className="absolute left-0 top-full mt-2 min-w-[180px] bg-white rounded-xl shadow-xl ring-1 ring-slate-200 z-50 py-1">
+                <div className="absolute left-0 top-full mt-2 min-w-[180px] bg-white rounded-xl shadow-xl ring-1 ring-gray-200 z-50 py-1">
                     {items.map((item) => (
                         <Link
                             key={item.path}
@@ -869,7 +869,7 @@ const ContentDropdown = React.memo(function ContentDropdown({
                             className={`block w-full text-left px-4 py-2 text-sm font-semibold transition-colors ${
                                 item.active
                                     ? 'text-[var(--brand)] bg-[var(--brand-light)]'
-                                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                             }`}
                         >
                             {item.label}
@@ -1098,7 +1098,7 @@ const AppsMenu = React.memo(function AppsMenu({ isTeacher }: { isTeacher: boolea
                 aria-haspopup="true"
                 aria-expanded={open}
                 aria-label="Apps"
-                className="w-10 h-10 rounded-xl border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-50 transition-colors"
+                className="w-10 h-10 rounded-xl border border-gray-100 flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-colors"
             >
                 <svg
                     width="20"
@@ -1117,8 +1117,8 @@ const AppsMenu = React.memo(function AppsMenu({ isTeacher }: { isTeacher: boolea
             </button>
 
             {open && (
-                <div className="absolute right-0 top-full mt-3 w-72 rounded-2xl bg-white shadow-2xl ring-1 ring-slate-200/60 p-4 z-50 animate-fade-in">
-                    <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 px-2">
+                <div className="absolute right-0 top-full mt-3 w-72 rounded-2xl bg-white shadow-2xl ring-1 ring-gray-200/60 p-4 z-50 animate-fade-in">
+                    <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 px-2">
                         Quick Access
                     </h3>
                     <div className="grid grid-cols-3 gap-2">
@@ -1127,12 +1127,12 @@ const AppsMenu = React.memo(function AppsMenu({ isTeacher }: { isTeacher: boolea
                                 key={app.label}
                                 href={app.path}
                                 onClick={() => setOpen(false)}
-                                className="flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100"
+                                className="flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100"
                             >
                                 <div className="w-10 h-10 rounded-xl bg-[var(--brand-lighter)] text-[var(--brand)] flex items-center justify-center">
                                     {app.icon}
                                 </div>
-                                <span className="text-[10px] font-bold text-slate-600 text-center">{app.label}</span>
+                                <span className="text-[10px] font-bold text-gray-600 text-center">{app.label}</span>
                             </Link>
                         ))}
                     </div>
@@ -1228,7 +1228,7 @@ function ProfileMenu({
             {/* In the exam header the name gives up its space below lg; the
                 menu itself shows the name and roll number. */}
             <div className={`hidden text-right ${examConfig ? 'lg:block' : 'sm:block'}`}>
-                <p className="text-sm font-black text-slate-800 leading-none">{displayName}</p>
+                <p className="text-sm font-black text-gray-800 leading-none">{displayName}</p>
                 <p className="text-[9px] font-black text-[var(--brand)] uppercase tracking-widest mt-1">
                     {examConfig?.rollNumber ? `Roll: ${examConfig.rollNumber}` : getLabel()}
                 </p>
@@ -1252,8 +1252,8 @@ function ProfileMenu({
                     </button>
 
                     {open && (
-                        <div className="absolute right-0 top-full mt-3 w-64 rounded-2xl bg-white shadow-2xl ring-1 ring-slate-200/60 z-50 overflow-hidden animate-fade-in">
-                            <div className="px-4 py-4 border-b border-slate-100 flex items-center gap-3">
+                        <div className="absolute right-0 top-full mt-3 w-64 rounded-2xl bg-white shadow-2xl ring-1 ring-gray-200/60 z-50 overflow-hidden animate-fade-in">
+                            <div className="px-4 py-4 border-b border-gray-100 flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] text-white font-black flex items-center justify-center overflow-hidden shrink-0">
                                     {avatarUrl ? (
                                         // eslint-disable-next-line @next/next/no-img-element
@@ -1263,9 +1263,9 @@ function ProfileMenu({
                                     )}
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="text-sm font-black text-slate-800 truncate">{displayName}</p>
+                                    <p className="text-sm font-black text-gray-800 truncate">{displayName}</p>
                                     {examConfig.rollNumber && (
-                                        <p className="text-[11px] font-bold text-slate-400 truncate mt-0.5">
+                                        <p className="text-[11px] font-bold text-gray-400 truncate mt-0.5">
                                             Roll: {examConfig.rollNumber}
                                         </p>
                                     )}
@@ -1278,9 +1278,9 @@ function ProfileMenu({
                                         setOpen(false);
                                         examConfig.onRefresh?.();
                                     }}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-black text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-black text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                                 >
-                                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
+                                    <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500">
                                         <svg
                                             width="16"
                                             height="16"
@@ -1319,8 +1319,8 @@ function ProfileMenu({
                     </button>
 
                     {open && (
-                        <div className="absolute right-0 top-full mt-3 w-72 rounded-2xl bg-white shadow-2xl ring-1 ring-slate-200/60 z-50 overflow-hidden animate-fade-in">
-                            <div className="px-4 py-4 border-b border-slate-100 flex items-center gap-3">
+                        <div className="absolute right-0 top-full mt-3 w-72 rounded-2xl bg-white shadow-2xl ring-1 ring-gray-200/60 z-50 overflow-hidden animate-fade-in">
+                            <div className="px-4 py-4 border-b border-gray-100 flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] text-white font-black flex items-center justify-center overflow-hidden shrink-0">
                                     {avatarUrl ? (
                                         // eslint-disable-next-line @next/next/no-img-element
@@ -1330,9 +1330,9 @@ function ProfileMenu({
                                     )}
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="text-sm font-black text-slate-800 truncate">{displayName}</p>
+                                    <p className="text-sm font-black text-gray-800 truncate">{displayName}</p>
                                     {displayEmail && (
-                                        <p className="text-[11px] font-bold text-slate-400 truncate mt-0.5">
+                                        <p className="text-[11px] font-bold text-gray-400 truncate mt-0.5">
                                             {displayEmail}
                                         </p>
                                     )}
@@ -1348,9 +1348,9 @@ function ProfileMenu({
                                         setOpen(false);
                                         router.push(`${dashboardPath}/profile`);
                                     }}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-black text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-black text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                                 >
-                                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
+                                    <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500">
                                         <svg
                                             width="16"
                                             height="16"
@@ -1372,9 +1372,9 @@ function ProfileMenu({
                                             setOpen(false);
                                             router.push('/dashboard/creator/billing');
                                         }}
-                                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-black text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-black text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                                     >
-                                        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
+                                        <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500">
                                             <CreditCard size={16} />
                                         </div>
                                         Billing
@@ -1384,16 +1384,16 @@ function ProfileMenu({
                                 {canAccessSupport && (
                                     <button
                                         onClick={handleSupportClick}
-                                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-black text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-black text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                                     >
-                                        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
+                                        <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500">
                                             <LifeBuoy size={16} />
                                         </div>
                                         Contact Support
                                     </button>
                                 )}
 
-                                <div className="h-px bg-slate-100 my-1.5" />
+                                <div className="h-px bg-gray-100 my-1.5" />
 
                                 <button
                                     onClick={handleSignOut}
@@ -1439,7 +1439,7 @@ function MenuBtn({
         <button
             onClick={onClick}
             className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold transition-all ${
-                danger ? 'text-red-500 hover:bg-red-50' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                danger ? 'text-red-500 hover:bg-red-50' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
             }`}
         >
             {icon}
@@ -1493,7 +1493,7 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                     aria-haspopup="true"
                     aria-expanded={open}
                     aria-label="Announcements"
-                    className="hidden sm:flex w-10 h-10 rounded-xl border border-slate-100 items-center justify-center text-slate-400 hover:bg-slate-50 hover:text-[var(--brand)] transition-all relative"
+                    className="hidden sm:flex w-10 h-10 rounded-xl border border-gray-100 items-center justify-center text-gray-400 hover:bg-gray-50 hover:text-[var(--brand)] transition-all relative"
                     title="Announcements"
                 >
                     <Megaphone size={18} />
@@ -1505,9 +1505,9 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                 </button>
 
                 {open && (
-                    <div className="absolute right-0 top-full mt-3 w-80 rounded-2xl bg-white shadow-2xl ring-1 ring-slate-200/60 z-50 animate-fade-in overflow-hidden">
-                        <div className="px-5 py-4 border-b border-slate-50 flex items-center justify-between">
-                            <h3 className="text-xs font-black uppercase tracking-widest text-slate-800 flex items-center gap-2">
+                    <div className="absolute right-0 top-full mt-3 w-80 rounded-2xl bg-white shadow-2xl ring-1 ring-gray-200/60 z-50 animate-fade-in overflow-hidden">
+                        <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
+                            <h3 className="text-xs font-black uppercase tracking-widest text-gray-800 flex items-center gap-2">
                                 <Megaphone size={14} className="text-[var(--brand)]" /> Announcements
                             </h3>
                             {unreadCount > 0 && (
@@ -1519,22 +1519,22 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                         <div className="max-h-[340px] overflow-y-auto custom-scrollbar">
                             {announcements.length === 0 ? (
                                 <div className="p-8 text-center">
-                                    <Megaphone size={24} className="text-slate-200 mx-auto mb-2" />
-                                    <p className="text-xs font-bold text-slate-400">No announcements yet</p>
+                                    <Megaphone size={24} className="text-gray-200 mx-auto mb-2" />
+                                    <p className="text-xs font-bold text-gray-400">No announcements yet</p>
                                 </div>
                             ) : (
                                 announcements.slice(0, 8).map((ann) => (
                                     <button
                                         key={ann.id}
                                         onClick={() => handleClick(ann)}
-                                        className={`w-full text-left px-5 py-3.5 hover:bg-slate-50 transition-all border-b border-slate-50 last:border-0 flex items-start gap-3 ${
+                                        className={`w-full text-left px-5 py-3.5 hover:bg-gray-50 transition-all border-b border-gray-50 last:border-0 flex items-start gap-3 ${
                                             !ann.isRead ? 'bg-[var(--brand-light)]/20' : ''
                                         }`}
                                     >
                                         <div
                                             className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${
                                                 ann.isRead
-                                                    ? 'bg-slate-100 text-slate-400'
+                                                    ? 'bg-gray-100 text-gray-400'
                                                     : 'bg-[var(--brand)] text-white'
                                             }`}
                                         >
@@ -1542,11 +1542,11 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p
-                                                className={`text-[13px] font-bold truncate ${ann.isRead ? 'text-slate-600' : 'text-slate-800'}`}
+                                                className={`text-[13px] font-bold truncate ${ann.isRead ? 'text-gray-600' : 'text-gray-800'}`}
                                             >
                                                 {ann.title}
                                             </p>
-                                            <p className="text-[10px] font-bold text-slate-400 mt-0.5">
+                                            <p className="text-[10px] font-bold text-gray-400 mt-0.5">
                                                 {new Date(ann.createdAt).toLocaleDateString('en-US', {
                                                     month: 'short',
                                                     day: 'numeric',
@@ -1571,14 +1571,14 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                 createPortal(
                     <div className="fixed inset-0 z-[1200] flex items-center justify-center p-4">
                         <div
-                            className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+                            className="absolute inset-0 bg-gray-900/60 backdrop-blur-md"
                             onClick={() => setSelectedAnn(null)}
                         />
                         <div className="bg-white w-full max-w-2xl rounded-3xl sm:rounded-[48px] p-6 sm:p-12 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[85vh] overflow-y-auto custom-scrollbar">
                             <button
                                 onClick={() => setSelectedAnn(null)}
                                 aria-label="Close"
-                                className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl sm:rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-400 transition-all active:scale-95"
+                                className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl sm:rounded-2xl bg-gray-50 hover:bg-gray-100 text-gray-400 transition-all active:scale-95"
                             >
                                 <X size={20} strokeWidth={3} />
                             </button>
@@ -1588,10 +1588,10 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                                     <Megaphone size={24} className="text-white" />
                                 </div>
                                 <div>
-                                    <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-1">
+                                    <h2 className="text-2xl font-black text-gray-900 tracking-tight mb-1">
                                         {selectedAnn.title}
                                     </h2>
-                                    <div className="flex items-center gap-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    <div className="flex items-center gap-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">
                                         <span>
                                             {new Date(selectedAnn.createdAt).toLocaleDateString('en-US', {
                                                 weekday: 'short',
@@ -1602,7 +1602,7 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                                         </span>
                                         {selectedAnn.teacher?.name && (
                                             <>
-                                                <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                                                <span className="w-1 h-1 bg-gray-300 rounded-full" />
                                                 <span>{selectedAnn.teacher.name}</span>
                                             </>
                                         )}
@@ -1624,15 +1624,15 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                             )}
 
                             <div
-                                className="prose prose-sm max-w-none text-slate-700 mb-8 [&_p]:mb-3 [&_h1]:text-xl [&_h1]:font-black [&_h2]:text-lg [&_h2]:font-black [&_ul]:list-disc [&_ol]:list-decimal [&_li]:ml-4 [&_a]:text-[var(--brand)] [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-[var(--brand-light)] [&_blockquote]:pl-4 [&_blockquote]:italic [&_img]:rounded-2xl [&_img]:max-w-full"
+                                className="prose prose-sm max-w-none text-gray-700 mb-8 [&_p]:mb-3 [&_h1]:text-xl [&_h1]:font-black [&_h2]:text-lg [&_h2]:font-black [&_ul]:list-disc [&_ol]:list-decimal [&_li]:ml-4 [&_a]:text-[var(--brand)] [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-[var(--brand-light)] [&_blockquote]:pl-4 [&_blockquote]:italic [&_img]:rounded-2xl [&_img]:max-w-full"
                                 dangerouslySetInnerHTML={{
                                     __html: sanitizeProse(selectedAnn.content),
                                 }}
                             />
 
                             {Array.isArray(selectedAnn.attachments) && selectedAnn.attachments.length > 0 && (
-                                <div className="bg-slate-50 rounded-[24px] border border-slate-100 p-6">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">
+                                <div className="bg-gray-50 rounded-[24px] border border-gray-100 p-6">
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">
                                         Attachments
                                     </p>
                                     <div className="space-y-2">
@@ -1640,22 +1640,22 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                                             <button
                                                 key={idx}
                                                 onClick={() => handleDownload(att.url, att.name)}
-                                                className="w-full flex items-center gap-3 px-4 py-3 bg-white rounded-2xl border border-slate-100 hover:border-[var(--brand-light)] hover:shadow-sm transition-all cursor-pointer"
+                                                className="w-full flex items-center gap-3 px-4 py-3 bg-white rounded-2xl border border-gray-100 hover:border-[var(--brand-light)] hover:shadow-sm transition-all cursor-pointer"
                                             >
-                                                <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center">
+                                                <div className="w-8 h-8 rounded-xl bg-gray-50 flex items-center justify-center">
                                                     {att.type?.startsWith('image/') ? (
                                                         <ImageIcon size={16} className="text-blue-500" />
                                                     ) : att.type?.includes('pdf') ? (
                                                         <FileText size={16} className="text-rose-500" />
                                                     ) : (
-                                                        <FileIcon size={16} className="text-slate-400" />
+                                                        <FileIcon size={16} className="text-gray-400" />
                                                     )}
                                                 </div>
                                                 <div className="flex-1 min-w-0 text-left">
-                                                    <p className="text-xs font-black text-slate-700 truncate">
+                                                    <p className="text-xs font-black text-gray-700 truncate">
                                                         {att.name}
                                                     </p>
-                                                    <p className="text-[10px] font-bold text-slate-400">
+                                                    <p className="text-[10px] font-bold text-gray-400">
                                                         {att.size ? `${(att.size / 1024).toFixed(0)} KB` : 'File'}
                                                     </p>
                                                 </div>

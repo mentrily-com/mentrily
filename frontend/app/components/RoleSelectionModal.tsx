@@ -46,7 +46,7 @@ export default function RoleSelectionModal({ onSelectRole, onSelectCreator }: Ro
     };
 
     return (
-        <div className="fixed inset-0 z-[2100] bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+        <div className="fixed inset-0 z-[2100] bg-gray-950/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
             <div
                 ref={panelRef}
                 role="dialog"
@@ -62,17 +62,17 @@ export default function RoleSelectionModal({ onSelectRole, onSelectCreator }: Ro
                     </p>
                     <h2
                         id="role-selection-title"
-                        className="mt-3 text-[26px] font-black text-slate-900 tracking-tight leading-tight sm:text-3xl"
+                        className="mt-3 text-[26px] font-black text-gray-900 tracking-tight leading-tight sm:text-3xl"
                     >
                         Pick your side of the classroom
                     </h2>
-                    <p className="mt-2 text-[13px] font-medium text-slate-500">
+                    <p className="mt-2 text-[13px] font-medium text-gray-500">
                         You can add the other side to your account whenever you like.
                     </p>
                 </div>
 
                 {/* The two doors */}
-                <div className="grid grid-cols-1 border-t border-slate-100 divide-y divide-slate-100 sm:grid-cols-2 sm:divide-y-0 sm:divide-x">
+                <div className="grid grid-cols-1 border-t border-gray-100 divide-y divide-gray-100 sm:grid-cols-2 sm:divide-y-0 sm:divide-x">
                     <Door
                         kicker="For students"
                         verb="Learn."
@@ -94,13 +94,13 @@ export default function RoleSelectionModal({ onSelectRole, onSelectCreator }: Ro
                 </div>
 
                 {/* Footer */}
-                <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 text-center sm:px-10">
+                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 text-center sm:px-10">
                     {error && (
                         <p className="mb-2 text-xs font-bold text-rose-500" role="alert">
                             {error}
                         </p>
                     )}
-                    <p className="text-[11px] font-semibold text-slate-400">
+                    <p className="text-[11px] font-semibold text-gray-400">
                         A role is required to continue. Learners can become creators later — and creators can always
                         learn.
                     </p>
@@ -141,15 +141,15 @@ function Door({
                       : 'hover:bg-[var(--brand-light)]/30 cursor-pointer'
             }`}
         >
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 group-hover:text-[var(--brand)] transition-colors">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 group-hover:text-[var(--brand)] transition-colors">
                 {kicker}
             </span>
 
-            <span className="mt-2 text-4xl font-black tracking-tight text-slate-900 sm:text-[40px] sm:leading-none">
+            <span className="mt-2 text-4xl font-black tracking-tight text-gray-900 sm:text-[40px] sm:leading-none">
                 {verb}
             </span>
 
-            <span className="mt-3 text-[13px] leading-relaxed text-slate-500 flex-1">{body}</span>
+            <span className="mt-3 text-[13px] leading-relaxed text-gray-500 flex-1">{body}</span>
 
             <span
                 className={`mt-6 inline-flex items-center gap-1.5 text-[12px] font-black uppercase tracking-widest transition-colors ${

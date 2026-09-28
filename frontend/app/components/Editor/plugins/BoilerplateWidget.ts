@@ -24,8 +24,8 @@ export class BoilerplateWidget extends WidgetType {
 
         // Toggle Bar - Thin and blended
         const bar = document.createElement('div');
-        bar.className = `flex items-center gap-2 px-4 py-1.5 cursor-pointer select-none border-slate-100 ${
-            this.isCollapsed ? 'bg-slate-50/50 hover:bg-slate-100' : 'bg-slate-100/80 hover:bg-slate-100'
+        bar.className = `flex items-center gap-2 px-4 py-1.5 cursor-pointer select-none border-gray-100 ${
+            this.isCollapsed ? 'bg-gray-50/50 hover:bg-gray-100' : 'bg-gray-100/80 hover:bg-gray-100'
         }`;
 
         // Thin border based on type
@@ -42,7 +42,7 @@ export class BoilerplateWidget extends WidgetType {
         arrow.textContent = '▼';
 
         const title = document.createElement('span');
-        title.className = 'text-[10px] font-bold text-slate-400 font-mono tracking-tight';
+        title.className = 'text-[10px] font-bold text-gray-400 font-mono tracking-tight';
         title.textContent = this.type === 'header' ? 'Show Boilerplate Header' : 'Show Boilerplate Footer';
 
         bar.appendChild(arrow);
@@ -59,12 +59,12 @@ export class BoilerplateWidget extends WidgetType {
         // Code Content
         if (!this.isCollapsed) {
             const body = document.createElement('div');
-            body.className = 'bg-slate-50/30 border-slate-100 font-mono text-[13px]';
+            body.className = 'bg-gray-50/30 border-gray-100 font-mono text-[13px]';
             if (this.type === 'header') body.classList.add('border-b');
             else body.classList.add('border-t');
 
             const code = document.createElement('pre');
-            code.className = 'p-4 m-0 overflow-x-auto leading-relaxed text-slate-400';
+            code.className = 'p-4 m-0 overflow-x-auto leading-relaxed text-gray-400';
             code.textContent = this.content;
             body.appendChild(code);
             wrap.appendChild(body);

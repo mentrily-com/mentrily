@@ -88,11 +88,11 @@ export default function CreatorSettingsPage() {
 
     if (plan !== 'ENTERPRISE') {
         return (
-            <div className="min-h-screen bg-slate-50 text-slate-900">
+            <div className="min-h-screen bg-gray-50 text-gray-900">
                 <main className="max-w-[980px] mx-auto px-6 lg:px-12 py-12">
-                    <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm p-10 text-center">
-                        <h1 className="text-2xl font-black tracking-tight text-slate-900">Enterprise Only</h1>
-                        <p className="text-sm font-bold text-slate-500 mt-3">
+                    <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-10 text-center">
+                        <h1 className="text-2xl font-black tracking-tight text-gray-900">Enterprise Only</h1>
+                        <p className="text-sm font-bold text-gray-500 mt-3">
                             Organization settings are available only on the Enterprise plan.
                         </p>
                         <Link
@@ -109,11 +109,11 @@ export default function CreatorSettingsPage() {
 
     if (role !== 'ADMIN') {
         return (
-            <div className="min-h-screen bg-slate-50 text-slate-900">
+            <div className="min-h-screen bg-gray-50 text-gray-900">
                 <main className="max-w-[980px] mx-auto px-6 lg:px-12 py-12">
-                    <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm p-10 text-center">
-                        <h1 className="text-2xl font-black tracking-tight text-slate-900">Admin Access Required</h1>
-                        <p className="text-sm font-bold text-slate-500 mt-3">
+                    <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-10 text-center">
+                        <h1 className="text-2xl font-black tracking-tight text-gray-900">Admin Access Required</h1>
+                        <p className="text-sm font-bold text-gray-500 mt-3">
                             Only organization admins can edit organization settings.
                         </p>
                     </div>

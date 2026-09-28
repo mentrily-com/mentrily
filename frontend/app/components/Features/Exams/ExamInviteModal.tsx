@@ -109,11 +109,11 @@ export default function ExamInviteModal({ isOpen, onClose, exam }: ExamInviteMod
                 bodyClassName="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6"
                 footer={
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <p className="text-xs font-bold text-slate-400">Invites are queued and sent asynchronously.</p>
+                        <p className="text-xs font-bold text-gray-400">Invites are queued and sent asynchronously.</p>
                         <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
                             <button
                                 onClick={onClose}
-                                className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-500 text-xs font-black uppercase tracking-widest"
+                                className="px-4 py-2.5 rounded-xl bg-gray-100 text-gray-500 text-xs font-black uppercase tracking-widest"
                             >
                                 Close
                             </button>
@@ -130,15 +130,15 @@ export default function ExamInviteModal({ isOpen, onClose, exam }: ExamInviteMod
             >
                 <div className="space-y-4">
                     <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">
                             Select Groups
                         </p>
                         {loading ? (
-                            <div className="p-4 rounded-2xl border border-slate-100 bg-slate-50 text-sm font-bold text-slate-400">
+                            <div className="p-4 rounded-2xl border border-gray-100 bg-gray-50 text-sm font-bold text-gray-400">
                                 Loading groups...
                             </div>
                         ) : groups.length === 0 ? (
-                            <div className="p-4 rounded-2xl border border-slate-100 bg-slate-50 text-sm font-bold text-slate-400">
+                            <div className="p-4 rounded-2xl border border-gray-100 bg-gray-50 text-sm font-bold text-gray-400">
                                 No groups available.
                             </div>
                         ) : (
@@ -150,18 +150,18 @@ export default function ExamInviteModal({ isOpen, onClose, exam }: ExamInviteMod
                                             key={group.id}
                                             type="button"
                                             onClick={() => toggleGroup(group.id)}
-                                            className={`w-full text-left p-3 rounded-xl border transition-all ${isSelected ? 'border-[var(--brand)] bg-[var(--brand-light)]/40' : 'border-slate-100 hover:border-slate-200 bg-white'}`}
+                                            className={`w-full text-left p-3 rounded-xl border transition-all ${isSelected ? 'border-[var(--brand)] bg-[var(--brand-light)]/40' : 'border-gray-100 hover:border-gray-200 bg-white'}`}
                                         >
                                             <div className="flex items-center justify-between gap-3">
                                                 <div>
-                                                    <p className="text-sm font-black text-slate-800">{group.name}</p>
-                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                                    <p className="text-sm font-black text-gray-800">{group.name}</p>
+                                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                                                         {group?._count?.students || group?.students?.length || 0}{' '}
                                                         students
                                                     </p>
                                                 </div>
                                                 <div
-                                                    className={`w-5 h-5 rounded border flex items-center justify-center ${isSelected ? 'bg-[var(--brand)] border-[var(--brand)] text-white' : 'border-slate-300'}`}
+                                                    className={`w-5 h-5 rounded border flex items-center justify-center ${isSelected ? 'bg-[var(--brand)] border-[var(--brand)] text-white' : 'border-gray-300'}`}
                                                 >
                                                     {isSelected ? '✓' : ''}
                                                 </div>
@@ -174,7 +174,7 @@ export default function ExamInviteModal({ isOpen, onClose, exam }: ExamInviteMod
                     </div>
 
                     <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">
                             Custom Message (Optional)
                         </p>
                         <textarea
@@ -182,22 +182,22 @@ export default function ExamInviteModal({ isOpen, onClose, exam }: ExamInviteMod
                             onChange={(e) => setCustomMessage(e.target.value)}
                             rows={5}
                             maxLength={2000}
-                            className="w-full rounded-2xl border border-slate-100 bg-white p-4 text-sm font-medium text-slate-700 outline-none focus:border-[var(--brand)]"
+                            className="w-full rounded-2xl border border-gray-100 bg-white p-4 text-sm font-medium text-gray-700 outline-none focus:border-[var(--brand)]"
                             placeholder="Add a short note for students..."
                         />
                     </div>
                 </div>
 
                 <div className="space-y-4">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Email Preview</p>
-                    <div className="rounded-2xl border border-slate-100 p-4 bg-slate-50 space-y-2">
-                        <p className="text-sm font-black text-slate-800">{exam.title}</p>
-                        <p className="text-xs font-bold text-slate-500">Duration: {exam.duration || 'N/A'} mins</p>
-                        <p className="text-xs font-bold text-slate-500">Test Code: {exam.testCode || 'N/A'}</p>
-                        <p className="text-xs font-bold text-slate-500">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Email Preview</p>
+                    <div className="rounded-2xl border border-gray-100 p-4 bg-gray-50 space-y-2">
+                        <p className="text-sm font-black text-gray-800">{exam.title}</p>
+                        <p className="text-xs font-bold text-gray-500">Duration: {exam.duration || 'N/A'} mins</p>
+                        <p className="text-xs font-bold text-gray-500">Test Code: {exam.testCode || 'N/A'}</p>
+                        <p className="text-xs font-bold text-gray-500">
                             Start: {exam.startTime ? new Date(exam.startTime).toLocaleString() : 'Not scheduled'}
                         </p>
-                        <p className="text-xs font-bold text-slate-500">
+                        <p className="text-xs font-bold text-gray-500">
                             End: {exam.endTime ? new Date(exam.endTime).toLocaleString() : 'Not scheduled'}
                         </p>
                         {customMessage.trim() && (
@@ -212,10 +212,10 @@ export default function ExamInviteModal({ isOpen, onClose, exam }: ExamInviteMod
                         )}
                     </div>
 
-                    <div className="rounded-2xl border border-slate-100 p-4 bg-white">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Summary</p>
-                        <p className="text-sm font-bold text-slate-700 mt-2">{selectedCount} groups selected</p>
-                        <p className="text-xs font-bold text-slate-500">
+                    <div className="rounded-2xl border border-gray-100 p-4 bg-white">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Summary</p>
+                        <p className="text-sm font-bold text-gray-700 mt-2">{selectedCount} groups selected</p>
+                        <p className="text-xs font-bold text-gray-500">
                             Estimated unique recipients: {estimatedRecipients}
                         </p>
                         {queuedCount !== null && (

@@ -100,7 +100,7 @@ export default function StudentPreview({ question, mode, setMode }: StudentPrevi
 
     if (!question)
         return (
-            <div className="flex-1 flex items-center justify-center text-slate-300 font-black uppercase tracking-widest italic">
+            <div className="flex-1 flex items-center justify-center text-gray-300 font-black uppercase tracking-widest italic">
                 Select a question to preview
             </div>
         );
@@ -109,7 +109,7 @@ export default function StudentPreview({ question, mode, setMode }: StudentPrevi
         <div className="absolute inset-0 z-50 flex flex-col overflow-hidden bg-[#f4f6f9]">
             {/* Renderer Container - Using exact UnitRenderer */}
             <div
-                className={`mx-auto flex-1 overflow-hidden transition-all duration-300 ${mode === 'mobile' ? 'my-4 w-[375px] rounded-[28px] bg-slate-900 p-2 shadow-[0_18px_60px_rgba(15,23,42,0.28)]' : 'w-full bg-white'}`}
+                className={`mx-auto flex-1 overflow-hidden transition-all duration-300 ${mode === 'mobile' ? 'my-4 w-[375px] rounded-[28px] bg-gray-900 p-2 shadow-[0_18px_60px_rgba(15,23,42,0.28)]' : 'w-full bg-white'}`}
             >
                 <UnitRenderer
                     question={unitQuestion as UnitQuestion}

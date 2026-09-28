@@ -16,21 +16,21 @@ const CREATOR_ROLES = new Set(['TEACHER', 'ADMIN', 'SUPER_ADMIN']);
 const primaryButton =
     'flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--brand-dark)] disabled:opacity-60';
 const secondaryButton =
-    'flex w-full items-center justify-center rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50';
+    'flex w-full items-center justify-center rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:border-gray-300 hover:bg-gray-50';
 
 /** The message exactly as it will appear in the chat once sent. */
 function MessagePreview({ prompt }: { prompt: GatePrompt }) {
     return (
-        <div className="flex justify-end rounded-2xl bg-slate-50 px-4 py-5">
+        <div className="flex justify-end rounded-2xl bg-gray-50 px-4 py-5">
             <div className="max-w-[90%] space-y-1.5">
                 {prompt.command && (
                     <div className="flex justify-end">
-                        <span className="rounded-md bg-slate-900 px-1.5 py-0.5 text-[11px] font-medium text-white">
+                        <span className="rounded-md bg-gray-900 px-1.5 py-0.5 text-[11px] font-medium text-white">
                             /{prompt.command}
                         </span>
                     </div>
                 )}
-                <p className="line-clamp-4 whitespace-pre-wrap break-words rounded-2xl rounded-br-md border border-slate-200 bg-white px-4 py-2.5 text-[15px] leading-6 text-slate-900">
+                <p className="line-clamp-4 whitespace-pre-wrap break-words rounded-2xl rounded-br-md border border-gray-200 bg-white px-4 py-2.5 text-[15px] leading-6 text-gray-900">
                     {prompt.text}
                 </p>
             </div>
@@ -42,7 +42,7 @@ function GuestGate({ prompt }: { prompt?: GatePrompt }) {
     return (
         <div className="space-y-5">
             {prompt && <MessagePreview prompt={prompt} />}
-            <p className="text-sm leading-6 text-slate-600">
+            <p className="text-sm leading-6 text-gray-600">
                 {prompt
                     ? 'Your message is saved on this device and will be waiting in the chat after you sign in.'
                     : 'Create a free account to chat, plan courses and build exams with Mentrily AI.'}
@@ -55,7 +55,7 @@ function GuestGate({ prompt }: { prompt?: GatePrompt }) {
                     Sign in
                 </Link>
             </div>
-            <p className="text-center text-xs text-slate-500">Free accounts include monthly AI credits.</p>
+            <p className="text-center text-xs text-gray-500">Free accounts include monthly AI credits.</p>
         </div>
     );
 }
@@ -111,36 +111,36 @@ function LearnerGate({ prompt }: { prompt?: GatePrompt }) {
         <div className="space-y-5">
             {prompt && <MessagePreview prompt={prompt} />}
             {memberships === null ? (
-                <p className="flex items-center gap-2 text-sm text-slate-500" aria-live="polite">
+                <p className="flex items-center gap-2 text-sm text-gray-500" aria-live="polite">
                     <Loader2 size={15} className="animate-spin" /> Checking your workspaces…
                 </p>
             ) : creatorWorkspaces.length > 0 ? (
                 <div className="space-y-3">
-                    <p className="text-sm leading-6 text-slate-600">
+                    <p className="text-sm leading-6 text-gray-600">
                         Mentrily AI works in your creator workspace. Pick one to continue
                         {prompt ? ' and your message will be waiting there.' : '.'}
                     </p>
-                    <ul className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200">
+                    <ul className="divide-y divide-gray-100 overflow-hidden rounded-xl border border-gray-200">
                         {creatorWorkspaces.map((m) => (
                             <li key={m.orgId}>
                                 <button
                                     type="button"
                                     disabled={busy !== null}
                                     onClick={() => void openWorkspace(m)}
-                                    className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left hover:bg-slate-50 disabled:opacity-60"
+                                    className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left hover:bg-gray-50 disabled:opacity-60"
                                 >
                                     <span className="min-w-0">
-                                        <span className="block truncate text-sm font-semibold text-slate-900">
+                                        <span className="block truncate text-sm font-semibold text-gray-900">
                                             {m.orgName}
                                         </span>
-                                        <span className="block text-xs capitalize text-slate-500">
+                                        <span className="block text-xs capitalize text-gray-500">
                                             {m.role.toLowerCase().replace('_', ' ')}
                                         </span>
                                     </span>
                                     {busy === m.orgId ? (
                                         <Loader2 size={16} className="shrink-0 animate-spin text-[var(--brand)]" />
                                     ) : (
-                                        <ChevronRight size={16} className="shrink-0 text-slate-400" />
+                                        <ChevronRight size={16} className="shrink-0 text-gray-400" />
                                     )}
                                 </button>
                             </li>
@@ -149,7 +149,7 @@ function LearnerGate({ prompt }: { prompt?: GatePrompt }) {
                 </div>
             ) : (
                 <div className="space-y-4">
-                    <p className="text-sm leading-6 text-slate-600">
+                    <p className="text-sm leading-6 text-gray-600">
                         Mentrily AI works in a creator workspace, where you build courses and exams. Setting one up is
                         free, and your learner account stays exactly as it is.
                     </p>

@@ -221,12 +221,12 @@ function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
             <div className="flex-1 min-w-0">
                 {toast.title && (
                     <h4
-                        className={`text-[11px] font-black uppercase tracking-widest mb-1 ${isViolation ? 'text-white' : 'text-slate-800'}`}
+                        className={`text-[11px] font-black uppercase tracking-widest mb-1 ${isViolation ? 'text-white' : 'text-gray-800'}`}
                     >
                         {toast.title}
                     </h4>
                 )}
-                <p className={`text-xs font-bold leading-relaxed ${isViolation ? 'text-white/90' : 'text-slate-600'}`}>
+                <p className={`text-xs font-bold leading-relaxed ${isViolation ? 'text-white/90' : 'text-gray-600'}`}>
                     {toast.message}
                 </p>
             </div>
@@ -235,7 +235,7 @@ function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
                     onClick={onClose}
                     aria-label="Dismiss notification"
                     className={`pointer-events-auto shrink-0 p-1 transition-colors ${
-                        isViolation ? 'text-white/70 hover:text-white' : 'text-slate-400 hover:text-slate-600'
+                        isViolation ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-gray-600'
                     }`}
                 >
                     <X size={14} />

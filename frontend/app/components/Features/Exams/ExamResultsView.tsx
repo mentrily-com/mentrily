@@ -210,14 +210,14 @@ export default function ExamResultsView({
         <div className="animate-fade-in pb-10">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-2xl font-black text-slate-900 tracking-tight">{title}</h1>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">
+                    <h1 className="text-2xl font-black text-gray-900 tracking-tight">{title}</h1>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mt-1">
                         Assessment ID: {examId}
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                     <Link href={backLink}>
-                        <button className="p-3 bg-white border border-slate-100 text-slate-400 rounded-xl hover:text-slate-600 transition-all shadow-sm">
+                        <button className="p-3 bg-white border border-gray-100 text-gray-400 rounded-xl hover:text-gray-600 transition-all shadow-sm">
                             <svg
                                 width="18"
                                 height="18"
@@ -247,9 +247,9 @@ export default function ExamResultsView({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6 mb-10">
-                <div className="md:col-span-2 lg:col-span-2 bg-white rounded-[32px] border border-slate-100 p-6 shadow-sm flex flex-col">
+                <div className="md:col-span-2 lg:col-span-2 bg-white rounded-[32px] border border-gray-100 p-6 shadow-sm flex flex-col">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                             Pass/Fail Ratio
                         </h3>
                         <span
@@ -278,8 +278,8 @@ export default function ExamResultsView({
                             </PieChart>
                         </ResponsiveContainer>
                         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                            <span className="text-2xl font-black text-slate-800 leading-none">{results.length}</span>
-                            <span className="text-[8px] font-black text-slate-300 uppercase">Total</span>
+                            <span className="text-2xl font-black text-gray-800 leading-none">{results.length}</span>
+                            <span className="text-[8px] font-black text-gray-300 uppercase">Total</span>
                         </div>
                     </div>
                     <div className="mt-4 flex justify-center gap-6">
@@ -303,20 +303,20 @@ export default function ExamResultsView({
                     />
                 </div>
 
-                <div className="md:col-span-4 lg:col-span-3 bg-white rounded-[32px] border border-slate-100 p-6 shadow-sm flex flex-col">
+                <div className="md:col-span-4 lg:col-span-3 bg-white rounded-[32px] border border-gray-100 p-6 shadow-sm flex flex-col">
                     <div className="flex items-center justify-between mb-6 px-2">
                         <div>
-                            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">
+                            <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">
                                 Point Distribution
                             </h3>
-                            <p className="text-[8px] font-bold text-slate-300 uppercase">
+                            <p className="text-[8px] font-bold text-gray-300 uppercase">
                                 Student frequency per score bracket
                             </p>
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-1.5">
                                 <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: brandColor }}></div>
-                                <span className="text-[9px] font-black text-slate-400 uppercase">Count</span>
+                                <span className="text-[9px] font-black text-gray-400 uppercase">Count</span>
                             </div>
                         </div>
                     </div>
@@ -372,9 +372,9 @@ export default function ExamResultsView({
                 </div>
             </div>
 
-            <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
-                <div className="px-8 py-6 border-b border-slate-50 flex items-center justify-between">
-                    <h2 className="text-[11px] font-black uppercase tracking-widest text-slate-800">
+            <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
+                <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
+                    <h2 className="text-[11px] font-black uppercase tracking-widest text-gray-800">
                         Student Submissions
                     </h2>
                     <div className="flex items-center gap-3">
@@ -382,43 +382,43 @@ export default function ExamResultsView({
                             {results.slice(0, 5).map((r) => (
                                 <div
                                     key={r.rollNo}
-                                    className="w-6 h-6 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[8px] font-black text-slate-400 uppercase"
+                                    className="w-6 h-6 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[8px] font-black text-gray-400 uppercase"
                                 >
                                     {r.name[0]}
                                 </div>
                             ))}
                             {results.length > 5 && (
-                                <div className="w-6 h-6 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[8px] font-black text-slate-400">
+                                <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[8px] font-black text-gray-400">
                                     +{results.length - 5}
                                 </div>
                             )}
                         </div>
-                        <span className="text-[10px] font-black text-slate-400 uppercase">Total {results.length}</span>
+                        <span className="text-[10px] font-black text-gray-400 uppercase">Total {results.length}</span>
                     </div>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
-                            <tr className="border-b border-slate-50 bg-slate-50/30">
-                                <th className="px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
+                            <tr className="border-b border-gray-50 bg-gray-50/30">
+                                <th className="px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
                                     Student Info
                                 </th>
-                                <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
                                     Section
                                 </th>
-                                <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
                                     Timing
                                 </th>
-                                <th className="px-4 py-4 text-center text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                <th className="px-4 py-4 text-center text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
                                     Progress
                                 </th>
-                                <th className="px-4 py-4 text-center text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                <th className="px-4 py-4 text-center text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
                                     Score
                                 </th>
-                                <th className="px-4 py-4 text-center text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                <th className="px-4 py-4 text-center text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
                                     Status
                                 </th>
-                                <th className="px-8 py-4 text-right text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                <th className="px-8 py-4 text-right text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
                                     Actions
                                 </th>
                             </tr>
@@ -427,33 +427,33 @@ export default function ExamResultsView({
                             {results.map((r) => (
                                 <tr
                                     key={r.sessionId}
-                                    className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors group"
+                                    className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors group"
                                 >
                                     <td className="px-8 py-5">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center font-black text-[10px] text-slate-400">
+                                            <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center font-black text-[10px] text-gray-400">
                                                 {r.name[0]}
                                             </div>
                                             <div>
-                                                <p className="text-xs font-black text-slate-800 leading-none mb-1">
+                                                <p className="text-xs font-black text-gray-800 leading-none mb-1">
                                                     {r.name}
                                                 </p>
-                                                <p className="text-[9px] font-bold text-slate-400 uppercase">
+                                                <p className="text-[9px] font-bold text-gray-400 uppercase">
                                                     {r.rollNo}
                                                 </p>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-5 text-[10px] font-bold text-slate-500">{r.section}</td>
+                                    <td className="px-6 py-5 text-[10px] font-bold text-gray-500">{r.section}</td>
                                     <td className="px-6 py-5">
-                                        <p className="text-[10px] font-black text-slate-700 leading-none mb-1">
+                                        <p className="text-[10px] font-black text-gray-700 leading-none mb-1">
                                             {r.submittedAt}
                                         </p>
-                                        <p className="text-[9px] font-bold text-slate-300 uppercase">
+                                        <p className="text-[9px] font-bold text-gray-300 uppercase">
                                             {r.timeTaken} Taken
                                         </p>
                                     </td>
-                                    <td className="px-4 py-5 text-center text-xs font-black text-slate-700">
+                                    <td className="px-4 py-5 text-center text-xs font-black text-gray-700">
                                         {r.attempted}
                                     </td>
                                     <td className="px-4 py-5 text-center">
@@ -461,7 +461,7 @@ export default function ExamResultsView({
                                             <span className="text-[11px] font-black" style={{ color: brandColor }}>
                                                 {r.score}
                                             </span>
-                                            <span className="text-[10px] font-bold text-slate-300">
+                                            <span className="text-[10px] font-bold text-gray-300">
                                                 / {r.totalPossible}
                                             </span>
                                         </div>
@@ -483,7 +483,7 @@ export default function ExamResultsView({
                                                       : `/dashboard/creator/exams/${examId}/submission/${r.sessionId}/preview`
                                             }
                                         >
-                                            <button className="px-3 py-1.5 rounded-lg text-[10px] sm:text-[9px] font-black uppercase text-slate-500 bg-slate-50 hover:bg-[var(--brand-light)]/20 hover:text-[var(--brand)] transition-colors inline-flex items-center justify-center min-h-[36px]">
+                                            <button className="px-3 py-1.5 rounded-lg text-[10px] sm:text-[9px] font-black uppercase text-gray-500 bg-gray-50 hover:bg-[var(--brand-light)]/20 hover:text-[var(--brand)] transition-colors inline-flex items-center justify-center min-h-[36px]">
                                                 Preview →
                                             </button>
                                         </Link>
@@ -497,25 +497,25 @@ export default function ExamResultsView({
 
             {/* Pagination */}
             <div className="flex items-center justify-between mt-6">
-                <p className="text-xs font-bold text-slate-400">
+                <p className="text-xs font-bold text-gray-400">
                     Page {pagination.page} of {pagination.totalPages} ({pagination.total} students)
                 </p>
                 <div className="flex gap-2">
                     <button
                         onClick={() => setPagination((p) => ({ ...p, page: Math.max(1, p.page - 1) }))}
                         disabled={pagination.page === 1}
-                        className="p-2.5 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl bg-white border border-slate-100 disabled:opacity-50 hover:bg-slate-50 transition-colors"
+                        className="p-2.5 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl bg-white border border-gray-100 disabled:opacity-50 hover:bg-gray-50 transition-colors"
                     >
-                        <ChevronLeft size={16} className="text-slate-600" />
+                        <ChevronLeft size={16} className="text-gray-600" />
                     </button>
                     <button
                         onClick={() =>
                             setPagination((p) => ({ ...p, page: Math.min(pagination.totalPages, p.page + 1) }))
                         }
                         disabled={pagination.page === pagination.totalPages}
-                        className="p-2.5 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl bg-white border border-slate-100 disabled:opacity-50 hover:bg-slate-50 transition-colors"
+                        className="p-2.5 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl bg-white border border-gray-100 disabled:opacity-50 hover:bg-gray-50 transition-colors"
                     >
-                        <ChevronRight size={16} className="text-slate-600" />
+                        <ChevronRight size={16} className="text-gray-600" />
                     </button>
                 </div>
             </div>
@@ -537,25 +537,25 @@ function MetricLabel({ color, label, value }: any) {
     return (
         <div className="flex items-center gap-2">
             <div className={`w-1.5 h-1.5 rounded-full`} style={{ backgroundColor: color }}></div>
-            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
-            <span className="text-xs font-black text-slate-800">{value}</span>
+            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{label}</span>
+            <span className="text-xs font-black text-gray-800">{value}</span>
         </div>
     );
 }
 
 function CompactStatTile({ label, value, sub, trend }: any) {
     return (
-        <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm group hover:border-[var(--brand-light)] transition-all">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{label}</p>
+        <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm group hover:border-[var(--brand-light)] transition-all">
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{label}</p>
             <div className="flex items-end gap-2">
-                <p className="text-xl font-black text-slate-800 leading-none">{value}</p>
+                <p className="text-xl font-black text-gray-800 leading-none">{value}</p>
                 <span
-                    className={`text-[8px] font-black px-1.5 py-0.5 rounded ${trend === 'up' ? 'text-emerald-500 bg-emerald-50' : trend === 'down' ? 'text-rose-500 bg-rose-50' : 'text-slate-400 bg-slate-50'}`}
+                    className={`text-[8px] font-black px-1.5 py-0.5 rounded ${trend === 'up' ? 'text-emerald-500 bg-emerald-50' : trend === 'down' ? 'text-rose-500 bg-rose-50' : 'text-gray-400 bg-gray-50'}`}
                 >
                     {trend === 'up' ? '▲' : '▼'}
                 </span>
             </div>
-            <p className="text-[8px] font-bold text-slate-300 uppercase mt-2">{sub}</p>
+            <p className="text-[8px] font-bold text-gray-300 uppercase mt-2">{sub}</p>
         </div>
     );
 }

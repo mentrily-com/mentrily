@@ -100,7 +100,7 @@ export default function SuperAdminDashboardPage() {
             chipClass:
                 Number(statsData?.failedPayments30d || 0) > 0
                     ? 'bg-rose-50 text-rose-700'
-                    : 'bg-slate-50 text-slate-500',
+                    : 'bg-gray-50 text-gray-500',
         },
         {
             label: 'Total Students',
@@ -118,9 +118,9 @@ export default function SuperAdminDashboardPage() {
     if (!authChecked || loading) return <SuperAdminDashboardSkeleton />;
 
     return (
-        <div className="space-y-6 text-slate-900 selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)] animate-fade-in">
+        <div className="space-y-6 text-gray-900 selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)] animate-fade-in">
             {/* Hero Section */}
-            <section className="relative overflow-hidden rounded-[30px] border border-slate-200 bg-white px-6 py-7 shadow-[0_16px_50px_rgba(15,23,42,0.08)] lg:px-8">
+            <section className="relative overflow-hidden rounded-[30px] border border-gray-200 bg-white px-6 py-7 shadow-[0_16px_50px_rgba(15,23,42,0.08)] lg:px-8">
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(26,86,219,0.09),_transparent_45%),radial-gradient(circle_at_bottom_left,_rgba(16,185,129,0.07),_transparent_38%)]" />
                 <div className="relative grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
                     <div className="space-y-6">
@@ -131,10 +131,10 @@ export default function SuperAdminDashboardPage() {
                                     Super Admin
                                 </span>
                             </div>
-                            <h1 className="max-w-4xl font-display text-3xl font-medium tracking-tight text-slate-950 lg:text-5xl">
+                            <h1 className="max-w-4xl font-display text-3xl font-medium tracking-tight text-gray-950 lg:text-5xl">
                                 System infrastructure and multi-tenant management.
                             </h1>
-                            <p className="max-w-2xl text-sm leading-7 text-slate-600 lg:text-base">
+                            <p className="max-w-2xl text-sm leading-7 text-gray-600 lg:text-base">
                                 Monitor organizations, review billing health, and manage platform-wide operations from
                                 one unified control center.
                             </p>
@@ -153,21 +153,21 @@ export default function SuperAdminDashboardPage() {
                         {/* Stats Grid */}
                         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                             {globalStats.map((card) => (
-                                <div key={card.label} className="rounded-2xl border border-slate-200 bg-white p-4">
+                                <div key={card.label} className="rounded-2xl border border-gray-200 bg-white p-4">
                                     <div className="flex items-center justify-between gap-3">
                                         <div
                                             className={`inline-flex h-10 w-10 items-center justify-center rounded-xl ${card.chipClass}`}
                                         >
                                             {card.icon}
                                         </div>
-                                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                                        <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-500">
                                             {card.hint}
                                         </span>
                                     </div>
-                                    <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                                    <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">
                                         {card.label}
                                     </p>
-                                    <p className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">
+                                    <p className="mt-1 text-3xl font-semibold tracking-tight text-gray-950">
                                         {card.value}
                                     </p>
                                 </div>
@@ -176,10 +176,10 @@ export default function SuperAdminDashboardPage() {
                     </div>
 
                     {/* Plan Distribution Panel */}
-                    <div className="rounded-[24px] border border-slate-200 bg-slate-950 p-5 text-white shadow-[0_18px_40px_rgba(15,23,42,0.28)]">
+                    <div className="rounded-[24px] border border-gray-200 bg-gray-950 p-5 text-white shadow-[0_18px_40px_rgba(15,23,42,0.28)]">
                         <div className="flex items-start justify-between gap-3">
                             <div>
-                                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-400">
                                     Plan Distribution
                                 </p>
                                 <h2 className="mt-2 text-2xl font-semibold tracking-tight">Organization tiers</h2>
@@ -191,7 +191,7 @@ export default function SuperAdminDashboardPage() {
                                 const percent = Math.round((Number(count || 0) / total) * 100);
                                 return (
                                     <div key={plan} className="space-y-2">
-                                        <div className="flex items-center justify-between gap-3 text-xs font-medium text-slate-300">
+                                        <div className="flex items-center justify-between gap-3 text-xs font-medium text-gray-300">
                                             <span>{plan}</span>
                                             <span>
                                                 {String(count)} ({percent}%)
@@ -209,7 +209,7 @@ export default function SuperAdminDashboardPage() {
                         </div>
                         <div className="mt-5 rounded-2xl border border-white/12 bg-white/5 p-4">
                             <p className="text-sm font-semibold text-white">Platform health</p>
-                            <p className="mt-1 text-xs leading-6 text-slate-300">
+                            <p className="mt-1 text-xs leading-6 text-gray-300">
                                 {showHealthAlert
                                     ? 'Some organizations require attention. Review health alerts below.'
                                     : 'All organizations are operating within normal parameters.'}
@@ -241,16 +241,16 @@ export default function SuperAdminDashboardPage() {
             {/* Main Grid: Organizations + Sidebar */}
             <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
                 {/* Organizations List */}
-                <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.06)]">
+                <section className="rounded-[28px] border border-gray-200 bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.06)]">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                         <div>
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">
                                 Directory
                             </p>
-                            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
+                            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-gray-950">
                                 Manage every organization from one board.
                             </h2>
-                            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                            <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-600">
                                 Monitor usage, switch statuses, and open admin views directly from this list.
                             </p>
                         </div>
@@ -314,22 +314,22 @@ export default function SuperAdminDashboardPage() {
 
                 {/* Sidebar: Recent Billing Events */}
                 <div className="space-y-6">
-                    <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_14px_40px_rgba(15,23,42,0.06)]">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Billing</p>
-                        <h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">
+                    <section className="rounded-[28px] border border-gray-200 bg-white p-5 shadow-[0_14px_40px_rgba(15,23,42,0.06)]">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">Billing</p>
+                        <h2 className="mt-2 text-xl font-semibold tracking-tight text-gray-950">
                             Recent Billing Events
                         </h2>
                         <div className="mt-5 space-y-3">
                             {(statsData?.recentEvents || []).slice(0, 6).map((event: any) => (
-                                <div key={event.id} className="rounded-xl border border-slate-200 bg-slate-50 p-3.5">
+                                <div key={event.id} className="rounded-xl border border-gray-200 bg-gray-50 p-3.5">
                                     <div className="flex items-start gap-3">
-                                        <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-700">
+                                        <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white text-gray-700">
                                             <CreditCard size={15} />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-semibold text-slate-900">{event.eventType}</p>
-                                            <p className="mt-1 text-xs text-slate-600">{event.orgName}</p>
-                                            <p className="mt-0.5 text-[10px] font-semibold text-slate-400">
+                                            <p className="text-sm font-semibold text-gray-900">{event.eventType}</p>
+                                            <p className="mt-1 text-xs text-gray-600">{event.orgName}</p>
+                                            <p className="mt-0.5 text-[10px] font-semibold text-gray-400">
                                                 {new Date(event.createdAt).toLocaleString()}
                                             </p>
                                         </div>
@@ -337,7 +337,7 @@ export default function SuperAdminDashboardPage() {
                                 </div>
                             ))}
                             {(!statsData?.recentEvents || statsData.recentEvents.length === 0) && (
-                                <p className="text-sm text-slate-500">No recent billing events.</p>
+                                <p className="text-sm text-gray-500">No recent billing events.</p>
                             )}
                         </div>
                     </section>
@@ -345,25 +345,25 @@ export default function SuperAdminDashboardPage() {
             </div>
 
             {/* Bug Reports Section */}
-            <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.06)]">
+            <section className="rounded-[28px] border border-gray-200 bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.06)]">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">
                             Issue tracker
                         </p>
-                        <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">Reported Bugs</h2>
-                        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                        <h2 className="mt-2 text-2xl font-semibold tracking-tight text-gray-950">Reported Bugs</h2>
+                        <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-600">
                             User-submitted issues from student, teacher, and organization admin profiles.
                         </p>
                     </div>
 
-                    <div className="inline-flex rounded-full bg-slate-100 p-1">
+                    <div className="inline-flex rounded-full bg-gray-100 p-1">
                         {(['OPEN', 'FIXED'] as const).map((status) => (
                             <button
                                 key={status}
                                 type="button"
                                 onClick={() => setBugFilter(status)}
-                                className={`cursor-pointer rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition-colors ${bugFilter === status ? 'bg-white text-slate-950 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
+                                className={`cursor-pointer rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition-colors ${bugFilter === status ? 'bg-white text-gray-950 shadow-sm' : 'text-gray-500 hover:text-gray-800'}`}
                             >
                                 {status === 'OPEN' ? 'Open' : 'Fixed'}
                             </button>
@@ -375,13 +375,13 @@ export default function SuperAdminDashboardPage() {
                     {loadingBugs ? (
                         <div className="space-y-3">
                             {[1, 2].map((i) => (
-                                <div key={i} className="h-24 rounded-2xl bg-slate-50 animate-pulse" />
+                                <div key={i} className="h-24 rounded-2xl bg-gray-50 animate-pulse" />
                             ))}
                         </div>
                     ) : bugReports.length === 0 ? (
-                        <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 p-9 text-center">
-                            <Bug size={28} className="mx-auto text-slate-300 mb-3" />
-                            <h3 className="text-lg font-semibold text-slate-900">
+                        <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50/80 p-9 text-center">
+                            <Bug size={28} className="mx-auto text-gray-300 mb-3" />
+                            <h3 className="text-lg font-semibold text-gray-900">
                                 No {bugFilter === 'OPEN' ? 'open' : 'fixed'} bug reports
                             </h3>
                         </div>
@@ -390,12 +390,12 @@ export default function SuperAdminDashboardPage() {
                             {bugReports.map((bug) => (
                                 <div
                                     key={bug.id}
-                                    className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 transition-colors duration-200 hover:bg-white"
+                                    className="rounded-2xl border border-gray-200 bg-gray-50/70 p-4 transition-colors duration-200 hover:bg-white"
                                 >
                                     <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                                         <div className="min-w-0">
                                             <div className="flex flex-wrap items-center gap-2">
-                                                <h3 className="truncate text-base font-semibold text-slate-950">
+                                                <h3 className="truncate text-base font-semibold text-gray-950">
                                                     {bug.title}
                                                 </h3>
                                                 <span
@@ -404,13 +404,13 @@ export default function SuperAdminDashboardPage() {
                                                     {bug.status}
                                                 </span>
                                             </div>
-                                            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                                            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-gray-500">
                                                 <span>{bug.reporter?.name || 'Unknown'}</span>
-                                                <span className="h-1 w-1 rounded-full bg-slate-300" />
+                                                <span className="h-1 w-1 rounded-full bg-gray-300" />
                                                 <span>{bug.reporter?.role || bug.reporterRole}</span>
-                                                <span className="h-1 w-1 rounded-full bg-slate-300" />
+                                                <span className="h-1 w-1 rounded-full bg-gray-300" />
                                                 <span>{bug.reporter?.organization?.name || 'No org'}</span>
-                                                <span className="h-1 w-1 rounded-full bg-slate-300" />
+                                                <span className="h-1 w-1 rounded-full bg-gray-300" />
                                                 <span>
                                                     {new Date(bug.createdAt).toLocaleDateString('en-US', {
                                                         month: 'short',
@@ -423,7 +423,7 @@ export default function SuperAdminDashboardPage() {
                                         <div className="flex flex-wrap items-center gap-2">
                                             <button
                                                 onClick={() => setSelectedBug(bug)}
-                                                className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                                                className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
                                             >
                                                 View Details
                                             </button>
@@ -489,12 +489,12 @@ export default function SuperAdminDashboardPage() {
 
             {/* Bug Detail Modal */}
             {selectedBug && (
-                <div className="fixed inset-0 z-[2100] flex items-center justify-center bg-slate-950/70 p-6 backdrop-blur-sm">
-                    <div className="w-full max-w-4xl rounded-[24px] border border-slate-200 bg-white p-6 shadow-[0_24px_80px_rgba(15,23,42,0.18)] max-h-[88vh] overflow-y-auto">
+                <div className="fixed inset-0 z-[2100] flex items-center justify-center bg-gray-950/70 p-6 backdrop-blur-sm">
+                    <div className="w-full max-w-4xl rounded-[24px] border border-gray-200 bg-white p-6 shadow-[0_24px_80px_rgba(15,23,42,0.18)] max-h-[88vh] overflow-y-auto">
                         <div className="flex items-start justify-between gap-4 mb-6">
                             <div className="min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                    <h3 className="text-2xl font-semibold tracking-tight text-slate-950">
+                                    <h3 className="text-2xl font-semibold tracking-tight text-gray-950">
                                         {selectedBug.title}
                                     </h3>
                                     <span
@@ -503,7 +503,7 @@ export default function SuperAdminDashboardPage() {
                                         {selectedBug.status}
                                     </span>
                                 </div>
-                                <p className="mt-2 text-xs text-slate-500">
+                                <p className="mt-2 text-xs text-gray-500">
                                     {selectedBug.reporter?.name || 'Unknown'} •{' '}
                                     {selectedBug.reporter?.role || selectedBug.reporterRole} •{' '}
                                     {selectedBug.reporter?.organization?.name || 'No org'} •{' '}
@@ -517,14 +517,14 @@ export default function SuperAdminDashboardPage() {
                             </div>
                             <button
                                 onClick={() => setSelectedBug(null)}
-                                className="cursor-pointer inline-flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-slate-400 hover:bg-slate-100 transition-colors"
+                                className="cursor-pointer inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:bg-gray-100 transition-colors"
                             >
                                 <X size={18} />
                             </button>
                         </div>
 
                         <div
-                            className="prose prose-slate max-w-none text-sm font-medium text-slate-700"
+                            className="prose prose-slate max-w-none text-sm font-medium text-gray-700"
                             dangerouslySetInnerHTML={{
                                 __html: sanitizeProse(selectedBug.description),
                             }}
@@ -532,7 +532,7 @@ export default function SuperAdminDashboardPage() {
 
                         {Array.isArray(selectedBug.attachments) && selectedBug.attachments.length > 0 && (
                             <div className="mt-8">
-                                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 mb-3">
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500 mb-3">
                                     Attached Images
                                 </p>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -545,7 +545,7 @@ export default function SuperAdminDashboardPage() {
                                                     name: att.name || `Attachment ${idx + 1}`,
                                                 })
                                             }
-                                            className="cursor-pointer relative rounded-xl overflow-hidden border border-slate-100 bg-slate-50 h-32 text-left"
+                                            className="cursor-pointer relative rounded-xl overflow-hidden border border-gray-100 bg-gray-50 h-32 text-left"
                                         >
                                             <img
                                                 src={att.url}
@@ -563,7 +563,7 @@ export default function SuperAdminDashboardPage() {
 
             {/* Image Viewer */}
             {selectedImage && (
-                <div className="fixed inset-0 z-[2200] bg-slate-950/95 flex flex-col">
+                <div className="fixed inset-0 z-[2200] bg-gray-950/95 flex flex-col">
                     <div className="flex items-center justify-between px-4 md:px-8 py-4 border-b border-white/10">
                         <button
                             onClick={() => setSelectedImage(null)}
@@ -623,7 +623,7 @@ function OrgRow({ org, onDelete, onToggleStatus }: any) {
     };
 
     return (
-        <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 transition-colors duration-200 hover:bg-white group">
+        <div className="rounded-2xl border border-gray-200 bg-gray-50/70 p-4 transition-colors duration-200 hover:bg-white group">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex items-start gap-4 min-w-0">
                     <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--brand)] text-white text-sm font-semibold">
@@ -631,29 +631,29 @@ function OrgRow({ org, onDelete, onToggleStatus }: any) {
                     </div>
                     <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                            <h3 className="truncate text-base font-semibold text-slate-950">{name}</h3>
-                            <span className="rounded-full bg-slate-200 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-600">
+                            <h3 className="truncate text-base font-semibold text-gray-950">{name}</h3>
+                            <span className="rounded-full bg-gray-200 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-600">
                                 {plan}
                             </span>
                             <span
-                                className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${status === 'Active' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-200 text-slate-600'}`}
+                                className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${status === 'Active' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-200 text-gray-600'}`}
                             >
                                 {status}
                             </span>
                         </div>
-                        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-gray-500">
                             <span>{users} Users</span>
                         </div>
                         <div className="mt-3 space-y-2 max-w-[260px]">
                             {usageBars.map((bar) => (
                                 <div key={bar.label}>
                                     <div className="flex items-center justify-between mb-0.5">
-                                        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                                        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-400">
                                             {bar.label}
                                         </span>
-                                        <span className="text-[10px] font-semibold text-slate-500">{bar.value}%</span>
+                                        <span className="text-[10px] font-semibold text-gray-500">{bar.value}%</span>
                                     </div>
-                                    <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                    <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
                                         <div
                                             className={`h-full rounded-full transition-all duration-500 ${getUsageColor(bar.value)}`}
                                             style={{ width: `${bar.value}%` }}
@@ -668,14 +668,14 @@ function OrgRow({ org, onDelete, onToggleStatus }: any) {
                 <div className="flex flex-wrap items-center gap-2">
                     <Link
                         href={`/dashboard/super-admin/organizations/${org.id}/dashboard`}
-                        className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                        className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
                     >
                         <ShieldAlert size={14} />
                         Dashboard
                     </Link>
                     <Link
                         href={`/dashboard/super-admin/organizations/${org.id}/edit`}
-                        className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                        className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
                     >
                         <Pencil size={14} />
                         Edit
@@ -700,7 +700,7 @@ function OrgRow({ org, onDelete, onToggleStatus }: any) {
                     </button>
                     <Link
                         href={`/dashboard/super-admin/organizations/${org.id}/dashboard`}
-                        className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-transparent bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-slate-800"
+                        className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-transparent bg-gray-950 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gray-800"
                     >
                         <ArrowUpRight size={14} />
                         Enter

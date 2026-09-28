@@ -426,7 +426,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
             <button
                 onClick={() => setOpen((value) => !value)}
                 disabled={Boolean(switchingMembershipId)}
-                className="flex items-center gap-2 px-3 py-2 bg-slate-50 hover:bg-slate-100 disabled:opacity-60 rounded-xl border border-slate-200/80 transition-colors max-w-[180px]"
+                className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 disabled:opacity-60 rounded-xl border border-gray-200/80 transition-colors max-w-[180px]"
                 title="Switch workspace"
                 aria-haspopup="menu"
                 aria-expanded={open}
@@ -444,22 +444,22 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                     )}
                 </div>
                 <span className="min-w-0 flex-1 text-left">
-                    <span className="block text-[11px] font-black text-slate-800 truncate">
+                    <span className="block text-[11px] font-black text-gray-800 truncate">
                         {switchingMembershipId ? 'Switching…' : activeMembership?.orgName || 'Workspace'}
                     </span>
-                    <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wide">
+                    <span className="block text-[9px] font-bold text-gray-400 uppercase tracking-wide">
                         {ROLE_LABELS[activeMembership?.role || ''] || 'Workspace'}
                     </span>
                 </span>
-                <ChevronsUpDown size={13} className="text-slate-400 shrink-0 hidden sm:block" />
+                <ChevronsUpDown size={13} className="text-gray-400 shrink-0 hidden sm:block" />
             </button>
 
             {open && (
                 <div
                     role="menu"
                     aria-label="Your workspaces"
-                    className="absolute right-0 top-full mt-2 w-64 max-w-[calc(100vw-1.5rem)] max-h-[calc(100dvh-80px)] overflow-y-auto bg-white rounded-2xl shadow-2xl ring-1 ring-slate-200/60 py-2 z-50">
-                    <p className="px-4 py-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    className="absolute right-0 top-full mt-2 w-64 max-w-[calc(100vw-1.5rem)] max-h-[calc(100dvh-80px)] overflow-y-auto bg-white rounded-2xl shadow-2xl ring-1 ring-gray-200/60 py-2 z-50">
+                    <p className="px-4 py-1.5 text-[10px] font-black text-gray-400 uppercase tracking-widest">
                         Your workspaces
                     </p>
                     {Object.values(
@@ -493,7 +493,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                                 <div key={org.orgId}>
                                     <button
                                         onClick={() => setExpandedOrgId(isExpanded ? null : org.orgId)}
-                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-slate-50 transition-colors"
+                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-gray-50 transition-colors"
                                         role="menuitem"
                                         aria-expanded={isExpanded}
                                     >
@@ -501,18 +501,18 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                                             {renderIcon()}
                                         </div>
                                         <span className="min-w-0 flex-1">
-                                            <span className="block text-[13px] font-bold text-slate-700 truncate">
+                                            <span className="block text-[13px] font-bold text-gray-700 truncate">
                                                 {org.orgName}
                                             </span>
-                                            <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide">
+                                            <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wide">
                                                 {group.length} Roles
                                             </span>
                                         </span>
-                                        <ChevronsUpDown size={13} className="text-slate-400 shrink-0" />
+                                        <ChevronsUpDown size={13} className="text-gray-400 shrink-0" />
                                     </button>
 
                                     {isExpanded && (
-                                        <div className="bg-slate-50/50 py-1">
+                                        <div className="bg-gray-50/50 py-1">
                                             {group.map((membership) => {
                                                 const isActive =
                                                     membership.orgId === activeMembership?.orgId &&
@@ -525,13 +525,13 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                                                         disabled={Boolean(switchingMembershipId)}
                                                         role="menuitem"
                                                         aria-current={isActive ? 'true' : undefined}
-                                                        className="w-full flex items-center gap-3 pl-12 pr-4 py-2 text-left disabled:opacity-60 hover:bg-slate-100 transition-colors"
+                                                        className="w-full flex items-center gap-3 pl-12 pr-4 py-2 text-left disabled:opacity-60 hover:bg-gray-100 transition-colors"
                                                     >
-                                                        <div className="w-5 h-5 rounded flex items-center justify-center bg-white border border-slate-200 text-slate-500 shrink-0">
+                                                        <div className="w-5 h-5 rounded flex items-center justify-center bg-white border border-gray-200 text-gray-500 shrink-0">
                                                             {renderIcon(membership.role, membershipId)}
                                                         </div>
                                                         <span className="min-w-0 flex-1">
-                                                            <span className="block text-[11px] font-bold text-slate-600 truncate">
+                                                            <span className="block text-[11px] font-bold text-gray-600 truncate">
                                                                 {ROLE_LABELS[membership.role] || membership.role}
                                                             </span>
                                                         </span>
@@ -559,16 +559,16 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                                 disabled={Boolean(switchingMembershipId)}
                                 role="menuitem"
                                 aria-current={isActive ? 'true' : undefined}
-                                className="w-full flex items-center gap-3 px-4 py-2.5 text-left disabled:opacity-60 hover:bg-slate-50 transition-colors"
+                                className="w-full flex items-center gap-3 px-4 py-2.5 text-left disabled:opacity-60 hover:bg-gray-50 transition-colors"
                             >
                                 <div className="w-8 h-8 rounded-lg bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center shrink-0">
                                     {renderIcon(membership.role, membershipId)}
                                 </div>
                                 <span className="min-w-0 flex-1">
-                                    <span className="block text-[13px] font-bold text-slate-700 truncate">
+                                    <span className="block text-[13px] font-bold text-gray-700 truncate">
                                         {membership.orgName}
                                     </span>
-                                    <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide">
+                                    <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wide">
                                         {ROLE_LABELS[membership.role] || membership.role}
                                         {membership.isHome ? ' · Home' : ''}
                                     </span>
@@ -579,12 +579,12 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                     })}
                     {canBecomeCreator && (
                         <>
-                            <div className="h-px bg-slate-100 my-1.5 mx-2" />
+                            <div className="h-px bg-gray-100 my-1.5 mx-2" />
                             <button
                                 onClick={handleBecomeCreator}
                                 disabled={becomingCreator}
                                 role="menuitem"
-                                className="w-full flex items-center gap-3 px-4 py-2.5 text-left disabled:opacity-60 hover:bg-slate-50 transition-colors"
+                                className="w-full flex items-center gap-3 px-4 py-2.5 text-left disabled:opacity-60 hover:bg-gray-50 transition-colors"
                             >
                                 <div className="w-8 h-8 rounded-lg bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center shrink-0">
                                     {becomingCreator ? (

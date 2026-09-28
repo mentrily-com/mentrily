@@ -119,7 +119,7 @@ export default function SocialProof() {
                                     // this used to be applied unconditionally as `1px solid
                                     // transparent`, an invisible border that rendered nothing at
                                     // any width instead of the intended column dividers.
-                                    i < stats.length - 1 ? 'sm:border-r sm:border-slate-200' : ''
+                                    i < stats.length - 1 ? 'sm:border-r sm:border-gray-200' : ''
                                 }`}
                             >
                                 {/* Icon */}

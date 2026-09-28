@@ -287,11 +287,11 @@ export default function TeacherBillingPage() {
 
     if (!selfBillingEnabled) {
         return (
-            <div className="min-h-screen bg-slate-50 text-slate-900">
+            <div className="min-h-screen bg-gray-50 text-gray-900">
                 <main className="max-w-[1000px] mx-auto px-6 lg:px-12 py-12">
-                    <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm p-10 text-center">
-                        <h1 className="text-2xl font-black tracking-tight text-slate-900">Billing Managed by Admin</h1>
-                        <p className="text-sm font-bold text-slate-500 mt-3">
+                    <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-10 text-center">
+                        <h1 className="text-2xl font-black tracking-tight text-gray-900">Billing Managed by Admin</h1>
+                        <p className="text-sm font-bold text-gray-500 mt-3">
                             Your organization admin manages billing for instructors. Please contact your admin to
                             request plan upgrades.
                         </p>
@@ -469,9 +469,9 @@ export default function TeacherBillingPage() {
                         limit={Number(usageData?.limits?.aiCreditsPerMonth ?? 0)}
                     />
                 </div>
-                <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Question Types</p>
-                    <p className="mt-2 text-sm font-medium text-slate-700">
+                <div className="mt-6 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">Question Types</p>
+                    <p className="mt-2 text-sm font-medium text-gray-700">
                         {formatQuestionTypes(usageData?.limits?.allowedQuestionTypes)}
                     </p>
                 </div>
@@ -487,7 +487,7 @@ export default function TeacherBillingPage() {
                         Plan Comparison
                     </h3>
                     {sortedPlans.length === 0 ? (
-                        <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-sm font-medium text-slate-500 text-center">
+                        <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-6 text-sm font-medium text-gray-500 text-center">
                             Plan data is temporarily unavailable. Please refresh this page.
                         </div>
                     ) : (

@@ -93,23 +93,23 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
     }, [plans]);
 
     return (
-        <div className="min-h-screen bg-[#0f172a] text-slate-100">
+        <div className="min-h-screen bg-[#0f172a] text-gray-100">
             <div className="max-w-7xl mx-auto px-6 py-16">
                 <div className="text-center">
                     <h1 className="text-4xl font-black text-white tracking-tight">Simple pricing for every stage</h1>
-                    <p className="text-slate-400 font-bold mt-3">Start free, scale as your academy grows.</p>
-                    <p className="text-slate-500 text-sm mt-2">
+                    <p className="text-gray-400 font-bold mt-3">Start free, scale as your academy grows.</p>
+                    <p className="text-gray-500 text-sm mt-2">
                         Free is personal. Starter and Pro are org-backed. Branding and custom domains are Enterprise
                         only.
                     </p>
                 </div>
 
                 <div className="flex justify-center mt-8">
-                    <div className="flex items-center bg-[#1e293b] rounded-xl p-1 border border-slate-700">
+                    <div className="flex items-center bg-[#1e293b] rounded-xl p-1 border border-gray-700">
                         <button
                             onClick={() => setAnnual(false)}
                             className={`px-5 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${
-                                !annual ? 'bg-[var(--brand)] text-white' : 'text-slate-400'
+                                !annual ? 'bg-[var(--brand)] text-white' : 'text-gray-400'
                             }`}
                         >
                             Monthly
@@ -117,7 +117,7 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
                         <button
                             onClick={() => setAnnual(true)}
                             className={`px-5 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${
-                                annual ? 'bg-[var(--brand)] text-white' : 'text-slate-400'
+                                annual ? 'bg-[var(--brand)] text-white' : 'text-gray-400'
                             }`}
                         >
                             Annual <span className="text-emerald-400">Save 17%</span>
@@ -152,7 +152,7 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
                                 className={`rounded-3xl border p-6 relative ${
                                     isPro
                                         ? 'border-[var(--brand)] bg-gradient-to-b from-[#1e293b] to-[#172554]'
-                                        : 'border-slate-700 bg-[#1e293b]'
+                                        : 'border-gray-700 bg-[#1e293b]'
                                 }`}
                             >
                                 {isPro && (
@@ -160,22 +160,22 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
                                         Most Popular
                                     </span>
                                 )}
-                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
                                     {plan.plan}
                                 </p>
                                 <h3 className="mt-3 text-4xl font-black text-white">
                                     {price}
                                     {!isEnterprise && (
-                                        <span className="text-sm text-slate-400 font-bold">
+                                        <span className="text-sm text-gray-400 font-bold">
                                             /{annual ? 'yr' : 'mo'}
                                         </span>
                                     )}
                                 </h3>
-                                <p className="mt-2 text-xs font-bold text-slate-400">
+                                <p className="mt-2 text-xs font-bold text-gray-400">
                                     {PRICE_BOOK[plan.plan].subtitle}
                                 </p>
 
-                                <ul className="mt-6 space-y-2 text-xs font-bold text-slate-300">
+                                <ul className="mt-6 space-y-2 text-xs font-bold text-gray-300">
                                     <li>Students: {formatLimit(plan.limits?.students)}</li>
                                     <li>Courses: {formatLimit(plan.limits?.courses)}</li>
                                     <li>Monthly exams: {formatLimit(plan.limits?.examsPerMonth)}</li>
@@ -190,7 +190,7 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
                                     className={`mt-6 w-full py-3 rounded-xl inline-flex justify-center text-[10px] font-black uppercase tracking-widest transition-all ${
                                         isPro
                                             ? 'bg-[var(--brand)] hover:bg-[var(--brand-dark)] text-white'
-                                            : 'bg-slate-100 text-slate-700 hover:bg-white'
+                                            : 'bg-gray-100 text-gray-700 hover:bg-white'
                                     }`}
                                 >
                                     {ctaLabel}
@@ -200,26 +200,26 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
                     })}
                 </div>
 
-                <div className="mt-14 bg-[#1e293b] border border-slate-700 rounded-3xl p-6">
+                <div className="mt-14 bg-[#1e293b] border border-gray-700 rounded-3xl p-6">
                     <h2 className="text-lg font-black text-white mb-4">Feature comparison</h2>
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[900px] text-left">
                             <thead>
-                                <tr className="border-b border-slate-700">
-                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                <tr className="border-b border-gray-700">
+                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">
                                         Category
                                     </th>
                                     {PLAN_ORDER.map((plan) => (
                                         <th
                                             key={plan}
-                                            className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400"
+                                            className="py-3 text-[10px] font-black uppercase tracking-widest text-gray-400"
                                         >
                                             {plan}
                                         </th>
                                     ))}
                                 </tr>
                             </thead>
-                            <tbody className="text-xs font-bold text-slate-200">
+                            <tbody className="text-xs font-bold text-gray-200">
                                 {(
                                     [
                                         {
@@ -270,13 +270,13 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
                                         },
                                     ] as ComparisonRow[]
                                 ).map((row) => (
-                                    <tr key={row.category} className="border-b border-slate-800">
-                                        <td className="py-3 text-slate-300">{row.category}</td>
+                                    <tr key={row.category} className="border-b border-gray-800">
+                                        <td className="py-3 text-gray-300">{row.category}</td>
                                         {normalizedPlans.map((plan, index) => {
                                             if (row.limits || row.limitKey) {
                                                 const limitField = row.limitKey || 'students';
                                                 return (
-                                                    <td key={plan.plan} className="py-3 text-slate-200">
+                                                    <td key={plan.plan} className="py-3 text-gray-200">
                                                         {formatLimit(plan.limits?.[limitField] as number | undefined)}
                                                     </td>
                                                 );
@@ -292,7 +292,7 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
                                             }
 
                                             return (
-                                                <td key={plan.plan} className="py-3 text-slate-300">
+                                                <td key={plan.plan} className="py-3 text-gray-300">
                                                     {row.fallback?.[index] || '-'}
                                                 </td>
                                             );

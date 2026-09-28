@@ -26,7 +26,7 @@ function SignedInActions({ role }: { role: string }) {
         <>
             <Link
                 href={dashboardHref(role)}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:border-gray-300 hover:bg-gray-50"
             >
                 <LayoutDashboard size={15} />
                 <span className="hidden sm:inline">Dashboard</span>
@@ -41,13 +41,13 @@ function GuestActions() {
         <>
             <Link
                 href={`/login?redirect=${encodeURIComponent(STUDIO_RESUME_PATH)}`}
-                className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100"
+                className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100"
             >
                 Sign in
             </Link>
             <Link
                 href="/signup"
-                className="rounded-lg bg-slate-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-slate-800"
+                className="rounded-lg bg-gray-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-gray-800"
             >
                 Sign up free
             </Link>

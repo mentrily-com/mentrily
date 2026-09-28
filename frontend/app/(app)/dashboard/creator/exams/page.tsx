@@ -60,8 +60,8 @@ export default function TeacherExamsPage() {
         <div className="animate-fade-in pb-10 font-sans">
             <div className="mb-8 flex flex-col justify-between gap-4 md:mb-12 md:flex-row md:items-center">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-slate-800">Exam Management</h1>
-                    <p className="mt-1 text-sm font-medium text-slate-500">
+                    <h1 className="text-2xl font-bold tracking-tight text-gray-800">Exam Management</h1>
+                    <p className="mt-1 text-sm font-medium text-gray-500">
                         Create, monitor and evaluate standalone exams and course assessments.
                     </p>
                 </div>
@@ -73,14 +73,14 @@ export default function TeacherExamsPage() {
                         New Examination
                     </Link>
                 ) : (
-                    <div className="flex w-full cursor-not-allowed items-center justify-center gap-3 rounded-2xl bg-slate-100 px-6 py-3.5 text-sm font-black text-slate-400 opacity-50 sm:w-auto sm:px-8 sm:py-4">
+                    <div className="flex w-full cursor-not-allowed items-center justify-center gap-3 rounded-2xl bg-gray-100 px-6 py-3.5 text-sm font-black text-gray-400 opacity-50 sm:w-auto sm:px-8 sm:py-4">
                         <Lock size={18} />
                         Creation Locked
                     </div>
                 )}
             </div>
 
-            <div className="mb-8 grid grid-cols-2 gap-2 rounded-3xl border border-slate-200 bg-white p-2 shadow-sm sm:mb-10 sm:flex sm:items-center sm:gap-3 sm:overflow-x-auto sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+            <div className="mb-8 grid grid-cols-2 gap-2 rounded-3xl border border-gray-200 bg-white p-2 shadow-sm sm:mb-10 sm:flex sm:items-center sm:gap-3 sm:overflow-x-auto sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
                 <TabItem
                     active={activeTab === 'all'}
                     onClick={() => setActiveTab('all')}
@@ -124,7 +124,7 @@ export default function TeacherExamsPage() {
             ) : loading ? (
                 <CreatorExamsSkeleton />
             ) : filteredExams.length === 0 ? (
-                <div className="rounded-3xl border border-slate-200 bg-white p-12 text-center font-black uppercase tracking-widest text-slate-400 shadow-sm">
+                <div className="rounded-3xl border border-gray-200 bg-white p-12 text-center font-black uppercase tracking-widest text-gray-400 shadow-sm">
                     No Exams Found
                 </div>
             ) : (
@@ -180,19 +180,19 @@ function ExamSection({
 }) {
     return (
         <section
-            className={`overflow-hidden rounded-3xl border shadow-sm ${linked ? 'border-emerald-200 bg-emerald-50/40' : 'border-slate-200 bg-white'}`}
+            className={`overflow-hidden rounded-3xl border shadow-sm ${linked ? 'border-emerald-200 bg-emerald-50/40' : 'border-gray-200 bg-white'}`}
         >
             <div className="flex flex-col justify-between gap-3 border-b border-black/5 px-6 py-5 sm:flex-row sm:items-center sm:px-8">
                 <div>
                     <div className="flex items-center gap-3">
-                        <h2 className="text-lg font-black text-slate-900">{title}</h2>
+                        <h2 className="text-lg font-black text-gray-900">{title}</h2>
                         <span
-                            className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-widest ${linked ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}
+                            className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-widest ${linked ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}
                         >
                             {exams.length}
                         </span>
                     </div>
-                    <p className="mt-1 text-xs font-bold text-slate-500">{description}</p>
+                    <p className="mt-1 text-xs font-bold text-gray-500">{description}</p>
                 </div>
             </div>
 
@@ -207,22 +207,22 @@ function ExamSection({
                 <>
                     <table className="hidden w-full text-left md:table">
                         <thead>
-                            <tr className="border-b border-slate-100 bg-white/60">
-                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                            <tr className="border-b border-gray-100 bg-white/60">
+                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">
                                     Exam Details
                                 </th>
-                                <th className="px-8 py-5 text-center text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                <th className="px-8 py-5 text-center text-[10px] font-black uppercase tracking-widest text-gray-400">
                                     Questions
                                 </th>
-                                <th className="px-8 py-5 text-center text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                <th className="px-8 py-5 text-center text-[10px] font-black uppercase tracking-widest text-gray-400">
                                     Status
                                 </th>
-                                <th className="px-8 py-5 text-right text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                <th className="px-8 py-5 text-right text-[10px] font-black uppercase tracking-widest text-gray-400">
                                     Actions
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-gray-100">
                             {exams.map((exam) => (
                                 <ExamRow
                                     key={exam.id}
@@ -234,7 +234,7 @@ function ExamSection({
                             ))}
                         </tbody>
                     </table>
-                    <div className="divide-y divide-slate-100 md:hidden">
+                    <div className="divide-y divide-gray-100 md:hidden">
                         {exams.map((exam) => (
                             <ExamMobileCard
                                 key={exam.id}
@@ -314,15 +314,15 @@ function ExamIdentity({ exam, linked }: { exam: any; linked: boolean }) {
 
     return (
         <div className="min-w-0">
-            <p className="text-base font-black text-slate-800">{exam.title}</p>
+            <p className="text-base font-black text-gray-800">{exam.title}</p>
             <div className="mt-2 flex flex-wrap items-center gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{exam.slug}</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{exam.slug}</span>
                 {linked ? (
                     <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-700">
                         <BookOpen size={11} /> Course Linked: {courseTitle}
                     </span>
                 ) : exam.testCode ? (
-                    <span className="inline-flex items-center gap-1 rounded bg-slate-100 px-1.5 py-0.5 text-[9px] font-black text-slate-500">
+                    <span className="inline-flex items-center gap-1 rounded bg-gray-100 px-1.5 py-0.5 text-[9px] font-black text-gray-500">
                         <Lock size={10} /> {exam.testCode}
                     </span>
                 ) : null}
@@ -341,11 +341,11 @@ function ExamIdentity({ exam, linked }: { exam: any; linked: boolean }) {
 function ExamMeta({ exam }: { exam: any }) {
     return (
         <div>
-            <div className="text-sm font-black text-slate-700">
+            <div className="text-sm font-black text-gray-700">
                 {Array.isArray(exam.questions) ? exam.questions.length : 0} Sections
             </div>
             <div className="mt-0.5 flex items-center justify-center gap-2">
-                <span className="text-[10px] font-bold text-slate-400">{exam.duration ?? '-'} mins</span>
+                <span className="text-[10px] font-bold text-gray-400">{exam.duration ?? '-'} mins</span>
                 {exam.totalMarks ? (
                     <span className="text-[10px] font-black text-[var(--brand)]">{exam.totalMarks} Marks</span>
                 ) : null}
@@ -405,11 +405,11 @@ function TabItem({ active, onClick, label, count }: any) {
     return (
         <button
             onClick={onClick}
-            className={`relative flex cursor-pointer items-center justify-between gap-2 whitespace-nowrap rounded-2xl px-3 py-3 transition-all sm:justify-start sm:border-b-[3px] sm:rounded-none sm:px-0 sm:pb-4 sm:pt-0 sm:gap-3 ${active ? 'bg-[var(--brand-light)] text-slate-900 sm:border-[var(--brand)] sm:bg-transparent' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600 sm:border-transparent sm:hover:bg-transparent'}`}
+            className={`relative flex cursor-pointer items-center justify-between gap-2 whitespace-nowrap rounded-2xl px-3 py-3 transition-all sm:justify-start sm:border-b-[3px] sm:rounded-none sm:px-0 sm:pb-4 sm:pt-0 sm:gap-3 ${active ? 'bg-[var(--brand-light)] text-gray-900 sm:border-[var(--brand)] sm:bg-transparent' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600 sm:border-transparent sm:hover:bg-transparent'}`}
         >
             <span className="text-xs font-black uppercase tracking-widest sm:text-sm">{label}</span>
             <span
-                className={`rounded-lg px-2 py-0.5 text-[10px] font-black ${active ? 'bg-white text-[var(--brand)] sm:bg-[var(--brand-light)]' : 'bg-slate-50 text-slate-400'}`}
+                className={`rounded-lg px-2 py-0.5 text-[10px] font-black ${active ? 'bg-white text-[var(--brand)] sm:bg-[var(--brand-light)]' : 'bg-gray-50 text-gray-400'}`}
             >
                 {count}
             </span>
@@ -420,7 +420,7 @@ function TabItem({ active, onClick, label, count }: any) {
 function StatusBadge({ status }: { status: string }) {
     const styles: any = {
         Published: 'bg-emerald-50 text-emerald-600 border-emerald-100',
-        Draft: 'bg-slate-50 text-slate-400 border-slate-100',
+        Draft: 'bg-gray-50 text-gray-400 border-gray-100',
     };
     return (
         <span
@@ -433,7 +433,7 @@ function StatusBadge({ status }: { status: string }) {
 
 function ExamAction({ label, icon, active, variant = 'default', onClick }: any) {
     const variants: any = {
-        default: 'bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-600',
+        default: 'bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-600',
         brand: 'bg-[var(--brand-light)] text-[var(--brand)] hover:bg-[var(--brand)] hover:text-white',
         accent: 'bg-[var(--brand-light)] text-[var(--brand)] hover:bg-[var(--brand)] hover:text-white',
         success: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white',

@@ -7,7 +7,7 @@ interface RoleBadgeProps {
 export default function RoleBadge({ role }: RoleBadgeProps) {
     if (!role) {
         return (
-            <span className="px-2 py-0.5 rounded-lg border text-[9px] font-black uppercase tracking-widest bg-slate-100 text-slate-400 border-slate-100">
+            <span className="px-2 py-0.5 rounded-lg border text-[9px] font-black uppercase tracking-widest bg-gray-100 text-gray-400 border-gray-100">
                 Unknown
             </span>
         );
@@ -28,7 +28,7 @@ export default function RoleBadge({ role }: RoleBadgeProps) {
 
     return (
         <span
-            className={`px-2 py-0.5 rounded-lg border text-[9px] font-black uppercase tracking-widest ${styles[displayRole] || 'bg-slate-100 text-slate-600 border-slate-200'}`}
+            className={`px-2 py-0.5 rounded-lg border text-[9px] font-black uppercase tracking-widest ${styles[displayRole] || 'bg-gray-100 text-gray-600 border-gray-200'}`}
         >
             {displayRole}
         </span>

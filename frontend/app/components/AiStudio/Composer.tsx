@@ -195,7 +195,7 @@ export default function Composer({
                 <div
                     role="listbox"
                     aria-label="Commands"
-                    className="absolute bottom-full left-0 z-30 mb-2 w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white py-1.5 shadow-xl"
+                    className="absolute bottom-full left-0 z-30 mb-2 w-full max-w-md overflow-hidden rounded-2xl border border-gray-200 bg-white py-1.5 shadow-xl"
                 >
                     {menu.map((c, i) => {
                         const Icon = c.icon;
@@ -211,28 +211,28 @@ export default function Composer({
                                     e.preventDefault();
                                     pick(c);
                                 }}
-                                className={`flex w-full items-center gap-3 px-3.5 py-2 text-left ${i === menuIndex ? 'bg-slate-50' : ''}`}
+                                className={`flex w-full items-center gap-3 px-3.5 py-2 text-left ${i === menuIndex ? 'bg-gray-50' : ''}`}
                             >
-                                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-slate-100 text-slate-600">
+                                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-gray-100 text-gray-600">
                                     <Icon size={15} />
                                 </span>
                                 <span className="min-w-0 flex-1">
-                                    <span className="block text-sm font-medium text-slate-900">/{c.label}</span>
-                                    <span className="block truncate text-xs text-slate-500">
+                                    <span className="block text-sm font-medium text-gray-900">/{c.label}</span>
+                                    <span className="block truncate text-xs text-gray-500">
                                         {c.description}
                                         {locked ? ' (outline only on your plan)' : ''}
                                     </span>
                                 </span>
-                                {locked && <Lock size={13} className="shrink-0 text-slate-400" />}
+                                {locked && <Lock size={13} className="shrink-0 text-gray-400" />}
                             </button>
                         );
                     })}
                 </div>
             )}
 
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] transition focus-within:border-[var(--color-border-brand)] focus-within:shadow-[0_8px_30px_rgba(0,141,152,0.10)]">
+            <div className="rounded-2xl border border-gray-200 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] transition focus-within:border-[var(--color-border-brand)] focus-within:shadow-[0_8px_30px_rgba(0,141,152,0.10)]">
                 {(showRefs || references.length > 0) && (
-                    <div className="border-b border-slate-100 px-3 pb-2 pt-3">
+                    <div className="border-b border-gray-100 px-3 pb-2 pt-3">
                         <ReferencePicker
                             value={references}
                             onChange={setReferences}
@@ -248,7 +248,7 @@ export default function Composer({
 
                 <div className="flex items-start gap-2 px-3 pt-3">
                     {command && (
-                        <span className="mt-1 inline-flex shrink-0 items-center gap-1 rounded-lg bg-slate-900 py-1 pl-2 pr-1 text-xs font-medium text-white">
+                        <span className="mt-1 inline-flex shrink-0 items-center gap-1 rounded-lg bg-gray-900 py-1 pl-2 pr-1 text-xs font-medium text-white">
                             /{command.label}
                             <button
                                 type="button"
@@ -271,7 +271,7 @@ export default function Composer({
                         onKeyDown={onKeyDown}
                         rows={1}
                         placeholder={command ? command.placeholder : 'Ask anything, or type / for commands'}
-                        className="max-h-[220px] min-h-[40px] w-full resize-none bg-transparent py-1.5 text-[15px] leading-6 text-slate-900 outline-none placeholder:text-slate-400"
+                        className="max-h-[220px] min-h-[40px] w-full resize-none bg-transparent py-1.5 text-[15px] leading-6 text-gray-900 outline-none placeholder:text-gray-400"
                     />
                 </div>
 
@@ -297,7 +297,7 @@ export default function Composer({
                             value={options.difficulty}
                             onChange={(e) => setOptions((o) => ({ ...o, difficulty: e.target.value as AiDifficulty }))}
                             aria-label="Difficulty"
-                            className="h-7 rounded-lg border border-slate-200 bg-white px-2 text-xs text-slate-700 outline-none"
+                            className="h-7 rounded-lg border border-gray-200 bg-white px-2 text-xs text-gray-700 outline-none"
                         >
                             {(['Mixed', 'Easy', 'Medium', 'Hard'] as const).map((d) => (
                                 <option key={d} value={d}>
@@ -305,7 +305,7 @@ export default function Composer({
                                 </option>
                             ))}
                         </select>
-                        <span className="h-4 w-px bg-slate-200" aria-hidden />
+                        <span className="h-4 w-px bg-gray-200" aria-hidden />
                         {typeChoices.map((type) => {
                             const info = AI_TYPES[type];
                             const locked = Boolean(info.feature && !canUse(info.feature));
@@ -319,7 +319,7 @@ export default function Composer({
                                     className={`inline-flex h-7 items-center gap-1 rounded-lg border px-2 ${
                                         on
                                             ? 'border-[var(--brand)] bg-[var(--color-brand-light)] text-[var(--brand-dark)]'
-                                            : 'border-slate-200 text-slate-500 hover:border-slate-300'
+                                            : 'border-gray-200 text-gray-500 hover:border-gray-300'
                                     } ${locked ? 'opacity-60' : ''}`}
                                 >
                                     {locked && <Lock size={11} />}
@@ -337,7 +337,7 @@ export default function Composer({
                     <button
                         type="button"
                         onClick={() => setShowRefs((s) => !s)}
-                        className={`inline-flex h-8 items-center gap-1.5 rounded-lg px-2 text-xs font-medium ${showRefs || references.length ? 'text-[var(--brand-dark)]' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'}`}
+                        className={`inline-flex h-8 items-center gap-1.5 rounded-lg px-2 text-xs font-medium ${showRefs || references.length ? 'text-[var(--brand-dark)]' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'}`}
                         aria-pressed={showRefs}
                         title="Use your courses or exams as reference"
                     >
@@ -359,7 +359,7 @@ export default function Composer({
                             onChange={(v) => setChatQuality(v === 'b' ? 'smart' : 'fast')}
                         />
                     )}
-                    <span className="ml-auto whitespace-nowrap text-[11px] tabular-nums text-slate-400">
+                    <span className="ml-auto whitespace-nowrap text-[11px] tabular-nums text-gray-400">
                         {showEstimate &&
                             (isJob && !isQuiz ? `outline about ${creditsLabel(estimate)}` : `about ${creditsLabel(estimate)}`)}
                     </span>
@@ -367,7 +367,7 @@ export default function Composer({
                         <button
                             type="button"
                             onClick={onStop}
-                            className="grid h-9 w-9 place-items-center rounded-xl bg-slate-900 text-white hover:bg-slate-700"
+                            className="grid h-9 w-9 place-items-center rounded-xl bg-gray-900 text-white hover:bg-gray-700"
                             aria-label="Stop"
                         >
                             <Square size={13} fill="currentColor" />
@@ -377,7 +377,7 @@ export default function Composer({
                             type="button"
                             onClick={submit}
                             disabled={!canSend}
-                            className="grid h-9 w-9 place-items-center rounded-xl bg-[var(--brand)] text-white transition hover:bg-[var(--brand-dark)] disabled:bg-slate-200 disabled:text-slate-400"
+                            className="grid h-9 w-9 place-items-center rounded-xl bg-[var(--brand)] text-white transition hover:bg-[var(--brand-dark)] disabled:bg-gray-200 disabled:text-gray-400"
                             aria-label="Send"
                         >
                             <ArrowUp size={17} strokeWidth={2.5} />
@@ -403,7 +403,7 @@ function NumberChip({
     onChange: (v: number) => void;
 }) {
     return (
-        <label className="inline-flex h-7 items-center gap-1 rounded-lg border border-slate-200 bg-white pl-2 pr-1 text-slate-500">
+        <label className="inline-flex h-7 items-center gap-1 rounded-lg border border-gray-200 bg-white pl-2 pr-1 text-gray-500">
             <input
                 type="number"
                 min={min}
@@ -413,7 +413,7 @@ function NumberChip({
                     const n = Math.round(Number(e.target.value));
                     if (Number.isFinite(n)) onChange(Math.min(max, Math.max(min, n)));
                 }}
-                className="w-7 bg-transparent text-right font-semibold tabular-nums text-slate-900 outline-none"
+                className="w-7 bg-transparent text-right font-semibold tabular-nums text-gray-900 outline-none"
                 aria-label={label}
             />
             {label}
@@ -435,14 +435,14 @@ function QualityToggle({
     onLocked?: () => void;
 }) {
     return (
-        <div className="inline-flex h-8 items-center rounded-lg bg-slate-100 p-0.5 text-xs" role="group" aria-label="Quality">
+        <div className="inline-flex h-8 items-center rounded-lg bg-gray-100 p-0.5 text-xs" role="group" aria-label="Quality">
             {(['a', 'b'] as const).map((v, i) => (
                 <button
                     key={v}
                     type="button"
                     aria-pressed={value === v}
                     onClick={() => (v === 'b' && lockedB ? onLocked?.() : onChange(v))}
-                    className={`inline-flex h-7 items-center gap-1 rounded-md px-2.5 font-medium ${value === v ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
+                    className={`inline-flex h-7 items-center gap-1 rounded-md px-2.5 font-medium ${value === v ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-800'}`}
                 >
                     {v === 'b' && lockedB && <Lock size={11} />}
                     {labels[i]}

@@ -32,7 +32,7 @@ export const DEFAULT_TYPES: Record<AiKind, AiGenerationType[]> = {
 export const REVIEW_STATUS: Record<AiReviewStatus, { label: string; className: string; hint: string }> = {
     ok: {
         label: 'Ready',
-        className: 'bg-slate-100 text-slate-600',
+        className: 'bg-gray-100 text-gray-600',
         hint: 'Passed all structure checks.',
     },
     verified: {
@@ -42,7 +42,7 @@ export const REVIEW_STATUS: Record<AiReviewStatus, { label: string; className: s
     },
     unverified: {
         label: 'Not run',
-        className: 'bg-slate-100 text-slate-600',
+        className: 'bg-gray-100 text-gray-600',
         hint: 'The code runner was unavailable, so the solution was not executed.',
     },
     needs_review: {

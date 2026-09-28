@@ -164,13 +164,13 @@ export default function PythonNotebook({
     const handleClearConsole = () => setOutputs([]);
 
     return (
-        <div className="flex flex-col h-full bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm relative">
+        <div className="flex flex-col h-full bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm relative">
             {/* 1. Main Content Area */}
             <div className="flex-1 min-h-0">
                 <SplitPane
                     initialLeftWidth={50}
                     leftContent={
-                        <div className="h-full flex flex-col border-r border-slate-200">
+                        <div className="h-full flex flex-col border-r border-gray-200">
                             <CodeEditor
                                 language={notebookConfig}
                                 actions={
@@ -195,7 +195,7 @@ export default function PythonNotebook({
                                                 <TerminalSquare size={14} />
                                             </div>
                                             <div>
-                                                <h3 className="text-xs font-black text-slate-800 tracking-tight">
+                                                <h3 className="text-xs font-black text-gray-800 tracking-tight">
                                                     Python 3.11 Kernel
                                                 </h3>
                                                 <span
@@ -208,7 +208,7 @@ export default function PythonNotebook({
                                                 </span>
                                             </div>
                                         </div>
-                                        <div className="h-4 w-px bg-slate-200 mx-2"></div>
+                                        <div className="h-4 w-px bg-gray-200 mx-2"></div>
                                         {!readOnly && (
                                             <button
                                                 onClick={() => {
@@ -216,7 +216,7 @@ export default function PythonNotebook({
                                                     workerRef.current?.postMessage({ action: 'init', id: 're-init' });
                                                     addOutput('info', 'Kernel Restarting...');
                                                 }}
-                                                className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold text-slate-500 bg-slate-50 hover:bg-slate-100 rounded-lg transition-all"
+                                                className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all"
                                             >
                                                 <RotateCcw size={10} />
                                                 Restart
@@ -229,11 +229,11 @@ export default function PythonNotebook({
                     }
                     rightContent={
                         <div
-                            className="h-full flex flex-col bg-[#1e1e1e] text-slate-300 font-mono"
+                            className="h-full flex flex-col bg-[#1e1e1e] text-gray-300 font-mono"
                             style={{ fontSize: fontSize ? `${fontSize}px` : '14px' }}
                         >
                             <div className="px-4 py-2 border-b border-white/10 flex items-center justify-between bg-[#252526]">
-                                <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">
+                                <span className="text-[11px] font-black uppercase tracking-widest text-gray-500">
                                     Console Output
                                 </span>
                                 {isExecuting && (
@@ -295,11 +295,11 @@ export default function PythonNotebook({
 
             {/* 2. Unified Action Bar */}
             {!readOnly && (
-                <div className="h-[70px] bg-white border-t border-slate-100 flex items-center px-6 justify-between shrink-0 z-30">
+                <div className="h-[70px] bg-white border-t border-gray-100 flex items-center px-6 justify-between shrink-0 z-30">
                     <div className="flex items-center gap-2">
                         <button
                             onClick={handleClearConsole}
-                            className="px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-slate-600 transition-colors"
+                            className="px-4 py-2 text-[11px] font-bold text-gray-400 hover:text-gray-600 transition-colors"
                         >
                             Clear Console
                         </button>
@@ -309,11 +309,11 @@ export default function PythonNotebook({
                         <button
                             onClick={handleRun}
                             disabled={isExecuting || !isWorkerReady}
-                            className="px-6 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl text-[12px] uppercase tracking-widest hover:bg-slate-200 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait flex items-center gap-2"
+                            className="px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl text-[12px] uppercase tracking-widest hover:bg-gray-200 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait flex items-center gap-2"
                         >
                             {isExecuting ? (
                                 <>
-                                    <div className="w-3 h-3 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin"></div>
+                                    <div className="w-3 h-3 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
                                     Running...
                                 </>
                             ) : (

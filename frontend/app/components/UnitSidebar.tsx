@@ -29,17 +29,17 @@ export default function UnitSidebar({
     onNextSection,
 }: UnitSidebarProps) {
     return (
-        <aside className="w-[min(300px,calc(100vw-24px))] border-r border-slate-100 flex flex-col bg-white z-[100] flex-shrink-0 h-full shadow-2xl">
-            <div className="p-5 border-b border-slate-50 flex items-start justify-between gap-2">
+        <aside className="w-[min(300px,calc(100vw-24px))] border-r border-gray-100 flex flex-col bg-white z-[100] flex-shrink-0 h-full shadow-2xl">
+            <div className="p-5 border-b border-gray-50 flex items-start justify-between gap-2">
                 <div className="flex flex-col gap-1 min-w-0 flex-1">
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Module</p>
-                    <h3 className="text-sm font-black text-slate-800 leading-tight truncate">{moduleTitle}</h3>
+                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Module</p>
+                    <h3 className="text-sm font-black text-gray-800 leading-tight truncate">{moduleTitle}</h3>
                 </div>
                 {onToggle && (
                     <button
                         onClick={onToggle}
                         aria-label="Close sidebar"
-                        className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors shrink-0"
+                        className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors shrink-0"
                     >
                         <svg
                             width="16"
@@ -58,11 +58,11 @@ export default function UnitSidebar({
                 )}
             </div>
 
-            <div className="px-4 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between gap-2">
+            <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 flex items-center justify-between gap-2">
                 <button
                     onClick={() => onPrevSection && onPrevSection()}
                     title="Previous Section"
-                    className="p-1.5 text-[var(--brand)] hover:scale-110 transition-all shrink-0 bg-white shadow-sm border border-slate-200 rounded-md"
+                    className="p-1.5 text-[var(--brand)] hover:scale-110 transition-all shrink-0 bg-white shadow-sm border border-gray-200 rounded-md"
                 >
                     <svg
                         width="10"
@@ -83,7 +83,7 @@ export default function UnitSidebar({
                 <button
                     onClick={() => onNextSection && onNextSection()}
                     title="Next Section"
-                    className="p-1.5 text-[var(--brand)] hover:scale-110 transition-all shrink-0 bg-white shadow-sm border border-slate-200 rounded-md"
+                    className="p-1.5 text-[var(--brand)] hover:scale-110 transition-all shrink-0 bg-white shadow-sm border border-gray-200 rounded-md"
                 >
                     <svg
                         width="10"
@@ -105,18 +105,18 @@ export default function UnitSidebar({
                     <button
                         key={unit.id}
                         onClick={() => (onUnitClick ? onUnitClick(String(unit.id)) : undefined)}
-                        className={`w-full px-5 py-3.5 flex items-center gap-4 text-left transition-all border-b border-transparent hover:bg-slate-50 group ${unit.active ? 'bg-[var(--brand-lighter)] border-l-4 border-l-[var(--brand)]' : ''}`}
+                        className={`w-full px-5 py-3.5 flex items-center gap-4 text-left transition-all border-b border-transparent hover:bg-gray-50 group ${unit.active ? 'bg-[var(--brand-lighter)] border-l-4 border-l-[var(--brand)]' : ''}`}
                     >
                         <div className="flex flex-col items-center w-6 min-w-[24px]">
                             <span
-                                className={`text-[8px] font-black uppercase mb-0.5 ${unit.active ? 'text-[var(--brand)]' : 'text-slate-400'}`}
+                                className={`text-[8px] font-black uppercase mb-0.5 ${unit.active ? 'text-[var(--brand)]' : 'text-gray-400'}`}
                             >
                                 {unit.type}
                             </span>
                         </div>
                         <div className="flex-1">
                             <h4
-                                className={`text-xs font-bold leading-tight ${unit.active ? 'text-slate-900' : 'text-slate-600'}`}
+                                className={`text-xs font-bold leading-tight ${unit.active ? 'text-gray-900' : 'text-gray-600'}`}
                             >
                                 {unit.title}
                             </h4>
@@ -142,12 +142,12 @@ export default function UnitSidebar({
                 ))}
             </div>
 
-            <div className="p-5 border-t border-slate-100 bg-slate-50/50">
+            <div className="p-5 border-t border-gray-100 bg-gray-50/50">
                 <div className="flex items-center justify-between text-[10px] font-black uppercase text-[var(--brand)] mb-2">
                     <span>Completion</span>
                     <span>100%</span>
                 </div>
-                <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden">
+                <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
                     <div className="h-full bg-[var(--brand)] w-full transition-all"></div>
                 </div>
             </div>

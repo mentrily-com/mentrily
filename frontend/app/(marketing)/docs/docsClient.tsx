@@ -58,23 +58,23 @@ function ComingSoon() {
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5 }}
-                    className="p-6 sm:p-12 lg:p-16 rounded-3xl sm:rounded-[48px] border border-slate-100 bg-slate-50/50 backdrop-blur-xl relative overflow-hidden"
+                    className="p-6 sm:p-12 lg:p-16 rounded-3xl sm:rounded-[48px] border border-gray-100 bg-gray-50/50 backdrop-blur-xl relative overflow-hidden"
                 >
                     {/* Decorative elements */}
                     <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                     <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
                     <div className="relative z-10">
-                        <div className="w-20 h-20 rounded-3xl bg-white border border-slate-100 shadow-xl shadow-slate-200/50 flex items-center justify-center mx-auto mb-8">
+                        <div className="w-20 h-20 rounded-3xl bg-white border border-gray-100 shadow-xl shadow-gray-200/50 flex items-center justify-center mx-auto mb-8">
                             <Zap size={40} className="text-teal-600 animate-pulse" />
                         </div>
                         <h2
-                            className="text-4xl sm:text-5xl font-display text-slate-900 mb-6"
+                            className="text-4xl sm:text-5xl font-display text-gray-900 mb-6"
                             style={{ fontFamily: 'var(--font-display)' }}
                         >
                             Coming <span className="italic text-teal-600 font-medium">Soon</span>
                         </h2>
-                        <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+                        <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
                             We&apos;re putting the finishing touches on our developer portal. Soon you&apos;ll be able
                             to build, integrate, and automate with the Mentrily platform.
                         </p>

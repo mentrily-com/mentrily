@@ -86,14 +86,14 @@ export default function SplitPane({
     return (
         <div ref={containerRef} className="flex h-full w-full flex-col overflow-hidden relative bg-white md:flex-row">
             {/* Mobile Tab Switcher (< md) */}
-            <div className="flex h-10 w-full shrink-0 border-b border-slate-200 bg-slate-50 md:hidden z-10 select-none">
+            <div className="flex h-10 w-full shrink-0 border-b border-gray-200 bg-gray-50 md:hidden z-10 select-none">
                 <button
                     type="button"
                     onClick={() => setMobileTab('left')}
                     className={`flex-1 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 ${
                         mobileTab === 'left'
                             ? 'border-b-2 border-[var(--brand)] bg-white text-[var(--brand)] shadow-sm font-black'
-                            : 'text-slate-500 hover:text-slate-800'
+                            : 'text-gray-500 hover:text-gray-800'
                     }`}
                 >
                     {tabLabels[0]}
@@ -104,7 +104,7 @@ export default function SplitPane({
                     className={`flex-1 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 ${
                         mobileTab === 'right'
                             ? 'border-b-2 border-[var(--brand)] bg-white text-[var(--brand)] shadow-sm font-black'
-                            : 'text-slate-500 hover:text-slate-800'
+                            : 'text-gray-500 hover:text-gray-800'
                     }`}
                 >
                     {tabLabels[1]}
@@ -130,7 +130,7 @@ export default function SplitPane({
                 {/* The visual line */}
                 <div
                     className={`w-[2px] h-full transition-colors duration-200 ${
-                        isResizing ? 'bg-[var(--brand)]' : 'bg-slate-100 group-hover:bg-slate-300'
+                        isResizing ? 'bg-[var(--brand)]' : 'bg-gray-100 group-hover:bg-gray-300'
                     }`}
                 ></div>
             </div>

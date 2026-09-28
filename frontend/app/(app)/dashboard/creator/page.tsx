@@ -132,7 +132,7 @@ export default function TeacherDashboardPage() {
     const modules = (filteredModules || []) as StudioModule[];
 
     return (
-        <div className="space-y-5 text-slate-900 selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
+        <div className="space-y-5 text-gray-900 selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
             {/* ignoreUserOnboardingFlag: this tour must not share the backend
                 User.hasCompletedOnboarding flag with the other creator/admin
                 tours (course builder, admin org view) — that flag is a single
@@ -224,7 +224,7 @@ export default function TeacherDashboardPage() {
                             <Sparkles size={12} />
                             {dashboardRole === 'admin' ? 'Admin Studio' : 'Creator Studio'}
                         </span>
-                        <span className="inline-flex items-center rounded-full border border-slate-200 bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                        <span className="inline-flex items-center rounded-full border border-gray-200 bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">
                             {plan || 'FREE'} plan
                         </span>
                     </motion.div>
@@ -233,14 +233,14 @@ export default function TeacherDashboardPage() {
                     <motion.h1
                         variants={fadeUp}
                         custom={1}
-                        className="max-w-3xl font-display text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl lg:text-[2.5rem] lg:leading-[1.15]"
+                        className="max-w-3xl font-display text-2xl font-semibold tracking-tight text-gray-950 sm:text-3xl lg:text-[2.5rem] lg:leading-[1.15]"
                     >
                         Build, publish &amp; monitor — all from one place.
                     </motion.h1>
                     <motion.p
                         variants={fadeUp}
                         custom={2}
-                        className="max-w-xl text-sm leading-relaxed text-slate-500 sm:text-[15px]"
+                        className="max-w-xl text-sm leading-relaxed text-gray-500 sm:text-[15px]"
                     >
                         Authoring, assessments, and learner analytics in a single workflow.
                     </motion.p>
@@ -258,7 +258,7 @@ export default function TeacherDashboardPage() {
                         <Link
                             href="/dashboard/creator/exams/new"
                             data-element-id="create-exam-btn"
-                            className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white/80 px-5 py-3 text-sm font-semibold text-slate-700 backdrop-blur-sm transition-colors duration-200 hover:bg-white"
+                            className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 bg-white/80 px-5 py-3 text-sm font-semibold text-gray-700 backdrop-blur-sm transition-colors duration-200 hover:bg-white"
                         >
                             <ClipboardList size={15} />
                             Create exam
@@ -297,14 +297,14 @@ export default function TeacherDashboardPage() {
                             >
                                 {card.icon}
                             </div>
-                            <span className="rounded-full bg-slate-100/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400 truncate max-w-[120px]">
+                            <span className="rounded-full bg-gray-100/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-400 truncate max-w-[120px]">
                                 {card.hint}
                             </span>
                         </div>
-                        <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                        <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400">
                             {card.label}
                         </p>
-                        <p className="mt-1 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
+                        <p className="mt-1 text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl">
                             {card.value}
                         </p>
                     </motion.div>
@@ -376,23 +376,23 @@ export default function TeacherDashboardPage() {
                 >
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                         <div>
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-400">
                                 Pipeline
                             </p>
-                            <h2 className="mt-1.5 text-xl font-semibold tracking-tight text-slate-950 sm:text-2xl">
+                            <h2 className="mt-1.5 text-xl font-semibold tracking-tight text-gray-950 sm:text-2xl">
                                 Manage content from draft to launch.
                             </h2>
                         </div>
 
                         <div className="flex flex-wrap items-center gap-3">
                             {/* Tab pills */}
-                            <div className="inline-flex rounded-full bg-slate-100/80 p-1">
+                            <div className="inline-flex rounded-full bg-gray-100/80 p-1">
                                 {(['Published', 'Draft'] as const).map((status) => (
                                     <button
                                         key={status}
                                         type="button"
                                         onClick={() => setTab(status)}
-                                        className={`relative cursor-pointer rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${tab === status ? 'bg-white text-slate-950 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                        className={`relative cursor-pointer rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${tab === status ? 'bg-white text-gray-950 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                                     >
                                         {status}
                                     </button>
@@ -404,14 +404,14 @@ export default function TeacherDashboardPage() {
                                 <span className="sr-only">Search courses</span>
                                 <Search
                                     size={15}
-                                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                                 />
                                 <input
                                     type="text"
                                     value={searchQuery}
                                     onChange={(event) => setSearchQuery(event.target.value)}
                                     placeholder="Search courses"
-                                    className="focus-ring w-full rounded-xl border border-slate-200 bg-slate-50/60 px-9 py-2.5 text-sm text-slate-700 outline-none backdrop-blur-sm transition-colors duration-200 placeholder:text-slate-400 sm:w-60"
+                                    className="focus-ring w-full rounded-xl border border-gray-200 bg-gray-50/60 px-9 py-2.5 text-sm text-gray-700 outline-none backdrop-blur-sm transition-colors duration-200 placeholder:text-gray-400 sm:w-60"
                                 />
                             </label>
                         </div>
@@ -424,14 +424,14 @@ export default function TeacherDashboardPage() {
                                 .slice(0, 6)
                                 .map((module, i) => <ModuleRow key={module.id} module={module} index={i} />)
                         ) : (
-                            <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 p-8 text-center sm:p-10">
-                                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                            <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50/60 p-8 text-center sm:p-10">
+                                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100 text-gray-400">
                                     <BookOpen size={20} />
                                 </div>
-                                <h3 className="text-base font-semibold text-slate-900">
+                                <h3 className="text-base font-semibold text-gray-900">
                                     No {tab.toLowerCase()} courses here yet.
                                 </h3>
-                                <p className="mx-auto mt-1.5 max-w-sm text-sm leading-6 text-slate-500">
+                                <p className="mx-auto mt-1.5 max-w-sm text-sm leading-6 text-gray-500">
                                     Create a new course or clear your query to reveal more content.
                                 </p>
                                 <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
@@ -446,7 +446,7 @@ export default function TeacherDashboardPage() {
                                         <button
                                             type="button"
                                             onClick={() => setSearchQuery('')}
-                                            className="cursor-pointer rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700"
+                                            className="cursor-pointer rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700"
                                         >
                                             Clear search
                                         </button>
@@ -466,10 +466,10 @@ export default function TeacherDashboardPage() {
                         transition={{ delay: 0.3, duration: 0.4 }}
                         className="glass-card rounded-2xl p-5 shadow-sm"
                     >
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-400">
                             Studio pulse
                         </p>
-                        <h2 className="mt-1.5 text-lg font-semibold tracking-tight text-slate-950">Priority signals</h2>
+                        <h2 className="mt-1.5 text-lg font-semibold tracking-tight text-gray-950">Priority signals</h2>
                         <div className="mt-4 space-y-2.5">
                             <InsightTile
                                 icon={<BarChart3 size={15} />}
@@ -510,14 +510,14 @@ export default function TeacherDashboardPage() {
             >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Workflow</p>
-                        <h2 className="mt-1.5 text-xl font-semibold tracking-tight text-slate-950 sm:text-2xl">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-400">Workflow</p>
+                        <h2 className="mt-1.5 text-xl font-semibold tracking-tight text-gray-950 sm:text-2xl">
                             Ship learning experiences faster.
                         </h2>
                     </div>
                     <Link
                         href="/dashboard/creator/analytics"
-                        className="inline-flex cursor-pointer items-center gap-2 self-start rounded-xl border border-slate-200 bg-white/80 px-4 py-2.5 text-sm font-semibold text-slate-700 backdrop-blur-sm transition-colors hover:bg-white"
+                        className="inline-flex cursor-pointer items-center gap-2 self-start rounded-xl border border-gray-200 bg-white/80 px-4 py-2.5 text-sm font-semibold text-gray-700 backdrop-blur-sm transition-colors hover:bg-white"
                     >
                         Open analytics
                         <ArrowUpRight size={14} />
@@ -567,21 +567,21 @@ export default function TeacherDashboardPage() {
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-rose-500">
                                     Action required
                                 </p>
-                                <h3 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
+                                <h3 className="mt-2 text-2xl font-semibold tracking-tight text-gray-950">
                                     Plan limit reached
                                 </h3>
-                                <p className="mt-3 text-sm leading-6 text-slate-600">
+                                <p className="mt-3 text-sm leading-6 text-gray-600">
                                     Your organization crossed a quota boundary. Upgrade to {nextPlan} to continue
                                     publishing without interruption.
                                 </p>
                             </div>
                         </div>
 
-                        <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50/80 p-4 backdrop-blur-sm">
-                            <p className="text-sm text-slate-600">
-                                Current plan: <span className="font-semibold text-slate-950">{plan}</span>
+                        <div className="mt-5 rounded-xl border border-gray-200 bg-gray-50/80 p-4 backdrop-blur-sm">
+                            <p className="text-sm text-gray-600">
+                                Current plan: <span className="font-semibold text-gray-950">{plan}</span>
                             </p>
-                            <p className="mt-1 text-sm text-slate-600">
+                            <p className="mt-1 text-sm text-gray-600">
                                 Recommended: <span className="font-semibold text-[var(--brand)]">{nextPlan}</span>
                             </p>
                         </div>
@@ -639,7 +639,7 @@ function CapacityPanel({
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15, duration: 0.45 }}
-            className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-slate-950/95 p-5 text-white shadow-[0_12px_36px_rgba(15,23,42,0.28)] backdrop-blur-xl lg:rounded-3xl"
+            className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-gray-950/95 p-5 text-white shadow-[0_12px_36px_rgba(15,23,42,0.28)] backdrop-blur-xl lg:rounded-3xl"
         >
             {/* Decorative glow */}
             <div className="pointer-events-none absolute -right-24 -top-24 h-48 w-48 rounded-full bg-[var(--brand)]/[0.08] blur-3xl" />
@@ -648,14 +648,14 @@ function CapacityPanel({
                 <div className="flex-1 space-y-4">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-400">
                                 Capacity
                             </p>
                             <h2 className="mt-1 text-xl font-semibold tracking-tight sm:text-2xl">
                                 {highestCapacityPercent >= 80 ? 'Needs attention' : 'Healthy usage'}
                             </h2>
                         </div>
-                        <div className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-300">
+                        <div className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-300">
                             {highestCapacityPercent}% used
                         </div>
                     </div>
@@ -680,7 +680,7 @@ function CapacityPanel({
 
                 <div className="rounded-2xl border border-white/[0.08] bg-white/[0.04] p-4 lg:w-64">
                     <p className="text-sm font-semibold text-white">Publishing runway</p>
-                    <p className="mt-1 text-xs leading-6 text-slate-300">
+                    <p className="mt-1 text-xs leading-6 text-gray-300">
                         {hasHardLimitBreach
                             ? `Upgrade to ${nextPlan} to keep creation available.`
                             : highestCapacityPercent >= 80
@@ -695,7 +695,7 @@ function CapacityPanel({
                                 targetPlan: nextPlan,
                             })
                         }
-                        className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-xl bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-950 transition-colors hover:bg-slate-100"
+                        className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-xl bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-gray-950 transition-colors hover:bg-gray-100"
                     >
                         Review plan
                         <ArrowUpRight size={13} />
@@ -724,7 +724,7 @@ function UsageMeter({
 
     return (
         <div className="space-y-2">
-            <div className="flex items-center justify-between gap-3 text-xs font-medium text-slate-300">
+            <div className="flex items-center justify-between gap-3 text-xs font-medium text-gray-300">
                 <span>{label}</span>
                 <span>
                     {valueLabel} / {limitLabel}
@@ -753,18 +753,18 @@ function ModuleRow({ module, index }: { module: StudioModule; index: number }) {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05, duration: 0.35 }}
-            className={`group rounded-xl border border-slate-200/80 bg-white/60 p-4 backdrop-blur-sm transition-all duration-200 hover:border-slate-300 hover:bg-white hover:shadow-sm ${
-                status === 'Published' ? 'border-l-[3px] border-l-emerald-400' : 'border-l-[3px] border-l-slate-300'
+            className={`group rounded-xl border border-gray-200/80 bg-white/60 p-4 backdrop-blur-sm transition-all duration-200 hover:border-gray-300 hover:bg-white hover:shadow-sm ${
+                status === 'Published' ? 'border-l-[3px] border-l-emerald-400' : 'border-l-[3px] border-l-gray-300'
             }`}
         >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="truncate text-sm font-semibold text-slate-950">
+                        <h3 className="truncate text-sm font-semibold text-gray-950">
                             {module.title || 'Untitled course'}
                         </h3>
                         <span
-                            className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] ${status === 'Published' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}
+                            className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] ${status === 'Published' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}
                         >
                             {status}
                         </span>
@@ -779,11 +779,11 @@ function ModuleRow({ module, index }: { module: StudioModule; index: number }) {
                             </span>
                         ) : null}
                     </div>
-                    <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
+                    <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-gray-500">
                         <span>{studentCount} learners</span>
-                        <span className="h-1 w-1 rounded-full bg-slate-300" />
+                        <span className="h-1 w-1 rounded-full bg-gray-300" />
                         <span>{unitCount} units</span>
-                        <span className="h-1 w-1 rounded-full bg-slate-300" />
+                        <span className="h-1 w-1 rounded-full bg-gray-300" />
                         <span>Updated {lastUpdated}</span>
                     </div>
                 </div>
@@ -791,7 +791,7 @@ function ModuleRow({ module, index }: { module: StudioModule; index: number }) {
                 <div className="flex flex-wrap items-center gap-2">
                     <Link
                         href={`/dashboard/creator/courses/${module.id}/edit`}
-                        className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50"
+                        className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 transition-colors hover:border-gray-300 hover:bg-gray-50"
                     >
                         Edit course
                     </Link>
@@ -801,7 +801,7 @@ function ModuleRow({ module, index }: { module: StudioModule; index: number }) {
                                 ? `/dashboard/creator/exams/${module.linkedExamId}/edit`
                                 : '/dashboard/creator/exams/new'
                         }
-                        className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-transparent bg-slate-950 px-3.5 py-2 text-xs font-semibold text-white transition-colors hover:bg-slate-800"
+                        className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-transparent bg-gray-950 px-3.5 py-2 text-xs font-semibold text-white transition-colors hover:bg-gray-800"
                     >
                         {module.linkedExamId ? 'Open exam' : 'Add exam'}
                     </Link>
@@ -825,14 +825,14 @@ function InsightTile({
     body: string;
 }) {
     return (
-        <div className="rounded-xl border border-slate-200/70 bg-slate-50/60 p-3 transition-colors duration-200 hover:bg-white">
+        <div className="rounded-xl border border-gray-200/70 bg-gray-50/60 p-3 transition-colors duration-200 hover:bg-white">
             <div className="flex items-start gap-3">
                 <div className={`inline-flex h-8 w-8 items-center justify-center rounded-lg ${iconBg} ${iconColor}`}>
                     {icon}
                 </div>
                 <div className="min-w-0">
-                    <p className="text-sm font-semibold text-slate-900">{title}</p>
-                    <p className="mt-0.5 text-[13px] leading-5 text-slate-500">{body}</p>
+                    <p className="text-sm font-semibold text-gray-900">{title}</p>
+                    <p className="mt-0.5 text-[13px] leading-5 text-gray-500">{body}</p>
                 </div>
             </div>
         </div>
@@ -852,13 +852,13 @@ function ChecklistCard({
 }) {
     return (
         <div
-            className={`rounded-xl border border-slate-200/70 border-l-[3px] ${accentColor} bg-slate-50/60 p-4 transition-all duration-200 hover:bg-white hover:shadow-sm`}
+            className={`rounded-xl border border-gray-200/70 border-l-[3px] ${accentColor} bg-gray-50/60 p-4 transition-all duration-200 hover:bg-white hover:shadow-sm`}
         >
-            <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white text-slate-900 shadow-sm">
+            <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white text-gray-900 shadow-sm">
                 {icon}
             </div>
-            <h3 className="mt-3 text-sm font-semibold text-slate-950">{title}</h3>
-            <p className="mt-1.5 text-[13px] leading-5 text-slate-500">{body}</p>
+            <h3 className="mt-3 text-sm font-semibold text-gray-950">{title}</h3>
+            <p className="mt-1.5 text-[13px] leading-5 text-gray-500">{body}</p>
         </div>
     );
 }

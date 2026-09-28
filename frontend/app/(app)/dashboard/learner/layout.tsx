@@ -9,7 +9,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
 
     if (shouldBlockRender) {
         return (
-            <div className="h-screen flex flex-col overflow-hidden bg-slate-50">
+            <div className="h-screen flex flex-col overflow-hidden bg-gray-50">
                 <Navbar userRole="student" />
                 <div className="flex-1 min-h-0 overflow-y-auto">
                     <LearnerDashboardSkeleton />

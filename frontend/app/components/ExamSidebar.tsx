@@ -47,7 +47,7 @@ const ExamSidebar = React.memo(function ExamSidebar({
         <>
             <aside
                 className={`
-                    relative flex flex-col bg-white border-r border-slate-200 h-full
+                    relative flex flex-col bg-white border-r border-gray-200 h-full
                     transition-all duration-300 ease-in-out z-40 overflow-visible
                     ${hidden ? 'w-0 border-none' : collapsed ? 'w-16' : 'w-[min(16rem,calc(100vw-24px))]'}
                 `}
@@ -59,7 +59,7 @@ const ExamSidebar = React.memo(function ExamSidebar({
                         {showCollapseToggle && (
                             <button
                                 onClick={onToggleCollapse}
-                                className="touch-manipulation flex items-center justify-center w-9 h-9 sm:w-8 sm:h-8 bg-white border border-slate-200 rounded-full shadow-lg text-slate-500 hover:text-[var(--brand)] transition-all hover:scale-110 active:scale-95 cursor-pointer"
+                                className="touch-manipulation flex items-center justify-center w-9 h-9 sm:w-8 sm:h-8 bg-white border border-gray-200 rounded-full shadow-lg text-gray-500 hover:text-[var(--brand)] transition-all hover:scale-110 active:scale-95 cursor-pointer"
                                 title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
                             >
                                 <svg
@@ -80,7 +80,7 @@ const ExamSidebar = React.memo(function ExamSidebar({
 
                         <button
                             onClick={onToggleHidden}
-                            className="touch-manipulation flex items-center justify-center w-9 h-16 sm:w-8 sm:h-16 bg-white border border-slate-200 rounded-full shadow-lg text-slate-500 hover:text-[var(--brand)] transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                            className="touch-manipulation flex items-center justify-center w-9 h-16 sm:w-8 sm:h-16 bg-white border border-gray-200 rounded-full shadow-lg text-gray-500 hover:text-[var(--brand)] transition-all hover:scale-105 active:scale-95 cursor-pointer"
                             title="Hide Sidebar"
                         >
                             <svg
@@ -108,12 +108,12 @@ const ExamSidebar = React.memo(function ExamSidebar({
                             return (
                                 <div
                                     key={section.id}
-                                    className={`mb-4 rounded-2xl border bg-slate-50/50 p-2 transition-all relative ${collapsed ? 'px-1' : 'px-2'} ${isLocked || isSubmitted ? 'border-slate-100 opacity-60 grayscale-[0.8] cursor-not-allowed' : 'border-slate-100'}`}
+                                    className={`mb-4 rounded-2xl border bg-gray-50/50 p-2 transition-all relative ${collapsed ? 'px-1' : 'px-2'} ${isLocked || isSubmitted ? 'border-gray-100 opacity-60 grayscale-[0.8] cursor-not-allowed' : 'border-gray-100'}`}
                                 >
                                     {/* Lock Overlay for both Locked and Submitted sections */}
                                     {(isLocked || isSubmitted) && (
-                                        <div className="absolute inset-0 z-20 bg-slate-50/20 backdrop-blur-[1px] flex items-center justify-center rounded-2xl">
-                                            <div className="w-8 h-8 bg-white shadow-lg rounded-full flex items-center justify-center text-slate-400">
+                                        <div className="absolute inset-0 z-20 bg-gray-50/20 backdrop-blur-[1px] flex items-center justify-center rounded-2xl">
+                                            <div className="w-8 h-8 bg-white shadow-lg rounded-full flex items-center justify-center text-gray-400">
                                                 <svg
                                                     width="14"
                                                     height="14"
@@ -137,7 +137,7 @@ const ExamSidebar = React.memo(function ExamSidebar({
                                             className={`
                                             flex items-center justify-center rounded-lg shadow-sm border font-black
                                             ${collapsed ? 'w-10 h-10 text-sm' : 'w-7 h-7 text-xs'}
-                                            ${isSubmitted || isLocked ? 'bg-slate-200 border-slate-300 text-slate-500' : 'bg-white border-slate-100 text-[var(--brand)]'}
+                                            ${isSubmitted || isLocked ? 'bg-gray-200 border-gray-300 text-gray-500' : 'bg-white border-gray-100 text-[var(--brand)]'}
                                         `}
                                         >
                                             {isSubmitted || isLocked ? (
@@ -158,7 +158,7 @@ const ExamSidebar = React.memo(function ExamSidebar({
                                         </div>
 
                                         {!collapsed && (
-                                            <h3 className="text-[11px] font-black text-slate-500 uppercase tracking-widest truncate flex-1 leading-none flex items-center justify-between">
+                                            <h3 className="text-[11px] font-black text-gray-500 uppercase tracking-widest truncate flex-1 leading-none flex items-center justify-between">
                                                 <span>{section.title}</span>
                                             </h3>
                                         )}
@@ -173,7 +173,7 @@ const ExamSidebar = React.memo(function ExamSidebar({
                                             const isCurrentSection = section.id === currentSectionId;
 
                                             // Base colors
-                                            let statusColor = 'bg-white border-slate-100 text-slate-400';
+                                            let statusColor = 'bg-white border-gray-100 text-gray-400';
                                             if (q.status === 'answered')
                                                 statusColor = 'bg-emerald-50 border-emerald-100 text-emerald-600';
                                             if (q.status === 'review')
@@ -215,8 +215,8 @@ const ExamSidebar = React.memo(function ExamSidebar({
 
                     {/* Footer / Legend */}
                     {!collapsed && (
-                        <div className="p-4 border-t border-slate-100 bg-white">
-                            <div className="grid grid-cols-2 gap-2 text-[9px] font-black uppercase tracking-tighter text-slate-400">
+                        <div className="p-4 border-t border-gray-100 bg-white">
+                            <div className="grid grid-cols-2 gap-2 text-[9px] font-black uppercase tracking-tighter text-gray-400">
                                 <div className="flex items-center gap-1.5">
                                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> Solved
                                 </div>
@@ -224,7 +224,7 @@ const ExamSidebar = React.memo(function ExamSidebar({
                                     <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div> Review
                                 </div>
                                 <div className="flex items-center gap-1.5">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-slate-200"></div> Skipped
+                                    <div className="w-1.5 h-1.5 rounded-full bg-gray-200"></div> Skipped
                                 </div>
                                 <div className="flex items-center gap-1.5">
                                     <div className="w-1.5 h-1.5 rounded-full bg-[var(--brand)]"></div> Current
@@ -243,7 +243,7 @@ const ExamSidebar = React.memo(function ExamSidebar({
                         // `hover:pr-2` tweened padding, a layout property, so hovering this
                         // handle reflowed on every frame -- during a live proctored exam.
                         // The scale already carries the affordance and is composited.
-                        className="touch-manipulation flex items-center justify-center w-9 h-16 sm:w-8 sm:h-16 bg-white border border-slate-200 rounded-r-full shadow-lg text-slate-500 transition-[transform,color] duration-200 hover:text-[var(--brand)] hover:scale-105 active:scale-95 cursor-pointer"
+                        className="touch-manipulation flex items-center justify-center w-9 h-16 sm:w-8 sm:h-16 bg-white border border-gray-200 rounded-r-full shadow-lg text-gray-500 transition-[transform,color] duration-200 hover:text-[var(--brand)] hover:scale-105 active:scale-95 cursor-pointer"
                         title="Show Sidebar"
                     >
                         <svg

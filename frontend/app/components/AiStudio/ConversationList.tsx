@@ -84,11 +84,11 @@ function Row({
                 aria-current={active ? 'page' : undefined}
                 className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm transition ${
                     active
-                        ? 'bg-white font-medium text-slate-900 shadow-sm'
-                        : 'text-slate-600 hover:bg-white/70 hover:text-slate-900'
+                        ? 'bg-white font-medium text-gray-900 shadow-sm'
+                        : 'text-gray-600 hover:bg-white/70 hover:text-gray-900'
                 }`}
             >
-                {item.pinned && <Pin size={12} className="shrink-0 text-slate-400" />}
+                {item.pinned && <Pin size={12} className="shrink-0 text-gray-400" />}
                 <span className="min-w-0 flex-1 truncate pr-6">{item.title}</span>
             </button>
             <button
@@ -96,19 +96,19 @@ function Row({
                 onClick={() => setMenu((m) => !m)}
                 aria-label={`Options for ${item.title}`}
                 aria-expanded={menu}
-                className={`absolute right-1 top-1/2 -translate-y-1/2 rounded-md p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-700 ${menu ? 'opacity-100' : 'opacity-0 focus:opacity-100 group-hover:opacity-100'}`}
+                className={`absolute right-1 top-1/2 -translate-y-1/2 rounded-md p-1 text-gray-400 hover:bg-gray-200 hover:text-gray-700 ${menu ? 'opacity-100' : 'opacity-0 focus:opacity-100 group-hover:opacity-100'}`}
             >
                 <MoreHorizontal size={15} />
             </button>
             {menu && (
-                <div className="absolute right-0 top-full z-20 mt-1 w-44 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 text-sm shadow-lg">
+                <div className="absolute right-0 top-full z-20 mt-1 w-44 overflow-hidden rounded-xl border border-gray-200 bg-white py-1 text-sm shadow-lg">
                     <button
                         type="button"
                         onClick={() => {
                             setMenu(false);
                             setEditing(true);
                         }}
-                        className="flex w-full items-center gap-2 px-3 py-2 hover:bg-slate-50"
+                        className="flex w-full items-center gap-2 px-3 py-2 hover:bg-gray-50"
                     >
                         <Pencil size={13} /> Rename
                     </button>
@@ -118,7 +118,7 @@ function Row({
                             setMenu(false);
                             onPin();
                         }}
-                        className="flex w-full items-center gap-2 px-3 py-2 hover:bg-slate-50"
+                        className="flex w-full items-center gap-2 px-3 py-2 hover:bg-gray-50"
                     >
                         {item.pinned ? <PinOff size={13} /> : <Pin size={13} />}
                         {item.pinned ? 'Unpin' : 'Pin'}
@@ -174,19 +174,19 @@ export default function ConversationList({
                 <button
                     type="button"
                     onClick={onNew}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 py-2.5 text-sm font-semibold text-white hover:bg-gray-800"
                 >
                     <Plus size={16} /> New chat
                 </button>
                 {items.length > 6 && (
                     <label className="flex items-center gap-2 rounded-lg bg-white/70 px-2.5 py-1.5">
-                        <Search size={14} className="text-slate-400" />
+                        <Search size={14} className="text-gray-400" />
                         <input
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             placeholder="Search chats"
                             aria-label="Search chats"
-                            className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400"
+                            className="w-full bg-transparent text-sm outline-none placeholder:text-gray-400"
                         />
                     </label>
                 )}
@@ -198,18 +198,18 @@ export default function ConversationList({
                         {[70, 55, 80].map((w) => (
                             <div
                                 key={w}
-                                className="h-8 animate-pulse rounded-lg bg-slate-200/60"
+                                className="h-8 animate-pulse rounded-lg bg-gray-200/60"
                                 style={{ width: `${w}%` }}
                             />
                         ))}
                     </div>
                 )}
                 {!loading && items.length === 0 && (
-                    <p className="px-3 text-xs leading-5 text-slate-500">Your chats will appear here.</p>
+                    <p className="px-3 text-xs leading-5 text-gray-500">Your chats will appear here.</p>
                 )}
                 {groups.map((group) => (
                     <div key={group.label} className="space-y-0.5">
-                        <p className="px-2.5 pb-1 text-[11px] font-medium text-slate-400">{group.label}</p>
+                        <p className="px-2.5 pb-1 text-[11px] font-medium text-gray-400">{group.label}</p>
                         {group.items.map((item) => (
                             <Row
                                 key={item.id}
@@ -225,7 +225,7 @@ export default function ConversationList({
                 ))}
             </nav>
 
-            <div className="border-t border-slate-200/70 p-4">
+            <div className="border-t border-gray-200/70 p-4">
                 <UsageMeter />
             </div>
         </div>

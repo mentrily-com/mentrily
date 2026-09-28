@@ -452,7 +452,7 @@ export default function ExamLoginPage() {
     }
 
     return (
-        <div className="min-h-screen md:h-screen w-full bg-slate-50 flex items-center justify-center font-sans overflow-y-auto md:overflow-hidden">
+        <div className="min-h-screen md:h-screen w-full bg-gray-50 flex items-center justify-center font-sans overflow-y-auto md:overflow-hidden">
             <div className="w-full min-h-screen md:min-h-0 md:h-full flex flex-col md:flex-row bg-white shadow-2xl">
                 <div className="w-full md:w-1/2 p-6 sm:p-8 md:p-12 lg:p-16 flex flex-col justify-start md:justify-center bg-white relative z-10 overflow-y-auto">
                     <div className="max-w-md mx-auto w-full">
@@ -468,18 +468,18 @@ export default function ExamLoginPage() {
                                 />
                             </div>
 
-                            <h1 className="text-3xl font-black text-slate-900 mb-2">Student Login</h1>
-                            <p className="text-slate-500 font-medium">Enter your details to access the exam</p>
+                            <h1 className="text-3xl font-black text-gray-900 mb-2">Student Login</h1>
+                            <p className="text-gray-500 font-medium">Enter your details to access the exam</p>
                         </div>
 
                         {examInfo?.title && (
-                            <div className="md:hidden mb-6 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                            <div className="md:hidden mb-6 p-3.5 rounded-2xl bg-gray-50 border border-gray-200">
                                 <div className="flex items-center justify-between gap-2">
                                     <div className="min-w-0">
-                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-0.5">
+                                        <span className="text-[9px] font-black uppercase tracking-widest text-gray-400 block mb-0.5">
                                             Exam
                                         </span>
-                                        <p className="text-xs font-bold text-slate-900 truncate">{examInfo.title}</p>
+                                        <p className="text-xs font-bold text-gray-900 truncate">{examInfo.title}</p>
                                     </div>
                                     <div className="flex items-center gap-2 shrink-0">
                                         {typeof examInfo.duration === 'number' && (
@@ -488,7 +488,7 @@ export default function ExamLoginPage() {
                                             </span>
                                         )}
                                         {typeof examInfo.totalQuestions === 'number' && (
-                                            <span className="text-[10px] font-bold text-slate-500">
+                                            <span className="text-[10px] font-bold text-gray-500">
                                                 {examInfo.totalQuestions} Qs
                                             </span>
                                         )}
@@ -503,9 +503,9 @@ export default function ExamLoginPage() {
                                     <h2 className="text-xl font-bold text-indigo-700">App Required</h2>
                                 </div>
                                 <div className="p-6 bg-white text-center space-y-3">
-                                    <p className="text-slate-600 text-sm leading-relaxed">
+                                    <p className="text-gray-600 text-sm leading-relaxed">
                                         This exam is configured for{' '}
-                                        <span className="font-bold text-slate-800">App (Secure)</span> mode and cannot
+                                        <span className="font-bold text-gray-800">App (Secure)</span> mode and cannot
                                         be attempted in a web browser.
                                     </p>
                                     <a
@@ -527,7 +527,7 @@ export default function ExamLoginPage() {
                                 <form className="space-y-4">
                                     <div className="space-y-1.5">
                                         <div className="flex items-center justify-between">
-                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                                                 Test Code
                                             </label>
                                             {isTestCodeVerified && (
@@ -539,7 +539,7 @@ export default function ExamLoginPage() {
                                         <div className="relative">
                                             <KeyRound
                                                 size={16}
-                                                className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                                                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
                                             />
                                             <input
                                                 type="text"
@@ -548,11 +548,11 @@ export default function ExamLoginPage() {
                                                     setTestCode(e.target.value);
                                                     setIsTestCodeVerified(false);
                                                 }}
-                                                className="w-full h-11 pl-11 pr-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 font-semibold uppercase tracking-wide placeholder:normal-case placeholder:tracking-normal placeholder:font-medium focus:border-indigo-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-colors"
+                                                className="w-full h-11 pl-11 pr-4 rounded-xl border border-gray-200 bg-gray-50/50 text-gray-900 font-semibold uppercase tracking-wide placeholder:normal-case placeholder:tracking-normal placeholder:font-medium focus:border-indigo-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-colors"
                                                 placeholder="e.g. JS-TEST-01"
                                             />
                                         </div>
-                                        <p className="text-[11px] text-slate-400 font-medium">
+                                        <p className="text-[11px] text-gray-400 font-medium">
                                             Get this from your teacher — required to continue with Google.
                                         </p>
                                     </div>
@@ -575,7 +575,7 @@ export default function ExamLoginPage() {
                                             <button
                                                 type="button"
                                                 onClick={handleSignOut}
-                                                className="text-xs font-semibold text-slate-500 underline hover:text-slate-700"
+                                                className="text-xs font-semibold text-gray-500 underline hover:text-gray-700"
                                             >
                                                 Not you? Sign out
                                             </button>
@@ -583,19 +583,19 @@ export default function ExamLoginPage() {
                                     ) : !secondFactorReady ? (
                                         <>
                                             <div className="space-y-1.5">
-                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                                                     Email
                                                 </label>
                                                 <input
                                                     type="email"
                                                     value={email}
                                                     onChange={(e) => setEmail(e.target.value)}
-                                                    className="w-full h-10 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 font-semibold"
+                                                    className="w-full h-10 px-4 rounded-xl border border-gray-200 bg-gray-50/50 text-gray-900 font-semibold"
                                                     placeholder="name@company.com"
                                                 />
                                             </div>
                                             <div className="space-y-1.5">
-                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                                                     Password
                                                 </label>
                                                 <div className="relative">
@@ -603,13 +603,13 @@ export default function ExamLoginPage() {
                                                         type={showPassword ? 'text' : 'password'}
                                                         value={password}
                                                         onChange={(e) => setPassword(e.target.value)}
-                                                        className="w-full h-10 px-4 pr-12 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 font-semibold"
+                                                        className="w-full h-10 px-4 pr-12 rounded-xl border border-gray-200 bg-gray-50/50 text-gray-900 font-semibold"
                                                         placeholder="••••••••"
                                                     />
                                                     <button
                                                         type="button"
                                                         onClick={() => setShowPassword((prev) => !prev)}
-                                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500 font-bold"
+                                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 font-bold"
                                                     >
                                                         {showPassword ? 'Hide' : 'Show'}
                                                     </button>
@@ -622,12 +622,12 @@ export default function ExamLoginPage() {
                                                 <p className="text-xs font-black uppercase tracking-widest text-indigo-500">
                                                     Verify Sign-In
                                                 </p>
-                                                <p className="mt-1 text-sm font-semibold text-slate-800">
+                                                <p className="mt-1 text-sm font-semibold text-gray-800">
                                                     Enter the code sent to {secondFactorTarget || email}.
                                                 </p>
                                             </div>
                                             <div className="space-y-1.5">
-                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                                                     Verification Code
                                                 </label>
                                                 <div className="relative">
@@ -635,12 +635,12 @@ export default function ExamLoginPage() {
                                                         type="text"
                                                         value={verificationCode}
                                                         onChange={(e) => setVerificationCode(e.target.value)}
-                                                        className="w-full h-10 px-4 pr-12 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 font-semibold"
+                                                        className="w-full h-10 px-4 pr-12 rounded-xl border border-gray-200 bg-gray-50/50 text-gray-900 font-semibold"
                                                         placeholder="123456"
                                                         inputMode="numeric"
                                                         autoComplete="one-time-code"
                                                     />
-                                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
                                                         <KeyRound size={16} />
                                                     </div>
                                                 </div>
@@ -650,40 +650,40 @@ export default function ExamLoginPage() {
 
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-1.5">
-                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                                                 Roll Number
                                             </label>
                                             <input
                                                 type="text"
                                                 value={rollNo}
                                                 onChange={(e) => setRollNo(e.target.value)}
-                                                className="w-full h-10 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 font-semibold"
+                                                className="w-full h-10 px-4 rounded-xl border border-gray-200 bg-gray-50/50 text-gray-900 font-semibold"
                                                 placeholder="e.g. 210056"
                                             />
                                         </div>
                                         <div className="space-y-1.5">
-                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                                                 Section
                                             </label>
                                             <input
                                                 type="text"
                                                 value={section}
                                                 onChange={(e) => setSection(e.target.value)}
-                                                className="w-full h-10 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 font-semibold"
+                                                className="w-full h-10 px-4 rounded-xl border border-gray-200 bg-gray-50/50 text-gray-900 font-semibold"
                                                 placeholder="e.g. A"
                                             />
                                         </div>
                                     </div>
 
                                     <div className="space-y-1.5">
-                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                                             Full Name
                                         </label>
                                         <input
                                             type="text"
                                             value={name}
                                             onChange={(e) => setName(e.target.value)}
-                                            className="w-full h-10 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 font-semibold"
+                                            className="w-full h-10 px-4 rounded-xl border border-gray-200 bg-gray-50/50 text-gray-900 font-semibold"
                                             placeholder="Type your full name"
                                         />
                                     </div>
@@ -716,7 +716,7 @@ export default function ExamLoginPage() {
                                                 type="button"
                                                 onClick={handleGoogleSignIn}
                                                 disabled={isGoogleLoading || !testCode.trim()}
-                                                className="w-full h-11 bg-white border border-slate-200 hover:bg-slate-50 text-slate-800 font-bold rounded-xl transition-all mt-2 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                                                className="w-full h-11 bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 font-bold rounded-xl transition-all mt-2 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                                             >
                                                 {isGoogleLoading ? (
                                                     <span>Verifying Code...</span>
@@ -763,7 +763,7 @@ export default function ExamLoginPage() {
                                                     setError('');
                                                 }}
                                                 disabled={isSignInLoading}
-                                                className="w-full h-11 bg-white border border-slate-200 hover:bg-slate-50 text-slate-800 font-bold rounded-xl transition-all mt-2 flex items-center justify-center gap-2 disabled:opacity-60"
+                                                className="w-full h-11 bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 font-bold rounded-xl transition-all mt-2 flex items-center justify-center gap-2 disabled:opacity-60"
                                             >
                                                 <ArrowLeft size={16} />
                                                 <span>Back to password</span>

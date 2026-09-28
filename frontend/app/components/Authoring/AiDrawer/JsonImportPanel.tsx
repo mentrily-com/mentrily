@@ -59,22 +59,22 @@ export default function JsonImportPanel({
 
     return (
         <div className="space-y-5">
-            <p className="text-sm leading-6 text-slate-600">
+            <p className="text-sm leading-6 text-gray-600">
                 Already drafted content in another AI chat? Copy this prompt into it, then paste the JSON it returns.
             </p>
             <div className="space-y-2">
-                <p className="text-xs font-medium text-slate-600">1. Copy the prompt</p>
+                <p className="text-xs font-medium text-gray-600">1. Copy the prompt</p>
                 <button
                     type="button"
                     onClick={copy}
-                    className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white hover:bg-slate-800"
+                    className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-3.5 py-2 text-xs font-semibold text-white hover:bg-gray-800"
                 >
                     {copied ? <Check size={14} /> : <Copy size={14} />}
                     {copied ? 'Copied' : 'Copy prompt'}
                 </button>
             </div>
             <div className="space-y-2">
-                <label htmlFor="ai-json-paste" className="block text-xs font-medium text-slate-600">
+                <label htmlFor="ai-json-paste" className="block text-xs font-medium text-gray-600">
                     2. Paste the JSON reply
                 </label>
                 <textarea
@@ -86,7 +86,7 @@ export default function JsonImportPanel({
                     }}
                     rows={10}
                     placeholder='{ "sections": [ ... ] }'
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 font-mono text-xs text-slate-700 outline-none focus:border-[var(--brand)]"
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50 p-3 font-mono text-xs text-gray-700 outline-none focus:border-[var(--brand)]"
                 />
             </div>
             {error && (

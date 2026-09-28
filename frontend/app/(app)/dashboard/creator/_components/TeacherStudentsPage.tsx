@@ -261,7 +261,7 @@ export default function TeacherStudentsPage() {
                                         </th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-100">
+                                <tbody className="divide-y divide-gray-100">
                                     {filteredStudents.length === 0 ? (
                                         <tr>
                                             <td colSpan={5} className="p-0">
@@ -431,12 +431,12 @@ export default function TeacherStudentsPage() {
                 >
                     <div className="mb-6 rounded-xl bg-white/70 p-4 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.12)]">
                         <div className="mb-3 flex items-center justify-between gap-4">
-                            <p className="text-xs font-black uppercase tracking-widest text-slate-500">
+                            <p className="text-xs font-black uppercase tracking-widest text-gray-500">
                                 Overall Progress
                             </p>
-                            <p className="text-sm font-black text-slate-900">{selectedStudent.progress}%</p>
+                            <p className="text-sm font-black text-gray-900">{selectedStudent.progress}%</p>
                         </div>
-                        <div className="h-2.5 overflow-hidden rounded-full bg-slate-200/80">
+                        <div className="h-2.5 overflow-hidden rounded-full bg-gray-200/80">
                             <div
                                 className="h-full rounded-full bg-[var(--brand)] transition-all duration-700"
                                 style={{ width: `${selectedStudent.progress}%` }}
@@ -445,7 +445,7 @@ export default function TeacherStudentsPage() {
                     </div>
 
                     <div>
-                        <h4 className="mb-3 text-xs font-black uppercase tracking-widest text-slate-800">
+                        <h4 className="mb-3 text-xs font-black uppercase tracking-widest text-gray-800">
                             Course Progress
                         </h4>
                         <div className="space-y-3">
@@ -457,40 +457,40 @@ export default function TeacherStudentsPage() {
                                     >
                                         <div className="mb-4 flex items-start justify-between gap-3">
                                             <div className="flex min-w-0 items-center gap-3">
-                                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-[var(--brand)]">
+                                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-[var(--brand)]">
                                                     <BookOpen size={22} />
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <h4 className="truncate text-sm font-black leading-tight text-slate-800">
+                                                    <h4 className="truncate text-sm font-black leading-tight text-gray-800">
                                                         {course.title}
                                                     </h4>
-                                                    <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                                                    <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">
                                                         {course.completedUnits}/{course.totalUnits} Units Completed
                                                     </p>
                                                 </div>
                                             </div>
                                             <button
                                                 onClick={() => handleUnenroll(course.id, selectedStudent.id)}
-                                                className="rounded-xl p-2 text-slate-300 transition-all hover:bg-rose-50 hover:text-rose-500 sm:opacity-0 sm:group-hover/course:opacity-100"
+                                                className="rounded-xl p-2 text-gray-300 transition-all hover:bg-rose-50 hover:text-rose-500 sm:opacity-0 sm:group-hover/course:opacity-100"
                                                 title="Unenroll Student"
                                             >
                                                 <Trash2 size={18} />
                                             </button>
                                         </div>
                                         <div className="flex items-center gap-3">
-                                            <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-200">
+                                            <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-200">
                                                 <div
                                                     className="h-full rounded-full bg-[var(--brand)] transition-all duration-1000"
                                                     style={{ width: `${course.progress}%` }}
                                                 />
                                             </div>
-                                            <span className="w-10 text-right text-xs font-black text-slate-600">
+                                            <span className="w-10 text-right text-xs font-black text-gray-600">
                                                 {course.progress}%
                                             </span>
                                         </div>
                                         {course.tests && course.tests.length > 0 && (
-                                            <div className="mt-4 border-t border-slate-200 pt-4">
-                                                <p className="mb-2 flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                            <div className="mt-4 border-t border-gray-200 pt-4">
+                                                <p className="mb-2 flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
                                                     <ClipboardList size={10} /> Test Scores
                                                 </p>
                                                 <div className="space-y-1.5">
@@ -499,7 +499,7 @@ export default function TeacherStudentsPage() {
                                                             key={test.id}
                                                             className="flex items-center justify-between"
                                                         >
-                                                            <span className="max-w-[60%] truncate text-[11px] font-bold text-slate-500">
+                                                            <span className="max-w-[60%] truncate text-[11px] font-bold text-gray-500">
                                                                 {test.title}
                                                             </span>
                                                             {test.attempted ? (
@@ -510,7 +510,7 @@ export default function TeacherStudentsPage() {
                                                                     {test.score}%)
                                                                 </span>
                                                             ) : (
-                                                                <span className="text-[11px] font-bold text-slate-300 px-2 py-0.5 rounded-lg bg-slate-50">
+                                                                <span className="text-[11px] font-bold text-gray-300 px-2 py-0.5 rounded-lg bg-gray-50">
                                                                     Not attempted
                                                                 </span>
                                                             )}
@@ -523,7 +523,7 @@ export default function TeacherStudentsPage() {
                                 ))
                             ) : (
                                 <div className="rounded-xl bg-white p-6 text-center shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
-                                    <p className="text-sm font-bold text-slate-500">
+                                    <p className="text-sm font-bold text-gray-500">
                                         No courses enrolled under your management.
                                     </p>
                                 </div>

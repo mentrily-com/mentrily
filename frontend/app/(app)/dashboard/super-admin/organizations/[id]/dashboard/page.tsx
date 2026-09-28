@@ -140,45 +140,45 @@ export default function SuperAdminOrganizationDashboard({ params }: { params: Pr
     return (
         <div className="space-y-6">
             <section className="max-w-[1440px] mx-auto px-6 lg:px-12 pt-8">
-                <div className="bg-white rounded-[32px] border border-slate-100 p-6 shadow-sm">
+                <div className="bg-white rounded-[32px] border border-gray-100 p-6 shadow-sm">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
                         <div>
-                            <h2 className="text-xl font-black text-slate-900">Organization Controls</h2>
-                            <p className="text-xs font-bold text-slate-400 mt-1">{orgName}</p>
+                            <h2 className="text-xl font-black text-gray-900">Organization Controls</h2>
+                            <p className="text-xs font-bold text-gray-400 mt-1">{orgName}</p>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-                            <div className="bg-slate-50 rounded-xl px-3 py-2">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Users</p>
-                                <p className="text-sm font-black text-slate-700">{usage.users}</p>
+                            <div className="bg-gray-50 rounded-xl px-3 py-2">
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Users</p>
+                                <p className="text-sm font-black text-gray-700">{usage.users}</p>
                             </div>
-                            <div className="bg-slate-50 rounded-xl px-3 py-2">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            <div className="bg-gray-50 rounded-xl px-3 py-2">
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                                     Admins
                                 </p>
-                                <p className="text-sm font-black text-slate-700">{usage.admins}</p>
+                                <p className="text-sm font-black text-gray-700">{usage.admins}</p>
                             </div>
-                            <div className="bg-slate-50 rounded-xl px-3 py-2">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            <div className="bg-gray-50 rounded-xl px-3 py-2">
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                                     Courses
                                 </p>
-                                <p className="text-sm font-black text-slate-700">{usage.courses}</p>
+                                <p className="text-sm font-black text-gray-700">{usage.courses}</p>
                             </div>
-                            <div className="bg-slate-50 rounded-xl px-3 py-2">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Exams</p>
-                                <p className="text-sm font-black text-slate-700">{usage.exams}</p>
+                            <div className="bg-gray-50 rounded-xl px-3 py-2">
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Exams</p>
+                                <p className="text-sm font-black text-gray-700">{usage.exams}</p>
                             </div>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div className="rounded-2xl border border-slate-100 p-4">
-                            <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest mb-3">
+                        <div className="rounded-2xl border border-gray-100 p-4">
+                            <h3 className="text-sm font-black text-gray-800 uppercase tracking-widest mb-3">
                                 Plan Management
                             </h3>
                             <select
                                 value={selectedPlan}
                                 onChange={(e) => setSelectedPlan(e.target.value as PlanType)}
-                                className="w-full h-11 rounded-xl border border-slate-200 px-3 text-sm font-semibold text-slate-700"
+                                className="w-full h-11 rounded-xl border border-gray-200 px-3 text-sm font-semibold text-gray-700"
                             >
                                 <option value="FREE">FREE</option>
                                 <option value="STARTER">STARTER</option>
@@ -194,14 +194,14 @@ export default function SuperAdminOrganizationDashboard({ params }: { params: Pr
                             </button>
                         </div>
 
-                        <div className="rounded-2xl border border-slate-100 p-4">
-                            <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest mb-3">
+                        <div className="rounded-2xl border border-gray-100 p-4">
+                            <h3 className="text-sm font-black text-gray-800 uppercase tracking-widest mb-3">
                                 Limits & Seats
                             </h3>
                             <div className="grid grid-cols-2 gap-3">
                                 {limitFields.map((field) => (
                                     <label key={field.key} className="flex flex-col gap-1">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                                             {field.label}
                                         </span>
                                         <input
@@ -214,7 +214,7 @@ export default function SuperAdminOrganizationDashboard({ params }: { params: Pr
                                                     [field.key]: Number(e.target.value),
                                                 }))
                                             }
-                                            className="h-10 rounded-xl border border-slate-200 px-3 text-sm font-semibold text-slate-700"
+                                            className="h-10 rounded-xl border border-gray-200 px-3 text-sm font-semibold text-gray-700"
                                         />
                                     </label>
                                 ))}
@@ -222,7 +222,7 @@ export default function SuperAdminOrganizationDashboard({ params }: { params: Pr
                             <button
                                 onClick={saveLimits}
                                 disabled={savingLimits}
-                                className="mt-3 w-full h-10 rounded-xl bg-slate-900 text-white text-xs font-black uppercase tracking-widest disabled:opacity-60"
+                                className="mt-3 w-full h-10 rounded-xl bg-gray-900 text-white text-xs font-black uppercase tracking-widest disabled:opacity-60"
                             >
                                 {savingLimits ? 'Saving Limits...' : 'Save Limits'}
                             </button>

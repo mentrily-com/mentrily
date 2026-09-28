@@ -45,7 +45,7 @@ function QuestionRow({
             ref={setNodeRef}
             style={{ transform: CSS.Transform.toString(transform), transition }}
             className={`space-y-1.5 rounded-xl border bg-white px-2 py-2 ${
-                isDragging ? 'z-10 border-[var(--brand)] shadow-lg' : 'border-slate-200'
+                isDragging ? 'z-10 border-[var(--brand)] shadow-lg' : 'border-gray-200'
             }`}
         >
             <div className="flex items-center gap-1.5">
@@ -53,24 +53,24 @@ function QuestionRow({
                     type="button"
                     {...attributes}
                     {...listeners}
-                    className="cursor-grab touch-none rounded p-1 text-slate-300 hover:text-slate-500 active:cursor-grabbing"
+                    className="cursor-grab touch-none rounded p-1 text-gray-300 hover:text-gray-500 active:cursor-grabbing"
                     aria-label={`Reorder ${question.title}`}
                 >
                     <GripVertical size={14} />
                 </button>
-                <Icon size={14} className="shrink-0 text-slate-400" aria-hidden />
+                <Icon size={14} className="shrink-0 text-gray-400" aria-hidden />
                 <input
                     value={question.title}
                     onChange={(e) => onChange({ ...question, title: e.target.value })}
                     maxLength={200}
                     aria-label="Item title"
-                    className="min-w-0 flex-1 rounded-md bg-transparent px-1 py-0.5 text-sm font-medium text-slate-900 outline-none focus:bg-slate-50"
+                    className="min-w-0 flex-1 rounded-md bg-transparent px-1 py-0.5 text-sm font-medium text-gray-900 outline-none focus:bg-gray-50"
                 />
                 <button
                     type="button"
                     onClick={onRemove}
                     disabled={!canRemove}
-                    className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-slate-300 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-0"
+                    className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-gray-300 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-0"
                     aria-label={`Remove ${question.title}`}
                 >
                     <Trash2 size={13} />
@@ -81,7 +81,7 @@ function QuestionRow({
                     value={question.type}
                     onChange={(e) => onChange({ ...question, type: e.target.value as AiGenerationType })}
                     aria-label="Item type"
-                    className="h-7 rounded-md border border-slate-200 bg-white px-1.5 text-xs text-slate-700 outline-none focus:border-[var(--brand)]"
+                    className="h-7 rounded-md border border-gray-200 bg-white px-1.5 text-xs text-gray-700 outline-none focus:border-[var(--brand)]"
                 >
                     {allowedTypes.map((t) => (
                         <option key={t} value={t}>
@@ -95,13 +95,13 @@ function QuestionRow({
                         onChange({ ...question, difficulty: e.target.value as BlueprintQuestion['difficulty'] })
                     }
                     aria-label="Difficulty"
-                    className="h-7 rounded-md border border-slate-200 bg-white px-1.5 text-xs text-slate-700 outline-none focus:border-[var(--brand)]"
+                    className="h-7 rounded-md border border-gray-200 bg-white px-1.5 text-xs text-gray-700 outline-none focus:border-[var(--brand)]"
                 >
                     <option>Easy</option>
                     <option>Medium</option>
                     <option>Hard</option>
                 </select>
-                <label className="flex h-7 items-center gap-1 rounded-md border border-slate-200 bg-white pl-1.5 text-xs text-slate-500">
+                <label className="flex h-7 items-center gap-1 rounded-md border border-gray-200 bg-white pl-1.5 text-xs text-gray-500">
                     <input
                         type="number"
                         min={0}
@@ -111,12 +111,12 @@ function QuestionRow({
                             onChange({ ...question, marks: Math.max(0, Math.round(Number(e.target.value) || 0)) })
                         }
                         aria-label="Marks"
-                        className="w-8 bg-transparent text-right tabular-nums text-slate-800 outline-none"
+                        className="w-8 bg-transparent text-right tabular-nums text-gray-800 outline-none"
                     />
                     <span className="pr-1.5">pts</span>
                 </label>
                 {question.intent && (
-                    <p className="min-w-0 basis-full truncate text-xs text-slate-500" title={question.intent}>
+                    <p className="min-w-0 basis-full truncate text-xs text-gray-500" title={question.intent}>
                         {question.intent}
                     </p>
                 )}
@@ -156,7 +156,7 @@ function SectionBlock({
     return (
         <section className="space-y-2">
             <div className="flex items-center gap-2">
-                <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-slate-900 text-[11px] font-semibold tabular-nums text-white">
+                <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-gray-900 text-[11px] font-semibold tabular-nums text-white">
                     {index + 1}
                 </span>
                 <input
@@ -164,16 +164,16 @@ function SectionBlock({
                     onChange={(e) => onChange({ ...section, title: e.target.value })}
                     maxLength={160}
                     aria-label={`Section ${index + 1} title`}
-                    className="min-w-0 flex-1 rounded-md bg-transparent px-1 py-0.5 text-sm font-semibold text-slate-900 outline-none focus:bg-slate-50"
+                    className="min-w-0 flex-1 rounded-md bg-transparent px-1 py-0.5 text-sm font-semibold text-gray-900 outline-none focus:bg-gray-50"
                 />
-                <span className="shrink-0 text-xs tabular-nums text-slate-400">
+                <span className="shrink-0 text-xs tabular-nums text-gray-400">
                     {section.questions.length} {section.questions.length === 1 ? 'item' : 'items'}, {marks} {marks === 1 ? 'pt' : 'pts'}
                 </span>
                 <button
                     type="button"
                     onClick={onRemove}
                     disabled={!canRemove}
-                    className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-slate-300 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-0"
+                    className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-gray-300 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-0"
                     aria-label={`Remove section ${index + 1}`}
                 >
                     <Trash2 size={13} />
@@ -220,7 +220,7 @@ function SectionBlock({
                         ],
                     })
                 }
-                className="ml-2 inline-flex sm:ml-8 items-center gap-1 rounded-md px-1.5 py-1 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                className="ml-2 inline-flex sm:ml-8 items-center gap-1 rounded-md px-1.5 py-1 text-xs font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
             >
                 <Plus size={13} /> Add item
             </button>
@@ -255,7 +255,7 @@ export default function BlueprintEditor({
                     rows={1}
                     maxLength={200}
                     aria-label="Title"
-                    className="field-sizing-content w-full resize-none rounded-md bg-transparent px-1 font-display text-xl font-semibold leading-snug text-slate-900 outline-none focus:bg-slate-50"
+                    className="field-sizing-content w-full resize-none rounded-md bg-transparent px-1 font-display text-xl font-semibold leading-snug text-gray-900 outline-none focus:bg-gray-50"
                 />
                 <textarea
                     value={blueprint.description}
@@ -263,9 +263,9 @@ export default function BlueprintEditor({
                     rows={3}
                     maxLength={1000}
                     aria-label="Description"
-                    className="field-sizing-content max-h-48 min-h-[4.5rem] w-full resize-none rounded-md bg-transparent px-1 text-sm leading-6 text-slate-600 outline-none focus:bg-slate-50"
+                    className="field-sizing-content max-h-48 min-h-[4.5rem] w-full resize-none rounded-md bg-transparent px-1 text-sm leading-6 text-gray-600 outline-none focus:bg-gray-50"
                 />
-                <p className={`px-1 text-xs tabular-nums ${overLimit ? 'font-medium text-amber-700' : 'text-slate-400'}`}>
+                <p className={`px-1 text-xs tabular-nums ${overLimit ? 'font-medium text-amber-700' : 'text-gray-400'}`}>
                     {blueprint.sections.length} {blueprint.sections.length === 1 ? 'section' : 'sections'}, {total}{' '}
                     {total === 1 ? 'item' : 'items'}, {marks} {marks === 1 ? 'pt' : 'pts'}
                     {overLimit ? ` — your plan allows ${maxQuestions} items per generation` : ''}
@@ -312,7 +312,7 @@ export default function BlueprintEditor({
                             ],
                         })
                     }
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-slate-300 px-3 py-2 text-xs font-medium text-slate-600 hover:border-[var(--brand)] hover:text-[var(--brand)]"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-gray-300 px-3 py-2 text-xs font-medium text-gray-600 hover:border-[var(--brand)] hover:text-[var(--brand)]"
                 >
                     <Plus size={13} /> Add section
                 </button>

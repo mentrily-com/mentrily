@@ -139,7 +139,7 @@ export default function AppModal({
     return createPortal(
         <div className={cn('fixed inset-0 grid place-items-center p-3 sm:p-6', zIndexClass)}>
             <div
-                className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200"
+                className="absolute inset-0 bg-gray-950/60 backdrop-blur-sm animate-in fade-in duration-200"
                 onClick={closeOnBackdrop ? onClose : undefined}
             />
             <section
@@ -164,17 +164,17 @@ export default function AppModal({
                             )}
                             <div className="min-w-0">
                                 {eyebrow && (
-                                    <p className="mb-1 text-[10px] font-black uppercase leading-none tracking-widest text-slate-400">
+                                    <p className="mb-1 text-[10px] font-black uppercase leading-none tracking-widest text-gray-400">
                                         {eyebrow}
                                     </p>
                                 )}
                                 {title && (
-                                    <h2 className="truncate text-lg font-black tracking-tight text-slate-900 sm:text-xl">
+                                    <h2 className="truncate text-lg font-black tracking-tight text-gray-900 sm:text-xl">
                                         {title}
                                     </h2>
                                 )}
                                 {subtitle && (
-                                    <p className="mt-0.5 truncate text-xs font-semibold text-slate-500">{subtitle}</p>
+                                    <p className="mt-0.5 truncate text-xs font-semibold text-gray-500">{subtitle}</p>
                                 )}
                             </div>
                         </div>
@@ -182,7 +182,7 @@ export default function AppModal({
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#e9edf4] text-slate-500 transition-all hover:bg-white hover:text-slate-900 active:scale-95"
+                                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#e9edf4] text-gray-500 transition-all hover:bg-white hover:text-gray-900 active:scale-95"
                                 aria-label="Close dialog"
                             >
                                 <X size={18} strokeWidth={3} />
@@ -201,7 +201,7 @@ export default function AppModal({
                 </div>
 
                 {footer && (
-                    <footer className={cn('border-t border-slate-200/70 bg-slate-50/70 p-4 sm:p-6', footerClassName)}>
+                    <footer className={cn('border-t border-gray-200/70 bg-gray-50/70 p-4 sm:p-6', footerClassName)}>
                         {footer}
                     </footer>
                 )}

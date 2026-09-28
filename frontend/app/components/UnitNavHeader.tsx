@@ -21,7 +21,7 @@ export default function UnitNavHeader({
     showSidebarToggle = true,
 }: UnitNavHeaderProps) {
     return (
-        <div className="flex min-h-12 items-center justify-between gap-2 px-2 sm:px-4 border-b border-slate-100 bg-white z-[60] shrink-0 relative isolate">
+        <div className="flex min-h-12 items-center justify-between gap-2 px-2 sm:px-4 border-b border-gray-100 bg-white z-[60] shrink-0 relative isolate">
             <div className="flex min-w-0 items-center gap-2 sm:gap-4">
                 {/* Sidebar Toggle */}
                 {showSidebarToggle && (
@@ -29,7 +29,7 @@ export default function UnitNavHeader({
                         <button
                             onClick={onToggleSidebar}
                             data-element-id="starter-unit-sidebar-toggle"
-                            className={`p-2.5 min-h-[40px] min-w-[40px] flex items-center justify-center transition-all rounded-xl hover:bg-slate-50 cursor-pointer ${showSidebar ? 'text-indigo-600 bg-indigo-50/50' : 'text-slate-400'}`}
+                            className={`p-2.5 min-h-[40px] min-w-[40px] flex items-center justify-center transition-all rounded-xl hover:bg-gray-50 cursor-pointer ${showSidebar ? 'text-indigo-600 bg-indigo-50/50' : 'text-gray-400'}`}
                             title="Toggle Sidebar"
                         >
                             <svg
@@ -47,7 +47,7 @@ export default function UnitNavHeader({
                                 <line x1="3" y1="18" x2="21" y2="18"></line>
                             </svg>
                         </button>
-                        <div className="hidden h-6 w-px bg-slate-100 mx-1 sm:block"></div>
+                        <div className="hidden h-6 w-px bg-gray-100 mx-1 sm:block"></div>
                     </>
                 )}
 
@@ -55,7 +55,7 @@ export default function UnitNavHeader({
                     live in the bottom QuestionNavFooter (see ProblemStatement /
                     UnitRenderer), matching exam mode in one shared place instead
                     of course questions having their own separate top pair. */}
-                <div className="flex min-w-0 items-center overflow-x-auto bg-slate-50/80 border border-slate-100 rounded-xl p-1 gap-1 no-scrollbar">
+                <div className="flex min-w-0 items-center overflow-x-auto bg-gray-50/80 border border-gray-100 rounded-xl p-1 gap-1 no-scrollbar">
                     {/* Tabs */}
                     {!minimal && (
                         <div className="flex items-center gap-1">
@@ -67,7 +67,7 @@ export default function UnitNavHeader({
                                     className={`px-3 py-2 min-h-[36px] text-[10px] font-black uppercase tracking-widest rounded-lg transition-all cursor-pointer sm:px-4 ${
                                         activeTab === tab
                                             ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-black/5'
-                                            : 'text-slate-400 hover:text-slate-600'
+                                            : 'text-gray-400 hover:text-gray-600'
                                     }`}
                                 >
                                     {tab}
@@ -87,7 +87,7 @@ function TabItem({ active, onClick, label }: { active: boolean; onClick: () => v
     return (
         <button
             onClick={onClick}
-            className={`h-full px-4 text-[11px] font-black tracking-widest uppercase transition-all border-b-2 flex items-center ${active ? 'text-[var(--brand)] border-[var(--brand)]' : 'text-slate-400 border-transparent hover:text-slate-600'}`}
+            className={`h-full px-4 text-[11px] font-black tracking-widest uppercase transition-all border-b-2 flex items-center ${active ? 'text-[var(--brand)] border-[var(--brand)]' : 'text-gray-400 border-transparent hover:text-gray-600'}`}
         >
             {label}
         </button>

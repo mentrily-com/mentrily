@@ -28,11 +28,11 @@ export default function PlanGate({ feature, requiredPlan, children }: PlanGatePr
 
     if (loading) {
         return (
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 animate-pulse">
-                <div className="h-4 w-32 bg-slate-100 rounded mb-4" />
-                <div className="h-3 w-full bg-slate-100 rounded mb-2" />
-                <div className="h-3 w-4/5 bg-slate-100 rounded mb-5" />
-                <div className="h-9 w-28 bg-slate-100 rounded" />
+            <div className="rounded-2xl border border-gray-200 bg-white p-6 animate-pulse">
+                <div className="h-4 w-32 bg-gray-100 rounded mb-4" />
+                <div className="h-3 w-full bg-gray-100 rounded mb-2" />
+                <div className="h-3 w-4/5 bg-gray-100 rounded mb-5" />
+                <div className="h-9 w-28 bg-gray-100 rounded" />
             </div>
         );
     }
@@ -49,15 +49,15 @@ export default function PlanGate({ feature, requiredPlan, children }: PlanGatePr
               : '/pricing';
 
     return (
-        <div className="relative rounded-2xl border border-slate-200 bg-white overflow-hidden">
+        <div className="relative rounded-2xl border border-gray-200 bg-white overflow-hidden">
             <div className="opacity-40 pointer-events-none">{children}</div>
             <div className="absolute inset-0 flex items-center justify-center bg-white/70">
-                <div className="text-center px-6 py-5 rounded-xl border border-slate-200 bg-white shadow-sm">
-                    <div className="mx-auto mb-2 w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center">
-                        <Lock size={16} className="text-slate-600" />
+                <div className="text-center px-6 py-5 rounded-xl border border-gray-200 bg-white shadow-sm">
+                    <div className="mx-auto mb-2 w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+                        <Lock size={16} className="text-gray-600" />
                     </div>
-                    <p className="text-sm font-black text-slate-800">Available on {requiredPlan}</p>
-                    <p className="text-xs font-semibold text-slate-500 mt-1">
+                    <p className="text-sm font-black text-gray-800">Available on {requiredPlan}</p>
+                    <p className="text-xs font-semibold text-gray-500 mt-1">
                         Unlock this feature by upgrading your plan.
                     </p>
                     <Link

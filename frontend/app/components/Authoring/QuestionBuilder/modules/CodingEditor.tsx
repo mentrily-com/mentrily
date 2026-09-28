@@ -198,7 +198,7 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
             {/* Language Configuration Headers */}
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                         Supported Languages
                     </label>
                     <div className="flex gap-2 items-center flex-wrap justify-end">
@@ -223,7 +223,7 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
 
                         <div className="relative">
                             <select
-                                className="appearance-none pl-3 pr-8 py-1.5 rounded-lg text-xs font-bold bg-white border border-slate-200 text-slate-500 hover:border-slate-300 outline-none cursor-pointer transition-all focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/10"
+                                className="appearance-none pl-3 pr-8 py-1.5 rounded-lg text-xs font-bold bg-white border border-gray-200 text-gray-500 hover:border-gray-300 outline-none cursor-pointer transition-all focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/10"
                                 onChange={(e) => {
                                     if (e.target.value) {
                                         toggleLanguageSupport(e.target.value);
@@ -245,25 +245,25 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                             </select>
                             <ChevronDown
                                 size={12}
-                                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
                             />
                         </div>
                     </div>
                 </div>
 
                 {/* Main Editor Area */}
-                <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+                <div className="bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-sm">
                     {/* Language Dropdown Header */}
-                    <div className="flex items-center justify-between p-4 border-b border-slate-100 bg-slate-50/50">
+                    <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50/50">
                         <div className="flex items-center gap-3">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                                 Editing Template:
                             </span>
                             <div className="relative">
                                 <select
                                     value={activeLang}
                                     onChange={(e) => setActiveLang(e.target.value)}
-                                    className="appearance-none pl-4 pr-10 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/10 transition-all cursor-pointer shadow-sm"
+                                    className="appearance-none pl-4 pr-10 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-700 outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/10 transition-all cursor-pointer shadow-sm"
                                 >
                                     {Object.keys(config.templates).map((langSlug) => {
                                         const langInfo = PLAYGROUND_LANGUAGES.find((l) => l.id === langSlug);
@@ -276,7 +276,7 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                                 </select>
                                 <ChevronDown
                                     size={14}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
                                 />
                             </div>
                         </div>
@@ -285,7 +285,7 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                     <div className="p-6">
                         {/* Internal Template Tabs (Head/Body/Tail) */}
                         <div className="flex items-center gap-4 mb-4">
-                            <div className="flex bg-slate-100 p-1 rounded-xl">
+                            <div className="flex bg-gray-100 p-1 rounded-xl">
                                 <TemplateTab
                                     active={activeTemplateSection === 'head'}
                                     onClick={() => setActiveTemplateSection('head')}
@@ -305,10 +305,10 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                                     icon={<Layers size={14} />}
                                 />
                             </div>
-                            <div className="h-6 w-[1px] bg-slate-200"></div>
+                            <div className="h-6 w-[1px] bg-gray-200"></div>
                             <button
                                 onClick={() => setActiveTemplateSection('solution')}
-                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTemplateSection === 'solution' ? 'bg-green-100 text-green-700 ring-2 ring-green-500/20' : 'text-slate-400 hover:bg-slate-50'}`}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTemplateSection === 'solution' ? 'bg-green-100 text-green-700 ring-2 ring-green-500/20' : 'text-gray-400 hover:bg-gray-50'}`}
                             >
                                 <CheckCircle2 size={14} /> Solution
                             </button>
@@ -349,17 +349,17 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
             </div>
 
             {/* Test Cases */}
-            <section className="space-y-6 pt-8 border-t border-slate-100">
+            <section className="space-y-6 pt-8 border-t border-gray-100">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h4 className="text-xs font-black uppercase tracking-widest text-slate-800 flex items-center gap-2">
+                        <h4 className="text-xs font-black uppercase tracking-widest text-gray-800 flex items-center gap-2">
                             <FlaskConical size={16} className="text-[var(--brand)]" />
                             Test Cases
-                            <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full text-[10px]">
+                            <span className="bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full text-[10px]">
                                 {config.testCases?.length || 0}
                             </span>
                         </h4>
-                        <p className="text-[9px] font-bold text-slate-400 uppercase mt-1">
+                        <p className="text-[9px] font-bold text-gray-400 uppercase mt-1">
                             Total Question Points: <span className="text-[var(--brand)]">{question.marks || 0}</span>
                         </p>
                     </div>
@@ -376,7 +376,7 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                                     codingConfig: { ...config, showTestCases: newVal, testCases: newTestCases },
                                 });
                             }}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 transition-all ${config.showTestCases ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-slate-50 border-slate-100 text-slate-400'}`}
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 transition-all ${config.showTestCases ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-gray-50 border-gray-100 text-gray-400'}`}
                         >
                             {config.showTestCases ? <Eye size={12} /> : <EyeOff size={12} />}
                             <span className="text-[10px] font-black uppercase tracking-widest">
@@ -399,24 +399,24 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                         return (
                             <div
                                 key={index}
-                                className={`bg-white border transition-all duration-300 rounded-[24px] overflow-hidden ${isExpanded ? 'border-[var(--brand-light)] shadow-xl shadow-[var(--brand)]/10 ring-1 ring-[var(--brand-light)]/20' : 'border-slate-100 hover:border-slate-200'}`}
+                                className={`bg-white border transition-all duration-300 rounded-[24px] overflow-hidden ${isExpanded ? 'border-[var(--brand-light)] shadow-xl shadow-[var(--brand)]/10 ring-1 ring-[var(--brand-light)]/20' : 'border-gray-100 hover:border-gray-200'}`}
                             >
                                 {/* Header */}
                                 <div
                                     onClick={() => setExpandedTestCase(isExpanded ? null : index)}
-                                    className="flex items-center justify-between p-4 cursor-pointer bg-slate-50/50"
+                                    className="flex items-center justify-between p-4 cursor-pointer bg-gray-50/50"
                                 >
                                     <div className="flex items-center gap-4">
                                         <div
-                                            className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black ${isExpanded ? 'bg-[var(--brand)] text-white' : 'bg-slate-200 text-slate-500'}`}
+                                            className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black ${isExpanded ? 'bg-[var(--brand)] text-white' : 'bg-gray-200 text-gray-500'}`}
                                         >
                                             {index + 1}
                                         </div>
                                         <div>
-                                            <p className="text-xs font-black text-slate-700">
+                                            <p className="text-xs font-black text-gray-700">
                                                 {tc.isPublic ? 'Public Test Case' : 'Hidden Test Case'}
                                             </p>
-                                            <p className="text-[10px] font-bold text-slate-400">Points: {tc.points}</p>
+                                            <p className="text-[10px] font-bold text-gray-400">Points: {tc.points}</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -425,49 +425,49 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                                                 e.stopPropagation();
                                                 updateTestCase(index, { isPublic: !tc.isPublic });
                                             }}
-                                            className={`p-1.5 rounded-lg transition-colors ${tc.isPublic ? 'text-[var(--brand)] hover:bg-[var(--brand-light)]/50' : 'text-slate-400 hover:bg-slate-100'}`}
+                                            className={`p-1.5 rounded-lg transition-colors ${tc.isPublic ? 'text-[var(--brand)] hover:bg-[var(--brand-light)]/50' : 'text-gray-400 hover:bg-gray-100'}`}
                                             title={tc.isPublic ? 'Make Hidden' : 'Make Public'}
                                         >
                                             {tc.isPublic ? <Eye size={14} /> : <EyeOff size={14} />}
                                         </button>
                                         <ChevronDown
                                             size={16}
-                                            className={`text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                                            className={`text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
                                         />
                                     </div>
                                 </div>
 
                                 {isExpanded && (
-                                    <div className="p-6 border-t border-slate-100 space-y-6 animate-fade-in">
+                                    <div className="p-6 border-t border-gray-100 space-y-6 animate-fade-in">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black uppercase tracking-wide text-slate-400">
+                                                <label className="text-[10px] font-black uppercase tracking-wide text-gray-400">
                                                     Input (stdin)
                                                 </label>
                                                 <textarea
                                                     value={tc.input}
                                                     onChange={(e) => updateTestCase(index, { input: e.target.value })}
                                                     placeholder="Enter input data..."
-                                                    className="w-full h-[120px] bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs font-mono text-slate-700 outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/10 transition-all resize-none"
+                                                    className="w-full h-[120px] bg-gray-50 border border-gray-200 rounded-xl p-4 text-xs font-mono text-gray-700 outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/10 transition-all resize-none"
                                                 />
                                             </div>
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black uppercase tracking-wide text-slate-400 text-[var(--brand)]">
+                                                <label className="text-[10px] font-black uppercase tracking-wide text-gray-400 text-[var(--brand)]">
                                                     Expected Output (stdout)
                                                 </label>
                                                 <textarea
                                                     value={tc.output}
                                                     onChange={(e) => updateTestCase(index, { output: e.target.value })}
                                                     placeholder="Enter expected output..."
-                                                    className="w-full h-[120px] bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs font-mono text-slate-700 outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/10 transition-all resize-none"
+                                                    className="w-full h-[120px] bg-gray-50 border border-gray-200 rounded-xl p-4 text-xs font-mono text-gray-700 outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/10 transition-all resize-none"
                                                 />
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center justify-between pt-4 border-t border-slate-50">
+                                        <div className="flex items-center justify-between pt-4 border-t border-gray-50">
                                             <div className="flex items-center gap-6">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-xs font-bold text-slate-400">Points:</span>
+                                                    <span className="text-xs font-bold text-gray-400">Points:</span>
                                                     <input
                                                         type="number"
                                                         value={tc.points}
@@ -476,7 +476,7 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                                                                 points: parseInt(e.target.value) || 0,
                                                             })
                                                         }
-                                                        className="w-16 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-700 outline-none focus:border-[var(--brand-light)]"
+                                                        className="w-16 px-2 py-1 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold text-gray-700 outline-none focus:border-[var(--brand-light)]"
                                                     />
                                                 </div>
                                             </div>
@@ -496,9 +496,9 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                     })}
 
                     {(!config.testCases || config.testCases.length === 0) && (
-                        <div className="text-center py-12 border-2 border-dashed border-slate-100 rounded-[24px]">
-                            <Layout size={32} className="text-slate-200 mx-auto mb-3" />
-                            <p className="text-xs font-bold text-slate-300 uppercase tracking-widest">
+                        <div className="text-center py-12 border-2 border-dashed border-gray-100 rounded-[24px]">
+                            <Layout size={32} className="text-gray-200 mx-auto mb-3" />
+                            <p className="text-xs font-bold text-gray-300 uppercase tracking-widest">
                                 No test cases defined
                             </p>
                             <button
@@ -529,7 +529,7 @@ function TemplateTab({
     return (
         <button
             onClick={onClick}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${active ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${active ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
         >
             {icon} {label}
         </button>

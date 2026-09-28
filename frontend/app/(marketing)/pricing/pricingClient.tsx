@@ -299,13 +299,13 @@ function FeatureComparison() {
                                                         {feat.name}
                                                     </span>
                                                     <div className="flex flex-col items-center gap-1">
-                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 lg:hidden">
+                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 lg:hidden">
                                                             Free
                                                         </span>
                                                         {renderValue(feat.free)}
                                                     </div>
                                                     <div className="flex flex-col items-center gap-1">
-                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 lg:hidden">
+                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 lg:hidden">
                                                             Starter
                                                         </span>
                                                         {renderValue(feat.starter)}
@@ -317,7 +317,7 @@ function FeatureComparison() {
                                                         {renderValue(feat.pro)}
                                                     </div>
                                                     <div className="flex flex-col items-center gap-1">
-                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 lg:hidden">
+                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 lg:hidden">
                                                             Enterprise
                                                         </span>
                                                         {renderValue(feat.enterprise)}

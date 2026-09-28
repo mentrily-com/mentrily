@@ -16,14 +16,14 @@ const WebEditor = dynamic(() => import('./WebEditor/WebEditor'), {
 });
 const CodingQuestionRenderer = dynamic(() => import('./CodingQuestionRenderer'), {
     loading: () => (
-        <div className="h-full w-full bg-slate-50 animate-pulse flex items-center justify-center text-slate-400">
+        <div className="h-full w-full bg-gray-50 animate-pulse flex items-center justify-center text-gray-400">
             Loading Code Editor...
         </div>
     ),
     ssr: false,
 });
 const EmbeddedCodeRunner = dynamic(() => import('./Reading/EmbeddedCodeRunner'), {
-    loading: () => <div className="h-64 w-full bg-slate-100 animate-pulse rounded-lg border border-slate-200"></div>,
+    loading: () => <div className="h-64 w-full bg-gray-100 animate-pulse rounded-lg border border-gray-200"></div>,
     ssr: false,
 });
 const PythonNotebook = dynamic(() => import('./Features/Notebook/PythonNotebook'), {
@@ -31,7 +31,7 @@ const PythonNotebook = dynamic(() => import('./Features/Notebook/PythonNotebook'
     ssr: false,
 });
 const YouTubeSegmentPlayer = dynamic(() => import('./Reading/YouTubeSegmentPlayer'), {
-    loading: () => <div className="w-full aspect-video bg-slate-100 animate-pulse rounded-2xl"></div>,
+    loading: () => <div className="w-full aspect-video bg-gray-100 animate-pulse rounded-2xl"></div>,
     ssr: false,
 });
 
@@ -200,7 +200,7 @@ export function UnitRendererComponent({
                 className={`h-full w-full bg-white overflow-hidden flex flex-col ${isReadingFullScreen ? 'z-[1000]' : ''}`}
             >
                 {topHeader && !isReadingFullScreen && (
-                    <div className="w-full shrink-0 border-b border-slate-100 z-50">{topHeader}</div>
+                    <div className="w-full shrink-0 border-b border-gray-100 z-50">{topHeader}</div>
                 )}
 
                 {/* Nav Header for Reading */}
@@ -221,7 +221,7 @@ export function UnitRendererComponent({
                     {showSidebar && sidebar && !isReadingFullScreen && (
                         <>
                             <div
-                                className="fixed inset-0 z-[95] bg-slate-900/40 backdrop-blur-xs animate-in fade-in cursor-pointer"
+                                className="fixed inset-0 z-[95] bg-gray-900/40 backdrop-blur-xs animate-in fade-in cursor-pointer"
                                 onClick={onToggleSidebar}
                                 aria-label="Close curriculum sidebar"
                             />
@@ -240,7 +240,7 @@ export function UnitRendererComponent({
                         >
                             <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:items-start sm:justify-between">
                                 <div className="flex-1">
-                                    <h1 className="text-2xl font-black text-slate-900 tracking-tight sm:text-3xl">
+                                    <h1 className="text-2xl font-black text-gray-900 tracking-tight sm:text-3xl">
                                         {question.title}
                                     </h1>
                                 </div>
@@ -251,7 +251,7 @@ export function UnitRendererComponent({
                                         className={`p-2.5 rounded-xl border transition-all ${
                                             isReadingFullScreen
                                                 ? 'bg-indigo-600 border-indigo-600 text-white'
-                                                : 'bg-white border-slate-100 text-slate-400 hover:text-slate-600 hover:border-slate-200'
+                                                : 'bg-white border-gray-100 text-gray-400 hover:text-gray-600 hover:border-gray-200'
                                         }
                                         `}
                                         title={isReadingFullScreen ? 'Exit Full Screen' : 'Full Screen'}
@@ -286,7 +286,7 @@ export function UnitRendererComponent({
                                         className={`p-2.5 rounded-xl border transition-all ${
                                             isBookmarked
                                                 ? 'bg-indigo-50 border-indigo-200 text-indigo-600'
-                                                : 'bg-white border-slate-100 text-slate-300 hover:text-slate-500 hover:border-slate-200'
+                                                : 'bg-white border-gray-100 text-gray-300 hover:text-gray-500 hover:border-gray-200'
                                         }
                                         `}
                                         title={isBookmarked ? 'Remove Bookmark' : 'Bookmark Lesson'}
@@ -305,7 +305,7 @@ export function UnitRendererComponent({
                                         </svg>
                                     </button>
                                     {!hideNav && !isExamMode && (
-                                        <button className="flex items-center gap-2 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 transition-all">
+                                        <button className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-500 hover:bg-gray-100 transition-all">
                                             Download PDF
                                             <svg
                                                 width="14"
@@ -325,7 +325,7 @@ export function UnitRendererComponent({
                             <div className="w-16 h-1.5 bg-[var(--brand)] rounded-full mb-12"></div>
 
                             <article
-                                className="prose prose-slate max-w-none text-slate-600 leading-relaxed space-y-6 prose-p:text-slate-600 prose-headings:text-slate-800 prose-code:text-[var(--brand-dark)] prose-code:bg-[var(--brand-lighter)] prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-sm [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-inherit prose-code:before:content-none prose-code:after:content-none"
+                                className="prose prose-slate max-w-none text-gray-600 leading-relaxed space-y-6 prose-p:text-gray-600 prose-headings:text-gray-800 prose-code:text-[var(--brand-dark)] prose-code:bg-[var(--brand-lighter)] prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-sm [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-inherit prose-code:before:content-none prose-code:after:content-none"
                                 style={{ fontSize: contentFontSize ? `${contentFontSize}px` : undefined }}
                             >
                                 <div
@@ -337,8 +337,8 @@ export function UnitRendererComponent({
                                 {/* Render Embedded Code Runner if config exists (Legacy/Fallback) */}
                                 {question.codingConfig && !question.readingContent && (
                                     <div className="not-prose mt-8">
-                                        <h2 className="text-xl font-black text-slate-800 mb-4">Code Demonstration</h2>
-                                        <p className="mb-4 text-slate-600">
+                                        <h2 className="text-xl font-black text-gray-800 mb-4">Code Demonstration</h2>
+                                        <p className="mb-4 text-gray-600">
                                             You can run the code below to see the output directly within this lesson.
                                         </p>
                                         <EmbeddedCodeRunner
@@ -384,7 +384,7 @@ export function UnitRendererComponent({
                                                                 src={block.videoUrl}
                                                                 controls
                                                                 controlsList="nodownload"
-                                                                className="w-full rounded-2xl border border-slate-200 shadow-sm bg-black"
+                                                                className="w-full rounded-2xl border border-gray-200 shadow-sm bg-black"
                                                                 style={{ maxHeight: '480px' }}
                                                             >
                                                                 Your browser does not support the video tag.
@@ -547,7 +547,7 @@ export function UnitRendererComponent({
 
     return (
         <div className="h-full w-full flex flex-col bg-white overflow-hidden">
-            {topHeader && <div className="w-full shrink-0 border-b border-slate-100 z-50">{topHeader}</div>}
+            {topHeader && <div className="w-full shrink-0 border-b border-gray-100 z-50">{topHeader}</div>}
 
             {/* Attempt Viewing Info Bar */}
             {selectedAttemptId && !hideAttemptBanner && (
@@ -616,7 +616,7 @@ export function UnitRendererComponent({
                                 {showSidebar && sidebar && (
                                     <>
                                         <div
-                                            className="fixed inset-0 z-[95] bg-slate-900/40 backdrop-blur-xs animate-in fade-in cursor-pointer"
+                                            className="fixed inset-0 z-[95] bg-gray-900/40 backdrop-blur-xs animate-in fade-in cursor-pointer"
                                             onClick={onToggleSidebar}
                                             aria-label="Close curriculum sidebar"
                                         />

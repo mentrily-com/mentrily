@@ -53,18 +53,18 @@ export default function PublicPlaygroundShell({
 
     return (
         <div
-            className={`public-playground-page bg-slate-50 text-slate-900 ${
+            className={`public-playground-page bg-gray-50 text-gray-900 ${
                 embedded ? 'h-full min-h-0' : 'min-h-screen'
             }`}
         >
             {!embedded && (
-                <header className="sticky top-0 z-[1000] border-b border-slate-100 bg-white/90 backdrop-blur-md">
+                <header className="sticky top-0 z-[1000] border-b border-gray-100 bg-white/90 backdrop-blur-md">
                     <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-6">
                         <div className="flex items-center gap-6">
                             <Link href="/" className="flex items-center">
                                 <BrandLogo className="h-8 max-w-[160px]" priority />
                             </Link>
-                            <nav className="hidden items-center gap-1 rounded-xl bg-slate-50 p-1 md:flex">
+                            <nav className="hidden items-center gap-1 rounded-xl bg-gray-50 p-1 md:flex">
                                 {playgroundItems.map((item) => {
                                     const Icon = item.icon;
                                     const active =
@@ -77,7 +77,7 @@ export default function PublicPlaygroundShell({
                                             className={`flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-black transition ${
                                                 active
                                                     ? 'bg-white text-[var(--brand)] shadow-sm'
-                                                    : 'text-slate-500 hover:text-slate-800'
+                                                    : 'text-gray-500 hover:text-gray-800'
                                             }`}
                                         >
                                             <Icon size={15} />
@@ -96,14 +96,14 @@ export default function PublicPlaygroundShell({
                         <button
                             onClick={() => setOpen(!open)}
                             aria-label={open ? 'Close menu' : 'Open menu'}
-                            className="rounded-lg p-2 text-slate-500 md:hidden"
+                            className="rounded-lg p-2 text-gray-500 md:hidden"
                         >
                             {open ? <X size={22} /> : <Menu size={22} />}
                         </button>
                     </div>
 
                     {open && (
-                        <div className="border-t border-slate-100 bg-white px-4 py-3 md:hidden">
+                        <div className="border-t border-gray-100 bg-white px-4 py-3 md:hidden">
                             <div className="grid gap-2">
                                 {playgroundItems.map((item) => {
                                     const Icon = item.icon;
@@ -112,7 +112,7 @@ export default function PublicPlaygroundShell({
                                             key={item.href}
                                             href={item.href}
                                             onClick={() => setOpen(false)}
-                                            className="flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-3 text-sm font-bold text-slate-600"
+                                            className="flex items-center gap-2 rounded-xl bg-gray-50 px-3 py-3 text-sm font-bold text-gray-600"
                                         >
                                             <Icon size={16} />
                                             {item.label}
@@ -132,7 +132,7 @@ export default function PublicPlaygroundShell({
             <main
                 className={
                     embedded
-                        ? 'h-full min-h-0 w-full bg-slate-50 p-3 lg:p-4'
+                        ? 'h-full min-h-0 w-full bg-gray-50 p-3 lg:p-4'
                         : 'mx-auto min-h-[calc(100vh-4rem)] w-full max-w-[1660px] px-4 py-4 lg:px-6'
                 }
             >
@@ -158,14 +158,14 @@ export default function PublicPlaygroundShell({
                     {!embedded && (
                         <aside className="hidden min-h-[calc(100vh-6rem)] xl:block">
                             <div className="sticky top-20 space-y-3">
-                                <div className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900 shadow-sm">
+                                <div className="rounded-xl border border-gray-200 bg-white p-3 text-gray-900 shadow-sm">
                                     <p className="text-[10px] font-black uppercase tracking-widest text-[var(--brand)]">
                                         Mentrily
                                     </p>
                                     <h2 className="mt-1 text-sm font-black leading-tight">
                                         Create your own course or exam
                                     </h2>
-                                    <p className="mt-1 text-xs font-medium leading-relaxed text-slate-500">
+                                    <p className="mt-1 text-xs font-medium leading-relaxed text-gray-500">
                                         Turn practice problems into full lessons, tests, and learner dashboards.
                                     </p>
                                     <Link
@@ -190,7 +190,7 @@ function QuestionBuilderCard({ onOpen }: { onOpen: () => void }) {
     return (
         <button
             onClick={onOpen}
-            className="group relative flex w-full overflow-hidden rounded-xl border border-cyan-200 bg-white p-3 text-left text-slate-800 shadow-lg shadow-cyan-200/50 transition hover:border-[var(--brand)]"
+            className="group relative flex w-full overflow-hidden rounded-xl border border-cyan-200 bg-white p-3 text-left text-gray-800 shadow-lg shadow-cyan-200/50 transition hover:border-[var(--brand)]"
         >
             <span className="absolute -right-8 -top-8 h-20 w-20 rounded-full bg-cyan-400/25 blur-2xl transition group-hover:bg-cyan-300/40" />
             <span className="relative flex w-full items-start gap-3">
@@ -203,7 +203,7 @@ function QuestionBuilderCard({ onOpen }: { onOpen: () => void }) {
                         New
                     </span>
                     <span className="block text-sm font-black leading-tight">Create your own question and share</span>
-                    <span className="mt-1 block text-[11px] font-semibold leading-snug text-slate-500">
+                    <span className="mt-1 block text-[11px] font-semibold leading-snug text-gray-500">
                         Build one coding challenge and send a short-lived practice link.
                     </span>
                 </span>
@@ -238,7 +238,7 @@ export function PublicPlaygroundProfile({
     }, []);
 
     if (!isLoaded) {
-        return <div className="h-9 w-24 animate-pulse rounded-xl bg-slate-100" />;
+        return <div className="h-9 w-24 animate-pulse rounded-xl bg-gray-100" />;
     }
 
     if (!isSignedIn) {
@@ -246,7 +246,7 @@ export function PublicPlaygroundProfile({
             <div className={mobile ? 'grid grid-cols-2 gap-2' : 'flex items-center gap-2'}>
                 <Link
                     href="/login"
-                    className="rounded-xl px-4 py-2 text-center text-sm font-bold text-slate-600 hover:bg-slate-50"
+                    className="rounded-xl px-4 py-2 text-center text-sm font-bold text-gray-600 hover:bg-gray-50"
                 >
                     Sign in
                 </Link>
@@ -281,8 +281,8 @@ export function PublicPlaygroundProfile({
                 aria-expanded={open}
                 className={
                     compact
-                        ? 'flex rounded-full p-0.5 ring-1 ring-slate-200 transition hover:ring-slate-300'
-                        : 'flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-left shadow-sm transition hover:border-slate-300'
+                        ? 'flex rounded-full p-0.5 ring-1 ring-gray-200 transition hover:ring-gray-300'
+                        : 'flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-2.5 py-2 text-left shadow-sm transition hover:border-gray-300'
                 }
             >
                 <span className="flex min-w-0 items-center gap-2.5">
@@ -299,25 +299,25 @@ export function PublicPlaygroundProfile({
                         )}
                     </span>
                     <span className={compact ? 'sr-only' : 'hidden min-w-0 sm:block'}>
-                        <span className="block truncate text-xs font-black text-slate-800">{name}</span>
+                        <span className="block truncate text-xs font-black text-gray-800">{name}</span>
                         {email && (
-                            <span className="block truncate text-[10px] font-semibold text-slate-400">{email}</span>
+                            <span className="block truncate text-[10px] font-semibold text-gray-400">{email}</span>
                         )}
                     </span>
                 </span>
             </button>
             {open && (
-                <div className="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
+                <div className="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl">
                     {compact && (
-                        <div className="border-b border-slate-100 px-4 py-3">
-                            <p className="truncate text-sm font-semibold text-slate-900">{name}</p>
-                            {email && <p className="truncate text-xs text-slate-500">{email}</p>}
+                        <div className="border-b border-gray-100 px-4 py-3">
+                            <p className="truncate text-sm font-semibold text-gray-900">{name}</p>
+                            {email && <p className="truncate text-xs text-gray-500">{email}</p>}
                         </div>
                     )}
                     <Link
                         href={profileHref}
                         onClick={() => setOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50"
+                        className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50"
                     >
                         <User size={16} />
                         Profile
@@ -325,7 +325,7 @@ export function PublicPlaygroundProfile({
                     <button
                         type="button"
                         onClick={() => clerk.signOut({ redirectUrl: '/login' })}
-                        className="flex w-full items-center gap-3 border-t border-slate-100 px-4 py-3 text-left text-sm font-bold text-rose-600 hover:bg-rose-50"
+                        className="flex w-full items-center gap-3 border-t border-gray-100 px-4 py-3 text-left text-sm font-bold text-rose-600 hover:bg-rose-50"
                     >
                         <LogOut size={16} />
                         Sign out
@@ -357,7 +357,7 @@ function PublicDashboardNavItem({ mobile = false, onNavigate }: { mobile?: boole
             <Link
                 href={href}
                 onClick={onNavigate}
-                className="flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-3 text-sm font-bold text-slate-600"
+                className="flex items-center gap-2 rounded-xl bg-gray-50 px-3 py-3 text-sm font-bold text-gray-600"
             >
                 <LayoutDashboard size={16} />
                 Dashboard
@@ -368,7 +368,7 @@ function PublicDashboardNavItem({ mobile = false, onNavigate }: { mobile?: boole
     return (
         <Link
             href={href}
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-black text-slate-500 transition hover:bg-white hover:text-[var(--brand)] hover:shadow-sm"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-black text-gray-500 transition hover:bg-white hover:text-[var(--brand)] hover:shadow-sm"
         >
             <LayoutDashboard size={15} />
             Dashboard

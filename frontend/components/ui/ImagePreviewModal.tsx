@@ -21,7 +21,7 @@ export default function ImagePreviewModal({ image, onClose }: { image: PreviewIm
 
     return (
         <div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/90 px-3 py-6 backdrop-blur-sm sm:px-6"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-950/90 px-3 py-6 backdrop-blur-sm sm:px-6"
             role="dialog"
             aria-modal="true"
             aria-label="Image preview"

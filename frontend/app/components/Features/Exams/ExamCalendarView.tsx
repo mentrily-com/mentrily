@@ -59,19 +59,19 @@ export default function ExamCalendarView({ exams }: { exams: ScheduledExam[] }) 
     }, [exams, currentMonth, currentYear]);
 
     return (
-        <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
-            <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
-                <h3 className="text-lg font-black text-slate-900">
+        <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
+            <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
+                <h3 className="text-lg font-black text-gray-900">
                     {monthStart.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
                 </h3>
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Scheduled Exams</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Scheduled Exams</p>
             </div>
 
-            <div className="grid grid-cols-7 border-b border-slate-100 bg-slate-50/70">
+            <div className="grid grid-cols-7 border-b border-gray-100 bg-gray-50/70">
                 {weekDays.map((label) => (
                     <div
                         key={label}
-                        className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-500 text-center"
+                        className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-500 text-center"
                     >
                         {label}
                     </div>
@@ -84,7 +84,7 @@ export default function ExamCalendarView({ exams }: { exams: ScheduledExam[] }) 
                         return (
                             <div
                                 key={`empty-${idx}`}
-                                className="min-h-[130px] border-r border-b border-slate-100/80 bg-slate-50/30"
+                                className="min-h-[130px] border-r border-b border-gray-100/80 bg-gray-50/30"
                             />
                         );
                     }
@@ -93,8 +93,8 @@ export default function ExamCalendarView({ exams }: { exams: ScheduledExam[] }) 
                     const items = grouped.get(key) || [];
 
                     return (
-                        <div key={key} className="min-h-[130px] border-r border-b border-slate-100/80 p-3 space-y-2">
-                            <div className="text-xs font-black text-slate-500">{cell.getDate()}</div>
+                        <div key={key} className="min-h-[130px] border-r border-b border-gray-100/80 p-3 space-y-2">
+                            <div className="text-xs font-black text-gray-500">{cell.getDate()}</div>
                             <div className="space-y-2">
                                 {items.map((exam) => {
                                     const start = new Date(exam.startTime);

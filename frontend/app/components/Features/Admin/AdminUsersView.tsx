@@ -35,7 +35,7 @@ export default function AdminUsersView({ basePath, organizationId }: AdminUsersV
     }
 
     return (
-        <div className="animate-fade-in font-sans text-slate-900">
+        <div className="animate-fade-in font-sans text-gray-900">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>

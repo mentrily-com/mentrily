@@ -16,14 +16,14 @@ interface QuickActionCardProps {
 function QuickActionCard({ title, desc, count, icon, color, link }: QuickActionCardProps) {
     return (
         <Link href={link} className="block group">
-            <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-md transition-all h-full">
+            <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm hover:shadow-md transition-all h-full">
                 <div className="flex items-start justify-between mb-6">
                     <div
                         className={`w-12 h-12 rounded-2xl flex items-center justify-center ${color} group-hover:scale-110 transition-transform`}
                     >
                         {icon}
                     </div>
-                    <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center -mr-2 group-hover:bg-slate-100 transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center -mr-2 group-hover:bg-gray-100 transition-colors">
                         <svg
                             width="16"
                             height="16"
@@ -31,7 +31,7 @@ function QuickActionCard({ title, desc, count, icon, color, link }: QuickActionC
                             fill="none"
                             stroke="currentColor"
                             strokeWidth="2.5"
-                            className="text-slate-400 group-hover:text-slate-600"
+                            className="text-gray-400 group-hover:text-gray-600"
                         >
                             <path d="M7 17L17 7" />
                             <path d="M7 7h10v10" />
@@ -39,11 +39,11 @@ function QuickActionCard({ title, desc, count, icon, color, link }: QuickActionC
                     </div>
                 </div>
                 <div>
-                    <h4 className="text-lg font-black text-slate-800 mb-1 group-hover:text-[var(--brand)] transition-colors">
+                    <h4 className="text-lg font-black text-gray-800 mb-1 group-hover:text-[var(--brand)] transition-colors">
                         {title}
                     </h4>
-                    <p className="text-xs font-bold text-slate-400 mb-4">{desc}</p>
-                    <span className="inline-block px-3 py-1 bg-slate-50 rounded-lg text-[10px] font-black uppercase tracking-widest text-slate-500 border border-slate-100">
+                    <p className="text-xs font-bold text-gray-400 mb-4">{desc}</p>
+                    <span className="inline-block px-3 py-1 bg-gray-50 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-500 border border-gray-100">
                         {count}
                     </span>
                 </div>
@@ -182,7 +182,7 @@ export default function AdminDashboardView({
     const showOnboarding = within30Days && !dismissOnboarding && onboarding?.steps?.length;
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
+        <div className="min-h-screen bg-gray-50 text-gray-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
             {/* ignoreUserOnboardingFlag: keep this tour's completion
                 independent of the shared backend flag other creator/admin
                 tours used to write to — see dashboard/creator/page.tsx
@@ -212,13 +212,13 @@ export default function AdminDashboardView({
             <main className="max-w-[1440px] mx-auto px-6 lg:px-12 py-10 animate-fade-in">
                 <div className="flex items-center justify-between mb-12" data-element-id="admin-overview-header">
                     <div>
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Organization Admin</h1>
-                        <p className="text-slate-400 font-bold text-sm mt-1">
+                        <h1 className="text-3xl font-black text-gray-900 tracking-tight">Organization Admin</h1>
+                        <p className="text-gray-400 font-bold text-sm mt-1">
                             Manage your organization&apos;s academic environment.
                         </p>
                     </div>
                     {lastUpdatedLabel && (
-                        <div className="hidden sm:flex items-center gap-2 px-3 py-2 bg-white border border-slate-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500">
+                        <div className="hidden sm:flex items-center gap-2 px-3 py-2 bg-white border border-gray-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-500">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                             Last updated: {lastUpdatedLabel}
                         </div>
@@ -242,7 +242,7 @@ export default function AdminDashboardView({
                     {stats.map((stat, i) => (
                         <div
                             key={i}
-                            className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-md transition-all"
+                            className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm hover:shadow-md transition-all"
                         >
                             <div className="flex items-center justify-between mb-4">
                                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${stat.color}`}>
@@ -254,19 +254,19 @@ export default function AdminDashboardView({
                                     {stat.change}
                                 </span>
                             </div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">
                                 {stat.label}
                             </p>
-                            <h3 className="text-2xl font-black text-slate-800">{stat.value}</h3>
+                            <h3 className="text-2xl font-black text-gray-800">{stat.value}</h3>
                         </div>
                     ))}
                 </div>
 
                 <div
-                    className="bg-white rounded-[32px] border border-slate-100 p-6 shadow-sm mb-8"
+                    className="bg-white rounded-[32px] border border-gray-100 p-6 shadow-sm mb-8"
                     data-element-id="admin-usage-panel"
                 >
-                    <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest mb-5">Plan Usage</h3>
+                    <h3 className="text-sm font-black text-gray-800 uppercase tracking-widest mb-5">Plan Usage</h3>
                     <div className="space-y-5">
                         {[
                             { label: 'Students', used: studentsUsed, limit: studentsLimit, percent: studentsPercent },
@@ -277,21 +277,21 @@ export default function AdminDashboardView({
                             return (
                                 <div key={item.label} className="space-y-2">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">
+                                        <span className="text-[11px] font-black uppercase tracking-widest text-gray-500">
                                             {item.label}
                                         </span>
-                                        <span className="text-[11px] font-bold text-slate-500">
+                                        <span className="text-[11px] font-bold text-gray-500">
                                             {unlimited ? `${item.used}` : `${item.used} / ${item.limit}`}
                                         </span>
                                     </div>
-                                    <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                                    <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
                                         <div
                                             className={`h-full rounded-full transition-all ${getBarColor(item.percent)}`}
                                             style={{ width: `${item.percent}%` }}
                                         />
                                     </div>
                                     {item.percent >= 70 && item.percent < 80 && (
-                                        <p className="text-xs font-semibold text-slate-500">
+                                        <p className="text-xs font-semibold text-gray-500">
                                             Growing fast? You’re at {item.percent}% usage.
                                         </p>
                                     )}
@@ -309,7 +309,7 @@ export default function AdminDashboardView({
                         <div className="flex items-center gap-2">
                             <button
                                 type="button"
-                                className="text-xs font-black uppercase tracking-widest text-slate-500 px-3 py-2"
+                                className="text-xs font-black uppercase tracking-widest text-gray-500 px-3 py-2"
                                 onClick={() => setShowUpgradeBanner(false)}
                             >
                                 Dismiss
@@ -331,10 +331,10 @@ export default function AdminDashboardView({
                 )}
 
                 {plan === 'FREE' && (
-                    <div className="mb-12 bg-white rounded-[24px] border border-slate-100 p-6 shadow-sm">
-                        <h3 className="text-base font-black text-slate-900 mb-4">Team Members</h3>
-                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-8 text-center">
-                            <p className="text-sm font-semibold text-slate-600">
+                    <div className="mb-12 bg-white rounded-[24px] border border-gray-100 p-6 shadow-sm">
+                        <h3 className="text-base font-black text-gray-900 mb-4">Team Members</h3>
+                        <div className="rounded-xl border border-gray-200 bg-gray-50 p-8 text-center">
+                            <p className="text-sm font-semibold text-gray-600">
                                 Upgrade to Starter to invite teachers to your school.
                             </p>
                             <Link
@@ -356,17 +356,17 @@ export default function AdminDashboardView({
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Recent Analytics */}
                     <div className="lg:col-span-2 space-y-8">
-                        <div className="bg-white rounded-[40px] border border-slate-100 p-8 shadow-sm">
+                        <div className="bg-white rounded-[40px] border border-gray-100 p-8 shadow-sm">
                             <div className="flex items-center justify-between mb-8">
-                                <h3 className="text-lg font-black text-slate-800 tracking-tight">Activity Overview</h3>
-                                <select className="bg-slate-50 border-none text-[10px] font-black uppercase tracking-widest text-slate-400 px-4 py-2 rounded-xl outline-none">
+                                <h3 className="text-lg font-black text-gray-800 tracking-tight">Activity Overview</h3>
+                                <select className="bg-gray-50 border-none text-[10px] font-black uppercase tracking-widest text-gray-400 px-4 py-2 rounded-xl outline-none">
                                     <option>Last 7 Days</option>
                                     <option>Last 30 Days</option>
                                 </select>
                             </div>
                             <div className="h-64 flex items-end justify-between gap-2 px-2">
                                 {loading ? (
-                                    <div className="w-full h-full flex items-center justify-center text-slate-300 font-bold text-xs uppercase tracking-widest">
+                                    <div className="w-full h-full flex items-center justify-center text-gray-300 font-bold text-xs uppercase tracking-widest">
                                         Loading Activity...
                                     </div>
                                 ) : (
@@ -379,7 +379,7 @@ export default function AdminDashboardView({
                                                 className="flex-1 bg-[var(--brand-light)] rounded-t-xl relative group transition-all hover:bg-[var(--brand)]/20"
                                                 style={{ height: `${heightPercent}%` }}
                                             >
-                                                <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] font-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
                                                     {h}
                                                 </div>
                                             </div>
@@ -390,7 +390,7 @@ export default function AdminDashboardView({
                             <div className="flex justify-between mt-4 px-2">
                                 {(analyticsData?.labels || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']).map(
                                     (d: string) => (
-                                        <span key={d} className="text-[10px] font-black text-slate-300 uppercase">
+                                        <span key={d} className="text-[10px] font-black text-gray-300 uppercase">
                                             {d}
                                         </span>
                                     ),
@@ -422,7 +422,7 @@ export default function AdminDashboardView({
                     </div>
 
                     {/* Right: Real-time Monitor Preview */}
-                    <div className="bg-slate-900 rounded-[40px] p-8 text-white space-y-8 overflow-hidden relative">
+                    <div className="bg-gray-900 rounded-[40px] p-8 text-white space-y-8 overflow-hidden relative">
                         <div className="relative z-10">
                             <div className="flex items-center justify-between mb-6">
                                 <h3 className="text-lg font-black tracking-tight">Live Status</h3>
@@ -435,24 +435,24 @@ export default function AdminDashboardView({
                             <div className="space-y-4">
                                 <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
                                     <div className="flex items-center justify-between mb-2">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                                             Active Exam
                                         </span>
                                         <span className="text-[10px] font-black text-emerald-400">85% Attendance</span>
                                     </div>
                                     <h4 className="font-bold text-sm mb-1">Full Stack Development Final</h4>
-                                    <p className="text-xs text-slate-400">Ends in 45 mins</p>
+                                    <p className="text-xs text-gray-400">Ends in 45 mins</p>
                                 </div>
 
                                 <div className="bg-white/5 p-4 rounded-2xl border border-white/10 opacity-60">
                                     <div className="flex items-center justify-between mb-2">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                                             Up Next
                                         </span>
                                         <span className="text-[10px] font-black text-amber-400">Starts 2:00 PM</span>
                                     </div>
                                     <h4 className="font-bold text-sm mb-1">Python Basics Quiz</h4>
-                                    <p className="text-xs text-slate-400">120 Students Enrolled</p>
+                                    <p className="text-xs text-gray-400">120 Students Enrolled</p>
                                 </div>
                             </div>
 
@@ -472,18 +472,18 @@ export default function AdminDashboardView({
             </main>
 
             {isHardLimitReached && (
-                <div className="fixed inset-0 z-[2100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+                <div className="fixed inset-0 z-[2100] bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-6">
                     <div className="w-full max-w-[560px] bg-white rounded-2xl border border-red-200 shadow-xl p-7">
                         <h3 className="text-lg font-black text-red-600">Plan Limit Reached</h3>
-                        <p className="mt-2 text-sm text-slate-600">
+                        <p className="mt-2 text-sm text-gray-600">
                             Your organization has reached a quota limit. Upgrade to {nextPlan} to continue without
                             interruptions.
                         </p>
-                        <div className="mt-5 rounded-lg bg-slate-50 border border-slate-200 p-4">
-                            <p className="text-xs font-semibold text-slate-600">
-                                Current plan: <span className="font-black text-slate-800">{plan}</span>
+                        <div className="mt-5 rounded-lg bg-gray-50 border border-gray-200 p-4">
+                            <p className="text-xs font-semibold text-gray-600">
+                                Current plan: <span className="font-black text-gray-800">{plan}</span>
                             </p>
-                            <p className="text-xs font-semibold text-slate-600 mt-1">
+                            <p className="text-xs font-semibold text-gray-600 mt-1">
                                 Recommended: <span className="font-black text-[var(--brand)]">{nextPlan}</span>
                             </p>
                         </div>

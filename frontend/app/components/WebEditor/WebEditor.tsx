@@ -148,9 +148,9 @@ export default function WebEditor({
                 <SplitPane
                     initialLeftWidth={50}
                     leftContent={
-                        <div className="h-full flex flex-col bg-white border-r border-slate-100 relative">
+                        <div className="h-full flex flex-col bg-white border-r border-gray-100 relative">
                             {/* File Tabs */}
-                            <div className="h-10 border-b border-slate-100 flex items-center px-4 justify-between bg-white z-20">
+                            <div className="h-10 border-b border-gray-100 flex items-center px-4 justify-between bg-white z-20">
                                 <div className="flex items-center h-full overflow-x-auto no-scrollbar">
                                     {visibleFiles.map((fileType) => {
                                         const fileName = `index.${fileType}` as WebFileName;
@@ -158,10 +158,10 @@ export default function WebEditor({
                                             <button
                                                 key={fileName}
                                                 onClick={() => setActiveFile(fileName)}
-                                                className={`px-3 sm:px-6 h-full flex items-center text-[12px] font-bold transition-all border-b-2 hover:bg-slate-50 shrink-0 ${
+                                                className={`px-3 sm:px-6 h-full flex items-center text-[12px] font-bold transition-all border-b-2 hover:bg-gray-50 shrink-0 ${
                                                     activeFile === fileName
-                                                        ? 'border-[var(--brand)] text-slate-700'
-                                                        : 'border-transparent text-slate-400'
+                                                        ? 'border-[var(--brand)] text-gray-700'
+                                                        : 'border-transparent text-gray-400'
                                                 }`}
                                             >
                                                 {fileName}
@@ -197,7 +197,7 @@ export default function WebEditor({
 
             {/* Bottom Action Bar - Hide if Read Only */}
             {!readOnly && (
-                <div className="min-h-[52px] sm:h-14 py-2 sm:py-0 bg-white border-t border-slate-100 flex flex-wrap items-center px-3 sm:px-6 justify-between shrink-0 z-30 gap-2">
+                <div className="min-h-[52px] sm:h-14 py-2 sm:py-0 bg-white border-t border-gray-100 flex flex-wrap items-center px-3 sm:px-6 justify-between shrink-0 z-30 gap-2">
                     <div className="flex items-center gap-4">
                         {!hideTestCases && (
                             <>
@@ -206,7 +206,7 @@ export default function WebEditor({
                                         setIsResetModalOpen(false);
                                         setShowTestcases(true);
                                     }}
-                                    className="px-3 py-1.5 border border-slate-200 rounded text-[11px] font-bold text-slate-500 hover:bg-slate-50 transition-colors"
+                                    className="px-3 py-1.5 border border-gray-200 rounded text-[11px] font-bold text-gray-500 hover:bg-gray-50 transition-colors"
                                 >
                                     Test Cases{' '}
                                     <span className="text-[8px] opacity-60 ml-1">
@@ -226,7 +226,7 @@ export default function WebEditor({
                                                 <h3 className="text-lg font-black">Test Cases</h3>
                                                 <button
                                                     onClick={() => setShowTestcases(false)}
-                                                    className="text-slate-400 hover:text-slate-600"
+                                                    className="text-gray-400 hover:text-gray-600"
                                                 >
                                                     Close
                                                 </button>
@@ -242,7 +242,7 @@ export default function WebEditor({
                                                         </div>
                                                     ))
                                                 ) : (
-                                                    <div className="text-sm text-slate-500">
+                                                    <div className="text-sm text-gray-500">
                                                         No test cases supplied by backend.
                                                     </div>
                                                 )}
@@ -258,7 +258,7 @@ export default function WebEditor({
                             <button
                                 onClick={() => setIsResetModalOpen(true)}
                                 title="Reset Code"
-                                className="p-2 text-slate-400 hover:text-[var(--brand)] transition-all active:rotate-180 duration-500"
+                                className="p-2 text-gray-400 hover:text-[var(--brand)] transition-all active:rotate-180 duration-500"
                             >
                                 <svg
                                     width="18"

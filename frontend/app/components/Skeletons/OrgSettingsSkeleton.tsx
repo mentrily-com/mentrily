@@ -15,32 +15,32 @@ export default function OrgSettingsSkeleton() {
         <div className="animate-fade-in font-sans pb-10">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-12">
                 <div className="space-y-2">
-                    <div className="h-6 w-64 animate-pulse rounded-md bg-slate-200" />
-                    <div className="h-3.5 w-80 animate-pulse rounded bg-slate-100" />
+                    <div className="h-6 w-64 animate-pulse rounded-md bg-gray-200" />
+                    <div className="h-3.5 w-80 animate-pulse rounded bg-gray-100" />
                 </div>
-                <div className="h-14 w-44 animate-pulse rounded-2xl bg-slate-200" />
+                <div className="h-14 w-44 animate-pulse rounded-2xl bg-gray-200" />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                 {/* Left: Settings Forms */}
                 <div className="lg:col-span-2 space-y-8">
                     {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="bg-white rounded-xl border border-slate-200 p-6 md:p-8 shadow-sm">
+                        <div key={i} className="bg-white rounded-xl border border-gray-200 p-6 md:p-8 shadow-sm">
                             <div className="flex items-start gap-4 mb-8">
-                                <div className="h-12 w-12 shrink-0 animate-pulse rounded-lg bg-slate-100" />
+                                <div className="h-12 w-12 shrink-0 animate-pulse rounded-lg bg-gray-100" />
                                 <div className="space-y-2">
-                                    <div className="h-5 w-40 animate-pulse rounded-md bg-slate-200" />
-                                    <div className="h-3 w-56 animate-pulse rounded bg-slate-100" />
+                                    <div className="h-5 w-40 animate-pulse rounded-md bg-gray-200" />
+                                    <div className="h-3 w-56 animate-pulse rounded bg-gray-100" />
                                 </div>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-1.5">
-                                    <div className="h-2.5 w-24 animate-pulse rounded bg-slate-100" />
-                                    <div className="h-12 w-full animate-pulse rounded-2xl bg-slate-100" />
+                                    <div className="h-2.5 w-24 animate-pulse rounded bg-gray-100" />
+                                    <div className="h-12 w-full animate-pulse rounded-2xl bg-gray-100" />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <div className="h-2.5 w-24 animate-pulse rounded bg-slate-100" />
-                                    <div className="h-12 w-full animate-pulse rounded-2xl bg-slate-100" />
+                                    <div className="h-2.5 w-24 animate-pulse rounded bg-gray-100" />
+                                    <div className="h-12 w-full animate-pulse rounded-2xl bg-gray-100" />
                                 </div>
                             </div>
                         </div>
@@ -49,7 +49,7 @@ export default function OrgSettingsSkeleton() {
 
                 {/* Right: Preview Card */}
                 <div className="space-y-8">
-                    <div className="rounded-xl p-8 h-fit sticky top-32 bg-slate-900/90">
+                    <div className="rounded-xl p-8 h-fit sticky top-32 bg-gray-900/90">
                         <div className="h-2.5 w-32 animate-pulse rounded bg-white/10 mb-10" />
                         <div className="flex items-center gap-4 mb-8">
                             <div className="h-12 w-12 animate-pulse rounded-xl bg-white/10" />

@@ -73,7 +73,7 @@ export default function ReferencePicker({ value, onChange, max, onLockedClick, d
                     <button
                         type="button"
                         onClick={onLockedClick}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-slate-300 px-2.5 py-1 text-xs text-slate-500 hover:border-slate-400"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-gray-300 px-2.5 py-1 text-xs text-gray-500 hover:border-gray-400"
                     >
                         <Lock size={12} /> Use your courses as reference
                     </button>
@@ -84,7 +84,7 @@ export default function ReferencePicker({ value, onChange, max, onLockedClick, d
                             onClick={() => setOpen((o) => !o)}
                             aria-expanded={open}
                             aria-controls={listId}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-600 hover:border-[var(--brand)] hover:text-[var(--brand)]"
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-gray-300 px-2.5 py-1 text-xs font-medium text-gray-600 hover:border-[var(--brand)] hover:text-[var(--brand)]"
                         >
                             <Plus size={12} /> Add reference
                         </button>
@@ -95,22 +95,22 @@ export default function ReferencePicker({ value, onChange, max, onLockedClick, d
             {open && (
                 <div
                     id={listId}
-                    className={`absolute left-0 z-30 w-full min-w-[260px] max-w-sm overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl ${placement === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}`}
+                    className={`absolute left-0 z-30 w-full min-w-[260px] max-w-sm overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl ${placement === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}`}
                 >
-                    <label className="flex items-center gap-2 border-b border-slate-100 px-3 py-2">
-                        <Search size={14} className="text-slate-400" />
+                    <label className="flex items-center gap-2 border-b border-gray-100 px-3 py-2">
+                        <Search size={14} className="text-gray-400" />
                         <input
                             autoFocus
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             placeholder="Search your courses and exams"
-                            className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400"
+                            className="w-full bg-transparent text-sm outline-none placeholder:text-gray-400"
                             aria-label="Search your courses and exams"
                         />
                     </label>
                     <ul className="max-h-64 overflow-y-auto py-1" role="listbox">
                         {results.length === 0 && (
-                            <li className="px-3 py-3 text-xs text-slate-500">
+                            <li className="px-3 py-3 text-xs text-gray-500">
                                 {isFetching ? 'Searching…' : 'No courses or exams match.'}
                             </li>
                         )}
@@ -122,15 +122,15 @@ export default function ReferencePicker({ value, onChange, max, onLockedClick, d
                                         type="button"
                                         disabled={taken}
                                         onClick={() => add({ kind: item.kind, id: item.id, title: item.title })}
-                                        className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm hover:bg-slate-50 disabled:opacity-40"
+                                        className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm hover:bg-gray-50 disabled:opacity-40"
                                     >
                                         {item.kind === 'course' ? (
-                                            <BookOpen size={14} className="shrink-0 text-slate-400" />
+                                            <BookOpen size={14} className="shrink-0 text-gray-400" />
                                         ) : (
-                                            <ClipboardList size={14} className="shrink-0 text-slate-400" />
+                                            <ClipboardList size={14} className="shrink-0 text-gray-400" />
                                         )}
-                                        <span className="truncate text-slate-700">{item.title}</span>
-                                        <span className="ml-auto shrink-0 text-[11px] text-slate-400">
+                                        <span className="truncate text-gray-700">{item.title}</span>
+                                        <span className="ml-auto shrink-0 text-[11px] text-gray-400">
                                             {item.kind === 'course' ? 'Course' : 'Exam'}
                                         </span>
                                     </button>
@@ -139,7 +139,7 @@ export default function ReferencePicker({ value, onChange, max, onLockedClick, d
                         })}
                     </ul>
                     {max > 0 && (
-                        <p className="border-t border-slate-100 px-3 py-2 text-[11px] text-slate-400">
+                        <p className="border-t border-gray-100 px-3 py-2 text-[11px] text-gray-400">
                             Up to {max} reference{max === 1 ? '' : 's'} on your plan
                         </p>
                     )}

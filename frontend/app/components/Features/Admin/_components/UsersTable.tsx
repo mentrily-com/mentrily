@@ -81,7 +81,7 @@ export default function UsersTable({
                             </th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody className="divide-y divide-gray-100">
                         {users.length === 0 ? (
                             <tr>
                                 <td colSpan={4} className="px-6 py-4">

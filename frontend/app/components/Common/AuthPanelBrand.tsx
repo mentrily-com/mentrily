@@ -14,7 +14,7 @@ export default function AuthPanelBrand({ orgName, orgLogo, priority = false }: A
                 orgLogo={orgLogo}
                 defaultLogoClassName="h-9 max-w-[190px]"
                 iconClassName="h-9 w-9 rounded-lg"
-                textClassName="max-w-[160px] text-sm font-bold text-slate-900"
+                textClassName="max-w-[160px] text-sm font-bold text-gray-900"
                 priority={priority}
             />
         </div>

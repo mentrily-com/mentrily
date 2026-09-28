@@ -25,14 +25,14 @@ export default function ReadingUnitPage() {
                         description: `
                             <p>Web development is the building and maintenance of websites; it's the work that happens behind the scenes to make a website look <strong>great</strong>, work fast and perform well with a seamless user experience.</p>
                             <p>Web developers, or ‘devs’, do this by using a variety of coding languages. The languages they use depends on the types of tasks they are performing and the platforms on which they are working.</p>
-                            <h2 class="text-xl font-black text-slate-800 mt-12 mb-4">Core Concepts</h2>
+                            <h2 class="text-xl font-black text-gray-800 mt-12 mb-4">Core Concepts</h2>
                             <p>There are three primary languages used in web development and that are:</p>
                             <ul class="list-decimal list-inside space-y-2 font-medium">
                                 <li>HTML ( Hypertext Markup Language )</li>
                                 <li>CSS ( Cascading Style Sheet )</li>
                                 <li>JS ( Javascript )</li>
                             </ul>
-                            <h2 class="text-xl font-black text-slate-800 mt-12 mb-4">Code Demonstration</h2>
+                            <h2 class="text-xl font-black text-gray-800 mt-12 mb-4">Code Demonstration</h2>
                             <p>Below is an example of a simple function in C++ that demonstrates logic execution. You can run this directly to see the output.</p>
                         `,
                         topic: 'Basics',

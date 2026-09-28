@@ -428,9 +428,9 @@ export default function AdminBillingPage() {
                         limit={Number(usageData?.limits?.teacherSeats || 0)}
                     />
                 </div>
-                <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Question Types</p>
-                    <p className="mt-2 text-sm font-medium text-slate-700">
+                <div className="mt-6 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">Question Types</p>
+                    <p className="mt-2 text-sm font-medium text-gray-700">
                         {formatQuestionTypes(usageData?.limits?.allowedQuestionTypes)}
                     </p>
                 </div>
@@ -445,7 +445,7 @@ export default function AdminBillingPage() {
                     Plan Comparison
                 </h3>
                 {sortedPlans.length === 0 ? (
-                    <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-sm font-medium text-slate-500 text-center">
+                    <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-6 text-sm font-medium text-gray-500 text-center">
                         Plan data is temporarily unavailable. Please refresh this page.
                     </div>
                 ) : (

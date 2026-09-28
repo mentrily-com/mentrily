@@ -41,7 +41,7 @@ function ChangeDetail({ change }: { change: EditChange }) {
                     <button
                         type="button"
                         onClick={() => setShowBefore((v) => !v)}
-                        className="text-xs font-medium text-slate-500 hover:text-slate-800"
+                        className="text-xs font-medium text-gray-500 hover:text-gray-800"
                     >
                         {showBefore ? 'Show the new version' : 'Show the current version'}
                     </button>
@@ -50,10 +50,10 @@ function ChangeDetail({ change }: { change: EditChange }) {
         case 'add_item':
             return <QuestionDetail q={change.after} />;
         case 'remove_item':
-            return <p className="text-sm text-slate-500 line-through">{change.before.title}</p>;
+            return <p className="text-sm text-gray-500 line-through">{change.before.title}</p>;
         case 'add_section':
             return (
-                <ul className="space-y-1 text-sm text-slate-700">
+                <ul className="space-y-1 text-sm text-gray-700">
                     {change.items.map((item) => (
                         <li key={item.id}>{item.title}</li>
                     ))}
@@ -61,7 +61,7 @@ function ChangeDetail({ change }: { change: EditChange }) {
             );
         case 'remove_section':
             return (
-                <ul className="space-y-1 text-sm text-slate-500 line-through">
+                <ul className="space-y-1 text-sm text-gray-500 line-through">
                     {change.before.items.map((item) => (
                         <li key={item.id}>{item.title}</li>
                     ))}
@@ -69,18 +69,18 @@ function ChangeDetail({ change }: { change: EditChange }) {
             );
         case 'rename_section':
             return (
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-gray-600">
                     <span className="line-through">{change.before}</span> → {change.after}
                 </p>
             );
         case 'update_details':
             return (
-                <div className="space-y-1 text-sm text-slate-600">
+                <div className="space-y-1 text-sm text-gray-600">
                     <p>
-                        <span className="font-medium text-slate-800">Title:</span> {change.after.title}
+                        <span className="font-medium text-gray-800">Title:</span> {change.after.title}
                     </p>
                     <p>
-                        <span className="font-medium text-slate-800">Description:</span> {change.after.description}
+                        <span className="font-medium text-gray-800">Description:</span> {change.after.description}
                     </p>
                 </div>
             );
@@ -139,8 +139,8 @@ export default function ChangeSetReview({
     if (!changes.length) {
         return (
             <div className="space-y-2 px-5 py-5">
-                <p className="text-sm text-slate-700">{changeset.summary}</p>
-                <p className="text-xs text-slate-500">
+                <p className="text-sm text-gray-700">{changeset.summary}</p>
+                <p className="text-xs text-gray-500">
                     Nothing was changed. Try describing the change more specifically in the chat.
                 </p>
             </div>
@@ -150,14 +150,14 @@ export default function ChangeSetReview({
     return (
         <>
             <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-5">
-                <p className="text-sm leading-6 text-slate-700">{changeset.summary}</p>
+                <p className="text-sm leading-6 text-gray-700">{changeset.summary}</p>
 
                 {applied ? (
                     <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
                         Applied {appliedIds.size} change{appliedIds.size === 1 ? '' : 's'} to your {noun}.
                     </div>
                 ) : changeset.undone ? (
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                    <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
                         These changes were undone. You can apply them again.
                     </div>
                 ) : target.live ? (
@@ -188,7 +188,7 @@ export default function ChangeSetReview({
                     </div>
                 )}
 
-                <ul className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200">
+                <ul className="divide-y divide-gray-100 overflow-hidden rounded-xl border border-gray-200">
                     {changes.map((change) => {
                         const Icon = ICON[change.kind];
                         const isOpen = open === change.id;
@@ -212,7 +212,7 @@ export default function ChangeSetReview({
                                             aria-label={`Include: ${change.summary}`}
                                         />
                                     )}
-                                    <Icon size={14} className="shrink-0 text-slate-400" />
+                                    <Icon size={14} className="shrink-0 text-gray-400" />
                                     <button
                                         type="button"
                                         disabled={!expandable}
@@ -223,8 +223,8 @@ export default function ChangeSetReview({
                                         <span
                                             className={`min-w-0 flex-1 text-sm ${
                                                 applied && !appliedIds.has(change.id)
-                                                    ? 'text-slate-400'
-                                                    : 'text-slate-800'
+                                                    ? 'text-gray-400'
+                                                    : 'text-gray-800'
                                             }`}
                                         >
                                             {change.summary}
@@ -232,13 +232,13 @@ export default function ChangeSetReview({
                                         {expandable && (
                                             <ChevronDown
                                                 size={15}
-                                                className={`shrink-0 text-slate-400 transition ${isOpen ? 'rotate-180' : ''}`}
+                                                className={`shrink-0 text-gray-400 transition ${isOpen ? 'rotate-180' : ''}`}
                                             />
                                         )}
                                     </button>
                                 </div>
                                 {isOpen && (
-                                    <div className="border-t border-slate-100 px-3 pb-3 pt-2">
+                                    <div className="border-t border-gray-100 px-3 pb-3 pt-2">
                                         <ChangeDetail change={change} />
                                     </div>
                                 )}
@@ -248,14 +248,14 @@ export default function ChangeSetReview({
                 </ul>
             </div>
 
-            <footer className="border-t border-slate-100 px-5 py-4">
+            <footer className="border-t border-gray-100 px-5 py-4">
                 {applied ? (
                     <div className="flex gap-2">
                         <button
                             type="button"
                             onClick={() => void run('undo')}
                             disabled={busy !== null}
-                            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-800 hover:bg-slate-50 disabled:opacity-50"
+                            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 py-2.5 text-sm font-medium text-gray-800 hover:bg-gray-50 disabled:opacity-50"
                         >
                             {busy === 'undo' ? <Loader2 size={15} className="animate-spin" /> : <Undo2 size={15} />}
                             Undo
@@ -269,12 +269,12 @@ export default function ChangeSetReview({
                     </div>
                 ) : confirming ? (
                     <div className="space-y-2">
-                        <p className="text-sm text-slate-700">Learners will see these changes right away.</p>
+                        <p className="text-sm text-gray-700">Learners will see these changes right away.</p>
                         <div className="flex gap-2">
                             <button
                                 type="button"
                                 onClick={() => setConfirming(false)}
-                                className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-800 hover:bg-slate-50"
+                                className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-medium text-gray-800 hover:bg-gray-50"
                             >
                                 Cancel
                             </button>

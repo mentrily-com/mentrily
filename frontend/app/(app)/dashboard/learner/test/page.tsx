@@ -27,9 +27,9 @@ export default function TestAttemptsPage() {
         return <LearnerTestAttemptsSkeleton />;
     }
     return (
-        <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
+        <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
             {/* SUB-HEADER / TAB SECTION */}
-            <div className="border-b border-slate-100">
+            <div className="border-b border-gray-100">
                 <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 flex items-center gap-6 sm:gap-10">
                     <button className="py-4 text-sm font-black text-[var(--brand)] border-b-2 border-[var(--brand)] px-1">
                         Test Attempts
@@ -39,40 +39,40 @@ export default function TestAttemptsPage() {
 
             <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8 animate-fade-in">
                 {/* TABLE CONTAINER */}
-                <div className="overflow-hidden bg-white border border-slate-100 rounded-xl shadow-sm">
+                <div className="overflow-hidden bg-white border border-gray-100 rounded-xl shadow-sm">
                     <table className="hidden w-full text-left border-collapse md:table">
                         <thead>
-                            <tr className="bg-slate-50/50 border-b border-slate-100">
-                                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-500 w-1/2">
+                            <tr className="bg-gray-50/50 border-b border-gray-100">
+                                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-500 w-1/2">
                                     <div className="flex items-center gap-2">
                                         Tests
                                         <SortIcon />
                                     </div>
                                 </th>
-                                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-500">
+                                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-500">
                                     <div className="flex items-center gap-2">
                                         Scores
                                         <SortIcon />
                                     </div>
                                 </th>
-                                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-500">
+                                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-500">
                                     Time taken
                                 </th>
-                                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-500">
+                                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-500">
                                     <div className="flex items-center gap-2">
                                         Submitted
                                         <SortIcon />
                                     </div>
                                 </th>
-                                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-500">
+                                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-500">
                                     Actions
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-50">
+                        <tbody className="divide-y divide-gray-50">
                             {attempts.length > 0 ? (
                                 attempts.map((att) => (
-                                    <tr key={att.id} className="hover:bg-slate-50/40 transition-colors group">
+                                    <tr key={att.id} className="hover:bg-gray-50/40 transition-colors group">
                                         <td className="px-6 py-5">
                                             {att.isPublished ? (
                                                 <a
@@ -83,7 +83,7 @@ export default function TestAttemptsPage() {
                                                 </a>
                                             ) : (
                                                 <span
-                                                    className="text-sm font-bold text-slate-400 cursor-not-allowed block"
+                                                    className="text-sm font-bold text-gray-400 cursor-not-allowed block"
                                                     title="Results pending"
                                                 >
                                                     {att.examTitle}
@@ -92,18 +92,18 @@ export default function TestAttemptsPage() {
                                         </td>
                                         <td className="px-6 py-5">
                                             <span
-                                                className={`text-sm font-bold ${att.score === 'Hidden' ? 'text-slate-300 italic' : 'text-slate-700'}`}
+                                                className={`text-sm font-bold ${att.score === 'Hidden' ? 'text-gray-300 italic' : 'text-gray-700'}`}
                                             >
                                                 {att.score || 'N/A'}
                                             </span>
                                         </td>
                                         <td className="px-6 py-5">
-                                            <span className="text-sm font-medium text-slate-500">
+                                            <span className="text-sm font-medium text-gray-500">
                                                 {att.duration} min
                                             </span>
                                         </td>
                                         <td className="px-6 py-5">
-                                            <span className="text-sm font-medium text-slate-500">
+                                            <span className="text-sm font-medium text-gray-500">
                                                 {att.startedAt ? new Date(att.startedAt).toLocaleDateString() : 'N/A'}
                                             </span>
                                         </td>
@@ -116,7 +116,7 @@ export default function TestAttemptsPage() {
                                                     View Result
                                                 </a>
                                             ) : (
-                                                <span className="text-xs font-medium text-slate-400 italic">
+                                                <span className="text-xs font-medium text-gray-400 italic">
                                                     Pending
                                                 </span>
                                             )}
@@ -137,7 +137,7 @@ export default function TestAttemptsPage() {
                             )}
                         </tbody>
                     </table>
-                    <div className="divide-y divide-slate-100 md:hidden">
+                    <div className="divide-y divide-gray-100 md:hidden">
                         {attempts.length > 0 ? (
                             attempts.map((att) => (
                                 <article key={att.id} className="p-4">
@@ -151,17 +151,17 @@ export default function TestAttemptsPage() {
                                                     {att.examTitle}
                                                 </a>
                                             ) : (
-                                                <span className="block text-sm font-black text-slate-400">
+                                                <span className="block text-sm font-black text-gray-400">
                                                     {att.examTitle}
                                                 </span>
                                             )}
-                                            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                                            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-gray-400">
                                                 {att.startedAt ? new Date(att.startedAt).toLocaleDateString() : 'N/A'} •{' '}
                                                 {att.duration} min
                                             </p>
                                         </div>
                                         <span
-                                            className={`shrink-0 text-sm font-bold ${att.score === 'Hidden' ? 'text-slate-300 italic' : 'text-slate-700'}`}
+                                            className={`shrink-0 text-sm font-bold ${att.score === 'Hidden' ? 'text-gray-300 italic' : 'text-gray-700'}`}
                                         >
                                             {att.score || 'N/A'}
                                         </span>
@@ -175,7 +175,7 @@ export default function TestAttemptsPage() {
                                                 View Result
                                             </a>
                                         ) : (
-                                            <span className="block rounded-xl bg-slate-50 px-3 py-2 text-center text-xs font-medium italic text-slate-400">
+                                            <span className="block rounded-xl bg-gray-50 px-3 py-2 text-center text-xs font-medium italic text-gray-400">
                                                 Pending
                                             </span>
                                         )}
@@ -196,7 +196,7 @@ export default function TestAttemptsPage() {
                 {/* PAGINATION */}
                 <div className="mt-8 flex items-center justify-center gap-4">
                     <div className="flex items-center gap-2">
-                        <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                        <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
                             <svg
                                 width="18"
                                 height="18"
@@ -213,7 +213,7 @@ export default function TestAttemptsPage() {
                         <div className="w-8 h-8 rounded-lg bg-white border-2 border-[var(--brand)] flex items-center justify-center text-[var(--brand)] font-black text-sm">
                             1
                         </div>
-                        <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                        <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
                             <svg
                                 width="18"
                                 height="18"
@@ -230,8 +230,8 @@ export default function TestAttemptsPage() {
                     </div>
 
                     <div className="flex items-center gap-2 ml-4">
-                        <div className="px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-slate-100 transition-colors">
-                            <span className="text-xs font-bold text-slate-600">10 / page</span>
+                        <div className="px-3 py-1.5 bg-gray-50 border border-gray-100 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-gray-100 transition-colors">
+                            <span className="text-xs font-bold text-gray-600">10 / page</span>
                             <svg
                                 width="12"
                                 height="12"
@@ -241,7 +241,7 @@ export default function TestAttemptsPage() {
                                 strokeWidth="3"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
-                                className="text-slate-400"
+                                className="text-gray-400"
                             >
                                 <path d="m6 9 6 6 6-6" />
                             </svg>

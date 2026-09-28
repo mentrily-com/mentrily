@@ -24,7 +24,7 @@ export default function StorageLeaderboard() {
 
     if (isLoading) {
         return (
-            <div className="text-sm font-medium text-slate-500 animate-pulse py-4">Loading storage leaderboard...</div>
+            <div className="text-sm font-medium text-gray-500 animate-pulse py-4">Loading storage leaderboard...</div>
         );
     }
 
@@ -33,7 +33,7 @@ export default function StorageLeaderboard() {
     }
 
     if (!users || users.length === 0) {
-        return <div className="text-sm text-slate-500 py-4">No storage data found.</div>;
+        return <div className="text-sm text-gray-500 py-4">No storage data found.</div>;
     }
 
     const formatBytes = (bytes: number) => {
@@ -49,12 +49,12 @@ export default function StorageLeaderboard() {
         <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[600px]">
                 <thead>
-                    <tr className="border-b border-slate-100">
-                        <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    <tr className="border-b border-gray-100">
+                        <th className="py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">
                             User Name
                         </th>
-                        <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Email</th>
-                        <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">
+                        <th className="py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">Email</th>
+                        <th className="py-3 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">
                             Storage Used
                         </th>
                     </tr>
@@ -63,15 +63,15 @@ export default function StorageLeaderboard() {
                     {users.map((item: any, index: number) => (
                         <tr
                             key={item.userId || index}
-                            className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors"
+                            className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
                         >
-                            <td className="py-3 text-sm font-bold text-slate-800">
+                            <td className="py-3 text-sm font-bold text-gray-800">
                                 {item.user?.name || item.name || 'Unknown User'}
                             </td>
-                            <td className="py-3 text-sm font-medium text-slate-500">
+                            <td className="py-3 text-sm font-medium text-gray-500">
                                 {item.user?.email || item.email || 'N/A'}
                             </td>
-                            <td className="py-3 text-sm font-black text-slate-700 text-right">
+                            <td className="py-3 text-sm font-black text-gray-700 text-right">
                                 {formatBytes(Number(item.totalBytes || item.totalSizeBytes || 0))}
                             </td>
                         </tr>

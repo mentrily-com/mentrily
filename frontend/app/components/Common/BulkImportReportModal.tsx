@@ -36,7 +36,7 @@ export default function BulkImportReportModal({ isOpen, onClose, report }: BulkI
                 <div className="flex justify-end">
                     <button
                         onClick={onClose}
-                        className="w-full px-6 py-3 bg-slate-900 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 sm:w-auto"
+                        className="w-full px-6 py-3 bg-gray-900 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-gray-800 transition-all shadow-lg shadow-gray-200 sm:w-auto"
                     >
                         Close Report
                     </button>
@@ -96,14 +96,14 @@ export default function BulkImportReportModal({ isOpen, onClose, report }: BulkI
             </div>
 
             <div>
-                <h3 className="sticky top-0 z-10 mb-4 bg-[#f4f6f9] py-3 text-xs font-black uppercase tracking-widest text-slate-400">
+                <h3 className="sticky top-0 z-10 mb-4 bg-[#f4f6f9] py-3 text-xs font-black uppercase tracking-widest text-gray-400">
                     Detailed Log
                 </h3>
                 <div className="space-y-3">
                     {details.map((item, idx) => (
                         <div
                             key={idx}
-                            className="flex items-start gap-3 p-3 rounded-xl border border-slate-100 text-sm"
+                            className="flex items-start gap-3 p-3 rounded-xl border border-gray-100 text-sm"
                         >
                             {item.success ? (
                                 <CheckCircle2 className="text-emerald-500 shrink-0 mt-0.5" size={18} />
@@ -111,10 +111,10 @@ export default function BulkImportReportModal({ isOpen, onClose, report }: BulkI
                                 <AlertCircle className="text-rose-500 shrink-0 mt-0.5" size={18} />
                             )}
                             <div className="flex-1 min-w-0">
-                                <div className="font-bold text-slate-700 truncate">
+                                <div className="font-bold text-gray-700 truncate">
                                     {item.user?.email || item.email}
                                 </div>
-                                <div className="text-xs text-slate-500 mt-1">
+                                <div className="text-xs text-gray-500 mt-1">
                                     {item.success ? (
                                         <span className="flex flex-wrap items-center gap-2">
                                             <span>
@@ -127,7 +127,7 @@ export default function BulkImportReportModal({ isOpen, onClose, report }: BulkI
                                                     <Mail size={12} /> Clerk email sent
                                                 </span>
                                             ) : (
-                                                <span className="text-slate-500 flex items-center gap-1">
+                                                <span className="text-gray-500 flex items-center gap-1">
                                                     <Mail size={12} /> Existing invite
                                                 </span>
                                             )}

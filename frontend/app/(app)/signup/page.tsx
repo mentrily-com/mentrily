@@ -503,7 +503,7 @@ export default function SignupPage() {
                         />
                     </div>
 
-                    <div className="w-full rounded-3xl border border-white/70 bg-white/90 p-6 shadow-2xl shadow-slate-200/80 backdrop-blur sm:p-8">
+                    <div className="w-full rounded-3xl border border-white/70 bg-white/90 p-6 shadow-2xl shadow-gray-200/80 backdrop-blur sm:p-8">
                         {/* Heading */}
                         <div className="mb-8">
                             <h1 className="text-2xl font-bold tracking-tight mb-1.5" style={{ color: '#0F172A' }}>
@@ -559,7 +559,7 @@ export default function SignupPage() {
                                     }}
                                 >
                                     {isGoogleLoading ? (
-                                        <Loader2 size={18} className="animate-spin text-slate-400" />
+                                        <Loader2 size={18} className="animate-spin text-gray-400" />
                                     ) : (
                                         <svg className="w-5 h-5" viewBox="0 0 24 24">
                                             <path
@@ -780,10 +780,10 @@ export default function SignupPage() {
                                                 required
                                                 checked={acceptedTerms}
                                                 onChange={(e) => setAcceptedTerms(e.target.checked)}
-                                                className="w-4 h-4 rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)] cursor-pointer"
+                                                className="w-4 h-4 rounded border-gray-300 text-[var(--brand)] focus:ring-[var(--brand)] cursor-pointer"
                                             />
                                         </div>
-                                        <label htmlFor="terms" className="text-sm text-slate-600 leading-tight">
+                                        <label htmlFor="terms" className="text-sm text-gray-600 leading-tight">
                                             I agree to the{' '}
                                             <Link
                                                 href="/terms"

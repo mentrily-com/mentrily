@@ -8,8 +8,8 @@ import {
 export function PublicSeoHeader({ entry }: { entry: PublicPlaygroundSeoEntry }) {
     return (
         <div className="mb-3">
-            <h1 className="text-lg font-black tracking-tight text-slate-900 md:text-xl">{entry.h1}</h1>
-            <p className="mt-0.5 text-xs font-medium text-slate-500 md:text-sm">{entry.description}</p>
+            <h1 className="text-lg font-black tracking-tight text-gray-900 md:text-xl">{entry.h1}</h1>
+            <p className="mt-0.5 text-xs font-medium text-gray-500 md:text-sm">{entry.description}</p>
         </div>
     );
 }
@@ -73,14 +73,14 @@ export function PublicSeoContent({ entry }: { entry: PublicPlaygroundSeoEntry })
 
     return (
         <div className="mt-6 space-y-6 pb-10">
-            <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <h2 className="text-base font-black tracking-tight text-slate-900">About the {entry.h1}</h2>
+            <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                <h2 className="text-base font-black tracking-tight text-gray-900">About the {entry.h1}</h2>
                 {paragraphs.map((text) => (
-                    <p key={text.slice(0, 32)} className="mt-3 text-sm leading-6 text-slate-600">
+                    <p key={text.slice(0, 32)} className="mt-3 text-sm leading-6 text-gray-600">
                         {text}
                     </p>
                 ))}
-                <ul className="mt-4 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
+                <ul className="mt-4 grid gap-2 text-sm text-gray-600 sm:grid-cols-2">
                     {features.map((feature) => (
                         <li key={feature} className="flex items-start gap-2">
                             <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--brand)]" />
@@ -90,23 +90,23 @@ export function PublicSeoContent({ entry }: { entry: PublicPlaygroundSeoEntry })
                 </ul>
             </section>
 
-            <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <h2 className="text-base font-black tracking-tight text-slate-900">Frequently asked questions</h2>
-                <div className="mt-3 divide-y divide-slate-100">
+            <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                <h2 className="text-base font-black tracking-tight text-gray-900">Frequently asked questions</h2>
+                <div className="mt-3 divide-y divide-gray-100">
                     {faqs.map((faq) => (
                         <details key={faq.question} className="group py-3">
-                            <summary className="cursor-pointer list-none text-sm font-bold text-slate-800 marker:hidden">
+                            <summary className="cursor-pointer list-none text-sm font-bold text-gray-800 marker:hidden">
                                 {faq.question}
                             </summary>
-                            <p className="mt-2 text-sm leading-6 text-slate-600">{faq.answer}</p>
+                            <p className="mt-2 text-sm leading-6 text-gray-600">{faq.answer}</p>
                         </details>
                     ))}
                 </div>
             </section>
 
-            <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <h2 className="text-base font-black tracking-tight text-slate-900">More online compilers and tools</h2>
-                <p className="mt-2 text-sm text-slate-600">
+            <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                <h2 className="text-base font-black tracking-tight text-gray-900">More online compilers and tools</h2>
+                <p className="mt-2 text-sm text-gray-600">
                     Mentrily supports 30+ languages. Jump straight into another playground:
                 </p>
                 <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 sm:grid-cols-3 lg:grid-cols-4">

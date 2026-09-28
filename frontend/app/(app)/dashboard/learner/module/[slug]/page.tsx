@@ -325,13 +325,13 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
     if (error) {
         const is404 = typeof error === 'string' && error.includes('status: 404');
         return (
-            <div className="min-h-screen flex flex-col bg-slate-50 items-center justify-center">
+            <div className="min-h-screen flex flex-col bg-gray-50 items-center justify-center">
                 <h3 className="text-lg font-black text-rose-500">{is404 ? 'Course not found' : 'Module not found'}.</h3>
-                <p className="text-sm text-slate-500 mt-2">{error}</p>
+                <p className="text-sm text-gray-500 mt-2">{error}</p>
                 <div className="mt-6 flex gap-4">
                     <button
                         onClick={handleReturnToLearnerDashboard}
-                        className="px-6 py-3 bg-slate-900 text-white rounded-xl font-black"
+                        className="px-6 py-3 bg-gray-900 text-white rounded-xl font-black"
                     >
                         Go Back
                     </button>
@@ -348,12 +348,12 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
 
     if (!course)
         return (
-            <div className="min-h-screen flex flex-col bg-slate-50 items-center justify-center">
+            <div className="min-h-screen flex flex-col bg-gray-50 items-center justify-center">
                 <h3 className="text-lg font-black text-rose-500">Module not found.</h3>
                 <div className="mt-6">
                     <button
                         onClick={handleReturnToLearnerDashboard}
-                        className="px-6 py-3 bg-slate-900 text-white rounded-xl font-black"
+                        className="px-6 py-3 bg-gray-900 text-white rounded-xl font-black"
                     >
                         Go Back
                     </button>
@@ -389,7 +389,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
         : null;
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
+        <div className="min-h-screen bg-gray-50 text-gray-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
             {slug === MENTRILY_ONBOARDING_COURSE_SLUG && (
                 <OnboardingTour
                     tourId="mentrily_starter_course_map_v2"
@@ -430,13 +430,13 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                 (a separate flex row in the learner layout, not part of this
                 page's scroll flow), so this no longer needs to offset itself
                 below a navbar-height's worth of space. */}
-            <div className="sticky top-0 z-40 bg-white border-b border-slate-200/60 shadow-sm transition-all duration-300">
+            <div className="sticky top-0 z-40 bg-white border-b border-gray-200/60 shadow-sm transition-all duration-300">
                 <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-3.5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex min-w-0 items-center gap-4">
                         <div>
                             <div className="flex flex-wrap items-baseline gap-2 mb-1">
-                                <h1 className="text-base font-black tracking-tight text-slate-900">{course.title}</h1>
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                <h1 className="text-base font-black tracking-tight text-gray-900">{course.title}</h1>
+                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                                     {course.modules?.length || 0} Sections
                                 </span>
                             </div>
@@ -479,7 +479,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                             />
                         )}
                         <div className="hidden sm:flex items-center gap-4">
-                            <div className="w-32 bg-slate-100 rounded-full h-2 overflow-hidden shadow-inner">
+                            <div className="w-32 bg-gray-100 rounded-full h-2 overflow-hidden shadow-inner">
                                 <div
                                     className="h-full bg-[var(--brand)] rounded-full transition-all duration-1000"
                                     style={{ width: `${progressPercent}%` }}
@@ -487,7 +487,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                             </div>
                             <span className="text-xs font-black text-[var(--brand)]">{progressPercent}% Mastery</span>
                         </div>
-                        <button className="p-2 rounded-xl text-slate-400 hover:text-[var(--brand)] hover:bg-[var(--brand-lighter)] transition-all active:scale-95">
+                        <button className="p-2 rounded-xl text-gray-400 hover:text-[var(--brand)] hover:bg-[var(--brand-lighter)] transition-all active:scale-95">
                             <svg
                                 width="20"
                                 height="20"
@@ -537,11 +537,11 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                                     ? 'starter-section-card'
                                                     : undefined
                                             }
-                                            className={`min-w-[220px] max-w-[220px] h-[160px] cursor-pointer snap-start rounded-[24px] border-2 p-5 transition-all duration-300 relative flex flex-col justify-between sm:min-w-[240px] sm:max-w-[240px] sm:h-[170px] sm:p-6 ${activeModuleIndex === i ? 'bg-white border-[var(--brand)] shadow-2xl shadow-[var(--brand)]/10' : 'bg-white border-slate-100 hover:border-slate-200'}`}
+                                            className={`min-w-[220px] max-w-[220px] h-[160px] cursor-pointer snap-start rounded-[24px] border-2 p-5 transition-all duration-300 relative flex flex-col justify-between sm:min-w-[240px] sm:max-w-[240px] sm:h-[170px] sm:p-6 ${activeModuleIndex === i ? 'bg-white border-[var(--brand)] shadow-2xl shadow-[var(--brand)]/10' : 'bg-white border-gray-100 hover:border-gray-200'}`}
                                         >
                                             <div className="flex items-center justify-between">
                                                 <div
-                                                    className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black transition-colors ${activeModuleIndex === i ? 'bg-[var(--brand-light)] text-[var(--brand)]' : 'bg-slate-50 text-slate-400'}`}
+                                                    className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black transition-colors ${activeModuleIndex === i ? 'bg-[var(--brand-light)] text-[var(--brand)]' : 'bg-gray-50 text-gray-400'}`}
                                                 >
                                                     {isCompleted ? (
                                                         <svg
@@ -567,16 +567,16 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                             </div>
 
                                             <h4
-                                                className={`font-black text-[15px] leading-snug line-clamp-2 ${activeModuleIndex === i ? 'text-slate-900' : 'text-slate-600'}`}
+                                                className={`font-black text-[15px] leading-snug line-clamp-2 ${activeModuleIndex === i ? 'text-gray-900' : 'text-gray-600'}`}
                                             >
                                                 {m.title}
                                             </h4>
 
-                                            <div className="flex items-center justify-between text-[10px] font-black text-slate-400 border-t border-slate-50 pt-3">
+                                            <div className="flex items-center justify-between text-[10px] font-black text-gray-400 border-t border-gray-50 pt-3">
                                                 <div className="flex items-center gap-2 uppercase tracking-tighter">
                                                     {totalCount} Lessons
                                                 </div>
-                                                <div className="w-12 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                                <div className="w-12 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                                                     <div
                                                         className={`h-full rounded-full bg-[var(--brand)] transition-all opacity-30 ${activeModuleIndex === i ? 'opacity-100' : ''}`}
                                                         style={{ width: `${progressPercent}%` }}
@@ -592,7 +592,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                         </div>
 
                         <div className="space-y-3">
-                            <h2 className="text-lg font-black text-slate-800 tracking-tight ml-2 mb-4">
+                            <h2 className="text-lg font-black text-gray-800 tracking-tight ml-2 mb-4">
                                 Unit Curriculum
                             </h2>
                             {(selectedModule?.units || []).map((u: any, uIdx: number) => {
@@ -609,14 +609,14 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                     >
                                         <div
                                             onMouseEnter={() => router.prefetch(`/dashboard/learner/unit/${u.id}`)}
-                                            className={`px-4 py-4 rounded-[22px] border transition-all cursor-pointer flex items-center justify-between bg-white border-slate-100/80 hover:border-slate-300/50 sm:px-8 sm:py-5 sm:rounded-[24px]`}
+                                            className={`px-4 py-4 rounded-[22px] border transition-all cursor-pointer flex items-center justify-between bg-white border-gray-100/80 hover:border-gray-300/50 sm:px-8 sm:py-5 sm:rounded-[24px]`}
                                         >
                                             <div
                                                 onClick={() => router.push(`/dashboard/learner/unit/${u.id}`)}
                                                 className="flex min-w-0 items-center gap-4 flex-1 sm:gap-10"
                                             >
                                                 <div
-                                                    className={`text-xs font-black w-6 text-center transition-colors text-slate-300`}
+                                                    className={`text-xs font-black w-6 text-center transition-colors text-gray-300`}
                                                 >
                                                     {isCompleted ? (
                                                         <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
@@ -638,11 +638,11 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                                     )}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-1">
+                                                    <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">
                                                         {u.type}
                                                     </p>
                                                     <h3
-                                                        className={`text-[15px] font-bold transition-colors text-slate-700`}
+                                                        className={`text-[15px] font-bold transition-colors text-gray-700`}
                                                     >
                                                         {u.title || `Lesson ${uIdx + 1}`}
                                                     </h3>
@@ -656,7 +656,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                                             e.stopPropagation();
                                                             router.push(`/dashboard/learner/unit/${u.id}`);
                                                         }}
-                                                        className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-[var(--brand)] hover:bg-[var(--brand-lighter)]"
+                                                        className="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:text-[var(--brand)] hover:bg-[var(--brand-lighter)]"
                                                     >
                                                         <svg
                                                             width="18"
@@ -708,11 +708,11 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                                     ? 'starter-course-exam-card'
                                                     : undefined
                                             }
-                                            className={`min-w-[220px] max-w-[220px] h-[160px] cursor-pointer snap-start rounded-[24px] border-2 p-5 transition-all duration-300 relative flex flex-col justify-between sm:min-w-[240px] sm:max-w-[240px] sm:h-[170px] sm:p-6 ${activeTestIndex === i ? 'bg-white border-[var(--brand)] shadow-2xl shadow-[var(--brand)]/10' : 'bg-white border-slate-100 hover:border-slate-200'}`}
+                                            className={`min-w-[220px] max-w-[220px] h-[160px] cursor-pointer snap-start rounded-[24px] border-2 p-5 transition-all duration-300 relative flex flex-col justify-between sm:min-w-[240px] sm:max-w-[240px] sm:h-[170px] sm:p-6 ${activeTestIndex === i ? 'bg-white border-[var(--brand)] shadow-2xl shadow-[var(--brand)]/10' : 'bg-white border-gray-100 hover:border-gray-200'}`}
                                         >
                                             <div className="flex items-center justify-between">
                                                 <div
-                                                    className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black transition-colors ${activeTestIndex === i ? 'bg-[var(--brand-light)] text-[var(--brand)]' : 'bg-slate-50 text-slate-400'}`}
+                                                    className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black transition-colors ${activeTestIndex === i ? 'bg-[var(--brand-light)] text-[var(--brand)]' : 'bg-gray-50 text-gray-400'}`}
                                                 >
                                                     {i + 1}
                                                 </div>
@@ -720,12 +720,12 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
 
                                             <div className="flex flex-col gap-1">
                                                 <h4
-                                                    className={`font-black text-[15px] leading-snug line-clamp-1 ${activeTestIndex === i ? 'text-slate-900' : 'text-slate-600'}`}
+                                                    className={`font-black text-[15px] leading-snug line-clamp-1 ${activeTestIndex === i ? 'text-gray-900' : 'text-gray-600'}`}
                                                 >
                                                     {t.title}
                                                 </h4>
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">
                                                         {formatTime(start)} - {formatTime(end)}
                                                     </span>
                                                     <span className="text-[9px] font-bold text-[var(--brand)] bg-[var(--brand-light)]/30 px-1.5 py-0.5 rounded-md">
@@ -734,7 +734,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center justify-between text-[10px] font-black text-slate-400 border-t border-slate-50 pt-3">
+                                            <div className="flex items-center justify-between text-[10px] font-black text-gray-400 border-t border-gray-50 pt-3">
                                                 <div className="flex items-center gap-2 uppercase tracking-tighter">
                                                     {t.items} Items
                                                 </div>
@@ -744,8 +744,8 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                             {(isLocked || isExpired) && (
                                                 <div className="absolute inset-0 z-10 flex items-center justify-center backdrop-blur-sm bg-white/40 transition-all rounded-[22px]">
                                                     {isLocked && (
-                                                        <div className="bg-white/90 px-4 py-2 rounded-xl shadow-lg border border-slate-100 flex flex-col items-center">
-                                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">
+                                                        <div className="bg-white/90 px-4 py-2 rounded-xl shadow-lg border border-gray-100 flex flex-col items-center">
+                                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">
                                                                 Opens On
                                                             </span>
                                                             <span className="text-xs font-bold text-amber-500">
@@ -760,14 +760,14 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                                         </div>
                                                     )}
                                                     {isExpired && (
-                                                        <div className="bg-slate-100/90 px-4 py-2 rounded-xl shadow-sm border border-slate-200 flex flex-col items-center">
-                                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">
+                                                        <div className="bg-gray-100/90 px-4 py-2 rounded-xl shadow-sm border border-gray-200 flex flex-col items-center">
+                                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">
                                                                 Ended On
                                                             </span>
-                                                            <span className="text-xs font-bold text-slate-600">
+                                                            <span className="text-xs font-bold text-gray-600">
                                                                 {formatDate(end)}
                                                             </span>
-                                                            <span className="text-[10px] font-bold text-slate-400">
+                                                            <span className="text-[10px] font-bold text-gray-400">
                                                                 {end?.toLocaleTimeString([], {
                                                                     hour: '2-digit',
                                                                     minute: '2-digit',
@@ -801,13 +801,13 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                 if (isLocked) {
                                     return (
                                         <>
-                                            {/* <h2 className="text-lg font-black text-slate-800 tracking-tight ml-2 mb-4">Test Details</h2> */}
-                                            <div className="p-6 text-center bg-slate-50/50 rounded-[24px] border border-dashed border-slate-200 sm:p-12">
+                                            {/* <h2 className="text-lg font-black text-gray-800 tracking-tight ml-2 mb-4">Test Details</h2> */}
+                                            <div className="p-6 text-center bg-gray-50/50 rounded-[24px] border border-dashed border-gray-200 sm:p-12">
                                                 <div className="w-16 h-16 bg-white rounded-2xl mx-auto flex items-center justify-center shadow-sm mb-4 text-2xl">
                                                     🔒
                                                 </div>
-                                                <h3 className="text-slate-800 font-black text-lg mb-1">Test Locked</h3>
-                                                <p className="text-slate-400 font-bold text-xs">
+                                                <h3 className="text-gray-800 font-black text-lg mb-1">Test Locked</h3>
+                                                <p className="text-gray-400 font-bold text-xs">
                                                     This content will be available on {formatDateTime(start)}
                                                 </p>
                                             </div>
@@ -817,15 +817,15 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
 
                                 if (isExpired) {
                                     return (
-                                        <div className="p-6 text-center bg-slate-50/50 rounded-[24px] border border-dashed border-slate-200 sm:p-12">
+                                        <div className="p-6 text-center bg-gray-50/50 rounded-[24px] border border-dashed border-gray-200 sm:p-12">
                                             <div className="w-16 h-16 bg-white rounded-2xl mx-auto flex items-center justify-center shadow-sm mb-4 text-2xl">
                                                 🏁
                                             </div>
-                                            <h3 className="text-slate-800 font-black text-lg mb-1">Test Ended</h3>
-                                            <p className="text-slate-400 font-bold text-xs">
+                                            <h3 className="text-gray-800 font-black text-lg mb-1">Test Ended</h3>
+                                            <p className="text-gray-400 font-bold text-xs">
                                                 This assessment concluded on {formatDateTime(end)}
                                             </p>
-                                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-4">
+                                            <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-4">
                                                 Review content and results once released by instructor.
                                             </p>
                                         </div>
@@ -834,7 +834,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
 
                                 return (
                                     <div className="space-y-3">
-                                        <h2 className="text-lg font-black text-slate-800 tracking-tight ml-2 mb-4">
+                                        <h2 className="text-lg font-black text-gray-800 tracking-tight ml-2 mb-4">
                                             Unit Curriculum
                                         </h2>
 
@@ -844,23 +844,23 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                                     onMouseEnter={() =>
                                                         router.prefetch(`/dashboard/learner/unit/${q.id}`)
                                                     }
-                                                    className={`px-4 py-4 rounded-[22px] border transition-all cursor-pointer flex items-center justify-between bg-white border-slate-100/80 hover:border-slate-300/50 sm:px-8 sm:py-5 sm:rounded-[24px]`}
+                                                    className={`px-4 py-4 rounded-[22px] border transition-all cursor-pointer flex items-center justify-between bg-white border-gray-100/80 hover:border-gray-300/50 sm:px-8 sm:py-5 sm:rounded-[24px]`}
                                                 >
                                                     <div
                                                         onClick={() => router.push(`/dashboard/learner/unit/${q.id}`)}
                                                         className="flex min-w-0 items-center gap-4 flex-1 sm:gap-10"
                                                     >
                                                         <div
-                                                            className={`text-xs font-black w-6 text-center transition-colors text-slate-300`}
+                                                            className={`text-xs font-black w-6 text-center transition-colors text-gray-300`}
                                                         >
                                                             {qi + 1}
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-1">
+                                                            <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">
                                                                 {q.type || 'Test'}
                                                             </p>
                                                             <h3
-                                                                className={`text-[15px] font-bold transition-colors text-slate-700`}
+                                                                className={`text-[15px] font-bold transition-colors text-gray-700`}
                                                             >
                                                                 {q.title || `Question ${qi + 1}`}
                                                             </h3>
@@ -875,7 +875,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                                                         e.stopPropagation();
                                                                         router.push(`/dashboard/learner/unit/${q.id}`);
                                                                     }}
-                                                                    className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-[var(--brand)] hover:bg-[var(--brand-lighter)]"
+                                                                    className="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:text-[var(--brand)] hover:bg-[var(--brand-lighter)]"
                                                                 >
                                                                     <svg
                                                                         width="18"
@@ -906,16 +906,16 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                     <div className="space-y-10 animate-fade-in">
                         {/* Analytics Style Header */}
                         <div>
-                            <h1 className="text-xl font-black text-slate-800 border-b-2 border-[var(--brand)] inline-block pb-1 mb-8">
+                            <h1 className="text-xl font-black text-gray-800 border-b-2 border-[var(--brand)] inline-block pb-1 mb-8">
                                 Attempts
                             </h1>
 
                             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                                 <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
-                                    <span className="text-[11px] font-black uppercase text-slate-400 tracking-widest">
+                                    <span className="text-[11px] font-black uppercase text-gray-400 tracking-widest">
                                         Course
                                     </span>
-                                    <div className="bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-xs font-bold text-slate-700">
+                                    <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-xs font-bold text-gray-700">
                                         {course.title}
                                     </div>
                                 </div>
@@ -924,10 +924,10 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                     <input
                                         type="text"
                                         placeholder="Search performance logs..."
-                                        className="w-full bg-white border-b border-slate-200 py-2 pl-8 text-xs font-medium placeholder:text-slate-300 focus:outline-none focus:border-[var(--brand)] transition-colors"
+                                        className="w-full bg-white border-b border-gray-200 py-2 pl-8 text-xs font-medium placeholder:text-gray-300 focus:outline-none focus:border-[var(--brand)] transition-colors"
                                     />
                                     <svg
-                                        className="absolute left-0 top-1/2 -translate-y-1/2 text-slate-300"
+                                        className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-300"
                                         width="16"
                                         height="16"
                                         viewBox="0 0 24 24"
@@ -943,35 +943,35 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                         </div>
 
                         {/* Table Layout */}
-                        <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
-                            <div className="hidden items-center px-8 py-4 bg-slate-50/50 border-b border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400 md:flex">
+                        <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+                            <div className="hidden items-center px-8 py-4 bg-gray-50/50 border-b border-gray-100 text-[10px] font-black uppercase tracking-widest text-gray-400 md:flex">
                                 <div className="flex-1">Questions</div>
                                 <div className="w-32 text-center">Type</div>
                                 <div className="w-32 text-right mr-8">Status</div>
                             </div>
 
-                            <div className="divide-y divide-slate-50">
+                            <div className="divide-y divide-gray-50">
                                 {performanceItems.map((q) => (
                                     <div key={q.id} className="bg-white">
                                         <div
                                             onClick={() => togglePerfExpand(q.id)}
-                                            className="flex flex-col gap-3 px-4 py-4 hover:bg-slate-50/30 cursor-pointer transition-colors group md:flex-row md:items-center md:px-8 md:py-5"
+                                            className="flex flex-col gap-3 px-4 py-4 hover:bg-gray-50/30 cursor-pointer transition-colors group md:flex-row md:items-center md:px-8 md:py-5"
                                         >
                                             <div className="flex-1 flex min-w-0 items-center gap-4">
-                                                <span className="text-[11px] font-black text-slate-300 w-4">
+                                                <span className="text-[11px] font-black text-gray-300 w-4">
                                                     {q.displayId}.
                                                 </span>
-                                                <span className="text-xs font-bold text-slate-700 group-hover:text-[var(--brand)] transition-colors">
+                                                <span className="text-xs font-bold text-gray-700 group-hover:text-[var(--brand)] transition-colors">
                                                     {q.title}
                                                 </span>
                                             </div>
-                                            <div className="w-fit md:w-32 text-left md:text-center text-[10px] font-black text-slate-400 uppercase tracking-tighter">
+                                            <div className="w-fit md:w-32 text-left md:text-center text-[10px] font-black text-gray-400 uppercase tracking-tighter">
                                                 {q.type}
                                             </div>
                                             <div className="w-full md:w-32 flex items-center justify-between md:justify-end gap-2 text-right md:mr-8">
-                                                <span className="text-[11px] font-bold text-slate-500">{q.status}</span>
+                                                <span className="text-[11px] font-bold text-gray-500">{q.status}</span>
                                                 <svg
-                                                    className={`transition-transform duration-300 ${expandedPerfIds.includes(q.id) ? 'rotate-180 text-[var(--brand)]' : 'text-slate-300'}`}
+                                                    className={`transition-transform duration-300 ${expandedPerfIds.includes(q.id) ? 'rotate-180 text-[var(--brand)]' : 'text-gray-300'}`}
                                                     width="12"
                                                     height="12"
                                                     viewBox="0 0 24 24"
@@ -994,14 +994,14 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                                                     e.stopPropagation();
                                                                     setPerfFilter('all');
                                                                 }}
-                                                                className={`flex items-center gap-2 text-[10px] font-bold transition-all px-3 py-1 rounded-full ${perfFilter === 'all' ? 'text-slate-800 bg-slate-100' : 'text-slate-400 hover:text-slate-600'}`}
+                                                                className={`flex items-center gap-2 text-[10px] font-bold transition-all px-3 py-1 rounded-full ${perfFilter === 'all' ? 'text-gray-800 bg-gray-100' : 'text-gray-400 hover:text-gray-600'}`}
                                                             >
                                                                 All ({q.attempts.length})
                                                             </button>
                                                         </div>
 
-                                                        <div className="max-w-4xl mx-auto border border-slate-50 rounded-xl bg-slate-50/30 px-3 py-4 sm:px-6">
-                                                            <div className="hidden items-center text-[9px] font-black uppercase text-slate-400 mb-4 border-b border-slate-100 pb-2 sm:flex">
+                                                        <div className="max-w-4xl mx-auto border border-gray-50 rounded-xl bg-gray-50/30 px-3 py-4 sm:px-6">
+                                                            <div className="hidden items-center text-[9px] font-black uppercase text-gray-400 mb-4 border-b border-gray-100 pb-2 sm:flex">
                                                                 <div className="flex-1 text-center">Attempts</div>
                                                                 <div className="flex-1 text-center">Test Cases</div>
                                                                 <div className="flex-1 text-center">Status</div>
@@ -1020,7 +1020,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                                                                 `/dashboard/learner/unit/${unitId}?attemptId=${attempt.id}`,
                                                                             );
                                                                         }}
-                                                                        className="grid grid-cols-1 gap-2 text-[11px] font-bold text-slate-600 hover:bg-slate-100 p-2 rounded-lg cursor-pointer transition-colors sm:flex sm:items-center"
+                                                                        className="grid grid-cols-1 gap-2 text-[11px] font-bold text-gray-600 hover:bg-gray-100 p-2 rounded-lg cursor-pointer transition-colors sm:flex sm:items-center"
                                                                     >
                                                                         <div className="flex-1 text-center font-mono opacity-80">
                                                                             {attempt.date}
@@ -1043,7 +1043,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                                         </div>
                                                     </>
                                                 ) : (
-                                                    <div className="text-center py-8 text-xs font-bold text-slate-400 italic">
+                                                    <div className="text-center py-8 text-xs font-bold text-gray-400 italic">
                                                         No performance history recorded for this question.
                                                     </div>
                                                 )}
@@ -1064,7 +1064,7 @@ function TabLink({ active, onClick, label }: { active: boolean; onClick: () => v
     return (
         <button
             onClick={onClick}
-            className={`text-xs font-black transition-all border-b-2 pb-1.5 uppercase tracking-widest ${active ? 'text-[var(--brand)] border-[var(--brand)]' : 'text-slate-400 border-transparent hover:text-slate-600'}`}
+            className={`text-xs font-black transition-all border-b-2 pb-1.5 uppercase tracking-widest ${active ? 'text-[var(--brand)] border-[var(--brand)]' : 'text-gray-400 border-transparent hover:text-gray-600'}`}
         >
             {label}
         </button>
@@ -1078,7 +1078,7 @@ function CardNav({ direction, onClick }: { direction: 'left' | 'right'; onClick:
     return (
         <button
             onClick={onClick}
-            className={`hidden sm:flex absolute ${style} top-[42%] -translate-y-1/2 w-12 h-12 rounded-full bg-white border border-slate-200 items-center justify-center text-slate-400 hover:text-[var(--brand)] hover:border-[var(--brand-light)] shadow-xl z-20 transition-all active:scale-90`}
+            className={`hidden sm:flex absolute ${style} top-[42%] -translate-y-1/2 w-12 h-12 rounded-full bg-white border border-gray-200 items-center justify-center text-gray-400 hover:text-[var(--brand)] hover:border-[var(--brand-light)] shadow-xl z-20 transition-all active:scale-90`}
         >
             <svg
                 width="24"

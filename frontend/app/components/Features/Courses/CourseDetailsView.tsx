@@ -54,7 +54,7 @@ export default function CourseDetailsView({ isOpen, onClose, course }: CourseDet
         >
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <span
-                    className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${course.status === 'Published' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}
+                    className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${course.status === 'Published' ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-gray-500'}`}
                 >
                     {course.status}
                 </span>
@@ -142,10 +142,10 @@ function StatItem({
                 {icon}
             </div>
             <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">
                     {label}
                 </p>
-                <p className="text-lg font-black text-slate-800 leading-none">{value}</p>
+                <p className="text-lg font-black text-gray-800 leading-none">{value}</p>
             </div>
         </div>
     );
@@ -153,9 +153,9 @@ function StatItem({
 
 function InfoCard({ title, content }: { title: string; content: string }) {
     return (
-        <div className="bg-white p-5 rounded-[24px] border border-slate-100 shadow-sm sm:p-8 sm:rounded-[32px]">
-            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">{title}</h4>
-            <p className="text-sm font-bold text-slate-600 leading-relaxed">{content}</p>
+        <div className="bg-white p-5 rounded-[24px] border border-gray-100 shadow-sm sm:p-8 sm:rounded-[32px]">
+            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">{title}</h4>
+            <p className="text-sm font-bold text-gray-600 leading-relaxed">{content}</p>
         </div>
     );
 }

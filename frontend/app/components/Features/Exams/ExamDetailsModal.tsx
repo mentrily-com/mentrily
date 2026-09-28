@@ -79,13 +79,13 @@ export default function ExamDetailsModal({ exam, onClose }: ExamDetailsModalProp
                             <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
                                 <Shield size={18} className={brandTextClass} />
                             </div>
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                                 End-to-End Encrypted Session
                             </span>
                         </div>
                         <button
                             onClick={onClose}
-                            className="w-full px-8 py-3 bg-white text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all sm:w-auto"
+                            className="w-full px-8 py-3 bg-white text-gray-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-100 transition-all sm:w-auto"
                         >
                             Dismiss
                         </button>
@@ -99,7 +99,7 @@ export default function ExamDetailsModal({ exam, onClose }: ExamDetailsModalProp
                         Exam Details
                     </div>
                     <span
-                        className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${exam.status === 'Published' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : exam.status === 'Monitor' || exam.status === 'Live' ? brandLightClass : 'bg-slate-50 text-slate-400 border-slate-100'}`}
+                        className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${exam.status === 'Published' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : exam.status === 'Monitor' || exam.status === 'Live' ? brandLightClass : 'bg-gray-50 text-gray-400 border-gray-100'}`}
                     >
                         {exam.status}
                     </span>
@@ -126,7 +126,7 @@ export default function ExamDetailsModal({ exam, onClose }: ExamDetailsModalProp
 
                 {/* Security & Access */}
                 <div className="space-y-4">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-300">
                         Security & Access Control
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -156,16 +156,16 @@ export default function ExamDetailsModal({ exam, onClose }: ExamDetailsModalProp
                             brandTextClass={brandTextClass}
                         />
                     </div>
-                    <div className="bg-slate-50 border border-slate-100 p-4 rounded-3xl flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="bg-gray-50 border border-gray-100 p-4 rounded-3xl flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400">
+                            <div className="w-8 h-8 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-gray-400">
                                 <Target size={14} />
                             </div>
                             <div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                                     Allowed IP Addresses
                                 </p>
-                                <p className="text-xs font-bold text-slate-700">{exam.allowedIPs}</p>
+                                <p className="text-xs font-bold text-gray-700">{exam.allowedIPs}</p>
                             </div>
                         </div>
                         <div className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-emerald-100">
@@ -176,30 +176,30 @@ export default function ExamDetailsModal({ exam, onClose }: ExamDetailsModalProp
 
                 {/* Assessment Metadata */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white border border-slate-100 p-6 rounded-[32px] space-y-4">
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-300">
+                    <div className="bg-white border border-gray-100 p-6 rounded-[32px] space-y-4">
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-300">
                             Assessment Info
                         </h4>
-                        <div className="flex items-center justify-between border-b border-slate-50 pb-3">
-                            <span className="text-xs font-bold text-slate-400">Total Questions</span>
-                            <span className="text-sm font-black text-slate-800">
+                        <div className="flex items-center justify-between border-b border-gray-50 pb-3">
+                            <span className="text-xs font-bold text-gray-400">Total Questions</span>
+                            <span className="text-sm font-black text-gray-800">
                                 {Array.isArray(exam.questions) ? exam.questions.length : 0} Items
                             </span>
                         </div>
-                        <div className="flex items-center justify-between border-b border-slate-50 pb-3">
-                            <span className="text-xs font-bold text-slate-400">Time Limit</span>
-                            <span className="text-sm font-black text-slate-800">{exam.duration} Minutes</span>
+                        <div className="flex items-center justify-between border-b border-gray-50 pb-3">
+                            <span className="text-xs font-bold text-gray-400">Time Limit</span>
+                            <span className="text-sm font-black text-gray-800">{exam.duration} Minutes</span>
                         </div>
                         <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-slate-400">Total Marks</span>
+                            <span className="text-xs font-bold text-gray-400">Total Marks</span>
                             <span className={`text-sm font-black ${brandTextClass}`}>
                                 {exam.totalMarks || 100} Points
                             </span>
                         </div>
                     </div>
 
-                    <div className="bg-white border border-slate-100 p-6 rounded-[32px] space-y-4">
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-300">
+                    <div className="bg-white border border-gray-100 p-6 rounded-[32px] space-y-4">
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-300">
                             Schedule Window
                         </h4>
                         <div className="flex items-center gap-4">
@@ -207,8 +207,8 @@ export default function ExamDetailsModal({ exam, onClose }: ExamDetailsModalProp
                                 <Clock size={20} />
                             </div>
                             <div>
-                                <p className="text-[9px] font-black text-slate-300 uppercase">Starts At</p>
-                                <p className="text-xs font-black text-slate-700">
+                                <p className="text-[9px] font-black text-gray-300 uppercase">Starts At</p>
+                                <p className="text-xs font-black text-gray-700">
                                     {formatInZone(exam.startTime, exam.timeZone)}
                                 </p>
                             </div>
@@ -218,8 +218,8 @@ export default function ExamDetailsModal({ exam, onClose }: ExamDetailsModalProp
                                 <Clock size={20} />
                             </div>
                             <div>
-                                <p className="text-[9px] font-black text-slate-300 uppercase">Ends At</p>
-                                <p className="text-xs font-black text-slate-700">
+                                <p className="text-[9px] font-black text-gray-300 uppercase">Ends At</p>
+                                <p className="text-xs font-black text-gray-700">
                                     {formatInZone(exam.endTime, exam.timeZone)}
                                 </p>
                             </div>
@@ -254,7 +254,7 @@ function DetailCard({ icon, label, value, onAlert, brandTextClass, canCopy = tru
     };
 
     return (
-        <div className="bg-white border border-slate-100 p-4 rounded-3xl group hover:border-[var(--brand-light)] transition-all flex flex-col gap-3">
+        <div className="bg-white border border-gray-100 p-4 rounded-3xl group hover:border-[var(--brand-light)] transition-all flex flex-col gap-3">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <div
@@ -262,34 +262,34 @@ function DetailCard({ icon, label, value, onAlert, brandTextClass, canCopy = tru
                     >
                         {React.cloneElement(icon, { size: 18 })}
                     </div>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{label}</span>
                 </div>
                 <button
                     onClick={handleCopy}
                     disabled={!canCopy}
                     aria-label={`Copy ${label}`}
-                    className={`p-1.5 text-slate-300 transition-colors ${canCopy ? `hover:${brandTextClass}` : 'opacity-40 cursor-not-allowed'}`}
+                    className={`p-1.5 text-gray-300 transition-colors ${canCopy ? `hover:${brandTextClass}` : 'opacity-40 cursor-not-allowed'}`}
                 >
                     <Copy size={14} />
                 </button>
             </div>
-            <p className="text-xs font-black text-slate-700 break-all select-all">{value}</p>
+            <p className="text-xs font-black text-gray-700 break-all select-all">{value}</p>
         </div>
     );
 }
 
 function SecurityPill({ icon, label, value, sub, brandTextClass }: any) {
     return (
-        <div className="bg-white border border-slate-100 p-5 rounded-3xl flex flex-col gap-1 items-start shadow-sm group hover:border-[var(--brand-light)] transition-all">
+        <div className="bg-white border border-gray-100 p-5 rounded-3xl flex flex-col gap-1 items-start shadow-sm group hover:border-[var(--brand-light)] transition-all">
             <div className="flex items-center gap-2 mb-2">
                 <div
-                    className={`w-6 h-6 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover:${brandTextClass} transition-colors`}
+                    className={`w-6 h-6 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 group-hover:${brandTextClass} transition-colors`}
                 >
                     {icon}
                 </div>
-                <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">{label}</span>
+                <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">{label}</span>
             </div>
-            <p className="text-base font-black text-slate-800 leading-none">{value}</p>
+            <p className="text-base font-black text-gray-800 leading-none">{value}</p>
             <p
                 className={`text-[8px] font-bold ${brandTextClass.replace('text-', 'text-').replace('600', '500')} uppercase tracking-tighter mt-1`}
             >

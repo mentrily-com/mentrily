@@ -61,8 +61,8 @@ export default function AdminSettingsView({
         <div className="animate-fade-in font-sans pb-10">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-12">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Organization Settings</h1>
-                    <p className="text-slate-500 font-medium text-sm mt-1">
+                    <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Organization Settings</h1>
+                    <p className="text-gray-500 font-medium text-sm mt-1">
                         Configure {isSuperAdminView ? 'this' : 'your'} organization&apos;s identity and platform limits.
                     </p>
                 </div>
@@ -101,10 +101,10 @@ export default function AdminSettingsView({
                         >
                             <div className="space-y-8">
                                 {/* Status Control */}
-                                <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 flex items-center justify-between">
+                                <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100 flex items-center justify-between">
                                     <div>
-                                        <p className="text-sm font-black text-slate-800">Organization Status</p>
-                                        <p className="text-[11px] font-bold text-slate-400 mt-1">
+                                        <p className="text-sm font-black text-gray-800">Organization Status</p>
+                                        <p className="text-[11px] font-bold text-gray-400 mt-1">
                                             Currently{' '}
                                             <span
                                                 className={`uppercase font-black ${branding.status === 'Active' ? 'text-emerald-600' : 'text-rose-600'}`}
@@ -136,7 +136,7 @@ export default function AdminSettingsView({
 
                                 {/* Permissions Grid */}
                                 <div className="space-y-6">
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
                                         Feature Permissions (Teachers & Admins)
                                     </p>
 
@@ -149,7 +149,7 @@ export default function AdminSettingsView({
                                                 onClick={() => togglePermission('canCreateExams')}
                                             />
                                             {branding.permissions.canCreateExams && (
-                                                <div className="ml-6 space-y-3 p-4 bg-slate-50 rounded-2xl border border-slate-100 animate-in slide-in-from-left-2 duration-300">
+                                                <div className="ml-6 space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100 animate-in slide-in-from-left-2 duration-300">
                                                     <PermissionToggle
                                                         label="App Examination"
                                                         active={branding.permissions.allowAppExams}
@@ -174,7 +174,7 @@ export default function AdminSettingsView({
                                                 onClick={() => togglePermission('canCreateCourses')}
                                             />
                                             {branding.permissions.canCreateCourses && (
-                                                <div className="ml-6 space-y-3 p-4 bg-slate-50 rounded-2xl border border-slate-100 animate-in slide-in-from-left-2 duration-300">
+                                                <div className="ml-6 space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100 animate-in slide-in-from-left-2 duration-300">
                                                     <PermissionToggle
                                                         label="Create Tests"
                                                         active={branding.permissions.allowCourseTests}
@@ -195,7 +195,7 @@ export default function AdminSettingsView({
                                         </div>
 
                                         {/* Tenant behavior (beta/tester orgs) */}
-                                        <div className="md:col-span-2 space-y-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                        <div className="md:col-span-2 space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
                                             <PermissionToggle
                                                 label="Open enrollment (teachers may enroll any Mentrily user)"
                                                 active={branding.permissions.openEnrollment === true}
@@ -226,28 +226,28 @@ export default function AdminSettingsView({
                     >
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
                                     Organization Name
                                 </label>
                                 <input
                                     type="text"
-                                    className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-black text-slate-800 outline-none focus:border-[var(--brand)] transition-all shadow-inner"
+                                    className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-black text-gray-800 outline-none focus:border-[var(--brand)] transition-all shadow-inner"
                                     value={branding.name}
                                     onChange={(e) => setBranding({ ...branding, name: e.target.value })}
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
                                     Subdomain
                                 </label>
                                 <div className="relative">
                                     <input
                                         type="text"
-                                        className="w-full pl-5 pr-32 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-black text-[var(--brand)] outline-none focus:border-[var(--brand)] transition-all shadow-inner uppercase tracking-wider"
+                                        className="w-full pl-5 pr-32 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-black text-[var(--brand)] outline-none focus:border-[var(--brand)] transition-all shadow-inner uppercase tracking-wider"
                                         value={branding.subdomain}
                                         onChange={(e) => setBranding({ ...branding, subdomain: e.target.value })}
                                     />
-                                    <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300 uppercase">
+                                    <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-gray-300 uppercase">
                                         .{siteConfig.domain}
                                     </span>
                                 </div>
@@ -263,7 +263,7 @@ export default function AdminSettingsView({
                     >
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-4">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
                                     Primary Brand Color
                                 </label>
                                 <div className="flex items-center gap-4">
@@ -273,7 +273,7 @@ export default function AdminSettingsView({
                                     ></div>
                                     <input
                                         type="text"
-                                        className="flex-1 px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-mono font-bold text-slate-600 outline-none focus:border-[var(--brand)] transition-all uppercase"
+                                        className="flex-1 px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-mono font-bold text-gray-600 outline-none focus:border-[var(--brand)] transition-all uppercase"
                                         value={branding.primaryColor}
                                         onChange={(e) => setBranding({ ...branding, primaryColor: e.target.value })}
                                     />
@@ -290,7 +290,7 @@ export default function AdminSettingsView({
                                 </div>
                             </div>
                             <div className="space-y-4">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
                                     Institution Logo
                                 </label>
                                 <div className="relative group">
@@ -306,9 +306,9 @@ export default function AdminSettingsView({
                                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                     />
                                     <div
-                                        className={`flex items-center gap-4 p-4 border-2 border-dashed ${branding.logo ? 'border-[var(--brand)] bg-[var(--brand-light)]/10' : 'border-slate-100 bg-slate-50/50'} rounded-3xl hover:bg-slate-50 transition-all cursor-pointer`}
+                                        className={`flex items-center gap-4 p-4 border-2 border-dashed ${branding.logo ? 'border-[var(--brand)] bg-[var(--brand-light)]/10' : 'border-gray-100 bg-gray-50/50'} rounded-3xl hover:bg-gray-50 transition-all cursor-pointer`}
                                     >
-                                        <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-slate-300 group-hover:text-[var(--brand)] shadow-sm transition-all overflow-hidden">
+                                        <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-gray-300 group-hover:text-[var(--brand)] shadow-sm transition-all overflow-hidden">
                                             {branding.logo ? (
                                                 typeof branding.logo === 'string' ? (
                                                     <img
@@ -328,10 +328,10 @@ export default function AdminSettingsView({
                                             )}
                                         </div>
                                         <div>
-                                            <p className="text-[11px] font-black text-slate-800 uppercase tracking-widest">
+                                            <p className="text-[11px] font-black text-gray-800 uppercase tracking-widest">
                                                 {branding.logo ? 'Change Logo' : 'Update Logo'}
                                             </p>
-                                            <p className="text-[10px] font-bold text-slate-400">
+                                            <p className="text-[10px] font-bold text-gray-400">
                                                 {branding.logo ? 'Logo Selected' : 'SVG, PNG or JPG (Max 2MB)'}
                                             </p>
                                         </div>
@@ -349,18 +349,18 @@ export default function AdminSettingsView({
                     >
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
                                     Official Support Email
                                 </label>
                                 <input
                                     type="email"
-                                    className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-600 outline-none focus:border-[var(--brand)] transition-all shadow-inner"
+                                    className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold text-gray-600 outline-none focus:border-[var(--brand)] transition-all shadow-inner"
                                     value={branding.email}
                                     onChange={(e) => setBranding({ ...branding, email: e.target.value })}
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
                                     User Capacity Limit <span className="text-[var(--brand)]">*</span>
                                 </label>
                                 <div className="relative">
@@ -368,7 +368,7 @@ export default function AdminSettingsView({
                                         type="number"
                                         min="0"
                                         readOnly={!isSuperAdminView} // Editable only for Super Admin
-                                        className={`w-full pl-5 pr-16 py-4 border rounded-2xl text-sm font-black outline-none transition-all ${isSuperAdminView ? 'bg-white border-slate-200 text-slate-800 focus:border-[var(--brand)]' : 'bg-slate-100 border-slate-100 text-slate-400 cursor-not-allowed'}`}
+                                        className={`w-full pl-5 pr-16 py-4 border rounded-2xl text-sm font-black outline-none transition-all ${isSuperAdminView ? 'bg-white border-gray-200 text-gray-800 focus:border-[var(--brand)]' : 'bg-gray-100 border-gray-100 text-gray-400 cursor-not-allowed'}`}
                                         value={branding.maxUsers}
                                         onChange={(e) => {
                                             if (!isSuperAdminView) return;
@@ -377,7 +377,7 @@ export default function AdminSettingsView({
                                             setBranding({ ...branding, maxUsers: e.target.value });
                                         }}
                                     />
-                                    <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300 uppercase">
+                                    <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-gray-300 uppercase">
                                         Users
                                     </span>
                                 </div>
@@ -401,7 +401,7 @@ export default function AdminSettingsView({
                                 active={branding.permissions.teacherSelfBilling !== false}
                                 onClick={() => togglePermission('teacherSelfBilling')}
                             />
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
                                 When disabled, teachers won’t see billing actions and must contact org admins for
                                 upgrades.
                             </p>
@@ -411,7 +411,7 @@ export default function AdminSettingsView({
 
                 {/* Right: Preview Card */}
                 <div className="space-y-8">
-                    <div className="bg-slate-900 rounded-xl p-8 text-white relative overflow-hidden h-fit sticky top-32 shadow-xl">
+                    <div className="bg-gray-900 rounded-xl p-8 text-white relative overflow-hidden h-fit sticky top-32 shadow-xl">
                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-10">
                             Live Portal Preview
                         </p>
@@ -443,7 +443,7 @@ export default function AdminSettingsView({
                                 <div className="h-2 w-3/4 bg-white/10 rounded-full"></div>
                                 <div className="h-2 w-1/2 bg-white/10 rounded-full"></div>
                                 <div
-                                    className="h-10 w-full rounded-2xl bg-white flex items-center justify-center text-slate-900 text-[10px] font-black uppercase tracking-widest"
+                                    className="h-10 w-full rounded-2xl bg-white flex items-center justify-center text-gray-900 text-[10px] font-black uppercase tracking-widest"
                                     style={{ backgroundColor: branding.primaryColor, color: '#fff' }}
                                 >
                                     Sample Action Button
@@ -466,14 +466,14 @@ export default function AdminSettingsView({
 
 function SettingsSection({ icon, title, desc, children }: any) {
     return (
-        <div className="bg-white rounded-xl border border-slate-200 p-6 md:p-8 shadow-sm">
+        <div className="bg-white rounded-xl border border-gray-200 p-6 md:p-8 shadow-sm">
             <div className="flex items-start gap-4 mb-8">
-                <div className="w-12 h-12 rounded-lg bg-[var(--color-bg-subtle)] flex items-center justify-center text-slate-500 shrink-0">
+                <div className="w-12 h-12 rounded-lg bg-[var(--color-bg-subtle)] flex items-center justify-center text-gray-500 shrink-0">
                     {icon}
                 </div>
                 <div>
-                    <h3 className="text-xl font-black text-slate-800 tracking-tight leading-none mb-2">{title}</h3>
-                    <p className="text-sm font-bold text-slate-400">{desc}</p>
+                    <h3 className="text-xl font-black text-gray-800 tracking-tight leading-none mb-2">{title}</h3>
+                    <p className="text-sm font-bold text-gray-400">{desc}</p>
                 </div>
             </div>
             {children}
@@ -495,15 +495,15 @@ function PermissionToggle({
     return (
         <div
             onClick={onClick}
-            className={`cursor-pointer p-4 rounded-xl border flex items-center justify-between transition-all ${isSub ? 'py-3 px-4 border-transparent hover:bg-white' : active ? 'bg-[var(--brand-light)] border-[var(--brand-light)] shadow-sm' : 'bg-white border-slate-100 hover:border-slate-200'}`}
+            className={`cursor-pointer p-4 rounded-xl border flex items-center justify-between transition-all ${isSub ? 'py-3 px-4 border-transparent hover:bg-white' : active ? 'bg-[var(--brand-light)] border-[var(--brand-light)] shadow-sm' : 'bg-white border-gray-100 hover:border-gray-200'}`}
         >
             <span
-                className={`font-black uppercase tracking-wider ${isSub ? 'text-[10px] text-slate-500' : 'text-xs ' + (active ? 'text-[var(--brand-dark)]' : 'text-slate-400')}`}
+                className={`font-black uppercase tracking-wider ${isSub ? 'text-[10px] text-gray-500' : 'text-xs ' + (active ? 'text-[var(--brand-dark)]' : 'text-gray-400')}`}
             >
                 {label}
             </span>
             <div
-                className={`${isSub ? 'w-8 h-5' : 'w-10 h-6'} rounded-full relative transition-colors ${active ? 'bg-[var(--brand)]' : 'bg-slate-200'}`}
+                className={`${isSub ? 'w-8 h-5' : 'w-10 h-6'} rounded-full relative transition-colors ${active ? 'bg-[var(--brand)]' : 'bg-gray-200'}`}
             >
                 <div
                     className={`absolute top-1 left-1 ${isSub ? 'w-3 h-3 translate-x-0' : 'w-4 h-4'} bg-white rounded-full shadow-md transition-transform ${active ? (isSub ? 'translate-x-3' : 'translate-x-4') : ''}`}

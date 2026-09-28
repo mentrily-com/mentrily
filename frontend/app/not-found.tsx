@@ -21,10 +21,10 @@ export default function NotFound() {
                                 <span className="flex h-2 w-2 rounded-full bg-indigo-600"></span>
                                 404 Error
                             </div>
-                            <h1 className="text-6xl lg:text-8xl font-black text-slate-900 tracking-tighter mb-6">
+                            <h1 className="text-6xl lg:text-8xl font-black text-gray-900 tracking-tighter mb-6">
                                 page not <br /> found.
                             </h1>
-                            <p className="text-lg text-slate-500 font-medium max-w-md leading-relaxed">
+                            <p className="text-lg text-gray-500 font-medium max-w-md leading-relaxed">
                                 We can&apos;t find the page you&apos;re looking for. It might have been moved, renamed,
                                 or doesn&apos;t exist.
                             </p>
@@ -33,13 +33,13 @@ export default function NotFound() {
                         <div className="flex flex-wrap gap-4">
                             <Link
                                 href="/"
-                                className="px-8 py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
+                                className="px-8 py-4 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-2xl transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
                             >
                                 Back to Home
                             </Link>
                             <button
                                 onClick={() => window.history.back()}
-                                className="px-8 py-4 bg-white border-2 border-slate-100 hover:border-slate-200 text-slate-600 font-bold rounded-2xl transition-all hover:bg-slate-50 active:scale-95"
+                                className="px-8 py-4 bg-white border-2 border-gray-100 hover:border-gray-200 text-gray-600 font-bold rounded-2xl transition-all hover:bg-gray-50 active:scale-95"
                             >
                                 Go Back Previous
                             </button>
@@ -136,7 +136,7 @@ export default function NotFound() {
 
             {/* Footer / Copyright */}
             <div className="absolute bottom-6 w-full text-center">
-                <p className="text-slate-400 text-xs font-semibold uppercase tracking-widest opacity-60">
+                <p className="text-gray-400 text-xs font-semibold uppercase tracking-widest opacity-60">
                     {BRAND.name} {BRAND.suffix} © {new Date().getFullYear()}
                 </p>
             </div>

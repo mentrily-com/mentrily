@@ -136,7 +136,7 @@ export default function StudioModuleList({
                                             className={`shrink-0 px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${
                                                 module.status === 'Published'
                                                     ? 'bg-emerald-50 text-emerald-600'
-                                                    : 'bg-slate-100 text-slate-500'
+                                                    : 'bg-gray-100 text-gray-500'
                                             }`}
                                         >
                                             {module.status}
@@ -190,7 +190,7 @@ function ActionBtn({ label, icon, onClick }: any) {
     return (
         <button
             onClick={onClick}
-            className="flex w-full items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-white border border-slate-200 text-slate-600 text-xs font-semibold transition-all cursor-pointer hover:bg-[var(--brand-light)] hover:border-[var(--brand)] hover:text-[var(--brand)] active:scale-95 sm:w-auto sm:px-3 sm:py-1.5"
+            className="flex w-full items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-white border border-gray-200 text-gray-600 text-xs font-semibold transition-all cursor-pointer hover:bg-[var(--brand-light)] hover:border-[var(--brand)] hover:text-[var(--brand)] active:scale-95 sm:w-auto sm:px-3 sm:py-1.5"
         >
             {icon}
             {label}
