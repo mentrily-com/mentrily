@@ -68,11 +68,11 @@ export default function PricingTeaser() {
                     className="text-center mb-14"
                 >
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#008D98' }} />
-                        <span className="text-sm font-medium uppercase tracking-widest" style={{ color: '#008D98' }}>
+                        <div className="w-8 h-0.5" style={{ backgroundColor: '#007c85' }} />
+                        <span className="text-sm font-medium uppercase tracking-widest" style={{ color: '#006a72' }}>
                             Pricing
                         </span>
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#008D98' }} />
+                        <div className="w-8 h-0.5" style={{ backgroundColor: '#007c85' }} />
                     </div>
                     <h2
                         style={{
@@ -110,7 +110,7 @@ export default function PricingTeaser() {
                                 backgroundColor: tier.highlighted ? '#FFFFFF' : '#FFFFFF',
                                 border: tier.highlighted ? '2px solid transparent' : '1px solid #E2E8F0',
                                 backgroundImage: tier.highlighted
-                                    ? 'linear-gradient(#FFFFFF, #FFFFFF), linear-gradient(135deg, #008D98, #10B981)'
+                                    ? 'linear-gradient(#FFFFFF, #FFFFFF), linear-gradient(135deg, #007c85, #10B981)'
                                     : 'none',
                                 backgroundOrigin: 'border-box',
                                 backgroundClip: tier.highlighted ? 'padding-box, border-box' : 'border-box',
@@ -190,9 +190,9 @@ export default function PricingTeaser() {
                                 className="block w-full py-2.5 text-center text-sm font-semibold rounded-xl transition-all duration-200 cursor-pointer"
                                 style={{
                                     background: tier.highlighted
-                                        ? 'linear-gradient(135deg, #008D98, #006F78)'
+                                        ? 'linear-gradient(135deg, #007c85, #005359)'
                                         : 'transparent',
-                                    color: tier.highlighted ? '#FFFFFF' : '#008D98',
+                                    color: tier.highlighted ? '#FFFFFF' : '#006a72',
                                     border: tier.highlighted ? 'none' : '1px solid #E2E8F0',
                                     boxShadow: tier.highlighted ? '0 4px 12px rgba(0,141,152,0.2)' : 'none',
                                 }}
@@ -212,7 +212,7 @@ export default function PricingTeaser() {
                     <Link
                         href="/pricing"
                         className="inline-flex items-center gap-1.5 text-sm font-medium transition-all duration-200 cursor-pointer group"
-                        style={{ color: '#008D98' }}
+                        style={{ color: '#006a72' }}
                     >
                         See full pricing & Enterprise plan
                         <ArrowRight

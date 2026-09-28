@@ -16,11 +16,11 @@ export default function Features() {
                 {/* Section heading */}
                 <div className="text-center mb-16 sm:mb-20">
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#008D98' }} />
-                        <span className="text-sm font-medium uppercase tracking-widest" style={{ color: '#008D98' }}>
+                        <div className="w-8 h-0.5" style={{ backgroundColor: '#007c85' }} />
+                        <span className="text-sm font-medium uppercase tracking-widest" style={{ color: '#006a72' }}>
                             Platform
                         </span>
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#008D98' }} />
+                        <div className="w-8 h-0.5" style={{ backgroundColor: '#007c85' }} />
                     </div>
                     <h2
                         style={{
@@ -49,7 +49,7 @@ export default function Features() {
 
                 <div className="space-y-20 sm:space-y-28">
                     <FeatureRow
-                        badgeColor="#008D98"
+                        badgeColor="#007c85"
                         title="Build courses for any subject."
                         description="Create structured modules with reading lessons, MCQs, multi-select questions, assignments, tests, guidelines, and certificates. Add coding, web, or notebook tasks when you need them."
                         highlights={[
@@ -274,7 +274,7 @@ function QuestionShowcase({ onPreview }: { onPreview: (image: PreviewImage) => v
                         style={{
                             width: activeSlide === index ? '20px' : '6px',
                             height: '6px',
-                            backgroundColor: activeSlide === index ? '#008D98' : 'rgba(255,255,255,0.6)',
+                            backgroundColor: activeSlide === index ? '#007c85' : 'rgba(255,255,255,0.6)',
                             border: activeSlide === index ? 'none' : '1px solid rgba(0,0,0,0.1)',
                         }}
                         aria-label={`Go to slide ${index + 1}`}

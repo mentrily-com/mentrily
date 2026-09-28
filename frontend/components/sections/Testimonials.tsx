@@ -10,7 +10,7 @@ const testimonials = [
         name: 'Priya Sharma',
         title: 'Academy Founder, SkillCraft Learning',
         initials: 'PS',
-        color: '#008D98',
+        color: '#007c85',
         stars: 5,
     },
     {
@@ -45,11 +45,11 @@ export default function Testimonials() {
                     className="text-center mb-14"
                 >
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#008D98' }} />
-                        <span className="text-sm font-medium uppercase tracking-widest" style={{ color: '#008D98' }}>
+                        <div className="w-8 h-0.5" style={{ backgroundColor: '#007c85' }} />
+                        <span className="text-sm font-medium uppercase tracking-widest" style={{ color: '#006a72' }}>
                             Testimonials
                         </span>
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#008D98' }} />
+                        <div className="w-8 h-0.5" style={{ backgroundColor: '#007c85' }} />
                     </div>
                     <h2
                         style={{
@@ -104,7 +104,7 @@ export default function Testimonials() {
                                 <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
                                     <defs>
                                         <linearGradient id={`quote-grad-${i}`} x1="0" y1="0" x2="24" y2="24">
-                                            <stop offset="0%" stopColor="#008D98" stopOpacity="0.2" />
+                                            <stop offset="0%" stopColor="#007c85" stopOpacity="0.2" />
                                             <stop offset="100%" stopColor="#10B981" stopOpacity="0.1" />
                                         </linearGradient>
                                     </defs>

@@ -22,7 +22,7 @@ export default function HeroAiPrompt() {
     return (
         <form
             onSubmit={submit}
-            className="flex w-full items-center gap-2 rounded-2xl border border-slate-200 bg-white/85 py-1.5 pl-4 pr-1.5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] backdrop-blur transition-colors focus-within:border-[#008D98] focus-within:bg-white"
+            className="flex w-full items-center gap-2 rounded-2xl border border-slate-200 bg-white/85 py-1.5 pl-4 pr-1.5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] backdrop-blur transition-colors focus-within:border-[#007c85] focus-within:bg-white"
         >
             <input
                 value={text}
@@ -36,7 +36,7 @@ export default function HeroAiPrompt() {
                 type="submit"
                 aria-label="Open Mentrily AI"
                 title="Open Mentrily AI"
-                className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-slate-900 text-white transition-colors hover:bg-[#006F78]"
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-slate-900 text-white transition-colors hover:bg-[#005359]"
             >
                 <ArrowUp size={16} />
             </button>

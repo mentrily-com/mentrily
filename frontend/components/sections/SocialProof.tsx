@@ -96,7 +96,7 @@ export default function SocialProof() {
             <div
                 className="absolute top-0 left-0 right-0 h-px"
                 style={{
-                    background: 'linear-gradient(90deg, transparent 0%, #008D98 30%, #10B981 70%, transparent 100%)',
+                    background: 'linear-gradient(90deg, transparent 0%, #007c85 30%, #10B981 70%, transparent 100%)',
                 }}
             />
             {/* Bottom border */}
@@ -127,7 +127,7 @@ export default function SocialProof() {
                                     className="w-9 h-9 rounded-lg flex items-center justify-center mb-2.5 transition-colors duration-200"
                                     style={{ backgroundColor: '#E6F7F8' }}
                                 >
-                                    <Icon size={18} style={{ color: '#008D98' }} />
+                                    <Icon size={18} style={{ color: '#007c85' }} />
                                 </div>
                                 {/* Number */}
                                 <span

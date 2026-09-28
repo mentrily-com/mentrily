@@ -143,7 +143,7 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
                             href={ctaHref}
                             className="inline-flex items-center justify-center px-10 py-4 text-base font-black text-white rounded-xl transition-all duration-200 cursor-pointer gap-2"
                             style={{
-                                background: 'linear-gradient(135deg, #008D98, #006F78)',
+                                background: 'linear-gradient(135deg, #007c85, #005359)',
                                 boxShadow: '0 4px 16px rgba(0,141,152,0.3)',
                             }}
                             onMouseEnter={(e) => {
@@ -222,7 +222,7 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
                             disabled={status === 'loading'}
                             className="px-6 py-3.5 text-sm font-black text-white rounded-xl transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-70"
                             style={{
-                                background: 'linear-gradient(135deg, #008D98, #006F78)',
+                                background: 'linear-gradient(135deg, #007c85, #005359)',
                                 boxShadow: '0 4px 16px rgba(0,141,152,0.3)',
                             }}
                             onMouseEnter={(e) => {

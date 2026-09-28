@@ -58,11 +58,11 @@ export default function HowItWorks() {
                     className="text-center mb-16"
                 >
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#008D98' }} />
-                        <span className="text-sm font-medium uppercase tracking-widest" style={{ color: '#008D98' }}>
+                        <div className="w-8 h-0.5" style={{ backgroundColor: '#007c85' }} />
+                        <span className="text-sm font-medium uppercase tracking-widest" style={{ color: '#006a72' }}>
                             How it works
                         </span>
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#008D98' }} />
+                        <div className="w-8 h-0.5" style={{ backgroundColor: '#007c85' }} />
                     </div>
                     <h2
                         style={{
@@ -89,7 +89,7 @@ export default function HowItWorks() {
                                 transition={{ delay: 0.4, duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
                                 className="absolute inset-y-0 left-0 h-full rounded-full"
                                 style={{
-                                    background: 'linear-gradient(90deg, #008D98, #10B981)',
+                                    background: 'linear-gradient(90deg, #007c85, #10B981)',
                                 }}
                             />
                         </div>
@@ -133,12 +133,12 @@ export default function HowItWorks() {
                                                 e.currentTarget.style.transform = 'translateY(0)';
                                             }}
                                         >
-                                            <Icon size={32} style={{ color: '#008D98' }} />
+                                            <Icon size={32} style={{ color: '#007c85' }} />
                                             {/* Step number badge */}
                                             <span
                                                 className="absolute -top-2.5 -right-2.5 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
                                                 style={{
-                                                    background: 'linear-gradient(135deg, #008D98, #006F78)',
+                                                    background: 'linear-gradient(135deg, #007c85, #005359)',
                                                     boxShadow: '0 2px 8px rgba(0,141,152,0.3)',
                                                 }}
                                             >

@@ -94,7 +94,7 @@ export default function ForgotPasswordPage() {
             <div
                 className="hidden lg:flex lg:w-[45%] xl:w-[48%] relative items-center justify-center overflow-hidden"
                 style={{
-                    background: 'linear-gradient(145deg, #071421 0%, #0B2F3A 52%, #008D98 100%)',
+                    background: 'linear-gradient(145deg, #071421 0%, #0B2F3A 52%, #007c85 100%)',
                 }}
             >
                 <div
@@ -136,7 +136,7 @@ export default function ForgotPasswordPage() {
                                         className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 transition-all duration-300"
                                         style={{
                                             backgroundColor: s.active ? 'white' : 'rgba(255,255,255,0.15)',
-                                            color: s.active ? 'var(--brand, #008D98)' : 'rgba(255,255,255,0.5)',
+                                            color: s.active ? 'var(--brand, #007c85)' : 'rgba(255,255,255,0.5)',
                                         }}
                                     >
                                         {s.num}
@@ -226,9 +226,9 @@ export default function ForgotPasswordPage() {
                                                     color: '#0F172A',
                                                 }}
                                                 onFocus={(e) => {
-                                                    e.currentTarget.style.borderColor = 'var(--brand, #008D98)';
+                                                    e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
                                                     e.currentTarget.style.boxShadow =
-                                                        '0 0 0 3px color-mix(in srgb, var(--brand, #008D98) 12%, transparent)';
+                                                        '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
                                                 }}
                                                 onBlur={(e) => {
                                                     e.currentTarget.style.borderColor = '#E2E8F0';
@@ -242,7 +242,7 @@ export default function ForgotPasswordPage() {
                                         type="submit"
                                         disabled={isLoading}
                                         className="w-full py-3 text-sm font-semibold text-white rounded-xl transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed"
-                                        style={{ backgroundColor: 'var(--brand, #008D98)' }}
+                                        style={{ backgroundColor: 'var(--brand, #007c85)' }}
                                         onMouseEnter={(e) => {
                                             if (!isLoading) e.currentTarget.style.opacity = '0.9';
                                         }}
@@ -327,9 +327,9 @@ export default function ForgotPasswordPage() {
                                                     color: '#0F172A',
                                                 }}
                                                 onFocus={(e) => {
-                                                    e.currentTarget.style.borderColor = 'var(--brand, #008D98)';
+                                                    e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
                                                     e.currentTarget.style.boxShadow =
-                                                        '0 0 0 3px color-mix(in srgb, var(--brand, #008D98) 12%, transparent)';
+                                                        '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
                                                 }}
                                                 onBlur={(e) => {
                                                     e.currentTarget.style.borderColor = '#E2E8F0';
@@ -367,9 +367,9 @@ export default function ForgotPasswordPage() {
                                                     color: '#0F172A',
                                                 }}
                                                 onFocus={(e) => {
-                                                    e.currentTarget.style.borderColor = 'var(--brand, #008D98)';
+                                                    e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
                                                     e.currentTarget.style.boxShadow =
-                                                        '0 0 0 3px color-mix(in srgb, var(--brand, #008D98) 12%, transparent)';
+                                                        '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
                                                 }}
                                                 onBlur={(e) => {
                                                     e.currentTarget.style.borderColor = '#E2E8F0';
@@ -407,9 +407,9 @@ export default function ForgotPasswordPage() {
                                                     color: '#0F172A',
                                                 }}
                                                 onFocus={(e) => {
-                                                    e.currentTarget.style.borderColor = 'var(--brand, #008D98)';
+                                                    e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
                                                     e.currentTarget.style.boxShadow =
-                                                        '0 0 0 3px color-mix(in srgb, var(--brand, #008D98) 12%, transparent)';
+                                                        '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
                                                 }}
                                                 onBlur={(e) => {
                                                     e.currentTarget.style.borderColor = '#E2E8F0';
@@ -423,7 +423,7 @@ export default function ForgotPasswordPage() {
                                         type="submit"
                                         disabled={isLoading}
                                         className="w-full py-3 text-sm font-semibold text-white rounded-xl transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed mt-1"
-                                        style={{ backgroundColor: 'var(--brand, #008D98)' }}
+                                        style={{ backgroundColor: 'var(--brand, #007c85)' }}
                                         onMouseEnter={(e) => {
                                             if (!isLoading) e.currentTarget.style.opacity = '0.9';
                                         }}
@@ -484,7 +484,7 @@ export default function ForgotPasswordPage() {
                                 href="/login"
                                 className="inline-flex items-center gap-2 text-sm font-medium transition-colors duration-150 cursor-pointer group"
                                 style={{ color: '#94A3B8' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--brand, #008D98)')}
+                                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--brand, #007c85)')}
                                 onMouseLeave={(e) => (e.currentTarget.style.color = '#94A3B8')}
                             >
                                 <ArrowLeft

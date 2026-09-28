@@ -778,7 +778,7 @@ export default function ExamLoginPage() {
 
                 <div
                     className="hidden md:flex w-full md:w-1/2 p-8 md:p-12 lg:p-16 text-white flex-col justify-between relative overflow-hidden"
-                    style={{ background: 'linear-gradient(145deg, #071421 0%, #0B2F3A 52%, #008D98 100%)' }}
+                    style={{ background: 'linear-gradient(145deg, #071421 0%, #0B2F3A 52%, #007c85 100%)' }}
                 >
                     <div
                         className="absolute inset-0 opacity-[0.07]"

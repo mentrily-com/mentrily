@@ -41,7 +41,7 @@ const personas = [
         subtitle: 'Educators, trainers & institutions',
         description: 'Build your branded school with courses, exams, and certificates.',
         benefits: creatorBenefits,
-        accent: '#008D98',
+        accent: '#007c85',
     },
     {
         id: 'learner' as const,
@@ -83,11 +83,11 @@ export default function RoleSelector() {
                     className="text-center mb-12"
                 >
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#008D98' }} />
-                        <span className="text-sm font-medium uppercase tracking-widest" style={{ color: '#008D98' }}>
+                        <div className="w-8 h-0.5" style={{ backgroundColor: '#007c85' }} />
+                        <span className="text-sm font-medium uppercase tracking-widest" style={{ color: '#006a72' }}>
                             Built for two roles
                         </span>
-                        <div className="w-8 h-0.5" style={{ backgroundColor: '#008D98' }} />
+                        <div className="w-8 h-0.5" style={{ backgroundColor: '#007c85' }} />
                     </div>
                     <h2
                         style={{

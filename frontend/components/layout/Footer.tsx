@@ -110,7 +110,7 @@ export default function Footer() {
                                         href={link.href}
                                         className="text-sm transition-colors duration-150 cursor-pointer"
                                         style={{ color: '#475569' }}
-                                        onMouseEnter={(e) => (e.currentTarget.style.color = '#008D98')}
+                                        onMouseEnter={(e) => (e.currentTarget.style.color = '#006a72')}
                                         onMouseLeave={(e) => (e.currentTarget.style.color = '#475569')}
                                     >
                                         {link.label}
@@ -132,7 +132,7 @@ export default function Footer() {
                                         href={link.href}
                                         className="text-sm transition-colors duration-150 cursor-pointer"
                                         style={{ color: '#475569' }}
-                                        onMouseEnter={(e) => (e.currentTarget.style.color = '#008D98')}
+                                        onMouseEnter={(e) => (e.currentTarget.style.color = '#006a72')}
                                         onMouseLeave={(e) => (e.currentTarget.style.color = '#475569')}
                                     >
                                         {link.label}
@@ -154,7 +154,7 @@ export default function Footer() {
                                         href={link.href}
                                         className="text-sm transition-colors duration-150 cursor-pointer"
                                         style={{ color: '#475569' }}
-                                        onMouseEnter={(e) => (e.currentTarget.style.color = '#008D98')}
+                                        onMouseEnter={(e) => (e.currentTarget.style.color = '#006a72')}
                                         onMouseLeave={(e) => (e.currentTarget.style.color = '#475569')}
                                     >
                                         {link.label}
@@ -185,16 +185,16 @@ export default function Footer() {
                                     borderColor: '#E2E8F0',
                                     color: '#0F172A',
                                 }}
-                                onFocus={(e) => (e.currentTarget.style.borderColor = '#008D98')}
+                                onFocus={(e) => (e.currentTarget.style.borderColor = '#007c85')}
                                 onBlur={(e) => (e.currentTarget.style.borderColor = '#E2E8F0')}
                             />
                             <button
                                 type="submit"
                                 disabled={status === 'loading'}
                                 className="px-3 py-2 text-sm font-medium text-white rounded-lg transition-colors duration-150 cursor-pointer flex items-center gap-1 shrink-0 disabled:opacity-70"
-                                style={{ backgroundColor: '#008D98' }}
+                                style={{ backgroundColor: '#007c85' }}
                                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#006F78')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#008D98')}
+                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#007c85')}
                             >
                                 {status === 'loading' ? (
                                     'Joining...'

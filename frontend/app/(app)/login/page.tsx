@@ -414,7 +414,7 @@ export default function LoginPage() {
             <div
                 className="hidden lg:flex lg:w-[45%] xl:w-[48%] relative items-center justify-center overflow-hidden"
                 style={{
-                    background: 'linear-gradient(145deg, #071421 0%, #0B2F3A 52%, #008D98 100%)',
+                    background: 'linear-gradient(145deg, #071421 0%, #0B2F3A 52%, #007c85 100%)',
                 }}
             >
                 <div
@@ -606,9 +606,9 @@ export default function LoginPage() {
                                                 color: '#0F172A',
                                             }}
                                             onFocus={(e) => {
-                                                e.currentTarget.style.borderColor = 'var(--brand, #008D98)';
+                                                e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
                                                 e.currentTarget.style.boxShadow =
-                                                    '0 0 0 3px color-mix(in srgb, var(--brand, #008D98) 12%, transparent)';
+                                                    '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
                                             }}
                                             onBlur={(e) => {
                                                 e.currentTarget.style.borderColor = '#E2E8F0';
@@ -627,7 +627,7 @@ export default function LoginPage() {
                                         <Link
                                             href="/forgot-password"
                                             className="text-xs font-medium transition-colors duration-150 cursor-pointer"
-                                            style={{ color: 'var(--brand, #008D98)' }}
+                                            style={{ color: 'var(--brand, #007c85)' }}
                                         >
                                             Forgot password?
                                         </Link>
@@ -652,9 +652,9 @@ export default function LoginPage() {
                                                 color: '#0F172A',
                                             }}
                                             onFocus={(e) => {
-                                                e.currentTarget.style.borderColor = 'var(--brand, #008D98)';
+                                                e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
                                                 e.currentTarget.style.boxShadow =
-                                                    '0 0 0 3px color-mix(in srgb, var(--brand, #008D98) 12%, transparent)';
+                                                    '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
                                             }}
                                             onBlur={(e) => {
                                                 e.currentTarget.style.borderColor = '#E2E8F0';
@@ -679,7 +679,7 @@ export default function LoginPage() {
                                     type="submit"
                                     disabled={isLoading}
                                     className="w-full py-3 text-sm font-semibold text-white rounded-xl transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed"
-                                    style={{ backgroundColor: 'var(--brand, #008D98)' }}
+                                    style={{ backgroundColor: 'var(--brand, #007c85)' }}
                                     onMouseEnter={(e) => {
                                         if (!isLoading) e.currentTarget.style.opacity = '0.9';
                                     }}
@@ -742,9 +742,9 @@ export default function LoginPage() {
                                                 color: '#0F172A',
                                             }}
                                             onFocus={(e) => {
-                                                e.currentTarget.style.borderColor = 'var(--brand, #008D98)';
+                                                e.currentTarget.style.borderColor = 'var(--brand, #007c85)';
                                                 e.currentTarget.style.boxShadow =
-                                                    '0 0 0 3px color-mix(in srgb, var(--brand, #008D98) 12%, transparent)';
+                                                    '0 0 0 3px color-mix(in srgb, var(--brand, #007c85) 12%, transparent)';
                                             }}
                                             onBlur={(e) => {
                                                 e.currentTarget.style.borderColor = '#E2E8F0';
@@ -758,7 +758,7 @@ export default function LoginPage() {
                                     type="submit"
                                     disabled={isLoading}
                                     className="w-full py-3 text-sm font-semibold text-white rounded-xl transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed"
-                                    style={{ backgroundColor: 'var(--brand, #008D98)' }}
+                                    style={{ backgroundColor: 'var(--brand, #007c85)' }}
                                     onMouseEnter={(e) => {
                                         if (!isLoading) e.currentTarget.style.opacity = '0.9';
                                     }}
@@ -802,7 +802,7 @@ export default function LoginPage() {
                             <Link
                                 href="/signup"
                                 className="font-medium transition-colors duration-150 cursor-pointer"
-                                style={{ color: 'var(--brand, #008D98)' }}
+                                style={{ color: 'var(--brand, #007c85)' }}
                             >
                                 Create one
                             </Link>

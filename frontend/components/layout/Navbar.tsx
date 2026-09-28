@@ -50,7 +50,7 @@ export default function Navbar() {
                     <div className="hidden md:flex items-center gap-8">
                         {navLinks.map((link) => {
                             const active = pathname === link.href;
-                            const rest = active ? '#008D98' : '#475569';
+                            const rest = active ? '#006a72' : '#555d69';
                             return (
                                 <Link
                                     key={link.href}
@@ -58,7 +58,7 @@ export default function Navbar() {
                                     aria-current={active ? 'page' : undefined}
                                     className="relative text-sm font-medium transition-colors duration-150 cursor-pointer group"
                                     style={{ color: rest }}
-                                    onMouseEnter={(e) => (e.currentTarget.style.color = '#008D98')}
+                                    onMouseEnter={(e) => (e.currentTarget.style.color = '#006a72')}
                                     onMouseLeave={(e) => (e.currentTarget.style.color = rest)}
                                 >
                                     {link.label}
@@ -66,7 +66,7 @@ export default function Navbar() {
                                         className={`absolute -bottom-1 left-0 h-0.5 w-full origin-left transition-transform duration-200 group-hover:scale-x-100 ${
                                             active ? 'scale-x-100' : 'scale-x-0'
                                         }`}
-                                        style={{ backgroundColor: '#008D98' }}
+                                        style={{ backgroundColor: '#007c85' }}
                                     />
                                 </Link>
                             );
@@ -84,7 +84,7 @@ export default function Navbar() {
                             }}
                             onMouseEnter={(e) => {
                                 e.currentTarget.style.backgroundColor = '#F8FAFC';
-                                e.currentTarget.style.borderColor = '#008D98';
+                                e.currentTarget.style.borderColor = '#007c85';
                             }}
                             onMouseLeave={(e) => {
                                 e.currentTarget.style.backgroundColor = 'transparent';
@@ -96,9 +96,9 @@ export default function Navbar() {
                         <Link
                             href="/signup"
                             className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer"
-                            style={{ backgroundColor: '#008D98' }}
+                            style={{ backgroundColor: '#007c85' }}
                             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#006F78')}
-                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#008D98')}
+                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#007c85')}
                         >
                             Start Free
                         </Link>
@@ -178,7 +178,7 @@ export default function Navbar() {
                                     href="/signup"
                                     onClick={() => setMobileOpen(false)}
                                     className="px-6 py-3 text-center text-sm font-semibold text-white rounded-lg cursor-pointer"
-                                    style={{ backgroundColor: '#008D98' }}
+                                    style={{ backgroundColor: '#007c85' }}
                                 >
                                     Start Free
                                 </Link>

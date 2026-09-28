@@ -23,7 +23,7 @@ export function MarketingPageHeader({ title, description, badge }: MarketingPage
                     {badge && (
                         <span
                             className="inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-6"
-                            style={{ backgroundColor: '#E6F7F8', color: '#008D98' }}
+                            style={{ backgroundColor: '#eefbfc', color: '#006a72' }}
                         >
                             {badge}
                         </span>

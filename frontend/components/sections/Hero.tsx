@@ -122,7 +122,7 @@ export default function Hero() {
                                     className="absolute bottom-0 left-0 h-1.5 origin-left rounded-full"
                                     style={{
                                         width: '100%',
-                                        background: 'linear-gradient(90deg, #008D98, #10B981)',
+                                        background: 'linear-gradient(90deg, #007c85, #10B981)',
                                     }}
                                 />
                             </span>
@@ -158,7 +158,7 @@ export default function Hero() {
                                     href="/signup"
                                     className="group inline-flex items-center gap-2 px-7 py-3.5 text-sm font-semibold text-white rounded-xl transition-all duration-200 cursor-pointer"
                                     style={{
-                                        background: 'linear-gradient(135deg, #008D98 0%, #006F78 100%)',
+                                        background: 'linear-gradient(135deg, #007c85 0%, #005359 100%)',
                                         boxShadow: '0 4px 16px rgba(0,141,152,0.25)',
                                     }}
                                     onMouseEnter={(e) => {
@@ -180,14 +180,14 @@ export default function Hero() {
                                     href="/pricing"
                                     className="inline-flex items-center px-7 py-3.5 text-sm font-semibold rounded-xl border transition-all duration-200 cursor-pointer"
                                     style={{
-                                        color: '#008D98',
+                                        color: '#006a72',
                                         borderColor: '#E2E8F0',
                                         backgroundColor: 'rgba(255,255,255,0.7)',
                                         backdropFilter: 'blur(8px)',
                                     }}
                                     onMouseEnter={(e) => {
                                         e.currentTarget.style.backgroundColor = '#FFFFFF';
-                                        e.currentTarget.style.borderColor = '#008D98';
+                                        e.currentTarget.style.borderColor = '#007c85';
                                         e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,141,152,0.1)';
                                     }}
                                     onMouseLeave={(e) => {
