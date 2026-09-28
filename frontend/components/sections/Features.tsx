@@ -23,24 +23,16 @@ export default function Features() {
                         <div className="w-8 h-0.5 bg-[var(--brand)]" />
                     </div>
                     <h2
-                        className="text-gray-900"
+                        className="text-gray-900 font-display font-normal tracking-tight"
                         style={{
-                            fontFamily: 'var(--font-display), Georgia, serif',
                             fontSize: 'clamp(32px, 4vw, 48px)',
-                            fontWeight: 400,
                             lineHeight: 1.1,
-                            letterSpacing: '-0.02em',
                         }}
                     >
                         Everything your school needs
                     </h2>
                     <p
-                        className="mt-4 max-w-xl mx-auto text-gray-500"
-                        style={{
-                            fontFamily: 'var(--font-body)',
-                            fontSize: '16px',
-                            lineHeight: 1.65,
-                        }}
+                        className="mt-4 max-w-xl mx-auto text-gray-500 font-body text-base leading-relaxed"
                     >
                         From course creation to certificate delivery — one platform, zero stitching.
                     </p>
@@ -124,23 +116,16 @@ function FeatureRow({
                 className={direction === 'right' ? 'lg:order-2' : 'lg:order-1'}
             >
                 <h3
-                    className="mb-4 text-gray-900"
+                    className="mb-4 text-gray-900 font-display font-normal"
                     style={{
-                        fontFamily: 'var(--font-display), Georgia, serif',
                         fontSize: 'clamp(24px, 3vw, 30px)',
-                        fontWeight: 400,
                         lineHeight: 1.2,
                     }}
                 >
                     {title}
                 </h3>
                 <p
-                    className="leading-relaxed max-w-md mb-5 text-gray-500"
-                    style={{
-                        fontFamily: 'var(--font-body)',
-                        fontSize: '16px',
-                        lineHeight: 1.65,
-                    }}
+                    className="leading-relaxed max-w-md mb-5 text-gray-500 font-body text-base"
                 >
                     {description}
                 </p>
@@ -265,7 +250,7 @@ function QuestionShowcase({ onPreview }: { onPreview: (image: PreviewImage) => v
                         style={{
                             width: activeSlide === index ? '20px' : '6px',
                             height: '6px',
-                            backgroundColor: activeSlide === index ? '#007c85' : 'rgba(255,255,255,0.6)',
+                            backgroundColor: activeSlide === index ? 'var(--brand)' : 'rgba(255,255,255,0.6)',
                             border: activeSlide === index ? 'none' : '1px solid rgba(0,0,0,0.1)',
                         }}
                         aria-label={`Go to slide ${index + 1}`}

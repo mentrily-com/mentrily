@@ -22,20 +22,16 @@ export function MarketingPageHeader({ title, description, badge }: MarketingPage
                 >
                     {badge && (
                         <span
-                            className="inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-6"
-                            style={{ backgroundColor: '#eefbfc', color: '#006a72' }}
+                            className="inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 bg-[#eefbfc] text-[var(--brand-dark)]"
                         >
                             {badge}
                         </span>
                     )}
                     <h1
-                        className="text-gray-900"
+                        className="text-gray-900 font-display font-normal tracking-tight"
                         style={{
-                            fontFamily: 'var(--font-display), Georgia, serif',
                             fontSize: 'clamp(36px, 5vw, 64px)',
-                            fontWeight: 400,
                             lineHeight: 1.1,
-                            letterSpacing: '-0.03em',
                         }}
                     >
                         {title}

@@ -64,12 +64,10 @@ export default function HowItWorks() {
                         <div className="w-8 h-0.5 bg-[var(--brand)]" />
                     </div>
                     <h2
+                        className="font-display font-normal tracking-tight"
                         style={{
-                            fontFamily: 'var(--font-display), Georgia, serif',
                             fontSize: 'clamp(32px, 4vw, 48px)',
-                            fontWeight: 400,
                             lineHeight: 1.1,
-                            letterSpacing: '-0.02em',
                         }}
                     >
                         Three steps to your own school
@@ -80,7 +78,7 @@ export default function HowItWorks() {
                 <div className="relative">
                     {/* Connecting line (desktop only) */}
                     <div className="hidden lg:block absolute top-[60px] left-[16%] right-[16%]">
-                        <div className="relative h-0.5" style={{ backgroundColor: '#dce0e6' }}>
+                        <div className="relative h-0.5 bg-gray-300">
                             <motion.div
                                 initial={{ width: '0%' }}
                                 animate={inView ? { width: '100%' } : {}}
@@ -113,7 +111,7 @@ export default function HowItWorks() {
                                         <div
                                             className="w-[120px] h-[120px] rounded-lg flex flex-col items-center justify-center relative bg-white border border-gray-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-[var(--brand-light)] transition-all duration-200"
                                         >
-                                            <Icon size={32} style={{ color: '#007c85' }} />
+                                            <Icon size={32} className="text-[var(--brand)]" />
                                             {/* Step number badge */}
                                             <span
                                                 className="absolute -top-2.5 -right-2.5 w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium text-white"

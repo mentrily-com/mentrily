@@ -157,13 +157,10 @@ export default function AiLandingPage() {
                 <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-end lg:gap-16">
                         <h1
-                            className="text-gray-900"
+                            className="text-gray-900 font-display font-light tracking-tight"
                             style={{
-                                fontFamily: 'var(--font-display), Georgia, serif',
                                 fontSize: 'clamp(40px, 5.6vw, 76px)',
-                                fontWeight: 300,
                                 lineHeight: 1.04,
-                                letterSpacing: '-0.03em',
                             }}
                         >
                             Describe the course.
@@ -196,13 +193,10 @@ export default function AiLandingPage() {
             <section className="border-t border-gray-100 bg-white">
                 <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
                     <h2
-                        className="max-w-2xl text-gray-900"
+                        className="max-w-2xl text-gray-900 font-display font-normal tracking-tight"
                         style={{
-                            fontFamily: 'var(--font-display), Georgia, serif',
                             fontSize: 'clamp(30px, 3.4vw, 42px)',
-                            fontWeight: 400,
                             lineHeight: 1.12,
-                            letterSpacing: '-0.02em',
                         }}
                     >
                         From one sentence to a course you can publish
@@ -214,12 +208,7 @@ export default function AiLandingPage() {
                                 <li key={step.title} className="relative">
                                     <div className="flex items-center gap-3">
                                         <span
-                                            className="text-[var(--brand)]"
-                                            style={{
-                                                fontFamily: 'var(--font-display), Georgia, serif',
-                                                fontSize: 40,
-                                                lineHeight: 1,
-                                            }}
+                                            className="text-[var(--brand)] font-display text-[40px] leading-none"
                                         >
                                             {i + 1}
                                         </span>
@@ -239,13 +228,10 @@ export default function AiLandingPage() {
                 <div className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 md:grid-cols-[1fr_1.5fr] lg:px-8">
                     <div>
                         <h2
-                            className="text-gray-900"
+                            className="text-gray-900 font-display font-normal tracking-tight"
                             style={{
-                                fontFamily: 'var(--font-display), Georgia, serif',
                                 fontSize: 'clamp(30px, 3.4vw, 42px)',
-                                fontWeight: 400,
                                 lineHeight: 1.12,
-                                letterSpacing: '-0.02em',
                             }}
                         >
                             One assistant for building and teaching
@@ -327,13 +313,10 @@ export default function AiLandingPage() {
             <section className="border-t border-gray-100 bg-white">
                 <div className="mx-auto max-w-3xl px-4 py-20 sm:px-6 lg:px-8">
                     <h2
-                        className="text-gray-900"
+                        className="text-gray-900 font-display font-normal tracking-tight"
                         style={{
-                            fontFamily: 'var(--font-display), Georgia, serif',
                             fontSize: 'clamp(30px, 3.4vw, 42px)',
-                            fontWeight: 400,
                             lineHeight: 1.12,
-                            letterSpacing: '-0.02em',
                         }}
                     >
                         Questions teachers ask
@@ -370,13 +353,10 @@ export default function AiLandingPage() {
                 <div className="relative mx-auto flex max-w-6xl flex-col items-start gap-8 px-4 py-20 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
                     <div>
                         <h2
-                            className="text-white"
+                            className="text-white font-display font-light tracking-tight"
                             style={{
-                                fontFamily: 'var(--font-display), Georgia, serif',
                                 fontSize: 'clamp(30px, 3.6vw, 44px)',
-                                fontWeight: 300,
                                 lineHeight: 1.1,
-                                letterSpacing: '-0.02em',
                             }}
                         >
                             Your next course is one message away.

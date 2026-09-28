@@ -90,12 +90,10 @@ export default function RoleSelector() {
                         <div className="w-8 h-0.5 bg-[var(--brand)]" />
                     </div>
                     <h2
+                        className="font-display font-normal tracking-tight"
                         style={{
-                            fontFamily: 'var(--font-display), Georgia, serif',
                             fontSize: 'clamp(32px, 4vw, 48px)',
-                            fontWeight: 400,
                             lineHeight: 1.1,
-                            letterSpacing: '-0.02em',
                         }}
                     >
                         Who are you?

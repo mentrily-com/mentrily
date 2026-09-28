@@ -63,18 +63,15 @@ export default function Hero() {
                     {/* ── Left: Copy ── */}
                     <div className="max-w-xl">
                         {/* Headline */}
-                        <motion.h1 variants={heroWordStagger} initial="hidden" animate="visible" className="mb-6 text-gray-900">
+                        <motion.h1 variants={heroWordStagger} initial="hidden" animate="visible" className="mb-6 text-gray-900 font-display font-light tracking-tight">
                             {['Your', 'school.', 'Your', 'brand.'].map((word, i) => (
                                 <motion.span
                                     key={i}
                                     variants={heroWord}
                                     className="inline-block mr-3"
                                     style={{
-                                        fontFamily: 'var(--font-display), Georgia, serif',
                                         fontSize: 'clamp(38px, 5.2vw, 68px)',
-                                        fontWeight: 300,
                                         lineHeight: 1.08,
-                                        letterSpacing: '-0.03em',
                                     }}
                                 >
                                     {word}
@@ -84,27 +81,20 @@ export default function Hero() {
                             <span className="relative inline-block pb-3">
                                 <motion.span
                                     variants={heroWord}
-                                    className="inline-block mr-3"
+                                    className="inline-block mr-3 italic"
                                     style={{
-                                        fontFamily: 'var(--font-display), Georgia, serif',
                                         fontSize: 'clamp(38px, 5.2vw, 68px)',
-                                                fontStyle: 'italic',
                                         lineHeight: 1.08,
-                                        letterSpacing: '-0.03em',
                                     }}
                                 >
                                     Launch
                                 </motion.span>
                                 <motion.span
                                     variants={heroWord}
-                                    className="mr-3 inline-block"
+                                    className="mr-3 inline-block italic font-medium"
                                     style={{
-                                        fontFamily: 'var(--font-display), Georgia, serif',
                                         fontSize: 'clamp(38px, 5.2vw, 68px)',
-                                        fontWeight: 500,
-                                        fontStyle: 'italic',
                                         lineHeight: 1.08,
-                                        letterSpacing: '-0.03em',
                                     }}
                                 >
                                     today.
@@ -128,13 +118,8 @@ export default function Hero() {
                             initial={{ opacity: 0, y: 14 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.42, duration: 0.32, ease: [0.25, 0.1, 0.25, 1] }}
-                            className="mb-8 leading-relaxed max-w-lg text-gray-500"
-                            style={{
-                                fontFamily: 'var(--font-body), system-ui, sans-serif',
-                                fontSize: '18px',
-                                lineHeight: 1.7,
-                                fontWeight: 500,
-                            }}
+                            className="mb-8 leading-relaxed max-w-lg text-gray-500 font-body text-lg font-medium"
+                            style={{ lineHeight: 1.7 }}
                         >
                             Join educators who chose ownership over renting.
                         </motion.p>

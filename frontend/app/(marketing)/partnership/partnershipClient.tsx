@@ -136,13 +136,11 @@ function PartnershipHero() {
                         transition={{ duration: 0.6 }}
                     >
                         <h1
-                            className="text-gray-900"
+                            className="text-gray-900 font-display tracking-tight"
                             style={{
-                                fontFamily: 'var(--font-display), Georgia, serif',
                                 fontSize: 'clamp(36px, 5vw, 64px)',
                                 fontWeight: 400,
                                 lineHeight: 1.1,
-                                letterSpacing: '-0.03em',
                             }}
                         >
                             Grow with Mentrily. <br />

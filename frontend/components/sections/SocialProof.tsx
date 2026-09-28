@@ -89,8 +89,7 @@ export default function SocialProof() {
             initial={{ opacity: 0, y: 16 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.28, ease: [0.25, 0.1, 0.25, 1] }}
-            className="py-8 relative"
-            style={{ backgroundColor: '#FFFFFF' }}
+            className="py-8 relative bg-white"
         >
             {/* Gradient accent line at top */}
             <div
@@ -100,7 +99,7 @@ export default function SocialProof() {
                 }}
             />
             {/* Bottom border */}
-            <div className="absolute bottom-0 left-0 right-0 h-px" style={{ backgroundColor: '#dce0e6' }} />
+            <div className="absolute bottom-0 left-0 right-0 h-px bg-gray-300" />
 
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-2 gap-y-6 sm:gap-0">
@@ -124,17 +123,13 @@ export default function SocialProof() {
                             >
                                 {/* Icon */}
                                 <div
-                                    className="w-9 h-9 rounded-lg flex items-center justify-center mb-2.5 transition-colors duration-200"
-                                    style={{ backgroundColor: '#eefbfc' }}
+                                    className="w-9 h-9 rounded-lg flex items-center justify-center mb-2.5 transition-colors duration-200 bg-[#eefbfc]"
                                 >
-                                    <Icon size={18} style={{ color: '#007c85' }} />
+                                    <Icon size={18} className="text-[var(--brand)]" />
                                 </div>
                                 {/* Number */}
                                 <span
-                                    className="text-2xl sm:text-3xl font-medium tabular-nums"
-                                    style={{
-                                        fontFamily: 'var(--font-body), system-ui, sans-serif',
-                                    }}
+                                    className="text-2xl sm:text-3xl font-medium tabular-nums font-body"
                                 >
                                     <AnimatedCounter
                                         target={stat.target}

@@ -70,7 +70,6 @@ function ComingSoon() {
                         </div>
                         <h2
                             className="text-4xl sm:text-5xl font-display text-gray-900 mb-6"
-                            style={{ fontFamily: 'var(--font-display)' }}
                         >
                             Coming <span className="italic text-teal-600 font-medium">Soon</span>
                         </h2>

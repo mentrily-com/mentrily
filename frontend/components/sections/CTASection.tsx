@@ -92,13 +92,10 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
                     initial={{ opacity: 0, y: 28 }}
                     animate={inView ? { opacity: 1, y: 0 } : {}}
                     transition={{ duration: 0.48, ease: [0.25, 0.1, 0.25, 1] }}
+                    className="font-display font-normal tracking-tight text-white"
                     style={{
-                        fontFamily: 'var(--font-display), Georgia, serif',
                         fontSize: 'clamp(32px, 5vw, 52px)',
-                        fontWeight: 400,
                         lineHeight: 1.1,
-                        letterSpacing: '-0.02em',
-                        color: '#FFFFFF',
                     }}
                 >
                     {title ? (
@@ -126,8 +123,7 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
                     initial={{ opacity: 0, y: 16 }}
                     animate={inView ? { opacity: 1, y: 0 } : {}}
                     transition={{ delay: 0.1, duration: 0.4 }}
-                    className="mt-5 text-base"
-                    style={{ color: 'rgba(226,232,240,0.7)' }}
+                    className="mt-5 text-base text-slate-300/70"
                 >
                     {displayDescription}
                 </motion.p>
@@ -187,22 +183,7 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="your@email.com"
                             required
-                            className="flex-1 px-5 py-3.5 text-sm rounded-lg outline-none transition-all duration-200"
-                            style={{
-                                backgroundColor: 'rgba(255,255,255,0.08)',
-                                border: '1px solid rgba(255,255,255,0.12)',
-                                color: '#FFFFFF',
-                            }}
-                            onFocus={(e) => {
-                                e.currentTarget.style.borderColor = 'rgba(0,141,152,0.5)';
-                                e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.12)';
-                                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(0,141,152,0.15)';
-                            }}
-                            onBlur={(e) => {
-                                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)';
-                                e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)';
-                                e.currentTarget.style.boxShadow = 'none';
-                            }}
+                            className="flex-1 px-5 py-3.5 text-sm rounded-lg outline-none transition-all duration-200 bg-white/[0.08] border border-white/[0.12] text-white focus:border-[var(--brand)]/50 focus:bg-white/[0.12] focus:ring-3 focus:ring-[var(--brand)]/15"
                         />
                         <button
                             type="submit"
@@ -231,25 +212,16 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
                     transition={{ delay: 0.4 }}
                     className="mt-8 flex flex-wrap items-center justify-center gap-6"
                 >
-                    <span
-                        className="flex items-center gap-2 text-xs font-medium"
-                        style={{ color: 'rgba(148,163,184,0.8)' }}
-                    >
-                        <CreditCard size={14} style={{ color: '#5EEAD4' }} />
+                    <span className="flex items-center gap-2 text-xs font-medium text-slate-400/80">
+                        <CreditCard size={14} className="text-teal-300" />
                         No credit card required
                     </span>
-                    <span
-                        className="flex items-center gap-2 text-xs font-medium"
-                        style={{ color: 'rgba(148,163,184,0.8)' }}
-                    >
-                        <Infinity size={14} style={{ color: '#5EEAD4' }} />
+                    <span className="flex items-center gap-2 text-xs font-medium text-slate-400/80">
+                        <Infinity size={14} className="text-teal-300" />
                         Free forever plan
                     </span>
-                    <span
-                        className="flex items-center gap-2 text-xs font-medium"
-                        style={{ color: 'rgba(148,163,184,0.8)' }}
-                    >
-                        <Shield size={14} style={{ color: '#5EEAD4' }} />
+                    <span className="flex items-center gap-2 text-xs font-medium text-slate-400/80">
+                        <Shield size={14} className="text-teal-300" />
                         Cancel anytime
                     </span>
                 </motion.div>

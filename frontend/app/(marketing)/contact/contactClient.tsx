@@ -91,20 +91,16 @@ function ContactForm() {
                     className="text-center mb-14"
                 >
                     <h1
-                        className="text-gray-900"
+                        className="text-gray-900 font-display font-normal tracking-tight"
                         style={{
-                            fontFamily: 'var(--font-display), Georgia, serif',
                             fontSize: 'clamp(36px, 5vw, 56px)',
-                            fontWeight: 400,
                             lineHeight: 1.1,
-                            letterSpacing: '-0.03em',
                         }}
                     >
                         Contact us
                     </h1>
                     <p
-                        className="mt-4 max-w-lg mx-auto text-[17px] leading-relaxed text-gray-500"
-                        style={{ fontFamily: 'var(--font-body)' }}
+                        className="mt-4 max-w-lg mx-auto text-[17px] leading-relaxed text-gray-500 font-body"
                     >
                         We reply fast. Sales inquiries get a response within 4 hours.
                     </p>

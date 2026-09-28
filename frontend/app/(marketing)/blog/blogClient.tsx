@@ -23,7 +23,6 @@ function ComingSoon() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1, duration: 0.5 }}
                     className="text-4xl font-display text-gray-900 mb-6"
-                    style={{ fontFamily: 'var(--font-display)' }}
                 >
                     Something worth reading is <br />
                     <span className="italic text-teal-600">coming very soon.</span>
