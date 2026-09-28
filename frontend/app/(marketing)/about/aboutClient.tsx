@@ -5,7 +5,7 @@ import { useInView } from 'react-intersection-observer';
 
 export default function AboutPage() {
     return (
-        <div className="pt-24" style={{ backgroundColor: '#FFFFFF' }}>
+        <div className="pt-24 bg-white">
             <OpeningDeclaration />
             <Mission />
             <ProductPhilosophy />
@@ -27,14 +27,11 @@ function OpeningDeclaration() {
                     initial={{ opacity: 0, y: 28 }}
                     animate={inView ? { opacity: 1, y: 0 } : {}}
                     transition={{ duration: 0.48, ease: [0.25, 0.1, 0.25, 1] }}
-                    className="mb-8"
+                    className="mb-8 font-display font-light italic tracking-tight"
                     style={{
-                        fontFamily: 'var(--font-display), Georgia, serif',
                         fontSize: 'clamp(32px, 4.5vw, 48px)',
-                        fontWeight: 300,
-                        fontStyle: 'italic',
                         lineHeight: 1.2,
-                        letterSpacing: '-0.02em',                    }}
+                    }}
                 >
                     Most LMS tools were built in a world where teaching tech meant uploading a PDF.
                 </motion.h1>
@@ -46,11 +43,7 @@ function OpeningDeclaration() {
                     className="space-y-4"
                 >
                     <p
-                        className="leading-relaxed"
-                        style={{
-                            fontFamily: 'var(--font-body)',
-                            fontSize: '17px',
-                            lineHeight: 1.65,                        }}
+                        className="leading-relaxed font-body text-[17px]"
                     >
                         The world moved on. Bootcamps replaced textbooks. Live coding replaced slide decks. Students
                         expect to write code, run it, and get feedback — not download a Word document. But the tools
@@ -58,11 +51,7 @@ function OpeningDeclaration() {
                         departments. Google Classroom is a shared folder.
                     </p>
                     <p
-                        className="leading-relaxed"
-                        style={{
-                            fontFamily: 'var(--font-body)',
-                            fontSize: '17px',
-                            lineHeight: 1.65,                        }}
+                        className="leading-relaxed font-body text-[17px]"
                     >
                         Mentrily exists because we believe every educator deserves a platform that matches how people
                         actually learn to code today. A platform that&apos;s theirs — their brand, their domain, their
@@ -93,11 +82,11 @@ function Mission() {
                         <div className="w-12 h-0.5 bg-[var(--brand)]" />
                     </div>
                     <p
+                        className="font-display font-normal"
                         style={{
-                            fontFamily: 'var(--font-display), Georgia, serif',
                             fontSize: 'clamp(20px, 3vw, 28px)',
-                            fontWeight: 400,
-                            lineHeight: 1.4,                        }}
+                            lineHeight: 1.4,
+                        }}
                     >
                         We built Mentrily so that any educator — from a solo bootcamp founder to a university department
                         — can launch a school that actually matches how people learn to code today.
@@ -133,11 +122,7 @@ function ProductPhilosophy() {
                         transition={{ delay: 0.1, duration: 0.5 }}
                     >
                         <h3
-                            className="mb-6"
-                            style={{
-                                fontFamily: 'var(--font-display), Georgia, serif',
-                                fontSize: '22px',
-                                fontWeight: 400,                            }}
+                            className="mb-6 font-display font-normal text-[22px]"
                         >
                             Built for educators who code.
                         </h3>
@@ -165,11 +150,7 @@ function ProductPhilosophy() {
                         transition={{ delay: 0.2, duration: 0.5 }}
                     >
                         <h3
-                            className="mb-6"
-                            style={{
-                                fontFamily: 'var(--font-display), Georgia, serif',
-                                fontSize: '22px',
-                                fontWeight: 400,                            }}
+                            className="mb-6 font-display font-normal text-[22px]"
                         >
                             Built for coders who teach.
                         </h3>
@@ -292,13 +273,12 @@ function Timeline() {
                 {/* Desktop horizontal timeline */}
                 <div className="hidden sm:block relative">
                     {/* Connecting line */}
-                    <div className="absolute top-6 left-[12%] right-[12%] h-0.5" style={{ backgroundColor: '#dce0e6' }}>
+                    <div className="absolute top-6 left-[12%] right-[12%] h-0.5 bg-gray-300">
                         <motion.div
                             initial={{ width: '0%' }}
                             animate={inView ? { width: '100%' } : {}}
                             transition={{ delay: 0.2, duration: 1.2, ease: [0.25, 0.1, 0.25, 1] }}
-                            className="h-full"
-                            style={{ backgroundColor: '#eefbfc' }}
+                            className="h-full bg-[#eefbfc]"
                         />
                     </div>
 
@@ -335,13 +315,7 @@ function Timeline() {
                                             repeat: Infinity,
                                             repeatDelay: 1.4,
                                         }}
-                                        className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold"
-                                        style={{
-                                            backgroundColor: '#eefbfc',
-                                            border: '2px solid #007c85',
-                                            color: '#006a72',
-                                            fontFamily: 'var(--font-body)',
-                                        }}
+                                        className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold bg-[#eefbfc] border-2 border-[var(--brand)] text-[var(--brand-dark)] font-body"
                                     >
                                         {m.year}
                                     </motion.div>
@@ -365,12 +339,7 @@ function Timeline() {
                             className="flex items-center gap-4"
                         >
                             <div
-                                className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold shrink-0"
-                                style={{
-                                    backgroundColor: '#eefbfc',
-                                    border: '2px solid #007c85',
-                                    color: '#006a72',
-                                }}
+                                className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold shrink-0 bg-[#eefbfc] border-2 border-[var(--brand)] text-[var(--brand-dark)]"
                             >
                                 {m.year}
                             </div>

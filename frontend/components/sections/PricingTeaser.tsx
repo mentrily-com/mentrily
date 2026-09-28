@@ -183,8 +183,7 @@ export default function PricingTeaser() {
                 >
                     <Link
                         href="/pricing"
-                        className="inline-flex items-center gap-1.5 text-sm font-medium transition-all duration-200 cursor-pointer group"
-                        style={{ color: '#006a72' }}
+                        className="inline-flex items-center gap-1.5 text-sm font-medium transition-all duration-200 cursor-pointer group text-[var(--brand-dark)]"
                     >
                         See full pricing & Enterprise plan
                         <ArrowRight

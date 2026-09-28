@@ -18,15 +18,13 @@ function PricingToggle({
     return (
         <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mb-10 sm:mb-14">
             <span
-                className="text-right text-sm font-medium"
-                style={{ color: billing === 'monthly' ? '#181e29' : '#9fa5b0' }}
+                className={`text-right text-sm font-medium ${billing === 'monthly' ? 'text-gray-900' : 'text-gray-400'}`}
             >
                 Monthly
             </span>
             <button
                 onClick={() => setBilling(billing === 'monthly' ? 'annual' : 'monthly')}
-                className="relative w-14 h-7 rounded-full transition-colors duration-250 cursor-pointer"
-                style={{ backgroundColor: billing === 'annual' ? '#007c85' : '#dce0e6' }}
+                className={`relative w-14 h-7 rounded-full transition-colors duration-250 cursor-pointer ${billing === 'annual' ? 'bg-[var(--brand)]' : 'bg-gray-300'}`}
                 aria-label="Toggle billing period"
             >
                 <motion.div
@@ -39,14 +37,13 @@ function PricingToggle({
                 />
             </button>
             <div className="flex items-center gap-2">
-                <span className="text-sm font-medium" style={{ color: billing === 'annual' ? '#181e29' : '#9fa5b0' }}>
+                <span className={`text-sm font-medium ${billing === 'annual' ? 'text-gray-900' : 'text-gray-400'}`}>
                     Annual
                 </span>
                 <span
-                    className={`text-xs font-semibold px-2 py-0.5 rounded-full transition-opacity duration-200 ${
+                    className={`text-xs font-semibold px-2 py-0.5 rounded-full transition-opacity duration-200 bg-[#eefbfc] text-[var(--brand-dark)] ${
                         billing === 'annual' ? 'opacity-100' : 'opacity-0'
                     }`}
-                    style={{ backgroundColor: '#eefbfc', color: '#006a72' }}
                     aria-hidden={billing !== 'annual'}
                 >
                     2 months free
@@ -83,20 +80,14 @@ function PricingCards({ billing }: { billing: 'monthly' | 'annual' }) {
                             ease: [0.25, 0.1, 0.25, 1],
                         }}
                         className={`relative p-6 rounded-lg transition-all duration-200 flex flex-col ${
-                            tier.highlighted ? 'animate-pro-pulse' : ''
+                            tier.highlighted
+                                ? 'animate-pro-pulse bg-[#eefbfc] border-2 border-[var(--brand)] shadow-md'
+                                : 'bg-white border border-gray-300 shadow-sm'
                         }`}
-                        style={{
-                            backgroundColor: tier.highlighted ? '#eefbfc' : '#FFFFFF',
-                            border: tier.highlighted ? '2px solid #007c85' : '1px solid #dce0e6',
-                            boxShadow: tier.highlighted
-                                ? '0 4px 20px rgba(26,86,219,0.18)'
-                                : '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)',
-                        }}
                     >
                         {tier.badge && (
                             <span
-                                className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-semibold text-white whitespace-nowrap"
-                                style={{ backgroundColor: '#F59E0B' }}
+                                className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-semibold text-white whitespace-nowrap bg-amber-500"
                             >
                                 {tier.badge}
                             </span>
@@ -140,8 +131,7 @@ function PricingCards({ billing }: { billing: 'monthly' | 'annual' }) {
 
                         {/* Limits */}
                         <div
-                            className="py-3 mb-4 space-y-1"
-                            style={{ borderTop: '1px solid #dce0e6', borderBottom: '1px solid #dce0e6' }}
+                            className="py-3 mb-4 space-y-1 border-y border-gray-300"
                         >
                             {Object.entries(tier.limits).map(([limitName, v]) => (
                                 <p
@@ -191,7 +181,7 @@ function FeatureComparison() {
 
     const renderValue = (val: string | boolean) => {
         if (val === true) return <Check size={16} className="text-emerald-500" />;
-        if (val === false) return <X size={16} style={{ color: '#EF4444' }} />;
+        if (val === false) return <X size={16} className="text-red-500" />;
         return (
             <span className="text-xs font-medium text-gray-500">
                 {val}
@@ -202,11 +192,7 @@ function FeatureComparison() {
     return (
         <div className="mb-20">
             <h3
-                className="text-center mb-8"
-                style={{
-                    fontFamily: 'var(--font-display), Georgia, serif',
-                    fontSize: '24px',
-                    fontWeight: 400,                }}
+                className="text-center mb-8 font-display font-normal text-2xl"
             >
                 Compare all features
             </h3>
@@ -240,11 +226,9 @@ function FeatureComparison() {
                         <div key={cat.name}>
                             <button
                                 onClick={() => toggle(cat.name)}
-                                className="w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors duration-150 cursor-pointer"
-                                style={{
-                                    backgroundColor: isExpanded ? '#eefbfc' : '#FFFFFF',
-                                    border: '1px solid #dce0e6',
-                                }}
+                                className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors duration-150 cursor-pointer border border-gray-300 ${
+                                    isExpanded ? 'bg-[#eefbfc]' : 'bg-white'
+                                }`}
                             >
                                 <span className="text-sm font-semibold text-gray-900">
                                     {cat.name}
@@ -319,11 +303,7 @@ function FAQ() {
     return (
         <div className="max-w-3xl mx-auto mb-20">
             <h3
-                className="text-center mb-10"
-                style={{
-                    fontFamily: 'var(--font-display), Georgia, serif',
-                    fontSize: '24px',
-                    fontWeight: 400,                }}
+                className="text-center mb-10 font-display font-normal text-2xl"
             >
                 Frequently asked questions
             </h3>
@@ -334,11 +314,7 @@ function FAQ() {
                     return (
                         <div
                             key={i}
-                            className="rounded-lg overflow-hidden"
-                            style={{
-                                border: '1px solid #dce0e6',
-                                backgroundColor: '#FFFFFF',
-                            }}
+                            className="rounded-lg overflow-hidden border border-gray-300 bg-white"
                         >
                             <button
                                 onClick={() => setOpenIndex(isOpen ? null : i)}
@@ -387,7 +363,7 @@ export default function PricingPage() {
     const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.05 });
 
     return (
-        <div ref={ref} className="pt-24 pb-0" style={{ backgroundColor: '#FFFFFF' }}>
+        <div ref={ref} className="pt-24 pb-0 bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <motion.div
@@ -397,21 +373,16 @@ export default function PricingPage() {
                     className="text-center mb-10"
                 >
                     <h1
+                        className="font-display font-normal tracking-tight"
                         style={{
-                            fontFamily: 'var(--font-display), Georgia, serif',
                             fontSize: 'clamp(36px, 5vw, 56px)',
-                            fontWeight: 400,
                             lineHeight: 1.1,
-                            letterSpacing: '-0.03em',                        }}
+                        }}
                     >
                         Pricing
                     </h1>
                     <p
-                        className="mt-4 max-w-lg mx-auto"
-                        style={{
-                            fontFamily: 'var(--font-body)',
-                            fontSize: '17px',
-                            lineHeight: 1.65,                        }}
+                        className="mt-4 max-w-lg mx-auto font-body text-[17px] leading-relaxed"
                     >
                         One price covers your whole school. No per-student fees. No surprise charges.
                     </p>
@@ -423,13 +394,9 @@ export default function PricingPage() {
                 <FAQ />
 
                 {/* Final CTA strip */}
-                <div className="text-center py-14" style={{ borderTop: '1px solid #dce0e6' }}>
+                <div className="text-center py-14 border-t border-gray-300">
                     <h3
-                        className="mb-4"
-                        style={{
-                            fontFamily: 'var(--font-display), Georgia, serif',
-                            fontSize: '24px',
-                            fontWeight: 400,                        }}
+                        className="mb-4 font-display font-normal text-2xl"
                     >
                         Ready to launch your school?
                     </h3>

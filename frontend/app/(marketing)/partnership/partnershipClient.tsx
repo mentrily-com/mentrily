@@ -136,10 +136,9 @@ function PartnershipHero() {
                         transition={{ duration: 0.6 }}
                     >
                         <h1
-                            className="text-gray-900 font-display tracking-tight"
+                            className="text-gray-900 font-display font-normal tracking-tight"
                             style={{
                                 fontSize: 'clamp(36px, 5vw, 64px)',
-                                fontWeight: 400,
                                 lineHeight: 1.1,
                             }}
                         >

@@ -130,10 +130,9 @@ export default function RoleSelector() {
                                 />
                             )}
                             <h3
-                                className="text-base font-semibold mb-0.5"
+                                className="text-base font-semibold mb-0.5 font-body"
                                 style={{
                                     color: role === persona.id ? persona.accent : '#181e29',
-                                    fontFamily: 'var(--font-body)',
                                 }}
                             >
                                 {persona.title}

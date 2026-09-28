@@ -104,9 +104,8 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
                         <>
                             Your school. Your brand.{' '}
                             <span
+                                className="italic font-medium"
                                 style={{
-                                    fontStyle: 'italic',
-                                    fontWeight: 500,
                                     background: 'linear-gradient(135deg, #5EEAD4, #2DD4BF)',
                                     WebkitBackgroundClip: 'text',
                                     WebkitTextFillColor: 'transparent',
