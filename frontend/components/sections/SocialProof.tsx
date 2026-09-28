@@ -146,8 +146,7 @@ export default function SocialProof() {
                                 </span>
                                 {/* Label */}
                                 <span
-                                    className="text-xs sm:text-sm mt-1 font-medium leading-tight"
-                                    style={{ color: '#64748B' }}
+                                    className="text-xs sm:text-sm mt-1 font-medium leading-tight text-gray-500"
                                 >
                                     {stat.label}
                                 </span>

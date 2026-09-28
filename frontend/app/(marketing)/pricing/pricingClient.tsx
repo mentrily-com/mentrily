@@ -122,13 +122,13 @@ function PricingCards({ billing }: { billing: 'monthly' | 'annual' }) {
                                     >
                                         {price}
                                     </span>
-                                    <span className="text-sm" style={{ color: '#94A3B8' }}>
+                                    <span className="text-sm text-gray-400">
                                         {period}
                                     </span>
                                 </motion.div>
                             </AnimatePresence>
                             {annualTotal && (
-                                <p className="text-xs mt-0.5" style={{ color: '#94A3B8' }}>
+                                <p className="text-xs mt-0.5 text-gray-400">
                                     billed as {annualTotal}
                                 </p>
                             )}
@@ -232,19 +232,19 @@ function FeatureComparison() {
             <div
                 className="hidden lg:grid grid-cols-5 gap-0 mb-2 px-4 py-3 rounded-lg bg-gray-50"
             >
-                <div className="text-xs font-semibold" style={{ color: '#94A3B8' }}>
+                <div className="text-xs font-semibold text-gray-400">
                     Feature
                 </div>
-                <div className="text-xs font-semibold text-center" style={{ color: '#94A3B8' }}>
+                <div className="text-xs font-semibold text-center text-gray-400">
                     Free
                 </div>
-                <div className="text-xs font-semibold text-center" style={{ color: '#94A3B8' }}>
+                <div className="text-xs font-semibold text-center text-gray-400">
                     Starter
                 </div>
-                <div className="text-xs font-semibold text-center" style={{ color: '#006a72' }}>
+                <div className="text-xs font-semibold text-center text-[var(--brand-dark)]">
                     Pro
                 </div>
-                <div className="text-xs font-semibold text-center" style={{ color: '#94A3B8' }}>
+                <div className="text-xs font-semibold text-center text-gray-400">
                     Enterprise
                 </div>
             </div>
@@ -267,7 +267,7 @@ function FeatureComparison() {
                                     {cat.name}
                                 </span>
                                 <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                                    <ChevronDown size={18} style={{ color: '#94A3B8' }} />
+                                    <ChevronDown size={18} className="text-gray-400" />
                                 </motion.div>
                             </button>
 
@@ -284,8 +284,7 @@ function FeatureComparison() {
                                             {cat.features.map((feat) => (
                                                 <div
                                                     key={feat.name}
-                                                    className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-2 px-4 py-3.5 sm:py-3 items-center"
-                                                    style={{ borderBottom: '1px solid #F1F5F9' }}
+                                                    className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-2 px-4 py-3.5 sm:py-3 items-center border-b border-gray-100"
                                                 >
                                                     <span
                                                         className="text-sm font-medium col-span-2 sm:col-span-4 lg:col-span-1 text-gray-500"
@@ -370,7 +369,7 @@ function FAQ() {
                                     transition={{ duration: 0.2 }}
                                     className="shrink-0"
                                 >
-                                    <ChevronDown size={18} style={{ color: '#94A3B8' }} />
+                                    <ChevronDown size={18} className="text-gray-400" />
                                 </motion.div>
                             </button>
 
@@ -460,7 +459,7 @@ export default function PricingPage() {
                     >
                         Get Started Free <ArrowRight size={16} />
                     </Link>
-                    <p className="mt-3 text-xs" style={{ color: '#94A3B8' }}>
+                    <p className="mt-3 text-xs text-gray-400">
                         No credit card required.
                     </p>
                 </div>

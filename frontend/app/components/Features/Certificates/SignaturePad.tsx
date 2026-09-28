@@ -51,7 +51,7 @@ export default function SignaturePad({ value, onChange }: { value?: string; onCh
                     <div className="w-full h-[140px] border-2 border-dashed border-gray-200 rounded-lg overflow-hidden bg-gray-50">
                         <SignatureCanvas
                             ref={sigRef}
-                            penColor="#0f172a"
+                            penColor="#181e29"
                             canvasProps={{ className: 'w-full h-full' }}
                             onEnd={handleDrawEnd}
                         />

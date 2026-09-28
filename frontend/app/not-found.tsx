@@ -77,7 +77,7 @@ export default function NotFound() {
                                 <g transform="translate(100, 320)">
                                     <path d="M150 50 L300 0 L150 -50 L0 0 Z" fill="#dce0e6" />
                                     <path d="M0 0 L150 50 V80 L0 30 Z" fill="#dce0e6" />
-                                    <path d="M300 0 L150 50 V80 L300 30 Z" fill="#94A3B8" />
+                                    <path d="M300 0 L150 50 V80 L300 30 Z" fill="#9fa5b0" />
                                 </g>
 
                                 {/* Isometric 4 (Left) */}
@@ -91,9 +91,9 @@ export default function NotFound() {
                                 {/* Isometric 0 (Center - Broken/Missing Block) */}
                                 <g transform="translate(190, 120)">
                                     {/* Bottom Block */}
-                                    <path d="M60 140 L120 120 L60 100 L0 120 Z" fill="#64748B" />
+                                    <path d="M60 140 L120 120 L60 100 L0 120 Z" fill="#686f7b" />
                                     <path d="M0 120 L60 140 V180 L0 160 Z" fill="#686f7b" />
-                                    <path d="M120 120 L60 140 V180 L120 160 Z" fill="#334155" />
+                                    <path d="M120 120 L60 140 V180 L120 160 Z" fill="#464d5b" />
 
                                     {/* Floating Top Block (The 'Zero' Void) */}
                                     <g transform="translate(0, -40)">

@@ -418,14 +418,14 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
 
             <style jsx global>{`
                 .prose pre {
-                    background-color: #0f172a !important;
-                    color: #f8fafc !important;
+                    background-color: #181e29 !important;
+                    color: #f9fafc !important;
                     padding: 1.5rem !important;
                     border-radius: 1rem !important;
                     font-family: var(--font-jetbrains-mono), ui-monospace, monospace !important;
                     font-size: 0.875rem !important;
                     line-height: 1.5 !important;
-                    border: 1px solid #1e293b !important;
+                    border: 1px solid #2e3643 !important;
                     margin: 1.5rem 0 !important;
                 }
                 .prose code {
@@ -436,7 +436,7 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
                     font-weight: 600 !important;
                 }
                 .prose :not(pre) > code {
-                    background-color: #f1f5f9 !important;
+                    background-color: #f4f6f9 !important;
                     padding: 0.2rem 0.4rem !important;
                     border-radius: 0.4rem !important;
                     color: var(--brand) !important;
@@ -447,7 +447,7 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
                     content: none !important;
                 }
                 .dark .prose :not(pre) > code {
-                    background-color: #1e293b !important;
+                    background-color: #2e3643 !important;
                     color: var(--brand) !important;
                 }
             `}</style>

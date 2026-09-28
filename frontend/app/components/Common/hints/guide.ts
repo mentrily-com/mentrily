@@ -46,9 +46,9 @@ export function ensureGuideTheme() {
     style.textContent = `
         .driver-popover.mentrily-guide {
             border-radius: 20px;
-            border: 1px solid rgba(226, 232, 240, 0.9);
+            border: 1px solid rgba(220, 224, 230, 0.9);
             background: #ffffff;
-            color: #0f172a;
+            color: #181e29;
             padding: 20px;
             max-width: 400px;
             overflow: hidden;
@@ -72,7 +72,7 @@ export function ensureGuideTheme() {
             position: absolute;
             inset: 0 0 auto 0;
             height: 4px;
-            background: linear-gradient(90deg, var(--brand), #0f172a 58%, #0891b2);
+            background: linear-gradient(90deg, var(--brand), #181e29 58%, #0891b2);
         }
         /* The arrow is clipped by overflow:hidden anyway and leaves edge
            artifacts against the rounded border — the glow ring on the target
@@ -86,8 +86,8 @@ export function ensureGuideTheme() {
             gap: 7px;
             margin: 2px 0 12px;
             border-radius: 999px;
-            background: var(--brand-lighter, #f8fafc);
-            color: var(--brand-dark, #0f172a);
+            background: var(--brand-lighter, #f9fafc);
+            color: var(--brand-dark, #181e29);
             padding: 6px 11px;
             font-size: 10px;
             font-weight: 900;
@@ -121,7 +121,7 @@ export function ensureGuideTheme() {
         .mentrily-guide .driver-popover-description {
             font-size: 13.5px;
             line-height: 1.65;
-            color: #475569;
+            color: #686f7b;
             font-weight: 500;
             max-width: 56ch;
         }
@@ -147,7 +147,7 @@ export function ensureGuideTheme() {
             height: 4px;
             overflow: hidden;
             border-radius: 999px;
-            background: #e2e8f0;
+            background: #dce0e6;
             margin: 16px 0 2px;
         }
         .mentrily-guide .mentrily-guide-progress-fill {
@@ -183,22 +183,22 @@ export function ensureGuideTheme() {
         }
         .mentrily-guide .driver-popover-next-btn,
         .mentrily-guide .driver-popover-done-btn {
-            background: #0f172a;
+            background: #181e29;
             color: #ffffff;
             box-shadow: 0 8px 20px rgba(15, 23, 42, 0.22);
         }
         .mentrily-guide .driver-popover-next-btn:hover,
         .mentrily-guide .driver-popover-done-btn:hover {
-            background: #1e293b;
+            background: #2e3643;
             transform: translateY(-1px);
             box-shadow: 0 12px 26px rgba(15, 23, 42, 0.26);
         }
         .mentrily-guide .driver-popover-prev-btn {
-            background: #f1f5f9;
-            color: #0f172a;
+            background: #f4f6f9;
+            color: #181e29;
         }
         .mentrily-guide .driver-popover-prev-btn:hover {
-            background: #e2e8f0;
+            background: #dce0e6;
         }
         .mentrily-guide .driver-popover-close-btn {
             position: absolute;
@@ -209,7 +209,7 @@ export function ensureGuideTheme() {
             min-width: 54px;
             padding: 7px 11px;
             border-radius: 999px;
-            background: #f1f5f9;
+            background: #f4f6f9;
             color: #64748b;
             font-size: 10px;
             font-weight: 900;
@@ -218,8 +218,8 @@ export function ensureGuideTheme() {
             line-height: 1;
         }
         .mentrily-guide .driver-popover-close-btn:hover {
-            background: #e2e8f0;
-            color: #0f172a;
+            background: #dce0e6;
+            color: #181e29;
         }
         .mentrily-guide .mentrily-guide-keys {
             display: flex;
@@ -237,9 +237,9 @@ export function ensureGuideTheme() {
             min-width: 18px;
             padding: 2px 5px;
             border-radius: 5px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #dce0e6;
             border-bottom-width: 2px;
-            background: #f8fafc;
+            background: #f9fafc;
             font-family: inherit;
             font-size: 10px;
             font-weight: 800;

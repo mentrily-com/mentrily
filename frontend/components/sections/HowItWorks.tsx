@@ -155,7 +155,7 @@ export default function HowItWorks() {
                                     >
                                         {step.description}
                                     </p>
-                                    <p className="text-xs" style={{ color: '#94A3B8' }}>
+                                    <p className="text-xs text-gray-400">
                                         {step.detail}
                                     </p>
                                 </motion.div>

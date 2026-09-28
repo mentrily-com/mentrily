@@ -50,7 +50,7 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
             ref={ref}
             className="py-20 sm:py-28 relative overflow-hidden"
             style={{
-                background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 40%, #0F3035 70%, #0A2527 100%)',
+                background: 'linear-gradient(135deg, #181e29 0%, #2e3643 40%, #0F3035 70%, #0A2527 100%)',
             }}
         >
             {/* Decorative elements */}

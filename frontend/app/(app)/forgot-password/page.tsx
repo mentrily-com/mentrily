@@ -175,11 +175,10 @@ export default function ForgotPasswordPage() {
                             <>
                                 <div className="mb-8">
                                     <h1
-                                        className="text-2xl font-medium tracking-tight mb-1.5 text-gray-900"
-                                    >
+                                        className="text-2xl font-medium tracking-tight mb-1.5 text-gray-900">
                                         Reset your password
                                     </h1>
-                                    <p className="text-sm" style={{ color: '#94A3B8' }}>
+                                    <p className="text-sm text-gray-400">
                                         Enter your email and we&apos;ll send you a verification code.
                                     </p>
                                 </div>
@@ -200,15 +199,12 @@ export default function ForgotPasswordPage() {
                                 <form onSubmit={handleRequestOtp} className="space-y-5">
                                     <div>
                                         <label
-                                            className="block text-sm font-medium mb-1.5 text-gray-900"
-                                        >
+                                            className="block text-sm font-medium mb-1.5 text-gray-900">
                                             Email
                                         </label>
                                         <div className="relative">
                                             <div
-                                                className="absolute left-3.5 top-1/2 -translate-y-1/2"
-                                                style={{ color: '#94A3B8' }}
-                                            >
+                                                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
                                                 <Mail size={18} />
                                             </div>
                                             <input
@@ -267,11 +263,10 @@ export default function ForgotPasswordPage() {
                             <>
                                 <div className="mb-8">
                                     <h1
-                                        className="text-2xl font-medium tracking-tight mb-1.5 text-gray-900"
-                                    >
+                                        className="text-2xl font-medium tracking-tight mb-1.5 text-gray-900">
                                         Set a new password
                                     </h1>
-                                    <p className="text-sm" style={{ color: '#94A3B8' }}>
+                                    <p className="text-sm text-gray-400">
                                         Enter the code sent to{' '}
                                         <span className="font-medium text-gray-900">
                                             {email}
@@ -297,15 +292,12 @@ export default function ForgotPasswordPage() {
                                     {/* Code */}
                                     <div>
                                         <label
-                                            className="block text-sm font-medium mb-1.5 text-gray-900"
-                                        >
+                                            className="block text-sm font-medium mb-1.5 text-gray-900">
                                             Verification code
                                         </label>
                                         <div className="relative">
                                             <div
-                                                className="absolute left-3.5 top-1/2 -translate-y-1/2"
-                                                style={{ color: '#94A3B8' }}
-                                            >
+                                                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
                                                 <KeyRound size={18} />
                                             </div>
                                             <input
@@ -334,15 +326,12 @@ export default function ForgotPasswordPage() {
                                     {/* New password */}
                                     <div>
                                         <label
-                                            className="block text-sm font-medium mb-1.5 text-gray-900"
-                                        >
+                                            className="block text-sm font-medium mb-1.5 text-gray-900">
                                             New password
                                         </label>
                                         <div className="relative">
                                             <div
-                                                className="absolute left-3.5 top-1/2 -translate-y-1/2"
-                                                style={{ color: '#94A3B8' }}
-                                            >
+                                                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
                                                 <Lock size={18} />
                                             </div>
                                             <input
@@ -371,15 +360,12 @@ export default function ForgotPasswordPage() {
                                     {/* Confirm password */}
                                     <div>
                                         <label
-                                            className="block text-sm font-medium mb-1.5 text-gray-900"
-                                        >
+                                            className="block text-sm font-medium mb-1.5 text-gray-900">
                                             Confirm password
                                         </label>
                                         <div className="relative">
                                             <div
-                                                className="absolute left-3.5 top-1/2 -translate-y-1/2"
-                                                style={{ color: '#94A3B8' }}
-                                            >
+                                                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
                                                 <Lock size={18} />
                                             </div>
                                             <input
@@ -445,7 +431,7 @@ export default function ForgotPasswordPage() {
                                 <h2 className="text-2xl font-medium tracking-tight mb-2 text-gray-900">
                                     Password reset!
                                 </h2>
-                                <p className="text-sm mb-8" style={{ color: '#94A3B8' }}>
+                                <p className="text-sm mb-8 text-gray-400">
                                     Your password has been successfully updated. You are now logged in.
                                 </p>
                                 <button
@@ -468,10 +454,10 @@ export default function ForgotPasswordPage() {
                         <div className="mt-8 text-center">
                             <Link
                                 href="/login"
-                                className="inline-flex items-center gap-2 text-sm font-medium transition-colors duration-150 cursor-pointer group"
-                                style={{ color: '#94A3B8' }}
+                                className="inline-flex items-center gap-2 text-sm font-medium transition-colors duration-150 cursor-pointer group text-gray-400"
+                                
                                 onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--brand, #007c85)')}
-                                onMouseLeave={(e) => (e.currentTarget.style.color = '#94A3B8')}
+                                onMouseLeave={(e) => (e.currentTarget.style.color = '#9fa5b0')}
                             >
                                 <ArrowLeft
                                     size={14}

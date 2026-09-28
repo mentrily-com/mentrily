@@ -35,7 +35,7 @@ export default function PlaygroundEditor({ language, code, onChange }: Playgroun
                     font-family: var(--font-jetbrains-mono), ui-monospace, monospace !important;
                     font-size: 14px !important;
                     line-height: 1.6;
-                    color: #1e293b !important;
+                    color: #2e3643 !important;
                 }
 
                 /* Autocomplete / Code Suggestions fix */
@@ -48,12 +48,12 @@ export default function PlaygroundEditor({ language, code, onChange }: Playgroun
                     z-index: 100 !important;
                 }
                 .cm-tooltip-autocomplete > ul > li {
-                    color: #475569 !important;
+                    color: #686f7b !important;
                     padding: 4px 12px !important;
                     font-size: 13px !important;
                 }
                 .cm-tooltip-autocomplete > ul > li[aria-selected] {
-                    background-color: #f8fafc !important;
+                    background-color: #f9fafc !important;
                     color: var(--brand) !important;
                 }
                 .cm-completionDetail {
@@ -67,7 +67,7 @@ export default function PlaygroundEditor({ language, code, onChange }: Playgroun
 
                 .cm-gutters {
                     background-color: white !important;
-                    border-right: 1px solid #f1f5f9 !important;
+                    border-right: 1px solid #f4f6f9 !important;
                     color: #9fa5b0 !important;
                     padding-right: 12px !important;
                     font-size: 12px !important;
@@ -85,7 +85,7 @@ export default function PlaygroundEditor({ language, code, onChange }: Playgroun
                     font-style: italic;
                 }
                 .cm-variable {
-                    color: #1e293b !important;
+                    color: #2e3643 !important;
                 }
                 .cm-number {
                     color: #e11d48 !important;
@@ -95,10 +95,10 @@ export default function PlaygroundEditor({ language, code, onChange }: Playgroun
                 }
 
                 .cm-activeLine {
-                    background-color: #f8fafc !important;
+                    background-color: #f9fafc !important;
                 }
                 .cm-activeLineGutter {
-                    background-color: #f8fafc !important;
+                    background-color: #f9fafc !important;
                     color: var(--brand) !important;
                     font-weight: bold;
                 }

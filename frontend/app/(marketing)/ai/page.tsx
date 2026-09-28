@@ -139,7 +139,7 @@ export default function AiLandingPage() {
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
             {/* Hero */}
-            <section className="relative overflow-hidden pb-24 pt-28 sm:pt-36" style={{ backgroundColor: '#FAFBFF' }}>
+            <section className="relative overflow-hidden pb-24 pt-28 sm:pt-36 bg-gray-50">
                 <div
                     aria-hidden
                     className="pointer-events-none absolute inset-0"
@@ -360,7 +360,7 @@ export default function AiLandingPage() {
             {/* Closing CTA */}
             <section
                 className="relative overflow-hidden"
-                style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 40%, #0F3035 70%, #0A2527 100%)' }}
+                style={{ background: 'linear-gradient(135deg, #181e29 0%, #2e3643 40%, #0F3035 70%, #0A2527 100%)' }}
             >
                 <div
                     aria-hidden

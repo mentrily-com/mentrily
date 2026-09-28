@@ -140,7 +140,7 @@ export default function RoleSelector() {
                             >
                                 {persona.title}
                             </h3>
-                            <p className="text-xs" style={{ color: '#64748B' }}>
+                            <p className="text-xs text-gray-500">
                                 {persona.subtitle}
                             </p>
                         </button>
@@ -159,8 +159,7 @@ export default function RoleSelector() {
                     >
                         <div className="text-center">
                             <p
-                                className="mx-auto mb-8 max-w-2xl text-balance text-lg leading-relaxed"
-                                style={{ color: '#334155', fontFamily: 'var(--font-body)' }}
+                                className="mx-auto mb-8 max-w-2xl text-balance text-lg leading-relaxed text-gray-700 font-body"
                             >
                                 {activePersona.description}
                             </p>

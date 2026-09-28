@@ -354,7 +354,7 @@ export default function AnalyticsPage() {
 
     // Sequential brand ramp for the heatmap: one hue, light -> dark.
     const heatColor = (count: number, max: number) => {
-        if (count === 0) return '#f1f5f9';
+        if (count === 0) return '#f4f6f9';
         const level = max <= 1 ? 4 : Math.min(4, Math.ceil((count / max) * 4));
         const mix = [30, 55, 78, 100][level - 1];
         return `color-mix(in srgb, var(--brand) ${mix}%, white)`;
@@ -586,7 +586,7 @@ export default function AnalyticsPage() {
                                                     style={{
                                                         backgroundColor:
                                                             lvl === 0
-                                                                ? '#f1f5f9'
+                                                                ? '#f4f6f9'
                                                                 : `color-mix(in srgb, var(--brand) ${[30, 55, 78, 100][lvl - 1]}%, white)`,
                                                     }}
                                                 />
@@ -745,7 +745,7 @@ export default function AnalyticsPage() {
                                                 <CartesianGrid
                                                     strokeDasharray="3 3"
                                                     vertical={false}
-                                                    stroke="#f1f5f9"
+                                                    stroke="#f4f6f9"
                                                 />
                                                 <XAxis
                                                     dataKey="label"
@@ -763,7 +763,7 @@ export default function AnalyticsPage() {
                                                     width={28}
                                                 />
                                                 <Tooltip
-                                                    cursor={{ fill: '#f8fafc' }}
+                                                    cursor={{ fill: '#f9fafc' }}
                                                     contentStyle={tooltipStyle}
                                                     formatter={(value: any, name: any) => [
                                                         value,

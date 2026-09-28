@@ -62,7 +62,7 @@ export default function Testimonials() {
                     >
                         Educators trust Mentrily
                     </h2>
-                    <p className="mt-3 text-sm" style={{ color: '#64748B' }}>
+                    <p className="mt-3 text-sm text-gray-500">
                         Hear from creators who made the switch.
                     </p>
                 </motion.div>
@@ -81,7 +81,7 @@ export default function Testimonials() {
                             }}
                             className="relative p-6 rounded-lg transition-all duration-250 cursor-pointer group"
                             style={{
-                                background: 'linear-gradient(180deg, #FFFFFF 0%, #FAFBFF 100%)',
+                                background: 'linear-gradient(180deg, #FFFFFF 0%, #f9fafc 100%)',
                                 border: '1px solid #dce0e6',
                                 boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.03)',
                             }}
@@ -132,7 +132,7 @@ export default function Testimonials() {
                             </p>
 
                             {/* Separator */}
-                            <div className="h-px mb-4" style={{ backgroundColor: '#F1F5F9' }} />
+                            <div className="h-px mb-4 bg-gray-100" />
 
                             {/* Attribution */}
                             <div className="flex items-center gap-3">
@@ -149,7 +149,7 @@ export default function Testimonials() {
                                     <p className="text-sm font-medium text-gray-900">
                                         {t.name}
                                     </p>
-                                    <p className="text-xs" style={{ color: '#94A3B8' }}>
+                                    <p className="text-xs text-gray-400">
                                         {t.title}
                                     </p>
                                 </div>

@@ -28,7 +28,7 @@ export default function WebUnitPage() {
                         difficulty: 'Medium',
                         webConfig: {
                             initialHTML: `<!-- Insert HTML Body Content Here! -->\n\n<div id="output">Full name will appear here......</div>`,
-                            initialCSS: `#output {\n  padding: 20px;\n  margin-top: 20px;\n  border: 2px solid var(--brand);\n  border-radius: 8px;\n  font-family: sans-serif;\n  color: #334155;\n  font-weight: bold;\n}`,
+                            initialCSS: `#output {\n  padding: 20px;\n  margin-top: 20px;\n  border: 2px solid var(--brand);\n  border-radius: 8px;\n  font-family: sans-serif;\n  color: #464d5b;\n  font-weight: bold;\n}`,
                             initialJS: `const person = {\n  firstName: "John",\n  lastName: "Doe",\n  getFullName: function() {\n    return this.firstName + " " + this.lastName;\n  }\n};\n\n// Display the name\ndocument.getElementById("output").innerText = person.getFullName();`,
                             showFiles: { html: true, css: true, js: true },
                         },

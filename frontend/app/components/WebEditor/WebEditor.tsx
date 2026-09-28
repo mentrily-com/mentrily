@@ -334,7 +334,7 @@ export default function WebEditor({
                 .cm-content {
                     font-family: var(--font-jetbrains-mono), ui-monospace, monospace !important;
                     font-size: ${fontSize ? `${fontSize}px` : '14px'} !important;
-                    color: #1e293b !important;
+                    color: #2e3643 !important;
                     caret-color: #f77621 !important;
                 }
 
@@ -347,12 +347,12 @@ export default function WebEditor({
                     overflow: hidden !important;
                 }
                 .cm-tooltip-autocomplete > ul > li {
-                    color: #475569 !important;
+                    color: #686f7b !important;
                     padding: 4px 12px !important;
                     font-size: 13px !important;
                 }
                 .cm-tooltip-autocomplete > ul > li[aria-selected] {
-                    background-color: #f8fafc !important;
+                    background-color: #f9fafc !important;
                     color: #f77621 !important;
                 }
                 .cm-completionDetail {
@@ -373,7 +373,7 @@ export default function WebEditor({
                     color: #64748b !important;
                 }
                 .cm-variable {
-                    color: #0f172a !important;
+                    color: #181e29 !important;
                 }
                 .cm-string {
                     color: #059669 !important;
@@ -400,16 +400,16 @@ export default function WebEditor({
 
                 .cm-gutters {
                     background-color: #ffffff !important;
-                    border-right: 1px solid #f1f5f9 !important;
-                    color: #cbd5e1 !important;
+                    border-right: 1px solid #f4f6f9 !important;
+                    color: #dce0e6 !important;
                     padding-right: 12px !important;
                     font-size: ${fontSize ? `${fontSize}px` : '14px'} !important;
                 }
                 .cm-activeLine {
-                    background-color: #f8fafc !important;
+                    background-color: #f9fafc !important;
                 }
                 .cm-activeLineGutter {
-                    background-color: #f8fafc !important;
+                    background-color: #f9fafc !important;
                     color: #f77621 !important;
                     font-weight: bold;
                 }

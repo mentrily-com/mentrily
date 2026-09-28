@@ -73,18 +73,18 @@ export async function POST(request: Request) {
             subject: `[Contact Form] ${safeSubject}`,
             text: `Name: ${safeName}\nEmail: ${safeEmail}\nCategory: ${safeSubject}\n\nMessage:\n${message}`,
             html: `
-            <div style="margin:0;padding:24px;background:#f8fafc;font-family:Arial,sans-serif;color:#0f172a;">
-              <div style="max-width:640px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
-                <div style="padding:24px;border-bottom:1px solid #e2e8f0;">
+            <div style="margin:0;padding:24px;background:#f9fafc;font-family:Arial,sans-serif;color:#181e29;">
+              <div style="max-width:640px;margin:0 auto;background:#ffffff;border:1px solid #dce0e6;border-radius:12px;overflow:hidden;">
+                <div style="padding:24px;border-bottom:1px solid #dce0e6;">
                   <img src="${LOGO_URL}" alt="${escapeHtml(siteConfig.name)}" width="64" style="display:block;max-width:64px;height:auto;border-radius:12px;" />
                 </div>
                 <div style="padding:24px;">
-                  <h2 style="margin:0 0 18px;font-size:20px;line-height:1.3;color:#0f172a;">New Contact Form Submission</h2>
+                  <h2 style="margin:0 0 18px;font-size:20px;line-height:1.3;color:#181e29;">New Contact Form Submission</h2>
                   <p style="margin:0 0 10px;"><strong>Name:</strong> ${escapeHtml(name)}</p>
                   <p style="margin:0 0 10px;"><strong>Email:</strong> ${escapeHtml(email)}</p>
                   <p style="margin:0 0 20px;"><strong>Category:</strong> ${escapeHtml(contactSubject)}</p>
                   <p style="margin:0 0 8px;"><strong>Message:</strong></p>
-                  <div style="padding:16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;line-height:1.6;">
+                  <div style="padding:16px;background:#f9fafc;border:1px solid #dce0e6;border-radius:8px;line-height:1.6;">
                     ${escapeHtml(message).replace(/\n/g, '<br>')}
                   </div>
                 </div>

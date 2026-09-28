@@ -139,16 +139,16 @@ export default function EmbeddedCodeRunner({ language, initialCode, onRunSuccess
                 .cm-content {
                     font-family: var(--font-jetbrains-mono), ui-monospace, monospace !important;
                     font-size: 13px !important;
-                    color: #1e293b !important;
+                    color: #2e3643 !important;
                     caret-color: #f77621 !important;
                 }
                 .cm-gutters {
                     background-color: white !important;
                     border: none !important;
-                    color: #cbd5e1 !important;
+                    color: #dce0e6 !important;
                 }
                 .cm-activeLine {
-                    background-color: #f8fafc !important;
+                    background-color: #f9fafc !important;
                 }
                 .cm-keyword {
                     color: #f77621 !important;
@@ -162,7 +162,7 @@ export default function EmbeddedCodeRunner({ language, initialCode, onRunSuccess
                     font-style: italic;
                 }
                 .cm-variable {
-                    color: #0f172a !important;
+                    color: #181e29 !important;
                 }
             `}</style>
         </div>

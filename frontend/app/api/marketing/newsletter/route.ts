@@ -73,8 +73,8 @@ export async function POST(request: Request) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Welcome to the Mentrily Newsletter</title>
 </head>
-<body style="margin:0;padding:0;background-color:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1e293b;-webkit-font-smoothing:antialiased;">
-  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#f8fafc;">
+<body style="margin:0;padding:0;background-color:#f9fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#2e3643;-webkit-font-smoothing:antialiased;">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#f9fafc;">
     <tr>
       <td align="center" style="padding:60px 20px;">
         <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:600px;background-color:#ffffff;border-radius:32px;overflow:hidden;box-shadow:0 20px 25px -5px rgba(0,0,0,0.05);">
@@ -93,7 +93,7 @@ export async function POST(request: Request) {
           <!-- Content -->
           <tr>
             <td style="padding:20px 48px 48px;text-align:center;">
-              <h1 style="margin:0 0 16px;font-size:28px;font-weight:900;line-height:1.2;color:#0f172a;letter-spacing:-0.01em;">
+              <h1 style="margin:0 0 16px;font-size:28px;font-weight:900;line-height:1.2;color:#181e29;letter-spacing:-0.01em;">
                 You&rsquo;re officially <span style="color:${brandColor}; italic">subscribed.</span>
               </h1>
               
@@ -101,16 +101,16 @@ export async function POST(request: Request) {
                 Thanks for joining the Mentrily community! We&rsquo;ll send you occasional updates on product features, tips for educators, and insights on the future of technical education.
               </p>
               
-              <div style="padding:32px;background-color:#f1f5f9;border-radius:24px;text-align:left;">
-                <h4 style="margin:0 0 12px;font-size:14px;font-weight:800;color:#0f172a;text-transform:uppercase;letter-spacing:0.05em;">What to expect:</h4>
+              <div style="padding:32px;background-color:#f4f6f9;border-radius:24px;text-align:left;">
+                <h4 style="margin:0 0 12px;font-size:14px;font-weight:800;color:#181e29;text-transform:uppercase;letter-spacing:0.05em;">What to expect:</h4>
                 <ul style="margin:0;padding:0;list-style:none;">
-                  <li style="margin-bottom:12px;font-size:14px;color:#475569;display:flex;align-items:center;">
+                  <li style="margin-bottom:12px;font-size:14px;color:#686f7b;display:flex;align-items:center;">
                     <span style="color:${brandColor};margin-right:10px;">&bull;</span> New feature announcements
                   </li>
-                  <li style="margin-bottom:12px;font-size:14px;color:#475569;display:flex;align-items:center;">
+                  <li style="margin-bottom:12px;font-size:14px;color:#686f7b;display:flex;align-items:center;">
                     <span style="color:${brandColor};margin-right:10px;">&bull;</span> Guides for scaling your online school
                   </li>
-                  <li style="margin:0;font-size:14px;color:#475569;display:flex;align-items:center;">
+                  <li style="margin:0;font-size:14px;color:#686f7b;display:flex;align-items:center;">
                     <span style="color:${brandColor};margin-right:10px;">&bull;</span> Exclusive early access to beta tools
                   </li>
                 </ul>
@@ -118,7 +118,7 @@ export async function POST(request: Request) {
               
               <div style="margin-top:40px;">
                 <p style="margin:0 0 16px;font-size:14px;color:#94a3b8;font-weight:600;">Want to start building now?</p>
-                <a href="${siteConfig.url}/signup" style="display:inline-block;padding:14px 32px;background-color:#0f172a;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;border-radius:12px;">
+                <a href="${siteConfig.url}/signup" style="display:inline-block;padding:14px 32px;background-color:#181e29;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;border-radius:12px;">
                   Explore the Platform
                 </a>
               </div>

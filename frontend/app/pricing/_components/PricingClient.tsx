@@ -93,7 +93,7 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
     }, [plans]);
 
     return (
-        <div className="min-h-screen bg-[#0f172a] text-gray-100">
+        <div className="min-h-screen bg-gray-900 text-gray-100">
             <div className="max-w-7xl mx-auto px-6 py-16">
                 <div className="text-center">
                     <h1 className="text-4xl font-semibold text-white tracking-tight">Simple pricing for every stage</h1>
@@ -105,7 +105,7 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
                 </div>
 
                 <div className="flex justify-center mt-8">
-                    <div className="flex items-center bg-[#1e293b] rounded-lg p-1 border border-gray-700">
+                    <div className="flex items-center bg-[#2e3643] rounded-lg p-1 border border-gray-700">
                         <button
                             onClick={() => setAnnual(false)}
                             className={`px-5 py-2 rounded-lg text-xs font-semibold uppercase tracking-widest transition-all ${
@@ -151,8 +151,8 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
                                 key={plan.plan}
                                 className={`rounded-lg border p-6 relative ${
                                     isPro
-                                        ? 'border-[var(--brand)] bg-gradient-to-b from-[#1e293b] to-[#172554]'
-                                        : 'border-gray-700 bg-[#1e293b]'
+                                        ? 'border-[var(--brand)] bg-gradient-to-b from-[#2e3643] to-[#172554]'
+                                        : 'border-gray-700 bg-[#2e3643]'
                                 }`}
                             >
                                 {isPro && (
@@ -200,7 +200,7 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
                     })}
                 </div>
 
-                <div className="mt-14 bg-[#1e293b] border border-gray-700 rounded-lg p-6">
+                <div className="mt-14 bg-[#2e3643] border border-gray-700 rounded-lg p-6">
                     <h2 className="text-lg font-semibold text-white mb-4">Feature comparison</h2>
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[900px] text-left">

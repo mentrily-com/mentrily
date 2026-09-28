@@ -161,9 +161,9 @@ export default function UnifiedProfilePage() {
                             variables: {
                                 colorPrimary: 'var(--brand)',
                                 colorBackground: '#ffffff',
-                                colorText: '#0f172a',
-                                colorInputBackground: '#f8fafc',
-                                colorInputText: '#0f172a',
+                                colorText: '#181e29',
+                                colorInputBackground: '#f9fafc',
+                                colorInputText: '#181e29',
                                 borderRadius: '0.75rem',
                                 fontFamily: 'inherit',
                             },

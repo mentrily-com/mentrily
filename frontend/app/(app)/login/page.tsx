@@ -456,8 +456,7 @@ export default function LoginPage() {
                             ].map(([label, value]) => (
                                 <div
                                     key={label}
-                                    className="flex items-center justify-between rounded-lg bg-white/10 p-3"
-                                >
+                                    className="flex items-center justify-between rounded-lg bg-white/10 p-3">
                                     <div>
                                         <p className="text-[10px] font-medium uppercase tracking-widest text-white/40">
                                             {label}
@@ -506,7 +505,7 @@ export default function LoginPage() {
                             <h1 className="text-2xl font-medium tracking-tight mb-1.5 text-gray-900">
                                 Sign in
                             </h1>
-                            <p className="text-sm" style={{ color: '#94A3B8' }}>
+                            <p className="text-sm text-gray-400">
                                 Enter your credentials to access your dashboard.
                             </p>
                         </div>
@@ -563,7 +562,7 @@ export default function LoginPage() {
                         {/* Divider */}
                         <div className="flex items-center gap-3 mb-6">
                             <div className="h-px flex-1" style={{ backgroundColor: '#dce0e6' }} />
-                            <span className="text-xs font-medium" style={{ color: '#94A3B8' }}>
+                            <span className="text-xs font-medium text-gray-400">
                                 or
                             </span>
                             <div className="h-px flex-1" style={{ backgroundColor: '#dce0e6' }} />
@@ -588,9 +587,7 @@ export default function LoginPage() {
                                     </label>
                                     <div className="relative group">
                                         <div
-                                            className="absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors duration-150"
-                                            style={{ color: '#94A3B8' }}
-                                        >
+                                            className="absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors duration-150 text-gray-400">
                                             <Mail size={18} />
                                         </div>
                                         <input
@@ -632,9 +629,7 @@ export default function LoginPage() {
                                     </div>
                                     <div className="relative group">
                                         <div
-                                            className="absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors duration-150"
-                                            style={{ color: '#94A3B8' }}
-                                        >
+                                            className="absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors duration-150 text-gray-400">
                                             <Lock size={18} />
                                         </div>
                                         <input
@@ -717,9 +712,7 @@ export default function LoginPage() {
                                     </label>
                                     <div className="relative group">
                                         <div
-                                            className="absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors duration-150"
-                                            style={{ color: '#94A3B8' }}
-                                        >
+                                            className="absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors duration-150 text-gray-400">
                                             <KeyRound size={18} />
                                         </div>
                                         <input
@@ -781,8 +774,7 @@ export default function LoginPage() {
                                         setSecondFactorTarget('');
                                         setError('');
                                     }}
-                                    className="w-full py-3 text-sm font-semibold rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 border border-gray-200 text-gray-600 bg-white disabled:opacity-60 disabled:cursor-not-allowed"
-                                >
+                                    className="w-full py-3 text-sm font-semibold rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 border border-gray-200 text-gray-600 bg-white disabled:opacity-60 disabled:cursor-not-allowed">
                                     <ArrowLeft size={16} />
                                     Back to password
                                 </button>
@@ -790,7 +782,7 @@ export default function LoginPage() {
                         )}
 
                         {/* Footer */}
-                        <p className="text-center mt-8 text-sm" style={{ color: '#94A3B8' }}>
+                        <p className="text-center mt-8 text-sm text-gray-400">
                             Don&apos;t have an account?{' '}
                             <Link
                                 href="/signup"

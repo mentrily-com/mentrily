@@ -513,7 +513,7 @@ export default function SignupPage() {
                                       ? 'Accept your invitation'
                                       : 'Create your account'}
                             </h1>
-                            <p className="text-sm" style={{ color: '#94A3B8' }}>
+                            <p className="text-sm text-gray-400">
                                 {pendingVerification
                                     ? `We sent a verification code to ${email}`
                                     : isInvitationFlow
@@ -586,7 +586,7 @@ export default function SignupPage() {
                                 {/* Divider */}
                                 <div className="flex items-center gap-3 mb-6">
                                     <div className="h-px flex-1" style={{ backgroundColor: '#dce0e6' }} />
-                                    <span className="text-xs font-medium" style={{ color: '#94A3B8' }}>
+                                    <span className="text-xs font-medium text-gray-400">
                                         or
                                     </span>
                                     <div className="h-px flex-1" style={{ backgroundColor: '#dce0e6' }} />
@@ -612,15 +612,12 @@ export default function SignupPage() {
                                     <div className="grid grid-cols-2 gap-3">
                                         <div>
                                             <label
-                                                className="block text-sm font-medium mb-1.5 text-gray-900"
-                                            >
+                                                className="block text-sm font-medium mb-1.5 text-gray-900">
                                                 First name
                                             </label>
                                             <div className="relative">
                                                 <div
-                                                    className="absolute left-3.5 top-1/2 -translate-y-1/2"
-                                                    style={{ color: '#94A3B8' }}
-                                                >
+                                                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
                                                     <User size={18} />
                                                 </div>
                                                 <input
@@ -647,8 +644,7 @@ export default function SignupPage() {
                                         </div>
                                         <div>
                                             <label
-                                                className="block text-sm font-medium mb-1.5 text-gray-900"
-                                            >
+                                                className="block text-sm font-medium mb-1.5 text-gray-900">
                                                 Last name
                                             </label>
                                             <input
@@ -677,15 +673,12 @@ export default function SignupPage() {
                                     {!isInvitationFlow && (
                                         <div>
                                             <label
-                                                className="block text-sm font-medium mb-1.5 text-gray-900"
-                                            >
+                                                className="block text-sm font-medium mb-1.5 text-gray-900">
                                                 Email
                                             </label>
                                             <div className="relative">
                                                 <div
-                                                    className="absolute left-3.5 top-1/2 -translate-y-1/2"
-                                                    style={{ color: '#94A3B8' }}
-                                                >
+                                                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
                                                     <Mail size={18} />
                                                 </div>
                                                 <input
@@ -715,15 +708,12 @@ export default function SignupPage() {
                                     {/* Password */}
                                     <div>
                                         <label
-                                            className="block text-sm font-medium mb-1.5 text-gray-900"
-                                        >
+                                            className="block text-sm font-medium mb-1.5 text-gray-900">
                                             Password
                                         </label>
                                         <div className="relative">
                                             <div
-                                                className="absolute left-3.5 top-1/2 -translate-y-1/2"
-                                                style={{ color: '#94A3B8' }}
-                                            >
+                                                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
                                                 <Lock size={18} />
                                             </div>
                                             <input
@@ -841,9 +831,7 @@ export default function SignupPage() {
                                     </label>
                                     <div className="relative">
                                         <div
-                                            className="absolute left-3.5 top-1/2 -translate-y-1/2"
-                                            style={{ color: '#94A3B8' }}
-                                        >
+                                            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
                                             <KeyRound size={18} />
                                         </div>
                                         <input
@@ -898,7 +886,7 @@ export default function SignupPage() {
                         )}
 
                         {/* Footer */}
-                        <p className="text-center mt-8 text-sm" style={{ color: '#94A3B8' }}>
+                        <p className="text-center mt-8 text-sm text-gray-400">
                             Already have an account?{' '}
                             <Link
                                 href="/login"

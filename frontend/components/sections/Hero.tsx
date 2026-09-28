@@ -20,8 +20,7 @@ export default function Hero() {
 
     return (
         <section
-            className="relative min-h-screen flex items-center overflow-hidden pt-20 pb-16"
-            style={{ backgroundColor: '#FAFBFF' }}
+            className="relative min-h-screen flex items-center overflow-hidden pt-20 pb-16 bg-gray-50"
         >
             {/* ── Gradient mesh background ── */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">

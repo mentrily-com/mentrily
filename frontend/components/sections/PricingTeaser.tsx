@@ -84,7 +84,7 @@ export default function PricingTeaser() {
                     >
                         Clear limits, clean upgrade path
                     </h2>
-                    <p className="mt-3 text-sm max-w-lg mx-auto" style={{ color: '#64748B' }}>
+                    <p className="mt-3 text-sm max-w-lg mx-auto text-gray-500">
                         Free works personally. Starter and Pro add team seats. Enterprise unlocks custom domains and
                         white-label branding.
                     </p>
@@ -150,7 +150,7 @@ export default function PricingTeaser() {
                             <h3 className="text-sm font-semibold mb-1 text-gray-900">
                                 {tier.name}
                             </h3>
-                            <p className="text-xs mb-3" style={{ color: '#94A3B8' }}>
+                            <p className="text-xs mb-3 text-gray-400">
                                 {tier.description}
                             </p>
                             <div className="flex items-baseline gap-1 mb-5">
@@ -159,7 +159,7 @@ export default function PricingTeaser() {
                                 >
                                     {tier.price}
                                 </span>
-                                <span className="text-sm font-medium" style={{ color: '#94A3B8' }}>
+                                <span className="text-sm font-medium text-gray-400">
                                     {tier.period}
                                 </span>
                             </div>

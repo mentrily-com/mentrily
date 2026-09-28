@@ -47,11 +47,11 @@ export async function POST(request: Request) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Welcome to Mentrily</title>
 </head>
-<body style="margin:0;padding:0;background-color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1e293b;-webkit-font-smoothing:antialiased;">
+<body style="margin:0;padding:0;background-color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#2e3643;-webkit-font-smoothing:antialiased;">
   <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#ffffff;">
     <tr>
       <td align="center" style="padding:40px 20px;">
-        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:600px;background-color:#ffffff;border:1px solid #f1f5f9;border-radius:24px;overflow:hidden;box-shadow:0 10px 15px -3px rgba(0,0,0,0.05);">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:600px;background-color:#ffffff;border:1px solid #f4f6f9;border-radius:24px;overflow:hidden;box-shadow:0 10px 15px -3px rgba(0,0,0,0.05);">
           <!-- Header -->
           <tr>
             <td align="center" style="padding:40px 40px 10px;">
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
           <!-- Content -->
           <tr>
             <td style="padding:20px 40px 40px;text-align:center;">
-              <h1 style="margin:0 0 16px;font-size:32px;font-weight:900;line-height:1.1;color:#0f172a;letter-spacing:-0.02em;">
+              <h1 style="margin:0 0 16px;font-size:32px;font-weight:900;line-height:1.1;color:#181e29;letter-spacing:-0.02em;">
                 Your school. Your brand.<br/>
                 <span style="color:${brandColor};">Launch today.</span>
               </h1>
@@ -86,11 +86,11 @@ export async function POST(request: Request) {
                         <td style="padding:0 10px;font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;">
                           No credit card required
                         </td>
-                        <td style="color:#e2e8f0;">&bull;</td>
+                        <td style="color:#dce0e6;">&bull;</td>
                         <td style="padding:0 10px;font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;">
                           Free forever plan
                         </td>
-                        <td style="color:#e2e8f0;">&bull;</td>
+                        <td style="color:#dce0e6;">&bull;</td>
                         <td style="padding:0 10px;font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;">
                           Cancel anytime
                         </td>

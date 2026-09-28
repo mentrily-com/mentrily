@@ -137,7 +137,7 @@ export default function ExamResultsView({
     const brandLightColor = 'var(--brand-light)';
     const passedColor = '#10b981';
     const failedColor = '#f43f5e';
-    const neutralColor = '#cbd5e1';
+    const neutralColor = '#dce0e6';
 
     const hasResults = results.length > 0;
     const classifiedCount = (stats.passedCount || 0) + (stats.failedCount || 0);
@@ -330,7 +330,7 @@ export default function ExamResultsView({
                                         <stop offset="100%" stopColor={brandColor} stopOpacity={0.8} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f6f9" />
                                 <XAxis
                                     dataKey="score"
                                     fontSize={10}
@@ -345,11 +345,11 @@ export default function ExamResultsView({
                                     fontWeight={700}
                                     axisLine={false}
                                     tickLine={false}
-                                    tick={{ fill: '#cbd5e1' }}
+                                    tick={{ fill: '#dce0e6' }}
                                     allowDecimals={false}
                                 />
                                 <Tooltip
-                                    cursor={{ fill: '#f8fafc' }}
+                                    cursor={{ fill: '#f9fafc' }}
                                     contentStyle={{
                                         borderRadius: '16px',
                                         border: 'none',
