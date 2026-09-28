@@ -130,7 +130,7 @@ function ProblemStatementComponent({
                             <button
                                 data-element-id="starter-mark-review"
                                 onClick={onToggleReview}
-                                className={`shrink-0 rounded-xl border p-2 transition-all sm:p-2.5 ${
+                                className={`shrink-0 rounded-lg border p-2 transition-all sm:p-2.5 ${
                                     isMarkedForReview
                                         ? 'bg-amber-50 border-amber-200 text-amber-600 shadow-sm'
                                         : 'bg-white border-gray-100 text-gray-300 hover:text-gray-500 hover:border-gray-200'
@@ -156,7 +156,7 @@ function ProblemStatementComponent({
                             // Standard Mode: Bookmark Button
                             <button
                                 onClick={onToggleBookmark}
-                                className={`shrink-0 rounded-xl border p-2 transition-all sm:p-2.5 ${
+                                className={`shrink-0 rounded-lg border p-2 transition-all sm:p-2.5 ${
                                     isBookmarked
                                         ? 'bg-indigo-50 border-indigo-200 text-indigo-600'
                                         : 'bg-white border-gray-100 text-gray-300 hover:text-gray-500 hover:border-gray-200'
@@ -244,7 +244,7 @@ function ProblemStatementComponent({
                                         <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
                                             Input
                                         </span>
-                                        <div className="w-full overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
+                                        <div className="w-full overflow-hidden rounded-lg border border-gray-100 bg-gray-50">
                                             <pre className="p-4 font-mono text-sm text-gray-700 overflow-x-auto whitespace-pre max-w-full">
                                                 {exampleInput}
                                             </pre>
@@ -255,7 +255,7 @@ function ProblemStatementComponent({
                                             <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
                                                 Output
                                             </span>
-                                            <div className="w-full overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
+                                            <div className="w-full overflow-hidden rounded-lg border border-gray-100 bg-gray-50">
                                                 <pre className="p-4 font-mono text-sm text-[#e67e22] overflow-x-auto whitespace-pre max-w-full">
                                                     {exampleOutput}
                                                 </pre>

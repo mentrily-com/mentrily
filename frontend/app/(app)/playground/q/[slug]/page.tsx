@@ -75,13 +75,13 @@ export default function SharedCodingQuestionPage() {
                     <div className="mt-5 flex gap-3">
                         <Link
                             href="/login"
-                            className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600"
+                            className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600"
                         >
                             Sign in
                         </Link>
                         <Link
                             href="/signup"
-                            className="rounded-xl bg-[var(--brand)] px-4 py-2 text-sm font-semibold text-white"
+                            className="rounded-lg bg-[var(--brand)] px-4 py-2 text-sm font-semibold text-white"
                         >
                             Sign up
                         </Link>
@@ -96,7 +96,7 @@ export default function SharedCodingQuestionPage() {
     return (
         <PublicPlaygroundShell>
             <div
-                className="h-[calc(100vh-6rem)] min-h-[620px] overflow-hidden rounded-xl border bg-white"
+                className="h-[calc(100vh-6rem)] min-h-[620px] overflow-hidden rounded-lg border bg-white"
                 style={{ borderColor: 'var(--color-border-subtle)', boxShadow: 'var(--shadow-sm)' }}
             >
                 <SplitPane

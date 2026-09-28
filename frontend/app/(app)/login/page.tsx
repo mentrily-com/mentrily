@@ -456,7 +456,7 @@ export default function LoginPage() {
                             ].map(([label, value]) => (
                                 <div
                                     key={label}
-                                    className="flex items-center justify-between rounded-xl bg-white/10 p-3"
+                                    className="flex items-center justify-between rounded-lg bg-white/10 p-3"
                                 >
                                     <div>
                                         <p className="text-[10px] font-medium uppercase tracking-widest text-white/40">
@@ -516,7 +516,7 @@ export default function LoginPage() {
                             type="button"
                             disabled={isGoogleLoading || isLoading}
                             onClick={signInWithGoogle}
-                            className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl text-sm font-medium border transition-all duration-150 cursor-pointer mb-6 disabled:opacity-70 disabled:cursor-not-allowed"
+                            className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-lg text-sm font-medium border transition-all duration-150 cursor-pointer mb-6 disabled:opacity-70 disabled:cursor-not-allowed"
                             style={{
                                 backgroundColor: '#FFFFFF',
                                 borderColor: '#E2E8F0',
@@ -572,7 +572,7 @@ export default function LoginPage() {
                         {/* Error */}
                         {error && (
                             <div
-                                className="mb-5 px-4 py-3 rounded-xl text-sm font-medium text-center"
+                                className="mb-5 px-4 py-3 rounded-lg text-sm font-medium text-center"
                                 style={{ backgroundColor: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}
                             >
                                 {error}
@@ -599,7 +599,7 @@ export default function LoginPage() {
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             placeholder="name@company.com"
-                                            className="w-full py-3 pl-11 pr-4 text-sm rounded-xl border outline-none transition-all duration-150"
+                                            className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150"
                                             style={{
                                                 backgroundColor: '#FFFFFF',
                                                 borderColor: '#E2E8F0',
@@ -645,7 +645,7 @@ export default function LoginPage() {
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             placeholder="••••••••"
-                                            className="w-full py-3 pl-11 pr-11 text-sm rounded-xl border outline-none transition-all duration-150"
+                                            className="w-full py-3 pl-11 pr-11 text-sm rounded-lg border outline-none transition-all duration-150"
                                             style={{
                                                 backgroundColor: '#FFFFFF',
                                                 borderColor: '#E2E8F0',
@@ -678,7 +678,7 @@ export default function LoginPage() {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full py-3 text-sm font-semibold text-white rounded-xl transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed"
+                                    className="w-full py-3 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed"
                                     style={{ backgroundColor: 'var(--brand, #007c85)' }}
                                     onMouseEnter={(e) => {
                                         if (!isLoading) e.currentTarget.style.opacity = '0.9';
@@ -704,7 +704,7 @@ export default function LoginPage() {
                             <form onSubmit={handleSecondFactorSubmit} className="space-y-5">
                                 <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
                                     <div className="flex items-start gap-3">
-                                        <div className="w-10 h-10 rounded-xl bg-[var(--brand-light)]/40 text-[var(--brand)] flex items-center justify-center shrink-0">
+                                        <div className="w-10 h-10 rounded-lg bg-[var(--brand-light)]/40 text-[var(--brand)] flex items-center justify-center shrink-0">
                                             <KeyRound size={18} />
                                         </div>
                                         <div>
@@ -735,7 +735,7 @@ export default function LoginPage() {
                                             value={verificationCode}
                                             onChange={(e) => setVerificationCode(e.target.value)}
                                             placeholder="123456"
-                                            className="w-full py-3 pl-11 pr-4 text-sm rounded-xl border outline-none transition-all duration-150"
+                                            className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150"
                                             style={{
                                                 backgroundColor: '#FFFFFF',
                                                 borderColor: '#E2E8F0',
@@ -757,7 +757,7 @@ export default function LoginPage() {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full py-3 text-sm font-semibold text-white rounded-xl transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed"
+                                    className="w-full py-3 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed"
                                     style={{ backgroundColor: 'var(--brand, #007c85)' }}
                                     onMouseEnter={(e) => {
                                         if (!isLoading) e.currentTarget.style.opacity = '0.9';
@@ -788,7 +788,7 @@ export default function LoginPage() {
                                         setSecondFactorTarget('');
                                         setError('');
                                     }}
-                                    className="w-full py-3 text-sm font-semibold rounded-xl transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 border border-gray-200 text-gray-600 bg-white disabled:opacity-60 disabled:cursor-not-allowed"
+                                    className="w-full py-3 text-sm font-semibold rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 border border-gray-200 text-gray-600 bg-white disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
                                     <ArrowLeft size={16} />
                                     Back to password

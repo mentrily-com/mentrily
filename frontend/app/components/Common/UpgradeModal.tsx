@@ -36,13 +36,13 @@ export default function UpgradeModal({
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center">
                 <button
                     onClick={onClose}
-                    className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-500 text-xs font-semibold uppercase tracking-widest hover:bg-gray-200 transition-all"
+                    className="flex-1 py-3 rounded-lg bg-gray-100 text-gray-500 text-xs font-semibold uppercase tracking-widest hover:bg-gray-200 transition-all"
                 >
                     Close
                 </button>
                 <button
                     onClick={onUpgrade}
-                    className="flex-1 py-3 rounded-xl bg-[var(--brand)] text-white text-xs font-semibold uppercase tracking-widest hover:bg-[var(--brand-dark)] transition-all"
+                    className="flex-1 py-3 rounded-lg bg-[var(--brand)] text-white text-xs font-semibold uppercase tracking-widest hover:bg-[var(--brand-dark)] transition-all"
                 >
                     Upgrade
                 </button>

@@ -81,7 +81,7 @@ export default function GroupsTab({ onEnrollGroupInCourse }: GroupsTabProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[1, 2, 3].map((i) => (
                     <div key={i} className="bg-white rounded-lg border border-gray-100 p-8 animate-pulse">
-                        <div className="h-6 bg-gray-100 rounded-xl w-1/2 mb-4" />
+                        <div className="h-6 bg-gray-100 rounded-lg w-1/2 mb-4" />
                         <div className="h-4 bg-gray-50 rounded-lg w-1/3" />
                     </div>
                 ))}
@@ -143,7 +143,7 @@ export default function GroupsTab({ onEnrollGroupInCourse }: GroupsTabProps) {
                                 </div>
                                 <button
                                     onClick={() => handleDeleteGroup(group.id)}
-                                    className="p-2 text-gray-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all opacity-0 group-hover/card:opacity-100"
+                                    className="p-2 text-gray-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all opacity-0 group-hover/card:opacity-100"
                                 >
                                     <Trash2 size={16} />
                                 </button>
@@ -154,13 +154,13 @@ export default function GroupsTab({ onEnrollGroupInCourse }: GroupsTabProps) {
                                 {(group.students || []).slice(0, 5).map((st: any, idx: number) => (
                                     <div
                                         key={st.id}
-                                        className="w-9 h-9 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 border-2 border-white flex items-center justify-center text-[10px] font-semibold text-gray-500 shadow-sm"
+                                        className="w-9 h-9 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 border-2 border-white flex items-center justify-center text-[10px] font-semibold text-gray-500 shadow-sm"
                                     >
                                         {st.name?.[0] || '?'}
                                     </div>
                                 ))}
                                 {(group.students?.length || 0) > 5 && (
-                                    <div className="w-9 h-9 rounded-xl bg-[var(--brand-light)] border-2 border-white flex items-center justify-center text-[10px] font-semibold text-[var(--brand)]">
+                                    <div className="w-9 h-9 rounded-lg bg-[var(--brand-light)] border-2 border-white flex items-center justify-center text-[10px] font-semibold text-[var(--brand)]">
                                         +{group.students.length - 5}
                                     </div>
                                 )}
@@ -258,7 +258,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                         else onClose();
                     }}
                     aria-label="Close"
-                    className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl sm:rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-400 transition-all hover:scale-110 active:scale-95"
+                    className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-lg sm:rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-400 transition-all hover:scale-110 active:scale-95"
                 >
                     <X size={20} strokeWidth={3} />
                 </button>
@@ -361,7 +361,7 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
                         onUpdated();
                     }}
                     aria-label="Close"
-                    className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl sm:rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-400 transition-all hover:scale-110 active:scale-95"
+                    className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-lg sm:rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-400 transition-all hover:scale-110 active:scale-95"
                 >
                     <X size={20} strokeWidth={3} />
                 </button>
@@ -378,7 +378,7 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
                                     type="text"
                                     value={groupName}
                                     onChange={(e) => setGroupName(e.target.value)}
-                                    className="text-2xl font-semibold text-gray-900 bg-gray-50 border border-gray-200 rounded-xl px-3 py-1 outline-none focus:border-[var(--brand)]"
+                                    className="text-2xl font-semibold text-gray-900 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1 outline-none focus:border-[var(--brand)]"
                                     autoFocus
                                     onKeyDown={(e) => e.key === 'Enter' && handleRenameSave()}
                                 />
@@ -417,12 +417,12 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
                             placeholder="Search students..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium outline-none focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/5 transition-all w-full"
+                            className="pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-medium outline-none focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/5 transition-all w-full"
                         />
                     </div>
                     <button
                         onClick={() => setShowAddStudents(!showAddStudents)}
-                        className="px-5 py-2.5 bg-[var(--brand)] text-white font-semibold text-[10px] rounded-xl hover:bg-[var(--brand-dark)] transition-all active:scale-95 uppercase tracking-widest flex items-center gap-1.5 whitespace-nowrap"
+                        className="px-5 py-2.5 bg-[var(--brand)] text-white font-semibold text-[10px] rounded-lg hover:bg-[var(--brand-dark)] transition-all active:scale-95 uppercase tracking-widest flex items-center gap-1.5 whitespace-nowrap"
                     >
                         <UserPlus size={14} /> Add Students
                     </button>
@@ -457,7 +457,7 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
                                 className="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors group/student"
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center font-semibold text-gray-500 text-sm shadow-inner border border-white">
+                                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center font-semibold text-gray-500 text-sm shadow-inner border border-white">
                                         {st.name?.[0] || '?'}
                                     </div>
                                     <div>
@@ -469,7 +469,7 @@ function ManageGroupModal({ group, onClose, onUpdated }: { group: any; onClose: 
                                 </div>
                                 <button
                                     onClick={() => handleRemoveStudent(st.id)}
-                                    className="p-2 text-gray-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all sm:opacity-0 sm:group-hover/student:opacity-100 opacity-100"
+                                    className="p-2 text-gray-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all sm:opacity-0 sm:group-hover/student:opacity-100 opacity-100"
                                     title="Remove from group"
                                 >
                                     <X size={16} strokeWidth={3} />
@@ -633,7 +633,7 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
                         setActiveTab('single');
                         setError(null);
                     }}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-[10px] font-semibold uppercase tracking-widest rounded-xl transition-all ${activeTab === 'single' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-[10px] font-semibold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'single' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     <FileText size={12} /> Custom Add
                 </button>
@@ -642,7 +642,7 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
                         setActiveTab('bulk');
                         setError(null);
                     }}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-[10px] font-semibold uppercase tracking-widest rounded-xl transition-all ${activeTab === 'bulk' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-[10px] font-semibold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'bulk' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     <Upload size={12} /> Bulk CSV
                 </button>
@@ -665,7 +665,7 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
                         />
                     </div>
                     {error && (
-                        <div className="p-3 bg-rose-50 text-rose-600 rounded-xl flex items-center gap-2 text-xs font-medium">
+                        <div className="p-3 bg-rose-50 text-rose-600 rounded-lg flex items-center gap-2 text-xs font-medium">
                             <AlertCircle size={14} /> {error}
                         </div>
                     )}
@@ -705,7 +705,7 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
                         />
                     </div>
 
-                    <div className="flex items-center justify-between p-3.5 bg-[var(--brand-light)] rounded-xl border border-[var(--brand-light)]">
+                    <div className="flex items-center justify-between p-3.5 bg-[var(--brand-light)] rounded-lg border border-[var(--brand-light)]">
                         <div className="flex items-center gap-2 text-[var(--brand)]">
                             <Download size={14} />
                             <span className="text-[10px] font-semibold uppercase tracking-widest">Sample CSV</span>
@@ -719,7 +719,7 @@ function AddStudentsPanel({ groupId, groupName, onDone, compact }: AddStudentsPa
                     </div>
 
                     {error && (
-                        <div className="p-3 bg-rose-50 text-rose-600 rounded-xl flex items-center gap-2 text-xs font-medium">
+                        <div className="p-3 bg-rose-50 text-rose-600 rounded-lg flex items-center gap-2 text-xs font-medium">
                             <AlertCircle size={14} /> {error}
                         </div>
                     )}

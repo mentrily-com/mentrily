@@ -330,7 +330,7 @@ export default function DashboardPage() {
                         >
                             <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center">
+                                    <div className="w-10 h-10 rounded-lg bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center">
                                         <Megaphone size={20} />
                                     </div>
                                     <h3 className="text-lg font-semibold text-gray-800 tracking-tight">Announcements</h3>
@@ -355,7 +355,7 @@ export default function DashboardPage() {
                                         >
                                             <div className="flex items-start gap-3">
                                                 <div
-                                                    className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                                                    className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
                                                         ann.isRead
                                                             ? 'bg-gray-100 text-gray-400'
                                                             : 'bg-[var(--brand)] text-white shadow-sm'
@@ -397,7 +397,7 @@ export default function DashboardPage() {
                             className="bg-white rounded-lg border border-gray-100 p-5 sm:p-8 shadow-sm"
                         >
                             <div className="flex items-center gap-3 mb-8">
-                                <div className="w-10 h-10 rounded-xl bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center">
+                                <div className="w-10 h-10 rounded-lg bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center">
                                     <svg
                                         width="20"
                                         height="20"
@@ -525,7 +525,7 @@ export default function DashboardPage() {
                                                 onClick={() => handleDownload(att.url, att.name)}
                                                 className="w-full flex flex-col gap-3 px-4 py-3 bg-white rounded-lg border border-gray-100 hover:border-[var(--brand-light)] hover:shadow-sm transition-all cursor-pointer sm:flex-row sm:items-center"
                                             >
-                                                <div className="w-8 h-8 rounded-xl bg-gray-50 flex items-center justify-center">
+                                                <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center">
                                                     <AnnouncementAttachIcon type={att.type} />
                                                 </div>
                                                 <div className="flex-1 min-w-0 text-left">
@@ -559,7 +559,7 @@ function QuickLink({ icon, label, sub }: { icon: React.ReactNode; label: string;
     // link.
     return (
         <div className="w-full flex items-center gap-4 p-4 rounded-lg hover:bg-gray-50 border border-transparent hover:border-gray-100 transition-all text-left group">
-            <div className="w-10 h-10 rounded-xl bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+            <div className="w-10 h-10 rounded-lg bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                 {icon}
             </div>
             <div>

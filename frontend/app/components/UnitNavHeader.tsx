@@ -29,7 +29,7 @@ export default function UnitNavHeader({
                         <button
                             onClick={onToggleSidebar}
                             data-element-id="starter-unit-sidebar-toggle"
-                            className={`p-2.5 min-h-[40px] min-w-[40px] flex items-center justify-center transition-all rounded-xl hover:bg-gray-50 cursor-pointer ${showSidebar ? 'text-indigo-600 bg-indigo-50/50' : 'text-gray-400'}`}
+                            className={`p-2.5 min-h-[40px] min-w-[40px] flex items-center justify-center transition-all rounded-lg hover:bg-gray-50 cursor-pointer ${showSidebar ? 'text-indigo-600 bg-indigo-50/50' : 'text-gray-400'}`}
                             title="Toggle Sidebar"
                         >
                             <svg
@@ -55,7 +55,7 @@ export default function UnitNavHeader({
                     live in the bottom QuestionNavFooter (see ProblemStatement /
                     UnitRenderer), matching exam mode in one shared place instead
                     of course questions having their own separate top pair. */}
-                <div className="flex min-w-0 items-center overflow-x-auto bg-gray-50/80 border border-gray-100 rounded-xl p-1 gap-1 no-scrollbar">
+                <div className="flex min-w-0 items-center overflow-x-auto bg-gray-50/80 border border-gray-100 rounded-lg p-1 gap-1 no-scrollbar">
                     {/* Tabs */}
                     {!minimal && (
                         <div className="flex items-center gap-1">

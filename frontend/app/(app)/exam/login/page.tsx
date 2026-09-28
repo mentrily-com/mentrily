@@ -510,7 +510,7 @@ export default function ExamLoginPage() {
                                     </p>
                                     <a
                                         href={APP_DOWNLOAD_URL}
-                                        className="w-full inline-flex items-center justify-center px-4 py-2.5 bg-indigo-600 text-white font-medium rounded-xl hover:bg-indigo-700 transition-colors text-sm"
+                                        className="w-full inline-flex items-center justify-center px-4 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors text-sm"
                                     >
                                         Download Exam App
                                     </a>
@@ -519,7 +519,7 @@ export default function ExamLoginPage() {
                         ) : (
                             <>
                                 {error && (
-                                    <div className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-xl flex items-center gap-3 text-rose-600 text-sm font-medium animate-shake">
+                                    <div className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-lg flex items-center gap-3 text-rose-600 text-sm font-medium animate-shake">
                                         {error}
                                     </div>
                                 )}
@@ -548,7 +548,7 @@ export default function ExamLoginPage() {
                                                     setTestCode(e.target.value);
                                                     setIsTestCodeVerified(false);
                                                 }}
-                                                className="w-full h-11 pl-11 pr-4 rounded-xl border border-gray-200 bg-gray-50/50 text-gray-900 font-semibold uppercase tracking-wide placeholder:normal-case placeholder:tracking-normal placeholder:font-medium focus:border-indigo-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-colors"
+                                                className="w-full h-11 pl-11 pr-4 rounded-lg border border-gray-200 bg-gray-50/50 text-gray-900 font-semibold uppercase tracking-wide placeholder:normal-case placeholder:tracking-normal placeholder:font-medium focus:border-indigo-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-colors"
                                                 placeholder="e.g. JS-TEST-01"
                                             />
                                         </div>
@@ -558,7 +558,7 @@ export default function ExamLoginPage() {
                                     </div>
 
                                     {isSignedIn ? (
-                                        <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-emerald-200 bg-emerald-50">
+                                        <div className="flex items-center gap-3 px-4 py-3 rounded-lg border border-emerald-200 bg-emerald-50">
                                             <div className="w-9 h-9 rounded-full bg-emerald-600 text-white font-medium text-xs flex items-center justify-center uppercase">
                                                 {(signedInUserName || signedInUserEmail || 'U').slice(0, 2)}
                                             </div>
@@ -590,7 +590,7 @@ export default function ExamLoginPage() {
                                                     type="email"
                                                     value={email}
                                                     onChange={(e) => setEmail(e.target.value)}
-                                                    className="w-full h-10 px-4 rounded-xl border border-gray-200 bg-gray-50/50 text-gray-900 font-semibold"
+                                                    className="w-full h-10 px-4 rounded-lg border border-gray-200 bg-gray-50/50 text-gray-900 font-semibold"
                                                     placeholder="name@company.com"
                                                 />
                                             </div>
@@ -603,7 +603,7 @@ export default function ExamLoginPage() {
                                                         type={showPassword ? 'text' : 'password'}
                                                         value={password}
                                                         onChange={(e) => setPassword(e.target.value)}
-                                                        className="w-full h-10 px-4 pr-12 rounded-xl border border-gray-200 bg-gray-50/50 text-gray-900 font-semibold"
+                                                        className="w-full h-10 px-4 pr-12 rounded-lg border border-gray-200 bg-gray-50/50 text-gray-900 font-semibold"
                                                         placeholder="••••••••"
                                                     />
                                                     <button
@@ -618,7 +618,7 @@ export default function ExamLoginPage() {
                                         </>
                                     ) : (
                                         <div className="space-y-3">
-                                            <div className="rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3">
+                                            <div className="rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-3">
                                                 <p className="text-xs font-semibold uppercase tracking-widest text-indigo-500">
                                                     Verify Sign-In
                                                 </p>
@@ -635,7 +635,7 @@ export default function ExamLoginPage() {
                                                         type="text"
                                                         value={verificationCode}
                                                         onChange={(e) => setVerificationCode(e.target.value)}
-                                                        className="w-full h-10 px-4 pr-12 rounded-xl border border-gray-200 bg-gray-50/50 text-gray-900 font-semibold"
+                                                        className="w-full h-10 px-4 pr-12 rounded-lg border border-gray-200 bg-gray-50/50 text-gray-900 font-semibold"
                                                         placeholder="123456"
                                                         inputMode="numeric"
                                                         autoComplete="one-time-code"
@@ -657,7 +657,7 @@ export default function ExamLoginPage() {
                                                 type="text"
                                                 value={rollNo}
                                                 onChange={(e) => setRollNo(e.target.value)}
-                                                className="w-full h-10 px-4 rounded-xl border border-gray-200 bg-gray-50/50 text-gray-900 font-semibold"
+                                                className="w-full h-10 px-4 rounded-lg border border-gray-200 bg-gray-50/50 text-gray-900 font-semibold"
                                                 placeholder="e.g. 210056"
                                             />
                                         </div>
@@ -669,7 +669,7 @@ export default function ExamLoginPage() {
                                                 type="text"
                                                 value={section}
                                                 onChange={(e) => setSection(e.target.value)}
-                                                className="w-full h-10 px-4 rounded-xl border border-gray-200 bg-gray-50/50 text-gray-900 font-semibold"
+                                                className="w-full h-10 px-4 rounded-lg border border-gray-200 bg-gray-50/50 text-gray-900 font-semibold"
                                                 placeholder="e.g. A"
                                             />
                                         </div>
@@ -683,7 +683,7 @@ export default function ExamLoginPage() {
                                             type="text"
                                             value={name}
                                             onChange={(e) => setName(e.target.value)}
-                                            className="w-full h-10 px-4 rounded-xl border border-gray-200 bg-gray-50/50 text-gray-900 font-semibold"
+                                            className="w-full h-10 px-4 rounded-lg border border-gray-200 bg-gray-50/50 text-gray-900 font-semibold"
                                             placeholder="Type your full name"
                                         />
                                     </div>
@@ -693,7 +693,7 @@ export default function ExamLoginPage() {
                                             type="button"
                                             onClick={() => handleLogin()}
                                             disabled={loading}
-                                            className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-all shadow-lg mt-4 flex items-center justify-center gap-2 disabled:opacity-70"
+                                            className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-all shadow-lg mt-4 flex items-center justify-center gap-2 disabled:opacity-70"
                                         >
                                             {loading ? <span>Verifying...</span> : <span>Start Exam</span>}
                                         </button>
@@ -703,7 +703,7 @@ export default function ExamLoginPage() {
                                                 type="button"
                                                 onClick={handleEmailPasswordSignIn}
                                                 disabled={isSignInLoading}
-                                                className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-all shadow-lg mt-4 flex items-center justify-center gap-2 disabled:opacity-70"
+                                                className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-all shadow-lg mt-4 flex items-center justify-center gap-2 disabled:opacity-70"
                                             >
                                                 {isSignInLoading ? (
                                                     <span>Signing in...</span>
@@ -716,7 +716,7 @@ export default function ExamLoginPage() {
                                                 type="button"
                                                 onClick={handleGoogleSignIn}
                                                 disabled={isGoogleLoading || !testCode.trim()}
-                                                className="w-full h-11 bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 font-medium rounded-xl transition-all mt-2 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                                                className="w-full h-11 bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 font-medium rounded-lg transition-all mt-2 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                                             >
                                                 {isGoogleLoading ? (
                                                     <span>Verifying Code...</span>
@@ -740,7 +740,7 @@ export default function ExamLoginPage() {
                                                 type="button"
                                                 onClick={handleSecondFactorSignIn}
                                                 disabled={isSignInLoading}
-                                                className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-all shadow-lg mt-4 flex items-center justify-center gap-2 disabled:opacity-70"
+                                                className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-all shadow-lg mt-4 flex items-center justify-center gap-2 disabled:opacity-70"
                                             >
                                                 {isSignInLoading ? (
                                                     <>
@@ -763,7 +763,7 @@ export default function ExamLoginPage() {
                                                     setError('');
                                                 }}
                                                 disabled={isSignInLoading}
-                                                className="w-full h-11 bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 font-medium rounded-xl transition-all mt-2 flex items-center justify-center gap-2 disabled:opacity-60"
+                                                className="w-full h-11 bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 font-medium rounded-lg transition-all mt-2 flex items-center justify-center gap-2 disabled:opacity-60"
                                             >
                                                 <ArrowLeft size={16} />
                                                 <span>Back to password</span>
@@ -806,7 +806,7 @@ export default function ExamLoginPage() {
                                 {examStats.map((stat) => (
                                     <div
                                         key={stat.label}
-                                        className="px-4 py-2.5 rounded-xl bg-white/10 border border-white/15"
+                                        className="px-4 py-2.5 rounded-lg bg-white/10 border border-white/15"
                                     >
                                         <p className="text-[10px] font-medium uppercase tracking-widest text-indigo-200">
                                             {stat.label}

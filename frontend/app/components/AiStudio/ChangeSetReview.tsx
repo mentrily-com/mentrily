@@ -153,15 +153,15 @@ export default function ChangeSetReview({
                 <p className="text-sm leading-6 text-gray-700">{changeset.summary}</p>
 
                 {applied ? (
-                    <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                    <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
                         Applied {appliedIds.size} change{appliedIds.size === 1 ? '' : 's'} to your {noun}.
                     </div>
                 ) : changeset.undone ? (
-                    <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
                         These changes were undone. You can apply them again.
                     </div>
                 ) : target.live ? (
-                    <div className="flex gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                    <div className="flex gap-2.5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
                         <AlertTriangle size={16} className="mt-0.5 shrink-0" />
                         <p>
                             This {noun} is live. Learners will see applied changes right away
@@ -174,7 +174,7 @@ export default function ChangeSetReview({
                 ) : null}
 
                 {outcome && outcome.skipped.length > 0 && (
-                    <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                    <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
                         <p className="font-medium">
                             {outcome.skipped.length} change{outcome.skipped.length === 1 ? ' was' : 's were'} skipped:
                         </p>
@@ -188,7 +188,7 @@ export default function ChangeSetReview({
                     </div>
                 )}
 
-                <ul className="divide-y divide-gray-100 overflow-hidden rounded-xl border border-gray-200">
+                <ul className="divide-y divide-gray-100 overflow-hidden rounded-lg border border-gray-200">
                     {changes.map((change) => {
                         const Icon = ICON[change.kind];
                         const isOpen = open === change.id;
@@ -255,14 +255,14 @@ export default function ChangeSetReview({
                             type="button"
                             onClick={() => void run('undo')}
                             disabled={busy !== null}
-                            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 py-2.5 text-sm font-medium text-gray-800 hover:bg-gray-50 disabled:opacity-50"
+                            className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-200 py-2.5 text-sm font-medium text-gray-800 hover:bg-gray-50 disabled:opacity-50"
                         >
                             {busy === 'undo' ? <Loader2 size={15} className="animate-spin" /> : <Undo2 size={15} />}
                             Undo
                         </button>
                         <Link
                             href={builderHref}
-                            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--brand)] py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-dark)]"
+                            className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--brand)] py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-dark)]"
                         >
                             Open in builder <ExternalLink size={14} />
                         </Link>
@@ -274,14 +274,14 @@ export default function ChangeSetReview({
                             <button
                                 type="button"
                                 onClick={() => setConfirming(false)}
-                                className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-medium text-gray-800 hover:bg-gray-50"
+                                className="flex-1 rounded-lg border border-gray-200 py-2.5 text-sm font-medium text-gray-800 hover:bg-gray-50"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="button"
                                 onClick={() => void run('apply')}
-                                className="flex-1 rounded-xl bg-[var(--brand)] py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-dark)]"
+                                className="flex-1 rounded-lg bg-[var(--brand)] py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-dark)]"
                             >
                                 Apply now
                             </button>
@@ -292,7 +292,7 @@ export default function ChangeSetReview({
                         type="button"
                         onClick={onApply}
                         disabled={busy !== null || selected.size === 0}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand)] py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-dark)] disabled:opacity-50"
+                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--brand)] py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-dark)] disabled:opacity-50"
                     >
                         {busy === 'apply' && <Loader2 size={15} className="animate-spin" />}
                         Apply {selected.size} change{selected.size === 1 ? '' : 's'}

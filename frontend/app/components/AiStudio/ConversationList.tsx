@@ -101,7 +101,7 @@ function Row({
                 <MoreHorizontal size={15} />
             </button>
             {menu && (
-                <div className="absolute right-0 top-full z-20 mt-1 w-44 overflow-hidden rounded-xl border border-gray-200 bg-white py-1 text-sm shadow-lg">
+                <div className="absolute right-0 top-full z-20 mt-1 w-44 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 text-sm shadow-lg">
                     <button
                         type="button"
                         onClick={() => {
@@ -174,7 +174,7 @@ export default function ConversationList({
                 <button
                     type="button"
                     onClick={onNew}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 py-2.5 text-sm font-semibold text-white hover:bg-gray-800"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-gray-900 py-2.5 text-sm font-semibold text-white hover:bg-gray-800"
                 >
                     <Plus size={16} /> New chat
                 </button>

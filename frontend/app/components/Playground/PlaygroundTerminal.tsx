@@ -37,7 +37,7 @@ export default function PlaygroundTerminal({
                             value={customInput}
                             onChange={(e) => onCustomInputChange(e.target.value)}
                             placeholder="Type your test input here..."
-                            className="flex-1 bg-[#161b22] border border-gray-800 rounded-xl p-4 text-[13px] text-gray-300 outline-none focus:border-orange-500/50 transition-colors resize-none custom-scrollbar"
+                            className="flex-1 bg-[#161b22] border border-gray-800 rounded-lg p-4 text-[13px] text-gray-300 outline-none focus:border-orange-500/50 transition-colors resize-none custom-scrollbar"
                         />
                     </div>
                 ) : (

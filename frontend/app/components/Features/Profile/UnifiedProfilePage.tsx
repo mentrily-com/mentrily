@@ -85,7 +85,7 @@ export default function UnifiedProfilePage() {
     return (
         <div className="animate-fade-in font-sans">
             <div
-                className="bg-white rounded-xl border p-6 md:p-8 mb-6 shadow-sm flex flex-col md:flex-row items-center gap-6 transition-all"
+                className="bg-white rounded-lg border p-6 md:p-8 mb-6 shadow-sm flex flex-col md:flex-row items-center gap-6 transition-all"
                 style={{ borderColor: 'var(--color-border-subtle)' }}
             >
                 <div className="w-20 h-20 md:w-24 md:h-24 rounded-lg bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white text-3xl font-medium shadow-lg overflow-hidden shrink-0">
@@ -151,7 +151,7 @@ export default function UnifiedProfilePage() {
             </div>
 
             <div
-                className="bg-white rounded-xl border p-4 md:p-6 shadow-sm mb-6"
+                className="bg-white rounded-lg border p-4 md:p-6 shadow-sm mb-6"
                 style={{ borderColor: 'var(--color-border-subtle)' }}
             >
                 <div className="clerk-profile-clean">

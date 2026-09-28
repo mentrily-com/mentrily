@@ -233,7 +233,7 @@ function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
                         </div>
 
                         {!examConfig && !mustChangePassword && (
-                            <nav className="hidden md:flex items-center gap-1 ml-4 bg-gray-50 p-1 rounded-xl">
+                            <nav className="hidden md:flex items-center gap-1 ml-4 bg-gray-50 p-1 rounded-lg">
                                 <NavItem
                                     active={isDashboard}
                                     onClick={() => router.push(basePath || dashboardRoute)}
@@ -582,7 +582,7 @@ function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
                         )}
 
                         {mustChangePassword && (
-                            <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-rose-50 border border-rose-100 rounded-xl animate-pulse">
+                            <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-rose-50 border border-rose-100 rounded-lg animate-pulse">
                                 <svg
                                     width="18"
                                     height="18"
@@ -623,7 +623,7 @@ function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
                             <div className="relative group/playground">
                                 <button
                                     data-element-id="playground-btn"
-                                    className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--brand-light)] text-[var(--brand)] font-medium text-sm transition-all hover:bg-[var(--brand)] hover:text-white active:scale-95 cursor-default"
+                                    className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--brand-light)] text-[var(--brand)] font-medium text-sm transition-all hover:bg-[var(--brand)] hover:text-white active:scale-95 cursor-default"
                                 >
                                     <svg
                                         width="16"
@@ -719,7 +719,7 @@ function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
                             {basePath?.includes('/dashboard/super-admin') && (
                                 <button
                                     onClick={() => router.push('/dashboard/super-admin/organizations')}
-                                    className="hidden sm:flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-800 rounded-xl text-[10px] font-semibold uppercase tracking-widest hover:bg-amber-200 transition-colors mr-2 shadow-sm border border-amber-200"
+                                    className="hidden sm:flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-800 rounded-lg text-[10px] font-semibold uppercase tracking-widest hover:bg-amber-200 transition-colors mr-2 shadow-sm border border-amber-200"
                                 >
                                     Exit View
                                 </button>
@@ -860,7 +860,7 @@ const ContentDropdown = React.memo(function ContentDropdown({
             </button>
 
             {open && (
-                <div className="absolute left-0 top-full mt-2 min-w-[180px] bg-white rounded-xl shadow-md ring-1 ring-gray-200 z-50 py-1">
+                <div className="absolute left-0 top-full mt-2 min-w-[180px] bg-white rounded-lg shadow-md ring-1 ring-gray-200 z-50 py-1">
                     {items.map((item) => (
                         <Link
                             key={item.path}
@@ -1098,7 +1098,7 @@ const AppsMenu = React.memo(function AppsMenu({ isTeacher }: { isTeacher: boolea
                 aria-haspopup="true"
                 aria-expanded={open}
                 aria-label="Apps"
-                className="w-10 h-10 rounded-xl border border-gray-100 flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-colors"
+                className="w-10 h-10 rounded-lg border border-gray-100 flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-colors"
             >
                 <svg
                     width="20"
@@ -1127,9 +1127,9 @@ const AppsMenu = React.memo(function AppsMenu({ isTeacher }: { isTeacher: boolea
                                 key={app.label}
                                 href={app.path}
                                 onClick={() => setOpen(false)}
-                                className="flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100"
+                                className="flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100"
                             >
-                                <div className="w-10 h-10 rounded-xl bg-[var(--brand-lighter)] text-[var(--brand)] flex items-center justify-center">
+                                <div className="w-10 h-10 rounded-lg bg-[var(--brand-lighter)] text-[var(--brand)] flex items-center justify-center">
                                     {app.icon}
                                 </div>
                                 <span className="text-[10px] font-medium text-gray-600 text-center">{app.label}</span>
@@ -1241,7 +1241,7 @@ function ProfileMenu({
                         aria-haspopup="true"
                         aria-expanded={open}
                         aria-label={`Account menu for ${displayName}`}
-                        className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white font-semibold text-sm overflow-hidden relative"
+                        className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white font-semibold text-sm overflow-hidden relative"
                     >
                         {avatarUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -1278,7 +1278,7 @@ function ProfileMenu({
                                         setOpen(false);
                                         examConfig.onRefresh?.();
                                     }}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                                 >
                                     <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500">
                                         <svg
@@ -1308,7 +1308,7 @@ function ProfileMenu({
                         aria-haspopup="true"
                         aria-expanded={open}
                         aria-label={`Account menu for ${displayName}`}
-                        className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white font-semibold text-sm overflow-hidden relative"
+                        className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white font-semibold text-sm overflow-hidden relative"
                     >
                         {avatarUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -1348,7 +1348,7 @@ function ProfileMenu({
                                         setOpen(false);
                                         router.push(`${dashboardPath}/profile`);
                                     }}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                                 >
                                     <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500">
                                         <svg
@@ -1372,7 +1372,7 @@ function ProfileMenu({
                                             setOpen(false);
                                             router.push('/dashboard/creator/billing');
                                         }}
-                                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                                     >
                                         <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500">
                                             <CreditCard size={16} />
@@ -1384,7 +1384,7 @@ function ProfileMenu({
                                 {canAccessSupport && (
                                     <button
                                         onClick={handleSupportClick}
-                                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                                     >
                                         <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500">
                                             <LifeBuoy size={16} />
@@ -1397,7 +1397,7 @@ function ProfileMenu({
 
                                 <button
                                     onClick={handleSignOut}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-colors"
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-colors"
                                 >
                                     <div className="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center text-rose-500">
                                         <svg
@@ -1493,7 +1493,7 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                     aria-haspopup="true"
                     aria-expanded={open}
                     aria-label="Announcements"
-                    className="hidden sm:flex w-10 h-10 rounded-xl border border-gray-100 items-center justify-center text-gray-400 hover:bg-gray-50 hover:text-[var(--brand)] transition-all relative"
+                    className="hidden sm:flex w-10 h-10 rounded-lg border border-gray-100 items-center justify-center text-gray-400 hover:bg-gray-50 hover:text-[var(--brand)] transition-all relative"
                     title="Announcements"
                 >
                     <Megaphone size={18} />
@@ -1578,7 +1578,7 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                             <button
                                 onClick={() => setSelectedAnn(null)}
                                 aria-label="Close"
-                                className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl sm:rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-400 transition-all active:scale-95"
+                                className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-lg sm:rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-400 transition-all active:scale-95"
                             >
                                 <X size={20} strokeWidth={3} />
                             </button>
@@ -1642,7 +1642,7 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                                                 onClick={() => handleDownload(att.url, att.name)}
                                                 className="w-full flex items-center gap-3 px-4 py-3 bg-white rounded-lg border border-gray-100 hover:border-[var(--brand-light)] hover:shadow-sm transition-all cursor-pointer"
                                             >
-                                                <div className="w-8 h-8 rounded-xl bg-gray-50 flex items-center justify-center">
+                                                <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center">
                                                     {att.type?.startsWith('image/') ? (
                                                         <ImageIcon size={16} className="text-blue-500" />
                                                     ) : att.type?.includes('pdf') ? (

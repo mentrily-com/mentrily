@@ -42,7 +42,7 @@ export default function UsersTable({
 
     return (
         <div
-            className="bg-white rounded-xl border shadow-sm overflow-hidden min-h-[500px] flex flex-col"
+            className="bg-white rounded-lg border shadow-sm overflow-hidden min-h-[500px] flex flex-col"
             style={{ borderColor: 'var(--color-border-subtle)' }}
         >
             <div className="overflow-x-auto overscroll-x-contain">

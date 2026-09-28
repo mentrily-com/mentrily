@@ -23,7 +23,7 @@ export default function StudioRecentSubmissions({ submissions }: StudioRecentSub
                     <div className="text-gray-400 text-sm font-medium">No recent activity.</div>
                 )}
             </div>
-            <button className="w-full mt-8 py-3 bg-gray-50 text-gray-500 text-xs font-semibold uppercase tracking-widest rounded-xl hover:bg-gray-100 transition-colors">
+            <button className="w-full mt-8 py-3 bg-gray-50 text-gray-500 text-xs font-semibold uppercase tracking-widest rounded-lg hover:bg-gray-100 transition-colors">
                 View All Activity
             </button>
         </div>

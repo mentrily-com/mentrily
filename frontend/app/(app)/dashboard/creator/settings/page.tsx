@@ -97,7 +97,7 @@ export default function CreatorSettingsPage() {
                         </p>
                         <Link
                             href="/dashboard/creator/billing"
-                            className="mt-6 inline-flex rounded-xl bg-[var(--brand)] px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white hover:bg-[var(--brand-dark)]"
+                            className="mt-6 inline-flex rounded-lg bg-[var(--brand)] px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white hover:bg-[var(--brand-dark)]"
                         >
                             View Plans
                         </Link>

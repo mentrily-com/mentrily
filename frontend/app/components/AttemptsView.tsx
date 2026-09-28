@@ -106,7 +106,7 @@ export default function AttemptsView({
                         <select
                             value={filter}
                             onChange={(e) => setFilter(e.target.value as any)}
-                            className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-[12px] font-medium text-gray-700 cursor-pointer outline-none hover:border-[var(--brand)] hover:shadow-sm transition-all focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand-lighter)]"
+                            className="w-full appearance-none bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-[12px] font-medium text-gray-700 cursor-pointer outline-none hover:border-[var(--brand)] hover:shadow-sm transition-all focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand-lighter)]"
                         >
                             <option value="all">ALL ({counts.all})</option>
                             <option value="failed">Failed ({counts.failed})</option>

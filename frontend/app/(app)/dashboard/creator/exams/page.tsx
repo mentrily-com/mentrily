@@ -443,7 +443,7 @@ function ExamAction({ label, icon, active, variant = 'default', onClick }: any) 
         <button
             type="button"
             onClick={onClick}
-            className={`relative flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-black/5 px-3 py-2.5 shadow-sm transition-all sm:w-auto sm:px-4 sm:py-2 ${active ? 'border-transparent bg-[var(--brand)] text-white shadow-sm' : variants[variant]}`}
+            className={`relative flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-black/5 px-3 py-2.5 shadow-sm transition-all sm:w-auto sm:px-4 sm:py-2 ${active ? 'border-transparent bg-[var(--brand)] text-white shadow-sm' : variants[variant]}`}
         >
             {icon}
             <span className="text-[10px] font-semibold uppercase tracking-widest">{label}</span>

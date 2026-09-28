@@ -285,7 +285,7 @@ export default function WebEditor({
                                     })
                                 }
                                 data-element-id="starter-submit-answer"
-                                className={`px-4 sm:px-10 py-2.5 sm:py-3 bg-[var(--brand)] text-white font-semibold rounded-xl text-[11px] sm:text-[12px] uppercase tracking-widest shadow-lg shadow-[var(--brand-light)] hover:bg-[var(--brand-dark)] hover:-translate-y-0.5 transition-all active:translate-y-0 active:scale-[0.98] flex items-center gap-2 shrink-0`}
+                                className={`px-4 sm:px-10 py-2.5 sm:py-3 bg-[var(--brand)] text-white font-semibold rounded-lg text-[11px] sm:text-[12px] uppercase tracking-widest shadow-lg shadow-[var(--brand-light)] hover:bg-[var(--brand-dark)] hover:-translate-y-0.5 transition-all active:translate-y-0 active:scale-[0.98] flex items-center gap-2 shrink-0`}
                             >
                                 {submitLabel}
                                 <svg
@@ -341,7 +341,7 @@ export default function WebEditor({
                 /* Autocomplete / Code Suggestions fix */
                 .cm-tooltip.cm-tooltip-autocomplete {
                     background-color: #ffffff !important;
-                    border: 1px solid #e2e8f0 !important;
+                    border: 1px solid #dce0e6 !important;
                     border-radius: 8px !important;
                     box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1) !important;
                     overflow: hidden !important;
@@ -379,7 +379,7 @@ export default function WebEditor({
                     color: #059669 !important;
                 }
                 .cm-comment {
-                    color: #94a3b8 !important;
+                    color: #9fa5b0 !important;
                     font-style: italic;
                 }
                 .cm-number {

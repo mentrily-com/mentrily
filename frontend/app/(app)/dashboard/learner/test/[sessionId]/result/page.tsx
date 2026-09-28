@@ -132,7 +132,7 @@ export default function ExamResultPage({ params }: { params: Promise<{ sessionId
                 <div className="flex min-w-0 items-start gap-3">
                     <button
                         onClick={() => setIsSidebarHidden(!isSidebarHidden)}
-                        className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gray-100 bg-gray-50 text-gray-500 transition-colors hover:text-[var(--brand)] md:hidden"
+                        className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-100 bg-gray-50 text-gray-500 transition-colors hover:text-[var(--brand)] md:hidden"
                         aria-label={isSidebarHidden ? 'Show questions' : 'Hide questions'}
                     >
                         <svg
@@ -159,7 +159,7 @@ export default function ExamResultPage({ params }: { params: Promise<{ sessionId
                 </div>
                 <div className="flex flex-wrap items-stretch gap-3 sm:items-center sm:gap-4">
                     <div
-                        className={`min-w-[132px] flex-1 rounded-xl px-4 py-2 text-left sm:flex-none sm:text-right ${
+                        className={`min-w-[132px] flex-1 rounded-lg px-4 py-2 text-left sm:flex-none sm:text-right ${
                             passed ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
                         }`}
                     >

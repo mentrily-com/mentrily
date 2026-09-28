@@ -22,7 +22,7 @@ export default function UpgradeBanner({
             <button
                 type="button"
                 onClick={onUpgrade}
-                className="px-4 py-2 rounded-xl bg-[var(--brand)] text-white text-[10px] font-semibold uppercase tracking-widest hover:bg-[var(--brand-dark)] transition-all"
+                className="px-4 py-2 rounded-lg bg-[var(--brand)] text-white text-[10px] font-semibold uppercase tracking-widest hover:bg-[var(--brand-dark)] transition-all"
             >
                 {ctaLabel}
             </button>

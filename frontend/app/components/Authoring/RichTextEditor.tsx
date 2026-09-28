@@ -88,7 +88,7 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
             Youtube.configure({
                 inline: false,
                 HTMLAttributes: {
-                    class: 'w-full aspect-video rounded-xl shadow-lg my-4 overflow-hidden border border-gray-200 dark:border-gray-700',
+                    class: 'w-full aspect-video rounded-lg shadow-lg my-4 overflow-hidden border border-gray-200 dark:border-gray-700',
                 },
             }),
         ];
@@ -197,7 +197,7 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
             <div
                 className={`flex flex-wrap items-center gap-1 p-3 border-b sticky top-0 z-10 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'}`}
             >
-                <div className="flex bg-white/10 rounded-xl p-0.5 gap-0.5 shadow-inner">
+                <div className="flex bg-white/10 rounded-lg p-0.5 gap-0.5 shadow-inner">
                     <ToolbarBtn
                         onClick={() => editor.chain().undo().run()}
                         icon={<Undo size={15} />}
@@ -213,7 +213,7 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
                 </div>
                 <Divider dark={isDarkMode} />
 
-                <div className="flex bg-white/10 rounded-xl p-0.5 gap-0.5 shadow-inner">
+                <div className="flex bg-white/10 rounded-lg p-0.5 gap-0.5 shadow-inner">
                     <ToolbarBtn
                         onClick={() => editor.chain().focus().toggleBold().run()}
                         active={editor.isActive('bold')}
@@ -245,7 +245,7 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
                 </div>
                 <Divider dark={isDarkMode} />
 
-                <div className="flex bg-white/10 rounded-xl p-0.5 gap-0.5 shadow-inner">
+                <div className="flex bg-white/10 rounded-lg p-0.5 gap-0.5 shadow-inner">
                     <ToolbarBtn
                         onClick={() => editor.chain().focus().toggleCode().run()}
                         active={editor.isActive('code')}
@@ -270,7 +270,7 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
                 </div>
                 <Divider dark={isDarkMode} />
 
-                <div className="flex bg-white/10 rounded-xl p-0.5 gap-0.5 shadow-inner">
+                <div className="flex bg-white/10 rounded-lg p-0.5 gap-0.5 shadow-inner">
                     <ToolbarBtn
                         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
                         active={editor.isActive('heading', { level: 1 })}
@@ -295,7 +295,7 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
                 </div>
                 <Divider dark={isDarkMode} />
 
-                <div className="flex bg-white/10 rounded-xl p-0.5 gap-0.5 shadow-inner">
+                <div className="flex bg-white/10 rounded-lg p-0.5 gap-0.5 shadow-inner">
                     <ToolbarBtn
                         onClick={() => editor.chain().focus().setTextAlign('left').run()}
                         active={editor.isActive({ textAlign: 'left' })}
@@ -327,7 +327,7 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
                 </div>
                 <Divider dark={isDarkMode} />
 
-                <div className="flex bg-white/10 rounded-xl p-0.5 gap-0.5 shadow-inner">
+                <div className="flex bg-white/10 rounded-lg p-0.5 gap-0.5 shadow-inner">
                     <ToolbarBtn
                         onClick={() => editor.chain().focus().toggleBulletList().run()}
                         active={editor.isActive('bulletList')}
@@ -345,7 +345,7 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
                 </div>
                 <Divider dark={isDarkMode} />
 
-                <div className="flex bg-white/10 rounded-xl p-0.5 gap-0.5 shadow-inner">
+                <div className="flex bg-white/10 rounded-lg p-0.5 gap-0.5 shadow-inner">
                     <ToolbarBtn
                         onClick={() => editor.chain().focus().toggleSubscript().run()}
                         active={editor.isActive('subscript')}
@@ -363,7 +363,7 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
                 </div>
                 <Divider dark={isDarkMode} />
 
-                <div className="flex bg-white/10 rounded-xl p-0.5 gap-0.5 shadow-inner">
+                <div className="flex bg-white/10 rounded-lg p-0.5 gap-0.5 shadow-inner">
                     <ToolbarBtn
                         onClick={setLink}
                         active={editor.isActive(linkName)}
@@ -392,7 +392,7 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
                     <button
                         type="button"
                         onClick={() => setIsDarkMode(!isDarkMode)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-widest transition-all ${
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-widest transition-all ${
                             isDarkMode
                                 ? 'bg-[var(--brand)] text-white hover:brightness-110 shadow-sm'
                                 : 'bg-gray-100 text-gray-500 hover:bg-gray-200'

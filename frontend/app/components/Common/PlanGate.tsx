@@ -52,7 +52,7 @@ export default function PlanGate({ feature, requiredPlan, children }: PlanGatePr
         <div className="relative rounded-lg border border-gray-200 bg-white overflow-hidden">
             <div className="opacity-40 pointer-events-none">{children}</div>
             <div className="absolute inset-0 flex items-center justify-center bg-white/70">
-                <div className="text-center px-6 py-5 rounded-xl border border-gray-200 bg-white shadow-sm">
+                <div className="text-center px-6 py-5 rounded-lg border border-gray-200 bg-white shadow-sm">
                     <div className="mx-auto mb-2 w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
                         <Lock size={16} className="text-gray-600" />
                     </div>

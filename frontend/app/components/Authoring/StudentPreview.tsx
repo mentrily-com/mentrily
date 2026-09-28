@@ -109,7 +109,7 @@ export default function StudentPreview({ question, mode, setMode }: StudentPrevi
         <div className="absolute inset-0 z-50 flex flex-col overflow-hidden bg-[#f4f6f9]">
             {/* Renderer Container - Using exact UnitRenderer */}
             <div
-                className={`mx-auto flex-1 overflow-hidden transition-all duration-300 ${mode === 'mobile' ? 'my-4 w-[375px] rounded-lg bg-gray-900 p-2 shadow-[0_18px_60px_rgba(15,23,42,0.28)]' : 'w-full bg-white'}`}
+                className={`mx-auto flex-1 overflow-hidden transition-all duration-300 ${mode === 'mobile' ? 'my-4 w-[375px] rounded-lg bg-gray-900 p-2 shadow-md' : 'w-full bg-white'}`}
             >
                 <UnitRenderer
                     question={unitQuestion as UnitQuestion}

@@ -187,7 +187,7 @@ export default function PricingTeaser() {
 
                             <Link
                                 href={tier.href}
-                                className="block w-full py-2.5 text-center text-sm font-semibold rounded-xl transition-all duration-200 cursor-pointer"
+                                className="block w-full py-2.5 text-center text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer"
                                 style={{
                                     background: tier.highlighted
                                         ? 'linear-gradient(135deg, #007c85, #005359)'

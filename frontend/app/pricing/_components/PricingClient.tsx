@@ -105,7 +105,7 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
                 </div>
 
                 <div className="flex justify-center mt-8">
-                    <div className="flex items-center bg-[#1e293b] rounded-xl p-1 border border-gray-700">
+                    <div className="flex items-center bg-[#1e293b] rounded-lg p-1 border border-gray-700">
                         <button
                             onClick={() => setAnnual(false)}
                             className={`px-5 py-2 rounded-lg text-xs font-semibold uppercase tracking-widest transition-all ${
@@ -187,7 +187,7 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
 
                                 <Link
                                     href={ctaHref}
-                                    className={`mt-6 w-full py-3 rounded-xl inline-flex justify-center text-[10px] font-semibold uppercase tracking-widest transition-all ${
+                                    className={`mt-6 w-full py-3 rounded-lg inline-flex justify-center text-[10px] font-semibold uppercase tracking-widest transition-all ${
                                         isPro
                                             ? 'bg-[var(--brand)] hover:bg-[var(--brand-dark)] text-white'
                                             : 'bg-gray-100 text-gray-700 hover:bg-white'

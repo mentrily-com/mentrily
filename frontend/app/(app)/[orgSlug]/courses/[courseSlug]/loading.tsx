@@ -10,7 +10,7 @@ export default function PublicCourseLoading() {
                     <div className="h-56 w-full animate-pulse bg-gray-100" />
                     <div className="p-8">
                         <div className="mb-4 flex items-center gap-3">
-                            <div className="h-10 w-10 animate-pulse rounded-xl bg-gray-100" />
+                            <div className="h-10 w-10 animate-pulse rounded-lg bg-gray-100" />
                             <div className="h-3 w-28 animate-pulse rounded bg-gray-100" />
                         </div>
                         <div className="h-7 w-2/3 animate-pulse rounded-lg bg-gray-200" />

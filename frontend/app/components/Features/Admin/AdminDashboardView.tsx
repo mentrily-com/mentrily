@@ -218,7 +218,7 @@ export default function AdminDashboardView({
                         </p>
                     </div>
                     {lastUpdatedLabel && (
-                        <div className="hidden sm:flex items-center gap-2 px-3 py-2 bg-white border border-gray-100 rounded-xl text-[10px] font-semibold uppercase tracking-widest text-gray-500">
+                        <div className="hidden sm:flex items-center gap-2 px-3 py-2 bg-white border border-gray-100 rounded-lg text-[10px] font-semibold uppercase tracking-widest text-gray-500">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                             Last updated: {lastUpdatedLabel}
                         </div>
@@ -302,7 +302,7 @@ export default function AdminDashboardView({
                 </div>
 
                 {highestPercent >= 80 && highestPercent < 100 && showUpgradeBanner && (
-                    <div className="mb-8 rounded-xl border border-amber-300 bg-amber-50 p-4 flex items-center justify-between gap-4">
+                    <div className="mb-8 rounded-lg border border-amber-300 bg-amber-50 p-4 flex items-center justify-between gap-4">
                         <p className="text-sm font-semibold text-amber-900">
                             You’re nearing your plan limits. Upgrade to {nextPlan} for more capacity.
                         </p>
@@ -333,7 +333,7 @@ export default function AdminDashboardView({
                 {plan === 'FREE' && (
                     <div className="mb-12 bg-white rounded-lg border border-gray-100 p-6 shadow-sm">
                         <h3 className="text-base font-semibold text-gray-900 mb-4">Team Members</h3>
-                        <div className="rounded-xl border border-gray-200 bg-gray-50 p-8 text-center">
+                        <div className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center">
                             <p className="text-sm font-semibold text-gray-600">
                                 Upgrade to Starter to invite teachers to your school.
                             </p>
@@ -359,7 +359,7 @@ export default function AdminDashboardView({
                         <div className="bg-white rounded-lg border border-gray-100 p-8 shadow-sm">
                             <div className="flex items-center justify-between mb-8">
                                 <h3 className="text-lg font-semibold text-gray-800 tracking-tight">Activity Overview</h3>
-                                <select className="bg-gray-50 border-none text-[10px] font-semibold uppercase tracking-widest text-gray-400 px-4 py-2 rounded-xl outline-none">
+                                <select className="bg-gray-50 border-none text-[10px] font-semibold uppercase tracking-widest text-gray-400 px-4 py-2 rounded-lg outline-none">
                                     <option>Last 7 Days</option>
                                     <option>Last 30 Days</option>
                                 </select>
@@ -458,7 +458,7 @@ export default function AdminDashboardView({
 
                             <Link
                                 href={`${basePath}/exams`}
-                                className="block w-full py-4 bg-[var(--brand)] hover:bg-[var(--brand-dark)] text-white font-semibold text-xs uppercase tracking-widest rounded-xl transition-all text-center mt-6"
+                                className="block w-full py-4 bg-[var(--brand)] hover:bg-[var(--brand-dark)] text-white font-semibold text-xs uppercase tracking-widest rounded-lg transition-all text-center mt-6"
                             >
                                 View Exam Monitor
                             </Link>

@@ -107,7 +107,7 @@ export default function StudioModuleList({
             <div className="space-y-3">
                 {modules.length === 0 ? (
                     <div
-                        className="text-sm font-medium py-12 text-center rounded-xl"
+                        className="text-sm font-medium py-12 text-center rounded-lg"
                         style={{
                             color: 'var(--color-text-muted)',
                             backgroundColor: 'var(--color-bg-subtle)',
@@ -120,7 +120,7 @@ export default function StudioModuleList({
                     modules.map((module) => (
                         <div
                             key={module.slug}
-                            className="bg-white rounded-xl border p-5 transition-all duration-200 hover:shadow-md cursor-default"
+                            className="bg-white rounded-lg border p-5 transition-all duration-200 hover:shadow-md cursor-default"
                             style={{ borderColor: 'var(--color-border-subtle)' }}
                         >
                             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

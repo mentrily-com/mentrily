@@ -19,7 +19,7 @@ export default function LearnerTestAttemptsSkeleton() {
             </div>
 
             <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8">
-                <div className="overflow-hidden bg-white border border-gray-100 rounded-xl shadow-sm">
+                <div className="overflow-hidden bg-white border border-gray-100 rounded-lg shadow-sm">
                     <div className="hidden md:flex items-center px-6 py-4 bg-gray-50/50 border-b border-gray-100">
                         <div className="h-2.5 w-16 animate-pulse rounded bg-gray-200 w-1/2" />
                         <div className="h-2.5 w-16 animate-pulse rounded bg-gray-200" />

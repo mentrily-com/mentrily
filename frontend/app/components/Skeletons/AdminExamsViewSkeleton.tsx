@@ -36,7 +36,7 @@ export default function AdminExamsViewSkeleton() {
             </div>
 
             {/* Content table */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden min-h-[500px]">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden min-h-[500px]">
                 <div className="flex items-center gap-8 px-8 py-5 border-b border-gray-100 bg-gray-50/50">
                     {[1, 2, 3, 4, 5].map((i) => (
                         <div key={i} className="h-2.5 w-20 animate-pulse rounded bg-gray-200" />
@@ -66,9 +66,9 @@ export default function AdminExamsViewSkeleton() {
                             </div>
                             <div className="h-3 w-24 animate-pulse rounded bg-gray-100" />
                             <div className="ml-auto flex items-center gap-2">
-                                <div className="h-8 w-8 animate-pulse rounded-xl bg-gray-100" />
-                                <div className="h-8 w-24 animate-pulse rounded-xl bg-gray-100" />
-                                <div className="h-8 w-8 animate-pulse rounded-xl bg-gray-100" />
+                                <div className="h-8 w-8 animate-pulse rounded-lg bg-gray-100" />
+                                <div className="h-8 w-24 animate-pulse rounded-lg bg-gray-100" />
+                                <div className="h-8 w-8 animate-pulse rounded-lg bg-gray-100" />
                             </div>
                         </div>
                     ))}

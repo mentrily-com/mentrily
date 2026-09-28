@@ -360,7 +360,7 @@ function FAQ() {
                     return (
                         <div
                             key={i}
-                            className="rounded-xl overflow-hidden"
+                            className="rounded-lg overflow-hidden"
                             style={{
                                 border: '1px solid #dce0e6',
                                 backgroundColor: '#FFFFFF',

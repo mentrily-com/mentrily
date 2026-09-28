@@ -24,8 +24,8 @@ export default function CreatorDashboardSkeleton() {
                     <div className="h-9 w-full max-w-xl animate-pulse rounded-lg bg-gray-200 sm:h-10" />
                     <div className="h-4 w-full max-w-md animate-pulse rounded-md bg-gray-100" />
                     <div className="flex flex-wrap gap-3">
-                        <div className="h-11 w-36 animate-pulse rounded-xl bg-gray-200" />
-                        <div className="h-11 w-32 animate-pulse rounded-xl bg-gray-100" />
+                        <div className="h-11 w-36 animate-pulse rounded-lg bg-gray-200" />
+                        <div className="h-11 w-32 animate-pulse rounded-lg bg-gray-100" />
                     </div>
                 </div>
             </div>
@@ -35,7 +35,7 @@ export default function CreatorDashboardSkeleton() {
                 {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
                         <div className="flex items-center justify-between">
-                            <div className="h-10 w-10 animate-pulse rounded-xl bg-gray-100" />
+                            <div className="h-10 w-10 animate-pulse rounded-lg bg-gray-100" />
                             <div className="h-4 w-14 animate-pulse rounded-full bg-gray-100" />
                         </div>
                         <div className="mt-4 h-2.5 w-16 animate-pulse rounded bg-gray-100" />

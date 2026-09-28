@@ -26,7 +26,7 @@ export default function AdminSettingsSkeleton() {
                     {[1, 2, 3].map((section) => (
                         <div key={section} className="space-y-6 rounded-lg border border-gray-100 bg-white p-6">
                             <div className="flex items-center gap-3">
-                                <div className="h-11 w-11 animate-pulse rounded-xl bg-gray-100" />
+                                <div className="h-11 w-11 animate-pulse rounded-lg bg-gray-100" />
                                 <div className="space-y-2">
                                     <div className="h-4 w-40 animate-pulse rounded bg-gray-200" />
                                     <div className="h-3 w-56 animate-pulse rounded bg-gray-100" />
@@ -36,7 +36,7 @@ export default function AdminSettingsSkeleton() {
                                 {[1, 2, 3, 4].map((field) => (
                                     <div key={field} className="space-y-2">
                                         <div className="h-3 w-24 animate-pulse rounded bg-gray-100" />
-                                        <div className="h-11 w-full animate-pulse rounded-xl bg-gray-50" />
+                                        <div className="h-11 w-full animate-pulse rounded-lg bg-gray-50" />
                                     </div>
                                 ))}
                             </div>

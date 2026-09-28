@@ -290,7 +290,7 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
                                                     />
                                                 </div>
                                             </div>
-                                            <div className="rounded-xl overflow-hidden border border-gray-700">
+                                            <div className="rounded-lg overflow-hidden border border-gray-700">
                                                 <CodeMirrorEditor
                                                     value={block.runnerConfig?.initialCode || ''}
                                                     onChange={(val) =>
@@ -308,7 +308,7 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
                                         /* Video Block */
                                         <div className="p-6 bg-gray-50">
                                             {/* Source toggle: uploaded file vs YouTube segment */}
-                                            <div className="flex items-center gap-1 mb-4 bg-white border border-gray-200 rounded-xl p-1 w-fit">
+                                            <div className="flex items-center gap-1 mb-4 bg-white border border-gray-200 rounded-lg p-1 w-fit">
                                                 <button
                                                     onClick={() => updateBlock(index, { videoSource: 'upload' })}
                                                     className={`px-3 py-1.5 rounded-lg text-[10px] font-semibold uppercase tracking-widest transition-colors ${
@@ -432,7 +432,7 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
                                                         </button>
 
                                                         {uploadStates[block.id] === 'error' && (
-                                                            <div className="flex items-center gap-2 text-[11px] font-medium text-rose-600 bg-rose-50 px-4 py-2.5 rounded-xl border border-rose-100">
+                                                            <div className="flex items-center gap-2 text-[11px] font-medium text-rose-600 bg-rose-50 px-4 py-2.5 rounded-lg border border-rose-100">
                                                                 <AlertCircle size={13} />
                                                                 {uploadErrors[block.id] ||
                                                                     'Upload failed. Please try again.'}
@@ -578,7 +578,7 @@ function YouTubeVideoBlockEditor({
                     onChange={(e) => setUrlInput(e.target.value)}
                     onBlur={handleUrlBlur}
                     placeholder="https://www.youtube.com/watch?v=..."
-                    className="w-full bg-white text-gray-700 text-xs font-medium px-3 py-2.5 rounded-xl border border-gray-200 focus:border-violet-400 outline-none"
+                    className="w-full bg-white text-gray-700 text-xs font-medium px-3 py-2.5 rounded-lg border border-gray-200 focus:border-violet-400 outline-none"
                 />
                 {urlError && (
                     <div className="flex items-center gap-2 text-[11px] font-medium text-rose-600">
@@ -599,7 +599,7 @@ function YouTubeVideoBlockEditor({
                         onChange={(e) => setStartInput(e.target.value)}
                         onBlur={handleTimesBlur}
                         placeholder="0:00"
-                        className="w-full bg-white text-gray-700 text-xs font-medium px-3 py-2.5 rounded-xl border border-gray-200 focus:border-violet-400 outline-none tabular-nums"
+                        className="w-full bg-white text-gray-700 text-xs font-medium px-3 py-2.5 rounded-lg border border-gray-200 focus:border-violet-400 outline-none tabular-nums"
                     />
                 </div>
                 <div className="flex flex-col gap-1 w-32">
@@ -612,7 +612,7 @@ function YouTubeVideoBlockEditor({
                         onChange={(e) => setEndInput(e.target.value)}
                         onBlur={handleTimesBlur}
                         placeholder="Play to end"
-                        className="w-full bg-white text-gray-700 text-xs font-medium px-3 py-2.5 rounded-xl border border-gray-200 focus:border-violet-400 outline-none tabular-nums"
+                        className="w-full bg-white text-gray-700 text-xs font-medium px-3 py-2.5 rounded-lg border border-gray-200 focus:border-violet-400 outline-none tabular-nums"
                     />
                 </div>
             </div>

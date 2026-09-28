@@ -44,7 +44,7 @@ function QuestionRow({
         <li
             ref={setNodeRef}
             style={{ transform: CSS.Transform.toString(transform), transition }}
-            className={`space-y-1.5 rounded-xl border bg-white px-2 py-2 ${
+            className={`space-y-1.5 rounded-lg border bg-white px-2 py-2 ${
                 isDragging ? 'z-10 border-[var(--brand)] shadow-lg' : 'border-gray-200'
             }`}
         >

@@ -106,7 +106,7 @@ function VisibilityToggle({ active, onClick, label }: { active: boolean; onClick
             type="button"
             onMouseDown={(e) => e.preventDefault()} // Prevents focus stealing from editor if clicking
             onClick={handleBtnClick}
-            className={`flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-[11px] font-semibold uppercase tracking-widest transition-all active:scale-95 ${
+            className={`flex items-center gap-2.5 px-5 py-2.5 rounded-lg text-[11px] font-semibold uppercase tracking-widest transition-all active:scale-95 ${
                 active
                     ? 'bg-white text-[var(--brand)] shadow-sm ring-1 ring-gray-200/50'
                     : 'text-gray-400 hover:text-gray-600 hover:bg-gray-200/50'

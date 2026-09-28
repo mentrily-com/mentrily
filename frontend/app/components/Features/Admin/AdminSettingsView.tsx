@@ -120,7 +120,7 @@ export default function AdminSettingsView({
                                                 status: branding.status === 'Active' ? 'Paused' : 'Active',
                                             })
                                         }
-                                        className={`px-6 py-3 rounded-xl text-[10px] font-semibold uppercase tracking-widest flex items-center gap-2 transition-all ${branding.status === 'Active' ? 'bg-rose-100 text-rose-600 hover:bg-rose-200' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'}`}
+                                        className={`px-6 py-3 rounded-lg text-[10px] font-semibold uppercase tracking-widest flex items-center gap-2 transition-all ${branding.status === 'Active' ? 'bg-rose-100 text-rose-600 hover:bg-rose-200' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'}`}
                                     >
                                         {branding.status === 'Active' ? (
                                             <>
@@ -308,7 +308,7 @@ export default function AdminSettingsView({
                                     <div
                                         className={`flex items-center gap-4 p-4 border-2 border-dashed ${branding.logo ? 'border-[var(--brand)] bg-[var(--brand-light)]/10' : 'border-gray-100 bg-gray-50/50'} rounded-lg hover:bg-gray-50 transition-all cursor-pointer`}
                                     >
-                                        <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-gray-300 group-hover:text-[var(--brand)] shadow-sm transition-all overflow-hidden">
+                                        <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center text-gray-300 group-hover:text-[var(--brand)] shadow-sm transition-all overflow-hidden">
                                             {branding.logo ? (
                                                 typeof branding.logo === 'string' ? (
                                                     <img
@@ -411,7 +411,7 @@ export default function AdminSettingsView({
 
                 {/* Right: Preview Card */}
                 <div className="space-y-8">
-                    <div className="bg-gray-900 rounded-xl p-8 text-white relative overflow-hidden h-fit sticky top-32 shadow-md">
+                    <div className="bg-gray-900 rounded-lg p-8 text-white relative overflow-hidden h-fit sticky top-32 shadow-md">
                         <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/40 mb-10">
                             Live Portal Preview
                         </p>
@@ -419,7 +419,7 @@ export default function AdminSettingsView({
                         <div className="space-y-8 relative z-10">
                             <div className="flex items-center gap-4">
                                 <div
-                                    className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg"
+                                    className="w-12 h-12 rounded-lg flex items-center justify-center shadow-lg"
                                     style={{ backgroundColor: branding.primaryColor }}
                                 >
                                     <span className="text-white font-semibold text-sm">
@@ -466,7 +466,7 @@ export default function AdminSettingsView({
 
 function SettingsSection({ icon, title, desc, children }: any) {
     return (
-        <div className="bg-white rounded-xl border border-gray-200 p-6 md:p-8 shadow-sm">
+        <div className="bg-white rounded-lg border border-gray-200 p-6 md:p-8 shadow-sm">
             <div className="flex items-start gap-4 mb-8">
                 <div className="w-12 h-12 rounded-lg bg-[var(--color-bg-subtle)] flex items-center justify-center text-gray-500 shrink-0">
                     {icon}
@@ -495,7 +495,7 @@ function PermissionToggle({
     return (
         <div
             onClick={onClick}
-            className={`cursor-pointer p-4 rounded-xl border flex items-center justify-between transition-all ${isSub ? 'py-3 px-4 border-transparent hover:bg-white' : active ? 'bg-[var(--brand-light)] border-[var(--brand-light)] shadow-sm' : 'bg-white border-gray-100 hover:border-gray-200'}`}
+            className={`cursor-pointer p-4 rounded-lg border flex items-center justify-between transition-all ${isSub ? 'py-3 px-4 border-transparent hover:bg-white' : active ? 'bg-[var(--brand-light)] border-[var(--brand-light)] shadow-sm' : 'bg-white border-gray-100 hover:border-gray-200'}`}
         >
             <span
                 className={`font-semibold uppercase tracking-wider ${isSub ? 'text-[10px] text-gray-500' : 'text-xs ' + (active ? 'text-[var(--brand-dark)]' : 'text-gray-400')}`}

@@ -156,7 +156,7 @@ export default function Hero() {
                             >
                                 <Link
                                     href="/signup"
-                                    className="group inline-flex items-center gap-2 px-7 py-3.5 text-sm font-semibold text-white rounded-xl transition-all duration-200 cursor-pointer"
+                                    className="group inline-flex items-center gap-2 px-7 py-3.5 text-sm font-semibold text-white rounded-lg transition-all duration-200 cursor-pointer"
                                     style={{
                                         background: 'linear-gradient(135deg, #007c85 0%, #005359 100%)',
                                         boxShadow: '0 4px 16px rgba(0,141,152,0.25)',
@@ -178,7 +178,7 @@ export default function Hero() {
                                 </Link>
                                 <Link
                                     href="/pricing"
-                                    className="inline-flex items-center px-7 py-3.5 text-sm font-semibold rounded-xl border transition-all duration-200 cursor-pointer"
+                                    className="inline-flex items-center px-7 py-3.5 text-sm font-semibold rounded-lg border transition-all duration-200 cursor-pointer"
                                     style={{
                                         color: '#006a72',
                                         borderColor: '#E2E8F0',

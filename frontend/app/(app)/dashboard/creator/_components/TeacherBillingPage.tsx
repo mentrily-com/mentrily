@@ -343,7 +343,7 @@ export default function TeacherBillingPage() {
             </div>
 
             <section
-                className="bg-white rounded-xl border shadow-sm p-6 md:p-8 mb-6"
+                className="bg-white rounded-lg border shadow-sm p-6 md:p-8 mb-6"
                 style={{ borderColor: 'var(--color-border-subtle)' }}
             >
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -415,7 +415,7 @@ export default function TeacherBillingPage() {
                             </button>
                         </div>
                     ) : (
-                        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-800">
+                        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-800">
                             Billing changes are restricted to organization admins.
                         </div>
                     )}
@@ -436,7 +436,7 @@ export default function TeacherBillingPage() {
             </section>
 
             <section
-                className="bg-white rounded-xl border shadow-sm p-6 md:p-8 mb-6"
+                className="bg-white rounded-lg border shadow-sm p-6 md:p-8 mb-6"
                 style={{ borderColor: 'var(--color-border-subtle)' }}
             >
                 <h3 className="text-lg font-medium mb-6" style={{ color: 'var(--color-text-primary)' }}>
@@ -469,7 +469,7 @@ export default function TeacherBillingPage() {
                         limit={Number(usageData?.limits?.aiCreditsPerMonth ?? 0)}
                     />
                 </div>
-                <div className="mt-6 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                <div className="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">Question Types</p>
                     <p className="mt-2 text-sm font-medium text-gray-700">
                         {formatQuestionTypes(usageData?.limits?.allowedQuestionTypes)}
@@ -480,14 +480,14 @@ export default function TeacherBillingPage() {
             {!isOrgBilling && (
                 <section
                     id="plan-comparison"
-                    className="bg-white rounded-xl border shadow-sm p-6 md:p-8 mb-6"
+                    className="bg-white rounded-lg border shadow-sm p-6 md:p-8 mb-6"
                     style={{ borderColor: 'var(--color-border-subtle)' }}
                 >
                     <h3 className="text-lg font-medium mb-6" style={{ color: 'var(--color-text-primary)' }}>
                         Plan Comparison
                     </h3>
                     {sortedPlans.length === 0 ? (
-                        <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-6 text-sm font-medium text-gray-500 text-center">
+                        <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-6 text-sm font-medium text-gray-500 text-center">
                             Plan data is temporarily unavailable. Please refresh this page.
                         </div>
                     ) : (
@@ -502,7 +502,7 @@ export default function TeacherBillingPage() {
                                 return (
                                     <div
                                         key={plan.plan}
-                                        className={`rounded-xl border p-5 transition-all ${isCurrent ? 'bg-[var(--color-bg-blue-tint)]' : 'bg-white hover:border-[var(--color-border-brand)] hover:shadow-md'}`}
+                                        className={`rounded-lg border p-5 transition-all ${isCurrent ? 'bg-[var(--color-bg-blue-tint)]' : 'bg-white hover:border-[var(--color-border-brand)] hover:shadow-md'}`}
                                         style={{
                                             borderColor: isCurrent ? 'var(--brand)' : 'var(--color-border-subtle)',
                                         }}

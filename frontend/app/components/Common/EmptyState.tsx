@@ -37,7 +37,7 @@ export default function EmptyState({ icon, title, description, action, className
                 (action.href ? (
                     <Link
                         href={action.href}
-                        className="inline-flex px-6 py-3 bg-[var(--brand)] text-white rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-[var(--brand-dark)] transition-all"
+                        className="inline-flex px-6 py-3 bg-[var(--brand)] text-white rounded-lg font-semibold text-xs uppercase tracking-widest hover:bg-[var(--brand-dark)] transition-all"
                     >
                         {action.label}
                     </Link>
@@ -45,7 +45,7 @@ export default function EmptyState({ icon, title, description, action, className
                     <button
                         type="button"
                         onClick={action.onClick}
-                        className="inline-flex cursor-pointer px-6 py-3 bg-[var(--brand)] text-white rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-[var(--brand-dark)] transition-all"
+                        className="inline-flex cursor-pointer px-6 py-3 bg-[var(--brand)] text-white rounded-lg font-semibold text-xs uppercase tracking-widest hover:bg-[var(--brand-dark)] transition-all"
                     >
                         {action.label}
                     </button>

@@ -23,7 +23,7 @@ export default function TeacherBillingSkeleton() {
             </div>
 
             {/* Current plan */}
-            <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 md:p-8 mb-6">
+            <section className="bg-white rounded-lg border border-gray-100 shadow-sm p-6 md:p-8 mb-6">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                     <div className="space-y-3">
                         <div className="h-3 w-24 animate-pulse rounded bg-gray-100" />
@@ -45,7 +45,7 @@ export default function TeacherBillingSkeleton() {
             </section>
 
             {/* Usage overview */}
-            <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 md:p-8 mb-6">
+            <section className="bg-white rounded-lg border border-gray-100 shadow-sm p-6 md:p-8 mb-6">
                 <div className="h-5 w-40 animate-pulse rounded-md bg-gray-200 mb-6" />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {[1, 2, 3, 4].map((i) => (
@@ -58,18 +58,18 @@ export default function TeacherBillingSkeleton() {
                         </div>
                     ))}
                 </div>
-                <div className="mt-6 rounded-xl border border-gray-200 bg-gray-50 p-4 space-y-2">
+                <div className="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-2">
                     <div className="h-2.5 w-28 animate-pulse rounded bg-gray-200" />
                     <div className="h-3 w-64 max-w-full animate-pulse rounded bg-gray-200" />
                 </div>
             </section>
 
             {/* Plan comparison */}
-            <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 md:p-8 mb-6">
+            <section className="bg-white rounded-lg border border-gray-100 shadow-sm p-6 md:p-8 mb-6">
                 <div className="h-5 w-40 animate-pulse rounded-md bg-gray-200 mb-6" />
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                     {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="rounded-xl border border-gray-100 p-5 space-y-4">
+                        <div key={i} className="rounded-lg border border-gray-100 p-5 space-y-4">
                             <div className="flex items-center justify-between">
                                 <div className="h-3 w-14 animate-pulse rounded bg-gray-100" />
                             </div>

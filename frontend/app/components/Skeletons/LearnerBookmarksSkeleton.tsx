@@ -10,7 +10,7 @@ import React from 'react';
  */
 export default function LearnerBookmarksSkeleton({ rows = 5 }: { rows?: number }) {
     return (
-        <div className="overflow-hidden bg-white border border-gray-100 rounded-xl shadow-sm">
+        <div className="overflow-hidden bg-white border border-gray-100 rounded-lg shadow-sm">
             {/* desktop: table */}
             <table className="hidden w-full text-left border-collapse md:table">
                 <thead>

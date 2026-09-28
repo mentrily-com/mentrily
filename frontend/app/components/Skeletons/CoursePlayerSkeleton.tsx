@@ -23,11 +23,11 @@ export default function CoursePlayerSkeleton({
             {isExamMode && (
                 <div className="h-16 border-b border-gray-100 bg-white flex items-center justify-between px-6 shrink-0 z-10">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-gray-200 animate-pulse" />
+                        <div className="w-8 h-8 rounded-lg bg-gray-200 animate-pulse" />
                         <div className="w-28 h-5 rounded-md bg-gray-200 animate-pulse" />
                     </div>
                     <div className="flex items-center gap-3">
-                        <div className="w-24 h-8 rounded-xl bg-gray-100 animate-pulse" />
+                        <div className="w-24 h-8 rounded-lg bg-gray-100 animate-pulse" />
                         <div className="w-9 h-9 rounded-full bg-gray-200 animate-pulse" />
                     </div>
                 </div>
@@ -39,7 +39,7 @@ export default function CoursePlayerSkeleton({
                     <div className={`${sidebarWidth} h-full bg-gray-50 border-r border-gray-200 hidden md:flex flex-col shrink-0 transition-all`}>
                         {sidebarCollapsed ? (
                             <div className="p-3 space-y-4 flex flex-col items-center">
-                                <div className="w-8 h-8 rounded-xl bg-gray-200 animate-pulse mt-2" />
+                                <div className="w-8 h-8 rounded-lg bg-gray-200 animate-pulse mt-2" />
                                 {[1, 2, 3, 4, 5].map((i) => (
                                     <div key={i} className="w-8 h-8 rounded-full bg-gray-200/80 animate-pulse" />
                                 ))}
@@ -54,7 +54,7 @@ export default function CoursePlayerSkeleton({
                                     {[1, 2, 3, 4, 5, 6].map((i) => (
                                         <div
                                             key={i}
-                                            className="flex items-center gap-3 p-3 rounded-xl bg-white border border-gray-100 shadow-sm animate-pulse"
+                                            className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-100 shadow-sm animate-pulse"
                                         >
                                             <div className="w-8 h-8 rounded-full bg-gray-200 shrink-0" />
                                             <div className="space-y-2 flex-1">
@@ -79,7 +79,7 @@ export default function CoursePlayerSkeleton({
                                 <div className="w-32 h-4 bg-gray-200 rounded animate-pulse" />
                             </div>
                             <div className="flex items-center gap-2 mx-auto md:mx-0">
-                                <div className="w-32 h-8 bg-gray-100 rounded-xl animate-pulse" />
+                                <div className="w-32 h-8 bg-gray-100 rounded-lg animate-pulse" />
                             </div>
                             <div className="flex items-center gap-3 hidden md:flex">
                                 <div className="w-8 h-8 bg-gray-100 rounded-full animate-pulse" />
@@ -97,7 +97,7 @@ export default function CoursePlayerSkeleton({
                                     <div className="w-16 h-6 bg-emerald-100 rounded-full animate-pulse" />
                                     <div className="w-20 h-6 bg-blue-100 rounded-full animate-pulse" />
                                 </div>
-                                <div className="w-3/4 h-10 bg-gray-200 rounded-xl animate-pulse" />
+                                <div className="w-3/4 h-10 bg-gray-200 rounded-lg animate-pulse" />
                                 <div className="w-full h-2 rounded-full bg-gray-100 animate-pulse my-8" />
 
                                 <div className="space-y-4">
@@ -136,10 +136,10 @@ export default function CoursePlayerSkeleton({
                             </div>
                             {/* Action Bar Fake */}
                             <div className="h-16 bg-white border-t border-gray-200 flex items-center justify-between px-6 shrink-0">
-                                <div className="w-20 h-10 bg-gray-100 rounded-xl animate-pulse" />
+                                <div className="w-20 h-10 bg-gray-100 rounded-lg animate-pulse" />
                                 <div className="flex gap-3">
-                                    <div className="w-24 h-10 bg-gray-100 rounded-xl animate-pulse" />
-                                    <div className="w-32 h-10 bg-indigo-100 rounded-xl animate-pulse" />
+                                    <div className="w-24 h-10 bg-gray-100 rounded-lg animate-pulse" />
+                                    <div className="w-32 h-10 bg-indigo-100 rounded-lg animate-pulse" />
                                 </div>
                             </div>
                         </div>

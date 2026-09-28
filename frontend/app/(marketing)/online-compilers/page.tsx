@@ -83,7 +83,7 @@ export default function OnlineCompilersPage() {
                 </p>
                 <Link
                     href="/signup"
-                    className="mt-4 inline-flex items-center rounded-xl bg-[var(--brand)] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"
+                    className="mt-4 inline-flex items-center rounded-lg bg-[var(--brand)] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"
                 >
                     Start free
                 </Link>

@@ -229,7 +229,7 @@ export default function SubmissionPreviewPage({ params }: { params: Promise<{ id
                         </p>
                         <button
                             onClick={() => window.history.back()}
-                            className="mt-4 px-6 py-2 bg-gray-900 text-white rounded-xl text-xs font-semibold"
+                            className="mt-4 px-6 py-2 bg-gray-900 text-white rounded-lg text-xs font-semibold"
                         >
                             Go Back
                         </button>
@@ -373,7 +373,7 @@ function ConsolidatedHeader({
                                 onBlur={() => {
                                     onMarkBlur(questionId, draftMark);
                                 }}
-                                className="w-14 rounded-xl border border-gray-200 bg-white py-2 text-center text-base font-semibold text-gray-800 shadow-inner outline-none transition-all focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand-light)] sm:bg-gray-50"
+                                className="w-14 rounded-lg border border-gray-200 bg-white py-2 text-center text-base font-semibold text-gray-800 shadow-inner outline-none transition-all focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand-light)] sm:bg-gray-50"
                                 placeholder="0"
                             />
                             <span className="text-sm font-medium text-gray-400">/ {maxMarks}</span>
@@ -384,13 +384,13 @@ function ConsolidatedHeader({
                 <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-3">
                     <button
                         onClick={onExit}
-                        className="flex items-center justify-center gap-2 rounded-xl bg-gray-100 px-4 py-3 text-[11px] font-semibold uppercase tracking-widest text-gray-600 transition-all hover:bg-gray-200 active:scale-95 sm:px-6"
+                        className="flex items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-3 text-[11px] font-semibold uppercase tracking-widest text-gray-600 transition-all hover:bg-gray-200 active:scale-95 sm:px-6"
                     >
                         Exit
                     </button>
                     <button
                         onClick={onSave}
-                        className="group flex items-center justify-center gap-2.5 rounded-xl bg-gray-900 px-4 py-3 text-[11px] font-semibold uppercase tracking-widest text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-black active:translate-y-0 active:scale-95 sm:px-8"
+                        className="group flex items-center justify-center gap-2.5 rounded-lg bg-gray-900 px-4 py-3 text-[11px] font-semibold uppercase tracking-widest text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-black active:translate-y-0 active:scale-95 sm:px-8"
                     >
                         <svg
                             width="18"

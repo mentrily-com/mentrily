@@ -526,7 +526,7 @@ export default function CourseBuilder({
     ];
 
     return (
-        <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-gray-200/80 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.10)]">
+        <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-gray-200/80 bg-white shadow-lg">
             {/* ignoreUserOnboardingFlag: keep this tour's completion
                 independent of the shared backend flag other creator/admin
                 tours used to write to — see dashboard/creator/page.tsx
@@ -563,7 +563,7 @@ export default function CourseBuilder({
                     <div className="flex min-w-0 flex-1 items-center gap-2">
                         <button
                             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                            className="shrink-0 rounded-xl p-2 text-gray-400 transition-colors hover:bg-gray-50 hover:text-[var(--brand)]"
+                            className="shrink-0 rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-50 hover:text-[var(--brand)]"
                             title={isSidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
                         >
                             {isSidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
@@ -602,7 +602,7 @@ export default function CourseBuilder({
                     <div className="flex items-center justify-end gap-1.5 md:gap-2">
                         <button
                             onClick={resetDraft}
-                            className="cursor-pointer rounded-xl p-2.5 text-gray-400 transition-colors hover:bg-gray-50 hover:text-gray-600"
+                            className="cursor-pointer rounded-lg p-2.5 text-gray-400 transition-colors hover:bg-gray-50 hover:text-gray-600"
                             title="Reset local draft"
                         >
                             <RotateCcw size={16} />
@@ -618,7 +618,7 @@ export default function CourseBuilder({
                                         onConfirm: onDelete,
                                     })
                                 }
-                                className="cursor-pointer rounded-xl p-2.5 text-gray-400 transition-colors hover:bg-rose-50 hover:text-rose-500"
+                                className="cursor-pointer rounded-lg p-2.5 text-gray-400 transition-colors hover:bg-rose-50 hover:text-rose-500"
                                 title="Delete course"
                             >
                                 <Trash2 size={16} />
@@ -627,7 +627,7 @@ export default function CourseBuilder({
                         <button
                             onClick={() => setPreviewMode(previewMode ? null : 'desktop')}
                             disabled={!activeQuestion}
-                            className={`cursor-pointer rounded-xl p-2.5 transition-colors disabled:opacity-30 ${previewMode ? 'bg-[var(--brand)] text-white' : 'text-gray-400 hover:bg-gray-50 hover:text-[var(--brand)]'}`}
+                            className={`cursor-pointer rounded-lg p-2.5 transition-colors disabled:opacity-30 ${previewMode ? 'bg-[var(--brand)] text-white' : 'text-gray-400 hover:bg-gray-50 hover:text-[var(--brand)]'}`}
                             title={
                                 activeQuestion
                                     ? previewMode
@@ -645,7 +645,7 @@ export default function CourseBuilder({
                             onClick={() => {
                                 setShowAiDrawer(true);
                             }}
-                            className="flex cursor-pointer items-center gap-1.5 sm:gap-2 rounded-xl bg-[var(--brand-light)]/30 px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs font-medium uppercase tracking-widest text-[var(--brand)] transition-colors hover:bg-[var(--brand-light)]/50 shrink-0"
+                            className="flex cursor-pointer items-center gap-1.5 sm:gap-2 rounded-lg bg-[var(--brand-light)]/30 px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs font-medium uppercase tracking-widest text-[var(--brand)] transition-colors hover:bg-[var(--brand-light)]/50 shrink-0"
                         >
                             <Sparkles size={14} />
                             <span className="hidden sm:inline">AI Generate</span>
@@ -786,7 +786,7 @@ export default function CourseBuilder({
                                     setIsSaving(false);
                                 }
                             }}
-                            className="flex items-center gap-1.5 sm:gap-2 rounded-xl bg-[var(--brand)] px-3.5 sm:px-5 py-1.5 sm:py-2 text-xs font-medium uppercase tracking-widest text-white shadow-sm transition-all hover:brightness-110 disabled:opacity-50 shrink-0"
+                            className="flex items-center gap-1.5 sm:gap-2 rounded-lg bg-[var(--brand)] px-3.5 sm:px-5 py-1.5 sm:py-2 text-xs font-medium uppercase tracking-widest text-white shadow-sm transition-all hover:brightness-110 disabled:opacity-50 shrink-0"
                             disabled={isSaving}
                         >
                             {isSaving ? (
@@ -836,7 +836,7 @@ export default function CourseBuilder({
 
                     {/* Unit / Test Tab Switcher */}
                     <div className="border-b border-gray-200 bg-white px-4 py-2.5">
-                        <div className="flex gap-1 rounded-xl bg-gray-100 p-0.5">
+                        <div className="flex gap-1 rounded-lg bg-gray-100 p-0.5">
                             <button
                                 onClick={() => {
                                     setActiveTab('unit');
@@ -1057,7 +1057,7 @@ export default function CourseBuilder({
                                     Course Settings
                                 </h3>
                                 <div className="p-4 bg-white border border-gray-100 rounded-lg shadow-sm space-y-4">
-                                    <div className="w-12 h-12 bg-[var(--brand-light)] text-[var(--brand)] rounded-xl flex items-center justify-center">
+                                    <div className="w-12 h-12 bg-[var(--brand-light)] text-[var(--brand)] rounded-lg flex items-center justify-center">
                                         <BarChart3 size={20} />
                                     </div>
                                     <p className="text-[10px] font-semibold text-gray-800 uppercase leading-tight">
@@ -1126,7 +1126,7 @@ export default function CourseBuilder({
                                                     onClick={() =>
                                                         setCourse((prev) => ({ ...prev, difficulty: level }))
                                                     }
-                                                    className={`px-4 py-2 rounded-xl text-[10px] font-semibold uppercase tracking-widest border transition-all ${course.difficulty === level ? 'bg-[var(--brand)] border-[var(--brand)] text-white shadow-lg' : 'bg-white border-gray-100 text-gray-400 hover:border-gray-200'}`}
+                                                    className={`px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-widest border transition-all ${course.difficulty === level ? 'bg-[var(--brand)] border-[var(--brand)] text-white shadow-lg' : 'bg-white border-gray-100 text-gray-400 hover:border-gray-200'}`}
                                                 >
                                                     {level}
                                                 </button>
@@ -1188,7 +1188,7 @@ export default function CourseBuilder({
                                         </label>
                                         <input
                                             type="datetime-local"
-                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 outline-none focus:border-[var(--brand)] transition-all"
+                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 outline-none focus:border-[var(--brand)] transition-all"
                                             value={formatISOToInput((activeSection as any).startDate) || ''}
                                             onChange={(e) => {
                                                 const val = e.target.value; // 'YYYY-MM-DDTHH:mm'
@@ -1207,7 +1207,7 @@ export default function CourseBuilder({
                                         </label>
                                         <input
                                             type="datetime-local"
-                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 outline-none focus:border-[var(--brand)] transition-all"
+                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 outline-none focus:border-[var(--brand)] transition-all"
                                             value={formatISOToInput((activeSection as any).endDate) || ''}
                                             onChange={(e) => {
                                                 const val = e.target.value; // 'YYYY-MM-DDTHH:mm'
@@ -1222,7 +1222,7 @@ export default function CourseBuilder({
                                     </div>
                                 </div>
 
-                                <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl shadow-sm">
+                                <div className="p-4 bg-amber-50 border border-amber-100 rounded-lg shadow-sm">
                                     <div className="flex gap-3">
                                         <div className="shrink-0 pt-0.5">
                                             <Calendar className="text-amber-500" size={18} />
@@ -1564,7 +1564,7 @@ function CourseQuestionRow({
             ref={setNodeRef}
             style={style}
             onClick={onSelect}
-            className={`group/q flex items-center gap-2.5 px-3 py-2 rounded-xl cursor-pointer transition-all border ${isActive ? 'bg-[var(--brand-light)] border-[var(--brand-light)] text-[var(--brand-dark)]' : 'bg-transparent border-transparent text-gray-400 hover:text-gray-600'}`}
+            className={`group/q flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-all border ${isActive ? 'bg-[var(--brand-light)] border-[var(--brand-light)] text-[var(--brand-dark)]' : 'bg-transparent border-transparent text-gray-400 hover:text-gray-600'}`}
         >
             <span
                 {...attributes}
@@ -1611,7 +1611,7 @@ function AddMenuItem({
                 }
                 onClick();
             }}
-            className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 transition-all ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-50'}`}
+            className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 transition-all ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-50'}`}
         >
             <span className="text-gray-400 group-hover:text-[var(--brand)] transition-colors uppercase">{icon}</span>
             <span className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest whitespace-nowrap">

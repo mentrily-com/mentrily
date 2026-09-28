@@ -54,7 +54,7 @@ export default function LearnerAnalyticsSkeleton() {
                         </div>
                         <div className="h-3 w-32 animate-pulse rounded bg-gray-100" />
                     </div>
-                    <div className="h-28 w-full animate-pulse rounded-xl bg-gray-50" />
+                    <div className="h-28 w-full animate-pulse rounded-lg bg-gray-50" />
                 </div>
 
                 {/* DAILY ACTIVITY + OUTCOME DONUT */}
@@ -64,7 +64,7 @@ export default function LearnerAnalyticsSkeleton() {
                             <div className="h-4 w-36 animate-pulse rounded-md bg-gray-200" />
                             <div className="h-2.5 w-52 animate-pulse rounded bg-gray-100" />
                         </div>
-                        <div className="h-[280px] w-full animate-pulse rounded-xl bg-gray-50" />
+                        <div className="h-[280px] w-full animate-pulse rounded-lg bg-gray-50" />
                     </div>
                     <div className="bg-white rounded-lg border border-gray-200/60 shadow-sm p-5 sm:p-7">
                         <div className="mb-4 space-y-2">

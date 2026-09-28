@@ -200,7 +200,7 @@ export default function AiStudio({
                     <p className="mt-1 text-sm text-gray-500">Upgrade to plan courses and exams with AI.</p>
                     <Link
                         href="/dashboard/creator/billing"
-                        className="mt-4 inline-block rounded-xl bg-[var(--brand)] px-4 py-2 text-sm font-semibold text-white"
+                        className="mt-4 inline-block rounded-lg bg-[var(--brand)] px-4 py-2 text-sm font-semibold text-white"
                     >
                         See plans
                     </Link>

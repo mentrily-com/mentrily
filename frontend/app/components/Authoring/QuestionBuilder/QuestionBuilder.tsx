@@ -35,7 +35,7 @@ export default function QuestionBuilder({ question, onChange, aiKind }: Question
                     <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
                         <div className="min-w-0 flex-1 space-y-3">
                             <div className="flex flex-wrap items-center gap-3">
-                                <span className="rounded-xl border border-[var(--brand-light)] bg-[var(--brand-light)] px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--brand)] italic">
+                                <span className="rounded-lg border border-[var(--brand-light)] bg-[var(--brand-light)] px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--brand)] italic">
                                     {question.type} Editor
                                 </span>
                                 <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400">

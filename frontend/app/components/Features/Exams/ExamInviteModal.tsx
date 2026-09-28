@@ -113,14 +113,14 @@ export default function ExamInviteModal({ isOpen, onClose, exam }: ExamInviteMod
                         <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
                             <button
                                 onClick={onClose}
-                                className="px-4 py-2.5 rounded-xl bg-gray-100 text-gray-500 text-xs font-semibold uppercase tracking-widest"
+                                className="px-4 py-2.5 rounded-lg bg-gray-100 text-gray-500 text-xs font-semibold uppercase tracking-widest"
                             >
                                 Close
                             </button>
                             <button
                                 onClick={() => setConfirmOpen(true)}
                                 disabled={sending || selectedGroupIds.length === 0}
-                                className="px-5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-xs font-semibold uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-5 py-2.5 rounded-lg bg-[var(--brand)] text-white text-xs font-semibold uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {sending ? 'Queueing...' : 'Send Invites'}
                             </button>
@@ -150,7 +150,7 @@ export default function ExamInviteModal({ isOpen, onClose, exam }: ExamInviteMod
                                             key={group.id}
                                             type="button"
                                             onClick={() => toggleGroup(group.id)}
-                                            className={`w-full text-left p-3 rounded-xl border transition-all ${isSelected ? 'border-[var(--brand)] bg-[var(--brand-light)]/40' : 'border-gray-100 hover:border-gray-200 bg-white'}`}
+                                            className={`w-full text-left p-3 rounded-lg border transition-all ${isSelected ? 'border-[var(--brand)] bg-[var(--brand-light)]/40' : 'border-gray-100 hover:border-gray-200 bg-white'}`}
                                         >
                                             <div className="flex items-center justify-between gap-3">
                                                 <div>
@@ -201,7 +201,7 @@ export default function ExamInviteModal({ isOpen, onClose, exam }: ExamInviteMod
                             End: {exam.endTime ? new Date(exam.endTime).toLocaleString() : 'Not scheduled'}
                         </p>
                         {customMessage.trim() && (
-                            <div className="mt-3 p-3 rounded-xl border border-amber-200 bg-amber-50">
+                            <div className="mt-3 p-3 rounded-lg border border-amber-200 bg-amber-50">
                                 <p className="text-[10px] font-semibold uppercase tracking-widest text-amber-700 mb-1">
                                     Custom Message
                                 </p>

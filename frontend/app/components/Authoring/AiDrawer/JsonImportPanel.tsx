@@ -86,7 +86,7 @@ export default function JsonImportPanel({
                     }}
                     rows={10}
                     placeholder='{ "sections": [ ... ] }'
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 p-3 font-mono text-xs text-gray-700 outline-none focus:border-[var(--brand)]"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 p-3 font-mono text-xs text-gray-700 outline-none focus:border-[var(--brand)]"
                 />
             </div>
             {error && (
@@ -99,7 +99,7 @@ export default function JsonImportPanel({
                 type="button"
                 onClick={importJson}
                 disabled={!pasteText.trim()}
-                className="w-full rounded-xl bg-[var(--brand)] py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-dark)] disabled:cursor-not-allowed disabled:opacity-40"
+                className="w-full rounded-lg bg-[var(--brand)] py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-dark)] disabled:cursor-not-allowed disabled:opacity-40"
             >
                 Import questions
             </button>

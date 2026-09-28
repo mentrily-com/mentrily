@@ -75,7 +75,7 @@ export default function AnnouncementsTab() {
             <div className="space-y-4">
                 {[1, 2].map((i) => (
                     <div key={i} className="bg-white rounded-lg border border-gray-100 p-8 animate-pulse">
-                        <div className="h-5 bg-gray-100 rounded-xl w-1/3 mb-4" />
+                        <div className="h-5 bg-gray-100 rounded-lg w-1/3 mb-4" />
                         <div className="h-3 bg-gray-50 rounded-lg w-2/3 mb-2" />
                         <div className="h-3 bg-gray-50 rounded-lg w-1/2" />
                     </div>
@@ -163,7 +163,7 @@ export default function AnnouncementsTab() {
                                                         key={idx}
                                                         type="button"
                                                         onClick={() => handleDownload(att.url, att.name)}
-                                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-xl text-[10px] font-semibold text-gray-600 transition-colors border border-gray-100 cursor-pointer"
+                                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-lg text-[10px] font-semibold text-gray-600 transition-colors border border-gray-100 cursor-pointer"
                                                     >
                                                         <AttachmentIcon type={att.type} /> {att.name}
                                                     </button>
@@ -187,13 +187,13 @@ export default function AnnouncementsTab() {
                                     </div>
                                     <button
                                         onClick={() => setEditingAnnouncement(ann)}
-                                        className="p-2 text-gray-300 hover:text-[var(--brand)] hover:bg-[var(--brand-light)]/40 rounded-xl transition-all opacity-0 group-hover/ann:opacity-100"
+                                        className="p-2 text-gray-300 hover:text-[var(--brand)] hover:bg-[var(--brand-light)]/40 rounded-lg transition-all opacity-0 group-hover/ann:opacity-100"
                                     >
                                         <Pencil size={16} />
                                     </button>
                                     <button
                                         onClick={() => handleDelete(ann.id)}
-                                        className="p-2 text-gray-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all opacity-0 group-hover/ann:opacity-100"
+                                        className="p-2 text-gray-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all opacity-0 group-hover/ann:opacity-100"
                                     >
                                         <Trash2 size={16} />
                                     </button>
@@ -360,7 +360,7 @@ function ComposeAnnouncementModal({
                 <button
                     onClick={onClose}
                     aria-label="Close dialog"
-                    className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl sm:rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-400 transition-all active:scale-95"
+                    className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-lg sm:rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-400 transition-all active:scale-95"
                 >
                     <X size={20} strokeWidth={3} />
                 </button>
@@ -450,7 +450,7 @@ function ComposeAnnouncementModal({
                                 {attachments.map((att, idx) => (
                                     <div
                                         key={idx}
-                                        className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-100 rounded-xl"
+                                        className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg"
                                     >
                                         <AttachmentIcon type={att.type} />
                                         <span className="text-xs font-medium text-gray-600 truncate max-w-[150px]">

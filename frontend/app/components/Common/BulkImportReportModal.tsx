@@ -36,7 +36,7 @@ export default function BulkImportReportModal({ isOpen, onClose, report }: BulkI
                 <div className="flex justify-end">
                     <button
                         onClick={onClose}
-                        className="w-full px-6 py-3 bg-gray-900 text-white text-xs font-semibold uppercase tracking-widest rounded-xl hover:bg-gray-800 transition-all shadow-lg sm:w-auto"
+                        className="w-full px-6 py-3 bg-gray-900 text-white text-xs font-semibold uppercase tracking-widest rounded-lg hover:bg-gray-800 transition-all shadow-lg sm:w-auto"
                     >
                         Close Report
                     </button>
@@ -45,7 +45,7 @@ export default function BulkImportReportModal({ isOpen, onClose, report }: BulkI
         >
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                 <div className="bg-emerald-50 rounded-lg p-4 flex items-center gap-4 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.12)]">
-                    <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                    <div className="w-12 h-12 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
                         <UserCheck size={24} />
                     </div>
                     <div>
@@ -56,7 +56,7 @@ export default function BulkImportReportModal({ isOpen, onClose, report }: BulkI
 
                 {summary.emailsSent !== undefined && (
                     <div className="bg-blue-50 rounded-lg p-4 flex items-center gap-4 shadow-[inset_0_0_0_1px_rgba(37,99,235,0.12)]">
-                        <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                        <div className="w-12 h-12 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
                             <Mail size={24} />
                         </div>
                         <div>
@@ -70,7 +70,7 @@ export default function BulkImportReportModal({ isOpen, onClose, report }: BulkI
 
                 {(summary.failed > 0 || (summary.emailsFailed || 0) > 0) && (
                     <div className="bg-rose-50 rounded-lg p-4 flex items-center gap-4 sm:col-span-2 shadow-[inset_0_0_0_1px_rgba(244,63,94,0.12)]">
-                        <div className="w-12 h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                        <div className="w-12 h-12 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
                             <AlertTriangle size={24} />
                         </div>
                         <div className="flex flex-wrap gap-5 sm:gap-8">
@@ -103,7 +103,7 @@ export default function BulkImportReportModal({ isOpen, onClose, report }: BulkI
                     {details.map((item, idx) => (
                         <div
                             key={idx}
-                            className="flex items-start gap-3 p-3 rounded-xl border border-gray-100 text-sm"
+                            className="flex items-start gap-3 p-3 rounded-lg border border-gray-100 text-sm"
                         >
                             {item.success ? (
                                 <CheckCircle2 className="text-emerald-500 shrink-0 mt-0.5" size={18} />

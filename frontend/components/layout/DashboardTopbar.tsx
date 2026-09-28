@@ -356,7 +356,7 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
                         {/* Dropdown */}
                         {profileOpen && (
                             <div
-                                className="absolute right-0 top-full mt-2 w-[calc(100vw-1.5rem)] max-w-64 rounded-xl bg-white border overflow-hidden animate-fade-in z-50"
+                                className="absolute right-0 top-full mt-2 w-[calc(100vw-1.5rem)] max-w-64 rounded-lg bg-white border overflow-hidden animate-fade-in z-50"
                                 style={{
                                     borderColor: 'var(--color-border-subtle)',
                                     boxShadow: 'var(--shadow-lg)',

@@ -186,14 +186,14 @@ function PartnershipHero() {
                                 initial={{ y: 20, rotate: -2 }}
                                 animate={{ y: 0, rotate: -4 }}
                                 transition={{ delay: 0.2 }}
-                                className="absolute inset-0 bg-gray-800/40 border border-white/5 rounded-[2rem] shadow-md"
+                                className="absolute inset-0 bg-gray-800/40 border border-white/5 rounded-lg shadow-md"
                             />
 
                             <motion.div
                                 initial={{ y: 10, rotate: 0 }}
                                 animate={{ y: -20, rotate: -2 }}
                                 transition={{ delay: 0.1 }}
-                                className="absolute inset-0 bg-gray-900 border border-white/10 rounded-[2rem] shadow-lg p-6 sm:p-8 flex flex-col justify-end overflow-hidden"
+                                className="absolute inset-0 bg-gray-900 border border-white/10 rounded-lg shadow-lg p-6 sm:p-8 flex flex-col justify-end overflow-hidden"
                             >
                                 <div className="absolute top-0 right-0 p-12 opacity-5">
                                     <TrendingUp size={160} className="text-white" />
@@ -211,7 +211,7 @@ function PartnershipHero() {
 
                             <motion.div
                                 whileHover={{ y: -8, transition: { duration: 0.2 } }}
-                                className="absolute inset-0 bg-white rounded-[2rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] p-6 sm:p-10 flex flex-col justify-between border border-gray-100"
+                                className="absolute inset-0 bg-white rounded-lg shadow-lg p-6 sm:p-10 flex flex-col justify-between border border-gray-100"
                             >
                                 <div className="flex justify-between items-start">
                                     <div className="w-16 h-16 rounded-lg bg-gray-50 flex items-center justify-center">
@@ -331,7 +331,7 @@ export default function PartnershipPage() {
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.6 }}
-                        className="p-8 rounded-[2.5rem] bg-teal-50 border border-teal-100"
+                        className="p-8 rounded-lg bg-teal-50 border border-teal-100"
                     >
                         <div className="grid grid-cols-2 gap-8">
                             <div className="p-6 rounded-lg bg-white shadow-sm">

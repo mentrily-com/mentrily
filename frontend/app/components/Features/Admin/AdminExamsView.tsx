@@ -175,7 +175,7 @@ export default function AdminExamsView({ basePath = '/admin', organizationId }: 
             </div>
 
             {/* Content Table */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden min-h-[500px]">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden min-h-[500px]">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -265,19 +265,19 @@ export default function AdminExamsView({ basePath = '/admin', organizationId }: 
                                                   <div className="flex items-center justify-end gap-2">
                                                       <button
                                                           onClick={() => setViewingExam(ex)}
-                                                          className="p-2 text-gray-300 hover:text-[var(--brand)] hover:bg-gray-50 rounded-xl transition-all"
+                                                          className="p-2 text-gray-300 hover:text-[var(--brand)] hover:bg-gray-50 rounded-lg transition-all"
                                                           title="View Details"
                                                       >
                                                           <Eye size={18} />
                                                       </button>
                                                       <Link href={`${basePath}/exams/${ex.id}/monitor`}>
-                                                          <button className="px-4 py-2 bg-rose-50 text-rose-600 rounded-xl text-[10px] font-semibold uppercase tracking-widest flex items-center gap-2 hover:bg-rose-100 transition-all">
+                                                          <button className="px-4 py-2 bg-rose-50 text-rose-600 rounded-lg text-[10px] font-semibold uppercase tracking-widest flex items-center gap-2 hover:bg-rose-100 transition-all">
                                                               <Activity size={14} /> Monitor Live
                                                           </button>
                                                       </Link>
                                                       <Link href={`${basePath}/exams/${ex.id}/results`}>
                                                           <button
-                                                              className="p-2 text-gray-300 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
+                                                              className="p-2 text-gray-300 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
                                                               title="Results"
                                                           >
                                                               <svg
@@ -296,7 +296,7 @@ export default function AdminExamsView({ basePath = '/admin', organizationId }: 
                                                       </Link>
                                                       <button
                                                           onClick={() => setInvitingExam(ex)}
-                                                          className="px-4 py-2 bg-[var(--brand-light)] text-[var(--brand)] rounded-xl text-[10px] font-semibold uppercase tracking-widest hover:opacity-90 transition-all"
+                                                          className="px-4 py-2 bg-[var(--brand-light)] text-[var(--brand)] rounded-lg text-[10px] font-semibold uppercase tracking-widest hover:opacity-90 transition-all"
                                                           title="Send Invites"
                                                       >
                                                           Invite
@@ -305,7 +305,7 @@ export default function AdminExamsView({ basePath = '/admin', organizationId }: 
                                                           <button
                                                               aria-label="Edit exam"
                                                               title="Edit Exam"
-                                                              className="p-2 text-gray-300 hover:text-[var(--brand)] hover:bg-gray-50 rounded-xl transition-all"
+                                                              className="p-2 text-gray-300 hover:text-[var(--brand)] hover:bg-gray-50 rounded-lg transition-all"
                                                           >
                                                               <Edit3 size={18} />
                                                           </button>
@@ -366,21 +366,21 @@ export default function AdminExamsView({ basePath = '/admin', organizationId }: 
                                                   <div className="flex items-center justify-end gap-2">
                                                       <button
                                                           onClick={() => setViewingCourse(cr)}
-                                                          className="p-2 text-gray-300 hover:text-[var(--brand)] hover:bg-gray-50 rounded-xl transition-all"
+                                                          className="p-2 text-gray-300 hover:text-[var(--brand)] hover:bg-gray-50 rounded-lg transition-all"
                                                           title="View Details"
                                                       >
                                                           <Eye size={18} />
                                                       </button>
                                                       <button
                                                           onClick={() => setEnrollingCourse(cr)}
-                                                          className="p-2 text-gray-300 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
+                                                          className="p-2 text-gray-300 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
                                                           title="Enroll Users"
                                                       >
                                                           <UserPlus size={18} />
                                                       </button>
                                                       <Link href={`${basePath}/courses/${cr.id}/edit`}>
                                                           <button
-                                                              className="p-2 text-gray-300 hover:text-gray-600 hover:bg-gray-50 rounded-xl transition-all"
+                                                              className="p-2 text-gray-300 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-all"
                                                               title="Edit Course"
                                                           >
                                                               <Edit3 size={18} />

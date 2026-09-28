@@ -113,7 +113,7 @@ export default function LearnerCertificatesPage() {
                             </div>
                             <Link
                                 href="/dashboard/learner"
-                                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-5 py-3 text-sm font-semibold text-white sm:w-auto"
+                                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-amber-500 px-5 py-3 text-sm font-semibold text-white sm:w-auto"
                             >
                                 Return to dashboard
                             </Link>
@@ -134,13 +134,13 @@ export default function LearnerCertificatesPage() {
                         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
                             <Link
                                 href="/dashboard/learner"
-                                className="w-full rounded-xl bg-[var(--brand)] px-5 py-3 text-sm font-semibold text-white sm:w-auto"
+                                className="w-full rounded-lg bg-[var(--brand)] px-5 py-3 text-sm font-semibold text-white sm:w-auto"
                             >
                                 Continue learning
                             </Link>
                             <Link
                                 href="/dashboard/learner/test"
-                                className="w-full rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 sm:w-auto"
+                                className="w-full rounded-lg border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 sm:w-auto"
                             >
                                 Review my results
                             </Link>
@@ -151,7 +151,7 @@ export default function LearnerCertificatesPage() {
                         {certificates.map((certificate) => (
                             <article
                                 key={certificate.id}
-                                className="rounded-lg border border-gray-200 bg-white p-5 shadow-[0_14px_36px_rgba(15,23,42,0.06)] sm:p-6"
+                                className="rounded-lg border border-gray-200 bg-white p-5 shadow-md sm:p-6"
                             >
                                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                                     <div className="flex min-w-0 items-start gap-4">
@@ -195,7 +195,7 @@ export default function LearnerCertificatesPage() {
                                     type="button"
                                     onClick={() => handleDownload(certificate.id)}
                                     disabled={downloadId === certificate.id}
-                                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-gray-800 disabled:cursor-wait disabled:opacity-70"
+                                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-gray-800 disabled:cursor-wait disabled:opacity-70"
                                 >
                                     {downloadId === certificate.id ? (
                                         <>

@@ -263,7 +263,7 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                                 <select
                                     value={activeLang}
                                     onChange={(e) => setActiveLang(e.target.value)}
-                                    className="appearance-none pl-4 pr-10 py-2 bg-white border border-gray-200 rounded-xl text-xs font-medium text-gray-700 outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/10 transition-all cursor-pointer shadow-sm"
+                                    className="appearance-none pl-4 pr-10 py-2 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/10 transition-all cursor-pointer shadow-sm"
                                 >
                                     {Object.keys(config.templates).map((langSlug) => {
                                         const langInfo = PLAYGROUND_LANGUAGES.find((l) => l.id === langSlug);
@@ -285,7 +285,7 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                     <div className="p-6">
                         {/* Internal Template Tabs (Head/Body/Tail) */}
                         <div className="flex items-center gap-4 mb-4">
-                            <div className="flex bg-gray-100 p-1 rounded-xl">
+                            <div className="flex bg-gray-100 p-1 rounded-lg">
                                 <TemplateTab
                                     active={activeTemplateSection === 'head'}
                                     onClick={() => setActiveTemplateSection('head')}
@@ -376,7 +376,7 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                                     codingConfig: { ...config, showTestCases: newVal, testCases: newTestCases },
                                 });
                             }}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 transition-all ${config.showTestCases ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-gray-50 border-gray-100 text-gray-400'}`}
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border-2 transition-all ${config.showTestCases ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-gray-50 border-gray-100 text-gray-400'}`}
                         >
                             {config.showTestCases ? <Eye size={12} /> : <EyeOff size={12} />}
                             <span className="text-[10px] font-semibold uppercase tracking-widest">
@@ -385,7 +385,7 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                         </button>
                         <button
                             onClick={addTestCase}
-                            className="flex items-center gap-2 px-4 py-2 bg-[var(--brand)] text-white rounded-xl text-[10px] font-semibold uppercase tracking-widest hover:brightness-110 shadow-sm transition-all active:scale-95"
+                            className="flex items-center gap-2 px-4 py-2 bg-[var(--brand)] text-white rounded-lg text-[10px] font-semibold uppercase tracking-widest hover:brightness-110 shadow-sm transition-all active:scale-95"
                         >
                             <Plus size={14} strokeWidth={3} />
                             Add New Case
@@ -448,7 +448,7 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                                                     value={tc.input}
                                                     onChange={(e) => updateTestCase(index, { input: e.target.value })}
                                                     placeholder="Enter input data..."
-                                                    className="w-full h-[120px] bg-gray-50 border border-gray-200 rounded-xl p-4 text-xs font-mono text-gray-700 outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/10 transition-all resize-none"
+                                                    className="w-full h-[120px] bg-gray-50 border border-gray-200 rounded-lg p-4 text-xs font-mono text-gray-700 outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/10 transition-all resize-none"
                                                 />
                                             </div>
                                             <div className="space-y-2">
@@ -459,7 +459,7 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                                                     value={tc.output}
                                                     onChange={(e) => updateTestCase(index, { output: e.target.value })}
                                                     placeholder="Enter expected output..."
-                                                    className="w-full h-[120px] bg-gray-50 border border-gray-200 rounded-xl p-4 text-xs font-mono text-gray-700 outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/10 transition-all resize-none"
+                                                    className="w-full h-[120px] bg-gray-50 border border-gray-200 rounded-lg p-4 text-xs font-mono text-gray-700 outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/10 transition-all resize-none"
                                                 />
                                             </div>
                                         </div>

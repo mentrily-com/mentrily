@@ -39,7 +39,7 @@ export default function TestAttemptsPage() {
 
             <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8 animate-fade-in">
                 {/* TABLE CONTAINER */}
-                <div className="overflow-hidden bg-white border border-gray-100 rounded-xl shadow-sm">
+                <div className="overflow-hidden bg-white border border-gray-100 rounded-lg shadow-sm">
                     <table className="hidden w-full text-left border-collapse md:table">
                         <thead>
                             <tr className="bg-gray-50/50 border-b border-gray-100">
@@ -170,12 +170,12 @@ export default function TestAttemptsPage() {
                                         {att.isPublished ? (
                                             <a
                                                 href={`/dashboard/learner/test/${att.id}/result`}
-                                                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand-light)]/10 px-3 py-2 text-xs font-medium text-[var(--brand)] transition-colors hover:bg-[var(--brand-light)]/20"
+                                                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--brand-light)]/10 px-3 py-2 text-xs font-medium text-[var(--brand)] transition-colors hover:bg-[var(--brand-light)]/20"
                                             >
                                                 View Result
                                             </a>
                                         ) : (
-                                            <span className="block rounded-xl bg-gray-50 px-3 py-2 text-center text-xs font-medium italic text-gray-400">
+                                            <span className="block rounded-lg bg-gray-50 px-3 py-2 text-center text-xs font-medium italic text-gray-400">
                                                 Pending
                                             </span>
                                         )}

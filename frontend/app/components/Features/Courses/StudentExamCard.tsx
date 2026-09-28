@@ -119,7 +119,7 @@ export default function StudentExamCard({
                     <DetailBox label="Attempts Left" value={String(exam.attemptsRemaining ?? '-')} />
                 </div>
 
-                <div className="mt-5 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                <div className="mt-5 rounded-lg border border-gray-200 bg-gray-50 p-4">
                     <div className="mb-2 flex items-center justify-between text-[10px] font-semibold uppercase tracking-widest text-gray-500">
                         <span>Unlock Progress</span>
                         <span>
@@ -144,7 +144,7 @@ export default function StudentExamCard({
                         <button
                             type="button"
                             disabled
-                            className="rounded-xl bg-gray-200 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-gray-500"
+                            className="rounded-lg bg-gray-200 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-gray-500"
                         >
                             Locked
                         </button>
@@ -152,7 +152,7 @@ export default function StudentExamCard({
                     {canAttempt && (
                         <Link
                             href={examHref}
-                            className="rounded-xl bg-gray-900 px-4 py-2 text-center text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-[var(--brand)]"
+                            className="rounded-lg bg-gray-900 px-4 py-2 text-center text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-[var(--brand)]"
                         >
                             {passed === false ? 'Retake Exam' : 'Start Exam'}
                         </Link>
@@ -168,7 +168,7 @@ export default function StudentExamCard({
                 <button
                     type="button"
                     onClick={() => setIsDetailsOpen(true)}
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50/80 px-3 py-2 text-left shadow-sm transition hover:border-gray-300 hover:bg-white sm:w-auto sm:min-w-[280px] sm:max-w-[420px]"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50/80 px-3 py-2 text-left shadow-sm transition hover:border-gray-300 hover:bg-white sm:w-auto sm:min-w-[280px] sm:max-w-[420px]"
                 >
                     <div className="flex items-center gap-3">
                         <div className="min-w-0 flex-1">
@@ -210,32 +210,32 @@ export default function StudentExamCard({
             </div>
 
             {!exam.isActive ? (
-                <div className="mt-4 rounded-xl bg-gray-50 border border-gray-200 p-3">
+                <div className="mt-4 rounded-lg bg-gray-50 border border-gray-200 p-3">
                     <p className="text-xs font-medium text-gray-700">This linked exam is not published yet.</p>
                 </div>
             ) : !exam.isUnlocked ? (
-                <div className="mt-4 rounded-xl bg-amber-50 border border-amber-200 p-3">
+                <div className="mt-4 rounded-lg bg-amber-50 border border-amber-200 p-3">
                     <p className="text-xs font-medium text-amber-700">
                         Complete at least {exam.requiredPercent}% of this course to unlock the exam.
                     </p>
                     <p className="mt-1 text-[11px] text-amber-700/90 font-medium">Current progress: {progressPercent}%</p>
                 </div>
             ) : passed === true ? (
-                <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
+                <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-3">
                     <p className="text-xs font-medium text-emerald-700">Passed{score !== null ? ` - ${score}%` : ''}</p>
                     <p className="mt-1 text-[11px] font-medium text-emerald-700/85">
                         Pass at {passingPercentage}%. No more attempts are needed.
                     </p>
                 </div>
             ) : isOutOfAttempts ? (
-                <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-3">
+                <div className="mt-4 rounded-lg border border-rose-200 bg-rose-50 p-3">
                     <p className="text-xs font-medium text-rose-700">Failed{score !== null ? ` - ${score}%` : ''}</p>
                     <p className="mt-1 text-[11px] font-medium text-rose-700/85">
                         Pass at {passingPercentage}%. No attempts left.
                     </p>
                 </div>
             ) : isRetakeDelayed ? (
-                <div className="mt-4 rounded-xl border border-sky-200 bg-sky-50 p-3">
+                <div className="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-3">
                     <p className="text-xs font-medium text-rose-700">Failed{score !== null ? ` - ${score}%` : ''}</p>
                     <p className="text-xs font-medium text-sky-700">
                         Retake available at {new Date(exam.nextAttemptAvailableAt as string).toLocaleString()}
@@ -250,7 +250,7 @@ export default function StudentExamCard({
                     )}
                     <Link
                         href={examHref}
-                        className="inline-flex items-center px-4 py-2 rounded-xl bg-violet-600 text-white text-xs font-semibold uppercase tracking-widest"
+                        className="inline-flex items-center px-4 py-2 rounded-lg bg-violet-600 text-white text-xs font-semibold uppercase tracking-widest"
                     >
                         {passed === false ? 'Retake Exam' : 'Start Exam'}
                     </Link>
@@ -270,7 +270,7 @@ export default function StudentExamCard({
 
 function DetailBox({ label, value }: { label: string; value: string }) {
     return (
-        <div className="rounded-xl border border-gray-200 bg-white p-3">
+        <div className="rounded-lg border border-gray-200 bg-white p-3">
             <p className="text-[9px] font-semibold uppercase tracking-widest text-gray-400">{label}</p>
             <p className="mt-1 text-sm font-semibold text-gray-800">{value}</p>
         </div>

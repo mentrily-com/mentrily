@@ -76,7 +76,7 @@ export default function AdminUsersView({ basePath, organizationId }: AdminUsersV
 
             {/* Filters & Search - Glassmorphism-ish bar */}
             <div
-                className="flex flex-col md:flex-row items-center gap-4 mb-6 p-2 rounded-xl border bg-white/50"
+                className="flex flex-col md:flex-row items-center gap-4 mb-6 p-2 rounded-lg border bg-white/50"
                 style={{ borderColor: 'var(--color-border-subtle)' }}
             >
                 <div className="relative flex-1 w-full">

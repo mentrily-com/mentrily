@@ -61,14 +61,14 @@ export default function LearnerDashboardSkeleton() {
 
                         <div className="rounded-lg border border-gray-100 bg-white p-5 shadow-sm sm:p-8">
                             <div className="mb-6 flex items-center gap-3">
-                                <div className="h-10 w-10 shrink-0 animate-pulse rounded-xl bg-gray-100" />
+                                <div className="h-10 w-10 shrink-0 animate-pulse rounded-lg bg-gray-100" />
                                 <div className="h-5 w-32 animate-pulse rounded-md bg-gray-200" />
                             </div>
                             <div className="space-y-3">
                                 {[1, 2].map((i) => (
                                     <div key={i} className="rounded-lg border border-gray-100 p-4">
                                         <div className="flex items-start gap-3">
-                                            <div className="h-8 w-8 shrink-0 animate-pulse rounded-xl bg-gray-100" />
+                                            <div className="h-8 w-8 shrink-0 animate-pulse rounded-lg bg-gray-100" />
                                             <div className="min-w-0 flex-1 space-y-2">
                                                 <div className="h-3 w-3/4 animate-pulse rounded bg-gray-200" />
                                                 <div className="h-2.5 w-16 animate-pulse rounded bg-gray-100" />

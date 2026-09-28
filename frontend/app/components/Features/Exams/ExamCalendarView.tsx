@@ -103,7 +103,7 @@ export default function ExamCalendarView({ exams }: { exams: ScheduledExam[] }) 
                                     return (
                                         <div
                                             key={exam.id}
-                                            className="rounded-xl border border-[var(--brand)]/20 bg-[var(--brand-light)] px-2.5 py-2"
+                                            className="rounded-lg border border-[var(--brand)]/20 bg-[var(--brand-light)] px-2.5 py-2"
                                         >
                                             <p className="text-[11px] font-semibold text-[var(--brand-dark)] leading-tight line-clamp-2">
                                                 {exam.title}

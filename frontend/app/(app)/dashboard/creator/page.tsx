@@ -246,7 +246,7 @@ export default function TeacherDashboardPage() {
                         <Link
                             href="/dashboard/creator/courses/create"
                             data-element-id="create-course-btn"
-                            className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                            className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-[var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                         >
                             <Plus size={15} />
                             Create course
@@ -254,7 +254,7 @@ export default function TeacherDashboardPage() {
                         <Link
                             href="/dashboard/creator/exams/new"
                             data-element-id="create-exam-btn"
-                            className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 bg-white/80 px-5 py-3 text-sm font-semibold text-gray-700 bg-white transition-colors duration-200 hover:bg-white"
+                            className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-white/80 px-5 py-3 text-sm font-semibold text-gray-700 bg-white transition-colors duration-200 hover:bg-white"
                         >
                             <ClipboardList size={15} />
                             Create exam
@@ -262,7 +262,7 @@ export default function TeacherDashboardPage() {
                         {hasOrg && (
                             <Link
                                 href="/dashboard/creator/certificates/create"
-                                className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-amber-200/70 bg-amber-50/70 px-5 py-3 text-sm font-semibold text-amber-800 bg-white transition-colors duration-200 hover:bg-amber-100/80"
+                                className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-amber-200/70 bg-amber-50/70 px-5 py-3 text-sm font-semibold text-amber-800 bg-white transition-colors duration-200 hover:bg-amber-100/80"
                             >
                                 <Award size={15} />
                                 Create certificate
@@ -289,7 +289,7 @@ export default function TeacherDashboardPage() {
                     >
                         <div className="flex items-center justify-between">
                             <div
-                                className={`inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${card.gradient} ${card.iconColor}`}
+                                className={`inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br ${card.gradient} ${card.iconColor}`}
                             >
                                 {card.icon}
                             </div>
@@ -328,7 +328,7 @@ export default function TeacherDashboardPage() {
                     className="flex flex-col gap-3 rounded-lg border border-amber-200/70 bg-amber-50/70 p-4 bg-white sm:flex-row sm:items-center sm:justify-between"
                 >
                     <div className="flex items-start gap-3">
-                        <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+                        <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-700">
                             <AlertTriangle size={16} />
                         </div>
                         <p className="text-sm leading-6 text-amber-900">
@@ -407,7 +407,7 @@ export default function TeacherDashboardPage() {
                                     value={searchQuery}
                                     onChange={(event) => setSearchQuery(event.target.value)}
                                     placeholder="Search courses"
-                                    className="focus-ring w-full rounded-xl border border-gray-200 bg-gray-50/60 px-9 py-2.5 text-sm text-gray-700 outline-none bg-white transition-colors duration-200 placeholder:text-gray-400 sm:w-60"
+                                    className="focus-ring w-full rounded-lg border border-gray-200 bg-gray-50/60 px-9 py-2.5 text-sm text-gray-700 outline-none bg-white transition-colors duration-200 placeholder:text-gray-400 sm:w-60"
                                 />
                             </label>
                         </div>
@@ -433,7 +433,7 @@ export default function TeacherDashboardPage() {
                                 <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
                                     <Link
                                         href="/dashboard/creator/courses/create"
-                                        className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white"
+                                        className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white"
                                     >
                                         <Plus size={14} />
                                         New course
@@ -442,7 +442,7 @@ export default function TeacherDashboardPage() {
                                         <button
                                             type="button"
                                             onClick={() => setSearchQuery('')}
-                                            className="cursor-pointer rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700"
+                                            className="cursor-pointer rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700"
                                         >
                                             Clear search
                                         </button>
@@ -513,7 +513,7 @@ export default function TeacherDashboardPage() {
                     </div>
                     <Link
                         href="/dashboard/creator/analytics"
-                        className="inline-flex cursor-pointer items-center gap-2 self-start rounded-xl border border-gray-200 bg-white/80 px-4 py-2.5 text-sm font-semibold text-gray-700 bg-white transition-colors hover:bg-white"
+                        className="inline-flex cursor-pointer items-center gap-2 self-start rounded-lg border border-gray-200 bg-white/80 px-4 py-2.5 text-sm font-semibold text-gray-700 bg-white transition-colors hover:bg-white"
                     >
                         Open analytics
                         <ArrowUpRight size={14} />
@@ -556,7 +556,7 @@ export default function TeacherDashboardPage() {
                 >
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
                         <div className="flex items-start gap-4">
-                            <div className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-600">
+                            <div className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
                                 <AlertTriangle size={20} />
                             </div>
                             <div className="min-w-0">
@@ -573,7 +573,7 @@ export default function TeacherDashboardPage() {
                             </div>
                         </div>
 
-                        <div className="mt-5 rounded-xl border border-gray-200 bg-gray-50/80 p-4 bg-white">
+                        <div className="mt-5 rounded-lg border border-gray-200 bg-gray-50/80 p-4 bg-white">
                             <p className="text-sm text-gray-600">
                                 Current plan: <span className="font-semibold text-gray-950">{plan}</span>
                             </p>
@@ -591,7 +591,7 @@ export default function TeacherDashboardPage() {
                                         targetPlan: nextPlan,
                                     })
                                 }
-                                className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-rose-500 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-rose-600"
+                                className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-rose-500 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-rose-600"
                             >
                                 Upgrade now
                                 <ArrowUpRight size={15} />
@@ -689,7 +689,7 @@ function CapacityPanel({
                                 targetPlan: nextPlan,
                             })
                         }
-                        className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-xl bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-gray-950 transition-colors hover:bg-gray-100"
+                        className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-lg bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-gray-950 transition-colors hover:bg-gray-100"
                     >
                         Review plan
                         <ArrowUpRight size={13} />
@@ -747,7 +747,7 @@ function ModuleRow({ module, index }: { module: StudioModule; index: number }) {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05, duration: 0.35 }}
-            className={`group rounded-xl border border-gray-200/80 bg-white/60 p-4 bg-white transition-all duration-200 hover:border-gray-300 hover:bg-white hover:shadow-sm ${
+            className={`group rounded-lg border border-gray-200/80 bg-white/60 p-4 bg-white transition-all duration-200 hover:border-gray-300 hover:bg-white hover:shadow-sm ${
                 status === 'Published' ? 'border-l-[3px] border-l-emerald-400' : 'border-l-[3px] border-l-gray-300'
             }`}
         >
@@ -819,7 +819,7 @@ function InsightTile({
     body: string;
 }) {
     return (
-        <div className="rounded-xl border border-gray-200/70 bg-gray-50/60 p-3 transition-colors duration-200 hover:bg-white">
+        <div className="rounded-lg border border-gray-200/70 bg-gray-50/60 p-3 transition-colors duration-200 hover:bg-white">
             <div className="flex items-start gap-3">
                 <div className={`inline-flex h-8 w-8 items-center justify-center rounded-lg ${iconBg} ${iconColor}`}>
                     {icon}
@@ -846,7 +846,7 @@ function ChecklistCard({
 }) {
     return (
         <div
-            className={`rounded-xl border border-gray-200/70 border-l-[3px] ${accentColor} bg-gray-50/60 p-4 transition-all duration-200 hover:bg-white hover:shadow-sm`}
+            className={`rounded-lg border border-gray-200/70 border-l-[3px] ${accentColor} bg-gray-50/60 p-4 transition-all duration-200 hover:bg-white hover:shadow-sm`}
         >
             <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white text-gray-900 shadow-sm">
                 {icon}

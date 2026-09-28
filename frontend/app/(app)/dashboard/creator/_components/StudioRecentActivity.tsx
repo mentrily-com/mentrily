@@ -63,8 +63,8 @@ export default function StudioRecentActivity({ activities }: StudioRecentActivit
                         );
                     })
                 ) : (
-                    <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-gray-200 bg-gray-50/60 p-6 text-center">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-gray-400">
+                    <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-gray-200 bg-gray-50/60 p-6 text-center">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 text-gray-400">
                             <BookOpen size={18} />
                         </div>
                         <p className="text-sm font-medium text-gray-400">No recent activity yet.</p>
@@ -98,7 +98,7 @@ function ActivityItem({
             initial="hidden"
             animate="visible"
             custom={index}
-            className="rounded-xl border border-gray-200/60 bg-gray-50/50 p-3 transition-colors duration-200 hover:border-gray-300 hover:bg-white"
+            className="rounded-lg border border-gray-200/60 bg-gray-50/50 p-3 transition-colors duration-200 hover:border-gray-300 hover:bg-white"
         >
             <div className="flex items-start gap-3">
                 <div

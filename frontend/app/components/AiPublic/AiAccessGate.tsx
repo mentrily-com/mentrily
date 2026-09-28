@@ -14,9 +14,9 @@ const LOGIN_HREF = `/login?redirect=${encodeURIComponent(STUDIO_RESUME_PATH)}`;
 const CREATOR_ROLES = new Set(['TEACHER', 'ADMIN', 'SUPER_ADMIN']);
 
 const primaryButton =
-    'flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--brand-dark)] disabled:opacity-60';
+    'flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--brand)] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--brand-dark)] disabled:opacity-60';
 const secondaryButton =
-    'flex w-full items-center justify-center rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:border-gray-300 hover:bg-gray-50';
+    'flex w-full items-center justify-center rounded-lg border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:border-gray-300 hover:bg-gray-50';
 
 /** The message exactly as it will appear in the chat once sent. */
 function MessagePreview({ prompt }: { prompt: GatePrompt }) {
@@ -120,7 +120,7 @@ function LearnerGate({ prompt }: { prompt?: GatePrompt }) {
                         Mentrily AI works in your creator workspace. Pick one to continue
                         {prompt ? ' and your message will be waiting there.' : '.'}
                     </p>
-                    <ul className="divide-y divide-gray-100 overflow-hidden rounded-xl border border-gray-200">
+                    <ul className="divide-y divide-gray-100 overflow-hidden rounded-lg border border-gray-200">
                         {creatorWorkspaces.map((m) => (
                             <li key={m.orgId}>
                                 <button

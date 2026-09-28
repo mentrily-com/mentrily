@@ -133,7 +133,7 @@ export default function ReportProblemModal({ isOpen, onClose, onSubmitted }: Rep
                 <button
                     onClick={handleSubmit}
                     disabled={isSubmitting || isUploading || !title.trim() || wordCount === 0 || wordCount > MAX_WORDS}
-                    className="w-full py-3.5 rounded-xl bg-[var(--brand)] hover:bg-[var(--brand-dark)] disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold text-xs uppercase tracking-[0.18em] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-3.5 rounded-lg bg-[var(--brand)] hover:bg-[var(--brand-dark)] disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold text-xs uppercase tracking-[0.18em] transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                     <Send size={15} /> {isSubmitting ? 'Submitting...' : 'Submit Report'}
                 </button>
@@ -190,7 +190,7 @@ export default function ReportProblemModal({ isOpen, onClose, onSubmitted }: Rep
                             {attachments.map((att, index) => (
                                 <div
                                     key={`${att.url}-${index}`}
-                                    className="relative border border-gray-100 rounded-xl overflow-hidden bg-gray-50"
+                                    className="relative border border-gray-100 rounded-lg overflow-hidden bg-gray-50"
                                 >
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img src={att.url} alt={att.name} className="w-full h-28 object-cover" />

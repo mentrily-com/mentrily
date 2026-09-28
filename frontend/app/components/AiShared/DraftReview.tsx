@@ -180,7 +180,7 @@ export default function DraftReview({
 
     return (
         <div className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-xs text-gray-600">
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-xs text-gray-600">
                 <span className="tabular-nums">
                     {draft.stats.questions} items, {draft.totalMarks} {draft.totalMarks === 1 ? 'pt' : 'pts'}
                     {draft.stats.verified > 0 && (
@@ -224,7 +224,7 @@ export default function DraftReview({
                                 const status = REVIEW_STATUS[q.aiMeta.status];
                                 const isOpen = open === q.id;
                                 return (
-                                    <li key={q.id} className="rounded-xl border border-gray-200 bg-white">
+                                    <li key={q.id} className="rounded-lg border border-gray-200 bg-white">
                                         <div className="flex items-center gap-2.5 px-3 py-2">
                                             <input
                                                 type="checkbox"

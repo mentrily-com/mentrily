@@ -48,14 +48,14 @@ export default function ExamMonitorSkeleton() {
                 <div className="divide-y divide-gray-50">
                     {[1, 2, 3, 4, 5].map((i) => (
                         <div key={i} className="flex items-center gap-4 px-6 py-5">
-                            <div className="h-10 w-10 shrink-0 animate-pulse rounded-xl bg-gray-100" />
+                            <div className="h-10 w-10 shrink-0 animate-pulse rounded-lg bg-gray-100" />
                             <div className="min-w-[220px] flex-1 space-y-2">
                                 <div className="h-3.5 w-32 animate-pulse rounded bg-gray-200" />
                                 <div className="h-2.5 w-44 animate-pulse rounded bg-gray-100" />
                             </div>
                             <div className="h-6 w-20 animate-pulse rounded-lg bg-gray-100" />
-                            <div className="h-6 w-10 animate-pulse rounded-xl bg-gray-100" />
-                            <div className="h-6 w-10 animate-pulse rounded-xl bg-gray-100" />
+                            <div className="h-6 w-10 animate-pulse rounded-lg bg-gray-100" />
+                            <div className="h-6 w-10 animate-pulse rounded-lg bg-gray-100" />
                             <div className="ml-auto h-6 w-16 animate-pulse rounded-lg bg-gray-100" />
                         </div>
                     ))}

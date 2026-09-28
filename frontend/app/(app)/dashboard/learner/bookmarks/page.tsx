@@ -46,13 +46,13 @@ export default function BookmarksPage() {
                         </p>
                         <Link
                             href="/dashboard/learner"
-                            className="inline-flex px-6 py-3 bg-[var(--brand)] text-white rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-[var(--brand-dark)] transition-all"
+                            className="inline-flex px-6 py-3 bg-[var(--brand)] text-white rounded-lg font-semibold text-xs uppercase tracking-widest hover:bg-[var(--brand-dark)] transition-all"
                         >
                             Browse Courses
                         </Link>
                     </div>
                 ) : (
-                    <div className="overflow-hidden bg-white border border-gray-100 rounded-xl shadow-sm">
+                    <div className="overflow-hidden bg-white border border-gray-100 rounded-lg shadow-sm">
                         <table className="hidden w-full text-left border-collapse md:table">
                             <thead>
                                 <tr className="bg-gray-50/50 border-b border-gray-100">

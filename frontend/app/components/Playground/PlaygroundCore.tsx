@@ -294,13 +294,13 @@ export default function PlaygroundCore({
                                 <div className="flex gap-4">
                                     <button
                                         onClick={() => setShowDeleteConfirm(null)}
-                                        className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
+                                        className="flex-1 px-4 py-3 border border-gray-200 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         onClick={() => deleteTab(showDeleteConfirm)}
-                                        className="flex-1 px-4 py-3 bg-red-500 text-white rounded-xl text-sm font-medium hover:bg-red-600 transition-all shadow-lg"
+                                        className="flex-1 px-4 py-3 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition-all shadow-lg"
                                     >
                                         Delete
                                     </button>
@@ -518,11 +518,11 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
                                 <input
                                     readOnly
                                     value={shareUrl}
-                                    className="min-w-0 flex-1 rounded-xl border border-emerald-100 bg-white px-3 py-2 text-sm font-semibold text-gray-700"
+                                    className="min-w-0 flex-1 rounded-lg border border-emerald-100 bg-white px-3 py-2 text-sm font-semibold text-gray-700"
                                 />
                                 <button
                                     onClick={copy}
-                                    className="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white"
+                                    className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white"
                                 >
                                     <Copy size={14} />
                                     Copy
@@ -531,7 +531,7 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
                             <div className="mt-5 flex justify-center gap-3">
                                 <button
                                     onClick={onClose}
-                                    className="rounded-xl border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-700"
+                                    className="rounded-lg border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-700"
                                 >
                                     Done
                                 </button>
@@ -567,7 +567,7 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
                                         onChange={(event) =>
                                             setQuestion((prev: any) => ({ ...prev, title: event.target.value }))
                                         }
-                                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-medium outline-none focus:border-[var(--brand)]"
+                                        className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm font-medium outline-none focus:border-[var(--brand)]"
                                     />
                                 </label>
                                 <div className="space-y-2">
@@ -593,7 +593,7 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
                             />
 
                             {error && (
-                                <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                                <div className="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
                                     <div className="font-semibold">{error}</div>
                                 </div>
                             )}
@@ -602,14 +602,14 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
                         <div className="flex justify-end gap-3 border-t border-gray-100 px-5 py-4">
                             <button
                                 onClick={onClose}
-                                className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-500"
+                                className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-500"
                             >
                                 Close
                             </button>
                             <button
                                 onClick={save}
                                 disabled={isSaving}
-                                className="rounded-xl bg-[var(--brand)] px-5 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                                className="rounded-lg bg-[var(--brand)] px-5 py-2 text-sm font-semibold text-white disabled:opacity-60"
                             >
                                 {isSaving ? 'Saving...' : 'Save and generate link'}
                             </button>

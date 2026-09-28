@@ -246,7 +246,7 @@ export default function AiDrawer({ kind, storageKey, availableTypes, defaultRefe
                         type="button"
                         onClick={startOutline}
                         disabled={!briefValid || busy}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand)] py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-dark)] disabled:cursor-not-allowed disabled:opacity-40"
+                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--brand)] py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-dark)] disabled:cursor-not-allowed disabled:opacity-40"
                     >
                         {busy ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
                         Generate outline
@@ -260,7 +260,7 @@ export default function AiDrawer({ kind, storageKey, availableTypes, defaultRefe
                             type="button"
                             onClick={startOutline}
                             disabled={busy}
-                            className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3.5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
                             title="Discard this outline and generate a new one"
                         >
                             <RotateCcw size={15} /> Redo
@@ -269,7 +269,7 @@ export default function AiDrawer({ kind, storageKey, availableTypes, defaultRefe
                             type="button"
                             onClick={startWrite}
                             disabled={busy || blueprintCount === 0 || (maxQuestions >= 0 && blueprintCount > maxQuestions)}
-                            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--brand)] py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-dark)] disabled:cursor-not-allowed disabled:opacity-40"
+                            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--brand)] py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-dark)] disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             {busy ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
                             Write {noun}
@@ -283,7 +283,7 @@ export default function AiDrawer({ kind, storageKey, availableTypes, defaultRefe
                         <button
                             type="button"
                             onClick={reset}
-                            className="rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                            className="rounded-lg border border-gray-200 px-3.5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
                         >
                             Start over
                         </button>
@@ -291,7 +291,7 @@ export default function AiDrawer({ kind, storageKey, availableTypes, defaultRefe
                             type="button"
                             onClick={insert}
                             disabled={selected.size === 0}
-                            className="flex-1 rounded-xl bg-[var(--brand)] py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-dark)] disabled:cursor-not-allowed disabled:opacity-40"
+                            className="flex-1 rounded-lg bg-[var(--brand)] py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-dark)] disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             Insert {selected.size} item{selected.size === 1 ? '' : 's'}
                         </button>
@@ -342,7 +342,7 @@ export default function AiDrawer({ kind, storageKey, availableTypes, defaultRefe
                             <X size={18} />
                         </button>
                     </div>
-                    <div className="flex items-center gap-1 rounded-xl bg-gray-100 p-1 text-sm">
+                    <div className="flex items-center gap-1 rounded-lg bg-gray-100 p-1 text-sm">
                         {(
                             [
                                 { id: 'generate', label: 'Generate' },
@@ -415,7 +415,7 @@ export default function AiDrawer({ kind, storageKey, availableTypes, defaultRefe
                                     maxQuestions={maxQuestions}
                                 />
                                 {!canWrite && (
-                                    <p className="rounded-xl bg-[var(--brand-light)] px-3.5 py-3 text-sm text-gray-700">
+                                    <p className="rounded-lg bg-[var(--brand-light)] px-3.5 py-3 text-sm text-gray-700">
                                         Writing the full {noun} needs the Starter plan or higher. Your outline stays here while you upgrade.
                                     </p>
                                 )}

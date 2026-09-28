@@ -39,7 +39,7 @@ export default function BulkUserImport({ error, onFileUpload, onDownloadSample }
                 </div>
                 <button
                     onClick={onDownloadSample}
-                    className="px-6 py-3 bg-white border border-gray-200 text-gray-600 text-[10px] font-semibold uppercase tracking-widest rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2"
+                    className="px-6 py-3 bg-white border border-gray-200 text-gray-600 text-[10px] font-semibold uppercase tracking-widest rounded-lg hover:bg-gray-50 transition-all flex items-center gap-2"
                 >
                     <Download size={14} />
                     Get Sample

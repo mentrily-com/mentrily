@@ -92,7 +92,7 @@ function StartChatting({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
     return (
         <Link
             href="/chat"
-            className={`group inline-flex items-center gap-2 rounded-xl px-7 py-3.5 text-sm font-semibold transition ${
+            className={`group inline-flex items-center gap-2 rounded-lg px-7 py-3.5 text-sm font-semibold transition ${
                 tone === 'dark' ? 'bg-white text-gray-900 hover:bg-gray-100' : 'text-white'
             }`}
             style={
@@ -178,7 +178,7 @@ export default function AiLandingPage() {
                                 <StartChatting />
                                 <Link
                                     href="/pricing"
-                                    className="inline-flex items-center rounded-xl border border-gray-200 bg-white/70 px-7 py-3.5 text-sm font-semibold text-[#006a72] hover:border-[#007c85] hover:bg-white"
+                                    className="inline-flex items-center rounded-lg border border-gray-200 bg-white/70 px-7 py-3.5 text-sm font-semibold text-[#006a72] hover:border-[#007c85] hover:bg-white"
                                 >
                                     See pricing
                                 </Link>

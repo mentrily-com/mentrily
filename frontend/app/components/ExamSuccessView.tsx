@@ -54,7 +54,7 @@ export default function ExamSuccessView({ userDetails, onDone, verdict }: ExamSu
                     </p>
 
                     {/* User Details Card */}
-                    <div className="w-full bg-gray-50/80 rounded-lg sm:rounded-[2.5rem] border border-gray-100 p-5 sm:p-10 mb-8 sm:mb-12 shadow-sm transition-all hover:shadow-md">
+                    <div className="w-full bg-gray-50/80 rounded-lg sm:rounded-lg border border-gray-100 p-5 sm:p-10 mb-8 sm:mb-12 shadow-sm transition-all hover:shadow-md">
                         <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-6 sm:mb-8 border-b border-gray-200/60 pb-6 sm:pb-8">
                             <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white border border-gray-200 flex items-center justify-center text-xl sm:text-2xl font-semibold text-gray-700 shadow-sm">
                                 {userDetails.name ? userDetails.name.charAt(0) : '?'}

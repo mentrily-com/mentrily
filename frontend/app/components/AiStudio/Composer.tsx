@@ -230,7 +230,7 @@ export default function Composer({
                 </div>
             )}
 
-            <div className="rounded-lg border border-gray-200 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] transition focus-within:border-[var(--color-border-brand)] focus-within:shadow-[0_8px_30px_rgba(0,141,152,0.10)]">
+            <div className="rounded-lg border border-gray-200 bg-white shadow-sm transition focus-within:border-[var(--color-border-brand)] focus-within:shadow-sm">
                 {(showRefs || references.length > 0) && (
                     <div className="border-b border-gray-100 px-3 pb-2 pt-3">
                         <ReferencePicker
@@ -367,7 +367,7 @@ export default function Composer({
                         <button
                             type="button"
                             onClick={onStop}
-                            className="grid h-9 w-9 place-items-center rounded-xl bg-gray-900 text-white hover:bg-gray-700"
+                            className="grid h-9 w-9 place-items-center rounded-lg bg-gray-900 text-white hover:bg-gray-700"
                             aria-label="Stop"
                         >
                             <Square size={13} fill="currentColor" />
@@ -377,7 +377,7 @@ export default function Composer({
                             type="button"
                             onClick={submit}
                             disabled={!canSend}
-                            className="grid h-9 w-9 place-items-center rounded-xl bg-[var(--brand)] text-white transition hover:bg-[var(--brand-dark)] disabled:bg-gray-200 disabled:text-gray-400"
+                            className="grid h-9 w-9 place-items-center rounded-lg bg-[var(--brand)] text-white transition hover:bg-[var(--brand-dark)] disabled:bg-gray-200 disabled:text-gray-400"
                             aria-label="Send"
                         >
                             <ArrowUp size={17} strokeWidth={2.5} />

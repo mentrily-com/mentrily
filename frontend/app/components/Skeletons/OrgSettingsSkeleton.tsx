@@ -25,7 +25,7 @@ export default function OrgSettingsSkeleton() {
                 {/* Left: Settings Forms */}
                 <div className="lg:col-span-2 space-y-8">
                     {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="bg-white rounded-xl border border-gray-200 p-6 md:p-8 shadow-sm">
+                        <div key={i} className="bg-white rounded-lg border border-gray-200 p-6 md:p-8 shadow-sm">
                             <div className="flex items-start gap-4 mb-8">
                                 <div className="h-12 w-12 shrink-0 animate-pulse rounded-lg bg-gray-100" />
                                 <div className="space-y-2">
@@ -49,10 +49,10 @@ export default function OrgSettingsSkeleton() {
 
                 {/* Right: Preview Card */}
                 <div className="space-y-8">
-                    <div className="rounded-xl p-8 h-fit sticky top-32 bg-gray-900/90">
+                    <div className="rounded-lg p-8 h-fit sticky top-32 bg-gray-900/90">
                         <div className="h-2.5 w-32 animate-pulse rounded bg-white/10 mb-10" />
                         <div className="flex items-center gap-4 mb-8">
-                            <div className="h-12 w-12 animate-pulse rounded-xl bg-white/10" />
+                            <div className="h-12 w-12 animate-pulse rounded-lg bg-white/10" />
                             <div className="space-y-2">
                                 <div className="h-4 w-32 animate-pulse rounded bg-white/10" />
                                 <div className="h-2.5 w-24 animate-pulse rounded bg-white/10" />

@@ -73,7 +73,7 @@ export default function UpgradeRequestModal({
                 isSent ? (
                     <button
                         onClick={handleClose}
-                        className="w-full py-3 rounded-xl bg-gray-100 text-gray-500 text-xs font-semibold uppercase tracking-widest hover:bg-gray-200 transition-all cursor-pointer"
+                        className="w-full py-3 rounded-lg bg-gray-100 text-gray-500 text-xs font-semibold uppercase tracking-widest hover:bg-gray-200 transition-all cursor-pointer"
                     >
                         Close
                     </button>
@@ -82,14 +82,14 @@ export default function UpgradeRequestModal({
                         <button
                             onClick={handleClose}
                             disabled={isSubmitting}
-                            className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-500 text-xs font-semibold uppercase tracking-widest hover:bg-gray-200 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex-1 py-3 rounded-lg bg-gray-100 text-gray-500 text-xs font-semibold uppercase tracking-widest hover:bg-gray-200 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={handleSubmit}
                             disabled={isSubmitting}
-                            className="flex-1 py-3 rounded-xl bg-[var(--brand)] text-white text-xs font-semibold uppercase tracking-widest hover:bg-[var(--brand-dark)] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+                            className="flex-1 py-3 rounded-lg bg-[var(--brand)] text-white text-xs font-semibold uppercase tracking-widest hover:bg-[var(--brand-dark)] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
                         >
                             {isSubmitting ? (
                                 'Sending...'

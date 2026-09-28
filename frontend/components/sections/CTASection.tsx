@@ -141,7 +141,7 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
                     >
                         <Link
                             href={ctaHref}
-                            className="inline-flex items-center justify-center px-10 py-4 text-base font-semibold text-white rounded-xl transition-all duration-200 cursor-pointer gap-2"
+                            className="inline-flex items-center justify-center px-10 py-4 text-base font-semibold text-white rounded-lg transition-all duration-200 cursor-pointer gap-2"
                             style={{
                                 background: 'linear-gradient(135deg, #007c85, #005359)',
                                 boxShadow: '0 4px 16px rgba(0,141,152,0.3)',
@@ -199,7 +199,7 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="your@email.com"
                             required
-                            className="flex-1 px-5 py-3.5 text-sm rounded-xl outline-none transition-all duration-200"
+                            className="flex-1 px-5 py-3.5 text-sm rounded-lg outline-none transition-all duration-200"
                             style={{
                                 backgroundColor: 'rgba(255,255,255,0.08)',
                                 border: '1px solid rgba(255,255,255,0.12)',
@@ -220,7 +220,7 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
                         <button
                             type="submit"
                             disabled={status === 'loading'}
-                            className="px-6 py-3.5 text-sm font-semibold text-white rounded-xl transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-70"
+                            className="px-6 py-3.5 text-sm font-semibold text-white rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-70"
                             style={{
                                 background: 'linear-gradient(135deg, #007c85, #005359)',
                                 boxShadow: '0 4px 16px rgba(0,141,152,0.3)',

@@ -222,7 +222,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                         <div className="flex items-center gap-3 mb-1">
                             <button
                                 onClick={() => setView('monitor')}
-                                className={`text-2xl font-extrabold tracking-tight transition-all ${view === 'monitor' ? `text-gray-900 border-b-4 ${activeBorderClass}` : 'text-gray-400 hover:text-gray-600'}`}
+                                className={`text-2xl font-semibold tracking-tight transition-all ${view === 'monitor' ? `text-gray-900 border-b-4 ${activeBorderClass}` : 'text-gray-400 hover:text-gray-600'}`}
                             >
                                 Student Activity Monitor
                             </button>
@@ -343,7 +343,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                                 <td className="px-6 py-5">
                                                     <div className="flex items-center gap-4">
                                                         <div
-                                                            className={`w-10 h-10 rounded-xl flex items-center justify-center font-semibold text-xs shrink-0 shadow-sm ring-1 ring-black/5 ${student.vmDetected ? 'bg-rose-100 text-rose-600' : 'bg-gray-100 text-gray-400'}`}
+                                                            className={`w-10 h-10 rounded-lg flex items-center justify-center font-semibold text-xs shrink-0 shadow-sm ring-1 ring-black/5 ${student.vmDetected ? 'bg-rose-100 text-rose-600' : 'bg-gray-100 text-gray-400'}`}
                                                         >
                                                             {student.name[0]}
                                                         </div>
@@ -492,8 +492,8 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                                 width="16"
                                                 height="16"
                                                 viewBox="0 0 24 24"
-                                                fill={star <= f.rating ? '#f59e0b' : '#e2e8f0'}
-                                                stroke={star <= f.rating ? '#f59e0b' : '#e2e8f0'}
+                                                fill={star <= f.rating ? '#f59e0b' : '#dce0e6'}
+                                                stroke={star <= f.rating ? '#f59e0b' : '#dce0e6'}
                                             >
                                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                                             </svg>
@@ -578,7 +578,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                         {v.details &&
                                             typeof v.details === 'string' &&
                                             v.details.startsWith('data:image') && (
-                                                <div className="rounded-xl overflow-hidden border border-gray-100 relative group-hover:ring-2 ring-[var(--brand)] transition-all">
+                                                <div className="rounded-lg overflow-hidden border border-gray-100 relative group-hover:ring-2 ring-[var(--brand)] transition-all">
                                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                                     <img
                                                         src={v.details}
@@ -639,7 +639,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                                 setActiveStream(null);
                                                 if (videoRef.current) videoRef.current.srcObject = null;
                                             }}
-                                            className="text-[10px] font-semibold bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-xl uppercase tracking-widest transition-colors"
+                                            className="text-[10px] font-semibold bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-lg uppercase tracking-widest transition-colors"
                                         >
                                             End Session
                                         </button>
@@ -898,7 +898,7 @@ function MetricBadge({ value, danger, highlight }: any) {
         return <span className="text-gray-300 font-medium text-xs ring-1 ring-gray-100 px-2.5 py-1 rounded-lg">0</span>;
     return (
         <span
-            className={`px-4 py-1.5 rounded-xl font-semibold text-xs shadow-sm ring-1 ${
+            className={`px-4 py-1.5 rounded-lg font-semibold text-xs shadow-sm ring-1 ${
                 danger ? 'bg-rose-50 text-rose-600 ring-rose-100' : 'bg-gray-50 text-gray-600 ring-gray-100'
             }`}
         >

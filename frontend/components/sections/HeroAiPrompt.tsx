@@ -22,7 +22,7 @@ export default function HeroAiPrompt() {
     return (
         <form
             onSubmit={submit}
-            className="flex w-full items-center gap-2 rounded-lg border border-gray-200 bg-white/85 py-1.5 pl-4 pr-1.5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors focus-within:border-[#007c85] focus-within:bg-white"
+            className="flex w-full items-center gap-2 rounded-lg border border-gray-200 bg-white/85 py-1.5 pl-4 pr-1.5 shadow-sm transition-colors focus-within:border-[#007c85] focus-within:bg-white"
         >
             <input
                 value={text}

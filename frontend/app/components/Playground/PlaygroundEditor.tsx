@@ -41,7 +41,7 @@ export default function PlaygroundEditor({ language, code, onChange }: Playgroun
                 /* Autocomplete / Code Suggestions fix */
                 .cm-tooltip.cm-tooltip-autocomplete {
                     background-color: #ffffff !important;
-                    border: 1px solid #e2e8f0 !important;
+                    border: 1px solid #dce0e6 !important;
                     border-radius: 8px !important;
                     box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1) !important;
                     overflow: hidden !important;
@@ -68,7 +68,7 @@ export default function PlaygroundEditor({ language, code, onChange }: Playgroun
                 .cm-gutters {
                     background-color: white !important;
                     border-right: 1px solid #f1f5f9 !important;
-                    color: #94a3b8 !important;
+                    color: #9fa5b0 !important;
                     padding-right: 12px !important;
                     font-size: 12px !important;
                 }
@@ -81,7 +81,7 @@ export default function PlaygroundEditor({ language, code, onChange }: Playgroun
                     color: #0891b2 !important;
                 }
                 .cm-comment {
-                    color: #94a3b8 !important;
+                    color: #9fa5b0 !important;
                     font-style: italic;
                 }
                 .cm-variable {

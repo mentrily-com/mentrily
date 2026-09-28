@@ -35,7 +35,7 @@ export default function CreatorCoursesSkeleton() {
 
                     <div className="space-y-3">
                         {[1, 2, 3, 4].map((i) => (
-                            <div key={i} className="bg-white rounded-xl border border-gray-200 p-5">
+                            <div key={i} className="bg-white rounded-lg border border-gray-200 p-5">
                                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                     <div className="flex-1 min-w-0 space-y-2">
                                         <div className="flex items-center gap-2.5">
@@ -67,7 +67,7 @@ export default function CreatorCoursesSkeleton() {
                         </div>
                         <div className="space-y-2">
                             {[1, 2, 3, 4, 5].map((i) => (
-                                <div key={i} className="rounded-xl border border-gray-200/60 bg-gray-50/50 p-3">
+                                <div key={i} className="rounded-lg border border-gray-200/60 bg-gray-50/50 p-3">
                                     <div className="flex items-start gap-3">
                                         <div className="h-8 w-8 shrink-0 animate-pulse rounded-lg bg-gray-200" />
                                         <div className="min-w-0 flex-1 space-y-1.5">

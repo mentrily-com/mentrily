@@ -73,7 +73,7 @@ export function PublicSeoContent({ entry }: { entry: PublicPlaygroundSeoEntry })
 
     return (
         <div className="mt-6 space-y-6 pb-10">
-            <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <section className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
                 <h2 className="text-base font-semibold tracking-tight text-gray-900">About the {entry.h1}</h2>
                 {paragraphs.map((text) => (
                     <p key={text.slice(0, 32)} className="mt-3 text-sm leading-6 text-gray-600">
@@ -90,7 +90,7 @@ export function PublicSeoContent({ entry }: { entry: PublicPlaygroundSeoEntry })
                 </ul>
             </section>
 
-            <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <section className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
                 <h2 className="text-base font-semibold tracking-tight text-gray-900">Frequently asked questions</h2>
                 <div className="mt-3 divide-y divide-gray-100">
                     {faqs.map((faq) => (
@@ -104,7 +104,7 @@ export function PublicSeoContent({ entry }: { entry: PublicPlaygroundSeoEntry })
                 </div>
             </section>
 
-            <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <section className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
                 <h2 className="text-base font-semibold tracking-tight text-gray-900">More online compilers and tools</h2>
                 <p className="mt-2 text-sm text-gray-600">
                     Mentrily supports 30+ languages. Jump straight into another playground:

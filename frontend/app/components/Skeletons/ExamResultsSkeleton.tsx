@@ -17,7 +17,7 @@ export default function ExamResultsSkeleton() {
                     <div className="h-3 w-40 rounded bg-gray-100 animate-pulse" />
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="h-11 w-11 rounded-xl bg-gray-100 animate-pulse" />
+                    <div className="h-11 w-11 rounded-lg bg-gray-100 animate-pulse" />
                     <div className="h-11 w-36 rounded-lg bg-gray-200 animate-pulse" />
                 </div>
             </div>
@@ -68,7 +68,7 @@ export default function ExamResultsSkeleton() {
             <div className="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-gray-100 flex items-center justify-between">
                     <div className="h-5 w-40 rounded-md bg-gray-200 animate-pulse" />
-                    <div className="h-9 w-64 rounded-xl bg-gray-100 animate-pulse" />
+                    <div className="h-9 w-64 rounded-lg bg-gray-100 animate-pulse" />
                 </div>
                 <div className="divide-y divide-gray-100">
                     {[1, 2, 3, 4, 5].map((row) => (

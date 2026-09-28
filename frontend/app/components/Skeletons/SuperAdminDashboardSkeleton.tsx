@@ -18,12 +18,12 @@ export default function SuperAdminDashboardSkeleton() {
                             <div className="h-9 w-full max-w-2xl animate-pulse rounded-lg bg-gray-200 lg:h-11" />
                             <div className="h-4 w-full max-w-lg animate-pulse rounded-md bg-gray-100" />
                         </div>
-                        <div className="h-11 w-56 animate-pulse rounded-xl bg-gray-200" />
+                        <div className="h-11 w-56 animate-pulse rounded-lg bg-gray-200" />
                         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                             {[1, 2, 3, 4].map((i) => (
                                 <div key={i} className="rounded-lg border border-gray-200 bg-white p-4">
                                     <div className="flex items-center justify-between gap-3">
-                                        <div className="h-10 w-10 animate-pulse rounded-xl bg-gray-100" />
+                                        <div className="h-10 w-10 animate-pulse rounded-lg bg-gray-100" />
                                         <div className="h-4 w-14 animate-pulse rounded-full bg-gray-100" />
                                     </div>
                                     <div className="mt-4 h-2.5 w-20 animate-pulse rounded bg-gray-100" />
@@ -60,14 +60,14 @@ export default function SuperAdminDashboardSkeleton() {
                             <div className="h-6 w-72 animate-pulse rounded-md bg-gray-200" />
                             <div className="h-4 w-96 max-w-full animate-pulse rounded bg-gray-100" />
                         </div>
-                        <div className="h-10 w-44 animate-pulse rounded-xl bg-gray-200" />
+                        <div className="h-10 w-44 animate-pulse rounded-lg bg-gray-200" />
                     </div>
                     <div className="mt-6 space-y-3">
                         {[1, 2, 3].map((i) => (
                             <div key={i} className="rounded-lg border border-gray-200 bg-gray-50/70 p-4">
                                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                                     <div className="flex items-start gap-4">
-                                        <div className="h-10 w-10 shrink-0 animate-pulse rounded-xl bg-gray-200" />
+                                        <div className="h-10 w-10 shrink-0 animate-pulse rounded-lg bg-gray-200" />
                                         <div className="space-y-2">
                                             <div className="h-4 w-40 animate-pulse rounded bg-gray-200" />
                                             <div className="h-3 w-24 animate-pulse rounded bg-gray-100" />
@@ -76,7 +76,7 @@ export default function SuperAdminDashboardSkeleton() {
                                     </div>
                                     <div className="flex gap-2">
                                         {[1, 2, 3].map((j) => (
-                                            <div key={j} className="h-9 w-20 animate-pulse rounded-xl bg-gray-100" />
+                                            <div key={j} className="h-9 w-20 animate-pulse rounded-lg bg-gray-100" />
                                         ))}
                                     </div>
                                 </div>
@@ -89,7 +89,7 @@ export default function SuperAdminDashboardSkeleton() {
                     <div className="mt-2 h-5 w-40 animate-pulse rounded-md bg-gray-200" />
                     <div className="mt-5 space-y-3">
                         {[1, 2, 3].map((i) => (
-                            <div key={i} className="flex items-start gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3.5">
+                            <div key={i} className="flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3.5">
                                 <div className="h-8 w-8 shrink-0 animate-pulse rounded-lg bg-gray-200" />
                                 <div className="flex-1 space-y-1.5">
                                     <div className="h-3 w-24 animate-pulse rounded bg-gray-200" />

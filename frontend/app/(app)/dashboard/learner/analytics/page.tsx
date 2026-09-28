@@ -60,10 +60,10 @@ const HEATMAP_WEEKS = 16;
 
 const tooltipStyle: React.CSSProperties = {
     borderRadius: '12px',
-    border: '1px solid #e2e8f0',
+    border: '1px solid #dce0e6',
     boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.08)',
     fontSize: '11px',
-    fontWeight: 700,
+    fontWeight: 600,
     background: '#ffffff',
 };
 
@@ -490,7 +490,7 @@ export default function AnalyticsPage() {
                             {activeTab === 'overview' && (
                                 <div className="absolute bottom-0 left-0 w-full h-1 bg-[var(--brand)] rounded-t-full" />
                             )}
-                            <div className="absolute inset-x-2 inset-y-2 bg-gray-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl -z-0" />
+                            <div className="absolute inset-x-2 inset-y-2 bg-gray-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg -z-0" />
                         </button>
                         <button
                             onClick={() => setActiveTab('attempts')}
@@ -500,7 +500,7 @@ export default function AnalyticsPage() {
                             {activeTab === 'attempts' && (
                                 <div className="absolute bottom-0 left-0 w-full h-1 bg-[var(--brand)] rounded-t-full" />
                             )}
-                            <div className="absolute inset-x-2 inset-y-2 bg-gray-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl -z-0" />
+                            <div className="absolute inset-x-2 inset-y-2 bg-gray-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg -z-0" />
                         </button>
                     </div>
                 </div>
@@ -751,7 +751,7 @@ export default function AnalyticsPage() {
                                                     dataKey="label"
                                                     axisLine={false}
                                                     tickLine={false}
-                                                    tick={{ fontSize: 9, fontWeight: 800, fill: '#94a3b8' }}
+                                                    tick={{ fontSize: 9, fontWeight: 600, fill: '#9fa5b0' }}
                                                     dy={8}
                                                     interval="preserveStartEnd"
                                                 />
@@ -759,7 +759,7 @@ export default function AnalyticsPage() {
                                                     axisLine={false}
                                                     tickLine={false}
                                                     allowDecimals={false}
-                                                    tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }}
+                                                    tick={{ fontSize: 10, fontWeight: 600, fill: '#9fa5b0' }}
                                                     width={28}
                                                 />
                                                 <Tooltip
@@ -830,7 +830,7 @@ export default function AnalyticsPage() {
                                                                 />
                                                             ))
                                                     ) : (
-                                                        <Cell fill="#e2e8f0" />
+                                                        <Cell fill="#dce0e6" />
                                                     )}
                                                 </Pie>
                                                 {hasOutcomes && <Tooltip contentStyle={tooltipStyle} />}
@@ -944,7 +944,7 @@ export default function AnalyticsPage() {
                                                 return (
                                                     <div
                                                         key={t.type}
-                                                        className="flex items-center gap-4 p-3 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors"
+                                                        className="flex items-center gap-4 p-3 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors"
                                                     >
                                                         <div className="w-9 h-9 rounded-lg bg-[var(--brand-lighter)] text-[var(--brand)] flex items-center justify-center shrink-0">
                                                             <Icon size={16} />
@@ -1003,7 +1003,7 @@ export default function AnalyticsPage() {
                                     <select
                                         value={selectedCourse}
                                         onChange={(e) => setSelectedCourse(e.target.value)}
-                                        className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-5 py-2.5 pr-12 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-4 focus:ring-[var(--brand-light)] transition-all cursor-pointer shadow-sm"
+                                        className="w-full appearance-none bg-white border border-gray-200 rounded-lg px-5 py-2.5 pr-12 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-4 focus:ring-[var(--brand-light)] transition-all cursor-pointer shadow-sm"
                                     >
                                         {availableCourses.map((course) => (
                                             <option key={course} value={course}>
@@ -1091,7 +1091,7 @@ export default function AnalyticsPage() {
                                                     {q.status}
                                                 </span>
                                                 <div
-                                                    className={`p-2 rounded-xl transition-all ${expandedIds.includes(q.id) ? 'rotate-180 bg-[var(--brand-light)] text-[var(--brand)]' : 'text-gray-300'}`}
+                                                    className={`p-2 rounded-lg transition-all ${expandedIds.includes(q.id) ? 'rotate-180 bg-[var(--brand-light)] text-[var(--brand)]' : 'text-gray-300'}`}
                                                 >
                                                     <svg
                                                         width="14"
@@ -1220,7 +1220,7 @@ function EmptyState({ isTeacherView }: { isTeacherView: boolean }) {
             {!isTeacherView && (
                 <button
                     onClick={() => router.push('/dashboard/learner')}
-                    className="px-8 py-3 rounded-xl bg-[var(--brand)] text-white text-xs font-semibold uppercase tracking-widest hover:brightness-105 active:scale-95 transition-all shadow-lg shadow-[var(--brand-light)]"
+                    className="px-8 py-3 rounded-lg bg-[var(--brand)] text-white text-xs font-semibold uppercase tracking-widest hover:brightness-105 active:scale-95 transition-all shadow-lg shadow-[var(--brand-light)]"
                 >
                     Browse Courses
                 </button>

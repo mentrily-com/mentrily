@@ -191,21 +191,21 @@ export default function EnrollmentModal({ isOpen, onClose, courseTitle, courseId
             <div className="grid grid-cols-1 gap-2 p-1 bg-gray-100 rounded-lg sm:grid-cols-3">
                 <button
                     onClick={() => setActiveTab('single')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-semibold uppercase tracking-widest rounded-xl transition-all ${activeTab === 'single' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-semibold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'single' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     <FileText size={14} />
                     Custom Add
                 </button>
                 <button
                     onClick={() => setActiveTab('bulk')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-semibold uppercase tracking-widest rounded-xl transition-all ${activeTab === 'bulk' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-semibold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'bulk' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     <Upload size={14} />
                     Bulk Enroll
                 </button>
                 <button
                     onClick={() => setActiveTab('group')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-semibold uppercase tracking-widest rounded-xl transition-all ${activeTab === 'group' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-semibold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'group' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     <Users size={14} />
                     By Group
@@ -287,7 +287,7 @@ export default function EnrollmentModal({ isOpen, onClose, courseTitle, courseId
                                 </div>
                                 <button
                                     onClick={downloadSampleCSV}
-                                    className="px-4 py-2 bg-white text-[var(--brand)] text-[10px] font-semibold uppercase tracking-widest rounded-xl shadow-sm hover:shadow-md transition-all active:scale-95 border border-[var(--brand-light)]"
+                                    className="px-4 py-2 bg-white text-[var(--brand)] text-[10px] font-semibold uppercase tracking-widest rounded-lg shadow-sm hover:shadow-md transition-all active:scale-95 border border-[var(--brand-light)]"
                                 >
                                     Download
                                 </button>

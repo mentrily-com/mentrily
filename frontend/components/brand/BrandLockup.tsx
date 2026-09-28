@@ -66,7 +66,7 @@ export function BrandLockup({
             <div className={cn('flex min-w-0 items-center gap-2.5', className)}>
                 <div
                     className={cn(
-                        'relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl',
+                        'relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg',
                         !orgLogo && 'bg-[var(--brand)]',
                         iconClassName,
                     )}

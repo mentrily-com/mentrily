@@ -13,21 +13,21 @@
 export default function CourseEditSkeleton() {
     return (
         <div className="teacher-theme h-[calc(100vh-var(--topbar-height)-36px)]">
-            <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-gray-200/80 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.10)]">
+            <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-gray-200/80 bg-white shadow-lg">
                 {/* Toolbar */}
                 <div className="flex items-center justify-between gap-3 border-b border-gray-200 px-4 py-2.5 md:px-5">
                     <div className="flex min-w-0 flex-1 items-center gap-2">
-                        <div className="h-9 w-9 shrink-0 animate-pulse rounded-xl bg-gray-100" />
+                        <div className="h-9 w-9 shrink-0 animate-pulse rounded-lg bg-gray-100" />
                         <div className="hidden h-5 w-28 shrink-0 animate-pulse rounded-full bg-gray-100 lg:block" />
                         <div className="h-5 w-full max-w-xs animate-pulse rounded-md bg-gray-100" />
                         <div className="h-5 w-16 shrink-0 animate-pulse rounded-full bg-gray-100" />
                     </div>
                     <div className="flex items-center gap-1.5 md:gap-2">
-                        <div className="h-9 w-9 animate-pulse rounded-xl bg-gray-100" />
-                        <div className="h-9 w-9 animate-pulse rounded-xl bg-gray-100" />
+                        <div className="h-9 w-9 animate-pulse rounded-lg bg-gray-100" />
+                        <div className="h-9 w-9 animate-pulse rounded-lg bg-gray-100" />
                         <div className="mx-1 h-5 w-px bg-gray-100" />
-                        <div className="h-9 w-28 animate-pulse rounded-xl bg-gray-100" />
-                        <div className="h-9 w-28 animate-pulse rounded-xl bg-gray-200" />
+                        <div className="h-9 w-28 animate-pulse rounded-lg bg-gray-100" />
+                        <div className="h-9 w-28 animate-pulse rounded-lg bg-gray-200" />
                     </div>
                 </div>
 
@@ -42,7 +42,7 @@ export default function CourseEditSkeleton() {
                             </div>
                         </div>
                         <div className="border-b border-gray-200 bg-white px-4 py-2.5">
-                            <div className="h-8 w-full animate-pulse rounded-xl bg-gray-100" />
+                            <div className="h-8 w-full animate-pulse rounded-lg bg-gray-100" />
                         </div>
                         <div className="flex-1 space-y-4 p-4">
                             <div className="h-3 w-28 animate-pulse rounded bg-gray-100" />

@@ -55,7 +55,7 @@ export default function EmbeddedCodeRunner({ language, initialCode, onRunSuccess
     };
 
     return (
-        <div className="my-6 sm:my-8 border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
+        <div className="my-6 sm:my-8 border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
             {/* Top Bar */}
             <div className="min-h-10 bg-gray-50 border-b border-gray-100 flex flex-wrap items-center justify-between gap-2 px-3 py-2 sm:px-4">
                 <div className="flex items-center gap-2">
@@ -158,7 +158,7 @@ export default function EmbeddedCodeRunner({ language, initialCode, onRunSuccess
                     color: #059669 !important;
                 }
                 .cm-comment {
-                    color: #94a3b8 !important;
+                    color: #9fa5b0 !important;
                     font-style: italic;
                 }
                 .cm-variable {

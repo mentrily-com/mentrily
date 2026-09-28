@@ -428,14 +428,14 @@ export default function ExamBuilder({
     ];
 
     return (
-        <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-gray-200/80 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.10)]">
+        <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-gray-200/80 bg-white shadow-lg">
             <div className="sticky top-0 z-40 border-b border-gray-200 bg-white">
                 {/* Unified Toolbar */}
                 <div className="flex items-center justify-between gap-3 px-4 py-2.5 md:px-5 overflow-x-auto no-scrollbar">
                     <div className="flex min-w-0 flex-1 items-center gap-2">
                         <button
                             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                            className="shrink-0 rounded-xl p-2 text-gray-400 transition-colors hover:bg-gray-50 hover:text-[var(--brand)]"
+                            className="shrink-0 rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-50 hover:text-[var(--brand)]"
                             title={isSidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
                         >
                             {isSidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
@@ -475,7 +475,7 @@ export default function ExamBuilder({
                     <div className="flex items-center justify-end gap-1.5 md:gap-2 shrink-0">
                         <button
                             onClick={resetDraft}
-                            className="shrink-0 cursor-pointer rounded-xl p-2.5 text-gray-400 transition-colors hover:bg-gray-50 hover:text-gray-600"
+                            className="shrink-0 cursor-pointer rounded-lg p-2.5 text-gray-400 transition-colors hover:bg-gray-50 hover:text-gray-600"
                             title="Reset local draft"
                         >
                             <RotateCcw size={16} />
@@ -490,7 +490,7 @@ export default function ExamBuilder({
                                         onConfirm: onDelete,
                                     })
                                 }
-                                className="shrink-0 cursor-pointer rounded-xl p-2.5 text-gray-400 transition-colors hover:bg-rose-50 hover:text-rose-500"
+                                className="shrink-0 cursor-pointer rounded-lg p-2.5 text-gray-400 transition-colors hover:bg-rose-50 hover:text-rose-500"
                                 title="Delete exam"
                             >
                                 <Trash2 size={16} />
@@ -499,7 +499,7 @@ export default function ExamBuilder({
                         <button
                             onClick={() => setPreviewMode(previewMode ? null : 'desktop')}
                             disabled={!activeQuestion}
-                            className={`shrink-0 cursor-pointer rounded-xl p-2.5 transition-colors disabled:opacity-30 ${previewMode ? 'bg-[var(--brand)] text-white' : 'text-gray-400 hover:bg-gray-50 hover:text-[var(--brand)]'}`}
+                            className={`shrink-0 cursor-pointer rounded-lg p-2.5 transition-colors disabled:opacity-30 ${previewMode ? 'bg-[var(--brand)] text-white' : 'text-gray-400 hover:bg-gray-50 hover:text-[var(--brand)]'}`}
                             title={
                                 activeQuestion
                                     ? previewMode
@@ -517,7 +517,7 @@ export default function ExamBuilder({
                             onClick={() => {
                                 setShowAiDrawer(true);
                             }}
-                            className="shrink-0 flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--brand-light)]/30 px-3 sm:px-4 py-2 text-xs font-medium uppercase tracking-widest text-[var(--brand)] transition-colors hover:bg-[var(--brand-light)]/50"
+                            className="shrink-0 flex cursor-pointer items-center gap-2 rounded-lg bg-[var(--brand-light)]/30 px-3 sm:px-4 py-2 text-xs font-medium uppercase tracking-widest text-[var(--brand)] transition-colors hover:bg-[var(--brand-light)]/50"
                         >
                             <Sparkles size={14} />
                             <span className="hidden sm:inline">AI Generate</span>
@@ -571,7 +571,7 @@ export default function ExamBuilder({
                                     setIsSaving(false);
                                 }
                             }}
-                            className="shrink-0 flex items-center gap-2 rounded-xl bg-[var(--brand)] px-4 sm:px-5 py-2 text-xs font-medium uppercase tracking-widest text-white shadow-sm transition-all hover:brightness-110 disabled:opacity-50"
+                            className="shrink-0 flex items-center gap-2 rounded-lg bg-[var(--brand)] px-4 sm:px-5 py-2 text-xs font-medium uppercase tracking-widest text-white shadow-sm transition-all hover:brightness-110 disabled:opacity-50"
                             disabled={isSaving}
                         >
                             {isSaving ? (
@@ -618,7 +618,7 @@ export default function ExamBuilder({
                     </div>
 
                     <div className="border-b border-gray-200 bg-white px-4 py-2.5">
-                        <div className="flex gap-1 rounded-xl bg-gray-100 p-0.5">
+                        <div className="flex gap-1 rounded-lg bg-gray-100 p-0.5">
                             <button
                                 onClick={() => setActiveStep('builder')}
                                 className={`cursor-pointer flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-[10px] font-medium uppercase tracking-widest transition-all ${activeStep === 'builder' ? 'bg-[var(--brand)] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
@@ -688,7 +688,7 @@ export default function ExamBuilder({
                                     Exam Settings
                                 </h3>
                                 <div className="p-4 bg-white border border-gray-100 rounded-lg shadow-sm space-y-4">
-                                    <div className="w-12 h-12 bg-[var(--brand-light)] text-[var(--brand)] rounded-xl flex items-center justify-center">
+                                    <div className="w-12 h-12 bg-[var(--brand-light)] text-[var(--brand)] rounded-lg flex items-center justify-center">
                                         <BarChart3 size={20} />
                                     </div>
                                     <p className="text-[10px] font-semibold text-gray-800 uppercase leading-tight">
@@ -753,7 +753,7 @@ export default function ExamBuilder({
                                             </label>
                                             <input
                                                 type="text"
-                                                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium text-gray-700 outline-none focus:border-[var(--brand-light)] transition-all"
+                                                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium text-gray-700 outline-none focus:border-[var(--brand-light)] transition-all"
                                                 placeholder="e.g. JavaScript Midterm"
                                                 value={exam.title ?? ''}
                                                 onChange={(e) =>
@@ -777,7 +777,7 @@ export default function ExamBuilder({
                                                                 );
                                                             }
                                                         }}
-                                                        className={`w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium text-[var(--brand)] outline-none transition-all ${canCustomSlug ? 'focus:border-[var(--brand-light)]' : 'cursor-pointer'}`}
+                                                        className={`w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium text-[var(--brand)] outline-none transition-all ${canCustomSlug ? 'focus:border-[var(--brand-light)]' : 'cursor-pointer'}`}
                                                         placeholder={
                                                             exam.id
                                                                 ? exam.slug || 'Auto-generated after save'
@@ -828,7 +828,7 @@ export default function ExamBuilder({
                                                 Exam Timezone
                                             </label>
                                             <select
-                                                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium text-gray-600 outline-none focus:border-[var(--brand-light)] transition-all"
+                                                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium text-gray-600 outline-none focus:border-[var(--brand-light)] transition-all"
                                                 value={scheduleTz}
                                                 onChange={(e) => handleTimeZoneChange(e.target.value)}
                                             >
@@ -851,7 +851,7 @@ export default function ExamBuilder({
                                                 </label>
                                                 <input
                                                     type="datetime-local"
-                                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium text-gray-600 outline-none focus:border-[var(--brand-light)] transition-all"
+                                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium text-gray-600 outline-none focus:border-[var(--brand-light)] transition-all"
                                                     value={utcISOToZonedWallClock(exam.startTime || '', scheduleTz)}
                                                     onChange={(e) =>
                                                         setExam((prev) => ({
@@ -870,7 +870,7 @@ export default function ExamBuilder({
                                                 </label>
                                                 <input
                                                     type="datetime-local"
-                                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium text-gray-600 outline-none focus:border-[var(--brand-light)] transition-all"
+                                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium text-gray-600 outline-none focus:border-[var(--brand-light)] transition-all"
                                                     value={utcISOToZonedWallClock(exam.endTime || '', scheduleTz)}
                                                     onChange={(e) =>
                                                         setExam((prev) => ({
@@ -889,7 +889,7 @@ export default function ExamBuilder({
                                                 </label>
                                                 <input
                                                     type="number"
-                                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm font-semibold text-gray-700 outline-none focus:border-[var(--brand-light)] transition-all"
+                                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-semibold text-gray-700 outline-none focus:border-[var(--brand-light)] transition-all"
                                                     placeholder="60"
                                                     value={exam.duration ?? ''}
                                                     onChange={(e) =>
@@ -906,7 +906,7 @@ export default function ExamBuilder({
                                                 </label>
                                                 <input
                                                     type="number"
-                                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm font-semibold text-[var(--brand)] outline-none focus:border-[var(--brand-light)] transition-all"
+                                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-semibold text-[var(--brand)] outline-none focus:border-[var(--brand-light)] transition-all"
                                                     placeholder="100"
                                                     value={exam.totalMarks ?? ''}
                                                     onChange={(e) =>
@@ -939,7 +939,7 @@ export default function ExamBuilder({
                                                     type="number"
                                                     min={0}
                                                     max={100}
-                                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm font-semibold text-gray-700 outline-none focus:border-[var(--brand-light)] transition-all"
+                                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-semibold text-gray-700 outline-none focus:border-[var(--brand-light)] transition-all"
                                                     value={exam.passingPercentage ?? 70}
                                                     onChange={(e) =>
                                                         setExam((prev) => ({
@@ -956,7 +956,7 @@ export default function ExamBuilder({
                                                 <input
                                                     type="number"
                                                     min={1}
-                                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm font-semibold text-gray-700 outline-none focus:border-[var(--brand-light)] transition-all"
+                                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-semibold text-gray-700 outline-none focus:border-[var(--brand-light)] transition-all"
                                                     value={exam.maxAttempts ?? 1}
                                                     onChange={(e) =>
                                                         setExam((prev) => ({
@@ -973,7 +973,7 @@ export default function ExamBuilder({
                                                 <input
                                                     type="number"
                                                     min={0}
-                                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm font-semibold text-gray-700 outline-none focus:border-[var(--brand-light)] transition-all"
+                                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-semibold text-gray-700 outline-none focus:border-[var(--brand-light)] transition-all"
                                                     value={exam.attemptBufferMins ?? 0}
                                                     onChange={(e) =>
                                                         setExam((prev) => ({
@@ -1008,7 +1008,7 @@ export default function ExamBuilder({
                                                 </label>
                                                 <input
                                                     type="text"
-                                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm font-semibold tracking-[0.3em] text-[var(--brand)] outline-none focus:border-[var(--brand-light)] transition-all"
+                                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-semibold tracking-[0.3em] text-[var(--brand)] outline-none focus:border-[var(--brand-light)] transition-all"
                                                     placeholder="00000"
                                                     value={exam.testCode ?? ''}
                                                     onChange={(e) =>
@@ -1031,7 +1031,7 @@ export default function ExamBuilder({
                                                     <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                                                         Code Rotation Type
                                                     </label>
-                                                    <div className="flex gap-2 p-1 bg-gray-50 rounded-xl">
+                                                    <div className="flex gap-2 p-1 bg-gray-50 rounded-lg">
                                                         {['Permanent', 'Rotating'].map((t) => (
                                                             <button
                                                                 key={t}
@@ -1056,7 +1056,7 @@ export default function ExamBuilder({
                                                         </label>
                                                         <input
                                                             type="number"
-                                                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm font-semibold text-[var(--brand)] outline-none focus:border-[var(--brand-light)]"
+                                                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-semibold text-[var(--brand)] outline-none focus:border-[var(--brand-light)]"
                                                             placeholder="60"
                                                             value={exam.rotationInterval ?? ''}
                                                             onChange={(e) =>
@@ -1125,7 +1125,7 @@ export default function ExamBuilder({
                                                 </div>
                                                 <input
                                                     type="text"
-                                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium text-gray-600 outline-none focus:border-[var(--brand-light)] transition-all font-mono"
+                                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium text-gray-600 outline-none focus:border-[var(--brand-light)] transition-all font-mono"
                                                     placeholder="e.g. 192.168.1.1, 10.0.0.1"
                                                     value={exam.allowedIPs || ''}
                                                     onChange={(e) =>
@@ -1142,7 +1142,7 @@ export default function ExamBuilder({
                                                     <input
                                                         type="text"
                                                         readOnly
-                                                        className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 outline-none cursor-default"
+                                                        className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-semibold text-gray-800 outline-none cursor-default"
                                                         value={exam.inviteToken || 'xqoto373'}
                                                     />
                                                     <button
@@ -1154,7 +1154,7 @@ export default function ExamBuilder({
                                                             }))
                                                         }
                                                         title="Generate Random Token"
-                                                        className="cursor-pointer rounded-xl bg-gray-100 p-2.5 text-gray-400 transition-all hover:bg-gray-200"
+                                                        className="cursor-pointer rounded-lg bg-gray-100 p-2.5 text-gray-400 transition-all hover:bg-gray-200"
                                                     >
                                                         <Sparkles size={16} />
                                                     </button>
@@ -1173,7 +1173,7 @@ export default function ExamBuilder({
                                                                 );
                                                             }
                                                         }}
-                                                        className="cursor-pointer rounded-xl bg-gray-100 p-2.5 text-gray-400 transition-all hover:bg-gray-200"
+                                                        className="cursor-pointer rounded-lg bg-gray-100 p-2.5 text-gray-400 transition-all hover:bg-gray-200"
                                                         title="Copy invite link"
                                                     >
                                                         <Share2 size={16} />
@@ -1296,7 +1296,7 @@ export default function ExamBuilder({
                                                 <input
                                                     type="number"
                                                     min="0"
-                                                    className="w-24 px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm font-semibold text-[var(--brand)] outline-none focus:border-[var(--brand-light)] shadow-inner"
+                                                    className="w-24 px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-semibold text-[var(--brand)] outline-none focus:border-[var(--brand-light)] shadow-inner"
                                                     placeholder="3"
                                                     value={exam.tabSwitchLimit ?? ''}
                                                     onChange={(e) => {
@@ -1636,7 +1636,7 @@ function QuestionRow({
             ref={setNodeRef}
             style={style}
             onClick={onSelect}
-            className={`group/q flex items-center gap-2.5 px-3 py-2 rounded-xl cursor-pointer transition-all border ${isActive ? 'bg-[var(--brand-light)] border-[var(--brand-light)] text-[var(--brand-dark)]' : 'bg-transparent border-transparent text-gray-400 hover:text-gray-600'}`}
+            className={`group/q flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-all border ${isActive ? 'bg-[var(--brand-light)] border-[var(--brand-light)] text-[var(--brand-dark)]' : 'bg-transparent border-transparent text-gray-400 hover:text-gray-600'}`}
         >
             <span
                 {...attributes}
@@ -1683,7 +1683,7 @@ function AddMenuItem({
                 }
                 onClick();
             }}
-            className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 transition-all ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-50'}`}
+            className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 transition-all ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-50'}`}
         >
             <span className="text-gray-400 group-hover:text-[var(--brand)] transition-colors uppercase">{icon}</span>
             <span className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest whitespace-nowrap">

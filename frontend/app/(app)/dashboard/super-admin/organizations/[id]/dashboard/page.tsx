@@ -147,23 +147,23 @@ export default function SuperAdminOrganizationDashboard({ params }: { params: Pr
                             <p className="text-xs font-medium text-gray-400 mt-1">{orgName}</p>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-                            <div className="bg-gray-50 rounded-xl px-3 py-2">
+                            <div className="bg-gray-50 rounded-lg px-3 py-2">
                                 <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Users</p>
                                 <p className="text-sm font-semibold text-gray-700">{usage.users}</p>
                             </div>
-                            <div className="bg-gray-50 rounded-xl px-3 py-2">
+                            <div className="bg-gray-50 rounded-lg px-3 py-2">
                                 <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
                                     Admins
                                 </p>
                                 <p className="text-sm font-semibold text-gray-700">{usage.admins}</p>
                             </div>
-                            <div className="bg-gray-50 rounded-xl px-3 py-2">
+                            <div className="bg-gray-50 rounded-lg px-3 py-2">
                                 <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
                                     Courses
                                 </p>
                                 <p className="text-sm font-semibold text-gray-700">{usage.courses}</p>
                             </div>
-                            <div className="bg-gray-50 rounded-xl px-3 py-2">
+                            <div className="bg-gray-50 rounded-lg px-3 py-2">
                                 <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Exams</p>
                                 <p className="text-sm font-semibold text-gray-700">{usage.exams}</p>
                             </div>
@@ -178,7 +178,7 @@ export default function SuperAdminOrganizationDashboard({ params }: { params: Pr
                             <select
                                 value={selectedPlan}
                                 onChange={(e) => setSelectedPlan(e.target.value as PlanType)}
-                                className="w-full h-11 rounded-xl border border-gray-200 px-3 text-sm font-semibold text-gray-700"
+                                className="w-full h-11 rounded-lg border border-gray-200 px-3 text-sm font-semibold text-gray-700"
                             >
                                 <option value="FREE">FREE</option>
                                 <option value="STARTER">STARTER</option>
@@ -188,7 +188,7 @@ export default function SuperAdminOrganizationDashboard({ params }: { params: Pr
                             <button
                                 onClick={savePlan}
                                 disabled={savingPlan}
-                                className="mt-3 w-full h-10 rounded-xl bg-[var(--brand)] text-white text-xs font-semibold uppercase tracking-widest disabled:opacity-60"
+                                className="mt-3 w-full h-10 rounded-lg bg-[var(--brand)] text-white text-xs font-semibold uppercase tracking-widest disabled:opacity-60"
                             >
                                 {savingPlan ? 'Saving Plan...' : 'Save Plan'}
                             </button>
@@ -214,7 +214,7 @@ export default function SuperAdminOrganizationDashboard({ params }: { params: Pr
                                                     [field.key]: Number(e.target.value),
                                                 }))
                                             }
-                                            className="h-10 rounded-xl border border-gray-200 px-3 text-sm font-semibold text-gray-700"
+                                            className="h-10 rounded-lg border border-gray-200 px-3 text-sm font-semibold text-gray-700"
                                         />
                                     </label>
                                 ))}
@@ -222,7 +222,7 @@ export default function SuperAdminOrganizationDashboard({ params }: { params: Pr
                             <button
                                 onClick={saveLimits}
                                 disabled={savingLimits}
-                                className="mt-3 w-full h-10 rounded-xl bg-gray-900 text-white text-xs font-semibold uppercase tracking-widest disabled:opacity-60"
+                                className="mt-3 w-full h-10 rounded-lg bg-gray-900 text-white text-xs font-semibold uppercase tracking-widest disabled:opacity-60"
                             >
                                 {savingLimits ? 'Saving Limits...' : 'Save Limits'}
                             </button>

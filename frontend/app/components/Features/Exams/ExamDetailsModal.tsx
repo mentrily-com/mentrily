@@ -158,7 +158,7 @@ export default function ExamDetailsModal({ exam, onClose }: ExamDetailsModalProp
                     </div>
                     <div className="bg-gray-50 border border-gray-100 p-4 rounded-lg flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-gray-400">
+                            <div className="w-8 h-8 rounded-lg bg-white border border-gray-100 flex items-center justify-center text-gray-400">
                                 <Target size={14} />
                             </div>
                             <div>

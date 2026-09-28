@@ -45,7 +45,7 @@ function Stepper({
             <label htmlFor={id} className="block text-xs font-medium text-gray-600">
                 {label}
             </label>
-            <div className="flex h-10 items-center rounded-xl border border-gray-200 bg-white">
+            <div className="flex h-10 items-center rounded-lg border border-gray-200 bg-white">
                 <button
                     type="button"
                     onClick={() => onChange(Math.max(min, value - 1))}
@@ -138,7 +138,7 @@ export default function BriefFields({
                                 ? 'e.g. Mid-term on Python lists and loops: indexing, slicing, list methods, for-loops'
                                 : 'e.g. Python lists for beginners: creating lists, indexing, slicing and list methods'
                         }
-                        className="w-full resize-none rounded-xl border border-gray-200 bg-white px-3.5 py-3 text-sm leading-6 text-gray-900 outline-none transition focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/10"
+                        className="w-full resize-none rounded-lg border border-gray-200 bg-white px-3.5 py-3 text-sm leading-6 text-gray-900 outline-none transition focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/10"
                     />
                 </div>
             )}
@@ -153,7 +153,7 @@ export default function BriefFields({
                     onChange={(e) => set('audience', e.target.value)}
                     maxLength={300}
                     placeholder="e.g. Grade 9 students new to programming"
-                    className="h-10 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none transition focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/10"
+                    className="h-10 w-full rounded-lg border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none transition focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/10"
                 />
             </div>
 
@@ -243,7 +243,7 @@ export default function BriefFields({
 
             <fieldset className="space-y-2">
                 <legend className="text-xs font-medium text-gray-600">Difficulty</legend>
-                <div className="grid grid-cols-4 rounded-xl border border-gray-200 bg-gray-50 p-1">
+                <div className="grid grid-cols-4 rounded-lg border border-gray-200 bg-gray-50 p-1">
                     {DIFFICULTIES.map((d) => (
                         <button
                             key={d}
@@ -293,7 +293,7 @@ export default function BriefFields({
                                         ? onLocked('The Best quality tier is available on the Pro plan and above.')
                                         : onQualityChange(opt.value)
                                 }
-                                className={`rounded-xl border px-3 py-2.5 text-left transition ${
+                                className={`rounded-lg border px-3 py-2.5 text-left transition ${
                                     active
                                         ? 'border-[var(--brand)] bg-[var(--color-brand-light)]'
                                         : 'border-gray-200 bg-white hover:border-gray-300'
@@ -333,7 +333,7 @@ export default function BriefFields({
                                 rows={2}
                                 maxLength={1500}
                                 placeholder="e.g. Learners can slice lists, choose the right list method and loop over lists"
-                                className="w-full resize-none rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/10"
+                                className="w-full resize-none rounded-lg border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/10"
                             />
                         </div>
                         <div className="grid grid-cols-2 gap-3">
@@ -345,7 +345,7 @@ export default function BriefFields({
                                     id={`${uid}-lang`}
                                     value={brief.language ?? 'English'}
                                     onChange={(e) => set('language', e.target.value)}
-                                    className="h-10 w-full rounded-xl border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none focus:border-[var(--brand)]"
+                                    className="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none focus:border-[var(--brand)]"
                                 >
                                     {LANGUAGES.map((l) => (
                                         <option key={l}>{l}</option>
@@ -367,7 +367,7 @@ export default function BriefFields({
                                             set('totalMarks', e.target.value ? Math.max(1, Math.round(Number(e.target.value))) : undefined)
                                         }
                                         placeholder="Any"
-                                        className="h-10 w-full rounded-xl border border-gray-200 bg-white px-3 text-sm tabular-nums text-gray-900 outline-none focus:border-[var(--brand)]"
+                                        className="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm tabular-nums text-gray-900 outline-none focus:border-[var(--brand)]"
                                     />
                                 </div>
                             )}

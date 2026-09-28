@@ -70,7 +70,7 @@ export default function MCQEditor({ question, onChange }: MCQEditorProps) {
                                 placeholder={`Option ${index + 1}...`}
                                 value={option.text}
                                 onChange={(e) => updateOptionText(option.id, e.target.value)}
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium text-gray-700 outline-none focus:border-[var(--brand-light)] focus:ring-4 focus:ring-[var(--brand)]/5 transition-all"
+                                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium text-gray-700 outline-none focus:border-[var(--brand-light)] focus:ring-4 focus:ring-[var(--brand)]/5 transition-all"
                             />
                         </div>
 

@@ -27,7 +27,7 @@ export default function OnboardingChecklist({
     const percent = totalSteps > 0 ? Math.round((completedCount / totalSteps) * 100) : 0;
 
     return (
-        <section className="relative overflow-hidden rounded-lg border border-gray-200 bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)] mb-8">
+        <section className="relative overflow-hidden rounded-lg border border-gray-200 bg-white p-6 shadow-md mb-8">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(26,86,219,0.1),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.08),transparent_34%)]" />
             <div className="relative">
                 <div className="flex items-start justify-between gap-4 mb-4">
@@ -59,7 +59,7 @@ export default function OnboardingChecklist({
                     </div>
                     <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                         <div
-                            className="h-full rounded-full bg-[linear-gradient(90deg,var(--brand),#0ea5e9)] transition-all"
+                            className="h-full rounded-full bg-[var(--brand)] transition-all"
                             style={{ width: `${percent}%` }}
                         />
                     </div>

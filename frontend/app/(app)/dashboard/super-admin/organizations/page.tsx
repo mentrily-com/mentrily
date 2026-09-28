@@ -203,13 +203,13 @@ export default function SuperAdminOrganizationsPage() {
                                         <td className="px-8 py-6 text-right">
                                             <div className="flex items-center justify-end gap-2">
                                                 <Link href={`/dashboard/super-admin/organizations/${org.id}/dashboard`}>
-                                                    <button className="px-4 py-2 bg-[var(--brand-light)] text-[var(--brand)] rounded-xl text-[10px] font-semibold uppercase tracking-widest flex items-center gap-2 hover:bg-[var(--brand)] hover:text-white transition-all shadow-sm">
+                                                    <button className="px-4 py-2 bg-[var(--brand-light)] text-[var(--brand)] rounded-lg text-[10px] font-semibold uppercase tracking-widest flex items-center gap-2 hover:bg-[var(--brand)] hover:text-white transition-all shadow-sm">
                                                         <ShieldCheck size={14} /> Impersonate
                                                     </button>
                                                 </Link>
                                                 <Link href={`/dashboard/super-admin/organizations/${org.id}/settings`}>
                                                     <button
-                                                        className="p-2 text-gray-300 hover:text-[var(--brand)] hover:bg-gray-50 rounded-xl transition-all"
+                                                        className="p-2 text-gray-300 hover:text-[var(--brand)] hover:bg-gray-50 rounded-lg transition-all"
                                                         title="Configure Organization"
                                                     >
                                                         <Settings2 size={18} />
@@ -217,7 +217,7 @@ export default function SuperAdminOrganizationsPage() {
                                                 </Link>
                                                 <button
                                                     onClick={() => setOrgToDelete(org)}
-                                                    className="p-2 text-gray-300 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+                                                    className="p-2 text-gray-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
                                                 >
                                                     <Trash2 size={18} />
                                                 </button>
@@ -275,7 +275,7 @@ function DeleteOrganizationModal({
                     <button
                         onClick={onClose}
                         aria-label="Close dialog"
-                        className="p-2 text-gray-400 hover:text-gray-900 transition-colors rounded-xl hover:bg-gray-50"
+                        className="p-2 text-gray-400 hover:text-gray-900 transition-colors rounded-lg hover:bg-gray-50"
                     >
                         <X size={20} />
                     </button>

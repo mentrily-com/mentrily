@@ -463,7 +463,7 @@ export default function SignupPage() {
                         </div>
                         <div className="space-y-2">
                             {['Course builder', 'Quiz and exam tools', 'Certificates'].map((item, index) => (
-                                <div key={item} className="flex items-center gap-3 rounded-xl bg-white/10 p-3">
+                                <div key={item} className="flex items-center gap-3 rounded-lg bg-white/10 p-3">
                                     <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white text-xs font-medium text-[var(--brand)]">
                                         {index + 1}
                                     </span>
@@ -525,7 +525,7 @@ export default function SignupPage() {
                         {/* Error */}
                         {error && (
                             <div
-                                className="mb-5 px-4 py-3 rounded-xl text-sm font-medium text-center"
+                                className="mb-5 px-4 py-3 rounded-lg text-sm font-medium text-center"
                                 style={{ backgroundColor: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}
                             >
                                 {error}
@@ -539,7 +539,7 @@ export default function SignupPage() {
                                     type="button"
                                     disabled={isGoogleLoading || isLoading}
                                     onClick={signUpWithGoogle}
-                                    className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl text-sm font-medium border transition-all duration-150 cursor-pointer mb-6 disabled:opacity-70 disabled:cursor-not-allowed"
+                                    className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-lg text-sm font-medium border transition-all duration-150 cursor-pointer mb-6 disabled:opacity-70 disabled:cursor-not-allowed"
                                     style={{
                                         backgroundColor: '#FFFFFF',
                                         borderColor: '#E2E8F0',
@@ -594,7 +594,7 @@ export default function SignupPage() {
 
                                 {isInvitationFlow && (
                                     <div
-                                        className="mb-6 px-4 py-3 rounded-xl text-sm"
+                                        className="mb-6 px-4 py-3 rounded-lg text-sm"
                                         style={{
                                             backgroundColor: '#F0FDFA',
                                             border: '1px solid #99F6E4',
@@ -630,7 +630,7 @@ export default function SignupPage() {
                                                     value={firstName}
                                                     onChange={(e) => setFirstName(e.target.value)}
                                                     placeholder="John"
-                                                    className="w-full py-3 pl-11 pr-4 text-sm rounded-xl border outline-none transition-all duration-150"
+                                                    className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150"
                                                     style={{
                                                         backgroundColor: '#FFFFFF',
                                                         borderColor: '#E2E8F0',
@@ -661,7 +661,7 @@ export default function SignupPage() {
                                                 value={lastName}
                                                 onChange={(e) => setLastName(e.target.value)}
                                                 placeholder="Doe"
-                                                className="w-full py-3 px-4 text-sm rounded-xl border outline-none transition-all duration-150"
+                                                className="w-full py-3 px-4 text-sm rounded-lg border outline-none transition-all duration-150"
                                                 style={{
                                                     backgroundColor: '#FFFFFF',
                                                     borderColor: '#E2E8F0',
@@ -701,7 +701,7 @@ export default function SignupPage() {
                                                     value={email}
                                                     onChange={(e) => setEmail(e.target.value)}
                                                     placeholder="name@company.com"
-                                                    className="w-full py-3 pl-11 pr-4 text-sm rounded-xl border outline-none transition-all duration-150"
+                                                    className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150"
                                                     style={{
                                                         backgroundColor: '#FFFFFF',
                                                         borderColor: '#E2E8F0',
@@ -742,7 +742,7 @@ export default function SignupPage() {
                                                 value={password}
                                                 onChange={(e) => setPassword(e.target.value)}
                                                 placeholder="••••••••"
-                                                className="w-full py-3 pl-11 pr-11 text-sm rounded-xl border outline-none transition-all duration-150"
+                                                className="w-full py-3 pl-11 pr-11 text-sm rounded-lg border outline-none transition-all duration-150"
                                                 style={{
                                                     backgroundColor: '#FFFFFF',
                                                     borderColor: '#E2E8F0',
@@ -808,7 +808,7 @@ export default function SignupPage() {
                                     <button
                                         type="submit"
                                         disabled={isLoading}
-                                        className="w-full py-3 text-sm font-semibold text-white rounded-xl transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed mt-1"
+                                        className="w-full py-3 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed mt-1"
                                         style={{ backgroundColor: 'var(--brand, #007c85)' }}
                                         onMouseEnter={(e) => {
                                             if (!isLoading) e.currentTarget.style.opacity = '0.9';
@@ -836,7 +836,7 @@ export default function SignupPage() {
                             <form onSubmit={handleVerify} className="space-y-5">
                                 {/* Info banner */}
                                 <div
-                                    className="px-4 py-3 rounded-xl text-sm text-center"
+                                    className="px-4 py-3 rounded-lg text-sm text-center"
                                     style={{
                                         backgroundColor: '#eefbfc',
                                         border: '1px solid #eefbfc',
@@ -865,7 +865,7 @@ export default function SignupPage() {
                                             value={code}
                                             onChange={(e) => setCode(e.target.value)}
                                             placeholder="123456"
-                                            className="w-full py-3 pl-11 pr-4 text-sm rounded-xl border outline-none transition-all duration-150 tracking-widest"
+                                            className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150 tracking-widest"
                                             style={{
                                                 backgroundColor: '#FFFFFF',
                                                 borderColor: '#E2E8F0',
@@ -888,7 +888,7 @@ export default function SignupPage() {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full py-3 text-sm font-semibold text-white rounded-xl transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed"
+                                    className="w-full py-3 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed"
                                     style={{ backgroundColor: 'var(--brand, #007c85)' }}
                                     onMouseEnter={(e) => {
                                         if (!isLoading) e.currentTarget.style.opacity = '0.9';

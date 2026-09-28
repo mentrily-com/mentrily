@@ -347,7 +347,7 @@ export default function CreateOrganizationView() {
                                         <div
                                             className={`flex items-center gap-4 p-4 border-2 border-dashed ${formData.logo ? 'border-[var(--brand)] bg-[var(--brand-light)]/10' : 'border-gray-100 bg-gray-50/50'} rounded-lg hover:bg-gray-50 transition-all cursor-pointer`}
                                         >
-                                            <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-gray-300 group-hover:text-[var(--brand)] shadow-sm transition-all overflow-hidden">
+                                            <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center text-gray-300 group-hover:text-[var(--brand)] shadow-sm transition-all overflow-hidden">
                                                 {formData.logo ? (
                                                     typeof formData.logo === 'string' ? (
                                                         <img
@@ -723,7 +723,7 @@ function PermissionToggle({
     return (
         <div
             onClick={onClick}
-            className={`cursor-pointer p-4 rounded-xl border flex items-center justify-between transition-all ${isSub ? 'py-3 px-4 border-transparent hover:bg-white' : active ? 'bg-[var(--brand-light)] border-[var(--brand-light)] shadow-sm' : 'bg-white border-gray-100 hover:border-gray-200'}`}
+            className={`cursor-pointer p-4 rounded-lg border flex items-center justify-between transition-all ${isSub ? 'py-3 px-4 border-transparent hover:bg-white' : active ? 'bg-[var(--brand-light)] border-[var(--brand-light)] shadow-sm' : 'bg-white border-gray-100 hover:border-gray-200'}`}
         >
             <span
                 className={`font-semibold uppercase tracking-wider ${isSub ? 'text-[10px] text-gray-500' : 'text-xs ' + (active ? 'text-[var(--brand-dark)]' : 'text-gray-400')}`}

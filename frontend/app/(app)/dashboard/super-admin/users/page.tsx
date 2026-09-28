@@ -272,7 +272,7 @@ export default function SuperAdminUsersPage() {
                                             <div className="flex items-center justify-end gap-2">
                                                 <button
                                                     onClick={() => openTransferModal(u)}
-                                                    className="p-2 text-gray-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+                                                    className="p-2 text-gray-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
                                                     title="Transfer to Enterprise Organization"
                                                 >
                                                     <ArrowRightLeft size={18} />
@@ -280,7 +280,7 @@ export default function SuperAdminUsersPage() {
                                                 <button
                                                     onClick={() => handleToggleStatus(u)}
                                                     disabled={actionLoading === u.id}
-                                                    className={`p-2 rounded-xl transition-all flex items-center gap-2 ${u.isActive ? 'text-gray-300 hover:text-rose-600 hover:bg-rose-50' : 'text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50'}`}
+                                                    className={`p-2 rounded-lg transition-all flex items-center gap-2 ${u.isActive ? 'text-gray-300 hover:text-rose-600 hover:bg-rose-50' : 'text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50'}`}
                                                     title={u.isActive ? 'Suspend Account' : 'Activate Account'}
                                                 >
                                                     {actionLoading === u.id ? (
@@ -293,7 +293,7 @@ export default function SuperAdminUsersPage() {
                                                 </button>
                                                 <button
                                                     onClick={() => setUserToDelete(u)}
-                                                    className="p-2 text-gray-300 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+                                                    className="p-2 text-gray-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
                                                     title="Permanently Delete"
                                                 >
                                                     <Trash2 size={18} />
@@ -328,14 +328,14 @@ export default function SuperAdminUsersPage() {
                         <button
                             onClick={() => setPage((p) => Math.max(1, p - 1))}
                             disabled={page === 1}
-                            className="p-2 rounded-xl bg-white border border-gray-100 disabled:opacity-50 hover:bg-gray-50 transition-colors"
+                            className="p-2 rounded-lg bg-white border border-gray-100 disabled:opacity-50 hover:bg-gray-50 transition-colors"
                         >
                             <ChevronLeft size={16} className="text-gray-600" />
                         </button>
                         <button
                             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                             disabled={page === totalPages}
-                            className="p-2 rounded-xl bg-white border border-gray-100 disabled:opacity-50 hover:bg-gray-50 transition-colors"
+                            className="p-2 rounded-lg bg-white border border-gray-100 disabled:opacity-50 hover:bg-gray-50 transition-colors"
                         >
                             <ChevronRight size={16} className="text-gray-600" />
                         </button>

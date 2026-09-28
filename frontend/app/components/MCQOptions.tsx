@@ -154,7 +154,7 @@ export default function MCQOptions({
                 <div className="shrink-0 border-t border-gray-100 bg-white p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 z-20 w-full">
                     <button
                         onClick={handleReset}
-                        className="flex-1 px-6 py-2.5 rounded-xl text-gray-500 font-medium hover:bg-gray-50 hover:text-gray-700 transition-colors flex items-center justify-center gap-2 sm:flex-none"
+                        className="flex-1 px-6 py-2.5 rounded-lg text-gray-500 font-medium hover:bg-gray-50 hover:text-gray-700 transition-colors flex items-center justify-center gap-2 sm:flex-none"
                     >
                         <svg
                             width="16"
@@ -176,7 +176,7 @@ export default function MCQOptions({
                         onClick={handleSubmit}
                         data-element-id="starter-submit-answer"
                         disabled={selectedIds.length === 0}
-                        className={`px-8 py-2.5 rounded-xl font-semibold transition-all flex items-center gap-2 ${
+                        className={`px-8 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 ${
                             selectedIds.length === 0
                                 ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
                                 : 'bg-[var(--brand)] text-white hover:brightness-105 active:scale-95'

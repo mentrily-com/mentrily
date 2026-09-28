@@ -74,7 +74,7 @@ export default function DashboardSkeleton({ type = 'main', userRole, noNavbar = 
                                     className="flex justify-between items-center py-4 border-b border-gray-50 last:border-0"
                                 >
                                     <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 bg-gray-100 rounded-xl animate-pulse"></div>
+                                        <div className="w-10 h-10 bg-gray-100 rounded-lg animate-pulse"></div>
                                         <div className="space-y-2">
                                             <div className="w-48 h-5 bg-gray-200 rounded-md animate-pulse"></div>
                                             <div className="w-32 h-3 bg-gray-100 rounded-md animate-pulse"></div>
@@ -97,17 +97,17 @@ export default function DashboardSkeleton({ type = 'main', userRole, noNavbar = 
                             {[1, 2, 3, 4].map((i) => (
                                 <div key={i} className="space-y-3">
                                     <div className="w-24 h-4 bg-gray-200 rounded-md animate-pulse"></div>
-                                    <div className="w-full h-12 bg-gray-100 rounded-xl animate-pulse"></div>
+                                    <div className="w-full h-12 bg-gray-100 rounded-lg animate-pulse"></div>
                                 </div>
                             ))}
                         </div>
                         <div className="mt-8 space-y-3">
                             <div className="w-32 h-4 bg-gray-200 rounded-md animate-pulse"></div>
-                            <div className="w-full h-32 bg-gray-100 rounded-xl animate-pulse"></div>
+                            <div className="w-full h-32 bg-gray-100 rounded-lg animate-pulse"></div>
                         </div>
                         <div className="mt-8 flex justify-end gap-4">
-                            <div className="w-24 h-12 bg-gray-100 rounded-xl animate-pulse"></div>
-                            <div className="w-32 h-12 bg-gray-200 rounded-xl animate-pulse"></div>
+                            <div className="w-24 h-12 bg-gray-100 rounded-lg animate-pulse"></div>
+                            <div className="w-32 h-12 bg-gray-200 rounded-lg animate-pulse"></div>
                         </div>
                     </div>
                 )}

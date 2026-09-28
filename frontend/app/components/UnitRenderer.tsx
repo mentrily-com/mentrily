@@ -248,7 +248,7 @@ export function UnitRendererComponent({
                                     {/* Full Screen Toggle */}
                                     <button
                                         onClick={toggleFullScreen}
-                                        className={`p-2.5 rounded-xl border transition-all ${
+                                        className={`p-2.5 rounded-lg border transition-all ${
                                             isReadingFullScreen
                                                 ? 'bg-indigo-600 border-indigo-600 text-white'
                                                 : 'bg-white border-gray-100 text-gray-400 hover:text-gray-600 hover:border-gray-200'
@@ -283,7 +283,7 @@ export function UnitRendererComponent({
 
                                     <button
                                         onClick={onToggleBookmark}
-                                        className={`p-2.5 rounded-xl border transition-all ${
+                                        className={`p-2.5 rounded-lg border transition-all ${
                                             isBookmarked
                                                 ? 'bg-indigo-50 border-indigo-200 text-indigo-600'
                                                 : 'bg-white border-gray-100 text-gray-300 hover:text-gray-500 hover:border-gray-200'
@@ -305,7 +305,7 @@ export function UnitRendererComponent({
                                         </svg>
                                     </button>
                                     {!hideNav && !isExamMode && (
-                                        <button className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-500 hover:bg-gray-100 transition-all">
+                                        <button className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-medium text-gray-500 hover:bg-gray-100 transition-all">
                                             Download PDF
                                             <svg
                                                 width="14"

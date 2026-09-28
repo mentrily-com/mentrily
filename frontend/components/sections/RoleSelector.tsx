@@ -174,7 +174,7 @@ export default function RoleSelector() {
                                             initial={{ opacity: 0, x: 12 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: i * 0.06, duration: 0.35 }}
-                                            className="flex h-full items-start gap-3 rounded-xl p-4 text-left transition-all duration-200 cursor-pointer group"
+                                            className="flex h-full items-start gap-3 rounded-lg p-4 text-left transition-all duration-200 cursor-pointer group"
                                             style={{
                                                 backgroundColor: '#FFFFFF',
                                                 border: '1px solid #E2E8F0',

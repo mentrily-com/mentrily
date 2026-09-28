@@ -331,13 +331,13 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                 <div className="mt-6 flex gap-4">
                     <button
                         onClick={handleReturnToLearnerDashboard}
-                        className="px-6 py-3 bg-gray-900 text-white rounded-xl font-semibold"
+                        className="px-6 py-3 bg-gray-900 text-white rounded-lg font-semibold"
                     >
                         Go Back
                     </button>
                     <button
                         onClick={() => router.push('/dashboard/learner')}
-                        className="px-6 py-3 bg-[var(--brand)] text-white rounded-xl font-semibold"
+                        className="px-6 py-3 bg-[var(--brand)] text-white rounded-lg font-semibold"
                     >
                         My Courses
                     </button>
@@ -353,7 +353,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                 <div className="mt-6">
                     <button
                         onClick={handleReturnToLearnerDashboard}
-                        className="px-6 py-3 bg-gray-900 text-white rounded-xl font-semibold"
+                        className="px-6 py-3 bg-gray-900 text-white rounded-lg font-semibold"
                     >
                         Go Back
                     </button>
@@ -487,7 +487,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                             </div>
                             <span className="text-xs font-semibold text-[var(--brand)]">{progressPercent}% Mastery</span>
                         </div>
-                        <button className="p-2 rounded-xl text-gray-400 hover:text-[var(--brand)] hover:bg-[var(--brand-lighter)] transition-all active:scale-95">
+                        <button className="p-2 rounded-lg text-gray-400 hover:text-[var(--brand)] hover:bg-[var(--brand-lighter)] transition-all active:scale-95">
                             <svg
                                 width="20"
                                 height="20"
@@ -656,7 +656,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                                             e.stopPropagation();
                                                             router.push(`/dashboard/learner/unit/${u.id}`);
                                                         }}
-                                                        className="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:text-[var(--brand)] hover:bg-[var(--brand-lighter)]"
+                                                        className="w-10 h-10 rounded-lg flex items-center justify-center text-gray-400 hover:text-[var(--brand)] hover:bg-[var(--brand-lighter)]"
                                                     >
                                                         <svg
                                                             width="18"
@@ -744,7 +744,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                             {(isLocked || isExpired) && (
                                                 <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 transition-all rounded-lg">
                                                     {isLocked && (
-                                                        <div className="bg-white/90 px-4 py-2 rounded-xl shadow-lg border border-gray-100 flex flex-col items-center">
+                                                        <div className="bg-white/90 px-4 py-2 rounded-lg shadow-lg border border-gray-100 flex flex-col items-center">
                                                             <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-0.5">
                                                                 Opens On
                                                             </span>
@@ -760,7 +760,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                                         </div>
                                                     )}
                                                     {isExpired && (
-                                                        <div className="bg-gray-100/90 px-4 py-2 rounded-xl shadow-sm border border-gray-200 flex flex-col items-center">
+                                                        <div className="bg-gray-100/90 px-4 py-2 rounded-lg shadow-sm border border-gray-200 flex flex-col items-center">
                                                             <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-0.5">
                                                                 Ended On
                                                             </span>
@@ -875,7 +875,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                                                         e.stopPropagation();
                                                                         router.push(`/dashboard/learner/unit/${q.id}`);
                                                                     }}
-                                                                    className="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:text-[var(--brand)] hover:bg-[var(--brand-lighter)]"
+                                                                    className="w-10 h-10 rounded-lg flex items-center justify-center text-gray-400 hover:text-[var(--brand)] hover:bg-[var(--brand-lighter)]"
                                                                 >
                                                                     <svg
                                                                         width="18"
@@ -1000,7 +1000,7 @@ export default function ModulePage({ params: paramsPromise }: { params: Promise<
                                                             </button>
                                                         </div>
 
-                                                        <div className="max-w-4xl mx-auto border border-gray-50 rounded-xl bg-gray-50/30 px-3 py-4 sm:px-6">
+                                                        <div className="max-w-4xl mx-auto border border-gray-50 rounded-lg bg-gray-50/30 px-3 py-4 sm:px-6">
                                                             <div className="hidden items-center text-[9px] font-semibold uppercase text-gray-400 mb-4 border-b border-gray-100 pb-2 sm:flex">
                                                                 <div className="flex-1 text-center">Attempts</div>
                                                                 <div className="flex-1 text-center">Test Cases</div>

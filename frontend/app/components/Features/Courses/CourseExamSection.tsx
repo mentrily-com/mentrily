@@ -58,12 +58,12 @@ export default function CourseExamSection({
                         <button
                             type="button"
                             onClick={onBuildExam}
-                            className="rounded-xl bg-emerald-600 px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-white shadow-lg transition hover:bg-emerald-700"
+                            className="rounded-lg bg-emerald-600 px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-white shadow-lg transition hover:bg-emerald-700"
                         >
                             Edit Exam
                         </button>
                     </div>
-                    <div className="mt-3 grid grid-cols-3 gap-2 rounded-xl bg-white/80 p-3">
+                    <div className="mt-3 grid grid-cols-3 gap-2 rounded-lg bg-white/80 p-3">
                         <Stat label="Questions" value={linkedExam.questionCount ?? '-'} />
                         <Stat label="Duration" value={`${linkedExam.duration ?? '-'}m`} />
                         <Stat label="Marks" value={linkedExam.totalMarks ?? '-'} />
@@ -98,19 +98,19 @@ export default function CourseExamSection({
                         <button
                             type="button"
                             onClick={onUnlink}
-                            className="w-full rounded-xl bg-rose-100 px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-rose-600"
+                            className="w-full rounded-lg bg-rose-100 px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-rose-600"
                         >
                             Unlink
                         </button>
                     </div>
                 </div>
             ) : (
-                <div className="rounded-xl border-2 border-dashed border-gray-200 p-4 text-center bg-gray-50">
+                <div className="rounded-lg border-2 border-dashed border-gray-200 p-4 text-center bg-gray-50">
                     <p className="text-xs font-medium text-gray-500">No exam linked yet</p>
                     <button
                         type="button"
                         onClick={onBuildExam}
-                        className="mt-3 px-3 py-2 rounded-xl bg-violet-100 text-violet-700 text-[10px] font-semibold uppercase tracking-widest"
+                        className="mt-3 px-3 py-2 rounded-lg bg-violet-100 text-violet-700 text-[10px] font-semibold uppercase tracking-widest"
                     >
                         Build Exam
                     </button>

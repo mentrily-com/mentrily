@@ -130,7 +130,7 @@ export default function ExamSubmitView({
 
                                         {/* Action Input for Active Section (only if not submitted) */}
                                         {isCurrent && !isSubmitted && (
-                                            <div className="flex w-full flex-col gap-3 bg-gray-50 p-2.5 rounded-xl border border-gray-200 sm:flex-row sm:items-center lg:ml-auto lg:w-auto">
+                                            <div className="flex w-full flex-col gap-3 bg-gray-50 p-2.5 rounded-lg border border-gray-200 sm:flex-row sm:items-center lg:ml-auto lg:w-auto">
                                                 <div className="flex flex-col items-center">
                                                     <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">
                                                         Confirmation Code
@@ -146,12 +146,12 @@ export default function ExamSubmitView({
                                                     value={sectionCode}
                                                     onChange={(e) => setSectionCode(e.target.value)}
                                                     placeholder="####"
-                                                    className="w-full sm:w-24 h-11 bg-white border border-gray-200 rounded-xl text-center font-mono text-xl font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:font-medium placeholder:text-gray-300"
+                                                    className="w-full sm:w-24 h-11 bg-white border border-gray-200 rounded-lg text-center font-mono text-xl font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:font-medium placeholder:text-gray-300"
                                                 />
                                                 <button
                                                     onClick={handleSectionSubmit}
                                                     disabled={sectionCode !== sectionConfirm}
-                                                    className="h-11 w-full px-6 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold text-sm uppercase tracking-wider rounded-xl transition-all active:scale-95 shadow-lg disabled:shadow-none sm:w-auto"
+                                                    className="h-11 w-full px-6 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold text-sm uppercase tracking-wider rounded-lg transition-all active:scale-95 shadow-lg disabled:shadow-none sm:w-auto"
                                                 >
                                                     Submit Section
                                                 </button>
@@ -160,7 +160,7 @@ export default function ExamSubmitView({
 
                                         {/* Submitted Badge for Submitted Sections */}
                                         {isSubmitted && (
-                                            <div className="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-xl lg:ml-auto">
+                                            <div className="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-lg lg:ml-auto">
                                                 <svg
                                                     width="18"
                                                     height="18"
@@ -220,7 +220,7 @@ export default function ExamSubmitView({
                                                             `}
                                                             onClick={() => onQuestionClick?.(section.id, q.id)}
                                                         >
-                                                            <div className="w-10 h-10 rounded-xl bg-white/50 flex items-center justify-center text-sm font-semibold border border-black/5">
+                                                            <div className="w-10 h-10 rounded-lg bg-white/50 flex items-center justify-center text-sm font-semibold border border-black/5">
                                                                 {q.number}
                                                             </div>
                                                             <span className="text-[9px] font-semibold uppercase tracking-wider">
@@ -265,12 +265,12 @@ export default function ExamSubmitView({
                                     value={examCode}
                                     onChange={(e) => setExamCode(e.target.value)}
                                     placeholder="####"
-                                    className="w-full md:w-24 h-11 bg-white border border-gray-200 rounded-xl text-center font-mono text-xl font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-gray-200"
+                                    className="w-full md:w-24 h-11 bg-white border border-gray-200 rounded-lg text-center font-mono text-xl font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-gray-200"
                                 />
                                 <button
                                     onClick={handleExamSubmit}
                                     disabled={examCode !== examConfirm || isSubmitting}
-                                    className="h-11 w-full px-8 bg-gray-900 hover:bg-black disabled:bg-gray-100 disabled:text-gray-400 text-white font-semibold text-sm uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-sm md:w-auto"
+                                    className="h-11 w-full px-8 bg-gray-900 hover:bg-black disabled:bg-gray-100 disabled:text-gray-400 text-white font-semibold text-sm uppercase tracking-widest rounded-lg transition-all active:scale-95 shadow-sm md:w-auto"
                                 >
                                     {isSubmitting ? 'Submitting...' : 'Finish Now'}
                                 </button>

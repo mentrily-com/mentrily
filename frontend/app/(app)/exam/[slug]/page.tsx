@@ -163,7 +163,7 @@ const ExamCountdownTimer = React.memo(function ExamCountdownTimer({
     return (
         <div
             className={`
-            flex items-center gap-2 px-3.5 py-1.5 rounded-xl border font-semibold text-sm transition-all duration-500
+            flex items-center gap-2 px-3.5 py-1.5 rounded-lg border font-semibold text-sm transition-all duration-500
             ${
                 isUrgent
                     ? 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'
@@ -183,7 +183,7 @@ const ExamCountdownTimer = React.memo(function ExamCountdownTimer({
 const ExamNetworkIndicator = React.memo(function ExamNetworkIndicator() {
     const { isOnline, downlink } = useNetworkMonitor();
     return (
-        <div className="relative group hidden items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-help border border-gray-100 lg:flex">
+        <div className="relative group hidden items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors cursor-help border border-gray-100 lg:flex">
             <div className="flex items-end gap-0.5 h-3.5 mb-0.5">
                 {[1, 2, 3, 4].map((bar) => {
                     const barThresholds = [0, 2, 5, 10];
@@ -202,7 +202,7 @@ const ExamNetworkIndicator = React.memo(function ExamNetworkIndicator() {
             )}
 
             {/* Tooltip */}
-            <div className="absolute invisible group-hover:visible top-full left-1/2 -translate-x-1/2 mt-3 p-3 bg-white text-gray-900 text-[10px] font-medium rounded-xl whitespace-nowrap shadow-lg z-50 border border-gray-100 ring-4 ring-gray-900/5 transition-all">
+            <div className="absolute invisible group-hover:visible top-full left-1/2 -translate-x-1/2 mt-3 p-3 bg-white text-gray-900 text-[10px] font-medium rounded-lg whitespace-nowrap shadow-lg z-50 border border-gray-100 ring-4 ring-gray-900/5 transition-all">
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between gap-8">
                         <span className="text-gray-400 uppercase tracking-tighter">Net Status</span>
@@ -1933,7 +1933,7 @@ export default function PublicExamPage() {
                 <div className="hidden items-center gap-4 ml-4 sm:flex">
                     <div
                         className={`
-                        bg-white border border-gray-100 rounded-xl px-3 py-1.5 flex items-center gap-3 transition-shadow duration-300
+                        bg-white border border-gray-100 rounded-lg px-3 py-1.5 flex items-center gap-3 transition-shadow duration-300
                         ${windowFocus.in === 0 && windowFocus.out === 0 ? 'shadow-none' : 'shadow-md'}
                     `}
                     >
@@ -1985,7 +1985,7 @@ export default function PublicExamPage() {
                     !areAllSectionsSubmitted && !isCurrentSectionSubmitted ? (
                         <button
                             onClick={() => setIsSubmitModalOpen(false)}
-                            className="flex items-center gap-2 px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium rounded-xl transition-all"
+                            className="flex items-center gap-2 px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium rounded-lg transition-all"
                         >
                             <svg
                                 width="18"
@@ -2006,7 +2006,7 @@ export default function PublicExamPage() {
                 ) : (
                     <button
                         onClick={() => setIsSubmitModalOpen(true)}
-                        className="px-8 py-2 bg-[var(--brand)] text-white text-sm font-semibold rounded-xl hover:scale-105 active:scale-95 transition-all"
+                        className="px-8 py-2 bg-[var(--brand)] text-white text-sm font-semibold rounded-lg hover:scale-105 active:scale-95 transition-all"
                     >
                         Submit Section
                     </button>
@@ -2023,7 +2023,7 @@ export default function PublicExamPage() {
                     {/* Font-size stepper and network indicator: conveniences, not
                         essential -- shown from lg up so the timer, Submit and the
                         profile menu (which are) always have room in the header. */}
-                    <div className="hidden items-center gap-1 bg-white border border-gray-100 rounded-xl p-1 lg:flex">
+                    <div className="hidden items-center gap-1 bg-white border border-gray-100 rounded-lg p-1 lg:flex">
                         <button
                             onClick={() => setFontSize((prev) => Math.max(12, prev - 1))}
                             className="w-7 h-7 flex items-center justify-center hover:bg-gray-50 rounded-lg text-gray-500 hover:text-[var(--brand)] transition-colors"
@@ -2063,7 +2063,7 @@ export default function PublicExamPage() {
                     {!isElectronRuntime && (
                         <button
                             onClick={toggleFullscreen}
-                            className="p-2 bg-gray-50 hover:bg-gray-100 text-gray-500 rounded-xl border border-gray-100 transition-all"
+                            className="p-2 bg-gray-50 hover:bg-gray-100 text-gray-500 rounded-lg border border-gray-100 transition-all"
                         >
                             <svg
                                 width="16"
@@ -2156,7 +2156,7 @@ export default function PublicExamPage() {
             <div
                 className={`h-screen w-full bg-gradient-to-br ${toneClasses.split(' ').slice(0, 3).join(' ')} flex items-center justify-center p-5`}
             >
-                <div className="max-w-xl w-full rounded-[2rem] border border-white/10 bg-white/[0.06] p-8 text-center shadow-lg">
+                <div className="max-w-xl w-full rounded-lg border border-white/10 bg-white/[0.06] p-8 text-center shadow-lg">
                     <div
                         className={`mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-lg border ${toneClasses.split(' ').slice(3).join(' ')}`}
                     >
@@ -2181,13 +2181,13 @@ export default function PublicExamPage() {
                     <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
                         <button
                             onClick={() => window.location.reload()}
-                            className="rounded-xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-white/15"
+                            className="rounded-lg border border-white/10 bg-white/10 px-5 py-3 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-white/15"
                         >
                             Retry
                         </button>
                         <button
                             onClick={() => router.push(examBlock.actionHref || '/dashboard/learner')}
-                            className="rounded-xl bg-white px-5 py-3 text-sm font-semibold uppercase tracking-widest text-gray-950 transition hover:bg-gray-200"
+                            className="rounded-lg bg-white px-5 py-3 text-sm font-semibold uppercase tracking-widest text-gray-950 transition hover:bg-gray-200"
                         >
                             {examBlock.actionLabel || 'Back to Dashboard'}
                         </button>
@@ -2353,8 +2353,8 @@ export default function PublicExamPage() {
                     <div
                         className={`group/cam relative overflow-hidden transition-all duration-300 pointer-events-auto ${
                             isWebcamMinimized
-                                ? 'w-auto h-auto bg-gray-900/95 px-3 py-1.5 rounded-full flex items-center gap-2 cursor-pointer hover:bg-gray-800 ring-1 ring-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.35)]'
-                                : 'w-28 h-20 sm:w-40 sm:h-28 rounded-xl sm:rounded-lg shadow-[0_6px_18px_rgba(15,23,42,0.18)]'
+                                ? 'w-auto h-auto bg-gray-900/95 px-3 py-1.5 rounded-full flex items-center gap-2 cursor-pointer hover:bg-gray-800 ring-1 ring-white/10 shadow-md'
+                                : 'w-28 h-20 sm:w-40 sm:h-28 rounded-lg sm:rounded-lg shadow-sm'
                         }`}
                         onClick={isWebcamMinimized ? () => setIsWebcamMinimized(false) : undefined}
                     >
@@ -2428,7 +2428,7 @@ export default function PublicExamPage() {
             {/* Connection Alert Overlay */}
             {showOfflineAlert && (
                 <div className="fixed bottom-6 right-6 z-[100] animate-in slide-in-from-bottom-3 duration-300 max-w-[340px] w-[calc(100vw-2rem)] sm:w-auto">
-                    <div className="bg-rose-600/95 text-white px-4 py-3 rounded-xl shadow-lg flex items-start gap-3 border border-rose-400/50">
+                    <div className="bg-rose-600/95 text-white px-4 py-3 rounded-lg shadow-lg flex items-start gap-3 border border-rose-400/50">
                         <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center animate-pulse shrink-0 mt-0.5">
                             <svg
                                 width="24"

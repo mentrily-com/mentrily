@@ -22,7 +22,7 @@ export default function AdminUsersViewSkeleton() {
             </div>
 
             {/* Search & filter bar */}
-            <div className="flex flex-col md:flex-row items-center gap-4 mb-6 p-2 rounded-xl border border-gray-100 bg-white/50">
+            <div className="flex flex-col md:flex-row items-center gap-4 mb-6 p-2 rounded-lg border border-gray-100 bg-white/50">
                 <div className="h-10 w-full flex-1 animate-pulse rounded-lg bg-gray-100" />
                 <div className="flex gap-2 w-full md:w-auto shrink-0">
                     <div className="h-10 w-28 animate-pulse rounded-lg bg-gray-100" />
@@ -31,7 +31,7 @@ export default function AdminUsersViewSkeleton() {
             </div>
 
             {/* Users table */}
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden min-h-[500px]">
+            <div className="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden min-h-[500px]">
                 <div className="flex items-center gap-6 px-6 py-4 border-b border-gray-100 bg-gray-50/70">
                     <div className="h-3 w-16 animate-pulse rounded bg-gray-200" />
                     <div className="h-3 w-20 animate-pulse rounded bg-gray-200" />

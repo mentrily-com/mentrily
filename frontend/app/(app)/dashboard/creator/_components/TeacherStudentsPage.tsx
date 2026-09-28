@@ -128,7 +128,7 @@ export default function TeacherStudentsPage() {
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">
                             <div
-                                className="bg-white border rounded-xl px-4 py-2.5 flex items-center gap-3 shadow-sm"
+                                className="bg-white border rounded-lg px-4 py-2.5 flex items-center gap-3 shadow-sm"
                                 style={{ borderColor: 'var(--color-border-subtle)' }}
                             >
                                 <Users size={18} style={{ color: 'var(--color-text-muted)' }} />
@@ -165,7 +165,7 @@ export default function TeacherStudentsPage() {
                     </div>
 
                     <div
-                        className="bg-white rounded-xl border shadow-sm overflow-hidden z-0 relative"
+                        className="bg-white rounded-lg border shadow-sm overflow-hidden z-0 relative"
                         style={{ borderColor: 'var(--color-border-subtle)' }}
                     >
                         <div
@@ -429,7 +429,7 @@ export default function TeacherStudentsPage() {
                     size="xl"
                     panelClassName="max-w-[860px]"
                 >
-                    <div className="mb-6 rounded-xl bg-white/70 p-4 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.12)]">
+                    <div className="mb-6 rounded-lg bg-white/70 p-4 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.12)]">
                         <div className="mb-3 flex items-center justify-between gap-4">
                             <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">
                                 Overall Progress
@@ -453,11 +453,11 @@ export default function TeacherStudentsPage() {
                                 selectedStudent.courses.map((course: any) => (
                                     <div
                                         key={course.id}
-                                        className="rounded-xl bg-white/90 p-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)] group/course"
+                                        className="rounded-lg bg-white/90 p-4 shadow-sm group/course"
                                     >
                                         <div className="mb-4 flex items-start justify-between gap-3">
                                             <div className="flex min-w-0 items-center gap-3">
-                                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-[var(--brand)]">
+                                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-[var(--brand)]">
                                                     <BookOpen size={22} />
                                                 </div>
                                                 <div className="min-w-0">
@@ -471,7 +471,7 @@ export default function TeacherStudentsPage() {
                                             </div>
                                             <button
                                                 onClick={() => handleUnenroll(course.id, selectedStudent.id)}
-                                                className="rounded-xl p-2 text-gray-300 transition-all hover:bg-rose-50 hover:text-rose-500 sm:opacity-0 sm:group-hover/course:opacity-100"
+                                                className="rounded-lg p-2 text-gray-300 transition-all hover:bg-rose-50 hover:text-rose-500 sm:opacity-0 sm:group-hover/course:opacity-100"
                                                 title="Unenroll Student"
                                             >
                                                 <Trash2 size={18} />
@@ -522,7 +522,7 @@ export default function TeacherStudentsPage() {
                                     </div>
                                 ))
                             ) : (
-                                <div className="rounded-xl bg-white p-6 text-center shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
+                                <div className="rounded-lg bg-white p-6 text-center shadow-sm">
                                     <p className="text-sm font-medium text-gray-500">
                                         No courses enrolled under your management.
                                     </p>

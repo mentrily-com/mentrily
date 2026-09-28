@@ -642,7 +642,7 @@ export default function PracticeExamPage() {
                 </button>
                 <div
                     data-tour="practice-focus"
-                    className={`hidden items-center gap-3 rounded-xl border border-gray-100 bg-white px-3 py-1.5 transition-shadow duration-300 sm:flex ${
+                    className={`hidden items-center gap-3 rounded-lg border border-gray-100 bg-white px-3 py-1.5 transition-shadow duration-300 sm:flex ${
                         windowFocus.in === 0 && windowFocus.out === 0 ? 'shadow-none' : 'shadow-md'
                     }`}
                     title="Tab/window switches — real exams record these"
@@ -693,7 +693,7 @@ export default function PracticeExamPage() {
             !submittedSections.has(currentSectionId) ? (
                 <button
                     onClick={() => setIsSubmitViewOpen(false)}
-                    className="flex items-center gap-2 rounded-xl bg-gray-100 px-6 py-2 text-sm font-medium text-gray-600 transition-all hover:bg-gray-200"
+                    className="flex items-center gap-2 rounded-lg bg-gray-100 px-6 py-2 text-sm font-medium text-gray-600 transition-all hover:bg-gray-200"
                 >
                     Back to Questions
                 </button>
@@ -702,7 +702,7 @@ export default function PracticeExamPage() {
             <button
                 data-tour="practice-submit"
                 onClick={() => setIsSubmitViewOpen(true)}
-                className="rounded-xl bg-[var(--brand)] px-8 py-2 text-sm font-semibold text-white transition-all hover:scale-105 active:scale-95"
+                className="rounded-lg bg-[var(--brand)] px-8 py-2 text-sm font-semibold text-white transition-all hover:scale-105 active:scale-95"
             >
                 Submit Section
             </button>
@@ -711,7 +711,7 @@ export default function PracticeExamPage() {
             <div className="flex shrink-0 items-center gap-2 sm:gap-3">
                 <div
                     data-tour="practice-timer"
-                    className={`flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all duration-500 ${
+                    className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all duration-500 ${
                         timeLeft <= 300
                             ? 'animate-pulse border-rose-100 bg-rose-50 text-rose-600'
                             : 'border-sky-100 bg-sky-50 text-sky-700'
@@ -725,7 +725,7 @@ export default function PracticeExamPage() {
                 </div>
                 {/* Font-size stepper -- convenience, not essential; shown from
                     lg up (same treatment as the real exam page). */}
-                <div className="hidden items-center gap-1 rounded-xl border border-gray-100 bg-white p-1 lg:flex">
+                <div className="hidden items-center gap-1 rounded-lg border border-gray-100 bg-white p-1 lg:flex">
                     <button
                         onClick={() => setFontSize((prev) => Math.max(12, prev - 1))}
                         className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-50 hover:text-[var(--brand)]"
@@ -764,7 +764,7 @@ export default function PracticeExamPage() {
                 {/* WiFi Signal Icon with Tooltip — same live network indicator the
                     real exam shows, so practice looks identical. Hidden below
                     sm: for the same reason as the font-size stepper above. */}
-                <div className="relative group hidden items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-help border border-gray-100 lg:flex">
+                <div className="relative group hidden items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors cursor-help border border-gray-100 lg:flex">
                     <div className="flex items-end gap-0.5 h-3.5 mb-0.5">
                         {[1, 2, 3, 4].map((bar) => {
                             const barThresholds = [0, 2, 5, 10];
@@ -781,7 +781,7 @@ export default function PracticeExamPage() {
                     {!netOnline && (
                         <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 border-2 border-white rounded-full animate-pulse" />
                     )}
-                    <div className="absolute invisible group-hover:visible top-full left-1/2 -translate-x-1/2 mt-3 p-3 bg-white text-gray-900 text-[10px] font-medium rounded-xl whitespace-nowrap shadow-lg z-50 border border-gray-100 ring-4 ring-gray-900/5 transition-all">
+                    <div className="absolute invisible group-hover:visible top-full left-1/2 -translate-x-1/2 mt-3 p-3 bg-white text-gray-900 text-[10px] font-medium rounded-lg whitespace-nowrap shadow-lg z-50 border border-gray-100 ring-4 ring-gray-900/5 transition-all">
                         <div className="flex flex-col gap-2">
                             <div className="flex items-center justify-between gap-8">
                                 <span className="text-gray-400 uppercase tracking-tighter">Net Status</span>
@@ -807,7 +807,7 @@ export default function PracticeExamPage() {
                 {/* Fullscreen toggle — matches the real exam toolbar. */}
                 <button
                     onClick={toggleFullscreen}
-                    className="p-2 bg-gray-50 hover:bg-gray-100 text-gray-500 rounded-xl border border-gray-100 transition-all"
+                    className="p-2 bg-gray-50 hover:bg-gray-100 text-gray-500 rounded-lg border border-gray-100 transition-all"
                     aria-label="Toggle fullscreen"
                 >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -824,7 +824,7 @@ export default function PracticeExamPage() {
     if (isFinished) {
         return (
             <div className="flex h-screen w-full items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-5">
-                <div className="w-full max-w-xl rounded-[2rem] border border-gray-200 bg-white p-8 text-center shadow-[0_24px_80px_rgba(15,23,42,0.12)] sm:p-12 animate-in fade-in zoom-in-95 duration-500">
+                <div className="w-full max-w-xl rounded-lg border border-gray-200 bg-white p-8 text-center shadow-lg sm:p-12 animate-in fade-in zoom-in-95 duration-500">
                     <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-lg bg-emerald-50 text-4xl">
                         🎉
                     </div>
@@ -842,13 +842,13 @@ export default function PracticeExamPage() {
                     <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
                         <button
                             onClick={restartPractice}
-                            className="rounded-xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold uppercase tracking-widest text-gray-700 transition hover:bg-gray-50"
+                            className="rounded-lg border border-gray-200 bg-white px-6 py-3 text-sm font-semibold uppercase tracking-widest text-gray-700 transition hover:bg-gray-50"
                         >
                             Practice Again
                         </button>
                         <button
                             onClick={() => router.push('/dashboard/learner')}
-                            className="rounded-xl bg-gray-950 px-6 py-3 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-gray-800"
+                            className="rounded-lg bg-gray-950 px-6 py-3 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-gray-800"
                         >
                             Go to My Dashboard
                         </button>
@@ -876,7 +876,7 @@ export default function PracticeExamPage() {
                         role="alert"
                     >
                         <div
-                            className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                            className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
                                 focusAlert.outCount >= TAB_SWITCH_DEMO_LIMIT
                                     ? 'bg-rose-100 text-rose-600'
                                     : 'bg-amber-100 text-amber-600'
@@ -951,7 +951,7 @@ export default function PracticeExamPage() {
                         className="flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-900/95 p-4 shadow-lg"
                         role="alert"
                     >
-                        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white">
+                        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white">
                             <svg
                                 width="18"
                                 height="18"

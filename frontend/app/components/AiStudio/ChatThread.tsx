@@ -233,7 +233,7 @@ export default function ChatThread({
                 {resumed && (
                     <div
                         role="status"
-                        className="mb-2 flex items-start gap-2 rounded-xl border border-[var(--color-border-brand)] bg-[var(--color-brand-light)]/50 px-3 py-2 text-xs text-gray-700"
+                        className="mb-2 flex items-start gap-2 rounded-lg border border-[var(--color-border-brand)] bg-[var(--color-brand-light)]/50 px-3 py-2 text-xs text-gray-700"
                     >
                         <span className="min-w-0 flex-1">Your prompt is ready. Review it and press send.</span>
                         <button

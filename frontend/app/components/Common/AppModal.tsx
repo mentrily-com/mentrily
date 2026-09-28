@@ -149,7 +149,7 @@ export default function AppModal({
                 aria-label={ariaLabel || (typeof title === 'string' ? title : 'Dialog')}
                 tabIndex={-1}
                 className={cn(
-                    'relative z-10 flex max-h-[min(760px,calc(100dvh-48px))] w-full flex-col overflow-hidden rounded-lg bg-[#f4f6f9] shadow-[0_28px_90px_rgba(15,23,42,0.36)] animate-in zoom-in-95 duration-200 focus:outline-none',
+                    'relative z-10 flex max-h-[min(760px,calc(100dvh-48px))] w-full flex-col overflow-hidden rounded-lg bg-[#f4f6f9] shadow-lg animate-in zoom-in-95 duration-200 focus:outline-none',
                     sizeClasses[size],
                     panelClassName,
                 )}
@@ -158,7 +158,7 @@ export default function AppModal({
                     <header className={cn('flex items-start justify-between gap-4 p-5 sm:p-8', headerClassName)}>
                         <div className="flex min-w-0 items-center gap-3 sm:gap-4">
                             {icon && (
-                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--brand)] text-white shadow-sm sm:h-12 sm:w-12">
+                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[var(--brand)] text-white shadow-sm sm:h-12 sm:w-12">
                                     {icon}
                                 </div>
                             )}

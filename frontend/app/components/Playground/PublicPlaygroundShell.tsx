@@ -64,7 +64,7 @@ export default function PublicPlaygroundShell({
                             <Link href="/" className="flex items-center">
                                 <BrandLogo className="h-8 max-w-[160px]" priority />
                             </Link>
-                            <nav className="hidden items-center gap-1 rounded-xl bg-gray-50 p-1 md:flex">
+                            <nav className="hidden items-center gap-1 rounded-lg bg-gray-50 p-1 md:flex">
                                 {playgroundItems.map((item) => {
                                     const Icon = item.icon;
                                     const active =
@@ -112,7 +112,7 @@ export default function PublicPlaygroundShell({
                                             key={item.href}
                                             href={item.href}
                                             onClick={() => setOpen(false)}
-                                            className="flex items-center gap-2 rounded-xl bg-gray-50 px-3 py-3 text-sm font-medium text-gray-600"
+                                            className="flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-3 text-sm font-medium text-gray-600"
                                         >
                                             <Icon size={16} />
                                             {item.label}
@@ -158,7 +158,7 @@ export default function PublicPlaygroundShell({
                     {!embedded && (
                         <aside className="hidden min-h-[calc(100vh-6rem)] xl:block">
                             <div className="sticky top-20 space-y-3">
-                                <div className="rounded-xl border border-gray-200 bg-white p-3 text-gray-900 shadow-sm">
+                                <div className="rounded-lg border border-gray-200 bg-white p-3 text-gray-900 shadow-sm">
                                     <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--brand)]">
                                         Mentrily
                                     </p>
@@ -190,7 +190,7 @@ function QuestionBuilderCard({ onOpen }: { onOpen: () => void }) {
     return (
         <button
             onClick={onOpen}
-            className="group relative flex w-full overflow-hidden rounded-xl border border-cyan-200 bg-white p-3 text-left text-gray-800 shadow-lg transition hover:border-[var(--brand)]"
+            className="group relative flex w-full overflow-hidden rounded-lg border border-cyan-200 bg-white p-3 text-left text-gray-800 shadow-lg transition hover:border-[var(--brand)]"
         >
             <span className="absolute -right-8 -top-8 h-20 w-20 rounded-full bg-cyan-400/25 blur-2xl transition group-hover:bg-cyan-300/40" />
             <span className="relative flex w-full items-start gap-3">
@@ -238,7 +238,7 @@ export function PublicPlaygroundProfile({
     }, []);
 
     if (!isLoaded) {
-        return <div className="h-9 w-24 animate-pulse rounded-xl bg-gray-100" />;
+        return <div className="h-9 w-24 animate-pulse rounded-lg bg-gray-100" />;
     }
 
     if (!isSignedIn) {
@@ -246,13 +246,13 @@ export function PublicPlaygroundProfile({
             <div className={mobile ? 'grid grid-cols-2 gap-2' : 'flex items-center gap-2'}>
                 <Link
                     href="/login"
-                    className="rounded-xl px-4 py-2 text-center text-sm font-medium text-gray-600 hover:bg-gray-50"
+                    className="rounded-lg px-4 py-2 text-center text-sm font-medium text-gray-600 hover:bg-gray-50"
                 >
                     Sign in
                 </Link>
                 <Link
                     href="/signup"
-                    className="rounded-xl bg-[var(--brand)] px-4 py-2 text-center text-sm font-semibold text-white"
+                    className="rounded-lg bg-[var(--brand)] px-4 py-2 text-center text-sm font-semibold text-white"
                 >
                     Sign up
                 </Link>
@@ -282,7 +282,7 @@ export function PublicPlaygroundProfile({
                 className={
                     compact
                         ? 'flex rounded-full p-0.5 ring-1 ring-gray-200 transition hover:ring-gray-300'
-                        : 'flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-2.5 py-2 text-left shadow-sm transition hover:border-gray-300'
+                        : 'flex w-full items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-2.5 py-2 text-left shadow-sm transition hover:border-gray-300'
                 }
             >
                 <span className="flex min-w-0 items-center gap-2.5">
@@ -307,7 +307,7 @@ export function PublicPlaygroundProfile({
                 </span>
             </button>
             {open && (
-                <div className="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md">
+                <div className="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
                     {compact && (
                         <div className="border-b border-gray-100 px-4 py-3">
                             <p className="truncate text-sm font-semibold text-gray-900">{name}</p>
@@ -357,7 +357,7 @@ function PublicDashboardNavItem({ mobile = false, onNavigate }: { mobile?: boole
             <Link
                 href={href}
                 onClick={onNavigate}
-                className="flex items-center gap-2 rounded-xl bg-gray-50 px-3 py-3 text-sm font-medium text-gray-600"
+                className="flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-3 text-sm font-medium text-gray-600"
             >
                 <LayoutDashboard size={16} />
                 Dashboard

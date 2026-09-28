@@ -138,7 +138,7 @@ function StatItem({
     };
     return (
         <div className="flex items-center gap-3 sm:gap-4">
-            <div className={`w-10 h-10 shrink-0 rounded-xl flex items-center justify-center ${colors[color]}`}>
+            <div className={`w-10 h-10 shrink-0 rounded-lg flex items-center justify-center ${colors[color]}`}>
                 {icon}
             </div>
             <div>

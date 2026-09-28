@@ -15,7 +15,7 @@ export default function LearnerCertificatesSkeleton({ count = 4 }: { count?: num
             {Array.from({ length: count }).map((_, i) => (
                 <article
                     key={i}
-                    className="rounded-lg border border-gray-200 bg-white p-5 shadow-[0_14px_36px_rgba(15,23,42,0.06)] sm:p-6"
+                    className="rounded-lg border border-gray-200 bg-white p-5 shadow-md sm:p-6"
                 >
                     {/* header: award tile, kicker + title, issued-date pill */}
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -46,7 +46,7 @@ export default function LearnerCertificatesSkeleton({ count = 4 }: { count?: num
                     </div>
 
                     {/* download button */}
-                    <div className="mt-6 h-11 w-full animate-pulse rounded-xl bg-gray-200" />
+                    <div className="mt-6 h-11 w-full animate-pulse rounded-lg bg-gray-200" />
                 </article>
             ))}
         </section>

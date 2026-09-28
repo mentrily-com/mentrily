@@ -22,7 +22,7 @@ export default function CreatorExamsSkeleton() {
 
             <div className="mb-8 grid grid-cols-2 gap-2 rounded-lg border border-gray-200 bg-white p-2 shadow-sm sm:mb-10 sm:flex sm:items-center sm:gap-3 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
-                    <div key={i} className="h-9 w-24 animate-pulse rounded-lg bg-gray-100 sm:h-8 sm:w-20 sm:rounded-xl sm:bg-gray-100/80" />
+                    <div key={i} className="h-9 w-24 animate-pulse rounded-lg bg-gray-100 sm:h-8 sm:w-20 sm:rounded-lg sm:bg-gray-100/80" />
                 ))}
             </div>
 
@@ -45,7 +45,7 @@ export default function CreatorExamsSkeleton() {
                                     <div className="h-6 w-16 animate-pulse rounded-full bg-gray-100" />
                                     <div className="grid grid-cols-4 gap-2 sm:flex sm:items-center">
                                         {[1, 2, 3, 4].map((j) => (
-                                            <div key={j} className="h-9 w-20 animate-pulse rounded-xl bg-gray-100" />
+                                            <div key={j} className="h-9 w-20 animate-pulse rounded-lg bg-gray-100" />
                                         ))}
                                     </div>
                                 </div>

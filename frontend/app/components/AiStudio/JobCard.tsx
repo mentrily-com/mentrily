@@ -89,7 +89,7 @@ export default function JobCard({
             }`}
         >
             <span
-                className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${failed ? 'bg-rose-50 text-rose-600' : 'bg-[var(--color-brand-light)] text-[var(--brand-dark)]'}`}
+                className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg ${failed ? 'bg-rose-50 text-rose-600' : 'bg-[var(--color-brand-light)] text-[var(--brand-dark)]'}`}
             >
                 {failed ? <AlertTriangle size={18} /> : <Icon size={18} />}
             </span>

@@ -19,7 +19,7 @@ const variantClasses = {
 function ComingSoonCard({ title, description, eta, variant = 'page', onClose }: ComingSoonProps) {
     return (
         <div
-            className={`relative overflow-hidden border border-gray-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.12)] ${
+            className={`relative overflow-hidden border border-gray-200 bg-white shadow-lg ${
                 variant === 'modal' ? 'w-full max-w-2xl rounded-lg p-7 md:p-9' : variantClasses[variant]
             }`}
         >
@@ -51,7 +51,7 @@ function ComingSoonCard({ title, description, eta, variant = 'page', onClose }: 
                         <button
                             type="button"
                             onClick={onClose}
-                            className="rounded-xl border border-gray-200 bg-white/80 p-2 text-gray-400 transition-colors hover:border-gray-300 hover:text-gray-700"
+                            className="rounded-lg border border-gray-200 bg-white/80 p-2 text-gray-400 transition-colors hover:border-gray-300 hover:text-gray-700"
                             aria-label="Close"
                         >
                             <X size={16} />

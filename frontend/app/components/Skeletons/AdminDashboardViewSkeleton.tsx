@@ -18,7 +18,7 @@ export default function AdminDashboardViewSkeleton() {
                         <div className="h-8 w-72 animate-pulse rounded-lg bg-gray-200" />
                         <div className="h-4 w-80 max-w-full animate-pulse rounded-md bg-gray-100" />
                     </div>
-                    <div className="hidden sm:block h-8 w-48 animate-pulse rounded-xl bg-gray-100" />
+                    <div className="hidden sm:block h-8 w-48 animate-pulse rounded-lg bg-gray-100" />
                 </div>
 
                 {/* Stats grid */}
@@ -57,7 +57,7 @@ export default function AdminDashboardViewSkeleton() {
                         <div className="bg-white rounded-lg border border-gray-100 p-8 shadow-sm">
                             <div className="flex items-center justify-between mb-8">
                                 <div className="h-5 w-40 animate-pulse rounded-md bg-gray-200" />
-                                <div className="h-8 w-28 animate-pulse rounded-xl bg-gray-100" />
+                                <div className="h-8 w-28 animate-pulse rounded-lg bg-gray-100" />
                             </div>
                             <div className="h-64 flex items-end justify-between gap-2 px-2">
                                 {[40, 65, 30, 80, 55, 70, 45].map((h, i) => (
@@ -107,7 +107,7 @@ export default function AdminDashboardViewSkeleton() {
                                 </div>
                             ))}
                         </div>
-                        <div className="h-12 w-full animate-pulse rounded-xl bg-white/10" />
+                        <div className="h-12 w-full animate-pulse rounded-lg bg-white/10" />
                     </div>
                 </div>
             </main>

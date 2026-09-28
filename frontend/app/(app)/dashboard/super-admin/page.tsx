@@ -142,7 +142,7 @@ export default function SuperAdminDashboardPage() {
                         <div className="flex flex-wrap items-center gap-3">
                             <Link
                                 href="/dashboard/super-admin/organizations/new"
-                                className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:brightness-110"
+                                className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-[var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:brightness-110"
                             >
                                 <Plus size={15} />
                                 Deploy New Organization
@@ -155,7 +155,7 @@ export default function SuperAdminDashboardPage() {
                                 <div key={card.label} className="rounded-lg border border-gray-200 bg-white p-4">
                                     <div className="flex items-center justify-between gap-3">
                                         <div
-                                            className={`inline-flex h-10 w-10 items-center justify-center rounded-xl ${card.chipClass}`}
+                                            className={`inline-flex h-10 w-10 items-center justify-center rounded-lg ${card.chipClass}`}
                                         >
                                             {card.icon}
                                         </div>
@@ -222,7 +222,7 @@ export default function SuperAdminDashboardPage() {
             {showHealthAlert && (
                 <div className="flex flex-col gap-3 rounded-lg border border-rose-200 bg-rose-50 p-4 md:flex-row md:items-center md:justify-between">
                     <div className="flex items-start gap-3">
-                        <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-rose-100 text-rose-700">
+                        <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-rose-100 text-rose-700">
                             <ShieldAlert size={16} />
                         </div>
                         <div>
@@ -255,7 +255,7 @@ export default function SuperAdminDashboardPage() {
                         </div>
                         <Link
                             href="/dashboard/super-admin/organizations/new"
-                            className="inline-flex cursor-pointer items-center gap-2 self-start rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm"
+                            className="inline-flex cursor-pointer items-center gap-2 self-start rounded-lg bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm"
                         >
                             <Plus size={14} />
                             New Organization
@@ -320,7 +320,7 @@ export default function SuperAdminDashboardPage() {
                         </h2>
                         <div className="mt-5 space-y-3">
                             {(statsData?.recentEvents || []).slice(0, 6).map((event: any) => (
-                                <div key={event.id} className="rounded-xl border border-gray-200 bg-gray-50 p-3.5">
+                                <div key={event.id} className="rounded-lg border border-gray-200 bg-gray-50 p-3.5">
                                     <div className="flex items-start gap-3">
                                         <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white text-gray-700">
                                             <CreditCard size={15} />
@@ -422,7 +422,7 @@ export default function SuperAdminDashboardPage() {
                                         <div className="flex flex-wrap items-center gap-2">
                                             <button
                                                 onClick={() => setSelectedBug(bug)}
-                                                className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+                                                className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
                                             >
                                                 View Details
                                             </button>
@@ -446,7 +446,7 @@ export default function SuperAdminDashboardPage() {
                                                             toastError('Failed to mark as fixed');
                                                         }
                                                     }}
-                                                    className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100"
+                                                    className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100"
                                                 >
                                                     <CheckCircle2 size={14} />
                                                     Mark Fixed
@@ -472,7 +472,7 @@ export default function SuperAdminDashboardPage() {
                                                         },
                                                     });
                                                 }}
-                                                className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700 transition-colors hover:bg-rose-100"
+                                                className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700 transition-colors hover:bg-rose-100"
                                             >
                                                 <Trash2 size={14} />
                                                 Delete
@@ -489,7 +489,7 @@ export default function SuperAdminDashboardPage() {
             {/* Bug Detail Modal */}
             {selectedBug && (
                 <div className="fixed inset-0 z-[2100] flex items-center justify-center bg-gray-950/70 p-6 ">
-                    <div className="w-full max-w-4xl rounded-lg border border-gray-200 bg-white p-6 shadow-[0_24px_80px_rgba(15,23,42,0.18)] max-h-[88vh] overflow-y-auto">
+                    <div className="w-full max-w-4xl rounded-lg border border-gray-200 bg-white p-6 shadow-lg max-h-[88vh] overflow-y-auto">
                         <div className="flex items-start justify-between gap-4 mb-6">
                             <div className="min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
@@ -516,7 +516,7 @@ export default function SuperAdminDashboardPage() {
                             </div>
                             <button
                                 onClick={() => setSelectedBug(null)}
-                                className="cursor-pointer inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:bg-gray-100 transition-colors"
+                                className="cursor-pointer inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gray-50 text-gray-400 hover:bg-gray-100 transition-colors"
                             >
                                 <X size={18} />
                             </button>
@@ -544,7 +544,7 @@ export default function SuperAdminDashboardPage() {
                                                     name: att.name || `Attachment ${idx + 1}`,
                                                 })
                                             }
-                                            className="cursor-pointer relative rounded-xl overflow-hidden border border-gray-100 bg-gray-50 h-32 text-left"
+                                            className="cursor-pointer relative rounded-lg overflow-hidden border border-gray-100 bg-gray-50 h-32 text-left"
                                         >
                                             <img
                                                 src={att.url}
@@ -566,7 +566,7 @@ export default function SuperAdminDashboardPage() {
                     <div className="flex items-center justify-between px-4 md:px-8 py-4 border-b border-white/10">
                         <button
                             onClick={() => setSelectedImage(null)}
-                            className="cursor-pointer px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold uppercase tracking-[0.16em] flex items-center gap-2 transition-colors"
+                            className="cursor-pointer px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold uppercase tracking-[0.16em] flex items-center gap-2 transition-colors"
                         >
                             <ArrowLeft size={14} /> Back
                         </button>
@@ -575,7 +575,7 @@ export default function SuperAdminDashboardPage() {
                             download={selectedImage.name || 'bug-report-image'}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-4 py-2 rounded-xl bg-[var(--brand)] text-white text-xs font-semibold uppercase tracking-[0.16em] flex items-center gap-2 transition-colors hover:brightness-110"
+                            className="px-4 py-2 rounded-lg bg-[var(--brand)] text-white text-xs font-semibold uppercase tracking-[0.16em] flex items-center gap-2 transition-colors hover:brightness-110"
                         >
                             <Download size={14} /> Download
                         </a>
@@ -625,7 +625,7 @@ function OrgRow({ org, onDelete, onToggleStatus }: any) {
         <div className="rounded-lg border border-gray-200 bg-gray-50/70 p-4 transition-colors duration-200 hover:bg-white group">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex items-start gap-4 min-w-0">
-                    <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--brand)] text-white text-sm font-semibold">
+                    <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--brand)] text-white text-sm font-semibold">
                         {name?.[0] || 'O'}
                     </div>
                     <div className="min-w-0">
@@ -667,14 +667,14 @@ function OrgRow({ org, onDelete, onToggleStatus }: any) {
                 <div className="flex flex-wrap items-center gap-2">
                     <Link
                         href={`/dashboard/super-admin/organizations/${org.id}/dashboard`}
-                        className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+                        className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
                     >
                         <ShieldAlert size={14} />
                         Dashboard
                     </Link>
                     <Link
                         href={`/dashboard/super-admin/organizations/${org.id}/edit`}
-                        className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+                        className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
                     >
                         <Pencil size={14} />
                         Edit
@@ -684,7 +684,7 @@ function OrgRow({ org, onDelete, onToggleStatus }: any) {
                             e.stopPropagation();
                             onToggleStatus();
                         }}
-                        className={`cursor-pointer inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${status === 'Active' ? 'bg-amber-50 text-amber-700 hover:bg-amber-100' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'}`}
+                        className={`cursor-pointer inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${status === 'Active' ? 'bg-amber-50 text-amber-700 hover:bg-amber-100' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'}`}
                     >
                         {status === 'Active' ? 'Suspend' : 'Activate'}
                     </button>
@@ -693,13 +693,13 @@ function OrgRow({ org, onDelete, onToggleStatus }: any) {
                             e.stopPropagation();
                             onDelete();
                         }}
-                        className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700 transition-colors hover:bg-rose-100"
+                        className="cursor-pointer inline-flex items-center gap-2 rounded-lg bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700 transition-colors hover:bg-rose-100"
                     >
                         <Trash2 size={14} />
                     </button>
                     <Link
                         href={`/dashboard/super-admin/organizations/${org.id}/dashboard`}
-                        className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-transparent bg-gray-950 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gray-800"
+                        className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-transparent bg-gray-950 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gray-800"
                     >
                         <ArrowUpRight size={14} />
                         Enter

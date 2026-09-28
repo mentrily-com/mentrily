@@ -156,7 +156,7 @@ export default function NotebookPlayground() {
         <div className="h-[calc(100%-56px)] overflow-y-auto px-4 py-5 md:px-6 md:py-6 bg-[var(--color-bg-subtle)]">
             <div className="mb-5 flex items-center justify-end">
                 <div
-                    className={`flex items-center gap-2 rounded-xl border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest ${isWorkerReady ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100 animate-pulse'}`}
+                    className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest ${isWorkerReady ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100 animate-pulse'}`}
                 >
                     <div className={`h-2 w-2 rounded-full ${isWorkerReady ? 'bg-emerald-500' : 'bg-amber-500'}`} />
                     {isWorkerReady ? 'Python 3.11 Ready' : 'Initializing Kernel'}

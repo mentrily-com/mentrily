@@ -187,7 +187,7 @@ export default function ForgotPasswordPage() {
 
                                 {error && (
                                     <div
-                                        className="mb-5 px-4 py-3 rounded-xl text-sm font-medium text-center"
+                                        className="mb-5 px-4 py-3 rounded-lg text-sm font-medium text-center"
                                         style={{
                                             backgroundColor: '#FEF2F2',
                                             border: '1px solid #FECACA',
@@ -219,7 +219,7 @@ export default function ForgotPasswordPage() {
                                                 value={email}
                                                 onChange={(e) => setEmail(e.target.value)}
                                                 placeholder="name@company.com"
-                                                className="w-full py-3 pl-11 pr-4 text-sm rounded-xl border outline-none transition-all duration-150"
+                                                className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150"
                                                 style={{
                                                     backgroundColor: '#FFFFFF',
                                                     borderColor: '#E2E8F0',
@@ -241,7 +241,7 @@ export default function ForgotPasswordPage() {
                                     <button
                                         type="submit"
                                         disabled={isLoading}
-                                        className="w-full py-3 text-sm font-semibold text-white rounded-xl transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed"
+                                        className="w-full py-3 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed"
                                         style={{ backgroundColor: 'var(--brand, #007c85)' }}
                                         onMouseEnter={(e) => {
                                             if (!isLoading) e.currentTarget.style.opacity = '0.9';
@@ -287,7 +287,7 @@ export default function ForgotPasswordPage() {
 
                                 {error && (
                                     <div
-                                        className="mb-5 px-4 py-3 rounded-xl text-sm font-medium text-center"
+                                        className="mb-5 px-4 py-3 rounded-lg text-sm font-medium text-center"
                                         style={{
                                             backgroundColor: '#FEF2F2',
                                             border: '1px solid #FECACA',
@@ -320,7 +320,7 @@ export default function ForgotPasswordPage() {
                                                 value={code}
                                                 onChange={(e) => setCode(e.target.value)}
                                                 placeholder="123456"
-                                                className="w-full py-3 pl-11 pr-4 text-sm rounded-xl border outline-none transition-all duration-150 tracking-widest"
+                                                className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150 tracking-widest"
                                                 style={{
                                                     backgroundColor: '#FFFFFF',
                                                     borderColor: '#E2E8F0',
@@ -360,7 +360,7 @@ export default function ForgotPasswordPage() {
                                                 value={password}
                                                 onChange={(e) => setPassword(e.target.value)}
                                                 placeholder="••••••••"
-                                                className="w-full py-3 pl-11 pr-4 text-sm rounded-xl border outline-none transition-all duration-150"
+                                                className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150"
                                                 style={{
                                                     backgroundColor: '#FFFFFF',
                                                     borderColor: '#E2E8F0',
@@ -400,7 +400,7 @@ export default function ForgotPasswordPage() {
                                                 value={confirmPassword}
                                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                                 placeholder="••••••••"
-                                                className="w-full py-3 pl-11 pr-4 text-sm rounded-xl border outline-none transition-all duration-150"
+                                                className="w-full py-3 pl-11 pr-4 text-sm rounded-lg border outline-none transition-all duration-150"
                                                 style={{
                                                     backgroundColor: '#FFFFFF',
                                                     borderColor: '#E2E8F0',
@@ -422,7 +422,7 @@ export default function ForgotPasswordPage() {
                                     <button
                                         type="submit"
                                         disabled={isLoading}
-                                        className="w-full py-3 text-sm font-semibold text-white rounded-xl transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed mt-1"
+                                        className="w-full py-3 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed mt-1"
                                         style={{ backgroundColor: 'var(--brand, #007c85)' }}
                                         onMouseEnter={(e) => {
                                             if (!isLoading) e.currentTarget.style.opacity = '0.9';
@@ -464,7 +464,7 @@ export default function ForgotPasswordPage() {
                                 </p>
                                 <button
                                     onClick={() => router.push('/dashboard/learner')}
-                                    className="w-full py-3 text-sm font-semibold text-white rounded-xl transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group"
+                                    className="w-full py-3 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 group"
                                     style={{ backgroundColor: '#10B981' }}
                                     onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#059669')}
                                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#10B981')}

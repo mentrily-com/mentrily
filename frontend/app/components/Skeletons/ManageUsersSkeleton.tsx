@@ -20,7 +20,7 @@ export default function ManageUsersSkeleton() {
                 <div className="h-10 w-48 animate-pulse rounded-lg bg-gray-200" />
             </div>
 
-            <div className="flex flex-col md:flex-row items-center gap-4 mb-6 p-2 rounded-xl border border-gray-100 bg-white/50">
+            <div className="flex flex-col md:flex-row items-center gap-4 mb-6 p-2 rounded-lg border border-gray-100 bg-white/50">
                 <div className="h-9 w-full flex-1 animate-pulse rounded-lg bg-gray-100" />
                 <div className="flex gap-2 w-full md:w-auto shrink-0">
                     <div className="h-9 w-full md:w-28 animate-pulse rounded-lg bg-gray-100" />
@@ -28,7 +28,7 @@ export default function ManageUsersSkeleton() {
                 </div>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden">
                 <div className="hidden md:flex items-center px-6 py-4 bg-gray-50 border-b border-gray-100">
                     <div className="h-2.5 w-16 animate-pulse rounded bg-gray-200" style={{ width: '30%' }} />
                     <div className="h-2.5 w-20 animate-pulse rounded bg-gray-200" style={{ width: '25%' }} />

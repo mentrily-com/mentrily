@@ -48,7 +48,7 @@ export default function SignaturePad({ value, onChange }: { value?: string; onCh
 
             {mode === 'draw' ? (
                 <div className="space-y-2">
-                    <div className="w-full h-[140px] border-2 border-dashed border-gray-200 rounded-xl overflow-hidden bg-gray-50">
+                    <div className="w-full h-[140px] border-2 border-dashed border-gray-200 rounded-lg overflow-hidden bg-gray-50">
                         <SignatureCanvas
                             ref={sigRef}
                             penColor="#0f172a"
@@ -77,7 +77,7 @@ export default function SignaturePad({ value, onChange }: { value?: string; onCh
                     </div>
                 </div>
             ) : (
-                <label className="w-full h-[140px] border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 flex items-center justify-center text-xs font-medium text-gray-500 cursor-pointer">
+                <label className="w-full h-[140px] border-2 border-dashed border-gray-200 rounded-lg bg-gray-50 flex items-center justify-center text-xs font-medium text-gray-500 cursor-pointer">
                     Upload Signature Image
                     <input type="file" accept="image/*" className="hidden" onChange={handleUpload} />
                 </label>

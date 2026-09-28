@@ -217,7 +217,7 @@ export default function ExamResultsView({
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                     <Link href={backLink}>
-                        <button className="p-3 bg-white border border-gray-100 text-gray-400 rounded-xl hover:text-gray-600 transition-all shadow-sm">
+                        <button className="p-3 bg-white border border-gray-100 text-gray-400 rounded-lg hover:text-gray-600 transition-all shadow-sm">
                             <svg
                                 width="18"
                                 height="18"
@@ -337,7 +337,7 @@ export default function ExamResultsView({
                                     fontWeight={700}
                                     axisLine={false}
                                     tickLine={false}
-                                    tick={{ fill: '#94a3b8' }}
+                                    tick={{ fill: '#9fa5b0' }}
                                     dy={10}
                                 />
                                 <YAxis
@@ -504,7 +504,7 @@ export default function ExamResultsView({
                     <button
                         onClick={() => setPagination((p) => ({ ...p, page: Math.max(1, p.page - 1) }))}
                         disabled={pagination.page === 1}
-                        className="p-2.5 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl bg-white border border-gray-100 disabled:opacity-50 hover:bg-gray-50 transition-colors"
+                        className="p-2.5 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-lg bg-white border border-gray-100 disabled:opacity-50 hover:bg-gray-50 transition-colors"
                     >
                         <ChevronLeft size={16} className="text-gray-600" />
                     </button>
@@ -513,7 +513,7 @@ export default function ExamResultsView({
                             setPagination((p) => ({ ...p, page: Math.min(pagination.totalPages, p.page + 1) }))
                         }
                         disabled={pagination.page === pagination.totalPages}
-                        className="p-2.5 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl bg-white border border-gray-100 disabled:opacity-50 hover:bg-gray-50 transition-colors"
+                        className="p-2.5 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-lg bg-white border border-gray-100 disabled:opacity-50 hover:bg-gray-50 transition-colors"
                     >
                         <ChevronRight size={16} className="text-gray-600" />
                     </button>

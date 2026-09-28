@@ -427,7 +427,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                 {props.testCases && props.testCases[selectedTestCase] ? (
                                     <>
                                         {props.testCases[selectedTestCase].isPublic === false ? (
-                                            <div className="flex flex-col items-center justify-center h-full gap-4 opacity-50 p-8 border-2 border-dashed border-gray-200 rounded-xl">
+                                            <div className="flex flex-col items-center justify-center h-full gap-4 opacity-50 p-8 border-2 border-dashed border-gray-200 rounded-lg">
                                                 <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-400">
                                                     <svg
                                                         width="24"
@@ -466,7 +466,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                                         <span className="text-[10px] uppercase font-semibold text-gray-400 tracking-wider">
                                                             Input
                                                         </span>
-                                                        <div className="bg-gray-50 p-4 rounded-xl text-[13px] font-mono border border-gray-100/50 whitespace-pre-wrap text-gray-700">
+                                                        <div className="bg-gray-50 p-4 rounded-lg text-[13px] font-mono border border-gray-100/50 whitespace-pre-wrap text-gray-700">
                                                             {props.testCases[selectedTestCase].input}
                                                         </div>
                                                     </div>
@@ -474,7 +474,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                                         <span className="text-[10px] uppercase font-semibold text-gray-400 tracking-wider">
                                                             Expected
                                                         </span>
-                                                        <div className="bg-gray-50 p-4 rounded-xl text-[13px] font-mono border border-gray-100/50 text-[#e67e22] whitespace-pre-wrap">
+                                                        <div className="bg-gray-50 p-4 rounded-lg text-[13px] font-mono border border-gray-100/50 text-[#e67e22] whitespace-pre-wrap">
                                                             {props.testCases[selectedTestCase].expected ??
                                                                 props.testCases[selectedTestCase].expectedOutput}
                                                         </div>
@@ -486,7 +486,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                                     </span>
                                                     {props.testCases[selectedTestCase].actualOutput !== undefined ? (
                                                         <div
-                                                            className={`bg-white border-2 ${props.testCases[selectedTestCase].passed ? 'border-emerald-100 bg-emerald-50/20' : 'border-red-100 bg-red-50/20'} p-4 rounded-xl text-[13px] font-mono whitespace-pre-wrap text-gray-700`}
+                                                            className={`bg-white border-2 ${props.testCases[selectedTestCase].passed ? 'border-emerald-100 bg-emerald-50/20' : 'border-red-100 bg-red-50/20'} p-4 rounded-lg text-[13px] font-mono whitespace-pre-wrap text-gray-700`}
                                                         >
                                                             {props.testCases[selectedTestCase].actualOutput}
                                                             {props.testCases[selectedTestCase].error && (
@@ -496,7 +496,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                                             )}
                                                         </div>
                                                     ) : (
-                                                        <div className="bg-white border-2 border-dashed border-gray-100 h-20 rounded-xl flex items-center justify-center text-gray-300 italic text-xs">
+                                                        <div className="bg-white border-2 border-dashed border-gray-100 h-20 rounded-lg flex items-center justify-center text-gray-300 italic text-xs">
                                                             Waiting for execution...
                                                         </div>
                                                     )}
@@ -514,7 +514,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                     )}
 
                     {activeTab === 'terminal' && (
-                        <div className="h-full rounded-xl bg-gray-900 p-6 font-mono text-[13px] text-emerald-400 shadow-inner overflow-y-auto whitespace-pre-wrap">
+                        <div className="h-full rounded-lg bg-gray-900 p-6 font-mono text-[13px] text-emerald-400 shadow-inner overflow-y-auto whitespace-pre-wrap">
                             <div className="flex items-center gap-2 mb-2 opacity-50">
                                 <span className="w-2 h-2 rounded-full bg-red-400"></span>
                                 <span className="w-2 h-2 rounded-full bg-yellow-400"></span>
@@ -525,7 +525,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                     )}
 
                     {activeTab === 'input' && (
-                        <div className="flex h-full flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+                        <div className="flex h-full flex-col overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm">
                             <div className="bg-gray-50 px-4 py-2 border-b border-gray-100 flex justify-between items-center">
                                 <span className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">
                                     Standard Input (stdin)
@@ -642,7 +642,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                     <button
                                         onClick={handleRun}
                                         disabled={props.isExecuting}
-                                        className={`px-3.5 sm:px-6 py-2 sm:py-3 bg-gray-100 text-gray-700 font-medium rounded-xl text-[11px] sm:text-[12px] uppercase tracking-wider sm:tracking-widest hover:bg-gray-200 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait flex items-center gap-1.5 sm:gap-2`}
+                                        className={`px-3.5 sm:px-6 py-2 sm:py-3 bg-gray-100 text-gray-700 font-medium rounded-lg text-[11px] sm:text-[12px] uppercase tracking-wider sm:tracking-widest hover:bg-gray-200 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait flex items-center gap-1.5 sm:gap-2`}
                                     >
                                         {props.isExecuting ? (
                                             <>
@@ -680,7 +680,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                                     }
                                                 }
                                             }}
-                                            className={`px-4 sm:px-10 py-2 sm:py-3 bg-[var(--brand)] text-white font-semibold rounded-xl text-[11px] sm:text-[12px] uppercase tracking-wider sm:tracking-widest shadow-lg shadow-[var(--brand-light)] hover:bg-[var(--brand-dark)] hover:-translate-y-0.5 transition-all active:translate-y-0 active:scale-[0.98] flex items-center gap-1.5 sm:gap-2`}
+                                            className={`px-4 sm:px-10 py-2 sm:py-3 bg-[var(--brand)] text-white font-semibold rounded-lg text-[11px] sm:text-[12px] uppercase tracking-wider sm:tracking-widest shadow-lg shadow-[var(--brand-light)] hover:bg-[var(--brand-dark)] hover:-translate-y-0.5 transition-all active:translate-y-0 active:scale-[0.98] flex items-center gap-1.5 sm:gap-2`}
                                         >
                                             Submit
                                             <svg
@@ -723,7 +723,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                 /* Autocomplete / Code Suggestions fix */
                 .cm-tooltip.cm-tooltip-autocomplete {
                     background-color: #ffffff !important;
-                    border: 1px solid #e2e8f0 !important;
+                    border: 1px solid #dce0e6 !important;
                     border-radius: 8px !important;
                     box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1) !important;
                     overflow: hidden !important;
@@ -762,7 +762,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                     color: #059669 !important;
                 }
                 .cm-comment {
-                    color: #94a3b8 !important;
+                    color: #9fa5b0 !important;
                     font-style: italic;
                 }
                 .cm-number {

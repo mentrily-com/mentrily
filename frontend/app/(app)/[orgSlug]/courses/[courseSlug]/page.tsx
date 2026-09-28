@@ -119,9 +119,9 @@ export default async function PublicCoursePage({
                     <div className="p-8">
                         <div className="flex items-center gap-3 mb-4">
                             {org.logo ? (
-                                <img src={org.logo} alt={org.name} className="w-10 h-10 rounded-xl object-cover" />
+                                <img src={org.logo} alt={org.name} className="w-10 h-10 rounded-lg object-cover" />
                             ) : (
-                                <div className="w-10 h-10 rounded-xl bg-[var(--brand-light)] flex items-center justify-center text-[var(--brand)] font-semibold text-sm">
+                                <div className="w-10 h-10 rounded-lg bg-[var(--brand-light)] flex items-center justify-center text-[var(--brand)] font-semibold text-sm">
                                     {org.name.slice(0, 1).toUpperCase()}
                                 </div>
                             )}
@@ -141,7 +141,7 @@ export default async function PublicCoursePage({
                                 {course.modules.map((module, index) => (
                                     <li
                                         key={module.id}
-                                        className="rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-sm font-medium text-gray-700"
+                                        className="rounded-lg border border-gray-200 bg-gray-50/50 p-3 text-sm font-medium text-gray-700"
                                     >
                                         {index + 1}. {module.title}
                                     </li>
@@ -151,7 +151,7 @@ export default async function PublicCoursePage({
 
                         <Link
                             href="/signup"
-                            className="mt-8 inline-flex items-center justify-center rounded-xl bg-[var(--brand)] px-5 py-3 text-xs font-semibold uppercase tracking-widest text-white hover:bg-[var(--brand-dark)]"
+                            className="mt-8 inline-flex items-center justify-center rounded-lg bg-[var(--brand)] px-5 py-3 text-xs font-semibold uppercase tracking-widest text-white hover:bg-[var(--brand-dark)]"
                         >
                             Enroll Now
                         </Link>

@@ -37,14 +37,14 @@ export function GuestSidebar({
                 <button
                     type="button"
                     onClick={() => onFill('', '')}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 py-2.5 text-sm font-semibold text-white hover:bg-gray-800"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-gray-900 py-2.5 text-sm font-semibold text-white hover:bg-gray-800"
                 >
                     <Plus size={16} /> New chat
                 </button>
             </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-3">
-                <div className="mx-1 rounded-xl border border-gray-200 bg-white p-3">
+                <div className="mx-1 rounded-lg border border-gray-200 bg-white p-3">
                     <p className="text-sm font-semibold text-gray-900">Your chats will appear here</p>
                     <p className="mt-1 text-xs leading-5 text-gray-500">
                         {viewer === 'guest'

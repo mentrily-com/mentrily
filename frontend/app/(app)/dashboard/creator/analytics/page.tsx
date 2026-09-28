@@ -459,7 +459,7 @@ export default function CreatorAnalyticsPage() {
             </div>
 
             <PlanGate feature="advancedAnalytics" requiredPlan="Pro">
-                <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8">
+                <section className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 md:p-8">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
                         <MetricCard label="Exam Attempts" value={Number(source.overview?.totalExamAttempts || 0)} />
                         <MetricCard
@@ -489,18 +489,18 @@ export default function CreatorAnalyticsPage() {
                             <div className="h-[300px]">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <LineChart data={trendSeries}>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#dce0e6" />
                                         <XAxis
                                             dataKey="label"
-                                            tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }}
+                                            tick={{ fontSize: 10, fontWeight: 600, fill: '#9fa5b0' }}
                                         />
-                                        <YAxis tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} />
+                                        <YAxis tick={{ fontSize: 10, fontWeight: 600, fill: '#9fa5b0' }} />
                                         <Tooltip />
                                         <Legend />
                                         <Line
                                             type="monotone"
                                             dataKey="examSubmissions"
-                                            stroke="#6366f1"
+                                            stroke="#007c85"
                                             strokeWidth={2.5}
                                         />
                                         <Line
@@ -552,7 +552,7 @@ export default function CreatorAnalyticsPage() {
                     </div>
                 </section>
 
-                <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8">
+                <section className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 md:p-8">
                     <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                         <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-600">
                             Per-exam Analytics
@@ -561,7 +561,7 @@ export default function CreatorAnalyticsPage() {
                             <select
                                 value={selectedExamId}
                                 onChange={(event) => setSelectedExamId(event.target.value)}
-                                className="px-3 py-2 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-gray-600"
+                                className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-gray-600"
                             >
                                 <option value="all">All Exams</option>
                                 {source.examRows.map((exam) => (
@@ -585,7 +585,7 @@ export default function CreatorAnalyticsPage() {
                                         })),
                                     )
                                 }
-                                className="px-3 py-2 rounded-xl bg-gray-900 text-white text-[10px] font-semibold uppercase tracking-widest"
+                                className="px-3 py-2 rounded-lg bg-gray-900 text-white text-[10px] font-semibold uppercase tracking-widest"
                             >
                                 Export Exams CSV
                             </button>
@@ -600,14 +600,14 @@ export default function CreatorAnalyticsPage() {
                             <div className="h-[280px]">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <BarChart data={scoreHistogramRows}>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#dce0e6" />
                                         <XAxis
                                             dataKey="bucketLabel"
-                                            tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }}
+                                            tick={{ fontSize: 10, fontWeight: 600, fill: '#9fa5b0' }}
                                         />
-                                        <YAxis tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} />
+                                        <YAxis tick={{ fontSize: 10, fontWeight: 600, fill: '#9fa5b0' }} />
                                         <Tooltip />
-                                        <Bar dataKey="submissionCount" fill="#6366f1" radius={[8, 8, 0, 0]} />
+                                        <Bar dataKey="submissionCount" fill="#007c85" radius={[4, 4, 0, 0]} />
                                     </BarChart>
                                 </ResponsiveContainer>
                             </div>
@@ -659,23 +659,23 @@ export default function CreatorAnalyticsPage() {
                                     layout="vertical"
                                     margin={{ left: 20, right: 20 }}
                                 >
-                                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-                                    <XAxis type="number" tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} />
+                                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#dce0e6" />
+                                    <XAxis type="number" tick={{ fontSize: 10, fontWeight: 600, fill: '#9fa5b0' }} />
                                     <YAxis
                                         type="category"
                                         dataKey="itemId"
-                                        tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }}
+                                        tick={{ fontSize: 10, fontWeight: 600, fill: '#9fa5b0' }}
                                         width={120}
                                     />
                                     <Tooltip />
-                                    <Bar dataKey="correctRate" fill="#f59e0b" radius={[0, 8, 8, 0]} />
+                                    <Bar dataKey="correctRate" fill="#f59e0b" radius={[0, 4, 4, 0]} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
                 </section>
 
-                <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8">
+                <section className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 md:p-8">
                     <div className="flex items-center justify-between mb-5">
                         <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-600">
                             Per-course Analytics
@@ -694,7 +694,7 @@ export default function CreatorAnalyticsPage() {
                                     })),
                                 )
                             }
-                            className="px-3 py-2 rounded-xl bg-white border border-gray-200 text-[10px] font-semibold uppercase tracking-widest text-gray-600"
+                            className="px-3 py-2 rounded-lg bg-white border border-gray-200 text-[10px] font-semibold uppercase tracking-widest text-gray-600"
                         >
                             Export Courses CSV
                         </button>
@@ -747,7 +747,7 @@ export default function CreatorAnalyticsPage() {
                     </div>
                 </section>
 
-                <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8">
+                <section className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 md:p-8">
                     <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-600 mb-5">
                         Activity Heatmap (Day/Hour)
                     </h3>
@@ -789,7 +789,7 @@ export default function CreatorAnalyticsPage() {
                     </div>
                 </section>
 
-                <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8">
+                <section className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 md:p-8">
                     <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-600 mb-4">
                         Activity Area View
                     </h3>
@@ -798,18 +798,18 @@ export default function CreatorAnalyticsPage() {
                             <AreaChart data={trendSeries}>
                                 <defs>
                                     <linearGradient id="activeUsersArea" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="#007c85" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#007c85" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                <XAxis dataKey="label" tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} />
-                                <YAxis tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#dce0e6" />
+                                <XAxis dataKey="label" tick={{ fontSize: 10, fontWeight: 600, fill: '#9fa5b0' }} />
+                                <YAxis tick={{ fontSize: 10, fontWeight: 600, fill: '#9fa5b0' }} />
                                 <Tooltip />
                                 <Area
                                     type="monotone"
                                     dataKey="activeUsers"
-                                    stroke="#6366f1"
+                                    stroke="#007c85"
                                     fill="url(#activeUsersArea)"
                                 />
                             </AreaChart>
@@ -819,7 +819,7 @@ export default function CreatorAnalyticsPage() {
             </PlanGate>
 
             {role === 'ADMIN' && (
-                <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8 mt-6">
+                <section className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 md:p-8 mt-6">
                     <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-600 mb-5">
                         Storage Usage Leaderboard
                     </h3>

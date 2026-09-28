@@ -73,7 +73,7 @@ export default function ModulePageSkeleton() {
                                         <div className="h-4 w-56 max-w-full animate-pulse rounded-md bg-gray-200" />
                                     </div>
                                 </div>
-                                <div className="h-10 w-10 shrink-0 animate-pulse rounded-xl bg-gray-100" />
+                                <div className="h-10 w-10 shrink-0 animate-pulse rounded-lg bg-gray-100" />
                             </div>
                         ))}
                     </div>

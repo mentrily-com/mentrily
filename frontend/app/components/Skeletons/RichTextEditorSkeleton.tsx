@@ -17,7 +17,7 @@ export default function RichTextEditorSkeleton() {
         <div className="border border-gray-200 rounded-lg overflow-hidden">
             <div className="flex flex-wrap items-center gap-1 p-3 border-b border-gray-200 bg-gray-50">
                 {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-                    <div key={i} className="flex gap-0.5 rounded-xl bg-white/10 p-0.5">
+                    <div key={i} className="flex gap-0.5 rounded-lg bg-white/10 p-0.5">
                         <div className="h-7 w-7 animate-pulse rounded-lg bg-gray-200" />
                         <div className="h-7 w-7 animate-pulse rounded-lg bg-gray-200" />
                     </div>

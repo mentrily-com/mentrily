@@ -405,7 +405,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                     onClick={handleBecomeCreator}
                     disabled={becomingCreator}
                     aria-label={becomingCreator ? 'Setting up creator workspace' : 'Become a Creator'}
-                    className="flex items-center gap-2 px-3 py-2 bg-[var(--brand-light)] hover:bg-[var(--brand-light)]/70 disabled:opacity-60 rounded-xl border border-[var(--brand-light)] transition-colors text-[var(--brand)]"
+                    className="flex items-center gap-2 px-3 py-2 bg-[var(--brand-light)] hover:bg-[var(--brand-light)]/70 disabled:opacity-60 rounded-lg border border-[var(--brand-light)] transition-colors text-[var(--brand)]"
                 >
                     {becomingCreator ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
                     <span className="hidden sm:block text-[11px] font-semibold">
@@ -426,7 +426,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
             <button
                 onClick={() => setOpen((value) => !value)}
                 disabled={Boolean(switchingMembershipId)}
-                className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 disabled:opacity-60 rounded-xl border border-gray-200/80 transition-colors max-w-[180px]"
+                className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 disabled:opacity-60 rounded-lg border border-gray-200/80 transition-colors max-w-[180px]"
                 title="Switch workspace"
                 aria-haspopup="menu"
                 aria-expanded={open}

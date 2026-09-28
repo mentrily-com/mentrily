@@ -136,7 +136,7 @@ export default function InlineAiMenu({
                 {running ? 'Working…' : 'AI'}
             </button>
             {open && (
-                <div role="menu" className="absolute right-0 top-full z-40 mt-2 w-72 overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-md">
+                <div role="menu" className="absolute right-0 top-full z-40 mt-2 w-72 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-md">
                     {ops.map((o) => (
                         <button
                             key={o.op}
@@ -163,14 +163,14 @@ export default function InlineAiMenu({
                         <button
                             type="button"
                             onClick={() => setSuggestion(null)}
-                            className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                            className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                         >
                             Discard
                         </button>
                         <button
                             type="button"
                             onClick={accept}
-                            className="rounded-xl bg-[var(--brand)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--brand-dark)]"
+                            className="rounded-lg bg-[var(--brand)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--brand-dark)]"
                         >
                             Apply change
                         </button>
@@ -187,13 +187,13 @@ export default function InlineAiMenu({
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                                 <p className="text-xs font-medium text-gray-500">Current</p>
-                                <div className="rounded-xl border border-gray-200 p-3">
+                                <div className="rounded-lg border border-gray-200 p-3">
                                     <Summary q={question} />
                                 </div>
                             </div>
                             <div className="space-y-2">
                                 <p className="text-xs font-medium text-[var(--brand-dark)]">Suggested</p>
-                                <div className="rounded-xl border border-[var(--color-border-brand)] bg-[var(--color-brand-light)]/40 p-3">
+                                <div className="rounded-lg border border-[var(--color-border-brand)] bg-[var(--color-brand-light)]/40 p-3">
                                     <Summary q={suggestion.question} />
                                 </div>
                             </div>

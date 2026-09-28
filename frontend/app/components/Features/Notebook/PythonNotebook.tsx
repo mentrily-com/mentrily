@@ -164,7 +164,7 @@ export default function PythonNotebook({
     const handleClearConsole = () => setOutputs([]);
 
     return (
-        <div className="flex flex-col h-full bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm relative">
+        <div className="flex flex-col h-full bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm relative">
             {/* 1. Main Content Area */}
             <div className="flex-1 min-h-0">
                 <SplitPane
@@ -309,7 +309,7 @@ export default function PythonNotebook({
                         <button
                             onClick={handleRun}
                             disabled={isExecuting || !isWorkerReady}
-                            className="px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl text-[12px] uppercase tracking-widest hover:bg-gray-200 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait flex items-center gap-2"
+                            className="px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg text-[12px] uppercase tracking-widest hover:bg-gray-200 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait flex items-center gap-2"
                         >
                             {isExecuting ? (
                                 <>
@@ -327,7 +327,7 @@ export default function PythonNotebook({
                         <button
                             onClick={() => onSubmit?.(code)}
                             data-element-id="starter-submit-answer"
-                            className={`px-10 py-3 bg-[var(--brand)] text-white font-semibold rounded-xl text-[12px] uppercase tracking-widest shadow-lg shadow-[var(--brand-light)] hover:bg-[var(--brand-dark)] hover:-translate-y-0.5 transition-all active:translate-y-0 active:scale-[0.98] flex items-center gap-2`}
+                            className={`px-10 py-3 bg-[var(--brand)] text-white font-semibold rounded-lg text-[12px] uppercase tracking-widest shadow-lg shadow-[var(--brand-light)] hover:bg-[var(--brand-dark)] hover:-translate-y-0.5 transition-all active:translate-y-0 active:scale-[0.98] flex items-center gap-2`}
                         >
                             Submit
                             <svg

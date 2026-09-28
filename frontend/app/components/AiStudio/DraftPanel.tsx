@@ -239,7 +239,7 @@ export default function DraftPanel({
                     ) : draft ? (
                         <div className="space-y-4">
                             {edit && (
-                                <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
+                                <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
                                     <p className="flex items-start gap-2">
                                         <PenLine size={14} className="mt-1 shrink-0 text-gray-400" />
                                         <span>
@@ -268,7 +268,7 @@ export default function DraftPanel({
                                 </div>
                             )}
                             {saved ? (
-                                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                                <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
                                     Saved as a draft {saved.kind}.{' '}
                                     <Link
                                         href={`/dashboard/creator/${saved.kind === 'exam' ? 'exams' : 'courses'}/${saved.id}/edit`}
@@ -279,7 +279,7 @@ export default function DraftPanel({
                                 </div>
                             ) : null}
                             {confirmReplace && (
-                                <div className="space-y-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                                <div className="space-y-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
                                     <p>
                                         The {noun} builder has an unsaved new {noun}. Opening this draft replaces it.
                                     </p>
@@ -314,7 +314,7 @@ export default function DraftPanel({
                             type="button"
                             onClick={write}
                             disabled={busy !== null}
-                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand)] py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-dark)] disabled:opacity-50"
+                            className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--brand)] py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-dark)] disabled:opacity-50"
                         >
                             {busy === 'write' ? (
                                 <Loader2 size={16} className="animate-spin" />
@@ -334,7 +334,7 @@ export default function DraftPanel({
                                 type="button"
                                 onClick={saveDraft}
                                 disabled={busy !== null || selected.size === 0 || Boolean(saved)}
-                                className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-medium text-gray-800 hover:bg-gray-50 disabled:opacity-50"
+                                className="flex-1 rounded-lg border border-gray-200 py-2.5 text-sm font-medium text-gray-800 hover:bg-gray-50 disabled:opacity-50"
                             >
                                 {busy === 'save' ? 'Saving…' : saved ? 'Saved' : 'Save as draft'}
                             </button>
@@ -342,7 +342,7 @@ export default function DraftPanel({
                                 type="button"
                                 onClick={() => openInBuilder()}
                                 disabled={busy !== null || selected.size === 0}
-                                className="flex-1 rounded-xl bg-[var(--brand)] py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-dark)] disabled:opacity-50"
+                                className="flex-1 rounded-lg bg-[var(--brand)] py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-dark)] disabled:opacity-50"
                             >
                                 {busy === 'open' ? 'Opening…' : 'Open in builder'}
                             </button>
