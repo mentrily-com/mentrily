@@ -125,7 +125,7 @@ export default function SocialProof() {
                                 {/* Icon */}
                                 <div
                                     className="w-9 h-9 rounded-lg flex items-center justify-center mb-2.5 transition-colors duration-200"
-                                    style={{ backgroundColor: '#E6F7F8' }}
+                                    style={{ backgroundColor: '#eefbfc' }}
                                 >
                                     <Icon size={18} style={{ color: '#007c85' }} />
                                 </div>

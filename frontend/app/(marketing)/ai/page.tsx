@@ -98,7 +98,7 @@ function StartChatting({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
             style={
                 tone === 'light'
                     ? {
-                          background: 'linear-gradient(135deg, #008D98 0%, #006F78 100%)',
+                          background: 'linear-gradient(135deg, #007c85 0%, #005359 100%)',
                           boxShadow: '0 4px 16px rgba(0,141,152,0.25)',
                       }
                     : undefined
@@ -178,7 +178,7 @@ export default function AiLandingPage() {
                                 <StartChatting />
                                 <Link
                                     href="/pricing"
-                                    className="inline-flex items-center rounded-xl border border-slate-200 bg-white/70 px-7 py-3.5 text-sm font-semibold text-[#008D98] backdrop-blur hover:border-[#008D98] hover:bg-white"
+                                    className="inline-flex items-center rounded-xl border border-slate-200 bg-white/70 px-7 py-3.5 text-sm font-semibold text-[#006a72] backdrop-blur hover:border-[#007c85] hover:bg-white"
                                 >
                                     See pricing
                                 </Link>

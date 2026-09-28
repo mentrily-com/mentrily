@@ -26,7 +26,7 @@ function PricingToggle({
             <button
                 onClick={() => setBilling(billing === 'monthly' ? 'annual' : 'monthly')}
                 className="relative w-14 h-7 rounded-full transition-colors duration-250 cursor-pointer"
-                style={{ backgroundColor: billing === 'annual' ? '#008D98' : '#E2E8F0' }}
+                style={{ backgroundColor: billing === 'annual' ? '#007c85' : '#dce0e6' }}
                 aria-label="Toggle billing period"
             >
                 <motion.div
@@ -46,7 +46,7 @@ function PricingToggle({
                     className={`text-xs font-semibold px-2 py-0.5 rounded-full transition-opacity duration-200 ${
                         billing === 'annual' ? 'opacity-100' : 'opacity-0'
                     }`}
-                    style={{ backgroundColor: '#E6F7F8', color: '#008D98' }}
+                    style={{ backgroundColor: '#eefbfc', color: '#006a72' }}
                     aria-hidden={billing !== 'annual'}
                 >
                     2 months free
@@ -86,8 +86,8 @@ function PricingCards({ billing }: { billing: 'monthly' | 'annual' }) {
                             tier.highlighted ? 'animate-pro-pulse' : ''
                         }`}
                         style={{
-                            backgroundColor: tier.highlighted ? '#E6F7F8' : '#FFFFFF',
-                            border: tier.highlighted ? '2px solid #008D98' : '1px solid #E2E8F0',
+                            backgroundColor: tier.highlighted ? '#eefbfc' : '#FFFFFF',
+                            border: tier.highlighted ? '2px solid #007c85' : '1px solid #dce0e6',
                             boxShadow: tier.highlighted
                                 ? '0 4px 20px rgba(26,86,219,0.18)'
                                 : '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)',
@@ -142,7 +142,7 @@ function PricingCards({ billing }: { billing: 'monthly' | 'annual' }) {
                         {/* Limits */}
                         <div
                             className="py-3 mb-4 space-y-1"
-                            style={{ borderTop: '1px solid #E2E8F0', borderBottom: '1px solid #E2E8F0' }}
+                            style={{ borderTop: '1px solid #dce0e6', borderBottom: '1px solid #dce0e6' }}
                         >
                             {Object.entries(tier.limits).map(([limitName, v]) => (
                                 <p
@@ -170,24 +170,24 @@ function PricingCards({ billing }: { billing: 'monthly' | 'annual' }) {
                             href={tier.ctaHref}
                             className="block w-full py-2.5 text-center text-sm font-semibold rounded-lg transition-colors duration-150 cursor-pointer mt-auto"
                             style={{
-                                backgroundColor: tier.highlighted ? '#008D98' : 'transparent',
-                                color: tier.highlighted ? '#FFFFFF' : '#008D98',
-                                border: tier.highlighted ? 'none' : '1px solid #E2E8F0',
+                                backgroundColor: tier.highlighted ? '#007c85' : 'transparent',
+                                color: tier.highlighted ? '#FFFFFF' : '#006a72',
+                                border: tier.highlighted ? 'none' : '1px solid #dce0e6',
                             }}
                             onMouseEnter={(e) => {
                                 if (tier.highlighted) {
-                                    e.currentTarget.style.backgroundColor = '#006F78';
+                                    e.currentTarget.style.backgroundColor = '#005359';
                                 } else {
                                     e.currentTarget.style.backgroundColor = '#F8FAFC';
-                                    e.currentTarget.style.borderColor = '#008D98';
+                                    e.currentTarget.style.borderColor = '#007c85';
                                 }
                             }}
                             onMouseLeave={(e) => {
                                 if (tier.highlighted) {
-                                    e.currentTarget.style.backgroundColor = '#008D98';
+                                    e.currentTarget.style.backgroundColor = '#007c85';
                                 } else {
                                     e.currentTarget.style.backgroundColor = 'transparent';
-                                    e.currentTarget.style.borderColor = '#E2E8F0';
+                                    e.currentTarget.style.borderColor = '#dce0e6';
                                 }
                             }}
                         >
@@ -246,7 +246,7 @@ function FeatureComparison() {
                 <div className="text-xs font-semibold text-center" style={{ color: '#94A3B8' }}>
                     Starter
                 </div>
-                <div className="text-xs font-semibold text-center" style={{ color: '#008D98' }}>
+                <div className="text-xs font-semibold text-center" style={{ color: '#006a72' }}>
                     Pro
                 </div>
                 <div className="text-xs font-semibold text-center" style={{ color: '#94A3B8' }}>
@@ -264,8 +264,8 @@ function FeatureComparison() {
                                 onClick={() => toggle(cat.name)}
                                 className="w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors duration-150 cursor-pointer"
                                 style={{
-                                    backgroundColor: isExpanded ? '#E6F7F8' : '#FFFFFF',
-                                    border: '1px solid #E2E8F0',
+                                    backgroundColor: isExpanded ? '#eefbfc' : '#FFFFFF',
+                                    border: '1px solid #dce0e6',
                                 }}
                             >
                                 <span className="text-sm font-semibold" style={{ color: '#0F172A' }}>
@@ -311,7 +311,7 @@ function FeatureComparison() {
                                                         {renderValue(feat.starter)}
                                                     </div>
                                                     <div className="flex flex-col items-center gap-1">
-                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#008D98] lg:hidden">
+                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#006a72] lg:hidden">
                                                             Pro
                                                         </span>
                                                         {renderValue(feat.pro)}
@@ -362,7 +362,7 @@ function FAQ() {
                             key={i}
                             className="rounded-xl overflow-hidden"
                             style={{
-                                border: '1px solid #E2E8F0',
+                                border: '1px solid #dce0e6',
                                 backgroundColor: '#FFFFFF',
                             }}
                         >
@@ -453,7 +453,7 @@ export default function PricingPage() {
                 <FAQ />
 
                 {/* Final CTA strip */}
-                <div className="text-center py-14" style={{ borderTop: '1px solid #E2E8F0' }}>
+                <div className="text-center py-14" style={{ borderTop: '1px solid #dce0e6' }}>
                     <h3
                         className="mb-4"
                         style={{
@@ -468,9 +468,9 @@ export default function PricingPage() {
                     <Link
                         href="/signup"
                         className="inline-flex items-center gap-2 px-7 py-3.5 text-sm font-semibold text-white rounded-lg transition-colors duration-150 cursor-pointer"
-                        style={{ backgroundColor: '#008D98' }}
-                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#006F78')}
-                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#008D98')}
+                        style={{ backgroundColor: '#007c85' }}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#005359')}
+                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#007c85')}
                     >
                         Get Started Free <ArrowRight size={16} />
                     </Link>

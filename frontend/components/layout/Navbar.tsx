@@ -97,7 +97,7 @@ export default function Navbar() {
                             href="/signup"
                             className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer"
                             style={{ backgroundColor: '#007c85' }}
-                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#006F78')}
+                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#005359')}
                             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#007c85')}
                         >
                             Start Free

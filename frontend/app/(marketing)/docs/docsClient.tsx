@@ -11,7 +11,7 @@ const docCategories = [
         description: 'Learn how to integrate Mentrily into your existing workflow and make your first API request.',
         icon: Zap,
         link: '#',
-        color: '#008D98',
+        color: '#007c85',
     },
     {
         title: 'Authentication',

@@ -133,7 +133,7 @@ export default function ExamResultsView({
         return { avgScore, avgTime, passedCount, failedCount, distribution, highScore };
     }, [results, serverStats]);
 
-    const brandColor = '#008D98';
+    const brandColor = '#007c85';
     const brandLightColor = 'var(--brand-light)';
     const passedColor = '#10b981';
     const failedColor = '#f43f5e';

@@ -97,7 +97,7 @@ function Mission() {
                     transition={{ duration: 0.48 }}
                 >
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-12 h-0.5" style={{ backgroundColor: '#008D98' }} />
+                        <div className="w-12 h-0.5" style={{ backgroundColor: '#007c85' }} />
                     </div>
                     <p
                         style={{
@@ -131,7 +131,7 @@ function ProductPhilosophy() {
                     className="text-center mb-12"
                 >
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-12 h-0.5" style={{ backgroundColor: '#008D98' }} />
+                        <div className="w-12 h-0.5" style={{ backgroundColor: '#007c85' }} />
                     </div>
                 </motion.div>
 
@@ -163,7 +163,7 @@ function ProductPhilosophy() {
                                 <li key={item} className="flex items-start gap-3">
                                     <div
                                         className="w-1.5 h-1.5 rounded-full mt-2 shrink-0"
-                                        style={{ backgroundColor: '#008D98' }}
+                                        style={{ backgroundColor: '#007c85' }}
                                     />
                                     <p className="text-sm leading-relaxed" style={{ color: '#475569' }}>
                                         {item}
@@ -200,7 +200,7 @@ function ProductPhilosophy() {
                                 <li key={item} className="flex items-start gap-3">
                                     <div
                                         className="w-1.5 h-1.5 rounded-full mt-2 shrink-0"
-                                        style={{ backgroundColor: '#008D98' }}
+                                        style={{ backgroundColor: '#007c85' }}
                                     />
                                     <p className="text-sm leading-relaxed" style={{ color: '#475569' }}>
                                         {item}
@@ -252,7 +252,7 @@ function Values() {
                     className="text-center mb-12"
                 >
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-12 h-0.5" style={{ backgroundColor: '#008D98' }} />
+                        <div className="w-12 h-0.5" style={{ backgroundColor: '#007c85' }} />
                     </div>
                 </motion.div>
 
@@ -321,7 +321,7 @@ function Timeline() {
                     className="text-center mb-14"
                 >
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-12 h-0.5" style={{ backgroundColor: '#008D98' }} />
+                        <div className="w-12 h-0.5" style={{ backgroundColor: '#007c85' }} />
                     </div>
                 </motion.div>
 
@@ -334,7 +334,7 @@ function Timeline() {
                             animate={inView ? { width: '100%' } : {}}
                             transition={{ delay: 0.2, duration: 1.2, ease: [0.25, 0.1, 0.25, 1] }}
                             className="h-full"
-                            style={{ backgroundColor: '#E6F7F8' }}
+                            style={{ backgroundColor: '#eefbfc' }}
                         />
                     </div>
 
@@ -373,9 +373,9 @@ function Timeline() {
                                         }}
                                         className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold"
                                         style={{
-                                            backgroundColor: '#E6F7F8',
-                                            border: '2px solid #008D98',
-                                            color: '#008D98',
+                                            backgroundColor: '#eefbfc',
+                                            border: '2px solid #007c85',
+                                            color: '#006a72',
                                             fontFamily: 'var(--font-body)',
                                         }}
                                     >
@@ -403,9 +403,9 @@ function Timeline() {
                             <div
                                 className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold shrink-0"
                                 style={{
-                                    backgroundColor: '#E6F7F8',
-                                    border: '2px solid #008D98',
-                                    color: '#008D98',
+                                    backgroundColor: '#eefbfc',
+                                    border: '2px solid #007c85',
+                                    color: '#006a72',
                                 }}
                             >
                                 {m.year}
@@ -431,7 +431,7 @@ function Team() {
             name: 'Suman Yadav',
             title: 'Founder',
             bio: 'Builds practical learning tools for educators who want coding, exams, and certificates in one place.',
-            color: '#008D98',
+            color: '#007c85',
         },
         {
             initials: 'DY',
@@ -456,7 +456,7 @@ function Team() {
                     className="text-center mb-12"
                 >
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-12 h-0.5" style={{ backgroundColor: '#008D98' }} />
+                        <div className="w-12 h-0.5" style={{ backgroundColor: '#007c85' }} />
                     </div>
                 </motion.div>
 
@@ -483,7 +483,7 @@ function Team() {
                             <h4 className="text-sm font-semibold mb-0.5" style={{ color: '#0F172A' }}>
                                 {m.name}
                             </h4>
-                            <p className="text-xs mb-3" style={{ color: '#008D98' }}>
+                            <p className="text-xs mb-3" style={{ color: '#006a72' }}>
                                 {m.title}
                             </p>
                             <p className="text-xs leading-relaxed" style={{ color: '#475569' }}>

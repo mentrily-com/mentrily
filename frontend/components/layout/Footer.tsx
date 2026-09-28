@@ -193,7 +193,7 @@ export default function Footer() {
                                 disabled={status === 'loading'}
                                 className="px-3 py-2 text-sm font-medium text-white rounded-lg transition-colors duration-150 cursor-pointer flex items-center gap-1 shrink-0 disabled:opacity-70"
                                 style={{ backgroundColor: '#007c85' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#006F78')}
+                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#005359')}
                                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#007c85')}
                             >
                                 {status === 'loading' ? (

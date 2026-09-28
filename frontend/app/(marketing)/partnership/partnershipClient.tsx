@@ -30,7 +30,7 @@ const partnerBenefits = [
         description:
             'A dedicated portal to manage your leads, track conversions, and monitor your earnings in real-time.',
         icon: Briefcase,
-        color: '#008D98',
+        color: '#007c85',
     },
     {
         title: 'Priority Support',

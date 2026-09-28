@@ -419,7 +419,7 @@ export default function SignupPage() {
         <div
             className="min-h-screen w-full flex overflow-hidden"
             style={{
-                background: 'linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 42%, #E6F7F8 100%)',
+                background: 'linear-gradient(135deg, #f9fafc 0%, #FFFFFF 42%, #eefbfc 100%)',
             }}
         >
             {/* ── Left Panel: Brand / Illustration ── */}
@@ -838,8 +838,8 @@ export default function SignupPage() {
                                 <div
                                     className="px-4 py-3 rounded-xl text-sm text-center"
                                     style={{
-                                        backgroundColor: '#E6F7F8',
-                                        border: '1px solid #E6F7F8',
+                                        backgroundColor: '#eefbfc',
+                                        border: '1px solid #eefbfc',
                                         color: 'var(--brand-dark)',
                                     }}
                                 >

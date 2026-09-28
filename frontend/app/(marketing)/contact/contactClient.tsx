@@ -146,10 +146,10 @@ function ContactForm() {
                                             color: '#0F172A',
                                         }}
                                         onFocus={(e) => {
-                                            if (!errors.name) e.currentTarget.style.borderColor = '#008D98';
+                                            if (!errors.name) e.currentTarget.style.borderColor = '#007c85';
                                         }}
                                         onBlur={(e) => {
-                                            if (!errors.name) e.currentTarget.style.borderColor = '#E2E8F0';
+                                            if (!errors.name) e.currentTarget.style.borderColor = '#dce0e6';
                                         }}
                                         placeholder="Your name"
                                     />
@@ -178,10 +178,10 @@ function ContactForm() {
                                             color: '#0F172A',
                                         }}
                                         onFocus={(e) => {
-                                            if (!errors.email) e.currentTarget.style.borderColor = '#008D98';
+                                            if (!errors.email) e.currentTarget.style.borderColor = '#007c85';
                                         }}
                                         onBlur={(e) => {
-                                            if (!errors.email) e.currentTarget.style.borderColor = '#E2E8F0';
+                                            if (!errors.email) e.currentTarget.style.borderColor = '#dce0e6';
                                         }}
                                         placeholder="you@school.com"
                                     />
@@ -241,10 +241,10 @@ function ContactForm() {
                                             color: '#0F172A',
                                         }}
                                         onFocus={(e) => {
-                                            if (!errors.message) e.currentTarget.style.borderColor = '#008D98';
+                                            if (!errors.message) e.currentTarget.style.borderColor = '#007c85';
                                         }}
                                         onBlur={(e) => {
-                                            if (!errors.message) e.currentTarget.style.borderColor = '#E2E8F0';
+                                            if (!errors.message) e.currentTarget.style.borderColor = '#dce0e6';
                                         }}
                                         placeholder="How can we help?"
                                     />
@@ -261,13 +261,13 @@ function ContactForm() {
                                     disabled={submitState === 'loading'}
                                     className="w-full py-3 text-sm font-semibold text-white rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center gap-2"
                                     style={{
-                                        backgroundColor: submitState === 'success' ? '#10B981' : '#008D98',
+                                        backgroundColor: submitState === 'success' ? '#10B981' : '#007c85',
                                     }}
                                     onMouseEnter={(e) => {
-                                        if (submitState === 'idle') e.currentTarget.style.backgroundColor = '#006F78';
+                                        if (submitState === 'idle') e.currentTarget.style.backgroundColor = '#005359';
                                     }}
                                     onMouseLeave={(e) => {
-                                        if (submitState === 'idle') e.currentTarget.style.backgroundColor = '#008D98';
+                                        if (submitState === 'idle') e.currentTarget.style.backgroundColor = '#007c85';
                                     }}
                                 >
                                     {submitState === 'loading' && <Loader2 size={16} className="animate-spin" />}
@@ -326,10 +326,10 @@ function ContactForm() {
                                                 style={{
                                                     backgroundColor: card.title.includes('Partnership')
                                                         ? '#CCFBF1'
-                                                        : '#E6F7F8',
+                                                        : '#eefbfc',
                                                 }}
                                             >
-                                                <Icon size={20} style={{ color: '#008D98' }} />
+                                                <Icon size={20} style={{ color: '#007c85' }} />
                                             </div>
                                             <div className="flex-1">
                                                 <div className="flex items-center justify-between mb-1">
@@ -348,7 +348,7 @@ function ContactForm() {
                                                     target={card.external ? '_blank' : undefined}
                                                     rel={card.external ? 'noopener noreferrer' : undefined}
                                                     className="inline-flex items-center gap-1.5 text-xs font-bold transition-colors duration-200"
-                                                    style={{ color: '#008D98' }}
+                                                    style={{ color: '#006a72' }}
                                                 >
                                                     {/* The nudge is a transform on the arrow rather than an
                                                         animated `gap`: gap is a layout property, so tweening it

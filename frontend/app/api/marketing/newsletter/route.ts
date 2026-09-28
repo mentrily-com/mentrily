@@ -28,7 +28,7 @@ export async function POST(request: Request) {
         }
 
         const LOGO_URL = new URL('/android-chrome-512x512.png', siteConfig.url).toString();
-        const brandColor = '#008D98';
+        const brandColor = '#007c85';
 
         const fromEmail = process.env.RESEND_SENDER_EMAIL?.includes('mentrily.com')
             ? `Mentrily <newsletter@mentrily.com>`
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
         <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:600px;background-color:#ffffff;border-radius:32px;overflow:hidden;box-shadow:0 20px 25px -5px rgba(0,0,0,0.05);">
           <!-- Top Accent Bar -->
           <tr>
-            <td style="height:8px;background:linear-gradient(90deg, #008D98, #10B981);"></td>
+            <td style="height:8px;background:linear-gradient(90deg, #007c85, #10B981);"></td>
           </tr>
           
           <!-- Header -->
