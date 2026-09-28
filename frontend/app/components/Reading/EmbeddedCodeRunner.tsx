@@ -59,11 +59,11 @@ export default function EmbeddedCodeRunner({ language, initialCode, onRunSuccess
             {/* Top Bar */}
             <div className="min-h-10 bg-gray-50 border-b border-gray-100 flex flex-wrap items-center justify-between gap-2 px-3 py-2 sm:px-4">
                 <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 bg-white border border-gray-200 rounded text-[10px] font-black uppercase text-gray-500">
+                    <span className="px-3 py-1 bg-white border border-gray-200 rounded text-[10px] font-semibold uppercase text-gray-500">
                         {language.label}
                     </span>
                 </div>
-                <button className="flex items-center gap-2 text-[10px] font-bold text-gray-400 hover:text-[var(--brand)] transition-colors">
+                <button className="flex items-center gap-2 text-[10px] font-medium text-gray-400 hover:text-[var(--brand)] transition-colors">
                     open in playground
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
@@ -81,7 +81,7 @@ export default function EmbeddedCodeRunner({ language, initialCode, onRunSuccess
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => window.location.reload()}
-                        className="text-[10px] font-black uppercase text-gray-400 hover:text-gray-600 transition-colors"
+                        className="text-[10px] font-semibold uppercase text-gray-400 hover:text-gray-600 transition-colors"
                     >
                         reset
                     </button>

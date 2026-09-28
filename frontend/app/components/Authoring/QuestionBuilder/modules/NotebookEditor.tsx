@@ -26,37 +26,37 @@ export default function NotebookEditor({ question, onChange }: NotebookEditorPro
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
             {/* Environment Settings */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm space-y-4">
+                <div className="bg-white p-6 rounded-lg border border-gray-100 shadow-sm space-y-4">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
                             <Clock size={20} />
                         </div>
                         <div>
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-800">
+                            <h4 className="text-[10px] font-semibold uppercase tracking-widest text-gray-800">
                                 Execution Timeout
                             </h4>
-                            <p className="text-[9px] font-bold text-gray-400">Seconds before kernel kills process</p>
+                            <p className="text-[9px] font-medium text-gray-400">Seconds before kernel kills process</p>
                         </div>
                     </div>
                     <input
                         type="number"
                         value={config.maxExecutionTime}
                         onChange={(e) => updateConfig({ maxExecutionTime: parseInt(e.target.value) || 0 })}
-                        className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-black text-amber-600 outline-none focus:border-amber-200 focus:ring-4 focus:ring-amber-500/5 transition-all"
+                        className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-lg text-sm font-semibold text-amber-600 outline-none focus:border-amber-200 focus:ring-4 focus:ring-amber-500/5 transition-all"
                         placeholder="10"
                     />
                 </div>
 
-                <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm space-y-4">
+                <div className="bg-white p-6 rounded-lg border border-gray-100 shadow-sm space-y-4">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
                             <ShieldCheck size={20} />
                         </div>
                         <div>
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-800">
+                            <h4 className="text-[10px] font-semibold uppercase tracking-widest text-gray-800">
                                 Pre-loaded Libraries
                             </h4>
-                            <p className="text-[9px] font-bold text-gray-400">Comma separated Pip packages</p>
+                            <p className="text-[9px] font-medium text-gray-400">Comma separated Pip packages</p>
                         </div>
                     </div>
                     <input
@@ -70,7 +70,7 @@ export default function NotebookEditor({ question, onChange }: NotebookEditorPro
                                     .filter(Boolean),
                             })
                         }
-                        className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-black text-emerald-600 outline-none focus:border-emerald-200 focus:ring-4 focus:ring-emerald-500/5 transition-all"
+                        className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-lg text-sm font-semibold text-emerald-600 outline-none focus:border-emerald-200 focus:ring-4 focus:ring-emerald-500/5 transition-all"
                         placeholder="numpy, pandas, matplotlib"
                     />
                 </div>
@@ -79,12 +79,12 @@ export default function NotebookEditor({ question, onChange }: NotebookEditorPro
             {/* Starter Code */}
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
+                    <h4 className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 flex items-center gap-2">
                         <TerminalSquare size={16} className="text-orange-500" />
                         Notebook Starter Code
                     </h4>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-[32px] overflow-hidden shadow-sm">
+                <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                     <div className="p-1">
                         <CodeMirrorEditor
                             value={config.initialCode}

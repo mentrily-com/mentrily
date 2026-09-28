@@ -39,7 +39,7 @@ export default function AdminUsersView({ basePath, organizationId }: AdminUsersV
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>
+                    <h1 className="text-2xl font-medium tracking-tight" style={{ color: 'var(--color-text-primary)' }}>
                         User Management
                     </h1>
                     <p className="text-sm font-medium mt-1" style={{ color: 'var(--color-text-secondary)' }}>
@@ -76,7 +76,7 @@ export default function AdminUsersView({ basePath, organizationId }: AdminUsersV
 
             {/* Filters & Search - Glassmorphism-ish bar */}
             <div
-                className="flex flex-col md:flex-row items-center gap-4 mb-6 p-2 rounded-xl border bg-white/50 backdrop-blur-sm"
+                className="flex flex-col md:flex-row items-center gap-4 mb-6 p-2 rounded-xl border bg-white/50"
                 style={{ borderColor: 'var(--color-border-subtle)' }}
             >
                 <div className="relative flex-1 w-full">

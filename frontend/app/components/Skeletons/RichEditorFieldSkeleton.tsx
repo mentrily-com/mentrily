@@ -12,7 +12,7 @@
  */
 export default function RichEditorFieldSkeleton() {
     return (
-        <div className="rounded-2xl border border-gray-200 bg-gray-50/60 overflow-hidden">
+        <div className="rounded-lg border border-gray-200 bg-gray-50/60 overflow-hidden">
             <div className="flex items-center gap-2 border-b border-gray-200 bg-white px-4 py-2.5">
                 {[1, 2, 3, 4, 5].map((i) => (
                     <div key={i} className="h-6 w-6 animate-pulse rounded-md bg-gray-100" />

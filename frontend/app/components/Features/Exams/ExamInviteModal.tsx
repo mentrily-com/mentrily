@@ -109,18 +109,18 @@ export default function ExamInviteModal({ isOpen, onClose, exam }: ExamInviteMod
                 bodyClassName="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6"
                 footer={
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <p className="text-xs font-bold text-gray-400">Invites are queued and sent asynchronously.</p>
+                        <p className="text-xs font-medium text-gray-400">Invites are queued and sent asynchronously.</p>
                         <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
                             <button
                                 onClick={onClose}
-                                className="px-4 py-2.5 rounded-xl bg-gray-100 text-gray-500 text-xs font-black uppercase tracking-widest"
+                                className="px-4 py-2.5 rounded-xl bg-gray-100 text-gray-500 text-xs font-semibold uppercase tracking-widest"
                             >
                                 Close
                             </button>
                             <button
                                 onClick={() => setConfirmOpen(true)}
                                 disabled={sending || selectedGroupIds.length === 0}
-                                className="px-5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-xs font-black uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-xs font-semibold uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {sending ? 'Queueing...' : 'Send Invites'}
                             </button>
@@ -130,15 +130,15 @@ export default function ExamInviteModal({ isOpen, onClose, exam }: ExamInviteMod
             >
                 <div className="space-y-4">
                     <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">
+                        <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-2">
                             Select Groups
                         </p>
                         {loading ? (
-                            <div className="p-4 rounded-2xl border border-gray-100 bg-gray-50 text-sm font-bold text-gray-400">
+                            <div className="p-4 rounded-lg border border-gray-100 bg-gray-50 text-sm font-medium text-gray-400">
                                 Loading groups...
                             </div>
                         ) : groups.length === 0 ? (
-                            <div className="p-4 rounded-2xl border border-gray-100 bg-gray-50 text-sm font-bold text-gray-400">
+                            <div className="p-4 rounded-lg border border-gray-100 bg-gray-50 text-sm font-medium text-gray-400">
                                 No groups available.
                             </div>
                         ) : (
@@ -154,8 +154,8 @@ export default function ExamInviteModal({ isOpen, onClose, exam }: ExamInviteMod
                                         >
                                             <div className="flex items-center justify-between gap-3">
                                                 <div>
-                                                    <p className="text-sm font-black text-gray-800">{group.name}</p>
-                                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                                    <p className="text-sm font-semibold text-gray-800">{group.name}</p>
+                                                    <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">
                                                         {group?._count?.students || group?.students?.length || 0}{' '}
                                                         students
                                                     </p>
@@ -174,7 +174,7 @@ export default function ExamInviteModal({ isOpen, onClose, exam }: ExamInviteMod
                     </div>
 
                     <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">
+                        <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-2">
                             Custom Message (Optional)
                         </p>
                         <textarea
@@ -182,27 +182,27 @@ export default function ExamInviteModal({ isOpen, onClose, exam }: ExamInviteMod
                             onChange={(e) => setCustomMessage(e.target.value)}
                             rows={5}
                             maxLength={2000}
-                            className="w-full rounded-2xl border border-gray-100 bg-white p-4 text-sm font-medium text-gray-700 outline-none focus:border-[var(--brand)]"
+                            className="w-full rounded-lg border border-gray-100 bg-white p-4 text-sm font-medium text-gray-700 outline-none focus:border-[var(--brand)]"
                             placeholder="Add a short note for students..."
                         />
                     </div>
                 </div>
 
                 <div className="space-y-4">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Email Preview</p>
-                    <div className="rounded-2xl border border-gray-100 p-4 bg-gray-50 space-y-2">
-                        <p className="text-sm font-black text-gray-800">{exam.title}</p>
-                        <p className="text-xs font-bold text-gray-500">Duration: {exam.duration || 'N/A'} mins</p>
-                        <p className="text-xs font-bold text-gray-500">Test Code: {exam.testCode || 'N/A'}</p>
-                        <p className="text-xs font-bold text-gray-500">
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Email Preview</p>
+                    <div className="rounded-lg border border-gray-100 p-4 bg-gray-50 space-y-2">
+                        <p className="text-sm font-semibold text-gray-800">{exam.title}</p>
+                        <p className="text-xs font-medium text-gray-500">Duration: {exam.duration || 'N/A'} mins</p>
+                        <p className="text-xs font-medium text-gray-500">Test Code: {exam.testCode || 'N/A'}</p>
+                        <p className="text-xs font-medium text-gray-500">
                             Start: {exam.startTime ? new Date(exam.startTime).toLocaleString() : 'Not scheduled'}
                         </p>
-                        <p className="text-xs font-bold text-gray-500">
+                        <p className="text-xs font-medium text-gray-500">
                             End: {exam.endTime ? new Date(exam.endTime).toLocaleString() : 'Not scheduled'}
                         </p>
                         {customMessage.trim() && (
                             <div className="mt-3 p-3 rounded-xl border border-amber-200 bg-amber-50">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-amber-700 mb-1">
+                                <p className="text-[10px] font-semibold uppercase tracking-widest text-amber-700 mb-1">
                                     Custom Message
                                 </p>
                                 <p className="text-xs font-medium text-amber-800 whitespace-pre-wrap">
@@ -212,18 +212,18 @@ export default function ExamInviteModal({ isOpen, onClose, exam }: ExamInviteMod
                         )}
                     </div>
 
-                    <div className="rounded-2xl border border-gray-100 p-4 bg-white">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Summary</p>
-                        <p className="text-sm font-bold text-gray-700 mt-2">{selectedCount} groups selected</p>
-                        <p className="text-xs font-bold text-gray-500">
+                    <div className="rounded-lg border border-gray-100 p-4 bg-white">
+                        <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Summary</p>
+                        <p className="text-sm font-medium text-gray-700 mt-2">{selectedCount} groups selected</p>
+                        <p className="text-xs font-medium text-gray-500">
                             Estimated unique recipients: {estimatedRecipients}
                         </p>
                         {queuedCount !== null && (
-                            <p className="text-sm font-black text-emerald-600 mt-3">
+                            <p className="text-sm font-semibold text-emerald-600 mt-3">
                                 Success! {queuedCount} invite emails queued.
                             </p>
                         )}
-                        {error && <p className="text-xs font-bold text-rose-500 mt-3">{error}</p>}
+                        {error && <p className="text-xs font-medium text-rose-500 mt-3">{error}</p>}
                     </div>
                 </div>
             </AppModal>

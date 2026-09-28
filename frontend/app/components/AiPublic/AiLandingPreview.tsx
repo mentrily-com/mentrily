@@ -19,7 +19,7 @@ export default function AiLandingPreview() {
                 type="button"
                 onClick={() => setPreview(SCREENSHOT)}
                 aria-label="Enlarge the Mentrily AI screenshot"
-                className="group relative block w-full overflow-hidden rounded-2xl border border-gray-200/80 bg-white text-left transition-shadow duration-300"
+                className="group relative block w-full overflow-hidden rounded-lg border border-gray-200/80 bg-white text-left transition-shadow duration-300"
                 style={{
                     boxShadow:
                         '0 32px 80px rgba(15,23,42,0.12), 0 12px 32px rgba(15,23,42,0.08), 0 0 0 1px rgba(255,255,255,0.5) inset',

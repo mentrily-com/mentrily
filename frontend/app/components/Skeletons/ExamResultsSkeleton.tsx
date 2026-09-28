@@ -18,14 +18,14 @@ export default function ExamResultsSkeleton() {
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="h-11 w-11 rounded-xl bg-gray-100 animate-pulse" />
-                    <div className="h-11 w-36 rounded-2xl bg-gray-200 animate-pulse" />
+                    <div className="h-11 w-36 rounded-lg bg-gray-200 animate-pulse" />
                 </div>
             </div>
 
             {/* KPI & Analytics Grid */}
             <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6 mb-10">
                 {/* Donut Card */}
-                <div className="md:col-span-2 lg:col-span-2 bg-white rounded-[32px] border border-gray-100 p-6 shadow-sm flex flex-col justify-between min-h-[260px]">
+                <div className="md:col-span-2 lg:col-span-2 bg-white rounded-lg border border-gray-100 p-6 shadow-sm flex flex-col justify-between min-h-[260px]">
                     <div className="flex items-center justify-between mb-4">
                         <div className="h-3 w-28 rounded bg-gray-100 animate-pulse" />
                         <div className="h-5 w-12 rounded-lg bg-gray-100 animate-pulse" />
@@ -42,7 +42,7 @@ export default function ExamResultsSkeleton() {
                     {[0, 1].map((idx) => (
                         <div
                             key={idx}
-                            className="bg-white rounded-[24px] border border-gray-100 p-5 shadow-sm space-y-2"
+                            className="bg-white rounded-lg border border-gray-100 p-5 shadow-sm space-y-2"
                         >
                             <div className="h-2.5 w-20 rounded bg-gray-100 animate-pulse" />
                             <div className="h-7 w-16 rounded-md bg-gray-200 animate-pulse" />
@@ -52,7 +52,7 @@ export default function ExamResultsSkeleton() {
                 </div>
 
                 {/* Distribution Bar Chart Card */}
-                <div className="md:col-span-2 lg:col-span-3 bg-white rounded-[32px] border border-gray-100 p-6 shadow-sm flex flex-col justify-between min-h-[260px]">
+                <div className="md:col-span-2 lg:col-span-3 bg-white rounded-lg border border-gray-100 p-6 shadow-sm flex flex-col justify-between min-h-[260px]">
                     <div className="flex items-center justify-between mb-6 px-2">
                         <div className="space-y-1.5">
                             <div className="h-3 w-32 rounded bg-gray-100 animate-pulse" />
@@ -60,12 +60,12 @@ export default function ExamResultsSkeleton() {
                         </div>
                         <div className="h-3 w-16 rounded bg-gray-100 animate-pulse" />
                     </div>
-                    <div className="h-36 w-full rounded-2xl bg-gray-50/70 animate-pulse" />
+                    <div className="h-36 w-full rounded-lg bg-gray-50/70 animate-pulse" />
                 </div>
             </div>
 
             {/* Results Table Shell */}
-            <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-gray-100 flex items-center justify-between">
                     <div className="h-5 w-40 rounded-md bg-gray-200 animate-pulse" />
                     <div className="h-9 w-64 rounded-xl bg-gray-100 animate-pulse" />

@@ -17,11 +17,11 @@ export default function NotFound() {
                     {/* Left Column: Text & CTA */}
                     <div className="order-2 lg:order-1 space-y-8">
                         <div>
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-bold tracking-wide mb-6">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-medium tracking-wide mb-6">
                                 <span className="flex h-2 w-2 rounded-full bg-indigo-600"></span>
                                 404 Error
                             </div>
-                            <h1 className="text-6xl lg:text-8xl font-black text-gray-900 tracking-tighter mb-6">
+                            <h1 className="text-6xl lg:text-8xl font-semibold text-gray-900 tracking-tighter mb-6">
                                 page not <br /> found.
                             </h1>
                             <p className="text-lg text-gray-500 font-medium max-w-md leading-relaxed">
@@ -33,13 +33,13 @@ export default function NotFound() {
                         <div className="flex flex-wrap gap-4">
                             <Link
                                 href="/"
-                                className="px-8 py-4 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-2xl transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
+                                className="px-8 py-4 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-lg transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
                             >
                                 Back to Home
                             </Link>
                             <button
                                 onClick={() => window.history.back()}
-                                className="px-8 py-4 bg-white border-2 border-gray-100 hover:border-gray-200 text-gray-600 font-bold rounded-2xl transition-all hover:bg-gray-50 active:scale-95"
+                                className="px-8 py-4 bg-white border-2 border-gray-100 hover:border-gray-200 text-gray-600 font-medium rounded-lg transition-all hover:bg-gray-50 active:scale-95"
                             >
                                 Go Back Previous
                             </button>
@@ -54,7 +54,7 @@ export default function NotFound() {
                                 viewBox="0 0 500 500"
                                 fill="none"
                                 xmlns="http://www.w3.org/2000/svg"
-                                className="w-full h-full drop-shadow-2xl"
+                                className="w-full h-full drop-shadow-lg"
                             >
                                 <defs>
                                     <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">

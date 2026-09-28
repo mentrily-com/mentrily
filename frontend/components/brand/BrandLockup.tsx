@@ -80,7 +80,7 @@ export function BrandLockup({
                             className="object-contain p-0.5"
                         />
                     ) : (
-                        <span className="text-xs font-bold tracking-wider text-white">{BRAND.logoText}</span>
+                        <span className="text-xs font-medium tracking-wider text-white">{BRAND.logoText}</span>
                     )}
                 </div>
                 {!collapsed && (

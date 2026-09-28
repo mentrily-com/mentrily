@@ -78,7 +78,7 @@ function MessageView({
                             ))}
                         </div>
                     )}
-                    <div className="whitespace-pre-wrap rounded-2xl rounded-br-md bg-gray-100 px-4 py-2.5 text-[15px] leading-6 text-gray-900">
+                    <div className="whitespace-pre-wrap rounded-lg rounded-br-md bg-gray-100 px-4 py-2.5 text-[15px] leading-6 text-gray-900">
                         {shown}
                     </div>
                 </div>

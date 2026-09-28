@@ -220,7 +220,7 @@ export default function AiStudio({
             );
         }
         return (
-            <div className="h-[calc(100vh-var(--topbar-height)-36px)] rounded-2xl border border-gray-200 bg-white">
+            <div className="h-[calc(100vh-var(--topbar-height)-36px)] rounded-lg border border-gray-200 bg-white">
                 {locked}
             </div>
         );
@@ -247,7 +247,7 @@ export default function AiStudio({
             {[60, 85, 45].map((w, i) => (
                 <div
                     key={i}
-                    className={`h-10 animate-pulse rounded-2xl bg-gray-100 ${i % 2 === 0 ? 'ml-auto' : ''}`}
+                    className={`h-10 animate-pulse rounded-lg bg-gray-100 ${i % 2 === 0 ? 'ml-auto' : ''}`}
                     style={{ width: `${w}%` }}
                 />
             ))}
@@ -307,11 +307,11 @@ export default function AiStudio({
     }
 
     return (
-        <div className="relative flex h-[calc(100vh-var(--topbar-height)-36px)] min-h-[520px] overflow-hidden rounded-2xl border border-gray-200 bg-white">
+        <div className="relative flex h-[calc(100vh-var(--topbar-height)-36px)] min-h-[520px] overflow-hidden rounded-lg border border-gray-200 bg-white">
             {/* Conversations */}
             <div
                 className={`absolute inset-y-0 left-0 z-30 w-72 border-r border-gray-200 bg-gray-50 transition-transform duration-200 md:static md:z-auto md:w-64 md:translate-x-0 ${
-                    listOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full'
+                    listOpen ? 'translate-x-0 shadow-md' : '-translate-x-full'
                 }`}
             >
                 {list}

@@ -408,12 +408,12 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                     className="flex items-center gap-2 px-3 py-2 bg-[var(--brand-light)] hover:bg-[var(--brand-light)]/70 disabled:opacity-60 rounded-xl border border-[var(--brand-light)] transition-colors text-[var(--brand)]"
                 >
                     {becomingCreator ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
-                    <span className="hidden sm:block text-[11px] font-black">
+                    <span className="hidden sm:block text-[11px] font-semibold">
                         {becomingCreator ? 'Setting up…' : 'Become a Creator'}
                     </span>
                 </button>
                 {error && (
-                    <p className="absolute right-0 top-full mt-1 w-48 text-[10px] font-bold text-rose-500 text-right">
+                    <p className="absolute right-0 top-full mt-1 w-48 text-[10px] font-medium text-rose-500 text-right">
                         {error}
                     </p>
                 )}
@@ -444,10 +444,10 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                     )}
                 </div>
                 <span className="min-w-0 flex-1 text-left">
-                    <span className="block text-[11px] font-black text-gray-800 truncate">
+                    <span className="block text-[11px] font-semibold text-gray-800 truncate">
                         {switchingMembershipId ? 'Switching…' : activeMembership?.orgName || 'Workspace'}
                     </span>
-                    <span className="block text-[9px] font-bold text-gray-400 uppercase tracking-wide">
+                    <span className="block text-[9px] font-medium text-gray-400 uppercase tracking-wide">
                         {ROLE_LABELS[activeMembership?.role || ''] || 'Workspace'}
                     </span>
                 </span>
@@ -458,8 +458,8 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                 <div
                     role="menu"
                     aria-label="Your workspaces"
-                    className="absolute right-0 top-full mt-2 w-64 max-w-[calc(100vw-1.5rem)] max-h-[calc(100dvh-80px)] overflow-y-auto bg-white rounded-2xl shadow-2xl ring-1 ring-gray-200/60 py-2 z-50">
-                    <p className="px-4 py-1.5 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                    className="absolute right-0 top-full mt-2 w-64 max-w-[calc(100vw-1.5rem)] max-h-[calc(100dvh-80px)] overflow-y-auto bg-white rounded-lg shadow-lg ring-1 ring-gray-200/60 py-2 z-50">
+                    <p className="px-4 py-1.5 text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
                         Your workspaces
                     </p>
                     {Object.values(
@@ -501,10 +501,10 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                                             {renderIcon()}
                                         </div>
                                         <span className="min-w-0 flex-1">
-                                            <span className="block text-[13px] font-bold text-gray-700 truncate">
+                                            <span className="block text-[13px] font-medium text-gray-700 truncate">
                                                 {org.orgName}
                                             </span>
-                                            <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wide">
+                                            <span className="block text-[10px] font-medium text-gray-400 uppercase tracking-wide">
                                                 {group.length} Roles
                                             </span>
                                         </span>
@@ -531,7 +531,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                                                             {renderIcon(membership.role, membershipId)}
                                                         </div>
                                                         <span className="min-w-0 flex-1">
-                                                            <span className="block text-[11px] font-bold text-gray-600 truncate">
+                                                            <span className="block text-[11px] font-medium text-gray-600 truncate">
                                                                 {ROLE_LABELS[membership.role] || membership.role}
                                                             </span>
                                                         </span>
@@ -565,10 +565,10 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                                     {renderIcon(membership.role, membershipId)}
                                 </div>
                                 <span className="min-w-0 flex-1">
-                                    <span className="block text-[13px] font-bold text-gray-700 truncate">
+                                    <span className="block text-[13px] font-medium text-gray-700 truncate">
                                         {membership.orgName}
                                     </span>
-                                    <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wide">
+                                    <span className="block text-[10px] font-medium text-gray-400 uppercase tracking-wide">
                                         {ROLE_LABELS[membership.role] || membership.role}
                                         {membership.isHome ? ' · Home' : ''}
                                     </span>
@@ -593,13 +593,13 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
                                         <Plus size={14} />
                                     )}
                                 </div>
-                                <span className="text-[13px] font-bold text-[var(--brand)]">
+                                <span className="text-[13px] font-medium text-[var(--brand)]">
                                     {becomingCreator ? 'Setting up…' : 'Become a Creator'}
                                 </span>
                             </button>
                         </>
                     )}
-                    {error && <p className="px-4 pt-2 text-[11px] font-bold text-rose-500">{error}</p>}
+                    {error && <p className="px-4 pt-2 text-[11px] font-medium text-rose-500">{error}</p>}
                 </div>
             )}
         </div>

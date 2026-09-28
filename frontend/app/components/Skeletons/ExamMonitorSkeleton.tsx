@@ -20,16 +20,16 @@ export default function ExamMonitorSkeleton() {
                     <div className="h-3 w-48 animate-pulse rounded bg-gray-100" />
                 </div>
                 <div className="flex items-center gap-4">
-                    <div className="h-12 w-40 animate-pulse rounded-2xl bg-gray-100" />
-                    <div className="h-12 w-44 animate-pulse rounded-2xl bg-gray-100" />
-                    <div className="h-12 w-32 animate-pulse rounded-2xl bg-gray-100" />
+                    <div className="h-12 w-40 animate-pulse rounded-lg bg-gray-100" />
+                    <div className="h-12 w-44 animate-pulse rounded-lg bg-gray-100" />
+                    <div className="h-12 w-32 animate-pulse rounded-lg bg-gray-100" />
                 </div>
             </div>
 
             {/* KPI Grid */}
             <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-5">
                 {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className="rounded-2xl border border-gray-100 bg-white p-5">
+                    <div key={i} className="rounded-lg border border-gray-100 bg-white p-5">
                         <div className="mb-2 h-2.5 w-16 animate-pulse rounded bg-gray-100" />
                         <div className="h-6 w-10 animate-pulse rounded-md bg-gray-200" />
                     </div>
@@ -37,7 +37,7 @@ export default function ExamMonitorSkeleton() {
             </div>
 
             {/* Monitor Table */}
-            <div className="overflow-hidden rounded-[24px] border border-gray-100 bg-white">
+            <div className="overflow-hidden rounded-lg border border-gray-100 bg-white">
                 <div className="flex items-center gap-6 border-b border-gray-100 bg-gray-50/50 px-6 py-4">
                     <div className="h-2.5 w-24 animate-pulse rounded bg-gray-200" />
                     <div className="h-2.5 w-14 animate-pulse rounded bg-gray-200" />

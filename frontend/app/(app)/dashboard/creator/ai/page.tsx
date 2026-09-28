@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 const AiStudio = dynamic(() => import('@/app/components/AiStudio/AiStudio'), {
     ssr: false,
     loading: () => (
-        <div className="h-[calc(100vh-var(--topbar-height)-36px)] animate-pulse rounded-2xl border border-gray-200 bg-white" />
+        <div className="h-[calc(100vh-var(--topbar-height)-36px)] animate-pulse rounded-lg border border-gray-200 bg-white" />
     ),
 });
 

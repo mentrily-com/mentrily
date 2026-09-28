@@ -30,7 +30,7 @@ export default function SuperAdminOrganizationExamEdit({
     }, [examId]);
 
     if (loading) return <ExamEditFormSkeleton />;
-    if (error) return <div className="p-8 text-center text-red-500 font-bold">{error}</div>;
+    if (error) return <div className="p-8 text-center text-red-500 font-medium">{error}</div>;
 
     return (
         <div className="h-[calc(100vh-var(--topbar-height)-36px)]">

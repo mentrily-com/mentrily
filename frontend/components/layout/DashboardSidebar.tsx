@@ -596,7 +596,7 @@ export default function DashboardSidebar({
                 aria-modal={mobileOpen || undefined}
                 aria-label="Navigation"
                 tabIndex={-1}
-                className={`fixed top-0 left-0 h-full bg-white border-r z-[999] flex flex-col transition-transform duration-250 ease-in-out lg:translate-x-0 ${mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'} focus:outline-none`}
+                className={`fixed top-0 left-0 h-full bg-white border-r z-[999] flex flex-col transition-transform duration-250 ease-in-out lg:translate-x-0 ${mobileOpen ? 'translate-x-0 shadow-lg' : '-translate-x-full'} focus:outline-none`}
                 style={{
                     width: mobileOpen ? 'min(280px, 85vw)' : isEffectiveCollapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)',
                     borderColor: 'var(--color-border-subtle)',

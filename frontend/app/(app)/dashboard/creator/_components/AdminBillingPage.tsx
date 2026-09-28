@@ -268,7 +268,7 @@ export default function AdminBillingPage() {
         <div className="animate-fade-in font-sans pb-10">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>
+                    <h1 className="text-2xl font-medium tracking-tight" style={{ color: 'var(--color-text-primary)' }}>
                         Billing & Plans
                     </h1>
                     <p className="text-sm font-medium mt-1" style={{ color: 'var(--color-text-secondary)' }}>
@@ -322,7 +322,7 @@ export default function AdminBillingPage() {
                             >
                                 {currentPlan}
                             </span>
-                            <h2 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
+                            <h2 className="text-2xl font-medium" style={{ color: 'var(--color-text-primary)' }}>
                                 {PRICE_LABELS[currentPlan][billingInterval]}
                             </h2>
                         </div>
@@ -388,7 +388,7 @@ export default function AdminBillingPage() {
                 className="bg-white rounded-xl border shadow-sm p-6 md:p-8 mb-6"
                 style={{ borderColor: 'var(--color-border-subtle)' }}
             >
-                <h3 className="text-lg font-bold mb-6" style={{ color: 'var(--color-text-primary)' }}>
+                <h3 className="text-lg font-medium mb-6" style={{ color: 'var(--color-text-primary)' }}>
                     Usage Overview
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -441,7 +441,7 @@ export default function AdminBillingPage() {
                 className="bg-white rounded-xl border shadow-sm p-6 md:p-8 mb-6"
                 style={{ borderColor: 'var(--color-border-subtle)' }}
             >
-                <h3 className="text-lg font-bold mb-6" style={{ color: 'var(--color-text-primary)' }}>
+                <h3 className="text-lg font-medium mb-6" style={{ color: 'var(--color-text-primary)' }}>
                     Plan Comparison
                 </h3>
                 {sortedPlans.length === 0 ? (
@@ -472,7 +472,7 @@ export default function AdminBillingPage() {
                                         </p>
                                         {isCurrent && (
                                             <span
-                                                className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full"
+                                                className="text-[9px] font-medium uppercase tracking-widest px-2 py-0.5 rounded-full"
                                                 style={{
                                                     backgroundColor: 'white',
                                                     color: 'var(--brand)',
@@ -485,7 +485,7 @@ export default function AdminBillingPage() {
                                     </div>
 
                                     <p
-                                        className="text-2xl font-bold mt-2"
+                                        className="text-2xl font-medium mt-2"
                                         style={{ color: 'var(--color-text-primary)' }}
                                     >
                                         {PRICE_LABELS[plan.plan][billingInterval]}

@@ -232,7 +232,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                         <select
                             value={currentLang.id}
                             onChange={handleLanguageChange}
-                            className="bg-[#f8f9fa] border border-gray-200 rounded px-3 py-1.5 text-[11px] font-bold text-gray-600 outline-none hover:border-gray-300 transition-colors"
+                            className="bg-[#f8f9fa] border border-gray-200 rounded px-3 py-1.5 text-[11px] font-medium text-gray-600 outline-none hover:border-gray-300 transition-colors"
                         >
                             {SUPPORTED_LANGUAGES.map((lang) => (
                                 <option key={lang.id} value={lang.id}>
@@ -246,7 +246,7 @@ export default function CodeEditor(props: CodeEditorProps) {
 
                     <div className="flex items-center gap-5 text-gray-400">
                         {props.options?.readOnly && (
-                            <div className="flex items-center gap-1.5 px-2 py-1 bg-amber-50 border border-amber-100 rounded text-[9px] font-black text-amber-600 uppercase tracking-widest">
+                            <div className="flex items-center gap-1.5 px-2 py-1 bg-amber-50 border border-amber-100 rounded text-[9px] font-semibold text-amber-600 uppercase tracking-widest">
                                 <svg
                                     width="10"
                                     height="10"
@@ -355,7 +355,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                             <button
                                 key={t}
                                 onClick={() => setActiveTab(t as any)}
-                                className={`text-[12px] font-bold h-full border-b-2 transition-all px-2 flex items-center capitalize ${
+                                className={`text-[12px] font-medium h-full border-b-2 transition-all px-2 flex items-center capitalize ${
                                     activeTab === t
                                         ? 'border-[#e67e22] text-[#e67e22]'
                                         : 'border-transparent text-gray-400 hover:text-gray-600'
@@ -391,7 +391,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                         <button
                                             key={idx}
                                             onClick={() => setSelectedTestCase(idx)}
-                                            className={`flex-1 min-w-[70px] flex flex-col items-center justify-center gap-0.5 py-2 rounded-lg text-[11px] font-bold border transition-all ${
+                                            className={`flex-1 min-w-[70px] flex flex-col items-center justify-center gap-0.5 py-2 rounded-lg text-[11px] font-medium border transition-all ${
                                                 selectedTestCase === idx
                                                     ? 'bg-[#e67e22] text-white border-[#e67e22]'
                                                     : tc.passed === true
@@ -414,8 +414,8 @@ export default function CodeEditor(props: CodeEditorProps) {
                                     props.testCases.length > 0 &&
                                     props.testCases.some((tc: any) => tc.passed !== undefined) && (
                                         <div className="mt-2 sm:mt-4 p-3 bg-emerald-50 rounded-lg flex items-center justify-between">
-                                            <span className="text-[11px] font-bold text-emerald-600">PASSED</span>
-                                            <span className="text-[12px] font-black text-emerald-700">
+                                            <span className="text-[11px] font-medium text-emerald-600">PASSED</span>
+                                            <span className="text-[12px] font-semibold text-emerald-700">
                                                 {props.testCases.filter((tc: any) => tc.passed).length} /{' '}
                                                 {props.testCases.length}
                                             </span>
@@ -444,7 +444,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                                     </svg>
                                                 </div>
                                                 <div className="text-center">
-                                                    <h3 className="text-sm font-black text-gray-700 uppercase tracking-wider">
+                                                    <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
                                                         Hidden Test Case
                                                     </h3>
                                                     <p className="text-xs text-gray-500 mt-1">
@@ -453,7 +453,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                                 </div>
                                                 {props.testCases[selectedTestCase].passed !== undefined && (
                                                     <div
-                                                        className={`mt-4 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider ${props.testCases[selectedTestCase].passed ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}
+                                                        className={`mt-4 px-4 py-2 rounded-lg text-xs font-medium uppercase tracking-wider ${props.testCases[selectedTestCase].passed ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}
                                                     >
                                                         {props.testCases[selectedTestCase].passed ? 'Passed' : 'Failed'}
                                                     </div>
@@ -463,7 +463,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                             <>
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                     <div className="flex flex-col gap-2">
-                                                        <span className="text-[10px] uppercase font-black text-gray-400 tracking-wider">
+                                                        <span className="text-[10px] uppercase font-semibold text-gray-400 tracking-wider">
                                                             Input
                                                         </span>
                                                         <div className="bg-gray-50 p-4 rounded-xl text-[13px] font-mono border border-gray-100/50 whitespace-pre-wrap text-gray-700">
@@ -471,7 +471,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                                         </div>
                                                     </div>
                                                     <div className="flex flex-col gap-2">
-                                                        <span className="text-[10px] uppercase font-black text-gray-400 tracking-wider">
+                                                        <span className="text-[10px] uppercase font-semibold text-gray-400 tracking-wider">
                                                             Expected
                                                         </span>
                                                         <div className="bg-gray-50 p-4 rounded-xl text-[13px] font-mono border border-gray-100/50 text-[#e67e22] whitespace-pre-wrap">
@@ -481,7 +481,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                                     </div>
                                                 </div>
                                                 <div className="flex flex-col gap-2">
-                                                    <span className="text-[10px] uppercase font-black text-gray-400 tracking-wider">
+                                                    <span className="text-[10px] uppercase font-semibold text-gray-400 tracking-wider">
                                                         Actual Output
                                                     </span>
                                                     {props.testCases[selectedTestCase].actualOutput !== undefined ? (
@@ -490,7 +490,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                                         >
                                                             {props.testCases[selectedTestCase].actualOutput}
                                                             {props.testCases[selectedTestCase].error && (
-                                                                <div className="text-red-500 mt-2 font-bold">
+                                                                <div className="text-red-500 mt-2 font-medium">
                                                                     {props.testCases[selectedTestCase].error}
                                                                 </div>
                                                             )}
@@ -527,7 +527,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                     {activeTab === 'input' && (
                         <div className="flex h-full flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
                             <div className="bg-gray-50 px-4 py-2 border-b border-gray-100 flex justify-between items-center">
-                                <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                                <span className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">
                                     Standard Input (stdin)
                                 </span>
                                 <span className="text-[10px] text-gray-400 font-mono">custom mode</span>
@@ -579,7 +579,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                     e.stopPropagation();
                                     setIsTerminalOpen((prev) => !prev);
                                 }}
-                                className={`group flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 border rounded-lg text-[11px] sm:text-[12px] font-bold transition-all shadow-sm active:scale-95 cursor-pointer relative ${
+                                className={`group flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 border rounded-lg text-[11px] sm:text-[12px] font-medium transition-all shadow-sm active:scale-95 cursor-pointer relative ${
                                     isTerminalOpen
                                         ? 'bg-[var(--brand-light)] border-[var(--brand-light)] text-[var(--brand)]'
                                         : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'
@@ -642,7 +642,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                     <button
                                         onClick={handleRun}
                                         disabled={props.isExecuting}
-                                        className={`px-3.5 sm:px-6 py-2 sm:py-3 bg-gray-100 text-gray-700 font-bold rounded-xl text-[11px] sm:text-[12px] uppercase tracking-wider sm:tracking-widest hover:bg-gray-200 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait flex items-center gap-1.5 sm:gap-2`}
+                                        className={`px-3.5 sm:px-6 py-2 sm:py-3 bg-gray-100 text-gray-700 font-medium rounded-xl text-[11px] sm:text-[12px] uppercase tracking-wider sm:tracking-widest hover:bg-gray-200 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait flex items-center gap-1.5 sm:gap-2`}
                                     >
                                         {props.isExecuting ? (
                                             <>
@@ -680,7 +680,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                                                     }
                                                 }
                                             }}
-                                            className={`px-4 sm:px-10 py-2 sm:py-3 bg-[var(--brand)] text-white font-black rounded-xl text-[11px] sm:text-[12px] uppercase tracking-wider sm:tracking-widest shadow-lg shadow-[var(--brand-light)] hover:bg-[var(--brand-dark)] hover:-translate-y-0.5 transition-all active:translate-y-0 active:scale-[0.98] flex items-center gap-1.5 sm:gap-2`}
+                                            className={`px-4 sm:px-10 py-2 sm:py-3 bg-[var(--brand)] text-white font-semibold rounded-xl text-[11px] sm:text-[12px] uppercase tracking-wider sm:tracking-widest shadow-lg shadow-[var(--brand-light)] hover:bg-[var(--brand-dark)] hover:-translate-y-0.5 transition-all active:translate-y-0 active:scale-[0.98] flex items-center gap-1.5 sm:gap-2`}
                                         >
                                             Submit
                                             <svg

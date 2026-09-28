@@ -266,7 +266,7 @@ function Values() {
                                 delay: 0.1 + i * 0.12,
                                 duration: 0.48,
                             }}
-                            className="p-6 rounded-2xl transition-all duration-200 cursor-pointer"
+                            className="p-6 rounded-lg transition-all duration-200 cursor-pointer"
                             style={{
                                 backgroundColor: '#FFFFFF',
                                 border: '1px solid #E2E8F0',
@@ -467,7 +467,7 @@ function Team() {
                             initial={{ opacity: 0, y: 28 }}
                             animate={inView ? { opacity: 1, y: 0 } : {}}
                             transition={{ delay: 0.1 + i * 0.1, duration: 0.48 }}
-                            className="text-center p-6 rounded-2xl transition-all duration-200"
+                            className="text-center p-6 rounded-lg transition-all duration-200"
                             style={{
                                 backgroundColor: '#FFFFFF',
                                 border: '1px solid #E2E8F0',

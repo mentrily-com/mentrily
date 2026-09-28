@@ -80,12 +80,12 @@ export default function LearnerCertificatesPage() {
 
     return (
         <div className="min-h-screen bg-gray-50 text-gray-900 font-sans selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)]">
-            <div className="border-b border-gray-100 bg-white/90 backdrop-blur-sm">
+            <div className="border-b border-gray-100 bg-white/90">
                 <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 flex flex-wrap items-center gap-4 sm:gap-10">
-                    <button className="py-4 text-sm font-black text-[var(--brand)] border-b-2 border-[var(--brand)] px-1">
+                    <button className="py-4 text-sm font-semibold text-[var(--brand)] border-b-2 border-[var(--brand)] px-1">
                         My Certificates
                     </button>
-                    <div className="text-xs font-bold text-gray-400">
+                    <div className="text-xs font-medium text-gray-400">
                         {loading ? 'Loading credentials...' : `${certificates.length} issued certificates`}
                     </div>
                 </div>
@@ -95,14 +95,14 @@ export default function LearnerCertificatesPage() {
                 {loading ? (
                     <LearnerCertificatesSkeleton />
                 ) : locked ? (
-                    <section className="mt-6 rounded-[30px] border border-amber-200 bg-amber-50 p-5 shadow-sm sm:p-8">
+                    <section className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-5 shadow-sm sm:p-8">
                         <div className="flex flex-col items-start gap-5 lg:flex-row lg:items-center lg:justify-between">
                             <div className="flex flex-col items-start gap-4 sm:flex-row">
-                                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-amber-600 shadow-sm">
+                                <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-white text-amber-600 shadow-sm">
                                     <Lock size={24} />
                                 </div>
                                 <div>
-                                    <h2 className="text-xl font-black tracking-tight text-amber-950 sm:text-2xl">
+                                    <h2 className="text-xl font-semibold tracking-tight text-amber-950 sm:text-2xl">
                                         Certificate access is not enabled for this learner plan.
                                     </h2>
                                     <p className="mt-2 max-w-2xl text-sm leading-7 text-amber-900/80">
@@ -113,18 +113,18 @@ export default function LearnerCertificatesPage() {
                             </div>
                             <Link
                                 href="/dashboard/learner"
-                                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-5 py-3 text-sm font-black text-white sm:w-auto"
+                                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-5 py-3 text-sm font-semibold text-white sm:w-auto"
                             >
                                 Return to dashboard
                             </Link>
                         </div>
                     </section>
                 ) : certificates.length === 0 ? (
-                    <section className="mt-6 rounded-[30px] border-2 border-dashed border-gray-200 bg-white p-6 text-center shadow-sm sm:p-10">
-                        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-[var(--brand-lighter)] text-[var(--brand)]">
+                    <section className="mt-6 rounded-lg border-2 border-dashed border-gray-200 bg-white p-6 text-center shadow-sm sm:p-10">
+                        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-lg bg-[var(--brand-lighter)] text-[var(--brand)]">
                             <Award size={28} />
                         </div>
-                        <h2 className="mt-5 text-2xl font-black tracking-tight text-gray-900">
+                        <h2 className="mt-5 text-2xl font-semibold tracking-tight text-gray-900">
                             No certificates issued yet
                         </h2>
                         <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-gray-500">
@@ -134,7 +134,7 @@ export default function LearnerCertificatesPage() {
                         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
                             <Link
                                 href="/dashboard/learner"
-                                className="w-full rounded-xl bg-[var(--brand)] px-5 py-3 text-sm font-black text-white sm:w-auto"
+                                className="w-full rounded-xl bg-[var(--brand)] px-5 py-3 text-sm font-semibold text-white sm:w-auto"
                             >
                                 Continue learning
                             </Link>
@@ -151,23 +151,23 @@ export default function LearnerCertificatesPage() {
                         {certificates.map((certificate) => (
                             <article
                                 key={certificate.id}
-                                className="rounded-[28px] border border-gray-200 bg-white p-5 shadow-[0_14px_36px_rgba(15,23,42,0.06)] sm:p-6"
+                                className="rounded-lg border border-gray-200 bg-white p-5 shadow-[0_14px_36px_rgba(15,23,42,0.06)] sm:p-6"
                             >
                                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                                     <div className="flex min-w-0 items-start gap-4">
-                                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--brand-lighter)] text-[var(--brand)]">
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--brand-lighter)] text-[var(--brand)]">
                                             <Award size={22} />
                                         </div>
                                         <div className="min-w-0">
-                                            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-gray-400">
+                                            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-400">
                                                 {(certificate.type || 'Certificate').replace(/_/g, ' ')}
                                             </p>
-                                            <h2 className="mt-1 text-lg font-black tracking-tight text-gray-950 sm:text-xl">
+                                            <h2 className="mt-1 text-lg font-semibold tracking-tight text-gray-950 sm:text-xl">
                                                 {certificate.title || 'Certificate'}
                                             </h2>
                                         </div>
                                     </div>
-                                    <span className="rounded-full bg-gray-100 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">
+                                    <span className="rounded-full bg-gray-100 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-500">
                                         {certificate.issuedAt
                                             ? new Date(certificate.issuedAt).toLocaleDateString()
                                             : 'Pending'}
@@ -182,8 +182,8 @@ export default function LearnerCertificatesPage() {
                                     <DetailCard label="Score" value={formatPercent(certificate.score)} />
                                 </div>
 
-                                <div className="mt-6 rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3">
-                                    <p className="text-[11px] font-black uppercase tracking-[0.22em] text-gray-400">
+                                <div className="mt-6 rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
+                                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-400">
                                         Resource ID
                                     </p>
                                     <p className="mt-1 truncate text-sm font-semibold text-gray-700">
@@ -195,7 +195,7 @@ export default function LearnerCertificatesPage() {
                                     type="button"
                                     onClick={() => handleDownload(certificate.id)}
                                     disabled={downloadId === certificate.id}
-                                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-sm font-black text-white transition-colors hover:bg-gray-800 disabled:cursor-wait disabled:opacity-70"
+                                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-gray-800 disabled:cursor-wait disabled:opacity-70"
                                 >
                                     {downloadId === certificate.id ? (
                                         <>
@@ -220,9 +220,9 @@ export default function LearnerCertificatesPage() {
 
 function DetailCard({ label, value }: { label: string; value: string }) {
     return (
-        <div className="rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3">
-            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-gray-400">{label}</p>
-            <p className="mt-1 text-lg font-black tracking-tight text-gray-950">{value}</p>
+        <div className="rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-400">{label}</p>
+            <p className="mt-1 text-lg font-semibold tracking-tight text-gray-950">{value}</p>
         </div>
     );
 }

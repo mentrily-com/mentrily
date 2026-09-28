@@ -13,7 +13,7 @@ function ComingSoon() {
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5 }}
-                    className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-teal-50 text-teal-600 mb-8"
+                    className="inline-flex items-center justify-center w-20 h-20 rounded-lg bg-teal-50 text-teal-600 mb-8"
                 >
                     <Timer size={40} />
                 </motion.div>

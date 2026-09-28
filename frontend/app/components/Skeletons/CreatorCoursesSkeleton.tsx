@@ -57,7 +57,7 @@ export default function CreatorCoursesSkeleton() {
 
                 {/* RIGHT: recent activity */}
                 <aside className="w-full xl:w-80 shrink-0">
-                    <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                    <div className="rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
                         <div className="flex items-start justify-between gap-3 mb-4">
                             <div className="space-y-2">
                                 <div className="h-2.5 w-20 animate-pulse rounded bg-gray-100" />

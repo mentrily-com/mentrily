@@ -164,18 +164,18 @@ export default function SuperAdminUsersPage() {
             <div className="px-6 lg:px-12 py-10">
                 <div className="flex items-center justify-between mb-12">
                     <div>
-                        <h1 className="text-3xl font-black text-gray-900 tracking-tight">Global User Index</h1>
-                        <p className="text-gray-400 font-bold text-sm mt-1">
+                        <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">Global User Index</h1>
+                        <p className="text-gray-400 font-medium text-sm mt-1">
                             Universal user control across all platform tenants.
                         </p>
                     </div>
-                    <div className="flex items-center gap-4 bg-white px-6 py-3 rounded-2xl border border-gray-100 shadow-sm">
+                    <div className="flex items-center gap-4 bg-white px-6 py-3 rounded-lg border border-gray-100 shadow-sm">
                         <Users size={20} className="text-[var(--brand)]" />
                         <div>
-                            <p className="text-[10px] font-black uppercase text-gray-300 leading-none mb-1">
+                            <p className="text-[10px] font-semibold uppercase text-gray-300 leading-none mb-1">
                                 Total Users
                             </p>
-                            <p className="text-lg font-black text-gray-800 leading-none">{totalUsers}</p>
+                            <p className="text-lg font-semibold text-gray-800 leading-none">{totalUsers}</p>
                         </div>
                     </div>
                 </div>
@@ -189,30 +189,30 @@ export default function SuperAdminUsersPage() {
                             placeholder="Universal search by name, email, org or role..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-12 pr-4 py-4 bg-white border border-gray-100 rounded-2xl text-sm font-bold outline-none focus:border-[var(--brand)] shadow-sm transition-all placeholder:text-gray-300"
+                            className="w-full pl-12 pr-4 py-4 bg-white border border-gray-100 rounded-lg text-sm font-medium outline-none focus:border-[var(--brand)] shadow-sm transition-all placeholder:text-gray-300"
                         />
                     </div>
                 </div>
 
                 {/* Table */}
-                <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden min-h-[600px]">
+                <div className="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden min-h-[600px]">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-gray-50/50 border-b border-gray-100">
-                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                    <th className="px-8 py-5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                                         User Identity
                                     </th>
-                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                    <th className="px-8 py-5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                                         Auth Role
                                     </th>
-                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                    <th className="px-8 py-5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                                         Organization Tenant
                                     </th>
-                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                    <th className="px-8 py-5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                                         Status
                                     </th>
-                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">
+                                    <th className="px-8 py-5 text-[10px] font-semibold uppercase tracking-widest text-gray-400 text-right">
                                         Actions
                                     </th>
                                 </tr>
@@ -222,7 +222,7 @@ export default function SuperAdminUsersPage() {
                                     <tr key={u.id} className="hover:bg-gray-50/30 transition-all group">
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center font-black text-gray-400 text-sm overflow-hidden">
+                                                <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center font-semibold text-gray-400 text-sm overflow-hidden">
                                                     {u.avatar ? (
                                                         <img
                                                             src={u.avatar}
@@ -234,8 +234,8 @@ export default function SuperAdminUsersPage() {
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-black text-gray-800">{u.name}</p>
-                                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1">
+                                                    <p className="text-sm font-semibold text-gray-800">{u.name}</p>
+                                                    <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest leading-none mt-1">
                                                         {u.email}
                                                     </p>
                                                 </div>
@@ -243,7 +243,7 @@ export default function SuperAdminUsersPage() {
                                         </td>
                                         <td className="px-8 py-6">
                                             <span
-                                                className={`px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${u.role === 'SUPER_ADMIN' ? 'bg-[var(--brand)] text-white border-[var(--brand)]' : 'bg-gray-50 text-gray-500 border-gray-100'}`}
+                                                className={`px-2 py-1 rounded-full text-[9px] font-semibold uppercase tracking-widest border ${u.role === 'SUPER_ADMIN' ? 'bg-[var(--brand)] text-white border-[var(--brand)]' : 'bg-gray-50 text-gray-500 border-gray-100'}`}
                                             >
                                                 {ROLE_LABELS[u.role] || u.role}
                                             </span>
@@ -251,7 +251,7 @@ export default function SuperAdminUsersPage() {
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-2 text-gray-600">
                                                 <Building2 size={14} className="text-gray-300" />
-                                                <span className="text-xs font-black uppercase tracking-wider">
+                                                <span className="text-xs font-semibold uppercase tracking-wider">
                                                     {u.organization?.name || siteConfig.adminUserOrgFallback}
                                                 </span>
                                             </div>
@@ -262,7 +262,7 @@ export default function SuperAdminUsersPage() {
                                                     className={`w-1.5 h-1.5 rounded-full ${u.isActive ? 'bg-emerald-500' : 'bg-rose-500'}`}
                                                 ></div>
                                                 <span
-                                                    className={`text-[10px] font-black uppercase tracking-widest ${u.isActive ? 'text-emerald-600' : 'text-rose-600'}`}
+                                                    className={`text-[10px] font-semibold uppercase tracking-widest ${u.isActive ? 'text-emerald-600' : 'text-rose-600'}`}
                                                 >
                                                     {u.isActive ? 'Active' : 'Suspended'}
                                                 </span>
@@ -308,11 +308,11 @@ export default function SuperAdminUsersPage() {
                 </div>
 
                 {users.length === 0 && !loading && (
-                    <div className="flex flex-col items-center justify-center py-20 bg-white rounded-[40px] border border-gray-100 mt-4">
-                        <div className="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mb-6">
+                    <div className="flex flex-col items-center justify-center py-20 bg-white rounded-lg border border-gray-100 mt-4">
+                        <div className="w-20 h-20 bg-gray-50 rounded-lg flex items-center justify-center mb-6">
                             <Search size={32} className="text-gray-200" />
                         </div>
-                        <h3 className="text-lg font-black text-gray-800">No users found</h3>
+                        <h3 className="text-lg font-semibold text-gray-800">No users found</h3>
                         <p className="text-sm font-medium text-gray-400 mt-2 text-center max-w-xs">
                             We couldn&apos;t find any users matching &quot;{searchQuery}&quot; in the global register.
                         </p>
@@ -321,7 +321,7 @@ export default function SuperAdminUsersPage() {
 
                 {/* Pagination */}
                 <div className="flex items-center justify-between mt-6">
-                    <p className="text-xs font-bold text-gray-400">
+                    <p className="text-xs font-medium text-gray-400">
                         Page {page} of {totalPages}
                     </p>
                     <div className="flex gap-2">
@@ -392,36 +392,36 @@ function TransferUserModal({
 
     return (
         <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={onClose} />
+            <div className="absolute inset-0 bg-gray-900/40" onClick={onClose} />
 
-            <div className="relative bg-white w-full max-w-xl rounded-[32px] shadow-2xl border border-gray-100 p-8">
+            <div className="relative bg-white w-full max-w-xl rounded-lg shadow-lg border border-gray-100 p-8">
                 <div className="flex items-start justify-between gap-4 mb-6">
                     <div>
-                        <h2 className="text-2xl font-black text-gray-900 tracking-tight">Transfer to Organization</h2>
+                        <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">Transfer to Organization</h2>
                         <p className="text-sm font-semibold text-gray-400 mt-1">
                             Move this user and shadow-org data into an Enterprise organization.
                         </p>
                     </div>
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
                         <Shield size={20} />
                     </div>
                 </div>
 
                 <div className="space-y-5">
-                    <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
-                        <p className="text-xs font-black uppercase tracking-widest text-gray-400">User</p>
-                        <p className="text-sm font-black text-gray-800 mt-1">{user.name}</p>
-                        <p className="text-xs font-bold text-gray-500">{user.email}</p>
+                    <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                        <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">User</p>
+                        <p className="text-sm font-semibold text-gray-800 mt-1">{user.name}</p>
+                        <p className="text-xs font-medium text-gray-500">{user.email}</p>
                     </div>
 
                     <div>
-                        <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">
+                        <label className="block text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">
                             Target Enterprise Organization
                         </label>
                         <select
                             value={selectedTargetOrgId}
                             onChange={(e) => onChangeTarget(e.target.value)}
-                            className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm font-bold text-gray-800 bg-white outline-none focus:border-[var(--brand)]"
+                            className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-medium text-gray-800 bg-white outline-none focus:border-[var(--brand)]"
                         >
                             <option value="">Select target organization</option>
                             {availableTargets.map((org) => (
@@ -432,8 +432,8 @@ function TransferUserModal({
                         </select>
                     </div>
 
-                    <div className="rounded-2xl border border-indigo-100 bg-indigo-50/60 p-4">
-                        <p className="text-xs font-black uppercase tracking-widest text-indigo-500 mb-2">
+                    <div className="rounded-lg border border-indigo-100 bg-indigo-50/60 p-4">
+                        <p className="text-xs font-semibold uppercase tracking-widest text-indigo-500 mb-2">
                             What will be transferred
                         </p>
                         <p className="text-sm font-semibold text-gray-700">
@@ -446,7 +446,7 @@ function TransferUserModal({
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-5 py-3 rounded-2xl text-xs font-black uppercase tracking-widest bg-gray-100 text-gray-500 hover:bg-gray-200"
+                            className="px-5 py-3 rounded-lg text-xs font-semibold uppercase tracking-widest bg-gray-100 text-gray-500 hover:bg-gray-200"
                         >
                             Cancel
                         </button>
@@ -454,7 +454,7 @@ function TransferUserModal({
                             type="button"
                             disabled={!selectedTargetOrgId || loading || availableTargets.length === 0}
                             onClick={onConfirm}
-                            className="px-5 py-3 rounded-2xl text-xs font-black uppercase tracking-widest bg-[var(--brand)] text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-5 py-3 rounded-lg text-xs font-semibold uppercase tracking-widest bg-[var(--brand)] text-white disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? 'Transferring...' : 'Confirm Transfer'}
                         </button>

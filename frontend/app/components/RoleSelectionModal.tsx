@@ -53,16 +53,16 @@ export default function RoleSelectionModal({ onSelectRole, onSelectCreator }: Ro
                 aria-modal="true"
                 aria-labelledby="role-selection-title"
                 tabIndex={-1}
-                className="w-full max-w-[640px] bg-white rounded-[28px] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300 max-h-[calc(100dvh-32px)] overflow-y-auto focus:outline-none"
+                className="w-full max-w-[640px] bg-white rounded-lg shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-300 max-h-[calc(100dvh-32px)] overflow-y-auto focus:outline-none"
             >
                 {/* Header */}
                 <div className="px-6 pt-9 pb-7 text-center sm:px-10">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--brand)]">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--brand)]">
                         Welcome to Mentrily
                     </p>
                     <h2
                         id="role-selection-title"
-                        className="mt-3 text-[26px] font-black text-gray-900 tracking-tight leading-tight sm:text-3xl"
+                        className="mt-3 text-[26px] font-semibold text-gray-900 tracking-tight leading-tight sm:text-3xl"
                     >
                         Pick your side of the classroom
                     </h2>
@@ -96,7 +96,7 @@ export default function RoleSelectionModal({ onSelectRole, onSelectCreator }: Ro
                 {/* Footer */}
                 <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 text-center sm:px-10">
                     {error && (
-                        <p className="mb-2 text-xs font-bold text-rose-500" role="alert">
+                        <p className="mb-2 text-xs font-medium text-rose-500" role="alert">
                             {error}
                         </p>
                     )}
@@ -141,18 +141,18 @@ function Door({
                       : 'hover:bg-[var(--brand-light)]/30 cursor-pointer'
             }`}
         >
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 group-hover:text-[var(--brand)] transition-colors">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-400 group-hover:text-[var(--brand)] transition-colors">
                 {kicker}
             </span>
 
-            <span className="mt-2 text-4xl font-black tracking-tight text-gray-900 sm:text-[40px] sm:leading-none">
+            <span className="mt-2 text-4xl font-semibold tracking-tight text-gray-900 sm:text-[40px] sm:leading-none">
                 {verb}
             </span>
 
             <span className="mt-3 text-[13px] leading-relaxed text-gray-500 flex-1">{body}</span>
 
             <span
-                className={`mt-6 inline-flex items-center gap-1.5 text-[12px] font-black uppercase tracking-widest transition-colors ${
+                className={`mt-6 inline-flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-widest transition-colors ${
                     selected ? 'text-[var(--brand-dark)]' : 'text-[var(--brand)]'
                 }`}
             >

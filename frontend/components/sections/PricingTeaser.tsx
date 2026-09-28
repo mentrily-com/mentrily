@@ -103,7 +103,7 @@ export default function PricingTeaser() {
                                 duration: 0.48,
                                 ease: [0.25, 0.1, 0.25, 1],
                             }}
-                            className={`relative p-6 rounded-2xl transition-all duration-250 cursor-pointer ${
+                            className={`relative p-6 rounded-lg transition-all duration-250 cursor-pointer ${
                                 tier.highlighted ? 'animate-glow-pulse' : ''
                             }`}
                             style={{
@@ -139,7 +139,7 @@ export default function PricingTeaser() {
                         >
                             {tier.highlighted && (
                                 <span
-                                    className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-bold text-white"
+                                    className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-medium text-white"
                                     style={{
                                         background: 'linear-gradient(135deg, #F59E0B, #F97316)',
                                         boxShadow: '0 2px 8px rgba(245,158,11,0.3)',
@@ -157,7 +157,7 @@ export default function PricingTeaser() {
                             </p>
                             <div className="flex items-baseline gap-1 mb-5">
                                 <span
-                                    className="text-4xl font-bold"
+                                    className="text-4xl font-medium"
                                     style={{ color: '#0F172A', fontFamily: 'var(--font-body)' }}
                                 >
                                     {tier.price}

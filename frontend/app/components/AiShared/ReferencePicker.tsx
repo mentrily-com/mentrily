@@ -95,7 +95,7 @@ export default function ReferencePicker({ value, onChange, max, onLockedClick, d
             {open && (
                 <div
                     id={listId}
-                    className={`absolute left-0 z-30 w-full min-w-[260px] max-w-sm overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl ${placement === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}`}
+                    className={`absolute left-0 z-30 w-full min-w-[260px] max-w-sm overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md ${placement === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}`}
                 >
                     <label className="flex items-center gap-2 border-b border-gray-100 px-3 py-2">
                         <Search size={14} className="text-gray-400" />

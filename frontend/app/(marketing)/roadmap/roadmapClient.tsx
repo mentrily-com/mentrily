@@ -43,13 +43,13 @@ function RoadmapList() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={inView ? { opacity: 1, y: 0 } : {}}
                             transition={{ delay: i * 0.1, duration: 0.5 }}
-                            className="p-8 rounded-3xl border border-gray-100 bg-gray-50/50 flex flex-col"
+                            className="p-8 rounded-lg border border-gray-100 bg-gray-50/50 flex flex-col"
                         >
                             <div className="flex items-center justify-between mb-6">
-                                <span className="text-xs font-bold uppercase tracking-widest text-teal-600">
+                                <span className="text-xs font-medium uppercase tracking-widest text-teal-600">
                                     {item.quarter}
                                 </span>
-                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white border border-gray-200 text-[10px] font-bold text-gray-500 uppercase">
+                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white border border-gray-200 text-[10px] font-medium text-gray-500 uppercase">
                                     {item.status === 'In Progress' && <Clock size={12} className="text-amber-500" />}
                                     {item.status === 'Planned' && <Circle size={12} className="text-gray-400" />}
                                     {item.status === 'Researching' && (
@@ -59,7 +59,7 @@ function RoadmapList() {
                                 </div>
                             </div>
 
-                            <h3 className="text-xl font-bold text-gray-900 mb-3">{item.title}</h3>
+                            <h3 className="text-xl font-medium text-gray-900 mb-3">{item.title}</h3>
                             <p className="text-sm text-gray-600 leading-relaxed mb-6 flex-1">{item.description}</p>
 
                             <ul className="space-y-3 pt-6 border-t border-gray-200">

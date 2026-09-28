@@ -120,8 +120,7 @@ export default function SuperAdminDashboardPage() {
     return (
         <div className="space-y-6 text-gray-900 selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)] animate-fade-in">
             {/* Hero Section */}
-            <section className="relative overflow-hidden rounded-[30px] border border-gray-200 bg-white px-6 py-7 shadow-[0_16px_50px_rgba(15,23,42,0.08)] lg:px-8">
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(26,86,219,0.09),_transparent_45%),radial-gradient(circle_at_bottom_left,_rgba(16,185,129,0.07),_transparent_38%)]" />
+            <section className="relative overflow-hidden rounded-lg border border-gray-200 bg-white px-6 py-7 shadow-sm lg:px-8">
                 <div className="relative grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
                     <div className="space-y-6">
                         <div className="space-y-3">
@@ -143,7 +142,7 @@ export default function SuperAdminDashboardPage() {
                         <div className="flex flex-wrap items-center gap-3">
                             <Link
                                 href="/dashboard/super-admin/organizations/new"
-                                className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-[0_14px_30px_rgba(0,141,152,0.24)] transition-all duration-200 hover:brightness-110"
+                                className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:brightness-110"
                             >
                                 <Plus size={15} />
                                 Deploy New Organization
@@ -153,7 +152,7 @@ export default function SuperAdminDashboardPage() {
                         {/* Stats Grid */}
                         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                             {globalStats.map((card) => (
-                                <div key={card.label} className="rounded-2xl border border-gray-200 bg-white p-4">
+                                <div key={card.label} className="rounded-lg border border-gray-200 bg-white p-4">
                                     <div className="flex items-center justify-between gap-3">
                                         <div
                                             className={`inline-flex h-10 w-10 items-center justify-center rounded-xl ${card.chipClass}`}
@@ -176,7 +175,7 @@ export default function SuperAdminDashboardPage() {
                     </div>
 
                     {/* Plan Distribution Panel */}
-                    <div className="rounded-[24px] border border-gray-200 bg-gray-950 p-5 text-white shadow-[0_18px_40px_rgba(15,23,42,0.28)]">
+                    <div className="rounded-lg border border-gray-200 bg-gray-950 p-5 text-white shadow-lg">
                         <div className="flex items-start justify-between gap-3">
                             <div>
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-400">
@@ -207,7 +206,7 @@ export default function SuperAdminDashboardPage() {
                                 );
                             })}
                         </div>
-                        <div className="mt-5 rounded-2xl border border-white/12 bg-white/5 p-4">
+                        <div className="mt-5 rounded-lg border border-white/12 bg-white/5 p-4">
                             <p className="text-sm font-semibold text-white">Platform health</p>
                             <p className="mt-1 text-xs leading-6 text-gray-300">
                                 {showHealthAlert
@@ -221,7 +220,7 @@ export default function SuperAdminDashboardPage() {
 
             {/* Health Alert Banner */}
             {showHealthAlert && (
-                <div className="flex flex-col gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4 md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-col gap-3 rounded-lg border border-rose-200 bg-rose-50 p-4 md:flex-row md:items-center md:justify-between">
                     <div className="flex items-start gap-3">
                         <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-rose-100 text-rose-700">
                             <ShieldAlert size={16} />
@@ -241,7 +240,7 @@ export default function SuperAdminDashboardPage() {
             {/* Main Grid: Organizations + Sidebar */}
             <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
                 {/* Organizations List */}
-                <section className="rounded-[28px] border border-gray-200 bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.06)]">
+                <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                         <div>
                             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">
@@ -314,7 +313,7 @@ export default function SuperAdminDashboardPage() {
 
                 {/* Sidebar: Recent Billing Events */}
                 <div className="space-y-6">
-                    <section className="rounded-[28px] border border-gray-200 bg-white p-5 shadow-[0_14px_40px_rgba(15,23,42,0.06)]">
+                    <section className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">Billing</p>
                         <h2 className="mt-2 text-xl font-semibold tracking-tight text-gray-950">
                             Recent Billing Events
@@ -345,7 +344,7 @@ export default function SuperAdminDashboardPage() {
             </div>
 
             {/* Bug Reports Section */}
-            <section className="rounded-[28px] border border-gray-200 bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.06)]">
+            <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">
@@ -375,11 +374,11 @@ export default function SuperAdminDashboardPage() {
                     {loadingBugs ? (
                         <div className="space-y-3">
                             {[1, 2].map((i) => (
-                                <div key={i} className="h-24 rounded-2xl bg-gray-50 animate-pulse" />
+                                <div key={i} className="h-24 rounded-lg bg-gray-50 animate-pulse" />
                             ))}
                         </div>
                     ) : bugReports.length === 0 ? (
-                        <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50/80 p-9 text-center">
+                        <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50/80 p-9 text-center">
                             <Bug size={28} className="mx-auto text-gray-300 mb-3" />
                             <h3 className="text-lg font-semibold text-gray-900">
                                 No {bugFilter === 'OPEN' ? 'open' : 'fixed'} bug reports
@@ -390,7 +389,7 @@ export default function SuperAdminDashboardPage() {
                             {bugReports.map((bug) => (
                                 <div
                                     key={bug.id}
-                                    className="rounded-2xl border border-gray-200 bg-gray-50/70 p-4 transition-colors duration-200 hover:bg-white"
+                                    className="rounded-lg border border-gray-200 bg-gray-50/70 p-4 transition-colors duration-200 hover:bg-white"
                                 >
                                     <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                                         <div className="min-w-0">
@@ -489,8 +488,8 @@ export default function SuperAdminDashboardPage() {
 
             {/* Bug Detail Modal */}
             {selectedBug && (
-                <div className="fixed inset-0 z-[2100] flex items-center justify-center bg-gray-950/70 p-6 backdrop-blur-sm">
-                    <div className="w-full max-w-4xl rounded-[24px] border border-gray-200 bg-white p-6 shadow-[0_24px_80px_rgba(15,23,42,0.18)] max-h-[88vh] overflow-y-auto">
+                <div className="fixed inset-0 z-[2100] flex items-center justify-center bg-gray-950/70 p-6 ">
+                    <div className="w-full max-w-4xl rounded-lg border border-gray-200 bg-white p-6 shadow-[0_24px_80px_rgba(15,23,42,0.18)] max-h-[88vh] overflow-y-auto">
                         <div className="flex items-start justify-between gap-4 mb-6">
                             <div className="min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
@@ -623,7 +622,7 @@ function OrgRow({ org, onDelete, onToggleStatus }: any) {
     };
 
     return (
-        <div className="rounded-2xl border border-gray-200 bg-gray-50/70 p-4 transition-colors duration-200 hover:bg-white group">
+        <div className="rounded-lg border border-gray-200 bg-gray-50/70 p-4 transition-colors duration-200 hover:bg-white group">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex items-start gap-4 min-w-0">
                     <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--brand)] text-white text-sm font-semibold">

@@ -17,14 +17,14 @@ export default function AdminSettingsSkeleton() {
                     <div className="h-6 w-64 animate-pulse rounded-md bg-gray-200" />
                     <div className="h-4 w-80 max-w-full animate-pulse rounded bg-gray-100" />
                 </div>
-                <div className="h-14 w-44 animate-pulse rounded-2xl bg-gray-200" />
+                <div className="h-14 w-44 animate-pulse rounded-lg bg-gray-200" />
             </div>
 
             <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
                 {/* Left: settings sections */}
                 <div className="space-y-8 lg:col-span-2">
                     {[1, 2, 3].map((section) => (
-                        <div key={section} className="space-y-6 rounded-2xl border border-gray-100 bg-white p-6">
+                        <div key={section} className="space-y-6 rounded-lg border border-gray-100 bg-white p-6">
                             <div className="flex items-center gap-3">
                                 <div className="h-11 w-11 animate-pulse rounded-xl bg-gray-100" />
                                 <div className="space-y-2">
@@ -46,7 +46,7 @@ export default function AdminSettingsSkeleton() {
 
                 {/* Right: summary card */}
                 <div className="space-y-6">
-                    <div className="space-y-4 rounded-2xl border border-gray-100 bg-white p-6">
+                    <div className="space-y-4 rounded-lg border border-gray-100 bg-white p-6">
                         <div className="h-4 w-32 animate-pulse rounded bg-gray-200" />
                         {[1, 2, 3].map((i) => (
                             <div key={i} className="flex items-center justify-between">
@@ -55,7 +55,7 @@ export default function AdminSettingsSkeleton() {
                             </div>
                         ))}
                     </div>
-                    <div className="h-32 animate-pulse rounded-2xl bg-gray-100" />
+                    <div className="h-32 animate-pulse rounded-lg bg-gray-100" />
                 </div>
             </div>
         </div>

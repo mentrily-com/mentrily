@@ -195,7 +195,7 @@ function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
             )}
             <ImpersonationBanner />
             {showPaymentFailedBanner && <PaymentFailedBanner />}
-            <header className="w-full bg-white/80 backdrop-blur-md border-b border-gray-100">
+            <header className="w-full bg-white border-b border-gray-100">
                 <div
                     className={`w-full px-4 py-2.5 lg:px-6 sm:py-3 flex items-center justify-between ${
                         examConfig ? 'gap-3' : ''
@@ -225,7 +225,7 @@ function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
                                     orgLogo={orgContext?.logo}
                                     defaultLogoClassName="h-8 max-w-[160px]"
                                     iconClassName="h-9 w-9"
-                                    textClassName="hidden text-xl font-black tracking-tighter sm:inline-block"
+                                    textClassName="hidden text-xl font-semibold tracking-tighter sm:inline-block"
                                     priority
                                 />
                             )}
@@ -595,7 +595,7 @@ function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
                                     <line x1="12" y1="9" x2="12" y2="13" />
                                     <line x1="12" y1="17" x2="12.01" y2="17" />
                                 </svg>
-                                <span className="text-xs font-black text-rose-600 uppercase tracking-widest">
+                                <span className="text-xs font-semibold text-rose-600 uppercase tracking-widest">
                                     Password Change Required
                                 </span>
                             </div>
@@ -623,7 +623,7 @@ function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
                             <div className="relative group/playground">
                                 <button
                                     data-element-id="playground-btn"
-                                    className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--brand-light)] text-[var(--brand)] font-bold text-sm transition-all hover:bg-[var(--brand)] hover:text-white active:scale-95 cursor-default"
+                                    className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--brand-light)] text-[var(--brand)] font-medium text-sm transition-all hover:bg-[var(--brand)] hover:text-white active:scale-95 cursor-default"
                                 >
                                     <svg
                                         width="16"
@@ -653,10 +653,10 @@ function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
                                 </button>
 
                                 {/* Playground Dropdown */}
-                                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-2xl ring-1 ring-gray-200/60 py-2 z-50 opacity-0 invisible group-hover/playground:opacity-100 group-hover/playground:visible transition-all duration-200 translate-y-2 group-hover/playground:translate-y-0">
+                                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg ring-1 ring-gray-200/60 py-2 z-50 opacity-0 invisible group-hover/playground:opacity-100 group-hover/playground:visible transition-all duration-200 translate-y-2 group-hover/playground:translate-y-0">
                                     <button
                                         onClick={() => router.push('/playground')}
-                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold text-gray-600 hover:bg-gray-50 hover:text-[var(--brand)] transition-all"
+                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-medium text-gray-600 hover:bg-gray-50 hover:text-[var(--brand)] transition-all"
                                     >
                                         <div className="w-8 h-8 rounded-lg bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center">
                                             <svg
@@ -674,7 +674,7 @@ function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
                                     </button>
                                     <button
                                         onClick={() => router.push('/playground/web')}
-                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold text-gray-600 hover:bg-gray-50 hover:text-[var(--brand)] transition-all"
+                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-medium text-gray-600 hover:bg-gray-50 hover:text-[var(--brand)] transition-all"
                                     >
                                         <div className="w-8 h-8 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center">
                                             <svg
@@ -693,7 +693,7 @@ function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
                                     </button>
                                     <button
                                         onClick={() => router.push('/playground/pynb')}
-                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold text-gray-600 hover:bg-gray-50 hover:text-[var(--brand)] transition-all"
+                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-medium text-gray-600 hover:bg-gray-50 hover:text-[var(--brand)] transition-all"
                                     >
                                         <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center">
                                             <svg
@@ -719,7 +719,7 @@ function Navbar({ basePath, userRole: roleOverride, examConfig }: NavbarProps) {
                             {basePath?.includes('/dashboard/super-admin') && (
                                 <button
                                     onClick={() => router.push('/dashboard/super-admin/organizations')}
-                                    className="hidden sm:flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-800 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-200 transition-colors mr-2 shadow-sm border border-amber-200"
+                                    className="hidden sm:flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-800 rounded-xl text-[10px] font-semibold uppercase tracking-widest hover:bg-amber-200 transition-colors mr-2 shadow-sm border border-amber-200"
                                 >
                                     Exit View
                                 </button>
@@ -763,7 +763,7 @@ const NavItem = React.memo(function NavItem({
     return (
         <button
             onClick={!disabled ? onClick : undefined}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 
         ${active ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}
         ${disabled ? 'opacity-40 cursor-not-allowed grayscale-[0.5]' : 'cursor-pointer'}
       `}
@@ -774,7 +774,7 @@ const NavItem = React.memo(function NavItem({
                 })}
             <span className={active ? 'text-gray-900' : ''}>{label}</span>
             {badge && (
-                <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest bg-gray-100 text-gray-500">
+                <span className="px-1.5 py-0.5 rounded-md text-[9px] font-semibold uppercase tracking-widest bg-gray-100 text-gray-500">
                     {badge}
                 </span>
             )}
@@ -822,7 +822,7 @@ const ContentDropdown = React.memo(function ContentDropdown({
                 onClick={() => setOpen((prev) => !prev)}
                 aria-haspopup="true"
                 aria-expanded={open}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 ${
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                     active ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'
                 }`}
             >
@@ -860,7 +860,7 @@ const ContentDropdown = React.memo(function ContentDropdown({
             </button>
 
             {open && (
-                <div className="absolute left-0 top-full mt-2 min-w-[180px] bg-white rounded-xl shadow-xl ring-1 ring-gray-200 z-50 py-1">
+                <div className="absolute left-0 top-full mt-2 min-w-[180px] bg-white rounded-xl shadow-md ring-1 ring-gray-200 z-50 py-1">
                     {items.map((item) => (
                         <Link
                             key={item.path}
@@ -1117,8 +1117,8 @@ const AppsMenu = React.memo(function AppsMenu({ isTeacher }: { isTeacher: boolea
             </button>
 
             {open && (
-                <div className="absolute right-0 top-full mt-3 w-72 rounded-2xl bg-white shadow-2xl ring-1 ring-gray-200/60 p-4 z-50 animate-fade-in">
-                    <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 px-2">
+                <div className="absolute right-0 top-full mt-3 w-72 rounded-lg bg-white shadow-lg ring-1 ring-gray-200/60 p-4 z-50 animate-fade-in">
+                    <h3 className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-4 px-2">
                         Quick Access
                     </h3>
                     <div className="grid grid-cols-3 gap-2">
@@ -1132,7 +1132,7 @@ const AppsMenu = React.memo(function AppsMenu({ isTeacher }: { isTeacher: boolea
                                 <div className="w-10 h-10 rounded-xl bg-[var(--brand-lighter)] text-[var(--brand)] flex items-center justify-center">
                                     {app.icon}
                                 </div>
-                                <span className="text-[10px] font-bold text-gray-600 text-center">{app.label}</span>
+                                <span className="text-[10px] font-medium text-gray-600 text-center">{app.label}</span>
                             </Link>
                         ))}
                     </div>
@@ -1228,8 +1228,8 @@ function ProfileMenu({
             {/* In the exam header the name gives up its space below lg; the
                 menu itself shows the name and roll number. */}
             <div className={`hidden text-right ${examConfig ? 'lg:block' : 'sm:block'}`}>
-                <p className="text-sm font-black text-gray-800 leading-none">{displayName}</p>
-                <p className="text-[9px] font-black text-[var(--brand)] uppercase tracking-widest mt-1">
+                <p className="text-sm font-semibold text-gray-800 leading-none">{displayName}</p>
+                <p className="text-[9px] font-semibold text-[var(--brand)] uppercase tracking-widest mt-1">
                     {examConfig?.rollNumber ? `Roll: ${examConfig.rollNumber}` : getLabel()}
                 </p>
             </div>
@@ -1241,7 +1241,7 @@ function ProfileMenu({
                         aria-haspopup="true"
                         aria-expanded={open}
                         aria-label={`Account menu for ${displayName}`}
-                        className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white font-black text-sm overflow-hidden relative"
+                        className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white font-semibold text-sm overflow-hidden relative"
                     >
                         {avatarUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -1252,9 +1252,9 @@ function ProfileMenu({
                     </button>
 
                     {open && (
-                        <div className="absolute right-0 top-full mt-3 w-64 rounded-2xl bg-white shadow-2xl ring-1 ring-gray-200/60 z-50 overflow-hidden animate-fade-in">
+                        <div className="absolute right-0 top-full mt-3 w-64 rounded-lg bg-white shadow-lg ring-1 ring-gray-200/60 z-50 overflow-hidden animate-fade-in">
                             <div className="px-4 py-4 border-b border-gray-100 flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] text-white font-black flex items-center justify-center overflow-hidden shrink-0">
+                                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] text-white font-semibold flex items-center justify-center overflow-hidden shrink-0">
                                     {avatarUrl ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
@@ -1263,9 +1263,9 @@ function ProfileMenu({
                                     )}
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="text-sm font-black text-gray-800 truncate">{displayName}</p>
+                                    <p className="text-sm font-semibold text-gray-800 truncate">{displayName}</p>
                                     {examConfig.rollNumber && (
-                                        <p className="text-[11px] font-bold text-gray-400 truncate mt-0.5">
+                                        <p className="text-[11px] font-medium text-gray-400 truncate mt-0.5">
                                             Roll: {examConfig.rollNumber}
                                         </p>
                                     )}
@@ -1278,7 +1278,7 @@ function ProfileMenu({
                                         setOpen(false);
                                         examConfig.onRefresh?.();
                                     }}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-black text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                                 >
                                     <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500">
                                         <svg
@@ -1308,7 +1308,7 @@ function ProfileMenu({
                         aria-haspopup="true"
                         aria-expanded={open}
                         aria-label={`Account menu for ${displayName}`}
-                        className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white font-black text-sm overflow-hidden relative"
+                        className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white font-semibold text-sm overflow-hidden relative"
                     >
                         {avatarUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -1319,9 +1319,9 @@ function ProfileMenu({
                     </button>
 
                     {open && (
-                        <div className="absolute right-0 top-full mt-3 w-72 rounded-2xl bg-white shadow-2xl ring-1 ring-gray-200/60 z-50 overflow-hidden animate-fade-in">
+                        <div className="absolute right-0 top-full mt-3 w-72 rounded-lg bg-white shadow-lg ring-1 ring-gray-200/60 z-50 overflow-hidden animate-fade-in">
                             <div className="px-4 py-4 border-b border-gray-100 flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] text-white font-black flex items-center justify-center overflow-hidden shrink-0">
+                                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] text-white font-semibold flex items-center justify-center overflow-hidden shrink-0">
                                     {avatarUrl ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
@@ -1330,13 +1330,13 @@ function ProfileMenu({
                                     )}
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="text-sm font-black text-gray-800 truncate">{displayName}</p>
+                                    <p className="text-sm font-semibold text-gray-800 truncate">{displayName}</p>
                                     {displayEmail && (
-                                        <p className="text-[11px] font-bold text-gray-400 truncate mt-0.5">
+                                        <p className="text-[11px] font-medium text-gray-400 truncate mt-0.5">
                                             {displayEmail}
                                         </p>
                                     )}
-                                    <span className="inline-flex mt-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-[var(--brand-lighter)] text-[var(--brand)] border border-[var(--brand-light)]">
+                                    <span className="inline-flex mt-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-widest bg-[var(--brand-lighter)] text-[var(--brand)] border border-[var(--brand-light)]">
                                         {getLabel()}
                                     </span>
                                 </div>
@@ -1348,7 +1348,7 @@ function ProfileMenu({
                                         setOpen(false);
                                         router.push(`${dashboardPath}/profile`);
                                     }}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-black text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                                 >
                                     <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500">
                                         <svg
@@ -1372,7 +1372,7 @@ function ProfileMenu({
                                             setOpen(false);
                                             router.push('/dashboard/creator/billing');
                                         }}
-                                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-black text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                                     >
                                         <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500">
                                             <CreditCard size={16} />
@@ -1384,7 +1384,7 @@ function ProfileMenu({
                                 {canAccessSupport && (
                                     <button
                                         onClick={handleSupportClick}
-                                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-black text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                                     >
                                         <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500">
                                             <LifeBuoy size={16} />
@@ -1397,7 +1397,7 @@ function ProfileMenu({
 
                                 <button
                                     onClick={handleSignOut}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-black text-rose-600 hover:bg-rose-50 transition-colors"
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-colors"
                                 >
                                     <div className="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center text-rose-500">
                                         <svg
@@ -1438,7 +1438,7 @@ function MenuBtn({
     return (
         <button
             onClick={onClick}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold transition-all ${
+            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all ${
                 danger ? 'text-red-500 hover:bg-red-50' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
             }`}
         >
@@ -1498,20 +1498,20 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                 >
                     <Megaphone size={18} />
                     {unreadCount > 0 && (
-                        <span className="absolute -top-1 -right-1 w-4.5 h-4.5 min-w-[18px] bg-rose-500 text-white text-[8px] font-black rounded-full flex items-center justify-center shadow-lg shadow-rose-500/30 px-1">
+                        <span className="absolute -top-1 -right-1 w-4.5 h-4.5 min-w-[18px] bg-rose-500 text-white text-[8px] font-semibold rounded-full flex items-center justify-center shadow-lg px-1">
                             {unreadCount > 9 ? '9+' : unreadCount}
                         </span>
                     )}
                 </button>
 
                 {open && (
-                    <div className="absolute right-0 top-full mt-3 w-80 rounded-2xl bg-white shadow-2xl ring-1 ring-gray-200/60 z-50 animate-fade-in overflow-hidden">
+                    <div className="absolute right-0 top-full mt-3 w-80 rounded-lg bg-white shadow-lg ring-1 ring-gray-200/60 z-50 animate-fade-in overflow-hidden">
                         <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
-                            <h3 className="text-xs font-black uppercase tracking-widest text-gray-800 flex items-center gap-2">
+                            <h3 className="text-xs font-semibold uppercase tracking-widest text-gray-800 flex items-center gap-2">
                                 <Megaphone size={14} className="text-[var(--brand)]" /> Announcements
                             </h3>
                             {unreadCount > 0 && (
-                                <span className="text-[9px] font-black text-[var(--brand)] bg-[var(--brand-light)] px-2 py-0.5 rounded-lg uppercase">
+                                <span className="text-[9px] font-semibold text-[var(--brand)] bg-[var(--brand-light)] px-2 py-0.5 rounded-lg uppercase">
                                     {unreadCount} new
                                 </span>
                             )}
@@ -1520,7 +1520,7 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                             {announcements.length === 0 ? (
                                 <div className="p-8 text-center">
                                     <Megaphone size={24} className="text-gray-200 mx-auto mb-2" />
-                                    <p className="text-xs font-bold text-gray-400">No announcements yet</p>
+                                    <p className="text-xs font-medium text-gray-400">No announcements yet</p>
                                 </div>
                             ) : (
                                 announcements.slice(0, 8).map((ann) => (
@@ -1542,11 +1542,11 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p
-                                                className={`text-[13px] font-bold truncate ${ann.isRead ? 'text-gray-600' : 'text-gray-800'}`}
+                                                className={`text-[13px] font-medium truncate ${ann.isRead ? 'text-gray-600' : 'text-gray-800'}`}
                                             >
                                                 {ann.title}
                                             </p>
-                                            <p className="text-[10px] font-bold text-gray-400 mt-0.5">
+                                            <p className="text-[10px] font-medium text-gray-400 mt-0.5">
                                                 {new Date(ann.createdAt).toLocaleDateString('en-US', {
                                                     month: 'short',
                                                     day: 'numeric',
@@ -1565,33 +1565,33 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                 )}
             </div>
 
-            {/* Full Announcement Popup - Portal to escape backdrop-blur containing block */}
+            {/* Full Announcement Popup - Portal to escape containing block */}
             {selectedAnn &&
                 typeof document !== 'undefined' &&
                 createPortal(
                     <div className="fixed inset-0 z-[1200] flex items-center justify-center p-4">
                         <div
-                            className="absolute inset-0 bg-gray-900/60 backdrop-blur-md"
+                            className="absolute inset-0 bg-gray-900/60"
                             onClick={() => setSelectedAnn(null)}
                         />
-                        <div className="bg-white w-full max-w-2xl rounded-3xl sm:rounded-[48px] p-6 sm:p-12 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[85vh] overflow-y-auto custom-scrollbar">
+                        <div className="bg-white w-full max-w-2xl rounded-lg sm:rounded-lg p-6 sm:p-12 shadow-lg relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[85vh] overflow-y-auto custom-scrollbar">
                             <button
                                 onClick={() => setSelectedAnn(null)}
                                 aria-label="Close"
-                                className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl sm:rounded-2xl bg-gray-50 hover:bg-gray-100 text-gray-400 transition-all active:scale-95"
+                                className="absolute top-5 right-5 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl sm:rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-400 transition-all active:scale-95"
                             >
                                 <X size={20} strokeWidth={3} />
                             </button>
 
                             <div className="flex items-start gap-5 mb-8">
-                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center flex-shrink-0 shadow-lg shadow-[var(--brand)]/20">
+                                <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center flex-shrink-0 shadow-sm">
                                     <Megaphone size={24} className="text-white" />
                                 </div>
                                 <div>
-                                    <h2 className="text-2xl font-black text-gray-900 tracking-tight mb-1">
+                                    <h2 className="text-2xl font-semibold text-gray-900 tracking-tight mb-1">
                                         {selectedAnn.title}
                                     </h2>
-                                    <div className="flex items-center gap-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                    <div className="flex items-center gap-3 text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
                                         <span>
                                             {new Date(selectedAnn.createdAt).toLocaleDateString('en-US', {
                                                 weekday: 'short',
@@ -1615,7 +1615,7 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                                     {selectedAnn.groups.map((g: any) => (
                                         <span
                                             key={g.id}
-                                            className="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider bg-[var(--brand-light)] text-[var(--brand-dark)] border border-[var(--brand-light)]"
+                                            className="px-2.5 py-1 rounded-lg text-[9px] font-semibold uppercase tracking-wider bg-[var(--brand-light)] text-[var(--brand-dark)] border border-[var(--brand-light)]"
                                         >
                                             {g.name}
                                         </span>
@@ -1624,15 +1624,15 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                             )}
 
                             <div
-                                className="prose prose-sm max-w-none text-gray-700 mb-8 [&_p]:mb-3 [&_h1]:text-xl [&_h1]:font-black [&_h2]:text-lg [&_h2]:font-black [&_ul]:list-disc [&_ol]:list-decimal [&_li]:ml-4 [&_a]:text-[var(--brand)] [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-[var(--brand-light)] [&_blockquote]:pl-4 [&_blockquote]:italic [&_img]:rounded-2xl [&_img]:max-w-full"
+                                className="prose prose-sm max-w-none text-gray-700 mb-8 [&_p]:mb-3 [&_h1]:text-xl [&_h1]:font-semibold [&_h2]:text-lg [&_h2]:font-semibold [&_ul]:list-disc [&_ol]:list-decimal [&_li]:ml-4 [&_a]:text-[var(--brand)] [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-[var(--brand-light)] [&_blockquote]:pl-4 [&_blockquote]:italic [&_img]:rounded-lg [&_img]:max-w-full"
                                 dangerouslySetInnerHTML={{
                                     __html: sanitizeProse(selectedAnn.content),
                                 }}
                             />
 
                             {Array.isArray(selectedAnn.attachments) && selectedAnn.attachments.length > 0 && (
-                                <div className="bg-gray-50 rounded-[24px] border border-gray-100 p-6">
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">
+                                <div className="bg-gray-50 rounded-lg border border-gray-100 p-6">
+                                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
                                         Attachments
                                     </p>
                                     <div className="space-y-2">
@@ -1640,7 +1640,7 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                                             <button
                                                 key={idx}
                                                 onClick={() => handleDownload(att.url, att.name)}
-                                                className="w-full flex items-center gap-3 px-4 py-3 bg-white rounded-2xl border border-gray-100 hover:border-[var(--brand-light)] hover:shadow-sm transition-all cursor-pointer"
+                                                className="w-full flex items-center gap-3 px-4 py-3 bg-white rounded-lg border border-gray-100 hover:border-[var(--brand-light)] hover:shadow-sm transition-all cursor-pointer"
                                             >
                                                 <div className="w-8 h-8 rounded-xl bg-gray-50 flex items-center justify-center">
                                                     {att.type?.startsWith('image/') ? (
@@ -1652,14 +1652,14 @@ function AnnouncementBell({ enabled }: { enabled: boolean }) {
                                                     )}
                                                 </div>
                                                 <div className="flex-1 min-w-0 text-left">
-                                                    <p className="text-xs font-black text-gray-700 truncate">
+                                                    <p className="text-xs font-semibold text-gray-700 truncate">
                                                         {att.name}
                                                     </p>
-                                                    <p className="text-[10px] font-bold text-gray-400">
+                                                    <p className="text-[10px] font-medium text-gray-400">
                                                         {att.size ? `${(att.size / 1024).toFixed(0)} KB` : 'File'}
                                                     </p>
                                                 </div>
-                                                <span className="flex items-center gap-1 text-[10px] font-black text-[var(--brand)] uppercase tracking-widest">
+                                                <span className="flex items-center gap-1 text-[10px] font-semibold text-[var(--brand)] uppercase tracking-widest">
                                                     <Download size={12} /> Download
                                                 </span>
                                             </button>

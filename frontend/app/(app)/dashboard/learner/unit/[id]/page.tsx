@@ -696,7 +696,7 @@ export default function StudentUnitPage({ params: paramsPromise }: { params: Pro
         return (
             <div className="h-full min-h-0 flex flex-col bg-white overflow-hidden font-sans">
                 <div className="flex-1 flex items-center justify-center">
-                    <div className="text-lg font-bold text-red-400">Unit not found</div>
+                    <div className="text-lg font-medium text-red-400">Unit not found</div>
                 </div>
             </div>
         );

@@ -40,10 +40,10 @@ export default function MCQEditor({ question, onChange }: MCQEditorProps) {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h4 className="text-[11px] font-black uppercase tracking-widest text-gray-400">Options</h4>
+                <h4 className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">Options</h4>
                 <button
                     onClick={addOption}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-[var(--brand-light)] text-[var(--brand)] rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-[var(--brand-light)]/80 transition-colors"
+                    className="flex items-center gap-2 px-3 py-1.5 bg-[var(--brand-light)] text-[var(--brand)] rounded-lg text-[10px] font-semibold uppercase tracking-widest hover:bg-[var(--brand-light)]/80 transition-colors"
                 >
                     <Plus size={14} strokeWidth={3} />
                     Add Option
@@ -70,7 +70,7 @@ export default function MCQEditor({ question, onChange }: MCQEditorProps) {
                                 placeholder={`Option ${index + 1}...`}
                                 value={option.text}
                                 onChange={(e) => updateOptionText(option.id, e.target.value)}
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm font-bold text-gray-700 outline-none focus:border-[var(--brand-light)] focus:ring-4 focus:ring-[var(--brand)]/5 transition-all"
+                                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium text-gray-700 outline-none focus:border-[var(--brand-light)] focus:ring-4 focus:ring-[var(--brand)]/5 transition-all"
                             />
                         </div>
 
@@ -84,8 +84,8 @@ export default function MCQEditor({ question, onChange }: MCQEditorProps) {
                 ))}
 
                 {options.length === 0 && (
-                    <div className="text-center py-10 border-2 border-dashed border-gray-100 rounded-[32px]">
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                    <div className="text-center py-10 border-2 border-dashed border-gray-100 rounded-lg">
+                        <p className="text-xs font-medium text-gray-400 uppercase tracking-widest">
                             No options added yet
                         </p>
                     </div>

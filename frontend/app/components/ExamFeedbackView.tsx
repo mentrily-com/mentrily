@@ -43,26 +43,26 @@ export default function ExamFeedbackView({ onSubmitFeedback, verdict }: ExamFeed
                         orgLogo={orgContext?.logo}
                         defaultLogoClassName="mb-4 h-9 max-w-[180px]"
                         iconClassName="mb-4 h-12 w-12"
-                        textClassName="mb-4 text-lg font-black"
+                        textClassName="mb-4 text-lg font-semibold"
                     />
                     <div className="h-1 w-12 bg-indigo-500 rounded-full" />
                 </div>
 
-                <div className="w-full bg-white rounded-3xl sm:rounded-[2.5rem] p-5 sm:p-10 shadow-2xl shadow-gray-200/60 border border-gray-100 text-center relative overflow-hidden">
+                <div className="w-full bg-white rounded-lg sm:rounded-[2.5rem] p-5 sm:p-10 shadow-lg border border-gray-100 text-center relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-2 bg-indigo-500" />
 
-                    <h1 className="text-2xl sm:text-3xl font-black text-gray-900 mb-2 tracking-tight">How was your experience?</h1>
+                    <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-2 tracking-tight">How was your experience?</h1>
                     <p className="text-gray-500 font-medium mb-8 sm:mb-10 text-base sm:text-lg">
                         Your feedback helps us make exams better for everyone.
                     </p>
                     {verdict ? (
                         <div
-                            className={`mb-6 rounded-2xl border px-4 py-3 text-left ${
+                            className={`mb-6 rounded-lg border px-4 py-3 text-left ${
                                 verdict.passed ? 'border-emerald-200 bg-emerald-50' : 'border-rose-200 bg-rose-50'
                             }`}
                         >
                             <p
-                                className={`text-sm font-black ${verdict.passed ? 'text-emerald-700' : 'text-rose-700'}`}
+                                className={`text-sm font-semibold ${verdict.passed ? 'text-emerald-700' : 'text-rose-700'}`}
                             >
                                 {verdict.passed ? 'Passed' : 'Failed'}
                                 {typeof verdict.score === 'number' ? ` - ${Math.round(verdict.score)}%` : ''}
@@ -83,10 +83,10 @@ export default function ExamFeedbackView({ onSubmitFeedback, verdict }: ExamFeed
                                     onMouseLeave={() => setHoveredRating(0)}
                                     onClick={() => setRating(star)}
                                     className={`
-                                        w-11 h-11 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-3xl transition-all duration-300 transform
+                                        w-11 h-11 sm:w-16 sm:h-16 rounded-xl sm:rounded-lg flex items-center justify-center text-xl sm:text-3xl transition-all duration-300 transform
                                         ${
                                             (hoveredRating || rating) >= star
-                                                ? 'bg-indigo-600 text-white scale-110 shadow-xl shadow-indigo-200 ring-4 ring-indigo-50'
+                                                ? 'bg-indigo-600 text-white scale-110 shadow-md ring-4 ring-indigo-50'
                                                 : 'bg-gray-50 text-gray-300 hover:bg-gray-100 hover:text-gray-400'
                                         }
                                         active:scale-95
@@ -98,7 +98,7 @@ export default function ExamFeedbackView({ onSubmitFeedback, verdict }: ExamFeed
                         </div>
                         <div className="h-6">
                             {(hoveredRating || rating) > 0 && (
-                                <span className="text-indigo-600 font-black uppercase tracking-widest text-xs animate-in slide-in-from-bottom-2 duration-300">
+                                <span className="text-indigo-600 font-semibold uppercase tracking-widest text-xs animate-in slide-in-from-bottom-2 duration-300">
                                     {ratingDescriptions[hoveredRating || rating]}
                                 </span>
                             )}
@@ -111,7 +111,7 @@ export default function ExamFeedbackView({ onSubmitFeedback, verdict }: ExamFeed
                             placeholder="Add a comment (optional)..."
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
-                            className="w-full h-32 px-6 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none placeholder:text-gray-400"
+                            className="w-full h-32 px-6 py-4 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none placeholder:text-gray-400"
                         />
                     </div>
 
@@ -119,10 +119,10 @@ export default function ExamFeedbackView({ onSubmitFeedback, verdict }: ExamFeed
                         onClick={handleSubmit}
                         disabled={rating === 0}
                         className={`
-                            w-full h-14 rounded-2xl font-black text-sm uppercase tracking-widest transition-all duration-300
+                            w-full h-14 rounded-lg font-semibold text-sm uppercase tracking-widest transition-all duration-300
                             ${
                                 rating > 0
-                                    ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200 active:scale-95'
+                                    ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg active:scale-95'
                                     : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                             }
                         `}
@@ -130,7 +130,7 @@ export default function ExamFeedbackView({ onSubmitFeedback, verdict }: ExamFeed
                         Submit Feedback
                     </button>
 
-                    <p className="mt-6 text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
+                    <p className="mt-6 text-[10px] font-medium text-gray-400 uppercase tracking-tighter">
                         Powered by {displayName} &bull; {new Date().getFullYear()}
                     </p>
                 </div>

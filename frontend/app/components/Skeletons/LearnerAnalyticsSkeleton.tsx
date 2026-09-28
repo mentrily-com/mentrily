@@ -34,7 +34,7 @@ export default function LearnerAnalyticsSkeleton() {
                 {/* STAT TILES */}
                 <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
                     {[1, 2, 3, 4, 5, 6].map((i) => (
-                        <div key={i} className="bg-white rounded-2xl border border-gray-200/60 shadow-sm p-4">
+                        <div key={i} className="bg-white rounded-lg border border-gray-200/60 shadow-sm p-4">
                             <div className="flex items-center justify-between mb-3">
                                 <div className="h-2.5 w-12 animate-pulse rounded bg-gray-100" />
                                 <div className="h-7 w-7 animate-pulse rounded-lg bg-gray-100" />
@@ -46,7 +46,7 @@ export default function LearnerAnalyticsSkeleton() {
                 </div>
 
                 {/* CONSISTENCY HEATMAP */}
-                <div className="bg-white rounded-[20px] border border-gray-200/60 shadow-sm p-5 sm:p-7">
+                <div className="bg-white rounded-lg border border-gray-200/60 shadow-sm p-5 sm:p-7">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-5">
                         <div className="space-y-2">
                             <div className="h-4 w-44 animate-pulse rounded-md bg-gray-200" />
@@ -59,14 +59,14 @@ export default function LearnerAnalyticsSkeleton() {
 
                 {/* DAILY ACTIVITY + OUTCOME DONUT */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 bg-white rounded-[20px] border border-gray-200/60 shadow-sm p-5 sm:p-7">
+                    <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200/60 shadow-sm p-5 sm:p-7">
                         <div className="mb-6 space-y-2">
                             <div className="h-4 w-36 animate-pulse rounded-md bg-gray-200" />
                             <div className="h-2.5 w-52 animate-pulse rounded bg-gray-100" />
                         </div>
                         <div className="h-[280px] w-full animate-pulse rounded-xl bg-gray-50" />
                     </div>
-                    <div className="bg-white rounded-[20px] border border-gray-200/60 shadow-sm p-5 sm:p-7">
+                    <div className="bg-white rounded-lg border border-gray-200/60 shadow-sm p-5 sm:p-7">
                         <div className="mb-4 space-y-2">
                             <div className="h-4 w-24 animate-pulse rounded-md bg-gray-200" />
                             <div className="h-2.5 w-32 animate-pulse rounded bg-gray-100" />
@@ -83,7 +83,7 @@ export default function LearnerAnalyticsSkeleton() {
                 {/* COURSE PROGRESS + QUESTION TYPES */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {[1, 2].map((col) => (
-                        <div key={col} className="bg-white rounded-[20px] border border-gray-200/60 shadow-sm p-5 sm:p-7">
+                        <div key={col} className="bg-white rounded-lg border border-gray-200/60 shadow-sm p-5 sm:p-7">
                             <div className="h-4 w-40 animate-pulse rounded-md bg-gray-200 mb-1" />
                             <div className="h-2.5 w-56 animate-pulse rounded bg-gray-100 mb-6" />
                             <div className="space-y-5">

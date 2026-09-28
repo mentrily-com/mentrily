@@ -80,7 +80,7 @@ export default function Testimonials() {
                                 duration: 0.48,
                                 ease: [0.25, 0.1, 0.25, 1],
                             }}
-                            className="relative p-6 rounded-2xl transition-all duration-250 cursor-pointer group"
+                            className="relative p-6 rounded-lg transition-all duration-250 cursor-pointer group"
                             style={{
                                 background: 'linear-gradient(180deg, #FFFFFF 0%, #FAFBFF 100%)',
                                 border: '1px solid #E2E8F0',

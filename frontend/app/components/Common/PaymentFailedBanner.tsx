@@ -35,7 +35,7 @@ export default function PaymentFailedBanner({ returnUrl }: PaymentFailedBannerPr
             <div className="max-w-[1600px] mx-auto px-4 lg:px-6 py-2.5 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
                     <AlertTriangle size={16} className="shrink-0" />
-                    <p className="text-xs sm:text-sm font-black tracking-wide truncate">
+                    <p className="text-xs sm:text-sm font-semibold tracking-wide truncate">
                         Your payment failed. Update your payment method to avoid losing access.
                     </p>
                 </div>
@@ -44,7 +44,7 @@ export default function PaymentFailedBanner({ returnUrl }: PaymentFailedBannerPr
                     type="button"
                     onClick={handleFixNow}
                     disabled={isBusy}
-                    className="shrink-0 rounded-lg bg-white text-red-600 px-3 py-1.5 text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-red-50 disabled:opacity-60"
+                    className="shrink-0 rounded-lg bg-white text-red-600 px-3 py-1.5 text-[10px] sm:text-xs font-semibold uppercase tracking-widest hover:bg-red-50 disabled:opacity-60"
                 >
                     {isBusy ? 'Opening...' : 'Fix Now →'}
                 </button>

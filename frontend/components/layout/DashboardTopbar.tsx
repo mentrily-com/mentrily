@@ -188,7 +188,7 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
             {showPaymentFailedBanner && <PaymentFailedBanner />}
 
             <header
-                className="fixed top-0 right-0 left-0 lg:left-[var(--sidebar-current-width)] z-[998] border-b bg-white/95 backdrop-blur flex items-center justify-between gap-2 px-3 sm:px-4 lg:px-6 transition-[left] duration-250 ease-in-out"
+                className="fixed top-0 right-0 left-0 lg:left-[var(--sidebar-current-width)] z-[998] border-b bg-white flex items-center justify-between gap-2 px-3 sm:px-4 lg:px-6 transition-[left] duration-250 ease-in-out"
                 style={{
                     height: 'var(--topbar-height)',
                     borderColor: 'var(--color-border-subtle)',
@@ -224,7 +224,7 @@ export default function DashboardTopbar({ userRole, collapsed = false, onMobileM
                                 orgLogo={orgContext?.logo}
                                 defaultLogoClassName="h-7 max-w-[140px]"
                                 iconClassName="h-8 w-8 rounded-lg"
-                                textClassName="text-sm font-bold sm:text-base"
+                                textClassName="text-sm font-medium sm:text-base"
                                 priority
                             />
                         </div>

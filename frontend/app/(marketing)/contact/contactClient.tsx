@@ -124,7 +124,7 @@ function ContactForm() {
                         transition={{ delay: 0.1, duration: 0.5 }}
                     >
                         <div
-                            className="p-6 sm:p-8 rounded-2xl"
+                            className="p-6 sm:p-8 rounded-lg"
                             style={{
                                 backgroundColor: '#FFFFFF',
                                 border: '1px solid #E2E8F0',
@@ -299,7 +299,7 @@ function ContactForm() {
                                 return (
                                     <div
                                         key={card.title}
-                                        className="p-5 rounded-2xl transition-all duration-300 cursor-pointer group"
+                                        className="p-5 rounded-lg transition-all duration-300 cursor-pointer group"
                                         style={{
                                             backgroundColor: card.title.includes('Partnership') ? '#F0FDFA' : '#FFFFFF',
                                             border: card.title.includes('Partnership')
@@ -333,7 +333,7 @@ function ContactForm() {
                                             </div>
                                             <div className="flex-1">
                                                 <div className="flex items-center justify-between mb-1">
-                                                    <h4 className="text-sm font-bold" style={{ color: '#0F172A' }}>
+                                                    <h4 className="text-sm font-medium" style={{ color: '#0F172A' }}>
                                                         {card.title}
                                                     </h4>
                                                 </div>
@@ -347,7 +347,7 @@ function ContactForm() {
                                                     href={card.href}
                                                     target={card.external ? '_blank' : undefined}
                                                     rel={card.external ? 'noopener noreferrer' : undefined}
-                                                    className="inline-flex items-center gap-1.5 text-xs font-bold transition-colors duration-200"
+                                                    className="inline-flex items-center gap-1.5 text-xs font-medium transition-colors duration-200"
                                                     style={{ color: '#006a72' }}
                                                 >
                                                     {/* The nudge is a transform on the arrow rather than an

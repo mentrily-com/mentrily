@@ -131,7 +131,7 @@ export default function SocialProof() {
                                 </div>
                                 {/* Number */}
                                 <span
-                                    className="text-2xl sm:text-3xl font-bold tabular-nums"
+                                    className="text-2xl sm:text-3xl font-medium tabular-nums"
                                     style={{
                                         color: '#0F172A',
                                         fontFamily: 'var(--font-body), system-ui, sans-serif',

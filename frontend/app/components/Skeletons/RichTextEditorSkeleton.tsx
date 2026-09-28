@@ -8,13 +8,13 @@
  * grid -- wildly oversized and shaped nothing like the small toolbar-plus-
  * editor box it's actually standing in for. This instead mirrors the real
  * editor's rounded card, wrapping icon-button toolbar, and content area
- * proportions (see the `border rounded-[32px]` wrapper and toolbar row in
+ * proportions (see the `border rounded-lg` wrapper and toolbar row in
  * RichTextEditor.tsx) so the editor fades in without the surrounding form
  * jumping in height.
  */
 export default function RichTextEditorSkeleton() {
     return (
-        <div className="border border-gray-200 rounded-[32px] overflow-hidden">
+        <div className="border border-gray-200 rounded-lg overflow-hidden">
             <div className="flex flex-wrap items-center gap-1 p-3 border-b border-gray-200 bg-gray-50">
                 {[1, 2, 3, 4, 5, 6, 7].map((i) => (
                     <div key={i} className="flex gap-0.5 rounded-xl bg-white/10 p-0.5">

@@ -21,7 +21,7 @@ const secondaryButton =
 /** The message exactly as it will appear in the chat once sent. */
 function MessagePreview({ prompt }: { prompt: GatePrompt }) {
     return (
-        <div className="flex justify-end rounded-2xl bg-gray-50 px-4 py-5">
+        <div className="flex justify-end rounded-lg bg-gray-50 px-4 py-5">
             <div className="max-w-[90%] space-y-1.5">
                 {prompt.command && (
                     <div className="flex justify-end">
@@ -30,7 +30,7 @@ function MessagePreview({ prompt }: { prompt: GatePrompt }) {
                         </span>
                     </div>
                 )}
-                <p className="line-clamp-4 whitespace-pre-wrap break-words rounded-2xl rounded-br-md border border-gray-200 bg-white px-4 py-2.5 text-[15px] leading-6 text-gray-900">
+                <p className="line-clamp-4 whitespace-pre-wrap break-words rounded-lg rounded-br-md border border-gray-200 bg-white px-4 py-2.5 text-[15px] leading-6 text-gray-900">
                     {prompt.text}
                 </p>
             </div>

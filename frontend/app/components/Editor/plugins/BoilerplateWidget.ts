@@ -42,7 +42,7 @@ export class BoilerplateWidget extends WidgetType {
         arrow.textContent = '▼';
 
         const title = document.createElement('span');
-        title.className = 'text-[10px] font-bold text-gray-400 font-mono tracking-tight';
+        title.className = 'text-[10px] font-medium text-gray-400 font-mono tracking-tight';
         title.textContent = this.type === 'header' ? 'Show Boilerplate Header' : 'Show Boilerplate Footer';
 
         bar.appendChild(arrow);

@@ -15,7 +15,7 @@ export default function OrgControlsSkeleton() {
     return (
         <div className="space-y-6">
             <section className="max-w-[1440px] mx-auto px-6 lg:px-12 pt-8">
-                <div className="bg-white rounded-[32px] border border-gray-100 p-6 shadow-sm">
+                <div className="bg-white rounded-lg border border-gray-100 p-6 shadow-sm">
                     <div className="flex items-center justify-between mb-6">
                         <div className="space-y-2">
                             <div className="h-6 w-56 animate-pulse rounded-md bg-gray-200" />
@@ -32,13 +32,13 @@ export default function OrgControlsSkeleton() {
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div className="rounded-2xl border border-gray-100 p-4 space-y-3">
+                        <div className="rounded-lg border border-gray-100 p-4 space-y-3">
                             <div className="h-3 w-32 animate-pulse rounded bg-gray-200" />
                             <div className="h-11 w-full animate-pulse rounded-xl bg-gray-100" />
                             <div className="h-10 w-full animate-pulse rounded-xl bg-gray-200" />
                         </div>
 
-                        <div className="rounded-2xl border border-gray-100 p-4 space-y-3">
+                        <div className="rounded-lg border border-gray-100 p-4 space-y-3">
                             <div className="h-3 w-28 animate-pulse rounded bg-gray-200" />
                             <div className="grid grid-cols-2 gap-3">
                                 {[1, 2, 3, 4, 5].map((i) => (

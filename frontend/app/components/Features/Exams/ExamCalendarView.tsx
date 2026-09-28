@@ -59,19 +59,19 @@ export default function ExamCalendarView({ exams }: { exams: ScheduledExam[] }) 
     }, [exams, currentMonth, currentYear]);
 
     return (
-        <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden">
             <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
-                <h3 className="text-lg font-black text-gray-900">
+                <h3 className="text-lg font-semibold text-gray-900">
                     {monthStart.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
                 </h3>
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Scheduled Exams</p>
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Scheduled Exams</p>
             </div>
 
             <div className="grid grid-cols-7 border-b border-gray-100 bg-gray-50/70">
                 {weekDays.map((label) => (
                     <div
                         key={label}
-                        className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-500 text-center"
+                        className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-gray-500 text-center"
                     >
                         {label}
                     </div>
@@ -94,7 +94,7 @@ export default function ExamCalendarView({ exams }: { exams: ScheduledExam[] }) 
 
                     return (
                         <div key={key} className="min-h-[130px] border-r border-b border-gray-100/80 p-3 space-y-2">
-                            <div className="text-xs font-black text-gray-500">{cell.getDate()}</div>
+                            <div className="text-xs font-semibold text-gray-500">{cell.getDate()}</div>
                             <div className="space-y-2">
                                 {items.map((exam) => {
                                     const start = new Date(exam.startTime);
@@ -105,10 +105,10 @@ export default function ExamCalendarView({ exams }: { exams: ScheduledExam[] }) 
                                             key={exam.id}
                                             className="rounded-xl border border-[var(--brand)]/20 bg-[var(--brand-light)] px-2.5 py-2"
                                         >
-                                            <p className="text-[11px] font-black text-[var(--brand-dark)] leading-tight line-clamp-2">
+                                            <p className="text-[11px] font-semibold text-[var(--brand-dark)] leading-tight line-clamp-2">
                                                 {exam.title}
                                             </p>
-                                            <p className="text-[10px] font-bold text-[var(--brand)] mt-1">
+                                            <p className="text-[10px] font-medium text-[var(--brand)] mt-1">
                                                 {formatTime(start)}
                                                 {end ? ` - ${formatTime(end)}` : ''}
                                             </p>

@@ -225,7 +225,7 @@ export default function Hero() {
                     >
                         <button
                             type="button"
-                            className="relative w-[min(56vw,880px)] overflow-hidden rounded-2xl text-left transition-all duration-500 xl:w-[min(57vw,920px)]"
+                            className="relative w-[min(56vw,880px)] overflow-hidden rounded-lg text-left transition-all duration-500 xl:w-[min(57vw,920px)]"
                             style={{
                                 border: '1px solid rgba(226,232,240,0.8)',
                                 boxShadow:

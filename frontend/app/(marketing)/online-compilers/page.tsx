@@ -37,7 +37,7 @@ export default function OnlineCompilersPage() {
     return (
         <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6 lg:px-8">
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }} />
-            <h1 className="text-3xl font-black tracking-tight text-gray-950 md:text-4xl">
+            <h1 className="text-3xl font-semibold tracking-tight text-gray-950 md:text-4xl">
                 Free Online Compilers &amp; Code Playgrounds
             </h1>
             <p className="mt-4 max-w-3xl text-base leading-7 text-gray-600">
@@ -46,7 +46,7 @@ export default function OnlineCompilersPage() {
                 support, so it behaves just like a local terminal.
             </p>
 
-            <h2 className="mt-10 text-xl font-black tracking-tight text-gray-950">Programming languages</h2>
+            <h2 className="mt-10 text-xl font-semibold tracking-tight text-gray-950">Programming languages</h2>
             <ul className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3 lg:grid-cols-4">
                 {codeEntries.map((entry) => (
                     <li key={entry.slug}>
@@ -60,7 +60,7 @@ export default function OnlineCompilersPage() {
                 ))}
             </ul>
 
-            <h2 className="mt-10 text-xl font-black tracking-tight text-gray-950">Web &amp; data tools</h2>
+            <h2 className="mt-10 text-xl font-semibold tracking-tight text-gray-950">Web &amp; data tools</h2>
             <ul className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3 lg:grid-cols-4">
                 {toolEntries.map((entry) => (
                     <li key={entry.slug}>
@@ -74,8 +74,8 @@ export default function OnlineCompilersPage() {
                 ))}
             </ul>
 
-            <div className="mt-12 rounded-2xl border border-gray-200 bg-gray-50 p-6">
-                <h2 className="text-lg font-black tracking-tight text-gray-950">Built for teaching, too</h2>
+            <div className="mt-12 rounded-lg border border-gray-200 bg-gray-50 p-6">
+                <h2 className="text-lg font-semibold tracking-tight text-gray-950">Built for teaching, too</h2>
                 <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
                     These playgrounds are powered by the same execution engine Mentrily educators use for auto-graded
                     coding questions in courses and proctored exams. Create a free account to build your own coding
@@ -83,7 +83,7 @@ export default function OnlineCompilersPage() {
                 </p>
                 <Link
                     href="/signup"
-                    className="mt-4 inline-flex items-center rounded-xl bg-[var(--brand)] px-5 py-2.5 text-sm font-black text-white hover:opacity-90"
+                    className="mt-4 inline-flex items-center rounded-xl bg-[var(--brand)] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"
                 >
                     Start free
                 </Link>

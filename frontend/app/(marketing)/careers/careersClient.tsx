@@ -34,7 +34,7 @@ function JobBoard() {
         <section ref={ref} className="py-20 bg-white">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="mb-12">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Open Positions</h2>
+                    <h2 className="text-2xl font-medium text-gray-900 mb-4">Open Positions</h2>
                     <p className="text-gray-600">Join our mission to democratize technical education worldwide.</p>
                 </div>
 
@@ -48,10 +48,10 @@ function JobBoard() {
                             initial={{ opacity: 0, x: -20 }}
                             animate={inView ? { opacity: 1, x: 0 } : {}}
                             transition={{ delay: i * 0.1, duration: 0.5 }}
-                            className="group p-6 rounded-2xl border border-gray-100 hover:border-teal-500/20 hover:bg-teal-50/10 transition-all duration-300 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                            className="group p-6 rounded-lg border border-gray-100 hover:border-teal-500/20 hover:bg-teal-50/10 transition-all duration-300 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                         >
                             <div className="flex-1">
-                                <h3 className="text-lg font-bold text-gray-900 group-hover:text-teal-600 transition-colors mb-2">
+                                <h3 className="text-lg font-medium text-gray-900 group-hover:text-teal-600 transition-colors mb-2">
                                     {job.title}
                                 </h3>
                                 <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
@@ -73,9 +73,9 @@ function JobBoard() {
                     ))}
                 </div>
 
-                <div className="mt-16 p-8 rounded-3xl bg-gray-50 border border-gray-200 text-center">
+                <div className="mt-16 p-8 rounded-lg bg-gray-50 border border-gray-200 text-center">
                     <Heart className="mx-auto text-rose-500 mb-4" size={32} />
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">Don&apos;t see a fit?</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Don&apos;t see a fit?</h3>
                     <p className="text-sm text-gray-600 mb-6">
                         We&apos;re always looking for talented people who share our passion for education.
                     </p>
@@ -83,7 +83,7 @@ function JobBoard() {
                         href="https://forms.gle/mTR3Rv5ZQGejrQndA"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm font-bold text-teal-600 hover:text-teal-700 transition-colors"
+                        className="text-sm font-medium text-teal-600 hover:text-teal-700 transition-colors"
                     >
                         Send us an open application →
                     </a>

@@ -90,9 +90,9 @@ export default function SplitPane({
                 <button
                     type="button"
                     onClick={() => setMobileTab('left')}
-                    className={`flex-1 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 ${
+                    className={`flex-1 text-xs font-semibold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 ${
                         mobileTab === 'left'
-                            ? 'border-b-2 border-[var(--brand)] bg-white text-[var(--brand)] shadow-sm font-black'
+                            ? 'border-b-2 border-[var(--brand)] bg-white text-[var(--brand)] shadow-sm font-semibold'
                             : 'text-gray-500 hover:text-gray-800'
                     }`}
                 >
@@ -101,9 +101,9 @@ export default function SplitPane({
                 <button
                     type="button"
                     onClick={() => setMobileTab('right')}
-                    className={`flex-1 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 ${
+                    className={`flex-1 text-xs font-semibold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 ${
                         mobileTab === 'right'
-                            ? 'border-b-2 border-[var(--brand)] bg-white text-[var(--brand)] shadow-sm font-black'
+                            ? 'border-b-2 border-[var(--brand)] bg-white text-[var(--brand)] shadow-sm font-semibold'
                             : 'text-gray-500 hover:text-gray-800'
                     }`}
                 >

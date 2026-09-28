@@ -210,12 +210,8 @@ export default function TeacherDashboardPage() {
                 initial="hidden"
                 animate="visible"
                 variants={stagger}
-                className="glass-card relative overflow-hidden rounded-2xl p-5 shadow-[0_8px_32px_rgba(15,23,42,0.06)] sm:p-6 lg:rounded-3xl lg:p-8"
+                className="relative overflow-hidden rounded-lg border border-gray-200 bg-white p-5 shadow-sm sm:p-6 lg:p-8"
             >
-                {/* Animated gradient mesh */}
-                <div className="animate-gradient-shift pointer-events-none absolute inset-0 bg-gradient-to-br from-[var(--brand)]/[0.06] via-transparent to-emerald-500/[0.05]" />
-                <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-[var(--brand)]/[0.04] blur-3xl" />
-                <div className="pointer-events-none absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-emerald-500/[0.03] blur-3xl" />
 
                 <div className="relative space-y-5">
                     {/* Badges */}
@@ -250,7 +246,7 @@ export default function TeacherDashboardPage() {
                         <Link
                             href="/dashboard/creator/courses/create"
                             data-element-id="create-course-btn"
-                            className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(0,141,152,0.22)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(0,141,152,0.3)]"
+                            className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                         >
                             <Plus size={15} />
                             Create course
@@ -258,7 +254,7 @@ export default function TeacherDashboardPage() {
                         <Link
                             href="/dashboard/creator/exams/new"
                             data-element-id="create-exam-btn"
-                            className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 bg-white/80 px-5 py-3 text-sm font-semibold text-gray-700 backdrop-blur-sm transition-colors duration-200 hover:bg-white"
+                            className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 bg-white/80 px-5 py-3 text-sm font-semibold text-gray-700 bg-white transition-colors duration-200 hover:bg-white"
                         >
                             <ClipboardList size={15} />
                             Create exam
@@ -266,7 +262,7 @@ export default function TeacherDashboardPage() {
                         {hasOrg && (
                             <Link
                                 href="/dashboard/creator/certificates/create"
-                                className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-amber-200/70 bg-amber-50/70 px-5 py-3 text-sm font-semibold text-amber-800 backdrop-blur-sm transition-colors duration-200 hover:bg-amber-100/80"
+                                className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-amber-200/70 bg-amber-50/70 px-5 py-3 text-sm font-semibold text-amber-800 bg-white transition-colors duration-200 hover:bg-amber-100/80"
                             >
                                 <Award size={15} />
                                 Create certificate
@@ -289,7 +285,7 @@ export default function TeacherDashboardPage() {
                         key={card.label}
                         variants={scaleIn}
                         custom={i}
-                        className="glass-card group cursor-default rounded-2xl p-4 shadow-sm transition-shadow duration-200 hover:shadow-md"
+                        className="group cursor-default rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow duration-200 hover:shadow-md"
                     >
                         <div className="flex items-center justify-between">
                             <div
@@ -304,7 +300,7 @@ export default function TeacherDashboardPage() {
                         <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400">
                             {card.label}
                         </p>
-                        <p className="mt-1 text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl">
+                        <p className="mt-1 text-2xl font-medium tracking-tight text-gray-950 sm:text-3xl">
                             {card.value}
                         </p>
                     </motion.div>
@@ -329,7 +325,7 @@ export default function TeacherDashboardPage() {
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-col gap-3 rounded-2xl border border-amber-200/70 bg-amber-50/70 p-4 backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-3 rounded-lg border border-amber-200/70 bg-amber-50/70 p-4 bg-white sm:flex-row sm:items-center sm:justify-between"
                 >
                     <div className="flex items-start gap-3">
                         <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
@@ -372,7 +368,7 @@ export default function TeacherDashboardPage() {
                     initial={{ opacity: 0, y: 14 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2, duration: 0.45 }}
-                    className="glass-card rounded-2xl p-5 shadow-sm lg:rounded-3xl lg:p-6"
+                    className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm lg:p-6"
                 >
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                         <div>
@@ -411,7 +407,7 @@ export default function TeacherDashboardPage() {
                                     value={searchQuery}
                                     onChange={(event) => setSearchQuery(event.target.value)}
                                     placeholder="Search courses"
-                                    className="focus-ring w-full rounded-xl border border-gray-200 bg-gray-50/60 px-9 py-2.5 text-sm text-gray-700 outline-none backdrop-blur-sm transition-colors duration-200 placeholder:text-gray-400 sm:w-60"
+                                    className="focus-ring w-full rounded-xl border border-gray-200 bg-gray-50/60 px-9 py-2.5 text-sm text-gray-700 outline-none bg-white transition-colors duration-200 placeholder:text-gray-400 sm:w-60"
                                 />
                             </label>
                         </div>
@@ -424,8 +420,8 @@ export default function TeacherDashboardPage() {
                                 .slice(0, 6)
                                 .map((module, i) => <ModuleRow key={module.id} module={module} index={i} />)
                         ) : (
-                            <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50/60 p-8 text-center sm:p-10">
-                                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100 text-gray-400">
+                            <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50/60 p-8 text-center sm:p-10">
+                                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-gray-100 text-gray-400">
                                     <BookOpen size={20} />
                                 </div>
                                 <h3 className="text-base font-semibold text-gray-900">
@@ -464,7 +460,7 @@ export default function TeacherDashboardPage() {
                         initial={{ opacity: 0, x: 12 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.3, duration: 0.4 }}
-                        className="glass-card rounded-2xl p-5 shadow-sm"
+                        className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm"
                     >
                         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-400">
                             Studio pulse
@@ -506,7 +502,7 @@ export default function TeacherDashboardPage() {
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.35, duration: 0.45 }}
-                className="glass-card rounded-2xl p-5 shadow-sm lg:rounded-3xl lg:p-6"
+                className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm lg:p-6"
             >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
@@ -517,7 +513,7 @@ export default function TeacherDashboardPage() {
                     </div>
                     <Link
                         href="/dashboard/creator/analytics"
-                        className="inline-flex cursor-pointer items-center gap-2 self-start rounded-xl border border-gray-200 bg-white/80 px-4 py-2.5 text-sm font-semibold text-gray-700 backdrop-blur-sm transition-colors hover:bg-white"
+                        className="inline-flex cursor-pointer items-center gap-2 self-start rounded-xl border border-gray-200 bg-white/80 px-4 py-2.5 text-sm font-semibold text-gray-700 bg-white transition-colors hover:bg-white"
                     >
                         Open analytics
                         <ArrowUpRight size={14} />
@@ -577,7 +573,7 @@ export default function TeacherDashboardPage() {
                             </div>
                         </div>
 
-                        <div className="mt-5 rounded-xl border border-gray-200 bg-gray-50/80 p-4 backdrop-blur-sm">
+                        <div className="mt-5 rounded-xl border border-gray-200 bg-gray-50/80 p-4 bg-white">
                             <p className="text-sm text-gray-600">
                                 Current plan: <span className="font-semibold text-gray-950">{plan}</span>
                             </p>
@@ -639,10 +635,8 @@ function CapacityPanel({
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15, duration: 0.45 }}
-            className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-gray-950/95 p-5 text-white shadow-[0_12px_36px_rgba(15,23,42,0.28)] backdrop-blur-xl lg:rounded-3xl"
+            className="relative overflow-hidden rounded-lg border border-white/[0.06] bg-gray-950/95 p-5 text-white shadow-lg"
         >
-            {/* Decorative glow */}
-            <div className="pointer-events-none absolute -right-24 -top-24 h-48 w-48 rounded-full bg-[var(--brand)]/[0.08] blur-3xl" />
 
             <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                 <div className="flex-1 space-y-4">
@@ -678,7 +672,7 @@ function CapacityPanel({
                     </div>
                 </div>
 
-                <div className="rounded-2xl border border-white/[0.08] bg-white/[0.04] p-4 lg:w-64">
+                <div className="rounded-lg border border-white/[0.08] bg-white/[0.04] p-4 lg:w-64">
                     <p className="text-sm font-semibold text-white">Publishing runway</p>
                     <p className="mt-1 text-xs leading-6 text-gray-300">
                         {hasHardLimitBreach
@@ -753,7 +747,7 @@ function ModuleRow({ module, index }: { module: StudioModule; index: number }) {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05, duration: 0.35 }}
-            className={`group rounded-xl border border-gray-200/80 bg-white/60 p-4 backdrop-blur-sm transition-all duration-200 hover:border-gray-300 hover:bg-white hover:shadow-sm ${
+            className={`group rounded-xl border border-gray-200/80 bg-white/60 p-4 bg-white transition-all duration-200 hover:border-gray-300 hover:bg-white hover:shadow-sm ${
                 status === 'Published' ? 'border-l-[3px] border-l-emerald-400' : 'border-l-[3px] border-l-gray-300'
             }`}
         >

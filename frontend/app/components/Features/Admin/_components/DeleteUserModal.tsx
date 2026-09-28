@@ -29,10 +29,10 @@ export default function DeleteUserModal({ user, onClose, onConfirm }: DeleteUser
                 aria-modal="true"
                 aria-labelledby="delete-user-title"
                 tabIndex={-1}
-                className="relative bg-white w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-3xl sm:rounded-[40px] shadow-2xl animate-in zoom-in-95 duration-300 border border-gray-100 focus:outline-none"
+                className="relative bg-white w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-lg sm:rounded-lg shadow-lg animate-in zoom-in-95 duration-300 border border-gray-100 focus:outline-none"
             >
                 <div className="p-5 sm:p-8 pb-0 flex justify-between items-start">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl sm:rounded-[24px] bg-rose-50 flex items-center justify-center text-rose-500">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg sm:rounded-lg bg-rose-50 flex items-center justify-center text-rose-500">
                         <AlertTriangle size={28} />
                     </div>
                     <button
@@ -46,18 +46,18 @@ export default function DeleteUserModal({ user, onClose, onConfirm }: DeleteUser
                 <div className="p-5 sm:p-8 pt-4 sm:pt-6">
                     <h2
                         id="delete-user-title"
-                        className="text-2xl font-black text-gray-900 tracking-tight leading-none mb-3"
+                        className="text-2xl font-semibold text-gray-900 tracking-tight leading-none mb-3"
                     >
                         Remove from organization
                     </h2>
-                    <p className="text-sm font-bold text-gray-400 mb-8">
+                    <p className="text-sm font-medium text-gray-400 mb-8">
                         You are about to remove <span className="text-gray-900">{user.name}</span> from this
                         organization&apos;s workspace. If this is their only organization, their account is deleted
                         entirely; if they belong to another organization, their account there is untouched.
                     </p>
                     <div className="space-y-4">
-                        <div className="bg-gray-50 p-4 rounded-[24px] border border-gray-100">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5 block">
+                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                            <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-1.5 block">
                                 Type &quot;DELETE&quot; to confirm
                             </label>
                             <input
@@ -66,20 +66,20 @@ export default function DeleteUserModal({ user, onClose, onConfirm }: DeleteUser
                                 value={confirmText}
                                 onChange={(event) => setConfirmText(event.target.value)}
                                 placeholder="DELETE"
-                                className="w-full bg-transparent text-sm font-black text-rose-600 outline-none placeholder:text-gray-200"
+                                className="w-full bg-transparent text-sm font-semibold text-rose-600 outline-none placeholder:text-gray-200"
                             />
                         </div>
                         <div className="flex gap-3">
                             <button
                                 onClick={onClose}
-                                className="flex-1 py-4 bg-gray-50 text-gray-400 text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-gray-100 transition-all border border-transparent"
+                                className="flex-1 py-4 bg-gray-50 text-gray-400 text-xs font-semibold uppercase tracking-widest rounded-lg hover:bg-gray-100 transition-all border border-transparent"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={() => onConfirm(user.id)}
                                 disabled={!isValid}
-                                className={`flex-1 py-4 text-xs font-black uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-rose-100 ${isValid ? 'bg-rose-600 text-white hover:scale-[1.02] active:scale-95' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}
+                                className={`flex-1 py-4 text-xs font-semibold uppercase tracking-widest rounded-lg transition-all shadow-md ${isValid ? 'bg-rose-600 text-white hover:scale-[1.02] active:scale-95' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}
                             >
                                 Confirm Delete
                             </button>

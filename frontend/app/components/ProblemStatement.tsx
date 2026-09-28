@@ -91,10 +91,10 @@ function ProblemStatementComponent({
                             <button
                                 onClick={onToggleReview}
                                 className={`
-                                flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all font-black text-[10px] uppercase tracking-widest sm:px-4
+                                flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all font-semibold text-[10px] uppercase tracking-widest sm:px-4
                                 ${
                                     isMarkedForReview
-                                        ? 'bg-amber-50 border-amber-200 text-amber-600 shadow-sm shadow-amber-200/50'
+                                        ? 'bg-amber-50 border-amber-200 text-amber-600 shadow-sm'
                                         : 'bg-gray-50 border-gray-100 text-gray-400 hover:bg-gray-100'
                                 }
                             `}
@@ -121,7 +121,7 @@ function ProblemStatementComponent({
                 {/* Problem Title */}
                 <div className="px-4 py-3 sm:px-8 sm:py-8">
                     <div className="mb-2 flex items-start justify-between gap-3 sm:gap-4">
-                        <h1 className="min-w-0 break-words text-base font-black tracking-tight text-gray-800 sm:text-2xl">
+                        <h1 className="min-w-0 break-words text-base font-semibold tracking-tight text-gray-800 sm:text-2xl">
                             {title}
                         </h1>
 
@@ -132,7 +132,7 @@ function ProblemStatementComponent({
                                 onClick={onToggleReview}
                                 className={`shrink-0 rounded-xl border p-2 transition-all sm:p-2.5 ${
                                     isMarkedForReview
-                                        ? 'bg-amber-50 border-amber-200 text-amber-600 shadow-sm shadow-amber-200/50'
+                                        ? 'bg-amber-50 border-amber-200 text-amber-600 shadow-sm'
                                         : 'bg-white border-gray-100 text-gray-300 hover:text-gray-500 hover:border-gray-200'
                                 }
                             `}
@@ -184,7 +184,7 @@ function ProblemStatementComponent({
                     {marksObtained !== undefined && questionTotalMarks !== undefined && (
                         <div className="mb-4">
                             <span
-                                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider border ${
+                                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider border ${
                                     marksObtained === questionTotalMarks
                                         ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
                                         : marksObtained > 0
@@ -224,8 +224,8 @@ function ProblemStatementComponent({
                         ></div>
 
                         {task && (
-                            <div className="rounded-2xl border border-gray-100 bg-gray-50/50 p-3 sm:p-6">
-                                <h3 className="mb-2 flex items-center gap-2 text-sm font-bold text-gray-800 sm:mb-3 sm:text-base">
+                            <div className="rounded-lg border border-gray-100 bg-gray-50/50 p-3 sm:p-6">
+                                <h3 className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-800 sm:mb-3 sm:text-base">
                                     <span className="h-5 w-1.5 rounded-full bg-[var(--brand)] sm:h-6"></span>
                                     Task
                                 </h3>
@@ -235,13 +235,13 @@ function ProblemStatementComponent({
 
                         {exampleInput && (
                             <div className="space-y-4">
-                                <h3 className="text-gray-800 font-bold flex items-center gap-2">
+                                <h3 className="text-gray-800 font-medium flex items-center gap-2">
                                     <span className="w-1.5 h-6 bg-gray-200 rounded-full"></span>
                                     Example
                                 </h3>
                                 <div className="grid grid-cols-1 gap-4">
                                     <div className="space-y-2 min-w-0">
-                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                        <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
                                             Input
                                         </span>
                                         <div className="w-full overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
@@ -252,7 +252,7 @@ function ProblemStatementComponent({
                                     </div>
                                     {exampleOutput && (
                                         <div className="space-y-2 min-w-0">
-                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
                                                 Output
                                             </span>
                                             <div className="w-full overflow-hidden rounded-xl border border-gray-100 bg-gray-50">

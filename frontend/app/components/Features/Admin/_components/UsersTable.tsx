@@ -127,7 +127,7 @@ export default function UsersTable({
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 <div
-                                                    className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold shrink-0"
+                                                    className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-medium shrink-0"
                                                     style={{
                                                         backgroundColor: 'var(--color-bg-muted)',
                                                         color: 'var(--color-text-secondary)',
@@ -169,7 +169,7 @@ export default function UsersTable({
                                                         value={user.role}
                                                         onChange={(e) => onRoleChange(user, e.target.value)}
                                                         onClick={(e) => e.stopPropagation()}
-                                                        className={`px-2.5 py-1 rounded-lg border text-[10px] sm:text-[9px] font-black uppercase tracking-widest cursor-pointer outline-none ${ROLE_SELECT_STYLES[user.role] || ROLE_SELECT_STYLES.STUDENT}`}
+                                                        className={`px-2.5 py-1 rounded-lg border text-[10px] sm:text-[9px] font-semibold uppercase tracking-widest cursor-pointer outline-none ${ROLE_SELECT_STYLES[user.role] || ROLE_SELECT_STYLES.STUDENT}`}
                                                         title="Change role"
                                                     >
                                                         {ROLE_OPTIONS.map((role) => (

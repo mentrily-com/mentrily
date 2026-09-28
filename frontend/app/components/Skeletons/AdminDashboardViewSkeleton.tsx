@@ -24,9 +24,9 @@ export default function AdminDashboardViewSkeleton() {
                 {/* Stats grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                     {[1, 2, 3, 4, 5, 6].map((i) => (
-                        <div key={i} className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm">
+                        <div key={i} className="bg-white p-6 rounded-lg border border-gray-100 shadow-sm">
                             <div className="flex items-center justify-between mb-4">
-                                <div className="h-12 w-12 animate-pulse rounded-2xl bg-gray-100" />
+                                <div className="h-12 w-12 animate-pulse rounded-lg bg-gray-100" />
                                 <div className="h-5 w-14 animate-pulse rounded-lg bg-gray-100" />
                             </div>
                             <div className="h-2.5 w-24 animate-pulse rounded bg-gray-100 mb-2" />
@@ -36,7 +36,7 @@ export default function AdminDashboardViewSkeleton() {
                 </div>
 
                 {/* Plan usage panel */}
-                <div className="bg-white rounded-[32px] border border-gray-100 p-6 shadow-sm mb-8">
+                <div className="bg-white rounded-lg border border-gray-100 p-6 shadow-sm mb-8">
                     <div className="h-4 w-28 animate-pulse rounded bg-gray-200 mb-5" />
                     <div className="space-y-5">
                         {[1, 2, 3].map((i) => (
@@ -54,7 +54,7 @@ export default function AdminDashboardViewSkeleton() {
                 {/* Analytics + live status */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 space-y-8">
-                        <div className="bg-white rounded-[40px] border border-gray-100 p-8 shadow-sm">
+                        <div className="bg-white rounded-lg border border-gray-100 p-8 shadow-sm">
                             <div className="flex items-center justify-between mb-8">
                                 <div className="h-5 w-40 animate-pulse rounded-md bg-gray-200" />
                                 <div className="h-8 w-28 animate-pulse rounded-xl bg-gray-100" />
@@ -77,9 +77,9 @@ export default function AdminDashboardViewSkeleton() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {[1, 2].map((i) => (
-                                <div key={i} className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm">
+                                <div key={i} className="bg-white p-6 rounded-lg border border-gray-100 shadow-sm">
                                     <div className="flex items-start justify-between mb-6">
-                                        <div className="h-12 w-12 animate-pulse rounded-2xl bg-gray-100" />
+                                        <div className="h-12 w-12 animate-pulse rounded-lg bg-gray-100" />
                                         <div className="h-8 w-8 animate-pulse rounded-full bg-gray-50" />
                                     </div>
                                     <div className="h-4 w-32 animate-pulse rounded-md bg-gray-200 mb-2" />
@@ -90,14 +90,14 @@ export default function AdminDashboardViewSkeleton() {
                         </div>
                     </div>
 
-                    <div className="bg-gray-900 rounded-[40px] p-8 space-y-8">
+                    <div className="bg-gray-900 rounded-lg p-8 space-y-8">
                         <div className="flex items-center justify-between mb-2">
                             <div className="h-5 w-24 animate-pulse rounded bg-white/25" />
                             <div className="h-5 w-20 animate-pulse rounded-full bg-white/15" />
                         </div>
                         <div className="space-y-4">
                             {[1, 2].map((i) => (
-                                <div key={i} className="bg-white/5 p-4 rounded-2xl border border-white/10 space-y-2">
+                                <div key={i} className="bg-white/5 p-4 rounded-lg border border-white/10 space-y-2">
                                     <div className="flex items-center justify-between">
                                         <div className="h-2.5 w-20 animate-pulse rounded bg-white/15" />
                                         <div className="h-2.5 w-16 animate-pulse rounded bg-white/15" />

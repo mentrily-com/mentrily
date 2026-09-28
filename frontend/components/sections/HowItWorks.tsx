@@ -113,7 +113,7 @@ export default function HowItWorks() {
                                     {/* Step card */}
                                     <div className="flex justify-center mb-5">
                                         <div
-                                            className="w-[120px] h-[120px] rounded-3xl flex flex-col items-center justify-center relative transition-all duration-300"
+                                            className="w-[120px] h-[120px] rounded-lg flex flex-col items-center justify-center relative transition-all duration-300"
                                             style={{
                                                 backgroundColor: 'rgba(255,255,255,0.85)',
                                                 backdropFilter: 'blur(12px)',
@@ -136,7 +136,7 @@ export default function HowItWorks() {
                                             <Icon size={32} style={{ color: '#007c85' }} />
                                             {/* Step number badge */}
                                             <span
-                                                className="absolute -top-2.5 -right-2.5 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                                                className="absolute -top-2.5 -right-2.5 w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium text-white"
                                                 style={{
                                                     background: 'linear-gradient(135deg, #007c85, #005359)',
                                                     boxShadow: '0 2px 8px rgba(0,141,152,0.3)',

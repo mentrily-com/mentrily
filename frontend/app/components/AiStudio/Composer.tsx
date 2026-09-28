@@ -195,7 +195,7 @@ export default function Composer({
                 <div
                     role="listbox"
                     aria-label="Commands"
-                    className="absolute bottom-full left-0 z-30 mb-2 w-full max-w-md overflow-hidden rounded-2xl border border-gray-200 bg-white py-1.5 shadow-xl"
+                    className="absolute bottom-full left-0 z-30 mb-2 w-full max-w-md overflow-hidden rounded-lg border border-gray-200 bg-white py-1.5 shadow-md"
                 >
                     {menu.map((c, i) => {
                         const Icon = c.icon;
@@ -230,7 +230,7 @@ export default function Composer({
                 </div>
             )}
 
-            <div className="rounded-2xl border border-gray-200 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] transition focus-within:border-[var(--color-border-brand)] focus-within:shadow-[0_8px_30px_rgba(0,141,152,0.10)]">
+            <div className="rounded-lg border border-gray-200 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] transition focus-within:border-[var(--color-border-brand)] focus-within:shadow-[0_8px_30px_rgba(0,141,152,0.10)]">
                 {(showRefs || references.length > 0) && (
                     <div className="border-b border-gray-100 px-3 pb-2 pt-3">
                         <ReferencePicker

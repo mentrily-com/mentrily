@@ -82,7 +82,7 @@ function PricingCards({ billing }: { billing: 'monthly' | 'annual' }) {
                             duration: 0.48,
                             ease: [0.25, 0.1, 0.25, 1],
                         }}
-                        className={`relative p-6 rounded-2xl transition-all duration-200 flex flex-col ${
+                        className={`relative p-6 rounded-lg transition-all duration-200 flex flex-col ${
                             tier.highlighted ? 'animate-pro-pulse' : ''
                         }`}
                         style={{
@@ -299,25 +299,25 @@ function FeatureComparison() {
                                                         {feat.name}
                                                     </span>
                                                     <div className="flex flex-col items-center gap-1">
-                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 lg:hidden">
+                                                        <span className="text-[10px] font-medium uppercase tracking-wider text-gray-400 lg:hidden">
                                                             Free
                                                         </span>
                                                         {renderValue(feat.free)}
                                                     </div>
                                                     <div className="flex flex-col items-center gap-1">
-                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 lg:hidden">
+                                                        <span className="text-[10px] font-medium uppercase tracking-wider text-gray-400 lg:hidden">
                                                             Starter
                                                         </span>
                                                         {renderValue(feat.starter)}
                                                     </div>
                                                     <div className="flex flex-col items-center gap-1">
-                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#006a72] lg:hidden">
+                                                        <span className="text-[10px] font-medium uppercase tracking-wider text-[#006a72] lg:hidden">
                                                             Pro
                                                         </span>
                                                         {renderValue(feat.pro)}
                                                     </div>
                                                     <div className="flex flex-col items-center gap-1">
-                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 lg:hidden">
+                                                        <span className="text-[10px] font-medium uppercase tracking-wider text-gray-400 lg:hidden">
                                                             Enterprise
                                                         </span>
                                                         {renderValue(feat.enterprise)}

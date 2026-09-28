@@ -167,14 +167,14 @@ export default function DashboardPage() {
                     {/* LEFT: MODULES LIST (Horizontal Rows) */}
                     <div className="flex-1" data-element-id="learner-modules">
                         <div className="flex flex-col gap-4 mb-6 sm:mb-10 sm:flex-row sm:items-center sm:justify-between">
-                            <h2 className="text-2xl font-black tracking-tight text-gray-800">Course Modules</h2>
+                            <h2 className="text-2xl font-semibold tracking-tight text-gray-800">Course Modules</h2>
                             <div className="relative w-full sm:w-auto">
                                 <input
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     placeholder="Search modules..."
-                                    className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-2xl text-sm font-bold outline-none focus:border-[var(--brand)] transition-all shadow-sm sm:w-72"
+                                    className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-lg text-sm font-medium outline-none focus:border-[var(--brand)] transition-all shadow-sm sm:w-72"
                                 />
                                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                                     <svg
@@ -200,9 +200,9 @@ export default function DashboardPage() {
                                         <Link
                                             key={m.slug}
                                             href={`/dashboard/learner/module/${m.slug}`}
-                                            className={`block rounded-3xl border p-5 shadow-sm transition-all sm:p-6 ${
+                                            className={`block rounded-lg border p-5 shadow-sm transition-all sm:p-6 ${
                                                 isGettingStarted
-                                                    ? 'bg-white border-orange-200/80 shadow-orange-100/60 hover:border-[var(--brand)] hover:shadow-lg'
+                                                    ? 'bg-white border-orange-200/80 hover:border-[var(--brand)] hover:shadow-lg'
                                                     : 'bg-white border-gray-100 hover:border-[var(--brand-light)] hover:shadow-md'
                                             }`}
                                             data-element-id={
@@ -213,21 +213,21 @@ export default function DashboardPage() {
                                                 <div className="min-w-0 flex-1">
                                                     <div className="mb-2 flex flex-wrap items-center gap-2">
                                                         {isGettingStarted && (
-                                                            <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--brand)]">
+                                                            <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--brand)]">
                                                                 <Sparkles size={12} /> Welcome Course
                                                             </span>
                                                         )}
                                                         {isGettingStarted && (
                                                             <button
                                                                 onClick={handleHideGettingStarted}
-                                                                className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-700"
+                                                                className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-700"
                                                                 title="Hide this onboarding course"
                                                             >
                                                                 <EyeOff size={12} /> Hide
                                                             </button>
                                                         )}
                                                     </div>
-                                                    <h3 className="text-lg font-black text-gray-800 mb-1">
+                                                    <h3 className="text-lg font-semibold text-gray-800 mb-1">
                                                         {m.title}
                                                     </h3>
                                                     {isGettingStarted && (
@@ -237,7 +237,7 @@ export default function DashboardPage() {
                                                             learning path.
                                                         </p>
                                                     )}
-                                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                                    <p className="text-xs font-medium text-gray-400 uppercase tracking-widest">
                                                         {m.sections} Sections · {m.totalUnits ?? m.sections} Learning
                                                         Units
                                                     </p>
@@ -245,7 +245,7 @@ export default function DashboardPage() {
 
                                                 <div className="flex w-full items-center gap-4 sm:w-1/2 sm:gap-8">
                                                     <div className="flex-1 space-y-2">
-                                                        <div className="flex justify-between text-[10px] font-black uppercase text-gray-400">
+                                                        <div className="flex justify-between text-[10px] font-semibold uppercase text-gray-400">
                                                             <span>{m.status}</span>
                                                             <span className="text-[var(--brand)]">{m.percent}%</span>
                                                         </div>
@@ -299,16 +299,16 @@ export default function DashboardPage() {
                         {/* STREAK CARD RESTORED */}
                         <div
                             data-element-id="learner-streak"
-                            className="bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] rounded-[32px] p-6 sm:p-8 text-white shadow-xl shadow-[var(--brand)]/20 text-center relative overflow-hidden group"
+                            className="bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] rounded-lg p-6 sm:p-8 text-white shadow-sm text-center relative overflow-hidden group"
                         >
                             <div className="relative z-10">
-                                <p className="text-xs font-black uppercase tracking-[0.2em] mb-4 text-orange-100/80">
+                                <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-4 text-orange-100/80">
                                     Daily Streak
                                 </p>
-                                <div className="text-7xl font-black mb-4 group-hover:scale-110 transition-transform">
+                                <div className="text-7xl font-semibold mb-4 group-hover:scale-110 transition-transform">
                                     {stats?.streak || 0}
                                 </div>
-                                <p className="text-sm font-bold opacity-80">
+                                <p className="text-sm font-medium opacity-80">
                                     {(() => {
                                         const s = stats?.streak || 0;
                                         if (s === 0) return 'Start your learning journey today!';
@@ -326,19 +326,19 @@ export default function DashboardPage() {
                         {/* ANNOUNCEMENTS CARD */}
                         <div
                             data-element-id="learner-announcements"
-                            className="bg-white rounded-[32px] border border-gray-100 p-5 sm:p-8 shadow-sm"
+                            className="bg-white rounded-lg border border-gray-100 p-5 sm:p-8 shadow-sm"
                         >
                             <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-xl bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center">
                                         <Megaphone size={20} />
                                     </div>
-                                    <h3 className="text-lg font-black text-gray-800 tracking-tight">Announcements</h3>
+                                    <h3 className="text-lg font-semibold text-gray-800 tracking-tight">Announcements</h3>
                                 </div>
                             </div>
 
                             {announcements.length === 0 ? (
-                                <p className="text-xs font-bold text-gray-400 text-center py-4">
+                                <p className="text-xs font-medium text-gray-400 text-center py-4">
                                     No announcements yet.
                                 </p>
                             ) : (
@@ -347,7 +347,7 @@ export default function DashboardPage() {
                                         <button
                                             key={ann.id}
                                             onClick={() => handleOpenAnnouncement(ann)}
-                                            className={`w-full text-left p-4 rounded-2xl border transition-all hover:border-[var(--brand-light)] hover:shadow-sm active:scale-[0.98] ${
+                                            className={`w-full text-left p-4 rounded-lg border transition-all hover:border-[var(--brand-light)] hover:shadow-sm active:scale-[0.98] ${
                                                 ann.isRead
                                                     ? 'bg-white border-gray-100'
                                                     : 'bg-[var(--brand-light)]/30 border-[var(--brand-light)]'
@@ -365,11 +365,11 @@ export default function DashboardPage() {
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <p
-                                                        className={`text-xs font-black truncate ${ann.isRead ? 'text-gray-600' : 'text-gray-800'}`}
+                                                        className={`text-xs font-semibold truncate ${ann.isRead ? 'text-gray-600' : 'text-gray-800'}`}
                                                     >
                                                         {ann.title}
                                                     </p>
-                                                    <p className="text-[10px] font-bold text-gray-400 mt-0.5">
+                                                    <p className="text-[10px] font-medium text-gray-400 mt-0.5">
                                                         {new Date(ann.createdAt).toLocaleDateString('en-US', {
                                                             month: 'short',
                                                             day: 'numeric',
@@ -384,7 +384,7 @@ export default function DashboardPage() {
                                         </button>
                                     ))}
                                     {announcements.length > 2 && (
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center pt-2">
+                                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest text-center pt-2">
                                             +{announcements.length - 2} more
                                         </p>
                                     )}
@@ -394,7 +394,7 @@ export default function DashboardPage() {
 
                         <div
                             data-element-id="learner-quick-access"
-                            className="bg-white rounded-[32px] border border-gray-100 p-5 sm:p-8 shadow-sm"
+                            className="bg-white rounded-lg border border-gray-100 p-5 sm:p-8 shadow-sm"
                         >
                             <div className="flex items-center gap-3 mb-8">
                                 <div className="w-10 h-10 rounded-xl bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center">
@@ -413,7 +413,7 @@ export default function DashboardPage() {
                                         <path d="m17 7-5-5-5-5" />
                                     </svg>
                                 </div>
-                                <h3 className="text-lg font-black text-gray-800 tracking-tight">Quick Access</h3>
+                                <h3 className="text-lg font-semibold text-gray-800 tracking-tight">Quick Access</h3>
                             </div>
 
                             <div className="space-y-3">
@@ -451,26 +451,26 @@ export default function DashboardPage() {
             {selectedAnnouncement && (
                 <div className="fixed inset-0 z-[1100] flex items-center justify-center p-2 pt-[64px] sm:p-4 sm:pt-[73px]">
                     <div
-                        className="absolute inset-0 bg-gray-900/60 backdrop-blur-md"
+                        className="absolute inset-0 bg-gray-900/60"
                         onClick={() => setSelectedAnnouncement(null)}
                     />
-                    <div className="bg-white w-full max-w-2xl rounded-[26px] p-5 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[calc(100dvh-72px)] overflow-y-auto custom-scrollbar sm:max-h-[85vh] sm:rounded-[48px] sm:p-12">
+                    <div className="bg-white w-full max-w-2xl rounded-lg p-5 shadow-lg relative z-10 animate-in slide-in-from-bottom-8 duration-500 max-h-[calc(100dvh-72px)] overflow-y-auto custom-scrollbar sm:max-h-[85vh] sm:rounded-lg sm:p-12">
                         <button
                             onClick={() => setSelectedAnnouncement(null)}
-                            className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-2xl bg-gray-50 hover:bg-gray-100 text-gray-400 transition-all hover:scale-110 active:scale-95 sm:top-10 sm:right-10 sm:h-12 sm:w-12"
+                            className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-400 transition-all hover:scale-110 active:scale-95 sm:top-10 sm:right-10 sm:h-12 sm:w-12"
                         >
                             <X size={20} strokeWidth={3} />
                         </button>
 
                         <div className="flex items-start gap-4 mb-6 pr-12 sm:gap-5 sm:mb-8 sm:pr-0">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center flex-shrink-0 shadow-lg shadow-[var(--brand)]/20">
+                            <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center flex-shrink-0 shadow-sm">
                                 <Megaphone size={24} className="text-white" />
                             </div>
                             <div>
-                                <h2 className="text-xl font-black text-gray-900 tracking-tight mb-1 sm:text-2xl">
+                                <h2 className="text-xl font-semibold text-gray-900 tracking-tight mb-1 sm:text-2xl">
                                     {selectedAnnouncement.title}
                                 </h2>
-                                <div className="flex flex-wrap items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest sm:gap-3">
+                                <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold text-gray-400 uppercase tracking-widest sm:gap-3">
                                     <span>
                                         {new Date(selectedAnnouncement.createdAt).toLocaleDateString('en-US', {
                                             weekday: 'short',
@@ -495,7 +495,7 @@ export default function DashboardPage() {
                                 {selectedAnnouncement.groups.map((g: any) => (
                                     <span
                                         key={g.id}
-                                        className="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider bg-[var(--brand-light)] text-[var(--brand-dark)] border border-[var(--brand-light)]"
+                                        className="px-2.5 py-1 rounded-lg text-[9px] font-semibold uppercase tracking-wider bg-[var(--brand-light)] text-[var(--brand-dark)] border border-[var(--brand-light)]"
                                     >
                                         {g.name}
                                     </span>
@@ -505,7 +505,7 @@ export default function DashboardPage() {
 
                         {/* Rich text content */}
                         <div
-                            className="prose prose-sm max-w-none text-gray-700 mb-8 [&_p]:mb-3 [&_h1]:text-xl [&_h1]:font-black [&_h2]:text-lg [&_h2]:font-black [&_ul]:list-disc [&_ol]:list-decimal [&_li]:ml-4 [&_a]:text-[var(--brand)] [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-[var(--brand-light)] [&_blockquote]:pl-4 [&_blockquote]:italic [&_img]:rounded-2xl [&_img]:max-w-full"
+                            className="prose prose-sm max-w-none text-gray-700 mb-8 [&_p]:mb-3 [&_h1]:text-xl [&_h1]:font-semibold [&_h2]:text-lg [&_h2]:font-semibold [&_ul]:list-disc [&_ol]:list-decimal [&_li]:ml-4 [&_a]:text-[var(--brand)] [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-[var(--brand-light)] [&_blockquote]:pl-4 [&_blockquote]:italic [&_img]:rounded-lg [&_img]:max-w-full"
                             dangerouslySetInnerHTML={{
                                 __html: sanitizeProse(selectedAnnouncement.content),
                             }}
@@ -514,8 +514,8 @@ export default function DashboardPage() {
                         {/* Attachments */}
                         {Array.isArray(selectedAnnouncement.attachments) &&
                             selectedAnnouncement.attachments.length > 0 && (
-                                <div className="bg-gray-50 rounded-[24px] border border-gray-100 p-4 sm:p-6">
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">
+                                <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 sm:p-6">
+                                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
                                         Attachments
                                     </p>
                                     <div className="space-y-2">
@@ -523,20 +523,20 @@ export default function DashboardPage() {
                                             <button
                                                 key={idx}
                                                 onClick={() => handleDownload(att.url, att.name)}
-                                                className="w-full flex flex-col gap-3 px-4 py-3 bg-white rounded-2xl border border-gray-100 hover:border-[var(--brand-light)] hover:shadow-sm transition-all cursor-pointer sm:flex-row sm:items-center"
+                                                className="w-full flex flex-col gap-3 px-4 py-3 bg-white rounded-lg border border-gray-100 hover:border-[var(--brand-light)] hover:shadow-sm transition-all cursor-pointer sm:flex-row sm:items-center"
                                             >
                                                 <div className="w-8 h-8 rounded-xl bg-gray-50 flex items-center justify-center">
                                                     <AnnouncementAttachIcon type={att.type} />
                                                 </div>
                                                 <div className="flex-1 min-w-0 text-left">
-                                                    <p className="text-xs font-black text-gray-700 truncate">
+                                                    <p className="text-xs font-semibold text-gray-700 truncate">
                                                         {att.name}
                                                     </p>
-                                                    <p className="text-[10px] font-bold text-gray-400">
+                                                    <p className="text-[10px] font-medium text-gray-400">
                                                         {att.size ? `${(att.size / 1024).toFixed(0)} KB` : 'File'}
                                                     </p>
                                                 </div>
-                                                <span className="flex w-full items-center justify-center gap-1 text-[10px] font-black text-[var(--brand)] uppercase tracking-widest sm:w-auto">
+                                                <span className="flex w-full items-center justify-center gap-1 text-[10px] font-semibold text-[var(--brand)] uppercase tracking-widest sm:w-auto">
                                                     <Download size={12} /> Download
                                                 </span>
                                             </button>
@@ -558,13 +558,13 @@ function QuickLink({ icon, label, sub }: { icon: React.ReactNode; label: string;
     // the same click/Enter keypress instead of one clean, keyboard-focusable
     // link.
     return (
-        <div className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-50 border border-transparent hover:border-gray-100 transition-all text-left group">
+        <div className="w-full flex items-center gap-4 p-4 rounded-lg hover:bg-gray-50 border border-transparent hover:border-gray-100 transition-all text-left group">
             <div className="w-10 h-10 rounded-xl bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                 {icon}
             </div>
             <div>
-                <p className="text-sm font-black text-gray-800 leading-none mb-1">{label}</p>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">{sub}</p>
+                <p className="text-sm font-semibold text-gray-800 leading-none mb-1">{label}</p>
+                <p className="text-[10px] font-medium text-gray-400 uppercase tracking-tighter">{sub}</p>
             </div>
         </div>
     );

@@ -59,7 +59,7 @@ export default function InviteUserForm({
                 />
             </div>
             <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
+                <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 ml-1">
                     Account Role
                 </label>
                 <div className={`grid ${roles.length === 3 ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-2'} gap-3`}>
@@ -68,7 +68,7 @@ export default function InviteUserForm({
                             key={role}
                             type="button"
                             onClick={() => onChange({ ...formData, role })}
-                            className={`py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${formData.role === role ? 'bg-white border-[var(--brand)] text-[var(--brand)] shadow-lg shadow-[var(--brand)]/10' : 'bg-gray-50 border-transparent text-gray-400 hover:border-gray-200'}`}
+                            className={`py-3 rounded-lg text-[10px] font-semibold uppercase tracking-widest transition-all border-2 ${formData.role === role ? 'bg-white border-[var(--brand)] text-[var(--brand)] shadow-sm' : 'bg-gray-50 border-transparent text-gray-400 hover:border-gray-200'}`}
                         >
                             {role}
                         </button>
@@ -79,7 +79,7 @@ export default function InviteUserForm({
                 type="submit"
                 disabled={isProcessing}
                 aria-label={isProcessing ? 'Sending invite' : undefined}
-                className="w-full py-4 bg-[var(--brand)] text-white font-black text-xs uppercase tracking-[0.14em] rounded-[20px] shadow-xl shadow-[var(--brand)]/20 hover:scale-[1.02] active:scale-95 transition-all sm:py-5 sm:tracking-[0.2em] sm:rounded-[24px]"
+                className="w-full py-4 bg-[var(--brand)] text-white font-semibold text-xs uppercase tracking-[0.14em] rounded-lg shadow-sm hover:scale-[1.02] active:scale-95 transition-all sm:py-5 sm:tracking-[0.2em] sm:rounded-lg"
             >
                 {isProcessing ? <Loader2 className="animate-spin mx-auto" size={20} /> : 'Send Clerk Invite'}
             </button>
@@ -104,10 +104,10 @@ function FormInput({
 }) {
     return (
         <div className="space-y-1.5">
-            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">{label}</label>
+            <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 ml-1">{label}</label>
             <input
                 type={type}
-                className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold text-gray-800 outline-none focus:border-[var(--brand)] transition-all font-mono"
+                className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium text-gray-800 outline-none focus:border-[var(--brand)] transition-all font-mono"
                 placeholder={placeholder}
                 value={value}
                 onChange={(event) => onChange(event.target.value)}

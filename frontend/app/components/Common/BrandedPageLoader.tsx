@@ -16,14 +16,14 @@ export default function BrandedPageLoader() {
                         orgName={organization?.name}
                         orgLogo={organization?.logo}
                         collapsed
-                        defaultLogoClassName="h-12 w-12 max-w-none rounded-2xl animate-pulse"
+                        defaultLogoClassName="h-12 w-12 max-w-none rounded-lg animate-pulse"
                         iconClassName="h-12 w-12 animate-pulse"
                         priority
                     />
                 </div>
             </div>
             <div className="mt-8 text-center">
-                <h2 className="text-lg font-black text-gray-800 tracking-tight">Syncing your journey</h2>
+                <h2 className="text-lg font-semibold text-gray-800 tracking-tight">Syncing your journey</h2>
                 <div className="flex items-center justify-center gap-1 mt-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-[var(--brand)] animate-bounce [animation-delay:-0.3s]"></div>
                     <div className="w-1.5 h-1.5 rounded-full bg-[var(--brand)] animate-bounce [animation-delay:-0.15s]"></div>

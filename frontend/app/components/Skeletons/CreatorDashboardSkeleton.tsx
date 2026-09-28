@@ -15,7 +15,7 @@ export default function CreatorDashboardSkeleton() {
     return (
         <div className="space-y-5 animate-fade-in">
             {/* HERO */}
-            <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6 lg:rounded-3xl lg:p-8">
+            <div className="rounded-lg border border-gray-100 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
                 <div className="space-y-5">
                     <div className="flex flex-wrap items-center gap-2">
                         <div className="h-6 w-32 animate-pulse rounded-full bg-gray-100" />
@@ -33,7 +33,7 @@ export default function CreatorDashboardSkeleton() {
             {/* STAT CARDS */}
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+                    <div key={i} className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
                         <div className="flex items-center justify-between">
                             <div className="h-10 w-10 animate-pulse rounded-xl bg-gray-100" />
                             <div className="h-4 w-14 animate-pulse rounded-full bg-gray-100" />
@@ -45,7 +45,7 @@ export default function CreatorDashboardSkeleton() {
             </div>
 
             {/* CAPACITY STRIP */}
-            <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
+            <div className="rounded-lg border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
                 <div className="grid gap-6 sm:grid-cols-2">
                     {[1, 2].map((i) => (
                         <div key={i} className="space-y-2">
@@ -63,7 +63,7 @@ export default function CreatorDashboardSkeleton() {
             <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
                 <div className="space-y-4">
                     {[1, 2, 3].map((i) => (
-                        <div key={i} className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                        <div key={i} className="rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
                             <div className="flex items-center justify-between">
                                 <div className="space-y-2">
                                     <div className="h-4 w-48 animate-pulse rounded-md bg-gray-200" />
@@ -74,7 +74,7 @@ export default function CreatorDashboardSkeleton() {
                         </div>
                     ))}
                 </div>
-                <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                <div className="rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
                     <div className="mb-5 h-4 w-32 animate-pulse rounded-md bg-gray-200" />
                     <div className="space-y-4">
                         {[1, 2, 3, 4].map((i) => (

@@ -31,7 +31,7 @@ export default function ExamSuccessView({ userDetails, onDone, verdict }: ExamSu
             <div className="flex-1 overflow-y-auto custom-scrollbar">
                 <div className="flex min-h-full flex-col items-center justify-center p-4 sm:p-6 max-w-3xl mx-auto w-full relative z-10">
                     {/* Success Icon */}
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-emerald-500 rounded-full flex items-center justify-center mb-6 sm:mb-8 shadow-2xl shadow-emerald-500/20 animate-in zoom-in duration-500">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-emerald-500 rounded-full flex items-center justify-center mb-6 sm:mb-8 shadow-lg animate-in zoom-in duration-500">
                         <svg
                             width="44"
                             height="44"
@@ -46,7 +46,7 @@ export default function ExamSuccessView({ userDetails, onDone, verdict }: ExamSu
                         </svg>
                     </div>
 
-                    <h1 className="text-3xl sm:text-4xl font-black text-gray-900 mb-3 tracking-tight text-center">
+                    <h1 className="text-3xl sm:text-4xl font-semibold text-gray-900 mb-3 tracking-tight text-center">
                         Exam Submitted Successfully!
                     </h1>
                     <p className="text-gray-500 font-medium mb-8 sm:mb-12 text-base sm:text-lg text-center max-w-lg">
@@ -54,16 +54,16 @@ export default function ExamSuccessView({ userDetails, onDone, verdict }: ExamSu
                     </p>
 
                     {/* User Details Card */}
-                    <div className="w-full bg-gray-50/80 backdrop-blur-sm rounded-3xl sm:rounded-[2.5rem] border border-gray-100 p-5 sm:p-10 mb-8 sm:mb-12 shadow-sm transition-all hover:shadow-md">
+                    <div className="w-full bg-gray-50/80 rounded-lg sm:rounded-[2.5rem] border border-gray-100 p-5 sm:p-10 mb-8 sm:mb-12 shadow-sm transition-all hover:shadow-md">
                         <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-6 sm:mb-8 border-b border-gray-200/60 pb-6 sm:pb-8">
-                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white border border-gray-200 flex items-center justify-center text-xl sm:text-2xl font-black text-gray-700 shadow-sm">
+                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white border border-gray-200 flex items-center justify-center text-xl sm:text-2xl font-semibold text-gray-700 shadow-sm">
                                 {userDetails.name ? userDetails.name.charAt(0) : '?'}
                             </div>
                             <div className="min-w-0 flex-1">
-                                <h2 className="truncate text-xl sm:text-2xl font-black text-gray-900">
+                                <h2 className="truncate text-xl sm:text-2xl font-semibold text-gray-900">
                                     {userDetails.name}
                                 </h2>
-                                <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">
+                                <p className="text-gray-500 font-medium uppercase tracking-widest text-xs">
                                     Student ID: {userDetails.rollId}
                                 </p>
                             </div>
@@ -72,29 +72,29 @@ export default function ExamSuccessView({ userDetails, onDone, verdict }: ExamSu
                                 orgLogo={orgContext?.logo}
                                 defaultLogoClassName="h-7 max-w-[140px]"
                                 iconClassName="h-10 w-10 rounded-lg"
-                                textClassName="text-sm font-black"
+                                textClassName="text-sm font-semibold"
                             />
                         </div>
 
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8">
                             <div className="min-w-0">
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">
+                                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1.5">
                                     Exam Title
                                 </p>
-                                <p className="break-words text-gray-800 font-bold">{userDetails.examName}</p>
+                                <p className="break-words text-gray-800 font-medium">{userDetails.examName}</p>
                             </div>
                             <div className="min-w-0">
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">
+                                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1.5">
                                     Submitted At
                                 </p>
-                                <p className="break-words text-gray-800 font-bold">{userDetails.submittedAt}</p>
+                                <p className="break-words text-gray-800 font-medium">{userDetails.submittedAt}</p>
                             </div>
                             <div>
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">
+                                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1.5">
                                     Status
                                 </p>
                                 <span
-                                    className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${
+                                    className={`px-3 py-1 rounded-lg text-[10px] font-semibold uppercase tracking-wider ${
                                         verdict?.passed === false
                                             ? 'bg-rose-100 text-rose-700'
                                             : 'bg-emerald-100 text-emerald-700'
@@ -105,10 +105,10 @@ export default function ExamSuccessView({ userDetails, onDone, verdict }: ExamSu
                             </div>
                             {verdict ? (
                                 <div className="min-w-0">
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">
+                                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1.5">
                                         Verdict
                                     </p>
-                                    <p className="break-words text-gray-800 font-bold">
+                                    <p className="break-words text-gray-800 font-medium">
                                         {verdict.passed ? 'Passed' : 'Failed'}
                                         {typeof verdict.score === 'number' ? ` - ${Math.round(verdict.score)}%` : ''} /
                                         Pass at {verdict.passingPercentage ?? 70}%
@@ -119,7 +119,7 @@ export default function ExamSuccessView({ userDetails, onDone, verdict }: ExamSu
                     </div>
 
                     <div className="flex flex-col items-center gap-6 w-full max-w-md">
-                        <p className="text-center text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                        <p className="text-center text-[10px] font-semibold text-gray-400 uppercase tracking-widest flex items-center gap-2">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                             You can now safely close this window.
                         </p>
@@ -128,7 +128,7 @@ export default function ExamSuccessView({ userDetails, onDone, verdict }: ExamSu
             </div>
 
             {/* Footer */}
-            <div className="p-4 sm:p-8 border-t border-gray-100 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
+            <div className="p-4 sm:p-8 border-t border-gray-100 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
                 <span>
                     &copy; {new Date().getFullYear()} {displayName}
                 </span>

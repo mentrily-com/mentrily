@@ -50,11 +50,11 @@ export default function StorageLeaderboard() {
             <table className="w-full text-left border-collapse min-w-[600px]">
                 <thead>
                     <tr className="border-b border-gray-100">
-                        <th className="py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                        <th className="py-3 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                             User Name
                         </th>
-                        <th className="py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">Email</th>
-                        <th className="py-3 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">
+                        <th className="py-3 text-[10px] font-semibold uppercase tracking-widest text-gray-400">Email</th>
+                        <th className="py-3 text-[10px] font-semibold uppercase tracking-widest text-gray-400 text-right">
                             Storage Used
                         </th>
                     </tr>
@@ -65,13 +65,13 @@ export default function StorageLeaderboard() {
                             key={item.userId || index}
                             className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
                         >
-                            <td className="py-3 text-sm font-bold text-gray-800">
+                            <td className="py-3 text-sm font-medium text-gray-800">
                                 {item.user?.name || item.name || 'Unknown User'}
                             </td>
                             <td className="py-3 text-sm font-medium text-gray-500">
                                 {item.user?.email || item.email || 'N/A'}
                             </td>
-                            <td className="py-3 text-sm font-black text-gray-700 text-right">
+                            <td className="py-3 text-sm font-semibold text-gray-700 text-right">
                                 {formatBytes(Number(item.totalBytes || item.totalSizeBytes || 0))}
                             </td>
                         </tr>

@@ -29,17 +29,17 @@ export default function AlertModal({
         danger: {
             bg: 'bg-red-50',
             icon: '#ef4444',
-            button: 'bg-red-500 hover:bg-red-600 shadow-red-200',
+            button: 'bg-red-500 hover:bg-red-600',
         },
         warning: {
             bg: 'bg-amber-50',
             icon: '#f59e0b',
-            button: 'bg-amber-500 hover:bg-amber-600 shadow-amber-200',
+            button: 'bg-amber-500 hover:bg-amber-600',
         },
         info: {
             bg: 'bg-blue-50',
             icon: '#3b82f6',
-            button: 'bg-blue-500 hover:bg-blue-600 shadow-blue-200',
+            button: 'bg-blue-500 hover:bg-blue-600',
         },
     };
 
@@ -56,7 +56,7 @@ export default function AlertModal({
             ariaLabel={title}
         >
             <div
-                className={`w-12 h-12 rounded-2xl ${config.bg} flex items-center justify-center mb-5 sm:w-14 sm:h-14 sm:mb-6`}
+                className={`w-12 h-12 rounded-lg ${config.bg} flex items-center justify-center mb-5 sm:w-14 sm:h-14 sm:mb-6`}
             >
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={config.icon} strokeWidth="3">
                     {type === 'danger' ? (
@@ -66,18 +66,18 @@ export default function AlertModal({
                     )}
                 </svg>
             </div>
-            <h3 className="text-lg font-black text-gray-800 mb-2 tracking-tight sm:text-xl">{title}</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2 tracking-tight sm:text-xl">{title}</h3>
             <p className="text-gray-500 text-sm font-medium mb-8 leading-relaxed">{message}</p>
             <div className="flex flex-col-reverse gap-3 sm:flex-row">
                 <button
                     onClick={onCancel}
-                    className="flex-1 px-4 py-3.5 bg-gray-50 rounded-2xl text-xs font-black uppercase tracking-widest text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-all"
+                    className="flex-1 px-4 py-3.5 bg-gray-50 rounded-lg text-xs font-semibold uppercase tracking-widest text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-all"
                 >
                     {cancelLabel}
                 </button>
                 <button
                     onClick={onConfirm}
-                    className={`flex-1 px-4 py-3.5 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-lg active:scale-95 ${config.button}`}
+                    className={`flex-1 px-4 py-3.5 text-white rounded-lg text-xs font-semibold uppercase tracking-widest transition-all shadow-lg active:scale-95 ${config.button}`}
                 >
                     {confirmLabel}
                 </button>

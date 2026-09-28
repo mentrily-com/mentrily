@@ -18,7 +18,7 @@ export default function OrgSettingsSkeleton() {
                     <div className="h-6 w-64 animate-pulse rounded-md bg-gray-200" />
                     <div className="h-3.5 w-80 animate-pulse rounded bg-gray-100" />
                 </div>
-                <div className="h-14 w-44 animate-pulse rounded-2xl bg-gray-200" />
+                <div className="h-14 w-44 animate-pulse rounded-lg bg-gray-200" />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -36,11 +36,11 @@ export default function OrgSettingsSkeleton() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-1.5">
                                     <div className="h-2.5 w-24 animate-pulse rounded bg-gray-100" />
-                                    <div className="h-12 w-full animate-pulse rounded-2xl bg-gray-100" />
+                                    <div className="h-12 w-full animate-pulse rounded-lg bg-gray-100" />
                                 </div>
                                 <div className="space-y-1.5">
                                     <div className="h-2.5 w-24 animate-pulse rounded bg-gray-100" />
-                                    <div className="h-12 w-full animate-pulse rounded-2xl bg-gray-100" />
+                                    <div className="h-12 w-full animate-pulse rounded-lg bg-gray-100" />
                                 </div>
                             </div>
                         </div>
@@ -61,7 +61,7 @@ export default function OrgSettingsSkeleton() {
                         <div className="space-y-4 pt-4 border-t border-white/5">
                             <div className="h-2 w-3/4 animate-pulse rounded-full bg-white/10" />
                             <div className="h-2 w-1/2 animate-pulse rounded-full bg-white/10" />
-                            <div className="h-10 w-full animate-pulse rounded-2xl bg-white/10" />
+                            <div className="h-10 w-full animate-pulse rounded-lg bg-white/10" />
                         </div>
                     </div>
                 </div>

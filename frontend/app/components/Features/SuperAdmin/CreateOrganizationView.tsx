@@ -137,14 +137,14 @@ export default function CreateOrganizationView() {
             <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-10 animate-fade-in">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-12">
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">Provision New Tenant</h1>
-                        <p className="text-gray-400 font-bold text-sm mt-1">
+                        <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight">Provision New Tenant</h1>
+                        <p className="text-gray-400 font-medium text-sm mt-1">
                             Create a new organization instance and configure initial settings.
                         </p>
                     </div>
                     <button
                         onClick={handleSave}
-                        className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-[var(--brand)] text-white font-black text-sm rounded-2xl shadow-xl shadow-[var(--brand)]/20 flex items-center justify-center gap-3 hover:scale-105 transition-all active:scale-95"
+                        className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-[var(--brand)] text-white font-semibold text-sm rounded-lg shadow-sm flex items-center justify-center gap-3 hover:scale-105 transition-all active:scale-95"
                     >
                         {isSaving ? (
                             <span className="animate-pulse">Provisioning...</span>
@@ -169,7 +169,7 @@ export default function CreateOrganizationView() {
                                 <InputGroup label="Organization Name">
                                     <input
                                         type="text"
-                                        className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-black text-gray-800 outline-none focus:border-[var(--brand)] transition-all shadow-inner placeholder:text-gray-300"
+                                        className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-lg text-sm font-semibold text-gray-800 outline-none focus:border-[var(--brand)] transition-all shadow-inner placeholder:text-gray-300"
                                         placeholder="e.g. Acme University"
                                         value={formData.name}
                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -179,12 +179,12 @@ export default function CreateOrganizationView() {
                                     <div className="relative">
                                         <input
                                             type="text"
-                                            className="w-full pl-5 pr-32 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-black text-[var(--brand)] outline-none focus:border-[var(--brand)] transition-all shadow-inner uppercase tracking-wider placeholder:normal-case placeholder:text-gray-300"
+                                            className="w-full pl-5 pr-32 py-4 bg-gray-50 border border-gray-100 rounded-lg text-sm font-semibold text-[var(--brand)] outline-none focus:border-[var(--brand)] transition-all shadow-inner uppercase tracking-wider placeholder:normal-case placeholder:text-gray-300"
                                             placeholder="acme"
                                             value={formData.subdomain}
                                             onChange={(e) => setFormData({ ...formData, subdomain: e.target.value })}
                                         />
-                                        <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-gray-300 uppercase">
+                                        <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-gray-300 uppercase">
                                             .{siteConfig.domain}
                                         </span>
                                     </div>
@@ -207,7 +207,7 @@ export default function CreateOrganizationView() {
                                         />
                                         <input
                                             type="text"
-                                            className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold text-gray-700 outline-none focus:border-[var(--brand)] transition-all shadow-inner placeholder:text-gray-300"
+                                            className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium text-gray-700 outline-none focus:border-[var(--brand)] transition-all shadow-inner placeholder:text-gray-300"
                                             placeholder="Full Name"
                                             value={formData.adminName}
                                             onChange={(e) => setFormData({ ...formData, adminName: e.target.value })}
@@ -222,7 +222,7 @@ export default function CreateOrganizationView() {
                                         />
                                         <input
                                             type="email"
-                                            className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold text-gray-700 outline-none focus:border-[var(--brand)] transition-all shadow-inner placeholder:text-gray-300"
+                                            className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium text-gray-700 outline-none focus:border-[var(--brand)] transition-all shadow-inner placeholder:text-gray-300"
                                             placeholder="admin@acme.edu"
                                             value={formData.adminEmail}
                                             onChange={(e) => setFormData({ ...formData, adminEmail: e.target.value })}
@@ -237,7 +237,7 @@ export default function CreateOrganizationView() {
                                         />
                                         <input
                                             type="tel"
-                                            className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold text-gray-700 outline-none focus:border-[var(--brand)] transition-all shadow-inner placeholder:text-gray-300"
+                                            className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium text-gray-700 outline-none focus:border-[var(--brand)] transition-all shadow-inner placeholder:text-gray-300"
                                             placeholder="+91..."
                                             value={formData.phone}
                                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -252,7 +252,7 @@ export default function CreateOrganizationView() {
                                         />
                                         <input
                                             type="email"
-                                            className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold text-gray-700 outline-none focus:border-[var(--brand)] transition-all shadow-inner placeholder:text-gray-300"
+                                            className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium text-gray-700 outline-none focus:border-[var(--brand)] transition-all shadow-inner placeholder:text-gray-300"
                                             placeholder="support@acme.edu"
                                             value={formData.supportEmail}
                                             onChange={(e) => setFormData({ ...formData, supportEmail: e.target.value })}
@@ -261,14 +261,14 @@ export default function CreateOrganizationView() {
                                 </InputGroup>
 
                                 <div className="md:col-span-2 border-t border-gray-50 pt-6 mt-2">
-                                    <h4 className="text-xs font-black uppercase tracking-widest text-gray-400 mb-4 flex items-center gap-2">
+                                    <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4 flex items-center gap-2">
                                         <Map size={14} /> Organization Address
                                     </h4>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="md:col-span-2">
                                             <input
                                                 type="text"
-                                                className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold text-gray-700 outline-none focus:border-[var(--brand)] transition-all shadow-inner placeholder:text-gray-300"
+                                                className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium text-gray-700 outline-none focus:border-[var(--brand)] transition-all shadow-inner placeholder:text-gray-300"
                                                 placeholder="Street Address, Campus Building..."
                                                 value={formData.address}
                                                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
@@ -276,14 +276,14 @@ export default function CreateOrganizationView() {
                                         </div>
                                         <input
                                             type="text"
-                                            className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold text-gray-700 outline-none focus:border-[var(--brand)] transition-all shadow-inner placeholder:text-gray-300"
+                                            className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium text-gray-700 outline-none focus:border-[var(--brand)] transition-all shadow-inner placeholder:text-gray-300"
                                             placeholder="City"
                                             value={formData.city}
                                             onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                                         />
                                         <input
                                             type="text"
-                                            className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold text-gray-700 outline-none focus:border-[var(--brand)] transition-all shadow-inner placeholder:text-gray-300"
+                                            className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium text-gray-700 outline-none focus:border-[var(--brand)] transition-all shadow-inner placeholder:text-gray-300"
                                             placeholder="Country"
                                             value={formData.country}
                                             onChange={(e) => setFormData({ ...formData, country: e.target.value })}
@@ -301,17 +301,17 @@ export default function CreateOrganizationView() {
                         >
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div className="space-y-4">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
+                                    <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 ml-1">
                                         Primary Brand Color
                                     </label>
                                     <div className="flex items-center gap-4">
                                         <div
-                                            className="w-16 h-16 rounded-2xl shadow-lg border-4 border-white shrink-0"
+                                            className="w-16 h-16 rounded-lg shadow-lg border-4 border-white shrink-0"
                                             style={{ backgroundColor: formData.primaryColor }}
                                         ></div>
                                         <input
                                             type="text"
-                                            className="flex-1 px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-mono font-bold text-gray-600 outline-none focus:border-[var(--brand)] transition-all uppercase"
+                                            className="flex-1 px-5 py-4 bg-gray-50 border border-gray-100 rounded-lg text-sm font-mono font-medium text-gray-600 outline-none focus:border-[var(--brand)] transition-all uppercase"
                                             value={formData.primaryColor}
                                             onChange={(e) => setFormData({ ...formData, primaryColor: e.target.value })}
                                         />
@@ -328,7 +328,7 @@ export default function CreateOrganizationView() {
                                     </div>
                                 </div>
                                 <div className="space-y-4">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
+                                    <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 ml-1">
                                         Institution Logo
                                     </label>
                                     <div className="relative group">
@@ -345,7 +345,7 @@ export default function CreateOrganizationView() {
                                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                         />
                                         <div
-                                            className={`flex items-center gap-4 p-4 border-2 border-dashed ${formData.logo ? 'border-[var(--brand)] bg-[var(--brand-light)]/10' : 'border-gray-100 bg-gray-50/50'} rounded-3xl hover:bg-gray-50 transition-all cursor-pointer`}
+                                            className={`flex items-center gap-4 p-4 border-2 border-dashed ${formData.logo ? 'border-[var(--brand)] bg-[var(--brand-light)]/10' : 'border-gray-100 bg-gray-50/50'} rounded-lg hover:bg-gray-50 transition-all cursor-pointer`}
                                         >
                                             <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-gray-300 group-hover:text-[var(--brand)] shadow-sm transition-all overflow-hidden">
                                                 {formData.logo ? (
@@ -367,10 +367,10 @@ export default function CreateOrganizationView() {
                                                 )}
                                             </div>
                                             <div>
-                                                <p className="text-[11px] font-black text-gray-800 uppercase tracking-widest">
+                                                <p className="text-[11px] font-semibold text-gray-800 uppercase tracking-widest">
                                                     {formData.logo ? 'Change Logo' : 'Upload Logo'}
                                                 </p>
-                                                <p className="text-[10px] font-bold text-gray-400">
+                                                <p className="text-[10px] font-medium text-gray-400">
                                                     {formData.logo ? 'Logo Selected' : 'SVG, PNG or JPG (Max 2MB)'}
                                                 </p>
                                             </div>
@@ -390,7 +390,7 @@ export default function CreateOrganizationView() {
                                 <InputGroup label="License Plan">
                                     <div className="relative">
                                         <select
-                                            className="w-full px-5 py-4 bg-[var(--brand-light)] border border-[var(--brand-light)] rounded-2xl text-sm font-black text-[var(--brand-dark)] outline-none focus:border-[var(--brand)] transition-all shadow-sm appearance-none cursor-pointer"
+                                            className="w-full px-5 py-4 bg-[var(--brand-light)] border border-[var(--brand-light)] rounded-lg text-sm font-semibold text-[var(--brand-dark)] outline-none focus:border-[var(--brand)] transition-all shadow-sm appearance-none cursor-pointer"
                                             value={formData.plan}
                                             onChange={(e) => setFormData({ ...formData, plan: e.target.value })}
                                         >
@@ -410,7 +410,7 @@ export default function CreateOrganizationView() {
                                         <input
                                             type="number"
                                             min="0"
-                                            className="w-full pl-5 pr-12 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-black text-gray-800 outline-none focus:border-[var(--brand)] transition-all shadow-inner"
+                                            className="w-full pl-5 pr-12 py-4 bg-gray-50 border border-gray-100 rounded-lg text-sm font-semibold text-gray-800 outline-none focus:border-[var(--brand)] transition-all shadow-inner"
                                             value={formData.maxUsers}
                                             onChange={(e) => {
                                                 const val = parseInt(e.target.value);
@@ -418,7 +418,7 @@ export default function CreateOrganizationView() {
                                                     setFormData({ ...formData, maxUsers: e.target.value });
                                             }}
                                         />
-                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-gray-300 uppercase">
+                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-gray-300 uppercase">
                                             Users
                                         </span>
                                     </div>
@@ -428,7 +428,7 @@ export default function CreateOrganizationView() {
                                         <input
                                             type="number"
                                             min="0"
-                                            className="w-full pl-5 pr-12 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-black text-gray-800 outline-none focus:border-[var(--brand)] transition-all shadow-inner"
+                                            className="w-full pl-5 pr-12 py-4 bg-gray-50 border border-gray-100 rounded-lg text-sm font-semibold text-gray-800 outline-none focus:border-[var(--brand)] transition-all shadow-inner"
                                             value={formData.maxStorage}
                                             onChange={(e) => {
                                                 const val = parseInt(e.target.value);
@@ -436,7 +436,7 @@ export default function CreateOrganizationView() {
                                                     setFormData({ ...formData, maxStorage: e.target.value });
                                             }}
                                         />
-                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-gray-300 uppercase">
+                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-gray-300 uppercase">
                                             GB
                                         </span>
                                     </div>
@@ -451,7 +451,7 @@ export default function CreateOrganizationView() {
                             desc="Governance, permissions and feature entitlements."
                         >
                             <div className="space-y-6">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
+                                <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 ml-1">
                                     Feature Permissions (Teachers & Admins)
                                 </p>
 
@@ -466,7 +466,7 @@ export default function CreateOrganizationView() {
                                             }
                                         />
                                         {formData.canCreateExams && (
-                                            <div className="ml-6 space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100 animate-in slide-in-from-left-2 duration-300">
+                                            <div className="ml-6 space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-100 animate-in slide-in-from-left-2 duration-300">
                                                 <PermissionToggle
                                                     label="App Examination"
                                                     active={formData.allowAppExams}
@@ -506,7 +506,7 @@ export default function CreateOrganizationView() {
                                             }
                                         />
                                         {formData.canCreateCourses && (
-                                            <div className="ml-6 space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100 animate-in slide-in-from-left-2 duration-300">
+                                            <div className="ml-6 space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-100 animate-in slide-in-from-left-2 duration-300">
                                                 <PermissionToggle
                                                     label="Create Tests"
                                                     active={formData.allowCourseTests}
@@ -534,7 +534,7 @@ export default function CreateOrganizationView() {
                                     </div>
 
                                     {/* Tenant behavior (beta/tester orgs) */}
-                                    <div className="md:col-span-2 space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                    <div className="md:col-span-2 space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-100">
                                         <PermissionToggle
                                             label="Open enrollment (teachers may enroll any Mentrily user)"
                                             active={formData.openEnrollment}
@@ -562,23 +562,23 @@ export default function CreateOrganizationView() {
 
                     {/* Right Column: Summary Card */}
                     <div className="space-y-8">
-                        <div className="bg-white rounded-[40px] p-8 border border-gray-100 shadow-xl shadow-gray-200/50 sticky top-32">
-                            <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-8">
+                        <div className="bg-white rounded-lg p-8 border border-gray-100 shadow-md sticky top-32">
+                            <h3 className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-8">
                                 Summary Preview
                             </h3>
 
                             <div className="space-y-8">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-14 h-14 rounded-2xl bg-[var(--brand)] flex items-center justify-center text-white shadow-lg shadow-[var(--brand)]/20">
-                                        <span className="font-black text-lg">
+                                    <div className="w-14 h-14 rounded-lg bg-[var(--brand)] flex items-center justify-center text-white shadow-sm">
+                                        <span className="font-semibold text-lg">
                                             {formData.name ? formData.name[0] : 'O'}
                                         </span>
                                     </div>
                                     <div>
-                                        <p className="text-lg font-black text-gray-900 leading-tight">
+                                        <p className="text-lg font-semibold text-gray-900 leading-tight">
                                             {formData.name || 'Organization Name'}
                                         </p>
-                                        <p className="text-xs font-bold text-gray-400 mt-1">
+                                        <p className="text-xs font-medium text-gray-400 mt-1">
                                             {formData.subdomain
                                                 ? `${formData.subdomain}.${siteConfig.domain}`
                                                 : `subdomain.${siteConfig.domain}`}
@@ -613,10 +613,10 @@ export default function CreateOrganizationView() {
                                 </div>
 
                                 <div className="pt-6 border-t border-gray-50">
-                                    <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
                                         <div className="flex items-center gap-2 mb-2 text-[var(--brand)]">
                                             <Shield size={16} />
-                                            <span className="text-[10px] font-black uppercase tracking-widest">
+                                            <span className="text-[10px] font-semibold uppercase tracking-widest">
                                                 Provisioning Actions
                                             </span>
                                         </div>
@@ -638,14 +638,14 @@ export default function CreateOrganizationView() {
 
 function SettingsSection({ icon, title, desc, children }: any) {
     return (
-        <div className="bg-white rounded-3xl sm:rounded-[40px] border border-gray-100 p-5 sm:p-8 lg:p-10 shadow-sm">
+        <div className="bg-white rounded-lg sm:rounded-lg border border-gray-100 p-5 sm:p-8 lg:p-10 shadow-sm">
             <div className="flex items-start gap-4 sm:gap-6 mb-6 sm:mb-10">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl sm:rounded-[24px] bg-gray-50 flex items-center justify-center text-gray-400 shrink-0">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg sm:rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 shrink-0">
                     {icon}
                 </div>
                 <div>
-                    <h3 className="text-lg sm:text-xl font-black text-gray-800 tracking-tight leading-none mb-1.5 sm:mb-2">{title}</h3>
-                    <p className="text-xs sm:text-sm font-bold text-gray-400">{desc}</p>
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-800 tracking-tight leading-none mb-1.5 sm:mb-2">{title}</h3>
+                    <p className="text-xs sm:text-sm font-medium text-gray-400">{desc}</p>
                 </div>
             </div>
             {children}
@@ -683,7 +683,7 @@ function InputGroup({ label, children }: any) {
     const controlId = `input-group-${reactId}`;
     return (
         <div className="space-y-2 w-full">
-            <label htmlFor={controlId} className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
+            <label htmlFor={controlId} className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 ml-1">
                 {label}
             </label>
             {withControlId(children, controlId)}
@@ -694,15 +694,15 @@ function InputGroup({ label, children }: any) {
 function SummaryItem({ label, value }: any) {
     return (
         <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">{label}</p>
-            <p className="text-sm font-bold text-gray-700 truncate">{value}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-1">{label}</p>
+            <p className="text-sm font-medium text-gray-700 truncate">{value}</p>
         </div>
     );
 }
 
 function CheckItem({ label }: any) {
     return (
-        <li className="flex items-center gap-2 text-[10px] font-bold text-gray-500">
+        <li className="flex items-center gap-2 text-[10px] font-medium text-gray-500">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
             {label}
         </li>
@@ -726,7 +726,7 @@ function PermissionToggle({
             className={`cursor-pointer p-4 rounded-xl border flex items-center justify-between transition-all ${isSub ? 'py-3 px-4 border-transparent hover:bg-white' : active ? 'bg-[var(--brand-light)] border-[var(--brand-light)] shadow-sm' : 'bg-white border-gray-100 hover:border-gray-200'}`}
         >
             <span
-                className={`font-black uppercase tracking-wider ${isSub ? 'text-[10px] text-gray-500' : 'text-xs ' + (active ? 'text-[var(--brand-dark)]' : 'text-gray-400')}`}
+                className={`font-semibold uppercase tracking-wider ${isSub ? 'text-[10px] text-gray-500' : 'text-xs ' + (active ? 'text-[var(--brand-dark)]' : 'text-gray-400')}`}
             >
                 {label}
             </span>

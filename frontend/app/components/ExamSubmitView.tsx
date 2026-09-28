@@ -65,8 +65,8 @@ export default function ExamSubmitView({
                                 <div
                                     key={section.id}
                                     className={`
-                                        relative rounded-2xl border transition-all duration-300 overflow-hidden
-                                        ${isCurrent ? 'bg-white border-indigo-100 shadow-xl shadow-indigo-500/5 ring-1 ring-indigo-500/20 z-10' : ''}
+                                        relative rounded-lg border transition-all duration-300 overflow-hidden
+                                        ${isCurrent ? 'bg-white border-indigo-100 shadow-md ring-1 ring-indigo-500/20 z-10' : ''}
                                         ${isActuallyLocked ? 'bg-gray-50 border-gray-200 opacity-60 grayscale' : 'bg-white border-gray-200'}
                                     `}
                                 >
@@ -75,8 +75,8 @@ export default function ExamSubmitView({
                                         <div className="flex min-w-0 items-center gap-4 sm:gap-6">
                                             <div
                                                 className={`
-                                                w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex shrink-0 items-center justify-center font-black text-lg sm:text-xl shadow-sm
-                                                ${isCurrent ? 'bg-indigo-600 text-white shadow-indigo-200' : ''}
+                                                w-12 h-12 sm:w-14 sm:h-14 rounded-lg flex shrink-0 items-center justify-center font-semibold text-lg sm:text-xl shadow-sm
+                                                ${isCurrent ? 'bg-indigo-600 text-white' : ''}
                                                 ${isActuallyLocked ? 'bg-gray-200 text-gray-400' : 'bg-gray-100 text-gray-500'}
                                             `}
                                             >
@@ -101,17 +101,17 @@ export default function ExamSubmitView({
                                             <div className="min-w-0">
                                                 <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1.5">
                                                     <h3
-                                                        className={`min-w-0 break-words font-black text-xl tracking-tight sm:text-2xl ${isCurrent ? 'text-indigo-900' : 'text-gray-700'}`}
+                                                        className={`min-w-0 break-words font-semibold text-xl tracking-tight sm:text-2xl ${isCurrent ? 'text-indigo-900' : 'text-gray-700'}`}
                                                     >
                                                         {section.title}
                                                     </h3>
                                                     {isCurrent && !isSubmitted && (
-                                                        <span className="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-wider border border-indigo-100">
+                                                        <span className="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-600 text-[10px] font-semibold uppercase tracking-wider border border-indigo-100">
                                                             Active
                                                         </span>
                                                     )}
                                                     {isActuallyLocked && !isSubmitted && (
-                                                        <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100 text-gray-500 text-[10px] font-black uppercase tracking-wider border border-gray-200">
+                                                        <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100 text-gray-500 text-[10px] font-semibold uppercase tracking-wider border border-gray-200">
                                                             Locked
                                                         </span>
                                                     )}
@@ -132,10 +132,10 @@ export default function ExamSubmitView({
                                         {isCurrent && !isSubmitted && (
                                             <div className="flex w-full flex-col gap-3 bg-gray-50 p-2.5 rounded-xl border border-gray-200 sm:flex-row sm:items-center lg:ml-auto lg:w-auto">
                                                 <div className="flex flex-col items-center">
-                                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                                                    <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">
                                                         Confirmation Code
                                                     </span>
-                                                    <span className="text-lg font-black text-indigo-600 leading-none">
+                                                    <span className="text-lg font-semibold text-indigo-600 leading-none">
                                                         {sectionConfirm}
                                                     </span>
                                                 </div>
@@ -146,12 +146,12 @@ export default function ExamSubmitView({
                                                     value={sectionCode}
                                                     onChange={(e) => setSectionCode(e.target.value)}
                                                     placeholder="####"
-                                                    className="w-full sm:w-24 h-11 bg-white border border-gray-200 rounded-xl text-center font-mono text-xl font-black text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:font-bold placeholder:text-gray-300"
+                                                    className="w-full sm:w-24 h-11 bg-white border border-gray-200 rounded-xl text-center font-mono text-xl font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:font-medium placeholder:text-gray-300"
                                                 />
                                                 <button
                                                     onClick={handleSectionSubmit}
                                                     disabled={sectionCode !== sectionConfirm}
-                                                    className="h-11 w-full px-6 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-black text-sm uppercase tracking-wider rounded-xl transition-all active:scale-95 shadow-lg shadow-indigo-200 disabled:shadow-none sm:w-auto"
+                                                    className="h-11 w-full px-6 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold text-sm uppercase tracking-wider rounded-xl transition-all active:scale-95 shadow-lg disabled:shadow-none sm:w-auto"
                                                 >
                                                     Submit Section
                                                 </button>
@@ -175,7 +175,7 @@ export default function ExamSubmitView({
                                                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                                                     <polyline points="22 4 12 14.01 9 11.01"></polyline>
                                                 </svg>
-                                                <span className="text-sm font-black text-emerald-600 uppercase tracking-wide">
+                                                <span className="text-sm font-semibold text-emerald-600 uppercase tracking-wide">
                                                     Submitted
                                                 </span>
                                             </div>
@@ -187,7 +187,7 @@ export default function ExamSubmitView({
                                         <div className="px-4 pb-6 pt-2 sm:px-8 sm:pb-8">
                                             <div className="w-full h-px bg-gray-100 mb-6" />
 
-                                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                            <h4 className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                                                 Questions Breakdown
                                             </h4>
 
@@ -215,15 +215,15 @@ export default function ExamSubmitView({
                                                         <div
                                                             key={q.id}
                                                             className={`
-                                                                flex-shrink-0 flex flex-col items-center gap-2 p-4 min-w-[100px] rounded-2xl border ${statusColor}
+                                                                flex-shrink-0 flex flex-col items-center gap-2 p-4 min-w-[100px] rounded-lg border ${statusColor}
                                                                 transition-all hover:scale-[1.02] cursor-pointer active:scale-95
                                                             `}
                                                             onClick={() => onQuestionClick?.(section.id, q.id)}
                                                         >
-                                                            <div className="w-10 h-10 rounded-xl bg-white/50 flex items-center justify-center text-sm font-black border border-black/5">
+                                                            <div className="w-10 h-10 rounded-xl bg-white/50 flex items-center justify-center text-sm font-semibold border border-black/5">
                                                                 {q.number}
                                                             </div>
-                                                            <span className="text-[9px] font-black uppercase tracking-wider">
+                                                            <span className="text-[9px] font-semibold uppercase tracking-wider">
                                                                 {statusLabel}
                                                             </span>
                                                         </div>
@@ -238,10 +238,10 @@ export default function ExamSubmitView({
                     </div>
 
                     {/* Final Submission Card - Minimalist Version */}
-                    <div className="bg-white rounded-3xl p-5 sm:p-10 mt-10 sm:mt-12 border border-gray-200 shadow-sm relative overflow-hidden">
+                    <div className="bg-white rounded-lg p-5 sm:p-10 mt-10 sm:mt-12 border border-gray-200 shadow-sm relative overflow-hidden">
                         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-8">
                             <div className="max-w-md">
-                                <h2 className="text-2xl font-black text-gray-900 tracking-tight mb-2">
+                                <h2 className="text-2xl font-semibold text-gray-900 tracking-tight mb-2">
                                     Final Exam Submission
                                 </h2>
                                 <p className="text-gray-500 font-medium leading-relaxed text-sm">
@@ -250,12 +250,12 @@ export default function ExamSubmitView({
                                 </p>
                             </div>
 
-                            <div className="flex w-full flex-col gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-200 self-start md:w-auto md:flex-row md:items-center md:self-center">
+                            <div className="flex w-full flex-col gap-3 bg-gray-50 p-3 rounded-lg border border-gray-200 self-start md:w-auto md:flex-row md:items-center md:self-center">
                                 <div className="flex flex-col items-center px-4 md:border-r md:border-gray-200">
-                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                                    <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">
                                         Final Code
                                     </span>
-                                    <span className="text-lg font-black text-gray-900 leading-none">
+                                    <span className="text-lg font-semibold text-gray-900 leading-none">
                                         {examConfirm}
                                     </span>
                                 </div>
@@ -265,12 +265,12 @@ export default function ExamSubmitView({
                                     value={examCode}
                                     onChange={(e) => setExamCode(e.target.value)}
                                     placeholder="####"
-                                    className="w-full md:w-24 h-11 bg-white border border-gray-200 rounded-xl text-center font-mono text-xl font-black text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-gray-200"
+                                    className="w-full md:w-24 h-11 bg-white border border-gray-200 rounded-xl text-center font-mono text-xl font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-gray-200"
                                 />
                                 <button
                                     onClick={handleExamSubmit}
                                     disabled={examCode !== examConfirm || isSubmitting}
-                                    className="h-11 w-full px-8 bg-gray-900 hover:bg-black disabled:bg-gray-100 disabled:text-gray-400 text-white font-black text-sm uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-sm md:w-auto"
+                                    className="h-11 w-full px-8 bg-gray-900 hover:bg-black disabled:bg-gray-100 disabled:text-gray-400 text-white font-semibold text-sm uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-sm md:w-auto"
                                 >
                                     {isSubmitting ? 'Submitting...' : 'Finish Now'}
                                 </button>

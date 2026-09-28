@@ -149,7 +149,7 @@ export default function AppModal({
                 aria-label={ariaLabel || (typeof title === 'string' ? title : 'Dialog')}
                 tabIndex={-1}
                 className={cn(
-                    'relative z-10 flex max-h-[min(760px,calc(100dvh-48px))] w-full flex-col overflow-hidden rounded-[20px] bg-[#f4f6f9] shadow-[0_28px_90px_rgba(15,23,42,0.36)] animate-in zoom-in-95 duration-200 focus:outline-none',
+                    'relative z-10 flex max-h-[min(760px,calc(100dvh-48px))] w-full flex-col overflow-hidden rounded-lg bg-[#f4f6f9] shadow-[0_28px_90px_rgba(15,23,42,0.36)] animate-in zoom-in-95 duration-200 focus:outline-none',
                     sizeClasses[size],
                     panelClassName,
                 )}
@@ -164,12 +164,12 @@ export default function AppModal({
                             )}
                             <div className="min-w-0">
                                 {eyebrow && (
-                                    <p className="mb-1 text-[10px] font-black uppercase leading-none tracking-widest text-gray-400">
+                                    <p className="mb-1 text-[10px] font-semibold uppercase leading-none tracking-widest text-gray-400">
                                         {eyebrow}
                                     </p>
                                 )}
                                 {title && (
-                                    <h2 className="truncate text-lg font-black tracking-tight text-gray-900 sm:text-xl">
+                                    <h2 className="truncate text-lg font-semibold tracking-tight text-gray-900 sm:text-xl">
                                         {title}
                                     </h2>
                                 )}

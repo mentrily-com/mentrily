@@ -31,7 +31,7 @@ export default function TestAttemptsPage() {
             {/* SUB-HEADER / TAB SECTION */}
             <div className="border-b border-gray-100">
                 <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 flex items-center gap-6 sm:gap-10">
-                    <button className="py-4 text-sm font-black text-[var(--brand)] border-b-2 border-[var(--brand)] px-1">
+                    <button className="py-4 text-sm font-semibold text-[var(--brand)] border-b-2 border-[var(--brand)] px-1">
                         Test Attempts
                     </button>
                 </div>
@@ -43,28 +43,28 @@ export default function TestAttemptsPage() {
                     <table className="hidden w-full text-left border-collapse md:table">
                         <thead>
                             <tr className="bg-gray-50/50 border-b border-gray-100">
-                                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-500 w-1/2">
+                                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-widest text-gray-500 w-1/2">
                                     <div className="flex items-center gap-2">
                                         Tests
                                         <SortIcon />
                                     </div>
                                 </th>
-                                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-500">
+                                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-widest text-gray-500">
                                     <div className="flex items-center gap-2">
                                         Scores
                                         <SortIcon />
                                     </div>
                                 </th>
-                                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-500">
+                                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-widest text-gray-500">
                                     Time taken
                                 </th>
-                                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-500">
+                                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-widest text-gray-500">
                                     <div className="flex items-center gap-2">
                                         Submitted
                                         <SortIcon />
                                     </div>
                                 </th>
-                                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-500">
+                                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-widest text-gray-500">
                                     Actions
                                 </th>
                             </tr>
@@ -77,13 +77,13 @@ export default function TestAttemptsPage() {
                                             {att.isPublished ? (
                                                 <a
                                                     href={`/dashboard/learner/test/${att.id}/result`}
-                                                    className="text-sm font-bold text-[var(--brand-dark)] hover:text-[var(--brand)] cursor-pointer transition-colors block"
+                                                    className="text-sm font-medium text-[var(--brand-dark)] hover:text-[var(--brand)] cursor-pointer transition-colors block"
                                                 >
                                                     {att.examTitle}
                                                 </a>
                                             ) : (
                                                 <span
-                                                    className="text-sm font-bold text-gray-400 cursor-not-allowed block"
+                                                    className="text-sm font-medium text-gray-400 cursor-not-allowed block"
                                                     title="Results pending"
                                                 >
                                                     {att.examTitle}
@@ -92,7 +92,7 @@ export default function TestAttemptsPage() {
                                         </td>
                                         <td className="px-6 py-5">
                                             <span
-                                                className={`text-sm font-bold ${att.score === 'Hidden' ? 'text-gray-300 italic' : 'text-gray-700'}`}
+                                                className={`text-sm font-medium ${att.score === 'Hidden' ? 'text-gray-300 italic' : 'text-gray-700'}`}
                                             >
                                                 {att.score || 'N/A'}
                                             </span>
@@ -111,7 +111,7 @@ export default function TestAttemptsPage() {
                                             {att.isPublished ? (
                                                 <a
                                                     href={`/dashboard/learner/test/${att.id}/result`}
-                                                    className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-[var(--brand)] bg-[var(--brand-light)]/10 hover:bg-[var(--brand-light)]/20 rounded-lg transition-colors"
+                                                    className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-[var(--brand)] bg-[var(--brand-light)]/10 hover:bg-[var(--brand-light)]/20 rounded-lg transition-colors"
                                                 >
                                                     View Result
                                                 </a>
@@ -146,22 +146,22 @@ export default function TestAttemptsPage() {
                                             {att.isPublished ? (
                                                 <a
                                                     href={`/dashboard/learner/test/${att.id}/result`}
-                                                    className="block text-sm font-black text-[var(--brand-dark)]"
+                                                    className="block text-sm font-semibold text-[var(--brand-dark)]"
                                                 >
                                                     {att.examTitle}
                                                 </a>
                                             ) : (
-                                                <span className="block text-sm font-black text-gray-400">
+                                                <span className="block text-sm font-semibold text-gray-400">
                                                     {att.examTitle}
                                                 </span>
                                             )}
-                                            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                            <p className="mt-1 text-[10px] font-medium uppercase tracking-widest text-gray-400">
                                                 {att.startedAt ? new Date(att.startedAt).toLocaleDateString() : 'N/A'} •{' '}
                                                 {att.duration} min
                                             </p>
                                         </div>
                                         <span
-                                            className={`shrink-0 text-sm font-bold ${att.score === 'Hidden' ? 'text-gray-300 italic' : 'text-gray-700'}`}
+                                            className={`shrink-0 text-sm font-medium ${att.score === 'Hidden' ? 'text-gray-300 italic' : 'text-gray-700'}`}
                                         >
                                             {att.score || 'N/A'}
                                         </span>
@@ -170,7 +170,7 @@ export default function TestAttemptsPage() {
                                         {att.isPublished ? (
                                             <a
                                                 href={`/dashboard/learner/test/${att.id}/result`}
-                                                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand-light)]/10 px-3 py-2 text-xs font-bold text-[var(--brand)] transition-colors hover:bg-[var(--brand-light)]/20"
+                                                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand-light)]/10 px-3 py-2 text-xs font-medium text-[var(--brand)] transition-colors hover:bg-[var(--brand-light)]/20"
                                             >
                                                 View Result
                                             </a>
@@ -210,7 +210,7 @@ export default function TestAttemptsPage() {
                                 <path d="m15 18-6-6 6-6" />
                             </svg>
                         </button>
-                        <div className="w-8 h-8 rounded-lg bg-white border-2 border-[var(--brand)] flex items-center justify-center text-[var(--brand)] font-black text-sm">
+                        <div className="w-8 h-8 rounded-lg bg-white border-2 border-[var(--brand)] flex items-center justify-center text-[var(--brand)] font-semibold text-sm">
                             1
                         </div>
                         <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
@@ -231,7 +231,7 @@ export default function TestAttemptsPage() {
 
                     <div className="flex items-center gap-2 ml-4">
                         <div className="px-3 py-1.5 bg-gray-50 border border-gray-100 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-gray-100 transition-colors">
-                            <span className="text-xs font-bold text-gray-600">10 / page</span>
+                            <span className="text-xs font-medium text-gray-600">10 / page</span>
                             <svg
                                 width="12"
                                 height="12"

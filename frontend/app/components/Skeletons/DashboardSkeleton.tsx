@@ -53,12 +53,12 @@ export default function DashboardSkeleton({ type = 'main', userRole, noNavbar = 
                 {!noNavbar && (
                     <div className="flex items-center justify-between mb-10">
                         <div className="w-48 h-8 bg-gray-200 rounded-lg animate-pulse"></div>
-                        <div className="w-64 h-12 bg-gray-200 rounded-2xl animate-pulse"></div>
+                        <div className="w-64 h-12 bg-gray-200 rounded-lg animate-pulse"></div>
                     </div>
                 )}
 
                 {type === 'list' && (
-                    <div className="bg-white rounded-[40px] border border-gray-100 p-8 shadow-sm">
+                    <div className="bg-white rounded-lg border border-gray-100 p-8 shadow-sm">
                         <div className="space-y-4">
                             <div className="flex justify-between items-center pb-4 border-b border-gray-100">
                                 <div className="w-32 h-4 bg-gray-200 rounded-md animate-pulse"></div>
@@ -91,7 +91,7 @@ export default function DashboardSkeleton({ type = 'main', userRole, noNavbar = 
                 )}
 
                 {type === 'form' && (
-                    <div className="bg-white rounded-[40px] border border-gray-100 p-8 shadow-sm">
+                    <div className="bg-white rounded-lg border border-gray-100 p-8 shadow-sm">
                         <div className="w-48 h-8 bg-gray-200 rounded-lg animate-pulse mb-8"></div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {[1, 2, 3, 4].map((i) => (

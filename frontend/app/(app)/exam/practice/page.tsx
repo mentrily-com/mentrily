@@ -606,7 +606,7 @@ export default function PracticeExamPage() {
             <div className="ml-4 flex items-center gap-2" data-tour="practice-badge">
                 <button
                     onClick={() => router.push('/dashboard/learner')}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-600 transition-all hover:border-[var(--brand)] hover:text-[var(--brand)] active:scale-95"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-600 transition-all hover:border-[var(--brand)] hover:text-[var(--brand)] active:scale-95"
                     title="Leave practice and return to your dashboard"
                 >
                     <svg
@@ -630,7 +630,7 @@ export default function PracticeExamPage() {
                     have room on narrow viewports. */}
                 <button
                     onClick={startGuide}
-                    className="hidden items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-600 transition-all hover:border-[var(--brand)] hover:text-[var(--brand)] active:scale-95 sm:inline-flex"
+                    className="hidden items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-600 transition-all hover:border-[var(--brand)] hover:text-[var(--brand)] active:scale-95 sm:inline-flex"
                     title="Replay the guided tour"
                 >
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -643,7 +643,7 @@ export default function PracticeExamPage() {
                 <div
                     data-tour="practice-focus"
                     className={`hidden items-center gap-3 rounded-xl border border-gray-100 bg-white px-3 py-1.5 transition-shadow duration-300 sm:flex ${
-                        windowFocus.in === 0 && windowFocus.out === 0 ? 'shadow-none' : 'shadow-md shadow-gray-200/50'
+                        windowFocus.in === 0 && windowFocus.out === 0 ? 'shadow-none' : 'shadow-md'
                     }`}
                     title="Tab/window switches — real exams record these"
                 >
@@ -664,7 +664,7 @@ export default function PracticeExamPage() {
                                 <line x1="15" y1="12" x2="3" y2="12" />
                             </svg>
                         </div>
-                        <span className="text-xs font-black text-emerald-700">{windowFocus.in}</span>
+                        <span className="text-xs font-semibold text-emerald-700">{windowFocus.in}</span>
                     </div>
                     <div className="h-3 w-[1px] bg-gray-100" />
                     <div className="flex items-center gap-1.5" title="Switched Out (Blurred)">
@@ -684,7 +684,7 @@ export default function PracticeExamPage() {
                                 <line x1="21" y1="12" x2="9" y2="12" />
                             </svg>
                         </div>
-                        <span className="text-xs font-black text-rose-700">{windowFocus.out}</span>
+                        <span className="text-xs font-semibold text-rose-700">{windowFocus.out}</span>
                     </div>
                 </div>
             </div>
@@ -693,7 +693,7 @@ export default function PracticeExamPage() {
             !submittedSections.has(currentSectionId) ? (
                 <button
                     onClick={() => setIsSubmitViewOpen(false)}
-                    className="flex items-center gap-2 rounded-xl bg-gray-100 px-6 py-2 text-sm font-bold text-gray-600 transition-all hover:bg-gray-200"
+                    className="flex items-center gap-2 rounded-xl bg-gray-100 px-6 py-2 text-sm font-medium text-gray-600 transition-all hover:bg-gray-200"
                 >
                     Back to Questions
                 </button>
@@ -702,7 +702,7 @@ export default function PracticeExamPage() {
             <button
                 data-tour="practice-submit"
                 onClick={() => setIsSubmitViewOpen(true)}
-                className="rounded-xl bg-[var(--brand)] px-8 py-2 text-sm font-black text-white transition-all hover:scale-105 active:scale-95"
+                className="rounded-xl bg-[var(--brand)] px-8 py-2 text-sm font-semibold text-white transition-all hover:scale-105 active:scale-95"
             >
                 Submit Section
             </button>
@@ -711,7 +711,7 @@ export default function PracticeExamPage() {
             <div className="flex shrink-0 items-center gap-2 sm:gap-3">
                 <div
                     data-tour="practice-timer"
-                    className={`flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-black transition-all duration-500 ${
+                    className={`flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all duration-500 ${
                         timeLeft <= 300
                             ? 'animate-pulse border-rose-100 bg-rose-50 text-rose-600'
                             : 'border-sky-100 bg-sky-50 text-sky-700'
@@ -781,12 +781,12 @@ export default function PracticeExamPage() {
                     {!netOnline && (
                         <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 border-2 border-white rounded-full animate-pulse" />
                     )}
-                    <div className="absolute invisible group-hover:visible top-full left-1/2 -translate-x-1/2 mt-3 p-3 bg-white text-gray-900 text-[10px] font-bold rounded-xl whitespace-nowrap shadow-2xl z-50 border border-gray-100 ring-4 ring-gray-900/5 transition-all">
+                    <div className="absolute invisible group-hover:visible top-full left-1/2 -translate-x-1/2 mt-3 p-3 bg-white text-gray-900 text-[10px] font-medium rounded-xl whitespace-nowrap shadow-lg z-50 border border-gray-100 ring-4 ring-gray-900/5 transition-all">
                         <div className="flex flex-col gap-2">
                             <div className="flex items-center justify-between gap-8">
                                 <span className="text-gray-400 uppercase tracking-tighter">Net Status</span>
                                 <span
-                                    className={netOnline ? 'text-emerald-500 font-black' : 'text-rose-500 font-black'}
+                                    className={netOnline ? 'text-emerald-500 font-semibold' : 'text-rose-500 font-semibold'}
                                 >
                                     {netOnline ? 'ONLINE' : 'OFFLINE'}
                                 </span>
@@ -794,7 +794,7 @@ export default function PracticeExamPage() {
                             {netOnline && (
                                 <div className="flex items-center justify-between gap-8 border-t border-gray-50 pt-2">
                                     <span className="text-gray-400 uppercase tracking-tighter">Sync Speed</span>
-                                    <span className="text-indigo-600 font-black">
+                                    <span className="text-indigo-600 font-semibold">
                                         {netDownlink > 0 ? `${netDownlink} Mbps` : 'Detecting...'}
                                     </span>
                                 </div>
@@ -825,30 +825,30 @@ export default function PracticeExamPage() {
         return (
             <div className="flex h-screen w-full items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-5">
                 <div className="w-full max-w-xl rounded-[2rem] border border-gray-200 bg-white p-8 text-center shadow-[0_24px_80px_rgba(15,23,42,0.12)] sm:p-12 animate-in fade-in zoom-in-95 duration-500">
-                    <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-50 text-4xl">
+                    <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-lg bg-emerald-50 text-4xl">
                         🎉
                     </div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.3em] text-gray-400">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-400">
                         Practice Complete
                     </p>
-                    <h1 className="mt-3 text-3xl font-black tracking-tight text-gray-900">
+                    <h1 className="mt-3 text-3xl font-semibold tracking-tight text-gray-900">
                         You know your way around now
                     </h1>
                     <p className="mx-auto mt-4 max-w-md text-sm font-semibold leading-6 text-gray-500">
-                        You got <span className="font-black text-gray-900">{score.correct}</span> of{' '}
-                        <span className="font-black text-gray-900">{score.total}</span> orientation questions right.
+                        You got <span className="font-semibold text-gray-900">{score.correct}</span> of{' '}
+                        <span className="font-semibold text-gray-900">{score.total}</span> orientation questions right.
                         Nothing was recorded — real exams will look and behave exactly like this.
                     </p>
                     <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
                         <button
                             onClick={restartPractice}
-                            className="rounded-xl border border-gray-200 bg-white px-6 py-3 text-sm font-black uppercase tracking-widest text-gray-700 transition hover:bg-gray-50"
+                            className="rounded-xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold uppercase tracking-widest text-gray-700 transition hover:bg-gray-50"
                         >
                             Practice Again
                         </button>
                         <button
                             onClick={() => router.push('/dashboard/learner')}
-                            className="rounded-xl bg-gray-950 px-6 py-3 text-sm font-black uppercase tracking-widest text-white transition hover:bg-gray-800"
+                            className="rounded-xl bg-gray-950 px-6 py-3 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-gray-800"
                         >
                             Go to My Dashboard
                         </button>
@@ -868,7 +868,7 @@ export default function PracticeExamPage() {
             {focusAlert && (
                 <div className="fixed left-1/2 top-16 z-[1000000001] w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 animate-in fade-in slide-in-from-top-3 duration-300">
                     <div
-                        className={`flex items-start gap-3 rounded-2xl border p-4 shadow-2xl backdrop-blur-md ${
+                        className={`flex items-start gap-3 rounded-lg border p-4 shadow-lg ${
                             focusAlert.outCount >= TAB_SWITCH_DEMO_LIMIT
                                 ? 'border-rose-200 bg-rose-50/95'
                                 : 'border-amber-200 bg-amber-50/95'
@@ -899,7 +899,7 @@ export default function PracticeExamPage() {
                         </div>
                         <div className="min-w-0 flex-1">
                             <h4
-                                className={`text-xs font-black uppercase tracking-wider ${
+                                className={`text-xs font-semibold uppercase tracking-wider ${
                                     focusAlert.outCount >= TAB_SWITCH_DEMO_LIMIT ? 'text-rose-800' : 'text-amber-800'
                                 }`}
                             >
@@ -948,7 +948,7 @@ export default function PracticeExamPage() {
             {lockdownAlert && (
                 <div className="fixed left-1/2 top-32 z-[1000000001] w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 animate-in fade-in slide-in-from-top-3 duration-300">
                     <div
-                        className="flex items-start gap-3 rounded-2xl border border-gray-200 bg-gray-900/95 p-4 shadow-2xl backdrop-blur-md"
+                        className="flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-900/95 p-4 shadow-lg"
                         role="alert"
                     >
                         <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white">
@@ -967,7 +967,7 @@ export default function PracticeExamPage() {
                             </svg>
                         </div>
                         <div className="min-w-0 flex-1">
-                            <h4 className="text-xs font-black uppercase tracking-wider text-white">Exam lockdown</h4>
+                            <h4 className="text-xs font-semibold uppercase tracking-wider text-white">Exam lockdown</h4>
                             <p className="mt-1 text-xs font-semibold leading-5 text-gray-300">{lockdownAlert}</p>
                         </div>
                         <button

@@ -130,13 +130,13 @@ export default function InlineAiMenu({
                 aria-expanded={open}
                 aria-haspopup="menu"
                 aria-label="AI actions for this question"
-                className="inline-flex h-11 items-center gap-2 rounded-2xl border border-[var(--color-border-brand)] bg-[var(--color-brand-light)] px-4 text-xs font-semibold text-[var(--brand-dark)] transition hover:border-[var(--brand)] disabled:opacity-70"
+                className="inline-flex h-11 items-center gap-2 rounded-lg border border-[var(--color-border-brand)] bg-[var(--color-brand-light)] px-4 text-xs font-semibold text-[var(--brand-dark)] transition hover:border-[var(--brand)] disabled:opacity-70"
             >
                 {running ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
                 {running ? 'Working…' : 'AI'}
             </button>
             {open && (
-                <div role="menu" className="absolute right-0 top-full z-40 mt-2 w-72 overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-xl">
+                <div role="menu" className="absolute right-0 top-full z-40 mt-2 w-72 overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-md">
                     {ops.map((o) => (
                         <button
                             key={o.op}

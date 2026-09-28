@@ -32,11 +32,11 @@ export default function CreatorAnalyticsSkeleton() {
                     ))}
                 </div>
                 <div className="mt-8 grid grid-cols-1 xl:grid-cols-3 gap-6">
-                    <div className="xl:col-span-2 rounded-2xl border border-gray-100 p-5 bg-gray-50/40">
+                    <div className="xl:col-span-2 rounded-lg border border-gray-100 p-5 bg-gray-50/40">
                         <div className="h-4 w-36 animate-pulse rounded-md bg-gray-200 mb-4" />
                         <div className="h-[300px] w-full animate-pulse rounded-xl bg-gray-100" />
                     </div>
-                    <div className="rounded-2xl border border-gray-100 p-5 bg-gray-50/40 space-y-5">
+                    <div className="rounded-lg border border-gray-100 p-5 bg-gray-50/40 space-y-5">
                         {[1, 2, 3].map((i) => (
                             <div key={i} className="space-y-1.5">
                                 <div className="h-2.5 w-24 animate-pulse rounded bg-gray-100" />
@@ -54,16 +54,16 @@ export default function CreatorAnalyticsSkeleton() {
                     <div className="h-9 w-48 animate-pulse rounded-xl bg-gray-100" />
                 </div>
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                    <div className="xl:col-span-2 rounded-2xl border border-gray-100 p-5">
+                    <div className="xl:col-span-2 rounded-lg border border-gray-100 p-5">
                         <div className="h-2.5 w-40 animate-pulse rounded bg-gray-100 mb-3" />
                         <div className="h-[280px] w-full animate-pulse rounded-xl bg-gray-50" />
                     </div>
-                    <div className="rounded-2xl border border-gray-100 p-5">
+                    <div className="rounded-lg border border-gray-100 p-5">
                         <div className="h-2.5 w-24 animate-pulse rounded bg-gray-100 mb-3" />
                         <div className="h-[220px] w-full animate-pulse rounded-full bg-gray-50" />
                     </div>
                 </div>
-                <div className="mt-6 rounded-2xl border border-gray-100 p-5">
+                <div className="mt-6 rounded-lg border border-gray-100 p-5">
                     <div className="h-2.5 w-48 animate-pulse rounded bg-gray-100 mb-3" />
                     <div className="h-[260px] w-full animate-pulse rounded-xl bg-gray-50" />
                 </div>

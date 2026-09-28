@@ -198,7 +198,7 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
             {/* Language Configuration Headers */}
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                    <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                         Supported Languages
                     </label>
                     <div className="flex gap-2 items-center flex-wrap justify-end">
@@ -208,7 +208,7 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                             return (
                                 <div
                                     key={langId}
-                                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold bg-[var(--brand-light)] border border-[var(--brand-light)] text-[var(--brand-dark)]"
+                                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--brand-light)] border border-[var(--brand-light)] text-[var(--brand-dark)]"
                                 >
                                     <span>{lang.label}</span>
                                     <button
@@ -223,7 +223,7 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
 
                         <div className="relative">
                             <select
-                                className="appearance-none pl-3 pr-8 py-1.5 rounded-lg text-xs font-bold bg-white border border-gray-200 text-gray-500 hover:border-gray-300 outline-none cursor-pointer transition-all focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/10"
+                                className="appearance-none pl-3 pr-8 py-1.5 rounded-lg text-xs font-medium bg-white border border-gray-200 text-gray-500 hover:border-gray-300 outline-none cursor-pointer transition-all focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/10"
                                 onChange={(e) => {
                                     if (e.target.value) {
                                         toggleLanguageSupport(e.target.value);
@@ -252,18 +252,18 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                 </div>
 
                 {/* Main Editor Area */}
-                <div className="bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-sm">
+                <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                     {/* Language Dropdown Header */}
                     <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50/50">
                         <div className="flex items-center gap-3">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                            <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                                 Editing Template:
                             </span>
                             <div className="relative">
                                 <select
                                     value={activeLang}
                                     onChange={(e) => setActiveLang(e.target.value)}
-                                    className="appearance-none pl-4 pr-10 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-700 outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/10 transition-all cursor-pointer shadow-sm"
+                                    className="appearance-none pl-4 pr-10 py-2 bg-white border border-gray-200 rounded-xl text-xs font-medium text-gray-700 outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/10 transition-all cursor-pointer shadow-sm"
                                 >
                                     {Object.keys(config.templates).map((langSlug) => {
                                         const langInfo = PLAYGROUND_LANGUAGES.find((l) => l.id === langSlug);
@@ -308,7 +308,7 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                             <div className="h-6 w-[1px] bg-gray-200"></div>
                             <button
                                 onClick={() => setActiveTemplateSection('solution')}
-                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTemplateSection === 'solution' ? 'bg-green-100 text-green-700 ring-2 ring-green-500/20' : 'text-gray-400 hover:bg-gray-50'}`}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTemplateSection === 'solution' ? 'bg-green-100 text-green-700 ring-2 ring-green-500/20' : 'text-gray-400 hover:bg-gray-50'}`}
                             >
                                 <CheckCircle2 size={14} /> Solution
                             </button>
@@ -339,7 +339,7 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                             />
                             {/* Visual indicator for hidden sections */}
                             {(activeTemplateSection === 'head' || activeTemplateSection === 'tail') && (
-                                <div className="absolute top-4 right-4 bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 z-10 pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity">
+                                <div className="absolute top-4 right-4 bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-widest flex items-center gap-2 z-10 pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity">
                                     <EyeOff size={12} /> Hidden from Student
                                 </div>
                             )}
@@ -352,14 +352,14 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
             <section className="space-y-6 pt-8 border-t border-gray-100">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h4 className="text-xs font-black uppercase tracking-widest text-gray-800 flex items-center gap-2">
+                        <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-800 flex items-center gap-2">
                             <FlaskConical size={16} className="text-[var(--brand)]" />
                             Test Cases
                             <span className="bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full text-[10px]">
                                 {config.testCases?.length || 0}
                             </span>
                         </h4>
-                        <p className="text-[9px] font-bold text-gray-400 uppercase mt-1">
+                        <p className="text-[9px] font-medium text-gray-400 uppercase mt-1">
                             Total Question Points: <span className="text-[var(--brand)]">{question.marks || 0}</span>
                         </p>
                     </div>
@@ -379,13 +379,13 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                             className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 transition-all ${config.showTestCases ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-gray-50 border-gray-100 text-gray-400'}`}
                         >
                             {config.showTestCases ? <Eye size={12} /> : <EyeOff size={12} />}
-                            <span className="text-[10px] font-black uppercase tracking-widest">
+                            <span className="text-[10px] font-semibold uppercase tracking-widest">
                                 {config.showTestCases ? 'Show All' : 'Hide All'}
                             </span>
                         </button>
                         <button
                             onClick={addTestCase}
-                            className="flex items-center gap-2 px-4 py-2 bg-[var(--brand)] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:brightness-110 shadow-lg shadow-[var(--brand)]/20 transition-all active:scale-95"
+                            className="flex items-center gap-2 px-4 py-2 bg-[var(--brand)] text-white rounded-xl text-[10px] font-semibold uppercase tracking-widest hover:brightness-110 shadow-sm transition-all active:scale-95"
                         >
                             <Plus size={14} strokeWidth={3} />
                             Add New Case
@@ -399,7 +399,7 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                         return (
                             <div
                                 key={index}
-                                className={`bg-white border transition-all duration-300 rounded-[24px] overflow-hidden ${isExpanded ? 'border-[var(--brand-light)] shadow-xl shadow-[var(--brand)]/10 ring-1 ring-[var(--brand-light)]/20' : 'border-gray-100 hover:border-gray-200'}`}
+                                className={`bg-white border transition-all duration-300 rounded-lg overflow-hidden ${isExpanded ? 'border-[var(--brand-light)] shadow-sm ring-1 ring-[var(--brand-light)]/20' : 'border-gray-100 hover:border-gray-200'}`}
                             >
                                 {/* Header */}
                                 <div
@@ -408,15 +408,15 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                                 >
                                     <div className="flex items-center gap-4">
                                         <div
-                                            className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black ${isExpanded ? 'bg-[var(--brand)] text-white' : 'bg-gray-200 text-gray-500'}`}
+                                            className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-semibold ${isExpanded ? 'bg-[var(--brand)] text-white' : 'bg-gray-200 text-gray-500'}`}
                                         >
                                             {index + 1}
                                         </div>
                                         <div>
-                                            <p className="text-xs font-black text-gray-700">
+                                            <p className="text-xs font-semibold text-gray-700">
                                                 {tc.isPublic ? 'Public Test Case' : 'Hidden Test Case'}
                                             </p>
-                                            <p className="text-[10px] font-bold text-gray-400">Points: {tc.points}</p>
+                                            <p className="text-[10px] font-medium text-gray-400">Points: {tc.points}</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -441,7 +441,7 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                                     <div className="p-6 border-t border-gray-100 space-y-6 animate-fade-in">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black uppercase tracking-wide text-gray-400">
+                                                <label className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">
                                                     Input (stdin)
                                                 </label>
                                                 <textarea
@@ -452,7 +452,7 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                                                 />
                                             </div>
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black uppercase tracking-wide text-gray-400 text-[var(--brand)]">
+                                                <label className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 text-[var(--brand)]">
                                                     Expected Output (stdout)
                                                 </label>
                                                 <textarea
@@ -467,7 +467,7 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                                         <div className="flex items-center justify-between pt-4 border-t border-gray-50">
                                             <div className="flex items-center gap-6">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-xs font-bold text-gray-400">Points:</span>
+                                                    <span className="text-xs font-medium text-gray-400">Points:</span>
                                                     <input
                                                         type="number"
                                                         value={tc.points}
@@ -476,14 +476,14 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                                                                 points: parseInt(e.target.value) || 0,
                                                             })
                                                         }
-                                                        className="w-16 px-2 py-1 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold text-gray-700 outline-none focus:border-[var(--brand-light)]"
+                                                        className="w-16 px-2 py-1 bg-gray-50 border border-gray-200 rounded-lg text-xs font-medium text-gray-700 outline-none focus:border-[var(--brand-light)]"
                                                     />
                                                 </div>
                                             </div>
 
                                             <button
                                                 onClick={() => removeTestCase(index)}
-                                                className="flex items-center gap-2 px-3 py-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors text-xs font-black uppercase tracking-widest"
+                                                className="flex items-center gap-2 px-3 py-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors text-xs font-semibold uppercase tracking-widest"
                                             >
                                                 <Trash2 size={14} />
                                                 Delete Case
@@ -496,14 +496,14 @@ export default function CodingEditor({ question, onChange }: CodingEditorProps) 
                     })}
 
                     {(!config.testCases || config.testCases.length === 0) && (
-                        <div className="text-center py-12 border-2 border-dashed border-gray-100 rounded-[24px]">
+                        <div className="text-center py-12 border-2 border-dashed border-gray-100 rounded-lg">
                             <Layout size={32} className="text-gray-200 mx-auto mb-3" />
-                            <p className="text-xs font-bold text-gray-300 uppercase tracking-widest">
+                            <p className="text-xs font-medium text-gray-300 uppercase tracking-widest">
                                 No test cases defined
                             </p>
                             <button
                                 onClick={addTestCase}
-                                className="mt-4 text-[var(--brand)] text-xs font-black hover:underline"
+                                className="mt-4 text-[var(--brand)] text-xs font-semibold hover:underline"
                             >
                                 Add First Case
                             </button>
@@ -529,7 +529,7 @@ function TemplateTab({
     return (
         <button
             onClick={onClick}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${active ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-[10px] font-semibold uppercase tracking-widest transition-all ${active ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
         >
             {icon} {label}
         </button>

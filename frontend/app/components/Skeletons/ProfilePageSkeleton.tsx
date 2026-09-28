@@ -14,7 +14,7 @@ export default function ProfilePageSkeleton() {
         <div className="font-sans">
             {/* Avatar + name header */}
             <div className="bg-white rounded-xl border border-gray-100 p-6 md:p-8 mb-6 shadow-sm flex flex-col md:flex-row items-center gap-6">
-                <div className="h-20 w-20 md:h-24 md:w-24 shrink-0 animate-pulse rounded-2xl bg-gray-200" />
+                <div className="h-20 w-20 md:h-24 md:w-24 shrink-0 animate-pulse rounded-lg bg-gray-200" />
                 <div className="min-w-0 flex-1 flex flex-col items-center md:items-start gap-3">
                     <div className="h-6 w-48 animate-pulse rounded-lg bg-gray-200" />
                     <div className="h-3.5 w-56 animate-pulse rounded-md bg-gray-100" />

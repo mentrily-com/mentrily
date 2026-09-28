@@ -453,7 +453,7 @@ export default function ExamLoginPage() {
 
     return (
         <div className="min-h-screen md:h-screen w-full bg-gray-50 flex items-center justify-center font-sans overflow-y-auto md:overflow-hidden">
-            <div className="w-full min-h-screen md:min-h-0 md:h-full flex flex-col md:flex-row bg-white shadow-2xl">
+            <div className="w-full min-h-screen md:min-h-0 md:h-full flex flex-col md:flex-row bg-white shadow-lg">
                 <div className="w-full md:w-1/2 p-6 sm:p-8 md:p-12 lg:p-16 flex flex-col justify-start md:justify-center bg-white relative z-10 overflow-y-auto">
                     <div className="max-w-md mx-auto w-full">
                         <div className="mb-10">
@@ -463,32 +463,32 @@ export default function ExamLoginPage() {
                                     orgLogo={orgContext?.logo}
                                     defaultLogoClassName="h-9 max-w-[180px]"
                                     iconClassName="h-10 w-10 rounded-lg"
-                                    textClassName="text-2xl font-black tracking-tighter"
+                                    textClassName="text-2xl font-semibold tracking-tighter"
                                     priority
                                 />
                             </div>
 
-                            <h1 className="text-3xl font-black text-gray-900 mb-2">Student Login</h1>
+                            <h1 className="text-3xl font-semibold text-gray-900 mb-2">Student Login</h1>
                             <p className="text-gray-500 font-medium">Enter your details to access the exam</p>
                         </div>
 
                         {examInfo?.title && (
-                            <div className="md:hidden mb-6 p-3.5 rounded-2xl bg-gray-50 border border-gray-200">
+                            <div className="md:hidden mb-6 p-3.5 rounded-lg bg-gray-50 border border-gray-200">
                                 <div className="flex items-center justify-between gap-2">
                                     <div className="min-w-0">
-                                        <span className="text-[9px] font-black uppercase tracking-widest text-gray-400 block mb-0.5">
+                                        <span className="text-[9px] font-semibold uppercase tracking-widest text-gray-400 block mb-0.5">
                                             Exam
                                         </span>
-                                        <p className="text-xs font-bold text-gray-900 truncate">{examInfo.title}</p>
+                                        <p className="text-xs font-medium text-gray-900 truncate">{examInfo.title}</p>
                                     </div>
                                     <div className="flex items-center gap-2 shrink-0">
                                         {typeof examInfo.duration === 'number' && (
-                                            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700">
+                                            <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700">
                                                 {examInfo.duration}m
                                             </span>
                                         )}
                                         {typeof examInfo.totalQuestions === 'number' && (
-                                            <span className="text-[10px] font-bold text-gray-500">
+                                            <span className="text-[10px] font-medium text-gray-500">
                                                 {examInfo.totalQuestions} Qs
                                             </span>
                                         )}
@@ -498,14 +498,14 @@ export default function ExamLoginPage() {
                         )}
 
                         {isAppRequired ? (
-                            <div className="bg-white rounded-2xl border border-indigo-200 overflow-hidden shadow-sm">
+                            <div className="bg-white rounded-lg border border-indigo-200 overflow-hidden shadow-sm">
                                 <div className="bg-indigo-50 p-6 flex flex-col items-center justify-center border-b border-indigo-100">
-                                    <h2 className="text-xl font-bold text-indigo-700">App Required</h2>
+                                    <h2 className="text-xl font-medium text-indigo-700">App Required</h2>
                                 </div>
                                 <div className="p-6 bg-white text-center space-y-3">
                                     <p className="text-gray-600 text-sm leading-relaxed">
                                         This exam is configured for{' '}
-                                        <span className="font-bold text-gray-800">App (Secure)</span> mode and cannot
+                                        <span className="font-medium text-gray-800">App (Secure)</span> mode and cannot
                                         be attempted in a web browser.
                                     </p>
                                     <a
@@ -519,7 +519,7 @@ export default function ExamLoginPage() {
                         ) : (
                             <>
                                 {error && (
-                                    <div className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-xl flex items-center gap-3 text-rose-600 text-sm font-bold animate-shake">
+                                    <div className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-xl flex items-center gap-3 text-rose-600 text-sm font-medium animate-shake">
                                         {error}
                                     </div>
                                 )}
@@ -527,11 +527,11 @@ export default function ExamLoginPage() {
                                 <form className="space-y-4">
                                     <div className="space-y-1.5">
                                         <div className="flex items-center justify-between">
-                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                            <label className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">
                                                 Test Code
                                             </label>
                                             {isTestCodeVerified && (
-                                                <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-600">
+                                                <span className="flex items-center gap-1 text-[11px] font-medium text-emerald-600">
                                                     <CheckCircle2 size={12} /> Verified
                                                 </span>
                                             )}
@@ -559,11 +559,11 @@ export default function ExamLoginPage() {
 
                                     {isSignedIn ? (
                                         <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-emerald-200 bg-emerald-50">
-                                            <div className="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center uppercase">
+                                            <div className="w-9 h-9 rounded-full bg-emerald-600 text-white font-medium text-xs flex items-center justify-center uppercase">
                                                 {(signedInUserName || signedInUserEmail || 'U').slice(0, 2)}
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-bold text-emerald-800 truncate">
+                                                <p className="text-sm font-medium text-emerald-800 truncate">
                                                     {signedInUserName}
                                                 </p>
                                                 {signedInUserEmail && (
@@ -583,7 +583,7 @@ export default function ExamLoginPage() {
                                     ) : !secondFactorReady ? (
                                         <>
                                             <div className="space-y-1.5">
-                                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                                <label className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">
                                                     Email
                                                 </label>
                                                 <input
@@ -595,7 +595,7 @@ export default function ExamLoginPage() {
                                                 />
                                             </div>
                                             <div className="space-y-1.5">
-                                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                                <label className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">
                                                     Password
                                                 </label>
                                                 <div className="relative">
@@ -609,7 +609,7 @@ export default function ExamLoginPage() {
                                                     <button
                                                         type="button"
                                                         onClick={() => setShowPassword((prev) => !prev)}
-                                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 font-bold"
+                                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 font-medium"
                                                     >
                                                         {showPassword ? 'Hide' : 'Show'}
                                                     </button>
@@ -619,7 +619,7 @@ export default function ExamLoginPage() {
                                     ) : (
                                         <div className="space-y-3">
                                             <div className="rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3">
-                                                <p className="text-xs font-black uppercase tracking-widest text-indigo-500">
+                                                <p className="text-xs font-semibold uppercase tracking-widest text-indigo-500">
                                                     Verify Sign-In
                                                 </p>
                                                 <p className="mt-1 text-sm font-semibold text-gray-800">
@@ -627,7 +627,7 @@ export default function ExamLoginPage() {
                                                 </p>
                                             </div>
                                             <div className="space-y-1.5">
-                                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                                <label className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">
                                                     Verification Code
                                                 </label>
                                                 <div className="relative">
@@ -650,7 +650,7 @@ export default function ExamLoginPage() {
 
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-1.5">
-                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                            <label className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">
                                                 Roll Number
                                             </label>
                                             <input
@@ -662,7 +662,7 @@ export default function ExamLoginPage() {
                                             />
                                         </div>
                                         <div className="space-y-1.5">
-                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                            <label className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">
                                                 Section
                                             </label>
                                             <input
@@ -676,7 +676,7 @@ export default function ExamLoginPage() {
                                     </div>
 
                                     <div className="space-y-1.5">
-                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                        <label className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">
                                             Full Name
                                         </label>
                                         <input
@@ -693,7 +693,7 @@ export default function ExamLoginPage() {
                                             type="button"
                                             onClick={() => handleLogin()}
                                             disabled={loading}
-                                            className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-200 mt-4 flex items-center justify-center gap-2 disabled:opacity-70"
+                                            className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-all shadow-lg mt-4 flex items-center justify-center gap-2 disabled:opacity-70"
                                         >
                                             {loading ? <span>Verifying...</span> : <span>Start Exam</span>}
                                         </button>
@@ -703,7 +703,7 @@ export default function ExamLoginPage() {
                                                 type="button"
                                                 onClick={handleEmailPasswordSignIn}
                                                 disabled={isSignInLoading}
-                                                className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-200 mt-4 flex items-center justify-center gap-2 disabled:opacity-70"
+                                                className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-all shadow-lg mt-4 flex items-center justify-center gap-2 disabled:opacity-70"
                                             >
                                                 {isSignInLoading ? (
                                                     <span>Signing in...</span>
@@ -716,7 +716,7 @@ export default function ExamLoginPage() {
                                                 type="button"
                                                 onClick={handleGoogleSignIn}
                                                 disabled={isGoogleLoading || !testCode.trim()}
-                                                className="w-full h-11 bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 font-bold rounded-xl transition-all mt-2 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                                                className="w-full h-11 bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 font-medium rounded-xl transition-all mt-2 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                                             >
                                                 {isGoogleLoading ? (
                                                     <span>Verifying Code...</span>
@@ -740,7 +740,7 @@ export default function ExamLoginPage() {
                                                 type="button"
                                                 onClick={handleSecondFactorSignIn}
                                                 disabled={isSignInLoading}
-                                                className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-200 mt-4 flex items-center justify-center gap-2 disabled:opacity-70"
+                                                className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-all shadow-lg mt-4 flex items-center justify-center gap-2 disabled:opacity-70"
                                             >
                                                 {isSignInLoading ? (
                                                     <>
@@ -763,7 +763,7 @@ export default function ExamLoginPage() {
                                                     setError('');
                                                 }}
                                                 disabled={isSignInLoading}
-                                                className="w-full h-11 bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 font-bold rounded-xl transition-all mt-2 flex items-center justify-center gap-2 disabled:opacity-60"
+                                                className="w-full h-11 bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 font-medium rounded-xl transition-all mt-2 flex items-center justify-center gap-2 disabled:opacity-60"
                                             >
                                                 <ArrowLeft size={16} />
                                                 <span>Back to password</span>
@@ -789,12 +789,12 @@ export default function ExamLoginPage() {
                     />
                     <div className="relative z-10 w-full">
                         {examInfo?.title && (
-                            <p className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-[11px] font-bold uppercase tracking-widest text-indigo-100 mb-6">
+                            <p className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-[11px] font-medium uppercase tracking-widest text-indigo-100 mb-6">
                                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                                 Exam is live
                             </p>
                         )}
-                        <h2 className="text-4xl lg:text-5xl font-black tracking-tight mb-3 leading-tight">
+                        <h2 className="text-4xl lg:text-5xl font-semibold tracking-tight mb-3 leading-tight">
                             {examInfo?.title || 'Secure Examination'}
                         </h2>
                         <p className="text-indigo-100 font-medium text-lg mb-8 max-w-lg leading-relaxed line-clamp-4">
@@ -806,19 +806,19 @@ export default function ExamLoginPage() {
                                 {examStats.map((stat) => (
                                     <div
                                         key={stat.label}
-                                        className="px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/15"
+                                        className="px-4 py-2.5 rounded-xl bg-white/10 border border-white/15"
                                     >
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-200">
+                                        <p className="text-[10px] font-medium uppercase tracking-widest text-indigo-200">
                                             {stat.label}
                                         </p>
-                                        <p className="text-lg font-black">{stat.value}</p>
+                                        <p className="text-lg font-semibold">{stat.value}</p>
                                     </div>
                                 ))}
                             </div>
                         )}
 
-                        <div className="max-w-md rounded-2xl bg-white/[0.07] border border-white/10 p-5">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-indigo-200 mb-3">
+                        <div className="max-w-md rounded-lg bg-white/[0.07] border border-white/10 p-5">
+                            <p className="text-[10px] font-semibold uppercase tracking-widest text-indigo-200 mb-3">
                                 Before you begin
                             </p>
                             <ul className="space-y-2.5">

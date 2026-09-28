@@ -88,7 +88,7 @@ export default function UnifiedProfilePage() {
                 className="bg-white rounded-xl border p-6 md:p-8 mb-6 shadow-sm flex flex-col md:flex-row items-center gap-6 transition-all"
                 style={{ borderColor: 'var(--color-border-subtle)' }}
             >
-                <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white text-3xl font-bold shadow-lg overflow-hidden shrink-0">
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-lg bg-gradient-to-br from-[var(--brand)] to-[var(--brand-dark)] flex items-center justify-center text-white text-3xl font-medium shadow-lg overflow-hidden shrink-0">
                     {avatarUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
@@ -99,7 +99,7 @@ export default function UnifiedProfilePage() {
 
                 <div className="min-w-0 flex-1 text-center md:text-left">
                     <h1
-                        className="text-2xl font-bold tracking-tight mb-1"
+                        className="text-2xl font-medium tracking-tight mb-1"
                         style={{ color: 'var(--color-text-primary)' }}
                     >
                         {displayName}

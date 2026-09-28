@@ -109,7 +109,7 @@ export default function ForgotPasswordPage() {
                 <div className="absolute bottom-10 right-10 h-40 w-40 border border-white/10" />
 
                 <div className="relative z-10 max-w-md px-12 text-white">
-                    <h2 className="text-3xl xl:text-4xl font-bold tracking-tight mb-4 leading-tight">
+                    <h2 className="text-3xl xl:text-4xl font-medium tracking-tight mb-4 leading-tight">
                         Forgot your password? No worries.
                     </h2>
                     <p className="text-white/70 text-[15px] leading-relaxed mb-10">
@@ -118,9 +118,9 @@ export default function ForgotPasswordPage() {
                     </p>
 
                     {/* Steps indicator */}
-                    <div className="rounded-2xl border border-white/15 bg-white/10 p-4 shadow-2xl shadow-black/15 backdrop-blur">
+                    <div className="rounded-lg border border-white/15 bg-white/10 p-4 shadow-lg">
                         <div className="mb-4 border-b border-white/10 pb-3">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/50">
+                            <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-white/50">
                                 Recovery flow
                             </p>
                             <p className="text-sm font-semibold text-white">Secure account reset</p>
@@ -163,19 +163,19 @@ export default function ForgotPasswordPage() {
                             orgLogo={orgContext?.logo}
                             defaultLogoClassName="h-12 max-w-[250px] sm:h-14 sm:max-w-[290px]"
                             iconClassName="h-12 w-12"
-                            textClassName="text-2xl font-bold"
+                            textClassName="text-2xl font-medium"
                             href="/"
                             priority
                         />
                     </div>
 
-                    <div className="w-full rounded-3xl border border-white/70 bg-white/90 p-6 shadow-2xl shadow-gray-200/80 backdrop-blur sm:p-8">
+                    <div className="w-full rounded-lg border border-white/70 bg-white p-6 shadow-lg sm:p-8">
                         {/* ── Step 1: Email ── */}
                         {step === 'email' && (
                             <>
                                 <div className="mb-8">
                                     <h1
-                                        className="text-2xl font-bold tracking-tight mb-1.5"
+                                        className="text-2xl font-medium tracking-tight mb-1.5"
                                         style={{ color: '#0F172A' }}
                                     >
                                         Reset your password
@@ -271,7 +271,7 @@ export default function ForgotPasswordPage() {
                             <>
                                 <div className="mb-8">
                                     <h1
-                                        className="text-2xl font-bold tracking-tight mb-1.5"
+                                        className="text-2xl font-medium tracking-tight mb-1.5"
                                         style={{ color: '#0F172A' }}
                                     >
                                         Set a new password
@@ -456,7 +456,7 @@ export default function ForgotPasswordPage() {
                                 >
                                     <CheckCircle2 size={32} />
                                 </div>
-                                <h2 className="text-2xl font-bold tracking-tight mb-2" style={{ color: '#0F172A' }}>
+                                <h2 className="text-2xl font-medium tracking-tight mb-2" style={{ color: '#0F172A' }}>
                                     Password reset!
                                 </h2>
                                 <p className="text-sm mb-8" style={{ color: '#94A3B8' }}>

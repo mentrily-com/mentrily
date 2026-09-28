@@ -21,14 +21,14 @@ export default function LearnerDashboardSkeleton() {
                     <div className="flex-1">
                         <div className="mb-6 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-center sm:justify-between">
                             <div className="h-7 w-44 animate-pulse rounded-lg bg-gray-200" />
-                            <div className="h-11 w-full animate-pulse rounded-2xl bg-gray-100 sm:w-72" />
+                            <div className="h-11 w-full animate-pulse rounded-lg bg-gray-100 sm:w-72" />
                         </div>
 
                         <div className="space-y-4">
                             {[1, 2, 3, 4].map((i) => (
                                 <div
                                     key={i}
-                                    className="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6"
+                                    className="rounded-lg border border-gray-100 bg-white p-5 shadow-sm sm:p-6"
                                 >
                                     <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
                                         <div className="min-w-0 flex-1 space-y-2.5">
@@ -53,20 +53,20 @@ export default function LearnerDashboardSkeleton() {
 
                     {/* RIGHT: streak + announcements */}
                     <aside className="w-full space-y-6 lg:w-80">
-                        <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-gray-200 to-gray-300 p-6 text-center sm:p-8">
+                        <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 p-6 text-center sm:p-8">
                             <div className="mx-auto mb-4 h-3 w-24 animate-pulse rounded bg-white/40" />
-                            <div className="mx-auto mb-4 h-16 w-16 animate-pulse rounded-2xl bg-white/40" />
+                            <div className="mx-auto mb-4 h-16 w-16 animate-pulse rounded-lg bg-white/40" />
                             <div className="mx-auto h-3 w-40 animate-pulse rounded bg-white/30" />
                         </div>
 
-                        <div className="rounded-[32px] border border-gray-100 bg-white p-5 shadow-sm sm:p-8">
+                        <div className="rounded-lg border border-gray-100 bg-white p-5 shadow-sm sm:p-8">
                             <div className="mb-6 flex items-center gap-3">
                                 <div className="h-10 w-10 shrink-0 animate-pulse rounded-xl bg-gray-100" />
                                 <div className="h-5 w-32 animate-pulse rounded-md bg-gray-200" />
                             </div>
                             <div className="space-y-3">
                                 {[1, 2].map((i) => (
-                                    <div key={i} className="rounded-2xl border border-gray-100 p-4">
+                                    <div key={i} className="rounded-lg border border-gray-100 p-4">
                                         <div className="flex items-start gap-3">
                                             <div className="h-8 w-8 shrink-0 animate-pulse rounded-xl bg-gray-100" />
                                             <div className="min-w-0 flex-1 space-y-2">

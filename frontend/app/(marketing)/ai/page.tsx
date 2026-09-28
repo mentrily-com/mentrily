@@ -178,7 +178,7 @@ export default function AiLandingPage() {
                                 <StartChatting />
                                 <Link
                                     href="/pricing"
-                                    className="inline-flex items-center rounded-xl border border-gray-200 bg-white/70 px-7 py-3.5 text-sm font-semibold text-[#006a72] backdrop-blur hover:border-[#007c85] hover:bg-white"
+                                    className="inline-flex items-center rounded-xl border border-gray-200 bg-white/70 px-7 py-3.5 text-sm font-semibold text-[#006a72] hover:border-[#007c85] hover:bg-white"
                                 >
                                     See pricing
                                 </Link>

@@ -133,22 +133,22 @@ export default function ReportProblemModal({ isOpen, onClose, onSubmitted }: Rep
                 <button
                     onClick={handleSubmit}
                     disabled={isSubmitting || isUploading || !title.trim() || wordCount === 0 || wordCount > MAX_WORDS}
-                    className="w-full py-3.5 rounded-xl bg-[var(--brand)] hover:bg-[var(--brand-dark)] disabled:bg-gray-200 disabled:text-gray-400 text-white font-black text-xs uppercase tracking-[0.18em] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-3.5 rounded-xl bg-[var(--brand)] hover:bg-[var(--brand-dark)] disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold text-xs uppercase tracking-[0.18em] transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                     <Send size={15} /> {isSubmitting ? 'Submitting...' : 'Submit Report'}
                 </button>
             }
         >
-            <div className="mb-6 p-4 rounded-2xl border border-amber-200 bg-amber-50/70 flex items-start gap-3">
+            <div className="mb-6 p-4 rounded-lg border border-amber-200 bg-amber-50/70 flex items-start gap-3">
                 <AlertTriangle size={16} className="text-amber-600 mt-0.5 shrink-0" />
-                <p className="text-xs font-bold text-amber-800 leading-relaxed">
+                <p className="text-xs font-medium text-amber-800 leading-relaxed">
                     Warning: Submitting fake, misleading, or unnecessary reports may result in account suspension.
                 </p>
             </div>
 
             <div className="space-y-6">
                 <div>
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">
+                    <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2 block">
                         Title
                     </label>
                     <input
@@ -157,16 +157,16 @@ export default function ReportProblemModal({ isOpen, onClose, onSubmitted }: Rep
                         onChange={(e) => setTitle(e.target.value)}
                         placeholder="Short summary of the issue"
                         maxLength={120}
-                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-bold text-gray-700 outline-none focus:ring-4 focus:ring-[var(--brand)]/5 focus:border-[var(--brand)] transition-all"
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 outline-none focus:ring-4 focus:ring-[var(--brand)]/5 focus:border-[var(--brand)] transition-all"
                     />
-                    <p className="text-[10px] font-bold text-gray-400 mt-2">{title.length}/120</p>
+                    <p className="text-[10px] font-medium text-gray-400 mt-2">{title.length}/120</p>
                 </div>
 
                 <div>
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">
+                    <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2 block">
                         Description
                     </label>
-                    <div className="border border-gray-200 rounded-2xl overflow-hidden">
+                    <div className="border border-gray-200 rounded-lg overflow-hidden">
                         <RichTextEditor
                             content={description}
                             onChange={setDescription}
@@ -174,14 +174,14 @@ export default function ReportProblemModal({ isOpen, onClose, onSubmitted }: Rep
                         />
                     </div>
                     <p
-                        className={`text-[10px] font-bold mt-2 ${wordCount > MAX_WORDS ? 'text-rose-500' : 'text-gray-400'}`}
+                        className={`text-[10px] font-medium mt-2 ${wordCount > MAX_WORDS ? 'text-rose-500' : 'text-gray-400'}`}
                     >
                         {wordCount}/{MAX_WORDS} words
                     </p>
                 </div>
 
                 <div>
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">
+                    <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2 block">
                         Attach Photos (Max 5)
                     </label>
 
@@ -206,9 +206,9 @@ export default function ReportProblemModal({ isOpen, onClose, onSubmitted }: Rep
                         </div>
                     )}
 
-                    <label className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer hover:border-[var(--brand)] hover:bg-[var(--brand-light)]/30 transition-all">
+                    <label className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-2 border-dashed border-gray-200 rounded-lg cursor-pointer hover:border-[var(--brand)] hover:bg-[var(--brand-light)]/30 transition-all">
                         <Paperclip size={16} className="text-gray-400" />
-                        <span className="text-xs font-black text-gray-400 uppercase tracking-widest">
+                        <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
                             {isUploading ? 'Uploading...' : 'Upload Images'}
                         </span>
                         <input

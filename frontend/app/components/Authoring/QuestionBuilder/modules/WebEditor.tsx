@@ -57,10 +57,10 @@ export default function WebEditor({ question, onChange }: WebEditorProps) {
         <div className="space-y-6">
             <div className="flex items-center justify-between px-2">
                 <div className="flex items-center gap-4">
-                    <span className="text-[11px] font-black uppercase tracking-widest text-gray-400">
+                    <span className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
                         Student File Visibility:
                     </span>
-                    <div className="flex bg-gray-100 p-1.5 rounded-2xl gap-1.5 border border-gray-200/50">
+                    <div className="flex bg-gray-100 p-1.5 rounded-lg gap-1.5 border border-gray-200/50">
                         <VisibilityToggle
                             active={config.showFiles.html}
                             onClick={() => toggleFile('html')}
@@ -70,15 +70,15 @@ export default function WebEditor({ question, onChange }: WebEditorProps) {
                         <VisibilityToggle active={config.showFiles.js} onClick={() => toggleFile('js')} label="JS" />
                     </div>
                 </div>
-                <div className="px-4 py-2.5 bg-[var(--brand-light)]/50 rounded-2xl border border-[var(--brand-light)] flex items-center gap-2">
-                    <span className="text-[10px] font-black text-[var(--brand)] uppercase tracking-widest flex items-center gap-2">
+                <div className="px-4 py-2.5 bg-[var(--brand-light)]/50 rounded-lg border border-[var(--brand-light)] flex items-center gap-2">
+                    <span className="text-[10px] font-semibold text-[var(--brand)] uppercase tracking-widest flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-[var(--brand)] animate-pulse"></div>
                         Authoring Mode
                     </span>
                 </div>
             </div>
 
-            <div className="h-[650px] bg-gray-100 rounded-[32px] overflow-hidden border border-gray-200 shadow-xl relative">
+            <div className="h-[650px] bg-gray-100 rounded-lg overflow-hidden border border-gray-200 shadow-md relative">
                 <SharedWebEditor
                     key={question.id}
                     initialHTML={config.html}
@@ -106,9 +106,9 @@ function VisibilityToggle({ active, onClick, label }: { active: boolean; onClick
             type="button"
             onMouseDown={(e) => e.preventDefault()} // Prevents focus stealing from editor if clicking
             onClick={handleBtnClick}
-            className={`flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all active:scale-95 ${
+            className={`flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-[11px] font-semibold uppercase tracking-widest transition-all active:scale-95 ${
                 active
-                    ? 'bg-white text-[var(--brand)] shadow-md shadow-[var(--brand)]/10 ring-1 ring-gray-200/50'
+                    ? 'bg-white text-[var(--brand)] shadow-sm ring-1 ring-gray-200/50'
                     : 'text-gray-400 hover:text-gray-600 hover:bg-gray-200/50'
             }`}
         >

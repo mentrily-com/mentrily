@@ -23,12 +23,12 @@ export default function PlaygroundTerminal({
                 {showCustomInput ? (
                     <div className="p-6 h-full flex flex-col gap-4 animate-in slide-in-from-right duration-300 bg-[#0d1117]">
                         <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">
+                            <span className="text-[10px] font-semibold uppercase text-gray-500 tracking-widest">
                                 Provide Standard Input (stdin)
                             </span>
                             <button
                                 onClick={() => setShowCustomInput(false)}
-                                className="text-[10px] text-orange-500 font-bold hover:underline"
+                                className="text-[10px] text-orange-500 font-medium hover:underline"
                             >
                                 Back to Terminal
                             </button>
@@ -63,7 +63,7 @@ export default function PlaygroundTerminal({
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => setShowCustomInput(!showCustomInput)}
-                        className={`px-4 py-1.5 rounded text-[11px] font-bold transition-all ${
+                        className={`px-4 py-1.5 rounded text-[11px] font-medium transition-all ${
                             showCustomInput
                                 ? 'bg-orange-500 text-white'
                                 : 'bg-[#21262d] border border-[#30363d] text-gray-400 hover:text-gray-200'

@@ -206,7 +206,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
     const activeBorderClass = 'border-[var(--brand)]';
     const activeTextClass = 'text-[var(--brand)]';
     const activeBgClass = 'bg-[var(--brand)]';
-    const activeShadowClass = 'shadow-[var(--brand)]/20';
+    const activeShadowClass = 'shadow-sm';
     const buttonHoverClass = 'hover:text-[var(--brand)] hover:border-[var(--brand-light)]';
 
     if (isLoading && students.length === 0) {
@@ -227,12 +227,12 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                 Student Activity Monitor
                             </button>
                             <span
-                                className={`px-2.5 py-0.5 text-[10px] text-white font-black rounded-lg uppercase tracking-wider animate-pulse ${activeBgClass}`}
+                                className={`px-2.5 py-0.5 text-[10px] text-white font-semibold rounded-lg uppercase tracking-wider animate-pulse ${activeBgClass}`}
                             >
                                 Live
                             </span>
                         </div>
-                        <p className="text-gray-400 font-bold text-xs uppercase tracking-widest">
+                        <p className="text-gray-400 font-medium text-xs uppercase tracking-widest">
                             Exam: <span className="text-gray-600">JavaScript Fundamentals</span> • ID: {examId}
                         </p>
                     </div>
@@ -240,7 +240,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                     <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto">
                         <button
                             onClick={() => setView('ai-proctoring')}
-                            className={`relative flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl border transition-all ${view === 'ai-proctoring' ? `${activeBgClass} text-white border-transparent shadow-xl ${activeShadowClass}` : `bg-white border-gray-100 text-gray-600 hover:border-[var(--brand-light)] shadow-sm`}`}
+                            className={`relative flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg border transition-all ${view === 'ai-proctoring' ? `${activeBgClass} text-white border-transparent shadow-md ${activeShadowClass}` : `bg-white border-gray-100 text-gray-600 hover:border-[var(--brand-light)] shadow-sm`}`}
                         >
                             <svg
                                 width="18"
@@ -253,14 +253,14 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                 <path d="M15 10l5 5-5 5" />
                                 <path d="M4 4v7a4 4 0 0 0 4 4h12" />
                             </svg>
-                            <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest">AI Proctoring</span>
+                            <span className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest">AI Proctoring</span>
                             <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 animate-pulse border-2 border-white"></div>
                         </button>
 
                         {/* Feedback Toggle Button */}
                         <button
                             onClick={() => setView('feedback')}
-                            className={`relative flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl border transition-all ${view === 'feedback' ? `${activeBgClass} text-white border-transparent shadow-xl ${activeShadowClass}` : `bg-white border-gray-100 text-gray-600 hover:border-[var(--brand-light)] shadow-sm`}`}
+                            className={`relative flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg border transition-all ${view === 'feedback' ? `${activeBgClass} text-white border-transparent shadow-md ${activeShadowClass}` : `bg-white border-gray-100 text-gray-600 hover:border-[var(--brand-light)] shadow-sm`}`}
                         >
                             <svg
                                 width="18"
@@ -272,15 +272,15 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                             >
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                             </svg>
-                            <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest">Feedback Center</span>
+                            <span className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest">Feedback Center</span>
                             {unseenCount > 0 && (
                                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 border-2 border-white rounded-full animate-bounce"></div>
                             )}
                         </button>
 
-                        <div className="flex items-center gap-2 sm:gap-3 bg-white px-3 sm:px-5 py-2.5 sm:py-3 rounded-2xl border border-gray-100 shadow-sm">
+                        <div className="flex items-center gap-2 sm:gap-3 bg-white px-3 sm:px-5 py-2.5 sm:py-3 rounded-lg border border-gray-100 shadow-sm">
                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></div>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                            <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                                 Synced • <span className="text-gray-800">{new Date().toLocaleTimeString()}</span>
                             </span>
                         </div>
@@ -294,13 +294,13 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                             {stats.map((s, idx) => (
                                 <div
                                     key={s.label}
-                                    className={`bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-sm ${idx === 4 ? 'col-span-2 sm:col-span-1' : ''}`}
+                                    className={`bg-white rounded-lg p-4 sm:p-5 border border-gray-100 shadow-sm ${idx === 4 ? 'col-span-2 sm:col-span-1' : ''}`}
                                 >
-                                    <p className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1">
+                                    <p className="text-[9px] font-semibold uppercase tracking-[0.15em] text-gray-400 mb-1">
                                         {s.label}
                                     </p>
                                     <p
-                                        className={`text-xl sm:text-2xl font-black ${s.color === 'text-indigo-600' && userRole === 'admin' ? 'text-orange-600' : s.color}`}
+                                        className={`text-xl sm:text-2xl font-semibold ${s.color === 'text-indigo-600' && userRole === 'admin' ? 'text-orange-600' : s.color}`}
                                     >
                                         {s.value}
                                     </p>
@@ -309,27 +309,27 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                         </div>
 
                         {/* Monitor Table */}
-                        <div className="bg-white rounded-[24px] border border-gray-100 shadow-sm overflow-hidden">
+                        <div className="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
                                         <tr className="bg-gray-50/50 border-b border-gray-100">
-                                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 min-w-[280px]">
+                                            <th className="px-6 py-4 text-[10px] font-semibold uppercase tracking-widest text-gray-400 min-w-[280px]">
                                                 Student Info
                                             </th>
-                                            <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">
+                                            <th className="px-4 py-4 text-[10px] font-semibold uppercase tracking-widest text-gray-400 text-center">
                                                 Status
                                             </th>
-                                            <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">
+                                            <th className="px-4 py-4 text-[10px] font-semibold uppercase tracking-widest text-gray-400 text-center">
                                                 Tab Out
                                             </th>
-                                            <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">
+                                            <th className="px-4 py-4 text-[10px] font-semibold uppercase tracking-widest text-gray-400 text-center">
                                                 Tab In
                                             </th>
-                                            <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center uppercase">
+                                            <th className="px-4 py-4 text-[10px] font-semibold uppercase tracking-widest text-gray-400 text-center uppercase">
                                                 VM Detection
                                             </th>
-                                            <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">
+                                            <th className="px-4 py-4 text-[10px] font-semibold uppercase tracking-widest text-gray-400 text-right">
                                                 Actions
                                             </th>
                                         </tr>
@@ -343,32 +343,32 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                                 <td className="px-6 py-5">
                                                     <div className="flex items-center gap-4">
                                                         <div
-                                                            className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs shrink-0 shadow-sm ring-1 ring-black/5 ${student.vmDetected ? 'bg-rose-100 text-rose-600' : 'bg-gray-100 text-gray-400'}`}
+                                                            className={`w-10 h-10 rounded-xl flex items-center justify-center font-semibold text-xs shrink-0 shadow-sm ring-1 ring-black/5 ${student.vmDetected ? 'bg-rose-100 text-rose-600' : 'bg-gray-100 text-gray-400'}`}
                                                         >
                                                             {student.name[0]}
                                                         </div>
                                                         <div className="flex-1 min-w-0">
-                                                            <p className="text-sm font-black text-gray-800 leading-none truncate mb-1">
+                                                            <p className="text-sm font-semibold text-gray-800 leading-none truncate mb-1">
                                                                 {student.name}
                                                             </p>
                                                             <div className="flex items-center gap-2">
-                                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
+                                                                <span className="text-[10px] font-medium text-gray-400 uppercase tracking-tighter">
                                                                     {student.rollNumber}
                                                                 </span>
                                                                 {student.section && student.section !== 'N/A' && (
                                                                     <>
-                                                                        <span className="text-[10px] font-bold text-gray-300">
+                                                                        <span className="text-[10px] font-medium text-gray-300">
                                                                             •
                                                                         </span>
-                                                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
+                                                                        <span className="text-[10px] font-medium text-gray-400 uppercase tracking-tighter">
                                                                             Sec {student.section}
                                                                         </span>
                                                                     </>
                                                                 )}
-                                                                <span className="text-[10px] font-bold text-gray-300">
+                                                                <span className="text-[10px] font-medium text-gray-300">
                                                                     •
                                                                 </span>
-                                                                <span className="text-[10px] font-bold text-gray-400 truncate">
+                                                                <span className="text-[10px] font-medium text-gray-400 truncate">
                                                                     {student.email}
                                                                 </span>
                                                             </div>
@@ -377,11 +377,11 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                                 </td>
                                                 <td className="px-4 py-5 text-center">
                                                     <span
-                                                        className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest inline-block ${student.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' : student.status === 'Terminated' ? 'bg-rose-50 text-rose-600' : `bg-[var(--brand-light)] ${activeTextClass} animate-pulse`}`}
+                                                        className={`px-2.5 py-1 rounded-lg text-[9px] font-semibold uppercase tracking-widest inline-block ${student.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' : student.status === 'Terminated' ? 'bg-rose-50 text-rose-600' : `bg-[var(--brand-light)] ${activeTextClass} animate-pulse`}`}
                                                     >
                                                         {student.status}
                                                     </span>
-                                                    <p className="text-[11px] font-black text-gray-500 uppercase mt-1.5">
+                                                    <p className="text-[11px] font-semibold text-gray-500 uppercase mt-1.5">
                                                         {student.lastActivity}
                                                     </p>
                                                 </td>
@@ -393,11 +393,11 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                                 </td>
                                                 <td className="px-4 py-5 text-center">
                                                     {student.vmDetected ? (
-                                                        <span className="bg-rose-50 text-rose-600 px-3 py-1 rounded-full text-[9px] font-black border border-rose-100 uppercase tracking-widest">
+                                                        <span className="bg-rose-50 text-rose-600 px-3 py-1 rounded-full text-[9px] font-semibold border border-rose-100 uppercase tracking-widest">
                                                             DETECTED
                                                         </span>
                                                     ) : (
-                                                        <span className="text-[9px] font-bold text-gray-300 uppercase">
+                                                        <span className="text-[9px] font-medium text-gray-300 uppercase">
                                                             SAFE
                                                         </span>
                                                     )}
@@ -452,8 +452,8 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                     /* FEEDBACK VIEW */
                     <div className="animate-in slide-in-from-right duration-500">
                         <div className="flex items-center justify-between mb-8">
-                            <h2 className="text-xl font-black text-gray-800">Student Feedbacks</h2>
-                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                            <h2 className="text-xl font-semibold text-gray-800">Student Feedbacks</h2>
+                            <p className="text-xs font-medium text-gray-400 uppercase tracking-widest">
                                 {unseenCount} New Feedbacks
                             </p>
                         </div>
@@ -463,7 +463,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                 <div
                                     key={f.id}
                                     onClick={() => markAsSeen(f.id)}
-                                    className={`relative p-8 rounded-[32px] border transition-all cursor-pointer ${f.isSeen ? 'bg-white border-gray-100 hover:shadow-lg hover:shadow-gray-100/50' : 'bg-[var(--brand-lighter)] border-[var(--brand-light)] shadow-xl shadow-[var(--brand)]/5'}`}
+                                    className={`relative p-8 rounded-lg border transition-all cursor-pointer ${f.isSeen ? 'bg-white border-gray-100 hover:shadow-lg hover:shadow-gray-100/50' : 'bg-[var(--brand-lighter)] border-[var(--brand-light)] shadow-sm'}`}
                                 >
                                     {!f.isSeen && (
                                         <div
@@ -472,14 +472,14 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                     )}
 
                                     <div className="flex items-center gap-4 mb-6">
-                                        <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center font-black text-lg text-gray-400 uppercase">
+                                        <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center font-semibold text-lg text-gray-400 uppercase">
                                             {f.userName[0]}
                                         </div>
                                         <div>
-                                            <h3 className="text-base font-black text-gray-800 leading-none mb-1">
+                                            <h3 className="text-base font-semibold text-gray-800 leading-none mb-1">
                                                 {f.userName}
                                             </h3>
-                                            <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">
+                                            <p className="text-[10px] font-semibold text-gray-300 uppercase tracking-widest">
                                                 {f.time} • {f.userEmail}
                                             </p>
                                         </div>
@@ -506,12 +506,12 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
 
                                     <div className="mt-8 pt-6 border-t border-gray-50 flex items-center justify-between">
                                         <span
-                                            className={`text-[10px] font-black uppercase tracking-widest ${f.isSeen ? 'text-gray-300' : 'text-[var(--brand)]'}`}
+                                            className={`text-[10px] font-semibold uppercase tracking-widest ${f.isSeen ? 'text-gray-300' : 'text-[var(--brand)]'}`}
                                         >
                                             {f.isSeen ? 'Message Noted' : 'Mark as Read'}
                                         </span>
                                         <button
-                                            className={`text-[10px] font-black text-gray-400 hover:text-[var(--brand)] transition-colors uppercase tracking-widest`}
+                                            className={`text-[10px] font-semibold text-gray-400 hover:text-[var(--brand)] transition-colors uppercase tracking-widest`}
                                         >
                                             Reply →
                                         </button>
@@ -525,12 +525,12 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                 {view === 'ai-proctoring' && (
                     <div className="animate-in slide-in-from-right duration-500 grid grid-cols-1 lg:grid-cols-3 gap-8 h-[calc(100vh-200px)]">
                         {/* Left: Violation Feed */}
-                        <div className="lg:col-span-1 bg-white rounded-[32px] border border-gray-100 shadow-sm flex flex-col overflow-hidden">
+                        <div className="lg:col-span-1 bg-white rounded-lg border border-gray-100 shadow-sm flex flex-col overflow-hidden">
                             <div className="p-6 border-b border-gray-50 bg-gray-50/30 flex justify-between items-center">
-                                <h3 className="font-black text-gray-800 text-sm uppercase tracking-widest">
+                                <h3 className="font-semibold text-gray-800 text-sm uppercase tracking-widest">
                                     Live Violations
                                 </h3>
-                                <span className="bg-rose-100 text-rose-600 px-2 py-1 rounded-lg text-[10px] font-black">
+                                <span className="bg-rose-100 text-rose-600 px-2 py-1 rounded-lg text-[10px] font-semibold">
                                     {violations.length}
                                 </span>
                             </div>
@@ -549,7 +549,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                             <path d="M12 16v-4" />
                                             <path d="M12 8h.01" />
                                         </svg>
-                                        <span className="text-xs font-bold uppercase tracking-widest">
+                                        <span className="text-xs font-medium uppercase tracking-widest">
                                             No Violations Yet
                                         </span>
                                     </div>
@@ -557,20 +557,20 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                 {violations.map((v, i) => (
                                     <div
                                         key={i}
-                                        className="p-4 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                                        className="p-4 rounded-lg bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all cursor-pointer group"
                                         onClick={() => requestStream(v.userId)}
                                     >
                                         <div className="flex items-center gap-3 mb-3">
-                                            <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center font-bold text-xs text-gray-500">
+                                            <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center font-medium text-xs text-gray-500">
                                                 {v.userId[0]}
                                             </div>
                                             <div>
-                                                <p className="text-xs font-black text-gray-800">{v.userId}</p>
-                                                <p className="text-[10px] font-bold text-gray-400">
+                                                <p className="text-xs font-semibold text-gray-800">{v.userId}</p>
+                                                <p className="text-[10px] font-medium text-gray-400">
                                                     {new Date(v.timestamp).toLocaleTimeString()}
                                                 </p>
                                             </div>
-                                            <span className="ml-auto text-[9px] font-black uppercase text-rose-600 bg-rose-50 px-2 py-1 rounded-lg">
+                                            <span className="ml-auto text-[9px] font-semibold uppercase text-rose-600 bg-rose-50 px-2 py-1 rounded-lg">
                                                 {v.type}
                                             </span>
                                         </div>
@@ -586,7 +586,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                                         className="w-full h-auto object-cover opacity-80 group-hover:opacity-100"
                                                     />
                                                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                                                        <span className="text-[9px] font-black text-white bg-black/50 px-2 py-1 rounded-md backdrop-blur-sm">
+                                                        <span className="text-[9px] font-semibold text-white bg-black/50 px-2 py-1 rounded-md">
                                                             CLICK TO VIEW LIVE
                                                         </span>
                                                     </div>
@@ -598,7 +598,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                         </div>
 
                         {/* Right: Live Stage */}
-                        <div className="lg:col-span-2 bg-black rounded-[32px] overflow-hidden shadow-2xl relative flex flex-col">
+                        <div className="lg:col-span-2 bg-black rounded-lg overflow-hidden shadow-lg relative flex flex-col">
                             <div className="flex-1 relative bg-gray-900 flex items-center justify-center">
                                 {activeStream ? (
                                     <video ref={videoRef} autoPlay className="w-full h-full object-contain" />
@@ -617,7 +617,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                                 <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
                                             </svg>
                                         </div>
-                                        <p className="text-sm font-black uppercase tracking-widest text-gray-500">
+                                        <p className="text-sm font-semibold uppercase tracking-widest text-gray-500">
                                             Select a student/violation to view live feed
                                         </p>
                                     </div>
@@ -625,12 +625,12 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                             </div>
 
                             {/* Controls / Info Bar */}
-                            <div className="h-16 bg-gray-800/80 backdrop-blur-md border-t border-gray-700 flex items-center justify-between px-6">
+                            <div className="h-16 bg-gray-800/80 border-t border-gray-700 flex items-center justify-between px-6">
                                 {activeStream ? (
                                     <>
                                         <div className="flex items-center gap-3">
-                                            <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse shadow-lg shadow-rose-500/50"></div>
-                                            <span className="text-xs font-black text-white uppercase tracking-widest">
+                                            <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse shadow-lg"></div>
+                                            <span className="text-xs font-semibold text-white uppercase tracking-widest">
                                                 Live Connection
                                             </span>
                                         </div>
@@ -639,13 +639,13 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                                 setActiveStream(null);
                                                 if (videoRef.current) videoRef.current.srcObject = null;
                                             }}
-                                            className="text-[10px] font-black bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-xl uppercase tracking-widest transition-colors"
+                                            className="text-[10px] font-semibold bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-xl uppercase tracking-widest transition-colors"
                                         >
                                             End Session
                                         </button>
                                     </>
                                 ) : (
-                                    <span className="text-xs font-bold text-gray-500">Waiting for connection...</span>
+                                    <span className="text-xs font-medium text-gray-500">Waiting for connection...</span>
                                 )}
                             </div>
                         </div>
@@ -666,7 +666,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                     onClose={() => setSelectedStudent(null)}
                     title={selectedStudent.name}
                     subtitle={`${selectedStudent.id} • ${selectedStudent.appVersion}`}
-                    icon={<span className="text-xl font-black">{selectedStudent.name[0]}</span>}
+                    icon={<span className="text-xl font-semibold">{selectedStudent.name[0]}</span>}
                     size="xl"
                     panelClassName="max-w-5xl sm:max-h-[calc(100vh-80px)]"
                     bodyClassName="space-y-6 sm:space-y-10"
@@ -725,7 +725,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                                         });
                                     }
                                 }}
-                                className={`w-full px-6 py-3.5 text-white font-black text-[11px] uppercase tracking-[0.1em] rounded-2xl hover:scale-105 transition-all shadow-xl active:scale-95 sm:w-auto sm:px-10 ${selectedStudent.status === 'Terminated' ? 'bg-emerald-600 shadow-emerald-200' : 'bg-rose-600 shadow-rose-200'}`}
+                                className={`w-full px-6 py-3.5 text-white font-semibold text-[11px] uppercase tracking-[0.1em] rounded-lg hover:scale-105 transition-all shadow-md active:scale-95 sm:w-auto sm:px-10 ${selectedStudent.status === 'Terminated' ? 'bg-emerald-600' : 'bg-rose-600'}`}
                             >
                                 {selectedStudent.status === 'Terminated'
                                     ? 'Restore & Unblock Session'
@@ -808,29 +808,29 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                     </div>
 
                     {/* VM & Time Strip */}
-                    <div className="flex flex-wrap gap-4 items-center justify-between p-4 bg-gray-50 border border-gray-100 rounded-[24px] sm:p-6 sm:rounded-[32px]">
+                    <div className="flex flex-wrap gap-4 items-center justify-between p-4 bg-gray-50 border border-gray-100 rounded-lg sm:p-6 sm:rounded-lg">
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
                             <div
-                                className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border ${selectedStudent.vmDetected ? 'bg-rose-50 border-rose-200 text-rose-600' : 'bg-emerald-50 border-emerald-200 text-emerald-600'}`}
+                                className={`px-4 py-2 rounded-full text-[10px] font-semibold uppercase tracking-widest border ${selectedStudent.vmDetected ? 'bg-rose-50 border-rose-200 text-rose-600' : 'bg-emerald-50 border-emerald-200 text-emerald-600'}`}
                             >
                                 VM: {selectedStudent.vmDetected ? `DETECTED (${selectedStudent.vmType})` : 'NONE'}
                             </div>
                             <div className="hidden h-6 w-[1px] bg-gray-200 sm:block"></div>
                             <div className="flex flex-wrap items-center gap-4 sm:gap-6">
                                 <div className="flex flex-col">
-                                    <span className="text-[9px] font-black uppercase text-gray-300">Started</span>
-                                    <span className="text-xs font-black text-gray-700">
+                                    <span className="text-[9px] font-semibold uppercase text-gray-300">Started</span>
+                                    <span className="text-xs font-semibold text-gray-700">
                                         {selectedStudent.startTime}
                                     </span>
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-[9px] font-black uppercase text-gray-300">Ends At</span>
-                                    <span className="text-xs font-black text-gray-700">{selectedStudent.endTime}</span>
+                                    <span className="text-[9px] font-semibold uppercase text-gray-300">Ends At</span>
+                                    <span className="text-xs font-semibold text-gray-700">{selectedStudent.endTime}</span>
                                 </div>
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <span className="text-xs font-bold text-gray-400">Current Health:</span>
+                            <span className="text-xs font-medium text-gray-400">Current Health:</span>
                             <div className="flex gap-1">
                                 {[1, 2, 3, 4, 5].map((i) => (
                                     <div
@@ -845,7 +845,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                     {/* Detailed Event Logs */}
                     <div>
                         <div className="flex items-center gap-4 mb-6">
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+                            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-400">
                                 Comprehensive Event Logs
                             </span>
                             <div className="h-[1px] flex-1 bg-gray-100"></div>
@@ -854,22 +854,22 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                             {selectedStudent.logs.map((log, idx) => (
                                 <div
                                     key={idx}
-                                    className="flex flex-col gap-3 p-4 rounded-[20px] border border-gray-50 bg-white hover:border-gray-100 hover:shadow-sm transition-all group sm:flex-row sm:items-start sm:gap-6 sm:p-5 sm:rounded-[24px]"
+                                    className="flex flex-col gap-3 p-4 rounded-lg border border-gray-50 bg-white hover:border-gray-100 hover:shadow-sm transition-all group sm:flex-row sm:items-start sm:gap-6 sm:p-5 sm:rounded-lg"
                                 >
-                                    <span className="text-xs font-black text-gray-400 tabular-nums sm:min-w-[100px]">
+                                    <span className="text-xs font-semibold text-gray-400 tabular-nums sm:min-w-[100px]">
                                         {log.time}
                                     </span>
                                     <div className="flex-1">
                                         <p
-                                            className={`text-sm font-black mb-0.5 ${log.event === 'VM Detection' || (log.event === 'Tab Switch' && log.description.includes('Out')) ? 'text-rose-600' : 'text-gray-800'}`}
+                                            className={`text-sm font-semibold mb-0.5 ${log.event === 'VM Detection' || (log.event === 'Tab Switch' && log.description.includes('Out')) ? 'text-rose-600' : 'text-gray-800'}`}
                                         >
                                             {log.event}
                                         </p>
-                                        <p className="text-xs font-bold text-gray-400">{log.description}</p>
+                                        <p className="text-xs font-medium text-gray-400">{log.description}</p>
                                     </div>
                                     <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                                         <span
-                                            className={`text-[9px] font-black uppercase bg-[var(--brand-light)] px-2.5 py-1 rounded-lg ${activeTextClass}`}
+                                            className={`text-[9px] font-semibold uppercase bg-[var(--brand-light)] px-2.5 py-1 rounded-lg ${activeTextClass}`}
                                         >
                                             Verified
                                         </span>
@@ -895,10 +895,10 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
 }
 function MetricBadge({ value, danger, highlight }: any) {
     if (value === 0 && !highlight)
-        return <span className="text-gray-300 font-bold text-xs ring-1 ring-gray-100 px-2.5 py-1 rounded-lg">0</span>;
+        return <span className="text-gray-300 font-medium text-xs ring-1 ring-gray-100 px-2.5 py-1 rounded-lg">0</span>;
     return (
         <span
-            className={`px-4 py-1.5 rounded-xl font-black text-xs shadow-sm ring-1 ${
+            className={`px-4 py-1.5 rounded-xl font-semibold text-xs shadow-sm ring-1 ${
                 danger ? 'bg-rose-50 text-rose-600 ring-rose-100' : 'bg-gray-50 text-gray-600 ring-gray-100'
             }`}
         >
@@ -911,21 +911,21 @@ function LegendItem({ dot, label }: any) {
     return (
         <div className="flex items-center gap-2">
             <div className={`w-1.5 h-1.5 rounded-full ${dot}`}></div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">{label}</span>
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">{label}</span>
         </div>
     );
 }
 
 function InfoItem({ label, value, icon }: any) {
     return (
-        <div className="p-5 rounded-3xl bg-gray-50 border border-gray-100 hover:bg-white transition-all group">
+        <div className="p-5 rounded-lg bg-gray-50 border border-gray-100 hover:bg-white transition-all group">
             <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 rounded-lg bg-white text-gray-400 group-hover:text-[var(--brand)] transition-colors shadow-sm">
                     {icon}
                 </div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">{label}</p>
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">{label}</p>
             </div>
-            <p className="text-base font-black text-gray-800">{value}</p>
+            <p className="text-base font-semibold text-gray-800">{value}</p>
         </div>
     );
 }

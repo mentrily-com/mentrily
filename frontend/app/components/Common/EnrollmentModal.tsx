@@ -183,29 +183,29 @@ export default function EnrollmentModal({ isOpen, onClose, courseTitle, courseId
             panelClassName="max-w-xl"
             bodyClassName="space-y-5"
             footer={
-                <p className="text-center text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
+                <p className="text-center text-[9px] font-semibold uppercase tracking-[0.2em] text-gray-400">
                     Secure Student Data Management • {siteConfig.name} Authoring
                 </p>
             }
         >
-            <div className="grid grid-cols-1 gap-2 p-1 bg-gray-100 rounded-2xl sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-2 p-1 bg-gray-100 rounded-lg sm:grid-cols-3">
                 <button
                     onClick={() => setActiveTab('single')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'single' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-semibold uppercase tracking-widest rounded-xl transition-all ${activeTab === 'single' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     <FileText size={14} />
                     Custom Add
                 </button>
                 <button
                     onClick={() => setActiveTab('bulk')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'bulk' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-semibold uppercase tracking-widest rounded-xl transition-all ${activeTab === 'bulk' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     <Upload size={14} />
                     Bulk Enroll
                 </button>
                 <button
                     onClick={() => setActiveTab('group')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'group' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-semibold uppercase tracking-widest rounded-xl transition-all ${activeTab === 'group' ? 'bg-white text-[var(--brand)] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     <Users size={14} />
                     By Group
@@ -217,7 +217,7 @@ export default function EnrollmentModal({ isOpen, onClose, courseTitle, courseId
                     <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500 mb-4">
                         <CheckCircle2 size={32} />
                     </div>
-                    <h3 className="text-lg font-black text-gray-800 mb-2">Enrollment Successful!</h3>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">Enrollment Successful!</h3>
                     <p className="text-sm text-gray-500 font-medium">Students have been enrolled in {courseTitle}.</p>
                 </div>
             ) : (
@@ -225,7 +225,7 @@ export default function EnrollmentModal({ isOpen, onClose, courseTitle, courseId
                     {activeTab === 'single' && (
                         <form onSubmit={handleSingleEnroll} className="space-y-6">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                                <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest ml-1">
                                     Student Email Address
                                 </label>
                                 <input
@@ -233,14 +233,14 @@ export default function EnrollmentModal({ isOpen, onClose, courseTitle, courseId
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="e.g., student@university.edu"
-                                    className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold outline-none focus:border-[var(--brand)] transition-all placeholder:text-gray-300"
+                                    className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium outline-none focus:border-[var(--brand)] transition-all placeholder:text-gray-300"
                                     required
                                 />
                             </div>
                             <button
                                 type="submit"
                                 disabled={isProcessing || !email}
-                                className="w-full py-4 bg-[var(--brand)] text-white font-black text-sm rounded-2xl shadow-lg shadow-[var(--brand)]/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100"
+                                className="w-full py-4 bg-[var(--brand)] text-white font-semibold text-sm rounded-lg shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100"
                             >
                                 {isProcessing ? (
                                     <div className="flex items-center justify-center gap-2">
@@ -257,13 +257,13 @@ export default function EnrollmentModal({ isOpen, onClose, courseTitle, courseId
                         <div className="space-y-6">
                             <div
                                 onClick={() => fileInputRef.current?.click()}
-                                className="border-2 border-dashed border-gray-100 rounded-[22px] bg-gray-50/50 p-6 flex flex-col items-center text-center cursor-pointer hover:border-[var(--brand-light)] hover:bg-gray-50 transition-all group sm:rounded-[24px] sm:p-10"
+                                className="border-2 border-dashed border-gray-100 rounded-lg bg-gray-50/50 p-6 flex flex-col items-center text-center cursor-pointer hover:border-[var(--brand-light)] hover:bg-gray-50 transition-all group sm:rounded-lg sm:p-10"
                             >
-                                <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-gray-400 group-hover:text-[var(--brand)] transition-colors mb-4">
+                                <div className="w-12 h-12 rounded-lg bg-white shadow-sm flex items-center justify-center text-gray-400 group-hover:text-[var(--brand)] transition-colors mb-4">
                                     <Upload size={24} />
                                 </div>
-                                <p className="text-sm font-black text-gray-800 mb-1">Upload CSV File</p>
-                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                <p className="text-sm font-semibold text-gray-800 mb-1">Upload CSV File</p>
+                                <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">
                                     Click or drag and drop your file
                                 </p>
                                 <input
@@ -275,28 +275,28 @@ export default function EnrollmentModal({ isOpen, onClose, courseTitle, courseId
                                 />
                             </div>
 
-                            <div className="flex flex-col gap-3 p-4 bg-[var(--brand-light)] rounded-2xl border border-[var(--brand-light)] sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex flex-col gap-3 p-4 bg-[var(--brand-light)] rounded-lg border border-[var(--brand-light)] sm:flex-row sm:items-center sm:justify-between">
                                 <div className="flex items-center gap-3 text-[var(--brand)]">
                                     <Download size={18} />
                                     <div>
-                                        <p className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">
+                                        <p className="text-[10px] font-semibold uppercase tracking-widest leading-none mb-1">
                                             Need guidance?
                                         </p>
-                                        <p className="text-xs font-bold opacity-80">Download our sample CSV format</p>
+                                        <p className="text-xs font-medium opacity-80">Download our sample CSV format</p>
                                     </div>
                                 </div>
                                 <button
                                     onClick={downloadSampleCSV}
-                                    className="px-4 py-2 bg-white text-[var(--brand)] text-[10px] font-black uppercase tracking-widest rounded-xl shadow-sm hover:shadow-md transition-all active:scale-95 border border-[var(--brand-light)]"
+                                    className="px-4 py-2 bg-white text-[var(--brand)] text-[10px] font-semibold uppercase tracking-widest rounded-xl shadow-sm hover:shadow-md transition-all active:scale-95 border border-[var(--brand-light)]"
                                 >
                                     Download
                                 </button>
                             </div>
 
                             {error && (
-                                <div className="p-4 bg-rose-50 text-rose-600 rounded-2xl flex items-center gap-3 animate-shake">
+                                <div className="p-4 bg-rose-50 text-rose-600 rounded-lg flex items-center gap-3 animate-shake">
                                     <AlertCircle size={18} />
-                                    <p className="text-xs font-bold">{error}</p>
+                                    <p className="text-xs font-medium">{error}</p>
                                 </div>
                             )}
                         </div>
@@ -309,18 +309,18 @@ export default function EnrollmentModal({ isOpen, onClose, courseTitle, courseId
                                 </div>
                             ) : groups.length === 0 ? (
                                 <div className="py-10 text-center">
-                                    <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
+                                    <div className="w-14 h-14 rounded-lg bg-gray-50 flex items-center justify-center mx-auto mb-4">
                                         <Users size={24} className="text-gray-300" />
                                     </div>
-                                    <p className="text-sm font-black text-gray-700 mb-1">No Groups Yet</p>
-                                    <p className="text-xs font-bold text-gray-400">
+                                    <p className="text-sm font-semibold text-gray-700 mb-1">No Groups Yet</p>
+                                    <p className="text-xs font-medium text-gray-400">
                                         Create groups first in the Students &amp; Groups page.
                                     </p>
                                 </div>
                             ) : (
                                 <>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                                        <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest ml-1">
                                             Select a Group
                                         </label>
                                         <div className="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar">
@@ -328,14 +328,14 @@ export default function EnrollmentModal({ isOpen, onClose, courseTitle, courseId
                                                 <button
                                                     key={g.id}
                                                     onClick={() => setSelectedGroupId(g.id)}
-                                                    className={`w-full flex items-center justify-between px-5 py-4 rounded-2xl border transition-all ${
+                                                    className={`w-full flex items-center justify-between px-5 py-4 rounded-lg border transition-all ${
                                                         selectedGroupId === g.id
                                                             ? 'bg-[var(--brand-light)] border-[var(--brand)] text-[var(--brand-dark)]'
                                                             : 'bg-gray-50 border-gray-100 hover:border-gray-200 text-gray-700'
                                                     }`}
                                                 >
-                                                    <span className="text-sm font-black">{g.name}</span>
-                                                    <span className="text-[10px] font-black uppercase tracking-widest opacity-60">
+                                                    <span className="text-sm font-semibold">{g.name}</span>
+                                                    <span className="text-[10px] font-semibold uppercase tracking-widest opacity-60">
                                                         {g._count?.students || g.students?.length || 0} students
                                                     </span>
                                                 </button>
@@ -371,7 +371,7 @@ export default function EnrollmentModal({ isOpen, onClose, courseTitle, courseId
                                             }
                                         }}
                                         disabled={isProcessing || !selectedGroupId}
-                                        className="w-full py-4 bg-[var(--brand)] text-white font-black text-sm rounded-2xl shadow-lg shadow-[var(--brand)]/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100"
+                                        className="w-full py-4 bg-[var(--brand)] text-white font-semibold text-sm rounded-lg shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100"
                                     >
                                         {isProcessing ? (
                                             <div className="flex items-center justify-center gap-2">
@@ -383,9 +383,9 @@ export default function EnrollmentModal({ isOpen, onClose, courseTitle, courseId
                                         )}
                                     </button>
                                     {error && (
-                                        <div className="p-4 bg-rose-50 text-rose-600 rounded-2xl flex items-center gap-3 animate-shake">
+                                        <div className="p-4 bg-rose-50 text-rose-600 rounded-lg flex items-center gap-3 animate-shake">
                                             <AlertCircle size={18} />
-                                            <p className="text-xs font-bold">{error}</p>
+                                            <p className="text-xs font-medium">{error}</p>
                                         </div>
                                     )}
                                 </>

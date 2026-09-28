@@ -10,17 +10,17 @@ import { CodeExecutionService } from '@/services/api/CodeExecutionService';
 
 const PlaygroundEditor = dynamic(() => import('@/app/components/Playground/PlaygroundEditor'), {
     ssr: false,
-    loading: () => <div className="h-full w-full bg-gray-900/5 animate-pulse rounded-2xl" />,
+    loading: () => <div className="h-full w-full bg-gray-900/5 animate-pulse rounded-lg" />,
 });
 
 const CodingEditor = dynamic(() => import('@/app/components/Authoring/QuestionBuilder/modules/CodingEditor'), {
     ssr: false,
-    loading: () => <div className="h-48 w-full bg-gray-900/5 animate-pulse rounded-2xl" />,
+    loading: () => <div className="h-48 w-full bg-gray-900/5 animate-pulse rounded-lg" />,
 });
 
 const CodingQuestionRenderer = dynamic(() => import('@/app/components/CodingQuestionRenderer'), {
     ssr: false,
-    loading: () => <div className="h-full w-full bg-gray-900/5 animate-pulse rounded-2xl" />,
+    loading: () => <div className="h-full w-full bg-gray-900/5 animate-pulse rounded-lg" />,
 });
 
 // Tiptap rich-text editor is heavy and only used for the (conditionally
@@ -29,7 +29,7 @@ const CodingQuestionRenderer = dynamic(() => import('@/app/components/CodingQues
 // interactive-only, so ssr:false is safe.
 const RichTextEditor = dynamic(() => import('@/app/components/Authoring/RichTextEditor'), {
     ssr: false,
-    loading: () => <div className="min-h-[160px] rounded-[28px] bg-gray-50 animate-pulse" />,
+    loading: () => <div className="min-h-[160px] rounded-lg bg-gray-50 animate-pulse" />,
 });
 
 interface Tab {
@@ -159,7 +159,7 @@ export default function PlaygroundCore({
 
     return (
         <div
-            className="w-full h-full min-h-0 flex flex-col overflow-hidden font-sans rounded-2xl border bg-white"
+            className="w-full h-full min-h-0 flex flex-col overflow-hidden font-sans rounded-lg border bg-white"
             style={{ borderColor: 'var(--color-border-subtle)', boxShadow: 'var(--shadow-sm)' }}
         >
             <div
@@ -197,7 +197,7 @@ export default function PlaygroundCore({
                                             <select
                                                 value={activeTab.langId}
                                                 onChange={(event) => updateTabLang(event.target.value)}
-                                                className="text-[12px] font-bold text-gray-600 bg-transparent outline-none cursor-pointer hover:text-[var(--brand)] transition-colors"
+                                                className="text-[12px] font-medium text-gray-600 bg-transparent outline-none cursor-pointer hover:text-[var(--brand)] transition-colors"
                                             >
                                                 {PLAYGROUND_LANGUAGES.map((lang) => (
                                                     <option key={lang.id} value={lang.id}>
@@ -211,7 +211,7 @@ export default function PlaygroundCore({
                                             <div
                                                 key={tab.id}
                                                 onClick={() => setActiveTabId(tab.id)}
-                                                className={`group px-3 sm:px-6 h-full flex items-center text-[12px] font-bold transition-all border-b-2 relative cursor-pointer shrink-0 ${
+                                                className={`group px-3 sm:px-6 h-full flex items-center text-[12px] font-medium transition-all border-b-2 relative cursor-pointer shrink-0 ${
                                                     activeTabId === tab.id
                                                         ? 'border-[var(--brand)] text-gray-700 bg-gray-50/50'
                                                         : 'border-transparent text-gray-400 hover:bg-gray-50'
@@ -253,7 +253,7 @@ export default function PlaygroundCore({
                                         <button
                                             onClick={handleRun}
                                             disabled={isRunning}
-                                            className={`flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-1.5 bg-[var(--brand)] text-white text-[11px] font-black uppercase tracking-widest rounded-md hover:bg-[var(--brand-dark)] transition-all active:scale-95 shadow-sm shadow-[var(--brand-light)] ${
+                                            className={`flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-1.5 bg-[var(--brand)] text-white text-[11px] font-semibold uppercase tracking-widest rounded-md hover:bg-[var(--brand-dark)] transition-all active:scale-95 shadow-sm shadow-[var(--brand-light)] ${
                                                 isRunning ? 'opacity-70 cursor-wait' : ''
                                             }`}
                                         >
@@ -281,12 +281,12 @@ export default function PlaygroundCore({
                     />
 
                     {showDeleteConfirm && (
-                        <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-                            <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full animate-in zoom-in duration-200">
-                                <h3 className="text-xl font-bold text-gray-800 mb-2">Delete this page?</h3>
+                        <div className="fixed inset-0 bg-gray-900/40 z-[100] flex items-center justify-center p-4">
+                            <div className="bg-white rounded-lg shadow-lg p-8 max-w-sm w-full animate-in zoom-in duration-200">
+                                <h3 className="text-xl font-medium text-gray-800 mb-2">Delete this page?</h3>
                                 <p className="text-gray-500 text-sm mb-8 leading-relaxed">
                                     You are about to delete{' '}
-                                    <span className="font-bold text-gray-700">
+                                    <span className="font-medium text-gray-700">
                                         &ldquo;{tabs.find((tab) => tab.id === showDeleteConfirm)?.name}&rdquo;
                                     </span>
                                     . This action cannot be undone.
@@ -294,13 +294,13 @@ export default function PlaygroundCore({
                                 <div className="flex gap-4">
                                     <button
                                         onClick={() => setShowDeleteConfirm(null)}
-                                        className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm font-bold text-gray-500 hover:bg-gray-50 transition-colors"
+                                        className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         onClick={() => deleteTab(showDeleteConfirm)}
-                                        className="flex-1 px-4 py-3 bg-red-500 text-white rounded-xl text-sm font-bold hover:bg-red-600 transition-all shadow-lg shadow-red-200"
+                                        className="flex-1 px-4 py-3 bg-red-500 text-white rounded-xl text-sm font-medium hover:bg-red-600 transition-all shadow-lg"
                                     >
                                         Delete
                                     </button>
@@ -385,7 +385,7 @@ function PublicCompilerSurface({
         <div className="public-compiler-surface relative flex h-[70vh] max-h-[720px] min-h-[420px] flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
             <div className="flex h-10 items-center justify-between border-b border-gray-100 px-3">
                 <div className="min-w-0">
-                    <h1 className="truncate text-xs font-black text-gray-800">
+                    <h1 className="truncate text-xs font-semibold text-gray-800">
                         Online {selectedLanguageLabel} Compiler
                     </h1>
                     <p className="hidden truncate text-[10px] font-medium text-gray-400 md:block">
@@ -502,15 +502,15 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
     };
 
     return (
-        <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-gray-950/50 p-4 backdrop-blur-sm">
-            <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+        <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-gray-950/50 p-4">
+            <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg bg-white shadow-lg">
                 {shareUrl ? (
                     <div className="p-6">
-                        <div className="mx-auto max-w-xl rounded-3xl border border-emerald-100 bg-emerald-50 p-6 text-center shadow-xl shadow-emerald-100">
-                            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-600 text-white">
+                        <div className="mx-auto max-w-xl rounded-lg border border-emerald-100 bg-emerald-50 p-6 text-center shadow-md">
+                            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-600 text-white">
                                 <LinkIcon size={22} />
                             </div>
-                            <h2 className="text-xl font-black text-gray-900">Your question link is ready</h2>
+                            <h2 className="text-xl font-semibold text-gray-900">Your question link is ready</h2>
                             <p className="mt-1 text-sm font-semibold text-gray-600">
                                 Share this link with friends. Anonymous links stay active for 3 days.
                             </p>
@@ -522,7 +522,7 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
                                 />
                                 <button
                                     onClick={copy}
-                                    className="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-black uppercase tracking-widest text-white"
+                                    className="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white"
                                 >
                                     <Copy size={14} />
                                     Copy
@@ -531,7 +531,7 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
                             <div className="mt-5 flex justify-center gap-3">
                                 <button
                                     onClick={onClose}
-                                    className="rounded-xl border border-emerald-200 bg-white px-4 py-2 text-sm font-bold text-emerald-700"
+                                    className="rounded-xl border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-700"
                                 >
                                     Done
                                 </button>
@@ -542,7 +542,7 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
                     <>
                         <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
                             <div>
-                                <h2 className="text-lg font-black text-gray-800">Create a coding question</h2>
+                                <h2 className="text-lg font-semibold text-gray-800">Create a coding question</h2>
                                 <p className="text-xs font-semibold text-gray-500">
                                     Anonymous links are valid for 3 days. Sign in to keep links valid for 30 days.
                                 </p>
@@ -559,7 +559,7 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
                         <div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-5">
                             <div className="grid gap-4 md:grid-cols-[0.7fr_1.3fr]">
                                 <label className="space-y-2">
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                    <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                                         Title
                                     </span>
                                     <input
@@ -567,14 +567,14 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
                                         onChange={(event) =>
                                             setQuestion((prev: any) => ({ ...prev, title: event.target.value }))
                                         }
-                                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-bold outline-none focus:border-[var(--brand)]"
+                                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-medium outline-none focus:border-[var(--brand)]"
                                     />
                                 </label>
                                 <div className="space-y-2">
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                    <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                                         Problem Statement
                                     </span>
-                                    <div className="rounded-[28px]">
+                                    <div className="rounded-lg">
                                         <RichTextEditor
                                             content={question.description}
                                             onChange={(description) =>
@@ -594,7 +594,7 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
 
                             {error && (
                                 <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
-                                    <div className="font-black">{error}</div>
+                                    <div className="font-semibold">{error}</div>
                                 </div>
                             )}
                         </div>
@@ -602,14 +602,14 @@ function PublicQuestionModal({ onClose }: { onClose: () => void }) {
                         <div className="flex justify-end gap-3 border-t border-gray-100 px-5 py-4">
                             <button
                                 onClick={onClose}
-                                className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-bold text-gray-500"
+                                className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-500"
                             >
                                 Close
                             </button>
                             <button
                                 onClick={save}
                                 disabled={isSaving}
-                                className="rounded-xl bg-[var(--brand)] px-5 py-2 text-sm font-black text-white disabled:opacity-60"
+                                className="rounded-xl bg-[var(--brand)] px-5 py-2 text-sm font-semibold text-white disabled:opacity-60"
                             >
                                 {isSaving ? 'Saving...' : 'Save and generate link'}
                             </button>

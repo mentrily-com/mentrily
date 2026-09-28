@@ -95,7 +95,7 @@ export default function ExamWaitingRoom() {
                     orgLogo={orgContext?.logo}
                     defaultLogoClassName="h-9 max-w-[180px]"
                     iconClassName="h-10 w-10 rounded-lg"
-                    textClassName="text-2xl font-black tracking-tighter"
+                    textClassName="text-2xl font-semibold tracking-tighter"
                     priority
                 />
             </div>
@@ -103,11 +103,11 @@ export default function ExamWaitingRoom() {
             <div className="max-w-4xl w-full flex flex-col items-center justify-center text-center px-4 sm:px-6 relative z-10 my-auto">
                 <div className="space-y-8 sm:space-y-12">
                     <div>
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold tracking-wider uppercase mb-6 sm:mb-8">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-medium tracking-wider uppercase mb-6 sm:mb-8">
                             <span className="w-2 h-2 rounded-full bg-indigo-600"></span>
                             Exam Waiting Room
                         </div>
-                        <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-gray-900 tracking-tight leading-tight mb-4 sm:mb-6">
+                        <h1 className="text-3xl sm:text-5xl md:text-7xl font-semibold text-gray-900 tracking-tight leading-tight mb-4 sm:mb-6">
                             {examTitle} <br className="hidden md:block" /> starts in...
                         </h1>
                         <p className="text-base sm:text-lg text-gray-500 font-medium max-w-xl mx-auto leading-relaxed px-2">
@@ -118,9 +118,9 @@ export default function ExamWaitingRoom() {
                     </div>
 
                     <div className="space-y-4 sm:space-y-6">
-                        <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">Time Remaining</div>
+                        <div className="text-xs font-medium text-gray-400 uppercase tracking-widest">Time Remaining</div>
                         <div className="inline-block relative">
-                            <div className="text-4xl sm:text-7xl md:text-8xl lg:text-9xl font-black text-gray-900 font-mono tracking-tight tabular-nums">
+                            <div className="text-4xl sm:text-7xl md:text-8xl lg:text-9xl font-semibold text-gray-900 font-mono tracking-tight tabular-nums">
                                 {timeLeft !== null ? formatTime(timeLeft) : '--:--:--'}
                             </div>
                             {/* Static underline decoration */}

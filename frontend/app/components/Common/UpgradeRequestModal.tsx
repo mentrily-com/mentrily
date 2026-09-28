@@ -73,7 +73,7 @@ export default function UpgradeRequestModal({
                 isSent ? (
                     <button
                         onClick={handleClose}
-                        className="w-full py-3 rounded-xl bg-gray-100 text-gray-500 text-xs font-black uppercase tracking-widest hover:bg-gray-200 transition-all cursor-pointer"
+                        className="w-full py-3 rounded-xl bg-gray-100 text-gray-500 text-xs font-semibold uppercase tracking-widest hover:bg-gray-200 transition-all cursor-pointer"
                     >
                         Close
                     </button>
@@ -82,14 +82,14 @@ export default function UpgradeRequestModal({
                         <button
                             onClick={handleClose}
                             disabled={isSubmitting}
-                            className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-500 text-xs font-black uppercase tracking-widest hover:bg-gray-200 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-500 text-xs font-semibold uppercase tracking-widest hover:bg-gray-200 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={handleSubmit}
                             disabled={isSubmitting}
-                            className="flex-1 py-3 rounded-xl bg-[var(--brand)] text-white text-xs font-black uppercase tracking-widest hover:bg-[var(--brand-dark)] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+                            className="flex-1 py-3 rounded-xl bg-[var(--brand)] text-white text-xs font-semibold uppercase tracking-widest hover:bg-[var(--brand-dark)] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
                         >
                             {isSubmitting ? (
                                 'Sending...'
@@ -105,18 +105,18 @@ export default function UpgradeRequestModal({
             }
         >
             {isSent ? (
-                <p className="text-sm font-bold text-gray-500">
+                <p className="text-sm font-medium text-gray-500">
                     Thanks! Your request for the <span className="text-gray-900">{planLabel}</span> plan has been sent
                     to our team. We&apos;ll reach out at your account email to get you set up.
                 </p>
             ) : (
                 <div className="space-y-4">
-                    <p className="text-sm font-bold text-gray-500">
+                    <p className="text-sm font-medium text-gray-500">
                         Mentrily is currently in beta, so plan upgrades are handled by our team instead of an automated
                         checkout. Tell us a bit about what you need and we&apos;ll follow up shortly.
                     </p>
                     <div>
-                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5 block">
+                        <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-1.5 block">
                             Message (optional)
                         </label>
                         <textarea
@@ -125,7 +125,7 @@ export default function UpgradeRequestModal({
                             placeholder={`What are you hoping to do with ${planLabel}?`}
                             rows={4}
                             maxLength={2000}
-                            className="w-full bg-gray-50 border border-gray-200 rounded-2xl p-4 text-sm font-medium text-gray-900 outline-none focus:border-[var(--brand)] transition-all resize-none placeholder:text-gray-400"
+                            className="w-full bg-gray-50 border border-gray-200 rounded-lg p-4 text-sm font-medium text-gray-900 outline-none focus:border-[var(--brand)] transition-all resize-none placeholder:text-gray-400"
                         />
                     </div>
                 </div>

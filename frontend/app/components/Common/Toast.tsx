@@ -182,10 +182,10 @@ function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
     };
 
     const styles = {
-        success: 'border-emerald-100 bg-emerald-50/50 shadow-emerald-500/5',
-        error: 'border-rose-100 bg-rose-50/50 shadow-rose-500/5',
-        info: 'border-[var(--brand-light)] bg-[var(--brand-light)] shadow-[var(--brand)]/5',
-        warning: 'border-amber-100 bg-amber-50/50 shadow-amber-500/5',
+        success: 'border-emerald-100 bg-emerald-50/50',
+        error: 'border-rose-100 bg-rose-50/50',
+        info: 'border-[var(--brand-light)] bg-[var(--brand-light)] shadow-sm',
+        warning: 'border-amber-100 bg-amber-50/50',
         // Exam proctoring violations (tab switch, devtools, paste/copy
         // attempts) previously used the same soft, translucent `warning`
         // style as routine notices like "network lost" -- for something
@@ -193,7 +193,7 @@ function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
         // urgent than an FYI. This variant is solid (not `/50`
         // translucent), rose instead of amber, with white text for
         // contrast, so it visibly reads as a different severity tier.
-        violation: 'border-rose-600 bg-rose-600 shadow-rose-900/20',
+        violation: 'border-rose-600 bg-rose-600',
     };
 
     // Errors interrupt (assertive) since they're often actionable and time
@@ -215,18 +215,18 @@ function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
             // "Full Screen Required" during an exam) sits over the header and
             // was swallowing clicks on the Submit button underneath it. Only
             // the dismiss button below takes pointer events.
-            className={`pointer-events-none flex items-start gap-4 p-4 rounded-2xl border backdrop-blur-md shadow-xl animate-fade-in ${isViolation ? '' : 'bg-white/80'} ${styles[toast.type]}`}
+            className={`pointer-events-none flex items-start gap-4 p-4 rounded-lg border shadow-md animate-fade-in ${isViolation ? '' : 'bg-white/80'} ${styles[toast.type]}`}
         >
             <div className="shrink-0 mt-0.5">{icons[toast.type]}</div>
             <div className="flex-1 min-w-0">
                 {toast.title && (
                     <h4
-                        className={`text-[11px] font-black uppercase tracking-widest mb-1 ${isViolation ? 'text-white' : 'text-gray-800'}`}
+                        className={`text-[11px] font-semibold uppercase tracking-widest mb-1 ${isViolation ? 'text-white' : 'text-gray-800'}`}
                     >
                         {toast.title}
                     </h4>
                 )}
-                <p className={`text-xs font-bold leading-relaxed ${isViolation ? 'text-white/90' : 'text-gray-600'}`}>
+                <p className={`text-xs font-medium leading-relaxed ${isViolation ? 'text-white/90' : 'text-gray-600'}`}>
                     {toast.message}
                 </p>
             </div>

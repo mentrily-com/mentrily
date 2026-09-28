@@ -17,18 +17,18 @@ export default function CreatorExamsSkeleton() {
                     <div className="h-8 w-56 animate-pulse rounded-md bg-gray-200" />
                     <div className="mt-1 h-5 w-80 max-w-full animate-pulse rounded bg-gray-100" />
                 </div>
-                <div className="h-12 w-full animate-pulse rounded-2xl bg-gray-200 sm:w-52" />
+                <div className="h-12 w-full animate-pulse rounded-lg bg-gray-200 sm:w-52" />
             </div>
 
-            <div className="mb-8 grid grid-cols-2 gap-2 rounded-3xl border border-gray-200 bg-white p-2 shadow-sm sm:mb-10 sm:flex sm:items-center sm:gap-3 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+            <div className="mb-8 grid grid-cols-2 gap-2 rounded-lg border border-gray-200 bg-white p-2 shadow-sm sm:mb-10 sm:flex sm:items-center sm:gap-3 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
-                    <div key={i} className="h-9 w-24 animate-pulse rounded-2xl bg-gray-100 sm:h-8 sm:w-20 sm:rounded-xl sm:bg-gray-100/80" />
+                    <div key={i} className="h-9 w-24 animate-pulse rounded-lg bg-gray-100 sm:h-8 sm:w-20 sm:rounded-xl sm:bg-gray-100/80" />
                 ))}
             </div>
 
             <div className="space-y-7">
                 {[1, 2].map((section) => (
-                    <div key={section} className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
+                    <div key={section} className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
                         <div className="flex flex-col justify-between gap-3 border-b border-black/5 px-6 py-5 sm:flex-row sm:items-center sm:px-8">
                             <div className="space-y-2">
                                 <div className="h-5 w-40 animate-pulse rounded-md bg-gray-200" />

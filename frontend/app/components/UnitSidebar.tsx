@@ -29,11 +29,11 @@ export default function UnitSidebar({
     onNextSection,
 }: UnitSidebarProps) {
     return (
-        <aside className="w-[min(300px,calc(100vw-24px))] border-r border-gray-100 flex flex-col bg-white z-[100] flex-shrink-0 h-full shadow-2xl">
+        <aside className="w-[min(300px,calc(100vw-24px))] border-r border-gray-100 flex flex-col bg-white z-[100] flex-shrink-0 h-full shadow-lg">
             <div className="p-5 border-b border-gray-50 flex items-start justify-between gap-2">
                 <div className="flex flex-col gap-1 min-w-0 flex-1">
-                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Module</p>
-                    <h3 className="text-sm font-black text-gray-800 leading-tight truncate">{moduleTitle}</h3>
+                    <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-widest">Module</p>
+                    <h3 className="text-sm font-semibold text-gray-800 leading-tight truncate">{moduleTitle}</h3>
                 </div>
                 {onToggle && (
                     <button
@@ -77,7 +77,7 @@ export default function UnitSidebar({
                         <path d="m15 18-6-6 6-6" />
                     </svg>
                 </button>
-                <span className="text-[9px] font-black text-[var(--brand)] uppercase tracking-widest text-center flex-1 truncate">
+                <span className="text-[9px] font-semibold text-[var(--brand)] uppercase tracking-widest text-center flex-1 truncate">
                     {sectionTitle}
                 </span>
                 <button
@@ -109,14 +109,14 @@ export default function UnitSidebar({
                     >
                         <div className="flex flex-col items-center w-6 min-w-[24px]">
                             <span
-                                className={`text-[8px] font-black uppercase mb-0.5 ${unit.active ? 'text-[var(--brand)]' : 'text-gray-400'}`}
+                                className={`text-[8px] font-semibold uppercase mb-0.5 ${unit.active ? 'text-[var(--brand)]' : 'text-gray-400'}`}
                             >
                                 {unit.type}
                             </span>
                         </div>
                         <div className="flex-1">
                             <h4
-                                className={`text-xs font-bold leading-tight ${unit.active ? 'text-gray-900' : 'text-gray-600'}`}
+                                className={`text-xs font-medium leading-tight ${unit.active ? 'text-gray-900' : 'text-gray-600'}`}
                             >
                                 {unit.title}
                             </h4>
@@ -143,7 +143,7 @@ export default function UnitSidebar({
             </div>
 
             <div className="p-5 border-t border-gray-100 bg-gray-50/50">
-                <div className="flex items-center justify-between text-[10px] font-black uppercase text-[var(--brand)] mb-2">
+                <div className="flex items-center justify-between text-[10px] font-semibold uppercase text-[var(--brand)] mb-2">
                     <span>Completion</span>
                     <span>100%</span>
                 </div>

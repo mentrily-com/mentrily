@@ -166,10 +166,10 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
         <>
             <div className="space-y-8">
                 <div className="flex items-center justify-between">
-                    <h3 className="text-[11px] font-black uppercase tracking-widest text-gray-400">
+                    <h3 className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
                         Reading Material Breakdown
                     </h3>
-                    <div className="text-[10px] font-bold text-gray-300">{config.contentBlocks.length} Blocks</div>
+                    <div className="text-[10px] font-medium text-gray-300">{config.contentBlocks.length} Blocks</div>
                 </div>
 
                 <div className="space-y-6">
@@ -197,14 +197,14 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
                                 </div>
                             )}
 
-                            <div className="bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all ring-1 ring-transparent hover:ring-[var(--brand)]/10">
+                            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all ring-1 ring-transparent hover:ring-[var(--brand)]/10">
                                 {/* Block Header */}
                                 <div className="h-10 px-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <div className="cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500">
                                             <GripVertical size={14} />
                                         </div>
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                                        <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-500 flex items-center gap-2">
                                             {block.type === 'text' ? (
                                                 <Type size={14} className="text-[var(--brand)]" />
                                             ) : block.type === 'code-runner' ? (
@@ -258,7 +258,7 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
                                         <div className="p-6 bg-gray-900">
                                             <div className="flex items-center gap-4 mb-4">
                                                 <div className="flex flex-col gap-1">
-                                                    <label className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+                                                    <label className="text-[9px] font-semibold uppercase tracking-widest text-gray-500">
                                                         Language
                                                     </label>
                                                     <select
@@ -271,7 +271,7 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
                                                                 },
                                                             })
                                                         }
-                                                        className="w-32 bg-gray-800 text-gray-200 text-xs font-bold rounded-lg px-2 py-1 outline-none border border-gray-700 focus:border-[var(--brand)]"
+                                                        className="w-32 bg-gray-800 text-gray-200 text-xs font-medium rounded-lg px-2 py-1 outline-none border border-gray-700 focus:border-[var(--brand)]"
                                                     >
                                                         <option value="javascript">JavaScript</option>
                                                         <option value="python">Python</option>
@@ -280,7 +280,7 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
                                                     </select>
                                                 </div>
                                                 <div className="flex flex-col gap-1 flex-1">
-                                                    <label className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+                                                    <label className="text-[9px] font-semibold uppercase tracking-widest text-gray-500">
                                                         Description / Instructions
                                                     </label>
                                                     <input
@@ -311,7 +311,7 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
                                             <div className="flex items-center gap-1 mb-4 bg-white border border-gray-200 rounded-xl p-1 w-fit">
                                                 <button
                                                     onClick={() => updateBlock(index, { videoSource: 'upload' })}
-                                                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors ${
+                                                    className={`px-3 py-1.5 rounded-lg text-[10px] font-semibold uppercase tracking-widest transition-colors ${
                                                         !isYouTubeBlock(block)
                                                             ? 'bg-violet-500 text-white shadow-sm'
                                                             : 'text-gray-400 hover:text-gray-600'
@@ -329,7 +329,7 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
                                                             },
                                                         })
                                                     }
-                                                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors ${
+                                                    className={`px-3 py-1.5 rounded-lg text-[10px] font-semibold uppercase tracking-widest transition-colors ${
                                                         isYouTubeBlock(block)
                                                             ? 'bg-violet-500 text-white shadow-sm'
                                                             : 'text-gray-400 hover:text-gray-600'
@@ -370,16 +370,16 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
                                                         <video
                                                             src={block.videoUrl}
                                                             controls
-                                                            className="w-full rounded-2xl border border-gray-200 shadow-sm bg-black max-h-72 object-contain"
+                                                            className="w-full rounded-lg border border-gray-200 shadow-sm bg-black max-h-72 object-contain"
                                                         />
                                                         <div className="flex items-center justify-between">
-                                                            <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-600">
+                                                            <div className="flex items-center gap-2 text-[10px] font-medium text-emerald-600">
                                                                 <CheckCircle size={13} />
                                                                 Video uploaded successfully
                                                             </div>
                                                             <button
                                                                 onClick={() => fileInputRefs.current[block.id]?.click()}
-                                                                className="text-[10px] font-black uppercase tracking-widest text-violet-500 hover:text-violet-700 transition-colors"
+                                                                className="text-[10px] font-semibold uppercase tracking-widest text-violet-500 hover:text-violet-700 transition-colors"
                                                             >
                                                                 Replace Video
                                                             </button>
@@ -388,15 +388,15 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
                                                 ) : uploadStates[block.id] === 'uploading' ? (
                                                     /* Uploading state with progress */
                                                     <div className="flex flex-col items-center justify-center py-10 gap-4 px-6">
-                                                        <div className="w-12 h-12 rounded-2xl bg-violet-50 flex items-center justify-center">
+                                                        <div className="w-12 h-12 rounded-lg bg-violet-50 flex items-center justify-center">
                                                             <Video size={20} className="text-violet-500" />
                                                         </div>
                                                         <div className="w-full max-w-sm space-y-2">
                                                             <div className="flex items-center justify-between">
-                                                                <p className="text-[11px] font-bold text-gray-600 uppercase tracking-widest">
+                                                                <p className="text-[11px] font-medium text-gray-600 uppercase tracking-widest">
                                                                     Uploading video...
                                                                 </p>
-                                                                <span className="text-[13px] font-black text-violet-600 tabular-nums">
+                                                                <span className="text-[13px] font-semibold text-violet-600 tabular-nums">
                                                                     {uploadProgress[block.id] ?? 0}%
                                                                 </span>
                                                             </div>
@@ -416,13 +416,13 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
                                                     <div className="space-y-3">
                                                         <button
                                                             onClick={() => fileInputRefs.current[block.id]?.click()}
-                                                            className="w-full border-2 border-dashed border-violet-200 hover:border-violet-400 rounded-2xl py-10 flex flex-col items-center gap-3 transition-all group/upload cursor-pointer bg-white hover:bg-violet-50/40"
+                                                            className="w-full border-2 border-dashed border-violet-200 hover:border-violet-400 rounded-lg py-10 flex flex-col items-center gap-3 transition-all group/upload cursor-pointer bg-white hover:bg-violet-50/40"
                                                         >
-                                                            <div className="w-12 h-12 rounded-2xl bg-violet-50 group-hover/upload:bg-violet-100 flex items-center justify-center transition-colors">
+                                                            <div className="w-12 h-12 rounded-lg bg-violet-50 group-hover/upload:bg-violet-100 flex items-center justify-center transition-colors">
                                                                 <Upload size={20} className="text-violet-500" />
                                                             </div>
                                                             <div className="text-center">
-                                                                <p className="text-[12px] font-black text-gray-700">
+                                                                <p className="text-[12px] font-semibold text-gray-700">
                                                                     Click to upload video
                                                                 </p>
                                                                 <p className="text-[10px] font-medium text-gray-400 mt-1">
@@ -432,7 +432,7 @@ export default function ReadingEditor({ question, onChange }: ReadingEditorProps
                                                         </button>
 
                                                         {uploadStates[block.id] === 'error' && (
-                                                            <div className="flex items-center gap-2 text-[11px] font-bold text-rose-600 bg-rose-50 px-4 py-2.5 rounded-xl border border-rose-100">
+                                                            <div className="flex items-center gap-2 text-[11px] font-medium text-rose-600 bg-rose-50 px-4 py-2.5 rounded-xl border border-rose-100">
                                                                 <AlertCircle size={13} />
                                                                 {uploadErrors[block.id] ||
                                                                     'Upload failed. Please try again.'}
@@ -569,7 +569,7 @@ function YouTubeVideoBlockEditor({
     return (
         <div className="space-y-4">
             <div className="flex flex-col gap-1">
-                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+                <label className="text-[9px] font-semibold uppercase tracking-widest text-gray-500">
                     YouTube URL or Video ID
                 </label>
                 <input
@@ -578,10 +578,10 @@ function YouTubeVideoBlockEditor({
                     onChange={(e) => setUrlInput(e.target.value)}
                     onBlur={handleUrlBlur}
                     placeholder="https://www.youtube.com/watch?v=..."
-                    className="w-full bg-white text-gray-700 text-xs font-bold px-3 py-2.5 rounded-xl border border-gray-200 focus:border-violet-400 outline-none"
+                    className="w-full bg-white text-gray-700 text-xs font-medium px-3 py-2.5 rounded-xl border border-gray-200 focus:border-violet-400 outline-none"
                 />
                 {urlError && (
-                    <div className="flex items-center gap-2 text-[11px] font-bold text-rose-600">
+                    <div className="flex items-center gap-2 text-[11px] font-medium text-rose-600">
                         <AlertCircle size={13} />
                         {urlError}
                     </div>
@@ -590,7 +590,7 @@ function YouTubeVideoBlockEditor({
 
             <div className="flex gap-4">
                 <div className="flex flex-col gap-1 w-32">
-                    <label className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+                    <label className="text-[9px] font-semibold uppercase tracking-widest text-gray-500">
                         Start (mm:ss)
                     </label>
                     <input
@@ -599,11 +599,11 @@ function YouTubeVideoBlockEditor({
                         onChange={(e) => setStartInput(e.target.value)}
                         onBlur={handleTimesBlur}
                         placeholder="0:00"
-                        className="w-full bg-white text-gray-700 text-xs font-bold px-3 py-2.5 rounded-xl border border-gray-200 focus:border-violet-400 outline-none tabular-nums"
+                        className="w-full bg-white text-gray-700 text-xs font-medium px-3 py-2.5 rounded-xl border border-gray-200 focus:border-violet-400 outline-none tabular-nums"
                     />
                 </div>
                 <div className="flex flex-col gap-1 w-32">
-                    <label className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+                    <label className="text-[9px] font-semibold uppercase tracking-widest text-gray-500">
                         End (mm:ss)
                     </label>
                     <input
@@ -612,7 +612,7 @@ function YouTubeVideoBlockEditor({
                         onChange={(e) => setEndInput(e.target.value)}
                         onBlur={handleTimesBlur}
                         placeholder="Play to end"
-                        className="w-full bg-white text-gray-700 text-xs font-bold px-3 py-2.5 rounded-xl border border-gray-200 focus:border-violet-400 outline-none tabular-nums"
+                        className="w-full bg-white text-gray-700 text-xs font-medium px-3 py-2.5 rounded-xl border border-gray-200 focus:border-violet-400 outline-none tabular-nums"
                     />
                 </div>
             </div>
@@ -644,10 +644,10 @@ function AddButton({
     return (
         <button
             onClick={onClick}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg transition-transform hover:scale-110 ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-white rounded-full text-[10px] font-semibold uppercase tracking-widest shadow-lg transition-transform hover:scale-110 ${
                 variant === 'video'
-                    ? 'bg-violet-500 shadow-violet-500/20'
-                    : 'bg-[var(--brand)] shadow-[var(--brand)]/20'
+                    ? 'bg-violet-500'
+                    : 'bg-[var(--brand)] shadow-sm'
             }`}
         >
             <Plus size={12} strokeWidth={4} />

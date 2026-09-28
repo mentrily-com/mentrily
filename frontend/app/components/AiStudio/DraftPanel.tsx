@@ -188,7 +188,7 @@ export default function DraftPanel({
                     {!job ? (
                         <Loader2 className="mx-auto mt-10 animate-spin text-gray-300" />
                     ) : job.status === 'failed' || job.status === 'cancelled' ? (
-                        <div className="space-y-3 rounded-2xl border border-rose-100 bg-rose-50/60 p-4 text-sm">
+                        <div className="space-y-3 rounded-lg border border-rose-100 bg-rose-50/60 p-4 text-sm">
                             <p className="flex items-start gap-2 text-rose-800">
                                 <AlertTriangle size={16} className="mt-0.5 shrink-0" />
                                 {job.status === 'cancelled' ? 'This generation was cancelled.' : job.error}

@@ -84,7 +84,7 @@ export default function TeacherStudentsPage() {
         <div className="animate-fade-in font-sans">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>
+                    <h1 className="text-2xl font-medium tracking-tight" style={{ color: 'var(--color-text-primary)' }}>
                         Students &amp; Groups
                     </h1>
                     <p className="text-sm font-medium mt-1" style={{ color: 'var(--color-text-secondary)' }}>
@@ -140,7 +140,7 @@ export default function TeacherStudentsPage() {
                                         Total Students
                                     </p>
                                     <p
-                                        className="text-lg font-bold leading-none mt-1"
+                                        className="text-lg font-medium leading-none mt-1"
                                         style={{ color: 'var(--color-text-primary)' }}
                                     >
                                         {students.length}
@@ -297,7 +297,7 @@ export default function TeacherStudentsPage() {
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
                                                         <div
-                                                            className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-sm shrink-0"
+                                                            className="w-10 h-10 rounded-lg flex items-center justify-center font-medium text-sm shrink-0"
                                                             style={{
                                                                 backgroundColor: 'var(--color-bg-muted)',
                                                                 color: 'var(--color-text-secondary)',
@@ -425,16 +425,16 @@ export default function TeacherStudentsPage() {
                     title={selectedStudent.name}
                     subtitle={selectedStudent.course}
                     eyebrow="Student Progress"
-                    icon={<span className="text-xl font-black">{selectedStudent.name?.[0] || '?'}</span>}
+                    icon={<span className="text-xl font-semibold">{selectedStudent.name?.[0] || '?'}</span>}
                     size="xl"
                     panelClassName="max-w-[860px]"
                 >
                     <div className="mb-6 rounded-xl bg-white/70 p-4 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.12)]">
                         <div className="mb-3 flex items-center justify-between gap-4">
-                            <p className="text-xs font-black uppercase tracking-widest text-gray-500">
+                            <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">
                                 Overall Progress
                             </p>
-                            <p className="text-sm font-black text-gray-900">{selectedStudent.progress}%</p>
+                            <p className="text-sm font-semibold text-gray-900">{selectedStudent.progress}%</p>
                         </div>
                         <div className="h-2.5 overflow-hidden rounded-full bg-gray-200/80">
                             <div
@@ -445,7 +445,7 @@ export default function TeacherStudentsPage() {
                     </div>
 
                     <div>
-                        <h4 className="mb-3 text-xs font-black uppercase tracking-widest text-gray-800">
+                        <h4 className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-800">
                             Course Progress
                         </h4>
                         <div className="space-y-3">
@@ -461,10 +461,10 @@ export default function TeacherStudentsPage() {
                                                     <BookOpen size={22} />
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <h4 className="truncate text-sm font-black leading-tight text-gray-800">
+                                                    <h4 className="truncate text-sm font-semibold leading-tight text-gray-800">
                                                         {course.title}
                                                     </h4>
-                                                    <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                                                    <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-gray-400">
                                                         {course.completedUnits}/{course.totalUnits} Units Completed
                                                     </p>
                                                 </div>
@@ -484,13 +484,13 @@ export default function TeacherStudentsPage() {
                                                     style={{ width: `${course.progress}%` }}
                                                 />
                                             </div>
-                                            <span className="w-10 text-right text-xs font-black text-gray-600">
+                                            <span className="w-10 text-right text-xs font-semibold text-gray-600">
                                                 {course.progress}%
                                             </span>
                                         </div>
                                         {course.tests && course.tests.length > 0 && (
                                             <div className="mt-4 border-t border-gray-200 pt-4">
-                                                <p className="mb-2 flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                                <p className="mb-2 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                                                     <ClipboardList size={10} /> Test Scores
                                                 </p>
                                                 <div className="space-y-1.5">
@@ -499,18 +499,18 @@ export default function TeacherStudentsPage() {
                                                             key={test.id}
                                                             className="flex items-center justify-between"
                                                         >
-                                                            <span className="max-w-[60%] truncate text-[11px] font-bold text-gray-500">
+                                                            <span className="max-w-[60%] truncate text-[11px] font-medium text-gray-500">
                                                                 {test.title}
                                                             </span>
                                                             {test.attempted ? (
                                                                 <span
-                                                                    className={`text-[11px] font-black px-2 py-0.5 rounded-lg ${test.score >= 70 ? 'bg-emerald-50 text-emerald-600' : test.score >= 40 ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-500'}`}
+                                                                    className={`text-[11px] font-semibold px-2 py-0.5 rounded-lg ${test.score >= 70 ? 'bg-emerald-50 text-emerald-600' : test.score >= 40 ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-500'}`}
                                                                 >
                                                                     {test.correctAnswers}/{test.totalQuestions} &nbsp;(
                                                                     {test.score}%)
                                                                 </span>
                                                             ) : (
-                                                                <span className="text-[11px] font-bold text-gray-300 px-2 py-0.5 rounded-lg bg-gray-50">
+                                                                <span className="text-[11px] font-medium text-gray-300 px-2 py-0.5 rounded-lg bg-gray-50">
                                                                     Not attempted
                                                                 </span>
                                                             )}
@@ -523,7 +523,7 @@ export default function TeacherStudentsPage() {
                                 ))
                             ) : (
                                 <div className="rounded-xl bg-white p-6 text-center shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
-                                    <p className="text-sm font-bold text-gray-500">
+                                    <p className="text-sm font-medium text-gray-500">
                                         No courses enrolled under your management.
                                     </p>
                                 </div>

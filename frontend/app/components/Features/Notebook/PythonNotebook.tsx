@@ -195,11 +195,11 @@ export default function PythonNotebook({
                                                 <TerminalSquare size={14} />
                                             </div>
                                             <div>
-                                                <h3 className="text-xs font-black text-gray-800 tracking-tight">
+                                                <h3 className="text-xs font-semibold text-gray-800 tracking-tight">
                                                     Python 3.11 Kernel
                                                 </h3>
                                                 <span
-                                                    className={`text-[9px] font-bold uppercase tracking-wider flex items-center gap-1 ${isWorkerReady ? 'text-emerald-500' : 'text-amber-500'}`}
+                                                    className={`text-[9px] font-medium uppercase tracking-wider flex items-center gap-1 ${isWorkerReady ? 'text-emerald-500' : 'text-amber-500'}`}
                                                 >
                                                     <span
                                                         className={`w-1.5 h-1.5 rounded-full ${isWorkerReady ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`}
@@ -216,7 +216,7 @@ export default function PythonNotebook({
                                                     workerRef.current?.postMessage({ action: 'init', id: 're-init' });
                                                     addOutput('info', 'Kernel Restarting...');
                                                 }}
-                                                className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all"
+                                                className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-medium text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all"
                                             >
                                                 <RotateCcw size={10} />
                                                 Restart
@@ -233,7 +233,7 @@ export default function PythonNotebook({
                             style={{ fontSize: fontSize ? `${fontSize}px` : '14px' }}
                         >
                             <div className="px-4 py-2 border-b border-white/10 flex items-center justify-between bg-[#252526]">
-                                <span className="text-[11px] font-black uppercase tracking-widest text-gray-500">
+                                <span className="text-[11px] font-semibold uppercase tracking-widest text-gray-500">
                                     Console Output
                                 </span>
                                 {isExecuting && (
@@ -299,7 +299,7 @@ export default function PythonNotebook({
                     <div className="flex items-center gap-2">
                         <button
                             onClick={handleClearConsole}
-                            className="px-4 py-2 text-[11px] font-bold text-gray-400 hover:text-gray-600 transition-colors"
+                            className="px-4 py-2 text-[11px] font-medium text-gray-400 hover:text-gray-600 transition-colors"
                         >
                             Clear Console
                         </button>
@@ -309,7 +309,7 @@ export default function PythonNotebook({
                         <button
                             onClick={handleRun}
                             disabled={isExecuting || !isWorkerReady}
-                            className="px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl text-[12px] uppercase tracking-widest hover:bg-gray-200 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait flex items-center gap-2"
+                            className="px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl text-[12px] uppercase tracking-widest hover:bg-gray-200 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait flex items-center gap-2"
                         >
                             {isExecuting ? (
                                 <>
@@ -327,7 +327,7 @@ export default function PythonNotebook({
                         <button
                             onClick={() => onSubmit?.(code)}
                             data-element-id="starter-submit-answer"
-                            className={`px-10 py-3 bg-[var(--brand)] text-white font-black rounded-xl text-[12px] uppercase tracking-widest shadow-lg shadow-[var(--brand-light)] hover:bg-[var(--brand-dark)] hover:-translate-y-0.5 transition-all active:translate-y-0 active:scale-[0.98] flex items-center gap-2`}
+                            className={`px-10 py-3 bg-[var(--brand)] text-white font-semibold rounded-xl text-[12px] uppercase tracking-widest shadow-lg shadow-[var(--brand-light)] hover:bg-[var(--brand-dark)] hover:-translate-y-0.5 transition-all active:translate-y-0 active:scale-[0.98] flex items-center gap-2`}
                         >
                             Submit
                             <svg

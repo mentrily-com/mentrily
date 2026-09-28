@@ -33,9 +33,9 @@ export default async function VerifyCertificatePage({ params }: { params: Promis
     if (!data?.valid) {
         return (
             <main className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-                <section className="w-full max-w-xl rounded-3xl bg-white border border-rose-100 shadow-sm overflow-hidden">
+                <section className="w-full max-w-xl rounded-lg bg-white border border-rose-100 shadow-sm overflow-hidden">
                     <header className="bg-rose-500 text-white px-6 py-10 text-center sm:px-8">
-                        <h1 className="text-2xl font-black">Certificate Not Found</h1>
+                        <h1 className="text-2xl font-semibold">Certificate Not Found</h1>
                         <p className="text-sm mt-2 font-semibold opacity-90">
                             The verification code is invalid or expired.
                         </p>
@@ -52,12 +52,12 @@ export default async function VerifyCertificatePage({ params }: { params: Promis
 
     return (
         <main className="min-h-screen bg-gray-100 flex items-center justify-center px-4 py-10">
-            <section className="w-full max-w-xl rounded-3xl bg-white border border-gray-100 shadow-xl overflow-hidden">
+            <section className="w-full max-w-xl rounded-lg bg-white border border-gray-100 shadow-md overflow-hidden">
                 <header className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white px-6 py-10 text-center sm:px-8">
                     <div className="w-14 h-14 rounded-full bg-white/20 mx-auto mb-3 flex items-center justify-center text-2xl">
                         ✓
                     </div>
-                    <h1 className="text-2xl font-black">Certificate Verified</h1>
+                    <h1 className="text-2xl font-semibold">Certificate Verified</h1>
                     <p className="text-sm mt-1 font-semibold opacity-90">This certificate is authentic and valid.</p>
                 </header>
 
@@ -81,9 +81,9 @@ export default async function VerifyCertificatePage({ params }: { params: Promis
 function Row({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
     return (
         <div className="flex items-start justify-between py-3 border-b border-gray-100 last:border-none gap-3 sm:gap-6">
-            <span className="shrink-0 text-[11px] font-black uppercase tracking-widest text-gray-400">{label}</span>
+            <span className="shrink-0 text-[11px] font-semibold uppercase tracking-widest text-gray-400">{label}</span>
             <span
-                className={`min-w-0 flex-1 break-words text-sm font-bold text-gray-800 text-right ${mono ? 'break-all font-mono text-xs' : ''}`}
+                className={`min-w-0 flex-1 break-words text-sm font-medium text-gray-800 text-right ${mono ? 'break-all font-mono text-xs' : ''}`}
             >
                 {value}
             </span>

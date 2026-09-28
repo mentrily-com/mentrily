@@ -28,19 +28,19 @@ export default function SignaturePad({ value, onChange }: { value?: string; onCh
     };
 
     return (
-        <div className="rounded-2xl border border-gray-200 p-3 bg-white">
+        <div className="rounded-lg border border-gray-200 p-3 bg-white">
             <div className="flex items-center gap-2 mb-3">
                 <button
                     type="button"
                     onClick={() => setMode('draw')}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider ${mode === 'draw' ? 'bg-[var(--brand)] text-white' : 'bg-gray-100 text-gray-600'}`}
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold uppercase tracking-wider ${mode === 'draw' ? 'bg-[var(--brand)] text-white' : 'bg-gray-100 text-gray-600'}`}
                 >
                     Draw
                 </button>
                 <button
                     type="button"
                     onClick={() => setMode('upload')}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider ${mode === 'upload' ? 'bg-[var(--brand)] text-white' : 'bg-gray-100 text-gray-600'}`}
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold uppercase tracking-wider ${mode === 'upload' ? 'bg-[var(--brand)] text-white' : 'bg-gray-100 text-gray-600'}`}
                 >
                     Upload
                 </button>
@@ -63,21 +63,21 @@ export default function SignaturePad({ value, onChange }: { value?: string; onCh
                                 sigRef.current?.clear();
                                 onChange(undefined);
                             }}
-                            className="px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider bg-gray-100 text-gray-600"
+                            className="px-3 py-1.5 rounded-lg text-[11px] font-semibold uppercase tracking-wider bg-gray-100 text-gray-600"
                         >
                             Clear
                         </button>
                         <button
                             type="button"
                             onClick={handleDrawEnd}
-                            className="px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-700"
+                            className="px-3 py-1.5 rounded-lg text-[11px] font-semibold uppercase tracking-wider bg-emerald-100 text-emerald-700"
                         >
                             Use Drawn
                         </button>
                     </div>
                 </div>
             ) : (
-                <label className="w-full h-[140px] border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 flex items-center justify-center text-xs font-bold text-gray-500 cursor-pointer">
+                <label className="w-full h-[140px] border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 flex items-center justify-center text-xs font-medium text-gray-500 cursor-pointer">
                     Upload Signature Image
                     <input type="file" accept="image/*" className="hidden" onChange={handleUpload} />
                 </label>

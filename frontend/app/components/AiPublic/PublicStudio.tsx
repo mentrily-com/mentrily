@@ -154,7 +154,7 @@ export function GuestThread({
                                     key={s.text}
                                     type="button"
                                     onClick={() => onFill(s.command, s.text)}
-                                    className="flex items-start gap-3 rounded-2xl border border-gray-200 bg-white p-3.5 text-left transition hover:border-[var(--color-border-brand)] hover:bg-[var(--color-brand-light)]/40"
+                                    className="flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-3.5 text-left transition hover:border-[var(--color-border-brand)] hover:bg-[var(--color-brand-light)]/40"
                                 >
                                     {Icon && (
                                         <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-gray-100 text-gray-600">

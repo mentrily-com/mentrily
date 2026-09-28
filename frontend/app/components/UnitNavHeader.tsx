@@ -64,7 +64,7 @@ export default function UnitNavHeader({
                                     key={tab}
                                     onClick={() => onTabChange(tab as any)}
                                     data-element-id={`starter-unit-tab-${tab}`}
-                                    className={`px-3 py-2 min-h-[36px] text-[10px] font-black uppercase tracking-widest rounded-lg transition-all cursor-pointer sm:px-4 ${
+                                    className={`px-3 py-2 min-h-[36px] text-[10px] font-semibold uppercase tracking-widest rounded-lg transition-all cursor-pointer sm:px-4 ${
                                         activeTab === tab
                                             ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-black/5'
                                             : 'text-gray-400 hover:text-gray-600'
@@ -87,7 +87,7 @@ function TabItem({ active, onClick, label }: { active: boolean; onClick: () => v
     return (
         <button
             onClick={onClick}
-            className={`h-full px-4 text-[11px] font-black tracking-widest uppercase transition-all border-b-2 flex items-center ${active ? 'text-[var(--brand)] border-[var(--brand)]' : 'text-gray-400 border-transparent hover:text-gray-600'}`}
+            className={`h-full px-4 text-[11px] font-semibold tracking-widest uppercase transition-all border-b-2 flex items-center ${active ? 'text-[var(--brand)] border-[var(--brand)]' : 'text-gray-400 border-transparent hover:text-gray-600'}`}
         >
             {label}
         </button>

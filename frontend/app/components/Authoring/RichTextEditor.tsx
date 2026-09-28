@@ -62,7 +62,7 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
                 },
                 code: {
                     HTMLAttributes: {
-                        class: 'rounded bg-gray-100 dark:bg-gray-800 px-1 py-0.5 font-mono text-sm border border-gray-200 dark:border-gray-700 font-bold text-[var(--brand)]',
+                        class: 'rounded bg-gray-100 dark:bg-gray-800 px-1 py-0.5 font-mono text-sm border border-gray-200 dark:border-gray-700 font-medium text-[var(--brand)]',
                     },
                 },
             }),
@@ -82,7 +82,7 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
             }),
             Image.configure({
                 HTMLAttributes: {
-                    class: 'rounded-2xl max-w-full h-auto my-4 shadow-lg',
+                    class: 'rounded-lg max-w-full h-auto my-4 shadow-lg',
                 },
             }),
             Youtube.configure({
@@ -191,7 +191,7 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
 
     return (
         <div
-            className={`border rounded-[32px] overflow-hidden transition-all duration-300 ${isDarkMode ? 'border-gray-700 shadow-2xl shadow-black/50' : 'border-gray-200 shadow-sm'}`}
+            className={`border rounded-lg overflow-hidden transition-all duration-300 ${isDarkMode ? 'border-gray-700 shadow-lg shadow-black/50' : 'border-gray-200 shadow-sm'}`}
         >
             {/* Toolbar */}
             <div
@@ -392,9 +392,9 @@ export default function RichTextEditor({ content, onChange, placeholder, compact
                     <button
                         type="button"
                         onClick={() => setIsDarkMode(!isDarkMode)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-widest transition-all ${
                             isDarkMode
-                                ? 'bg-[var(--brand)] text-white hover:brightness-110 shadow-lg shadow-[var(--brand)]/20'
+                                ? 'bg-[var(--brand)] text-white hover:brightness-110 shadow-sm'
                                 : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                         }`}
                     >
@@ -476,7 +476,7 @@ function ToolbarBtn({
             className={`p-2.5 rounded-lg transition-all ${
                 active
                     ? dark
-                        ? 'bg-[var(--brand)] text-white shadow-lg shadow-[var(--brand)]/30'
+                        ? 'bg-[var(--brand)] text-white shadow-sm'
                         : 'bg-[var(--brand)] text-white shadow-lg'
                     : dark
                       ? 'text-gray-400 hover:text-gray-200 hover:bg-white/5'

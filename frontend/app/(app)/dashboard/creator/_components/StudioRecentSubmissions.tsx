@@ -6,8 +6,8 @@ interface StudioRecentSubmissionsProps {
 
 export default function StudioRecentSubmissions({ submissions }: StudioRecentSubmissionsProps) {
     return (
-        <div className="bg-white rounded-[32px] border border-gray-100 p-8 shadow-sm">
-            <h3 className="text-lg font-black text-gray-800 tracking-tight mb-6">Recent Submissions</h3>
+        <div className="bg-white rounded-lg border border-gray-100 p-8 shadow-sm">
+            <h3 className="text-lg font-semibold text-gray-800 tracking-tight mb-6">Recent Submissions</h3>
             <div className="space-y-6">
                 {submissions.length > 0 ? (
                     submissions.map((submission) => (
@@ -20,10 +20,10 @@ export default function StudioRecentSubmissions({ submissions }: StudioRecentSub
                         />
                     ))
                 ) : (
-                    <div className="text-gray-400 text-sm font-bold">No recent activity.</div>
+                    <div className="text-gray-400 text-sm font-medium">No recent activity.</div>
                 )}
             </div>
-            <button className="w-full mt-8 py-3 bg-gray-50 text-gray-500 text-xs font-black uppercase tracking-widest rounded-xl hover:bg-gray-100 transition-colors">
+            <button className="w-full mt-8 py-3 bg-gray-50 text-gray-500 text-xs font-semibold uppercase tracking-widest rounded-xl hover:bg-gray-100 transition-colors">
                 View All Activity
             </button>
         </div>
@@ -35,16 +35,16 @@ function SubmissionItem({ name, module, time, status }: any) {
     const initial = displayName ? displayName.charAt(0) : '?';
     return (
         <div className="flex gap-4">
-            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-black text-gray-400 text-xs shrink-0">
+            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-semibold text-gray-400 text-xs shrink-0">
                 {initial}
             </div>
             <div>
-                <p className="text-sm font-black text-gray-800 leading-none mb-1">{displayName}</p>
-                <p className="text-[10px] font-bold text-gray-400 mb-2">{module}</p>
+                <p className="text-sm font-semibold text-gray-800 leading-none mb-1">{displayName}</p>
+                <p className="text-[10px] font-medium text-gray-400 mb-2">{module}</p>
                 <div className="flex items-center gap-3">
-                    <span className="text-[9px] font-black text-gray-300 uppercase">{time}</span>
+                    <span className="text-[9px] font-semibold text-gray-300 uppercase">{time}</span>
                     <span
-                        className={`text-[9px] font-black uppercase ${status === 'Pending' ? 'text-amber-500' : 'text-emerald-500'}`}
+                        className={`text-[9px] font-semibold uppercase ${status === 'Pending' ? 'text-amber-500' : 'text-emerald-500'}`}
                     >
                         {status}
                     </span>

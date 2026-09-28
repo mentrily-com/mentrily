@@ -64,7 +64,7 @@ export default function TemplatePreview({
 
     return (
         <div
-            className={`w-full max-w-[860px] aspect-[1.41] rounded-2xl border-4 ${preset.border} overflow-hidden shadow-2xl relative ${preset.bg}`}
+            className={`w-full max-w-[860px] aspect-[1.41] rounded-lg border-4 ${preset.border} overflow-hidden shadow-lg relative ${preset.bg}`}
             style={
                 value.backgroundUrl
                     ? {
@@ -79,16 +79,16 @@ export default function TemplatePreview({
             {value.preset === 'dark' && <div className="absolute inset-0 bg-gray-950/45" />}
 
             <div className="relative h-full px-12 py-10 flex flex-col items-center justify-center text-center">
-                <p className={`text-sm font-bold tracking-wide ${preset.muted}`}>{orgName}</p>
-                <h2 className={`mt-4 text-3xl font-black ${preset.title}`}>
+                <p className={`text-sm font-medium tracking-wide ${preset.muted}`}>{orgName}</p>
+                <h2 className={`mt-4 text-3xl font-semibold ${preset.title}`}>
                     {value.certificateTitle || 'Certificate of Achievement'}
                 </h2>
                 <p className={`mt-2 text-sm font-semibold ${preset.muted}`}>
                     {value.subtitle || 'This certifies that'}
                 </p>
-                <p className={`mt-4 text-4xl font-black ${preset.accent}`}>{'{{ Student Name }}'}</p>
+                <p className={`mt-4 text-4xl font-semibold ${preset.accent}`}>{'{{ Student Name }}'}</p>
                 <p className={`mt-3 text-sm font-medium ${preset.muted}`}>has successfully completed</p>
-                <p className={`mt-2 text-2xl font-bold ${preset.title}`}>{'{{ Course / Exam Title }}'}</p>
+                <p className={`mt-2 text-2xl font-medium ${preset.title}`}>{'{{ Course / Exam Title }}'}</p>
                 <p className={`mt-4 text-xs font-semibold ${preset.muted}`}>
                     {'Completion: {{ Percentage }}% · Issued {{ Date }}'}
                 </p>

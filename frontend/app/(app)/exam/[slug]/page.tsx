@@ -163,7 +163,7 @@ const ExamCountdownTimer = React.memo(function ExamCountdownTimer({
     return (
         <div
             className={`
-            flex items-center gap-2 px-3.5 py-1.5 rounded-xl border font-black text-sm transition-all duration-500
+            flex items-center gap-2 px-3.5 py-1.5 rounded-xl border font-semibold text-sm transition-all duration-500
             ${
                 isUrgent
                     ? 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'
@@ -202,18 +202,18 @@ const ExamNetworkIndicator = React.memo(function ExamNetworkIndicator() {
             )}
 
             {/* Tooltip */}
-            <div className="absolute invisible group-hover:visible top-full left-1/2 -translate-x-1/2 mt-3 p-3 bg-white text-gray-900 text-[10px] font-bold rounded-xl whitespace-nowrap shadow-2xl z-50 border border-gray-100 ring-4 ring-gray-900/5 transition-all">
+            <div className="absolute invisible group-hover:visible top-full left-1/2 -translate-x-1/2 mt-3 p-3 bg-white text-gray-900 text-[10px] font-medium rounded-xl whitespace-nowrap shadow-lg z-50 border border-gray-100 ring-4 ring-gray-900/5 transition-all">
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between gap-8">
                         <span className="text-gray-400 uppercase tracking-tighter">Net Status</span>
-                        <span className={isOnline ? 'text-emerald-500 font-black' : 'text-rose-500 font-black'}>
+                        <span className={isOnline ? 'text-emerald-500 font-semibold' : 'text-rose-500 font-semibold'}>
                             {isOnline ? 'ONLINE' : 'OFFLINE'}
                         </span>
                     </div>
                     {isOnline && (
                         <div className="flex items-center justify-between gap-8 border-t border-gray-50 pt-2">
                             <span className="text-gray-400 uppercase tracking-tighter">Sync Speed</span>
-                            <span className="text-indigo-600 font-black">
+                            <span className="text-indigo-600 font-semibold">
                                 {downlink > 0 ? `${downlink} Mbps` : 'Detecting...'}
                             </span>
                         </div>
@@ -1934,7 +1934,7 @@ export default function PublicExamPage() {
                     <div
                         className={`
                         bg-white border border-gray-100 rounded-xl px-3 py-1.5 flex items-center gap-3 transition-shadow duration-300
-                        ${windowFocus.in === 0 && windowFocus.out === 0 ? 'shadow-none' : 'shadow-md shadow-gray-200/50'}
+                        ${windowFocus.in === 0 && windowFocus.out === 0 ? 'shadow-none' : 'shadow-md'}
                     `}
                     >
                         <div className="flex items-center gap-1.5" title="Switched In (Focused)">
@@ -1954,7 +1954,7 @@ export default function PublicExamPage() {
                                     <line x1="15" y1="12" x2="3" y2="12" />
                                 </svg>
                             </div>
-                            <span className="text-xs font-black text-emerald-700">{windowFocus.in}</span>
+                            <span className="text-xs font-semibold text-emerald-700">{windowFocus.in}</span>
                         </div>
                         <div className="w-[1px] h-3 bg-gray-100" />
                         <div className="flex items-center gap-1.5" title="Switched Out (Blurred)">
@@ -1974,7 +1974,7 @@ export default function PublicExamPage() {
                                     <line x1="21" y1="12" x2="9" y2="12" />
                                 </svg>
                             </div>
-                            <span className="text-xs font-black text-rose-700">{windowFocus.out}</span>
+                            <span className="text-xs font-semibold text-rose-700">{windowFocus.out}</span>
                         </div>
                     </div>
                 </div>
@@ -1985,7 +1985,7 @@ export default function PublicExamPage() {
                     !areAllSectionsSubmitted && !isCurrentSectionSubmitted ? (
                         <button
                             onClick={() => setIsSubmitModalOpen(false)}
-                            className="flex items-center gap-2 px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-bold rounded-xl transition-all"
+                            className="flex items-center gap-2 px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium rounded-xl transition-all"
                         >
                             <svg
                                 width="18"
@@ -2006,7 +2006,7 @@ export default function PublicExamPage() {
                 ) : (
                     <button
                         onClick={() => setIsSubmitModalOpen(true)}
-                        className="px-8 py-2 bg-[var(--brand)] text-white text-sm font-black rounded-xl hover:scale-105 active:scale-95 transition-all"
+                        className="px-8 py-2 bg-[var(--brand)] text-white text-sm font-semibold rounded-xl hover:scale-105 active:scale-95 transition-all"
                     >
                         Submit Section
                     </button>
@@ -2111,7 +2111,7 @@ export default function PublicExamPage() {
                 id: currentQuestionId as string,
                 type: 'Reading',
                 title: isLoading ? 'Loading...' : `Question ${currentQuestionId}`,
-                description: `<div class="flex items-center justify-center h-full text-gray-300 font-black text-2xl uppercase tracking-widest">${isLoading ? 'Loading Content...' : 'Content Not Available'}</div>`,
+                description: `<div class="flex items-center justify-center h-full text-gray-300 font-semibold text-2xl uppercase tracking-widest">${isLoading ? 'Loading Content...' : 'Content Not Available'}</div>`,
             } as UnitQuestion)
         );
     }, [questionsMap, currentQuestionId, isLoading]);
@@ -2128,8 +2128,8 @@ export default function PublicExamPage() {
         return (
             <div className="h-screen w-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
                 <div className="max-w-md w-full text-center space-y-6">
-                    <div className="text-6xl font-black text-gray-300">404</div>
-                    <h1 className="text-3xl font-bold text-gray-800">Exam Not Found</h1>
+                    <div className="text-6xl font-semibold text-gray-300">404</div>
+                    <h1 className="text-3xl font-medium text-gray-800">Exam Not Found</h1>
                     <p className="text-lg text-gray-600">
                         The exam you are looking for does not exist or is no longer available.
                     </p>
@@ -2156,9 +2156,9 @@ export default function PublicExamPage() {
             <div
                 className={`h-screen w-full bg-gradient-to-br ${toneClasses.split(' ').slice(0, 3).join(' ')} flex items-center justify-center p-5`}
             >
-                <div className="max-w-xl w-full rounded-[2rem] border border-white/10 bg-white/[0.06] p-8 text-center shadow-2xl backdrop-blur-xl">
+                <div className="max-w-xl w-full rounded-[2rem] border border-white/10 bg-white/[0.06] p-8 text-center shadow-lg">
                     <div
-                        className={`mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border ${toneClasses.split(' ').slice(3).join(' ')}`}
+                        className={`mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-lg border ${toneClasses.split(' ').slice(3).join(' ')}`}
                     >
                         <svg
                             width="30"
@@ -2173,21 +2173,21 @@ export default function PublicExamPage() {
                             <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
                         </svg>
                     </div>
-                    <p className="text-xs font-black uppercase tracking-[0.35em] text-white/45">Course Exam</p>
-                    <h1 className="mt-3 text-3xl font-black text-white">{examBlock.title}</h1>
+                    <p className="text-xs font-semibold uppercase tracking-[0.35em] text-white/45">Course Exam</p>
+                    <h1 className="mt-3 text-3xl font-semibold text-white">{examBlock.title}</h1>
                     <p className="mx-auto mt-4 max-w-md text-sm font-semibold leading-6 text-gray-300">
                         {examBlock.description}
                     </p>
                     <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
                         <button
                             onClick={() => window.location.reload()}
-                            className="rounded-xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-black uppercase tracking-widest text-white transition hover:bg-white/15"
+                            className="rounded-xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-white/15"
                         >
                             Retry
                         </button>
                         <button
                             onClick={() => router.push(examBlock.actionHref || '/dashboard/learner')}
-                            className="rounded-xl bg-white px-5 py-3 text-sm font-black uppercase tracking-widest text-gray-950 transition hover:bg-gray-200"
+                            className="rounded-xl bg-white px-5 py-3 text-sm font-semibold uppercase tracking-widest text-gray-950 transition hover:bg-gray-200"
                         >
                             {examBlock.actionLabel || 'Back to Dashboard'}
                         </button>
@@ -2213,7 +2213,7 @@ export default function PublicExamPage() {
             <div className="h-screen w-full bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center p-4">
                 <div className="max-w-md w-full text-center space-y-6">
                     <div className="text-6xl mb-2">📡</div>
-                    <h1 className="text-2xl font-bold text-white">Cannot Connect to Exam</h1>
+                    <h1 className="text-2xl font-medium text-white">Cannot Connect to Exam</h1>
                     <p className="text-gray-400 text-sm leading-relaxed">
                         The exam requires a live connection to the server for answer saving and proctoring. We
                         couldn&apos;t establish that connection — this is usually a network issue.
@@ -2353,8 +2353,8 @@ export default function PublicExamPage() {
                     <div
                         className={`group/cam relative overflow-hidden transition-all duration-300 pointer-events-auto ${
                             isWebcamMinimized
-                                ? 'w-auto h-auto bg-gray-900/95 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 cursor-pointer hover:bg-gray-800 ring-1 ring-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.35)]'
-                                : 'w-28 h-20 sm:w-40 sm:h-28 rounded-xl sm:rounded-2xl shadow-[0_6px_18px_rgba(15,23,42,0.18)]'
+                                ? 'w-auto h-auto bg-gray-900/95 px-3 py-1.5 rounded-full flex items-center gap-2 cursor-pointer hover:bg-gray-800 ring-1 ring-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.35)]'
+                                : 'w-28 h-20 sm:w-40 sm:h-28 rounded-xl sm:rounded-lg shadow-[0_6px_18px_rgba(15,23,42,0.18)]'
                         }`}
                         onClick={isWebcamMinimized ? () => setIsWebcamMinimized(false) : undefined}
                     >
@@ -2377,7 +2377,7 @@ export default function PublicExamPage() {
                                         className={`h-2 w-2 rounded-full ${isModelLoaded ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400 animate-pulse'}`}
                                     />
                                     <Video className="w-3.5 h-3.5 text-gray-300" />
-                                    <span className="text-[11px] font-bold tracking-tight">Proctoring Active</span>
+                                    <span className="text-[11px] font-medium tracking-tight">Proctoring Active</span>
                                 </span>
                                 <button
                                     type="button"
@@ -2411,7 +2411,7 @@ export default function PublicExamPage() {
                                 <button
                                     type="button"
                                     onClick={() => setIsWebcamMinimized(true)}
-                                    className="absolute top-1.5 right-1.5 rounded-full bg-black/40 p-1.5 text-white/80 opacity-60 backdrop-blur-sm transition focus-visible:opacity-100 hover:bg-black/70 hover:text-white hover:opacity-100 group-hover/cam:opacity-100"
+                                    className="absolute top-1.5 right-1.5 rounded-full bg-black/40 p-1.5 text-white/80 opacity-60 transition focus-visible:opacity-100 hover:bg-black/70 hover:text-white hover:opacity-100 group-hover/cam:opacity-100"
                                     title="Minimize Camera Preview"
                                     aria-label="Minimize Camera Preview"
                                 >
@@ -2428,7 +2428,7 @@ export default function PublicExamPage() {
             {/* Connection Alert Overlay */}
             {showOfflineAlert && (
                 <div className="fixed bottom-6 right-6 z-[100] animate-in slide-in-from-bottom-3 duration-300 max-w-[340px] w-[calc(100vw-2rem)] sm:w-auto">
-                    <div className="bg-rose-600/95 text-white px-4 py-3 rounded-xl shadow-2xl flex items-start gap-3 border border-rose-400/50 backdrop-blur-md">
+                    <div className="bg-rose-600/95 text-white px-4 py-3 rounded-xl shadow-lg flex items-start gap-3 border border-rose-400/50">
                         <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center animate-pulse shrink-0 mt-0.5">
                             <svg
                                 width="24"
@@ -2445,7 +2445,7 @@ export default function PublicExamPage() {
                             </svg>
                         </div>
                         <div className="min-w-0">
-                            <h4 className="font-black text-xs uppercase tracking-wider">Network Lost</h4>
+                            <h4 className="font-semibold text-xs uppercase tracking-wider">Network Lost</h4>
                             <p className="text-rose-100 text-xs font-semibold opacity-90 break-words">
                                 Please check your internet connection.
                             </p>

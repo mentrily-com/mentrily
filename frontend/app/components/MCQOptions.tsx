@@ -78,7 +78,7 @@ export default function MCQOptions({
         <div className="flex h-full min-h-0 flex-col bg-white">
             <div className="min-h-0 flex-1 overflow-y-auto p-4 pb-4 sm:p-8 no-scrollbar">
                 <div className="max-w-3xl mx-auto space-y-4">
-                    <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-6">
+                    <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-6">
                         {readOnly
                             ? 'Submitted Answer'
                             : multiSelect
@@ -94,7 +94,7 @@ export default function MCQOptions({
                                 key={option.id}
                                 onClick={() => toggleOption(option.id)}
                                 disabled={isInteractionDisabled}
-                                className={`w-full text-left p-4 sm:p-6 rounded-2xl border-2 transition-all group relative overflow-hidden ${
+                                className={`w-full text-left p-4 sm:p-6 rounded-lg border-2 transition-all group relative overflow-hidden ${
                                     isSelected
                                         ? 'border-[var(--brand)] bg-[var(--brand-lighter)] ring-1 ring-[var(--brand)]'
                                         : readOnly && isCorrect
@@ -138,7 +138,7 @@ export default function MCQOptions({
                                         {option.text}
                                     </span>
                                     {readOnly && isCorrect && (
-                                        <span className="ml-auto shrink-0 text-[10px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-100 border border-emerald-200 rounded-full px-2 py-0.5">
+                                        <span className="ml-auto shrink-0 text-[10px] font-semibold uppercase tracking-wider text-emerald-700 bg-emerald-100 border border-emerald-200 rounded-full px-2 py-0.5">
                                             Correct
                                         </span>
                                     )}
@@ -154,7 +154,7 @@ export default function MCQOptions({
                 <div className="shrink-0 border-t border-gray-100 bg-white p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 z-20 w-full">
                     <button
                         onClick={handleReset}
-                        className="flex-1 px-6 py-2.5 rounded-xl text-gray-500 font-bold hover:bg-gray-50 hover:text-gray-700 transition-colors flex items-center justify-center gap-2 sm:flex-none"
+                        className="flex-1 px-6 py-2.5 rounded-xl text-gray-500 font-medium hover:bg-gray-50 hover:text-gray-700 transition-colors flex items-center justify-center gap-2 sm:flex-none"
                     >
                         <svg
                             width="16"
@@ -176,7 +176,7 @@ export default function MCQOptions({
                         onClick={handleSubmit}
                         data-element-id="starter-submit-answer"
                         disabled={selectedIds.length === 0}
-                        className={`px-8 py-2.5 rounded-xl font-black transition-all flex items-center gap-2 ${
+                        className={`px-8 py-2.5 rounded-xl font-semibold transition-all flex items-center gap-2 ${
                             selectedIds.length === 0
                                 ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
                                 : 'bg-[var(--brand)] text-white hover:brightness-105 active:scale-95'

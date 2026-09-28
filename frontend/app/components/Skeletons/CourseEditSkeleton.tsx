@@ -13,7 +13,7 @@
 export default function CourseEditSkeleton() {
     return (
         <div className="teacher-theme h-[calc(100vh-var(--topbar-height)-36px)]">
-            <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-3xl border border-gray-200/80 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.10)]">
+            <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-gray-200/80 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.10)]">
                 {/* Toolbar */}
                 <div className="flex items-center justify-between gap-3 border-b border-gray-200 px-4 py-2.5 md:px-5">
                     <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -49,7 +49,7 @@ export default function CourseEditSkeleton() {
                             {[1, 2, 3].map((i) => (
                                 <div
                                     key={i}
-                                    className="h-20 animate-pulse rounded-2xl border border-gray-100 bg-white"
+                                    className="h-20 animate-pulse rounded-lg border border-gray-100 bg-white"
                                 />
                             ))}
                         </div>
@@ -58,9 +58,9 @@ export default function CourseEditSkeleton() {
                     {/* Main canvas: stacked form cards */}
                     <div className="flex-1 overflow-hidden p-5 md:p-6">
                         <div className="mx-auto max-w-5xl space-y-5">
-                            <div className="h-24 animate-pulse rounded-[28px] bg-gray-100" />
-                            <div className="h-72 animate-pulse rounded-[24px] bg-gray-100" />
-                            <div className="h-40 animate-pulse rounded-[24px] bg-gray-100" />
+                            <div className="h-24 animate-pulse rounded-lg bg-gray-100" />
+                            <div className="h-72 animate-pulse rounded-lg bg-gray-100" />
+                            <div className="h-40 animate-pulse rounded-lg bg-gray-100" />
                         </div>
                     </div>
                 </div>

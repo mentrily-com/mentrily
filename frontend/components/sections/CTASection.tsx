@@ -141,7 +141,7 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
                     >
                         <Link
                             href={ctaHref}
-                            className="inline-flex items-center justify-center px-10 py-4 text-base font-black text-white rounded-xl transition-all duration-200 cursor-pointer gap-2"
+                            className="inline-flex items-center justify-center px-10 py-4 text-base font-semibold text-white rounded-xl transition-all duration-200 cursor-pointer gap-2"
                             style={{
                                 background: 'linear-gradient(135deg, #007c85, #005359)',
                                 boxShadow: '0 4px 16px rgba(0,141,152,0.3)',
@@ -162,7 +162,7 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="mt-10 p-6 rounded-2xl border border-teal-500/20 bg-teal-500/5 backdrop-blur-sm max-w-md mx-auto"
+                        className="mt-10 p-6 rounded-lg border border-teal-500/20 bg-teal-500/5 max-w-md mx-auto"
                     >
                         <div className="flex items-center justify-center gap-3 mb-2">
                             <div className="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center text-white shrink-0">
@@ -179,7 +179,7 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
                                     <polyline points="20 6 9 17 4 12" />
                                 </svg>
                             </div>
-                            <h3 className="text-lg font-black text-white">Check your email!</h3>
+                            <h3 className="text-lg font-semibold text-white">Check your email!</h3>
                         </div>
                         <p className="text-sm text-teal-100/70 font-medium">
                             We just sent your platform invite link. See you inside!
@@ -220,7 +220,7 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
                         <button
                             type="submit"
                             disabled={status === 'loading'}
-                            className="px-6 py-3.5 text-sm font-black text-white rounded-xl transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-70"
+                            className="px-6 py-3.5 text-sm font-semibold text-white rounded-xl transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-70"
                             style={{
                                 background: 'linear-gradient(135deg, #007c85, #005359)',
                                 boxShadow: '0 4px 16px rgba(0,141,152,0.3)',
@@ -246,7 +246,7 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
                 )}
 
                 {status === 'error' && !ctaHref && (
-                    <p className="mt-4 text-xs font-bold text-rose-400">Something went wrong. Please try again.</p>
+                    <p className="mt-4 text-xs font-medium text-rose-400">Something went wrong. Please try again.</p>
                 )}
 
                 {/* Trust badges */}
@@ -257,21 +257,21 @@ export default function CTASection({ title, description, ctaText, ctaHref }: CTA
                     className="mt-8 flex flex-wrap items-center justify-center gap-6"
                 >
                     <span
-                        className="flex items-center gap-2 text-xs font-bold"
+                        className="flex items-center gap-2 text-xs font-medium"
                         style={{ color: 'rgba(148,163,184,0.8)' }}
                     >
                         <CreditCard size={14} style={{ color: '#5EEAD4' }} />
                         No credit card required
                     </span>
                     <span
-                        className="flex items-center gap-2 text-xs font-bold"
+                        className="flex items-center gap-2 text-xs font-medium"
                         style={{ color: 'rgba(148,163,184,0.8)' }}
                     >
                         <Infinity size={14} style={{ color: '#5EEAD4' }} />
                         Free forever plan
                     </span>
                     <span
-                        className="flex items-center gap-2 text-xs font-bold"
+                        className="flex items-center gap-2 text-xs font-medium"
                         style={{ color: 'rgba(148,163,184,0.8)' }}
                     >
                         <Shield size={14} style={{ color: '#5EEAD4' }} />

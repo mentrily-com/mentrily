@@ -97,7 +97,7 @@ export default function AdminExamsView({ basePath = '/admin', organizationId }: 
         <div className="animate-fade-in font-sans pb-10">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-12">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Examinations & Content</h1>
+                    <h1 className="text-2xl font-medium text-gray-800 tracking-tight">Examinations & Content</h1>
                     <p className="text-gray-500 font-medium text-sm mt-1">
                         Global control over all assessments and learning modules.
                     </p>
@@ -108,7 +108,7 @@ export default function AdminExamsView({ basePath = '/admin', organizationId }: 
             <div className="flex gap-4 sm:gap-8 border-b border-gray-100 mb-8 sm:mb-10 overflow-x-auto no-scrollbar">
                 <button
                     onClick={() => setActiveTab('exams')}
-                    className={`pb-4 px-2 text-xs font-black uppercase tracking-widest transition-all relative shrink-0 ${activeTab === 'exams' ? 'text-[var(--brand)]' : 'text-gray-400 hover:text-gray-600'}`}
+                    className={`pb-4 px-2 text-xs font-semibold uppercase tracking-widest transition-all relative shrink-0 ${activeTab === 'exams' ? 'text-[var(--brand)]' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     Total Examinations
                     {activeTab === 'exams' && (
@@ -117,7 +117,7 @@ export default function AdminExamsView({ basePath = '/admin', organizationId }: 
                 </button>
                 <button
                     onClick={() => setActiveTab('courses')}
-                    className={`pb-4 px-2 text-xs font-black uppercase tracking-widest transition-all relative shrink-0 ${activeTab === 'courses' ? 'text-[var(--brand)]' : 'text-gray-400 hover:text-gray-600'}`}
+                    className={`pb-4 px-2 text-xs font-semibold uppercase tracking-widest transition-all relative shrink-0 ${activeTab === 'courses' ? 'text-[var(--brand)]' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     Active Courses
                     {activeTab === 'courses' && (
@@ -135,24 +135,24 @@ export default function AdminExamsView({ basePath = '/admin', organizationId }: 
                         placeholder={`Search ${activeTab}...`}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3.5 sm:py-4 bg-white border border-gray-100 rounded-2xl text-sm font-bold outline-none focus:border-[var(--brand)] shadow-sm transition-all"
+                        className="w-full pl-12 pr-4 py-3.5 sm:py-4 bg-white border border-gray-100 rounded-lg text-sm font-medium outline-none focus:border-[var(--brand)] shadow-sm transition-all"
                     />
                 </div>
                 <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                    <button className="flex items-center gap-2 px-4 sm:px-6 py-3.5 sm:py-4 bg-white border border-gray-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-400 hover:border-[var(--brand)] hover:text-[var(--brand)] transition-all shadow-sm">
+                    <button className="flex items-center gap-2 px-4 sm:px-6 py-3.5 sm:py-4 bg-white border border-gray-100 rounded-lg text-[10px] font-semibold uppercase tracking-widest text-gray-400 hover:border-[var(--brand)] hover:text-[var(--brand)] transition-all shadow-sm">
                         <Filter size={14} /> Filter
                     </button>
                     {activeTab === 'exams' ? (
                         orgPermissions.canCreateExams ? (
                             <Link
                                 href={`${basePath}/exams/new`}
-                                className="w-full sm:w-auto justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-gray-900 text-white font-black text-sm rounded-2xl shadow-xl shadow-gray-200 flex items-center gap-3 hover:scale-105 transition-all active:scale-95"
+                                className="w-full sm:w-auto justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-gray-900 text-white font-semibold text-sm rounded-lg shadow-md flex items-center gap-3 hover:scale-105 transition-all active:scale-95"
                             >
                                 <Shield size={18} />
                                 Create Exam
                             </Link>
                         ) : (
-                            <div className="w-full sm:w-auto justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-gray-100 text-gray-400 font-black text-sm rounded-2xl flex items-center gap-3 cursor-not-allowed opacity-50">
+                            <div className="w-full sm:w-auto justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-gray-100 text-gray-400 font-semibold text-sm rounded-lg flex items-center gap-3 cursor-not-allowed opacity-50">
                                 <Lock size={18} />
                                 Exam Creation Locked
                             </div>
@@ -160,13 +160,13 @@ export default function AdminExamsView({ basePath = '/admin', organizationId }: 
                     ) : orgPermissions.canCreateCourses && orgPermissions.allowCourseTests ? (
                         <Link
                             href={`${basePath}/courses/create`}
-                            className="w-full sm:w-auto justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-gray-900 text-white font-black text-sm rounded-2xl shadow-xl shadow-gray-200 flex items-center gap-3 hover:scale-105 transition-all active:scale-95"
+                            className="w-full sm:w-auto justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-gray-900 text-white font-semibold text-sm rounded-lg shadow-md flex items-center gap-3 hover:scale-105 transition-all active:scale-95"
                         >
                             <BookOpen size={18} />
                             Create Course
                         </Link>
                     ) : (
-                        <div className="w-full sm:w-auto justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-gray-100 text-gray-400 font-black text-sm rounded-2xl flex items-center gap-3 cursor-not-allowed opacity-50">
+                        <div className="w-full sm:w-auto justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-gray-100 text-gray-400 font-semibold text-sm rounded-lg flex items-center gap-3 cursor-not-allowed opacity-50">
                             <Lock size={18} />
                             Course Creation Locked
                         </div>
@@ -180,27 +180,27 @@ export default function AdminExamsView({ basePath = '/admin', organizationId }: 
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-gray-50/50 border-b border-gray-100">
-                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                <th className="px-8 py-5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                                     {activeTab === 'exams' ? 'Examination' : 'Course'}
                                 </th>
-                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                <th className="px-8 py-5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                                     Assigned In charge
                                 </th>
-                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                <th className="px-8 py-5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                                     {activeTab === 'exams' ? 'Candidate Count' : 'Curriculum Size'}
                                 </th>
-                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                <th className="px-8 py-5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                                     Current Status
                                 </th>
-                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                <th className="px-8 py-5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                                     {activeTab === 'exams' ? 'Schedule' : 'Created On'}
                                 </th>
                                 {activeTab === 'exams' && (
-                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                    <th className="px-8 py-5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                                         Created On
                                     </th>
                                 )}
-                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">
+                                <th className="px-8 py-5 text-[10px] font-semibold uppercase tracking-widest text-gray-400 text-right">
                                     Actions
                                 </th>
                             </tr>
@@ -214,15 +214,15 @@ export default function AdminExamsView({ basePath = '/admin', organizationId }: 
                                               <td className="px-8 py-6">
                                                   <div className="flex items-center gap-4">
                                                       <div
-                                                          className={`w-12 h-12 rounded-2xl flex items-center justify-center ${ex.isActive ? 'bg-rose-50 text-rose-600' : 'bg-gray-50 text-gray-400'}`}
+                                                          className={`w-12 h-12 rounded-lg flex items-center justify-center ${ex.isActive ? 'bg-rose-50 text-rose-600' : 'bg-gray-50 text-gray-400'}`}
                                                       >
                                                           <Shield size={20} />
                                                       </div>
                                                       <div>
-                                                          <p className="text-sm font-black text-gray-800">
+                                                          <p className="text-sm font-semibold text-gray-800">
                                                               {ex.title}
                                                           </p>
-                                                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                                          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
                                                               {ex.id}
                                                           </p>
                                                       </div>
@@ -230,21 +230,21 @@ export default function AdminExamsView({ basePath = '/admin', organizationId }: 
                                               </td>
                                               <td className="px-8 py-6">
                                                   <div className="flex items-center gap-3">
-                                                      <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center font-black text-gray-400 text-[10px] uppercase">
+                                                      <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center font-semibold text-gray-400 text-[10px] uppercase">
                                                           {(ex.creator?.name || 'S')[0]}
                                                       </div>
                                                       <div className="flex flex-col">
-                                                          <p className="text-xs font-black text-gray-700 leading-none mb-0.5">
+                                                          <p className="text-xs font-semibold text-gray-700 leading-none mb-0.5">
                                                               {ex.creator?.name || 'System Admin'}
                                                           </p>
-                                                          <p className="text-[9px] font-bold text-gray-400 lowercase">
+                                                          <p className="text-[9px] font-medium text-gray-400 lowercase">
                                                               {ex.creator?.email || siteConfig.contactEmail}
                                                           </p>
                                                       </div>
                                                   </div>
                                               </td>
                                               <td className="px-8 py-6">
-                                                  <p className="text-xs font-black text-gray-700">
+                                                  <p className="text-xs font-semibold text-gray-700">
                                                       {ex._count?.submissions || 0} Attempts
                                                   </p>
                                               </td>
@@ -252,12 +252,12 @@ export default function AdminExamsView({ basePath = '/admin', organizationId }: 
                                                   <StatusBadge status={ex.isActive ? 'Active' : 'Inactive'} />
                                               </td>
                                               <td className="px-8 py-6">
-                                                  <p className="text-xs font-black text-gray-700">
+                                                  <p className="text-xs font-semibold text-gray-700">
                                                       {formatSchedule(ex.startTime, ex.endTime)}
                                                   </p>
                                               </td>
                                               <td className="px-8 py-6">
-                                                  <p className="text-xs font-black text-gray-700">
+                                                  <p className="text-xs font-semibold text-gray-700">
                                                       {formatDate(ex.createdAt)}
                                                   </p>
                                               </td>
@@ -271,7 +271,7 @@ export default function AdminExamsView({ basePath = '/admin', organizationId }: 
                                                           <Eye size={18} />
                                                       </button>
                                                       <Link href={`${basePath}/exams/${ex.id}/monitor`}>
-                                                          <button className="px-4 py-2 bg-rose-50 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-rose-100 transition-all">
+                                                          <button className="px-4 py-2 bg-rose-50 text-rose-600 rounded-xl text-[10px] font-semibold uppercase tracking-widest flex items-center gap-2 hover:bg-rose-100 transition-all">
                                                               <Activity size={14} /> Monitor Live
                                                           </button>
                                                       </Link>
@@ -296,7 +296,7 @@ export default function AdminExamsView({ basePath = '/admin', organizationId }: 
                                                       </Link>
                                                       <button
                                                           onClick={() => setInvitingExam(ex)}
-                                                          className="px-4 py-2 bg-[var(--brand-light)] text-[var(--brand)] rounded-xl text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all"
+                                                          className="px-4 py-2 bg-[var(--brand-light)] text-[var(--brand)] rounded-xl text-[10px] font-semibold uppercase tracking-widest hover:opacity-90 transition-all"
                                                           title="Send Invites"
                                                       >
                                                           Invite
@@ -320,14 +320,14 @@ export default function AdminExamsView({ basePath = '/admin', organizationId }: 
                                           <tr key={cr.id} className="hover:bg-gray-50/50 transition-all group">
                                               <td className="px-8 py-6">
                                                   <div className="flex items-center gap-4">
-                                                      <div className="w-12 h-12 rounded-2xl bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center">
+                                                      <div className="w-12 h-12 rounded-lg bg-[var(--brand-light)] text-[var(--brand)] flex items-center justify-center">
                                                           <BookOpen size={20} />
                                                       </div>
                                                       <div>
-                                                          <p className="text-sm font-black text-gray-800">
+                                                          <p className="text-sm font-semibold text-gray-800">
                                                               {cr.title}
                                                           </p>
-                                                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                                          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
                                                               {cr.id}
                                                           </p>
                                                       </div>
@@ -335,21 +335,21 @@ export default function AdminExamsView({ basePath = '/admin', organizationId }: 
                                               </td>
                                               <td className="px-8 py-6">
                                                   <div className="flex items-center gap-3">
-                                                      <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center font-black text-gray-400 text-[10px] uppercase">
+                                                      <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center font-semibold text-gray-400 text-[10px] uppercase">
                                                           {(cr.creator?.name || 'S')[0]}
                                                       </div>
                                                       <div className="flex flex-col">
-                                                          <p className="text-xs font-black text-gray-700 leading-none mb-0.5">
+                                                          <p className="text-xs font-semibold text-gray-700 leading-none mb-0.5">
                                                               {cr.creator?.name || 'System Admin'}
                                                           </p>
-                                                          <p className="text-[9px] font-bold text-gray-400 lowercase">
+                                                          <p className="text-[9px] font-medium text-gray-400 lowercase">
                                                               {cr.creator?.email || siteConfig.contactEmail}
                                                           </p>
                                                       </div>
                                                   </div>
                                               </td>
                                               <td className="px-8 py-6">
-                                                  <p className="text-xs font-black text-gray-700">
+                                                  <p className="text-xs font-semibold text-gray-700">
                                                       {cr._count?.modules || 0} Sections • {cr._count?.students || 0}{' '}
                                                       Enrolled
                                                   </p>
@@ -358,7 +358,7 @@ export default function AdminExamsView({ basePath = '/admin', organizationId }: 
                                                   <StatusBadge status={cr.status || 'Draft'} />
                                               </td>
                                               <td className="px-8 py-6">
-                                                  <p className="text-xs font-black text-gray-700">
+                                                  <p className="text-xs font-semibold text-gray-700">
                                                       {formatDate(cr.createdAt)}
                                                   </p>
                                               </td>
@@ -432,12 +432,12 @@ function StatusBadge({ status, subtext }: { status: string; subtext?: string }) 
                     className={`w-1.5 h-1.5 rounded-full ${isLive ? 'bg-rose-500 animate-pulse' : isComp || isActive ? 'bg-emerald-500' : 'bg-amber-500'}`}
                 ></div>
                 <span
-                    className={`text-[11px] font-black uppercase tracking-widest ${isLive ? 'text-rose-600' : isComp || isActive ? 'text-emerald-600' : 'text-amber-600'}`}
+                    className={`text-[11px] font-semibold uppercase tracking-widest ${isLive ? 'text-rose-600' : isComp || isActive ? 'text-emerald-600' : 'text-amber-600'}`}
                 >
                     {status}
                 </span>
             </div>
-            {subtext && <p className="text-[10px] font-bold text-gray-300 uppercase leading-none">{subtext}</p>}
+            {subtext && <p className="text-[10px] font-medium text-gray-300 uppercase leading-none">{subtext}</p>}
         </div>
     );
 }

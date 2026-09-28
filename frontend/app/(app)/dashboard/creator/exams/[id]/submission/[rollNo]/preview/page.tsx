@@ -224,12 +224,12 @@ export default function SubmissionPreviewPage({ params }: { params: Promise<{ id
             <div className="h-full flex flex-col bg-white overflow-hidden">
                 <div className="flex-1 flex items-center justify-center">
                     <div className="text-center">
-                        <p className="text-gray-500 font-bold uppercase tracking-widest text-[11px]">
+                        <p className="text-gray-500 font-medium uppercase tracking-widest text-[11px]">
                             Submission not found
                         </p>
                         <button
                             onClick={() => window.history.back()}
-                            className="mt-4 px-6 py-2 bg-gray-900 text-white rounded-xl text-xs font-black"
+                            className="mt-4 px-6 py-2 bg-gray-900 text-white rounded-xl text-xs font-semibold"
                         >
                             Go Back
                         </button>
@@ -243,7 +243,7 @@ export default function SubmissionPreviewPage({ params }: { params: Promise<{ id
     const currentQuestionPoints = getQuestionMaxMarks(currentQuestion);
 
     return (
-        <div className="h-[calc(100dvh-var(--topbar-height)-20px)] min-h-0 overflow-hidden rounded-[18px] border border-gray-100 bg-white shadow-sm sm:h-[calc(100dvh-var(--topbar-height)-36px)]">
+        <div className="h-[calc(100dvh-var(--topbar-height)-20px)] min-h-0 overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm sm:h-[calc(100dvh-var(--topbar-height)-36px)]">
             {/* Main Workspace */}
             <main className="flex h-full min-h-0 overflow-hidden">
                 {/* Reusable Exam Sidebar */}
@@ -325,14 +325,14 @@ function ConsolidatedHeader({
             {/* Left: Student Identity */}
             <div className="min-w-0 flex-1">
                 <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--brand-light)] bg-[var(--brand-light)] text-sm font-black uppercase text-[var(--brand)] shadow-sm">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--brand-light)] bg-[var(--brand-light)] text-sm font-semibold uppercase text-[var(--brand)] shadow-sm">
                         {String(studentName || '?')[0]}
                     </div>
                     <div className="min-w-0">
-                        <h4 className="truncate text-sm font-black leading-tight text-gray-800">
-                            {studentName} <span className="font-bold text-gray-300">({rollNo})</span>
+                        <h4 className="truncate text-sm font-semibold leading-tight text-gray-800">
+                            {studentName} <span className="font-medium text-gray-300">({rollNo})</span>
                         </h4>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">
+                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mt-0.5">
                             Total Score: <span className="text-[var(--brand)]">{totalScore || 0}</span>
                         </p>
                     </div>
@@ -341,9 +341,9 @@ function ConsolidatedHeader({
 
             {/* Right: Grading Actions */}
             <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-5">
-                <div className="flex items-center justify-between rounded-2xl border border-gray-100 bg-gray-50/70 px-3 py-2 sm:justify-start sm:border-0 sm:border-r sm:border-gray-100 sm:bg-transparent sm:px-0 sm:py-0 sm:pr-5 lg:pr-8">
+                <div className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50/70 px-3 py-2 sm:justify-start sm:border-0 sm:border-r sm:border-gray-100 sm:bg-transparent sm:px-0 sm:py-0 sm:pr-5 lg:pr-8">
                     <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:flex-col sm:items-end sm:gap-0">
-                        <span className="text-[9px] font-black uppercase text-gray-400 tracking-widest mb-1 opacity-70">
+                        <span className="text-[9px] font-semibold uppercase text-gray-400 tracking-widest mb-1 opacity-70">
                             Question Score
                         </span>
                         <div className="flex shrink-0 items-center gap-2">
@@ -373,10 +373,10 @@ function ConsolidatedHeader({
                                 onBlur={() => {
                                     onMarkBlur(questionId, draftMark);
                                 }}
-                                className="w-14 rounded-xl border border-gray-200 bg-white py-2 text-center text-base font-black text-gray-800 shadow-inner outline-none transition-all focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand-light)] sm:bg-gray-50"
+                                className="w-14 rounded-xl border border-gray-200 bg-white py-2 text-center text-base font-semibold text-gray-800 shadow-inner outline-none transition-all focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand-light)] sm:bg-gray-50"
                                 placeholder="0"
                             />
-                            <span className="text-sm font-bold text-gray-400">/ {maxMarks}</span>
+                            <span className="text-sm font-medium text-gray-400">/ {maxMarks}</span>
                         </div>
                     </div>
                 </div>
@@ -384,13 +384,13 @@ function ConsolidatedHeader({
                 <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-3">
                     <button
                         onClick={onExit}
-                        className="flex items-center justify-center gap-2 rounded-xl bg-gray-100 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-gray-600 transition-all hover:bg-gray-200 active:scale-95 sm:px-6"
+                        className="flex items-center justify-center gap-2 rounded-xl bg-gray-100 px-4 py-3 text-[11px] font-semibold uppercase tracking-widest text-gray-600 transition-all hover:bg-gray-200 active:scale-95 sm:px-6"
                     >
                         Exit
                     </button>
                     <button
                         onClick={onSave}
-                        className="group flex items-center justify-center gap-2.5 rounded-xl bg-gray-900 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-gray-200 transition-all hover:-translate-y-0.5 hover:bg-black active:translate-y-0 active:scale-95 sm:px-8"
+                        className="group flex items-center justify-center gap-2.5 rounded-xl bg-gray-900 px-4 py-3 text-[11px] font-semibold uppercase tracking-widest text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-black active:translate-y-0 active:scale-95 sm:px-8"
                     >
                         <svg
                             width="18"

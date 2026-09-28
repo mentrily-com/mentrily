@@ -27,7 +27,7 @@ export default function StudioModuleList({
         <div className="flex-1 min-w-0">
             {/* ── Header ── */}
             <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="text-lg font-bold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>
+                <h2 className="text-lg font-medium tracking-tight" style={{ color: 'var(--color-text-primary)' }}>
                     My Modules
                 </h2>
                 <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">

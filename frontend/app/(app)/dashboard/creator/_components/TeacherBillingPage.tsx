@@ -289,9 +289,9 @@ export default function TeacherBillingPage() {
         return (
             <div className="min-h-screen bg-gray-50 text-gray-900">
                 <main className="max-w-[1000px] mx-auto px-6 lg:px-12 py-12">
-                    <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-10 text-center">
-                        <h1 className="text-2xl font-black tracking-tight text-gray-900">Billing Managed by Admin</h1>
-                        <p className="text-sm font-bold text-gray-500 mt-3">
+                    <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-10 text-center">
+                        <h1 className="text-2xl font-semibold tracking-tight text-gray-900">Billing Managed by Admin</h1>
+                        <p className="text-sm font-medium text-gray-500 mt-3">
                             Your organization admin manages billing for instructors. Please contact your admin to
                             request plan upgrades.
                         </p>
@@ -305,7 +305,7 @@ export default function TeacherBillingPage() {
         <div className="animate-fade-in font-sans pb-10">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>
+                    <h1 className="text-2xl font-medium tracking-tight" style={{ color: 'var(--color-text-primary)' }}>
                         {isOrgBilling ? 'Organization Billing' : 'Billing & Plans'}
                     </h1>
                     <p className="text-sm font-medium mt-1" style={{ color: 'var(--color-text-secondary)' }}>
@@ -365,7 +365,7 @@ export default function TeacherBillingPage() {
                             >
                                 {currentPlan}
                             </span>
-                            <h2 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
+                            <h2 className="text-2xl font-medium" style={{ color: 'var(--color-text-primary)' }}>
                                 {PRICE_LABELS[currentPlan][billingInterval]}
                             </h2>
                         </div>
@@ -439,7 +439,7 @@ export default function TeacherBillingPage() {
                 className="bg-white rounded-xl border shadow-sm p-6 md:p-8 mb-6"
                 style={{ borderColor: 'var(--color-border-subtle)' }}
             >
-                <h3 className="text-lg font-bold mb-6" style={{ color: 'var(--color-text-primary)' }}>
+                <h3 className="text-lg font-medium mb-6" style={{ color: 'var(--color-text-primary)' }}>
                     Usage Overview
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -483,7 +483,7 @@ export default function TeacherBillingPage() {
                     className="bg-white rounded-xl border shadow-sm p-6 md:p-8 mb-6"
                     style={{ borderColor: 'var(--color-border-subtle)' }}
                 >
-                    <h3 className="text-lg font-bold mb-6" style={{ color: 'var(--color-text-primary)' }}>
+                    <h3 className="text-lg font-medium mb-6" style={{ color: 'var(--color-text-primary)' }}>
                         Plan Comparison
                     </h3>
                     {sortedPlans.length === 0 ? (
@@ -516,7 +516,7 @@ export default function TeacherBillingPage() {
                                             </p>
                                             {isCurrent && (
                                                 <span
-                                                    className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full"
+                                                    className="text-[9px] font-medium uppercase tracking-widest px-2 py-0.5 rounded-full"
                                                     style={{
                                                         backgroundColor: 'white',
                                                         color: 'var(--brand)',
@@ -529,7 +529,7 @@ export default function TeacherBillingPage() {
                                         </div>
 
                                         <p
-                                            className="text-2xl font-bold mt-2"
+                                            className="text-2xl font-medium mt-2"
                                             style={{ color: 'var(--color-text-primary)' }}
                                         >
                                             {PRICE_LABELS[plan.plan][billingInterval]}

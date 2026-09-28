@@ -320,7 +320,7 @@ export default function AiDrawer({ kind, storageKey, availableTypes, defaultRefe
                 aria-modal="true"
                 aria-label={`Generate ${noun} content with AI`}
                 tabIndex={-1}
-                className="relative flex h-full w-full max-w-[560px] flex-col bg-white shadow-2xl focus:outline-none sm:rounded-l-3xl"
+                className="relative flex h-full w-full max-w-[560px] flex-col bg-white shadow-lg focus:outline-none sm:rounded-l-3xl"
             >
                 <header className="space-y-4 border-b border-gray-100 px-5 pb-4 pt-5 sm:px-6">
                     <div className="flex items-start justify-between gap-3">
@@ -462,7 +462,7 @@ export default function AiDrawer({ kind, storageKey, availableTypes, defaultRefe
 
 function JobFailed({ message, onRetry, onBack }: { message: string; onRetry: () => void; onBack: () => void }) {
     return (
-        <div className="space-y-4 rounded-2xl border border-rose-100 bg-rose-50/60 p-5">
+        <div className="space-y-4 rounded-lg border border-rose-100 bg-rose-50/60 p-5">
             <p className="flex items-start gap-2 text-sm text-rose-800">
                 <AlertTriangle size={16} className="mt-0.5 shrink-0" />
                 {message}

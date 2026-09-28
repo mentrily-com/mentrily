@@ -47,7 +47,7 @@ export default function YouTubeSegmentPlayer({
     return (
         <div className={className || 'not-prose my-8'}>
             <div
-                className="relative w-full overflow-hidden rounded-2xl bg-black shadow-lg"
+                className="relative w-full overflow-hidden rounded-lg bg-black shadow-lg"
                 style={{ aspectRatio: '16 / 9' }}
             >
                 <iframe
@@ -60,7 +60,7 @@ export default function YouTubeSegmentPlayer({
                 />
             </div>
             {hasSegment && (
-                <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                <p className="mt-2 text-[10px] font-medium uppercase tracking-widest text-gray-400">
                     Lesson segment · {formatTimestamp(start)}
                     {end > start ? ` – ${formatTimestamp(end)}` : ''}
                 </p>

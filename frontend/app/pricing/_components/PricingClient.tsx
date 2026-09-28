@@ -96,8 +96,8 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
         <div className="min-h-screen bg-[#0f172a] text-gray-100">
             <div className="max-w-7xl mx-auto px-6 py-16">
                 <div className="text-center">
-                    <h1 className="text-4xl font-black text-white tracking-tight">Simple pricing for every stage</h1>
-                    <p className="text-gray-400 font-bold mt-3">Start free, scale as your academy grows.</p>
+                    <h1 className="text-4xl font-semibold text-white tracking-tight">Simple pricing for every stage</h1>
+                    <p className="text-gray-400 font-medium mt-3">Start free, scale as your academy grows.</p>
                     <p className="text-gray-500 text-sm mt-2">
                         Free is personal. Starter and Pro are org-backed. Branding and custom domains are Enterprise
                         only.
@@ -108,7 +108,7 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
                     <div className="flex items-center bg-[#1e293b] rounded-xl p-1 border border-gray-700">
                         <button
                             onClick={() => setAnnual(false)}
-                            className={`px-5 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${
+                            className={`px-5 py-2 rounded-lg text-xs font-semibold uppercase tracking-widest transition-all ${
                                 !annual ? 'bg-[var(--brand)] text-white' : 'text-gray-400'
                             }`}
                         >
@@ -116,7 +116,7 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
                         </button>
                         <button
                             onClick={() => setAnnual(true)}
-                            className={`px-5 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${
+                            className={`px-5 py-2 rounded-lg text-xs font-semibold uppercase tracking-widest transition-all ${
                                 annual ? 'bg-[var(--brand)] text-white' : 'text-gray-400'
                             }`}
                         >
@@ -149,33 +149,33 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
                         return (
                             <div
                                 key={plan.plan}
-                                className={`rounded-3xl border p-6 relative ${
+                                className={`rounded-lg border p-6 relative ${
                                     isPro
                                         ? 'border-[var(--brand)] bg-gradient-to-b from-[#1e293b] to-[#172554]'
                                         : 'border-gray-700 bg-[#1e293b]'
                                 }`}
                             >
                                 {isPro && (
-                                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[var(--brand)] text-white text-[10px] font-black uppercase tracking-widest">
+                                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[var(--brand)] text-white text-[10px] font-semibold uppercase tracking-widest">
                                         Most Popular
                                     </span>
                                 )}
-                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-400">
                                     {plan.plan}
                                 </p>
-                                <h3 className="mt-3 text-4xl font-black text-white">
+                                <h3 className="mt-3 text-4xl font-semibold text-white">
                                     {price}
                                     {!isEnterprise && (
-                                        <span className="text-sm text-gray-400 font-bold">
+                                        <span className="text-sm text-gray-400 font-medium">
                                             /{annual ? 'yr' : 'mo'}
                                         </span>
                                     )}
                                 </h3>
-                                <p className="mt-2 text-xs font-bold text-gray-400">
+                                <p className="mt-2 text-xs font-medium text-gray-400">
                                     {PRICE_BOOK[plan.plan].subtitle}
                                 </p>
 
-                                <ul className="mt-6 space-y-2 text-xs font-bold text-gray-300">
+                                <ul className="mt-6 space-y-2 text-xs font-medium text-gray-300">
                                     <li>Students: {formatLimit(plan.limits?.students)}</li>
                                     <li>Courses: {formatLimit(plan.limits?.courses)}</li>
                                     <li>Monthly exams: {formatLimit(plan.limits?.examsPerMonth)}</li>
@@ -187,7 +187,7 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
 
                                 <Link
                                     href={ctaHref}
-                                    className={`mt-6 w-full py-3 rounded-xl inline-flex justify-center text-[10px] font-black uppercase tracking-widest transition-all ${
+                                    className={`mt-6 w-full py-3 rounded-xl inline-flex justify-center text-[10px] font-semibold uppercase tracking-widest transition-all ${
                                         isPro
                                             ? 'bg-[var(--brand)] hover:bg-[var(--brand-dark)] text-white'
                                             : 'bg-gray-100 text-gray-700 hover:bg-white'
@@ -200,26 +200,26 @@ export default function PricingClient({ plans }: { plans: PlanPayload[] }) {
                     })}
                 </div>
 
-                <div className="mt-14 bg-[#1e293b] border border-gray-700 rounded-3xl p-6">
-                    <h2 className="text-lg font-black text-white mb-4">Feature comparison</h2>
+                <div className="mt-14 bg-[#1e293b] border border-gray-700 rounded-lg p-6">
+                    <h2 className="text-lg font-semibold text-white mb-4">Feature comparison</h2>
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[900px] text-left">
                             <thead>
                                 <tr className="border-b border-gray-700">
-                                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                    <th className="py-3 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                                         Category
                                     </th>
                                     {PLAN_ORDER.map((plan) => (
                                         <th
                                             key={plan}
-                                            className="py-3 text-[10px] font-black uppercase tracking-widest text-gray-400"
+                                            className="py-3 text-[10px] font-semibold uppercase tracking-widest text-gray-400"
                                         >
                                             {plan}
                                         </th>
                                     ))}
                                 </tr>
                             </thead>
-                            <tbody className="text-xs font-bold text-gray-200">
+                            <tbody className="text-xs font-medium text-gray-200">
                                 {(
                                     [
                                         {

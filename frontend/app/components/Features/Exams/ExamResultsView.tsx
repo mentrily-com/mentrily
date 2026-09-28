@@ -210,8 +210,8 @@ export default function ExamResultsView({
         <div className="animate-fade-in pb-10">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-2xl font-black text-gray-900 tracking-tight">{title}</h1>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mt-1">
+                    <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">{title}</h1>
+                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-[0.2em] mt-1">
                         Assessment ID: {examId}
                     </p>
                 </div>
@@ -235,7 +235,7 @@ export default function ExamResultsView({
                     <button
                         onClick={handlePublish}
                         disabled={isPublishing || isResultsPublished}
-                        className={`text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg transition-all ${isResultsPublished ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}`}
+                        className={`text-white px-6 py-3 rounded-lg text-[10px] font-semibold uppercase tracking-widest shadow-lg transition-all ${isResultsPublished ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}`}
                         style={{
                             backgroundColor: isResultsPublished ? '#64748b' : brandColor,
                             boxShadow: isResultsPublished ? 'none' : `0 10px 15px -3px ${brandColor}40`,
@@ -247,13 +247,13 @@ export default function ExamResultsView({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6 mb-10">
-                <div className="md:col-span-2 lg:col-span-2 bg-white rounded-[32px] border border-gray-100 p-6 shadow-sm flex flex-col">
+                <div className="md:col-span-2 lg:col-span-2 bg-white rounded-lg border border-gray-100 p-6 shadow-sm flex flex-col">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                        <h3 className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                             Pass/Fail Ratio
                         </h3>
                         <span
-                            className="text-[10px] font-black px-2 py-1 rounded-lg"
+                            className="text-[10px] font-semibold px-2 py-1 rounded-lg"
                             style={{ color: brandColor, backgroundColor: brandLightColor }}
                         >
                             Live
@@ -278,8 +278,8 @@ export default function ExamResultsView({
                             </PieChart>
                         </ResponsiveContainer>
                         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                            <span className="text-2xl font-black text-gray-800 leading-none">{results.length}</span>
-                            <span className="text-[8px] font-black text-gray-300 uppercase">Total</span>
+                            <span className="text-2xl font-semibold text-gray-800 leading-none">{results.length}</span>
+                            <span className="text-[8px] font-semibold text-gray-300 uppercase">Total</span>
                         </div>
                     </div>
                     <div className="mt-4 flex justify-center gap-6">
@@ -303,20 +303,20 @@ export default function ExamResultsView({
                     />
                 </div>
 
-                <div className="md:col-span-4 lg:col-span-3 bg-white rounded-[32px] border border-gray-100 p-6 shadow-sm flex flex-col">
+                <div className="md:col-span-4 lg:col-span-3 bg-white rounded-lg border border-gray-100 p-6 shadow-sm flex flex-col">
                     <div className="flex items-center justify-between mb-6 px-2">
                         <div>
-                            <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">
+                            <h3 className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-1">
                                 Point Distribution
                             </h3>
-                            <p className="text-[8px] font-bold text-gray-300 uppercase">
+                            <p className="text-[8px] font-medium text-gray-300 uppercase">
                                 Student frequency per score bracket
                             </p>
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-1.5">
                                 <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: brandColor }}></div>
-                                <span className="text-[9px] font-black text-gray-400 uppercase">Count</span>
+                                <span className="text-[9px] font-semibold text-gray-400 uppercase">Count</span>
                             </div>
                         </div>
                     </div>
@@ -372,9 +372,9 @@ export default function ExamResultsView({
                 </div>
             </div>
 
-            <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden">
                 <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
-                    <h2 className="text-[11px] font-black uppercase tracking-widest text-gray-800">
+                    <h2 className="text-[11px] font-semibold uppercase tracking-widest text-gray-800">
                         Student Submissions
                     </h2>
                     <div className="flex items-center gap-3">
@@ -382,43 +382,43 @@ export default function ExamResultsView({
                             {results.slice(0, 5).map((r) => (
                                 <div
                                     key={r.rollNo}
-                                    className="w-6 h-6 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[8px] font-black text-gray-400 uppercase"
+                                    className="w-6 h-6 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[8px] font-semibold text-gray-400 uppercase"
                                 >
                                     {r.name[0]}
                                 </div>
                             ))}
                             {results.length > 5 && (
-                                <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[8px] font-black text-gray-400">
+                                <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[8px] font-semibold text-gray-400">
                                     +{results.length - 5}
                                 </div>
                             )}
                         </div>
-                        <span className="text-[10px] font-black text-gray-400 uppercase">Total {results.length}</span>
+                        <span className="text-[10px] font-semibold text-gray-400 uppercase">Total {results.length}</span>
                     </div>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
                             <tr className="border-b border-gray-50 bg-gray-50/30">
-                                <th className="px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
+                                <th className="px-8 py-4 text-[9px] font-semibold uppercase tracking-[0.2em] text-gray-400">
                                     Student Info
                                 </th>
-                                <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
+                                <th className="px-6 py-4 text-[9px] font-semibold uppercase tracking-[0.2em] text-gray-400">
                                     Section
                                 </th>
-                                <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
+                                <th className="px-6 py-4 text-[9px] font-semibold uppercase tracking-[0.2em] text-gray-400">
                                     Timing
                                 </th>
-                                <th className="px-4 py-4 text-center text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
+                                <th className="px-4 py-4 text-center text-[9px] font-semibold uppercase tracking-[0.2em] text-gray-400">
                                     Progress
                                 </th>
-                                <th className="px-4 py-4 text-center text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
+                                <th className="px-4 py-4 text-center text-[9px] font-semibold uppercase tracking-[0.2em] text-gray-400">
                                     Score
                                 </th>
-                                <th className="px-4 py-4 text-center text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
+                                <th className="px-4 py-4 text-center text-[9px] font-semibold uppercase tracking-[0.2em] text-gray-400">
                                     Status
                                 </th>
-                                <th className="px-8 py-4 text-right text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
+                                <th className="px-8 py-4 text-right text-[9px] font-semibold uppercase tracking-[0.2em] text-gray-400">
                                     Actions
                                 </th>
                             </tr>
@@ -431,44 +431,44 @@ export default function ExamResultsView({
                                 >
                                     <td className="px-8 py-5">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center font-black text-[10px] text-gray-400">
+                                            <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center font-semibold text-[10px] text-gray-400">
                                                 {r.name[0]}
                                             </div>
                                             <div>
-                                                <p className="text-xs font-black text-gray-800 leading-none mb-1">
+                                                <p className="text-xs font-semibold text-gray-800 leading-none mb-1">
                                                     {r.name}
                                                 </p>
-                                                <p className="text-[9px] font-bold text-gray-400 uppercase">
+                                                <p className="text-[9px] font-medium text-gray-400 uppercase">
                                                     {r.rollNo}
                                                 </p>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-5 text-[10px] font-bold text-gray-500">{r.section}</td>
+                                    <td className="px-6 py-5 text-[10px] font-medium text-gray-500">{r.section}</td>
                                     <td className="px-6 py-5">
-                                        <p className="text-[10px] font-black text-gray-700 leading-none mb-1">
+                                        <p className="text-[10px] font-semibold text-gray-700 leading-none mb-1">
                                             {r.submittedAt}
                                         </p>
-                                        <p className="text-[9px] font-bold text-gray-300 uppercase">
+                                        <p className="text-[9px] font-medium text-gray-300 uppercase">
                                             {r.timeTaken} Taken
                                         </p>
                                     </td>
-                                    <td className="px-4 py-5 text-center text-xs font-black text-gray-700">
+                                    <td className="px-4 py-5 text-center text-xs font-semibold text-gray-700">
                                         {r.attempted}
                                     </td>
                                     <td className="px-4 py-5 text-center">
                                         <div className="flex items-center justify-center gap-1.5">
-                                            <span className="text-[11px] font-black" style={{ color: brandColor }}>
+                                            <span className="text-[11px] font-semibold" style={{ color: brandColor }}>
                                                 {r.score}
                                             </span>
-                                            <span className="text-[10px] font-bold text-gray-300">
+                                            <span className="text-[10px] font-medium text-gray-300">
                                                 / {r.totalPossible}
                                             </span>
                                         </div>
                                     </td>
                                     <td className="px-4 py-5 text-center">
                                         <span
-                                            className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider ${r.status === 'Passed' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}
+                                            className={`px-2 py-0.5 rounded-md text-[8px] font-semibold uppercase tracking-wider ${r.status === 'Passed' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}
                                         >
                                             {r.status}
                                         </span>
@@ -483,7 +483,7 @@ export default function ExamResultsView({
                                                       : `/dashboard/creator/exams/${examId}/submission/${r.sessionId}/preview`
                                             }
                                         >
-                                            <button className="px-3 py-1.5 rounded-lg text-[10px] sm:text-[9px] font-black uppercase text-gray-500 bg-gray-50 hover:bg-[var(--brand-light)]/20 hover:text-[var(--brand)] transition-colors inline-flex items-center justify-center min-h-[36px]">
+                                            <button className="px-3 py-1.5 rounded-lg text-[10px] sm:text-[9px] font-semibold uppercase text-gray-500 bg-gray-50 hover:bg-[var(--brand-light)]/20 hover:text-[var(--brand)] transition-colors inline-flex items-center justify-center min-h-[36px]">
                                                 Preview →
                                             </button>
                                         </Link>
@@ -497,7 +497,7 @@ export default function ExamResultsView({
 
             {/* Pagination */}
             <div className="flex items-center justify-between mt-6">
-                <p className="text-xs font-bold text-gray-400">
+                <p className="text-xs font-medium text-gray-400">
                     Page {pagination.page} of {pagination.totalPages} ({pagination.total} students)
                 </p>
                 <div className="flex gap-2">
@@ -537,25 +537,25 @@ function MetricLabel({ color, label, value }: any) {
     return (
         <div className="flex items-center gap-2">
             <div className={`w-1.5 h-1.5 rounded-full`} style={{ backgroundColor: color }}></div>
-            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{label}</span>
-            <span className="text-xs font-black text-gray-800">{value}</span>
+            <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-widest">{label}</span>
+            <span className="text-xs font-semibold text-gray-800">{value}</span>
         </div>
     );
 }
 
 function CompactStatTile({ label, value, sub, trend }: any) {
     return (
-        <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm group hover:border-[var(--brand-light)] transition-all">
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{label}</p>
+        <div className="bg-white rounded-lg border border-gray-100 p-4 shadow-sm group hover:border-[var(--brand-light)] transition-all">
+            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">{label}</p>
             <div className="flex items-end gap-2">
-                <p className="text-xl font-black text-gray-800 leading-none">{value}</p>
+                <p className="text-xl font-semibold text-gray-800 leading-none">{value}</p>
                 <span
-                    className={`text-[8px] font-black px-1.5 py-0.5 rounded ${trend === 'up' ? 'text-emerald-500 bg-emerald-50' : trend === 'down' ? 'text-rose-500 bg-rose-50' : 'text-gray-400 bg-gray-50'}`}
+                    className={`text-[8px] font-semibold px-1.5 py-0.5 rounded ${trend === 'up' ? 'text-emerald-500 bg-emerald-50' : trend === 'down' ? 'text-rose-500 bg-rose-50' : 'text-gray-400 bg-gray-50'}`}
                 >
                     {trend === 'up' ? '▲' : '▼'}
                 </span>
             </div>
-            <p className="text-[8px] font-bold text-gray-300 uppercase mt-2">{sub}</p>
+            <p className="text-[8px] font-medium text-gray-300 uppercase mt-2">{sub}</p>
         </div>
     );
 }

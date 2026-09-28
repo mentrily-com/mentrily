@@ -31,7 +31,7 @@ const PythonNotebook = dynamic(() => import('./Features/Notebook/PythonNotebook'
     ssr: false,
 });
 const YouTubeSegmentPlayer = dynamic(() => import('./Reading/YouTubeSegmentPlayer'), {
-    loading: () => <div className="w-full aspect-video bg-gray-100 animate-pulse rounded-2xl"></div>,
+    loading: () => <div className="w-full aspect-video bg-gray-100 animate-pulse rounded-lg"></div>,
     ssr: false,
 });
 
@@ -225,7 +225,7 @@ export function UnitRendererComponent({
                                 onClick={onToggleSidebar}
                                 aria-label="Close curriculum sidebar"
                             />
-                            <div className="absolute inset-y-0 left-0 z-[100] w-[min(300px,calc(100vw-24px))] bg-white shadow-2xl animate-in slide-in-from-left duration-300">
+                            <div className="absolute inset-y-0 left-0 z-[100] w-[min(300px,calc(100vw-24px))] bg-white shadow-lg animate-in slide-in-from-left duration-300">
                                 {sidebar}
                             </div>
                         </>
@@ -240,7 +240,7 @@ export function UnitRendererComponent({
                         >
                             <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:items-start sm:justify-between">
                                 <div className="flex-1">
-                                    <h1 className="text-2xl font-black text-gray-900 tracking-tight sm:text-3xl">
+                                    <h1 className="text-2xl font-semibold text-gray-900 tracking-tight sm:text-3xl">
                                         {question.title}
                                     </h1>
                                 </div>
@@ -305,7 +305,7 @@ export function UnitRendererComponent({
                                         </svg>
                                     </button>
                                     {!hideNav && !isExamMode && (
-                                        <button className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-500 hover:bg-gray-100 transition-all">
+                                        <button className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-500 hover:bg-gray-100 transition-all">
                                             Download PDF
                                             <svg
                                                 width="14"
@@ -337,7 +337,7 @@ export function UnitRendererComponent({
                                 {/* Render Embedded Code Runner if config exists (Legacy/Fallback) */}
                                 {question.codingConfig && !question.readingContent && (
                                     <div className="not-prose mt-8">
-                                        <h2 className="text-xl font-black text-gray-800 mb-4">Code Demonstration</h2>
+                                        <h2 className="text-xl font-semibold text-gray-800 mb-4">Code Demonstration</h2>
                                         <p className="mb-4 text-gray-600">
                                             You can run the code below to see the output directly within this lesson.
                                         </p>
@@ -384,7 +384,7 @@ export function UnitRendererComponent({
                                                                 src={block.videoUrl}
                                                                 controls
                                                                 controlsList="nodownload"
-                                                                className="w-full rounded-2xl border border-gray-200 shadow-sm bg-black"
+                                                                className="w-full rounded-lg border border-gray-200 shadow-sm bg-black"
                                                                 style={{ maxHeight: '480px' }}
                                                             >
                                                                 Your browser does not support the video tag.
@@ -566,14 +566,14 @@ export function UnitRendererComponent({
                                 <circle cx="12" cy="12" r="3" />
                             </svg>
                         </div>
-                        <p className="text-[11px] font-black text-indigo-700 uppercase tracking-widest">
+                        <p className="text-[11px] font-semibold text-indigo-700 uppercase tracking-widest">
                             Viewing Historical Attempt{' '}
-                            <span className="text-indigo-400 font-bold ml-1">(Read Only Mode)</span>
+                            <span className="text-indigo-400 font-medium ml-1">(Read Only Mode)</span>
                         </p>
                     </div>
                     <button
                         onClick={onClearAttemptSelection}
-                        className="text-[10px] font-black text-indigo-600 hover:text-indigo-800 transition-colors uppercase tracking-widest flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-indigo-100 shadow-sm active:scale-95"
+                        className="text-[10px] font-semibold text-indigo-600 hover:text-indigo-800 transition-colors uppercase tracking-widest flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-indigo-100 shadow-sm active:scale-95"
                     >
                         Restore Current Session
                         <svg
@@ -620,7 +620,7 @@ export function UnitRendererComponent({
                                             onClick={onToggleSidebar}
                                             aria-label="Close curriculum sidebar"
                                         />
-                                        <div className="absolute inset-y-0 left-0 z-[100] w-[min(300px,calc(100vw-24px))] bg-white shadow-2xl animate-in slide-in-from-left duration-300">
+                                        <div className="absolute inset-y-0 left-0 z-[100] w-[min(300px,calc(100vw-24px))] bg-white shadow-lg animate-in slide-in-from-left duration-300">
                                             {sidebar}
                                         </div>
                                     </>

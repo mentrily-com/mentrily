@@ -64,13 +64,13 @@ function ChangelogList() {
 
                             <div className="mb-4 sm:mb-0">
                                 <time className="text-sm font-semibold text-teal-600 block mb-1">{change.date}</time>
-                                <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500">
+                                <span className="inline-block px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider bg-gray-100 text-gray-500">
                                     {change.type}
                                 </span>
                             </div>
 
                             <div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-4">
+                                <h3 className="text-xl font-medium text-gray-900 mb-4">
                                     {change.title}{' '}
                                     <span className="text-gray-400 font-normal ml-2">{change.version}</span>
                                 </h3>

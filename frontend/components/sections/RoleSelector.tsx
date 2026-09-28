@@ -114,7 +114,7 @@ export default function RoleSelector() {
                         <button
                             key={persona.id}
                             onClick={() => setRole(persona.id)}
-                            className="relative p-5 rounded-2xl text-left transition-all duration-250 cursor-pointer group"
+                            className="relative p-5 rounded-lg text-left transition-all duration-250 cursor-pointer group"
                             style={{
                                 backgroundColor: role === persona.id ? '#FFFFFF' : 'rgba(255,255,255,0.5)',
                                 border: role === persona.id ? `2px solid ${persona.accent}` : '2px solid #E2E8F0',

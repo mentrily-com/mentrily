@@ -158,7 +158,7 @@ export default function WebEditor({
                                             <button
                                                 key={fileName}
                                                 onClick={() => setActiveFile(fileName)}
-                                                className={`px-3 sm:px-6 h-full flex items-center text-[12px] font-bold transition-all border-b-2 hover:bg-gray-50 shrink-0 ${
+                                                className={`px-3 sm:px-6 h-full flex items-center text-[12px] font-medium transition-all border-b-2 hover:bg-gray-50 shrink-0 ${
                                                     activeFile === fileName
                                                         ? 'border-[var(--brand)] text-gray-700'
                                                         : 'border-transparent text-gray-400'
@@ -174,7 +174,7 @@ export default function WebEditor({
                                     <div className="flex items-center gap-2">
                                         <button
                                             onClick={handleRun}
-                                            className="flex items-center gap-2 px-4 py-1 bg-[var(--brand)] text-white text-[10px] font-black uppercase tracking-widest rounded transition-all hover:bg-[var(--brand-dark)]"
+                                            className="flex items-center gap-2 px-4 py-1 bg-[var(--brand)] text-white text-[10px] font-semibold uppercase tracking-widest rounded transition-all hover:bg-[var(--brand-dark)]"
                                         >
                                             preview
                                             <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
@@ -206,7 +206,7 @@ export default function WebEditor({
                                         setIsResetModalOpen(false);
                                         setShowTestcases(true);
                                     }}
-                                    className="px-3 py-1.5 border border-gray-200 rounded text-[11px] font-bold text-gray-500 hover:bg-gray-50 transition-colors"
+                                    className="px-3 py-1.5 border border-gray-200 rounded text-[11px] font-medium text-gray-500 hover:bg-gray-50 transition-colors"
                                 >
                                     Test Cases{' '}
                                     <span className="text-[8px] opacity-60 ml-1">
@@ -223,7 +223,7 @@ export default function WebEditor({
                                         />
                                         <div className="bg-white rounded-lg shadow-lg p-6 z-30 w-[640px] max-w-[95%]">
                                             <div className="flex items-center justify-between mb-4">
-                                                <h3 className="text-lg font-black">Test Cases</h3>
+                                                <h3 className="text-lg font-semibold">Test Cases</h3>
                                                 <button
                                                     onClick={() => setShowTestcases(false)}
                                                     className="text-gray-400 hover:text-gray-600"
@@ -235,7 +235,7 @@ export default function WebEditor({
                                                 {testCases && testCases.length > 0 ? (
                                                     testCases.map((tc: any, idx: number) => (
                                                         <div key={idx} className="p-3 border rounded">
-                                                            <div className="text-xs font-bold mb-2">Case {idx + 1}</div>
+                                                            <div className="text-xs font-medium mb-2">Case {idx + 1}</div>
                                                             <pre className="text-xs font-mono whitespace-pre-wrap">
                                                                 {JSON.stringify(tc, null, 2)}
                                                             </pre>
@@ -285,7 +285,7 @@ export default function WebEditor({
                                     })
                                 }
                                 data-element-id="starter-submit-answer"
-                                className={`px-4 sm:px-10 py-2.5 sm:py-3 bg-[var(--brand)] text-white font-black rounded-xl text-[11px] sm:text-[12px] uppercase tracking-widest shadow-lg shadow-[var(--brand-light)] hover:bg-[var(--brand-dark)] hover:-translate-y-0.5 transition-all active:translate-y-0 active:scale-[0.98] flex items-center gap-2 shrink-0`}
+                                className={`px-4 sm:px-10 py-2.5 sm:py-3 bg-[var(--brand)] text-white font-semibold rounded-xl text-[11px] sm:text-[12px] uppercase tracking-widest shadow-lg shadow-[var(--brand-light)] hover:bg-[var(--brand-dark)] hover:-translate-y-0.5 transition-all active:translate-y-0 active:scale-[0.98] flex items-center gap-2 shrink-0`}
                             >
                                 {submitLabel}
                                 <svg

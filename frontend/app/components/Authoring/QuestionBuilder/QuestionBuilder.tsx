@@ -31,11 +31,11 @@ export default function QuestionBuilder({ question, onChange, aiKind }: Question
     return (
         <div className="flex-1 overflow-y-auto bg-[linear-gradient(180deg,_rgba(248,250,252,0.82),_rgba(255,255,255,1))] p-6 no-scrollbar md:p-8">
             <div className="mx-auto max-w-5xl space-y-8">
-                <section className="rounded-[28px] border border-gray-200 bg-white p-6 shadow-sm md:p-8">
+                <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm md:p-8">
                     <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
                         <div className="min-w-0 flex-1 space-y-3">
                             <div className="flex flex-wrap items-center gap-3">
-                                <span className="rounded-xl border border-[var(--brand-light)] bg-[var(--brand-light)] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--brand)] italic">
+                                <span className="rounded-xl border border-[var(--brand-light)] bg-[var(--brand-light)] px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--brand)] italic">
                                     {question.type} Editor
                                 </span>
                                 <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400">
@@ -46,7 +46,7 @@ export default function QuestionBuilder({ question, onChange, aiKind }: Question
                                 type="text"
                                 value={question.title}
                                 onChange={(e) => onChange({ title: e.target.value })}
-                                className="w-full border-b-2 border-transparent bg-transparent text-2xl font-black text-gray-800 outline-none transition-all placeholder:text-gray-200 focus:border-[var(--brand)] md:text-3xl"
+                                className="w-full border-b-2 border-transparent bg-transparent text-2xl font-semibold text-gray-800 outline-none transition-all placeholder:text-gray-200 focus:border-[var(--brand)] md:text-3xl"
                                 placeholder="Question Title..."
                             />
                             <p className="max-w-2xl text-sm leading-6 text-gray-500">
@@ -70,7 +70,7 @@ export default function QuestionBuilder({ question, onChange, aiKind }: Question
                                     onChange={(e) =>
                                         onChange({ difficulty: e.target.value as 'Easy' | 'Medium' | 'Hard' })
                                     }
-                                    className="h-11 rounded-2xl border border-gray-200 bg-gray-50 px-4 pr-10 text-xs font-black uppercase tracking-widest text-gray-700 outline-none transition-all appearance-none cursor-pointer focus:border-[var(--brand-light)] focus:ring-4 focus:ring-[var(--brand)]/5"
+                                    className="h-11 rounded-lg border border-gray-200 bg-gray-50 px-4 pr-10 text-xs font-semibold uppercase tracking-widest text-gray-700 outline-none transition-all appearance-none cursor-pointer focus:border-[var(--brand-light)] focus:ring-4 focus:ring-[var(--brand)]/5"
                                     style={{
                                         backgroundImage:
                                             "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E\")",
@@ -83,7 +83,7 @@ export default function QuestionBuilder({ question, onChange, aiKind }: Question
                                     <option value="Medium">Medium</option>
                                     <option value="Hard">Hard</option>
                                 </select>
-                                <span className="text-center text-[9px] font-black uppercase tracking-tighter text-gray-300">
+                                <span className="text-center text-[9px] font-semibold uppercase tracking-tighter text-gray-300">
                                     Difficulty
                                 </span>
                             </div>
@@ -92,9 +92,9 @@ export default function QuestionBuilder({ question, onChange, aiKind }: Question
                 </section>
 
                 {question.type !== 'Reading' && (
-                    <section className="rounded-[28px] border border-gray-200 bg-white p-6 shadow-sm md:p-8">
+                    <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm md:p-8">
                         <div className="mb-4 flex items-center justify-between">
-                            <h3 className="text-[11px] font-black uppercase tracking-widest text-gray-400">
+                            <h3 className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
                                 Problem Statement
                             </h3>
                         </div>
@@ -105,7 +105,7 @@ export default function QuestionBuilder({ question, onChange, aiKind }: Question
                     </section>
                 )}
 
-                <section className="rounded-[32px] border border-gray-200 bg-white p-6 shadow-sm md:p-8">
+                <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm md:p-8">
                     {renderEditorModule(question, onChange)}
                 </section>
             </div>
@@ -129,8 +129,8 @@ function renderEditorModule(question: Question, onChange: (updates: Partial<Ques
             return <NotebookEditor question={question} onChange={onChange} />;
         default:
             return (
-                <div className="rounded-[40px] border-2 border-dashed border-gray-200 bg-gray-50/50 py-20 text-center">
-                    <p className="text-sm font-black text-gray-300 uppercase tracking-widest italic">
+                <div className="rounded-lg border-2 border-dashed border-gray-200 bg-gray-50/50 py-20 text-center">
+                    <p className="text-sm font-semibold text-gray-300 uppercase tracking-widest italic">
                         {question.type} Module Coming Soon
                     </p>
                 </div>
@@ -154,7 +154,7 @@ function MetaField({
     return (
         <div className="flex min-w-[120px] flex-col gap-1.5">
             <div
-                className={`flex h-11 items-center gap-2 rounded-2xl border border-gray-200 bg-gray-50 px-3 transition-all ${readOnly ? 'cursor-not-allowed opacity-60 grayscale' : 'focus-within:border-[var(--brand-light)] focus-within:ring-4 focus-within:ring-[var(--brand)]/5'}`}
+                className={`flex h-11 items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 transition-all ${readOnly ? 'cursor-not-allowed opacity-60 grayscale' : 'focus-within:border-[var(--brand-light)] focus-within:ring-4 focus-within:ring-[var(--brand)]/5'}`}
             >
                 <span className="text-gray-400">{icon}</span>
                 <input
@@ -162,11 +162,11 @@ function MetaField({
                     value={value}
                     onChange={(e) => !readOnly && onChange(e.target.value)}
                     readOnly={readOnly}
-                    className={`w-14 bg-transparent text-xs font-black text-gray-700 outline-none ${readOnly ? 'cursor-not-allowed' : ''}`}
+                    className={`w-14 bg-transparent text-xs font-semibold text-gray-700 outline-none ${readOnly ? 'cursor-not-allowed' : ''}`}
                     placeholder="0"
                 />
             </div>
-            <span className="text-center text-[9px] font-black uppercase tracking-tighter text-gray-300">{label}</span>
+            <span className="text-center text-[9px] font-semibold uppercase tracking-tighter text-gray-300">{label}</span>
         </div>
     );
 }

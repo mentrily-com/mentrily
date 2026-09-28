@@ -51,7 +51,7 @@ export default function AiAppFrame({
             <aside
                 aria-label="Mentrily AI sidebar"
                 className={`fixed inset-y-0 left-0 z-50 flex w-[272px] flex-col border-r border-gray-200 bg-gray-50 transition-transform duration-200 md:static md:z-auto md:translate-x-0 ${
-                    mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
+                    mobileOpen ? 'translate-x-0 shadow-lg' : '-translate-x-full'
                 } ${collapsed ? 'md:hidden' : ''}`}
             >
                 <div className="flex h-14 shrink-0 items-center justify-between gap-2 px-3">

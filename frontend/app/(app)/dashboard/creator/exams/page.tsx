@@ -60,7 +60,7 @@ export default function TeacherExamsPage() {
         <div className="animate-fade-in pb-10 font-sans">
             <div className="mb-8 flex flex-col justify-between gap-4 md:mb-12 md:flex-row md:items-center">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-gray-800">Exam Management</h1>
+                    <h1 className="text-2xl font-medium tracking-tight text-gray-800">Exam Management</h1>
                     <p className="mt-1 text-sm font-medium text-gray-500">
                         Create, monitor and evaluate standalone exams and course assessments.
                     </p>
@@ -68,19 +68,19 @@ export default function TeacherExamsPage() {
                 {canCreateExams ? (
                     <Link
                         href="/dashboard/creator/exams/new"
-                        className="w-full cursor-pointer rounded-2xl bg-[var(--brand)] px-6 py-3.5 text-center text-sm font-black text-white shadow-xl shadow-[var(--brand)]/20 transition-all hover:brightness-110 sm:w-auto sm:px-8 sm:py-4"
+                        className="w-full cursor-pointer rounded-lg bg-[var(--brand)] px-6 py-3.5 text-center text-sm font-semibold text-white shadow-sm transition-all hover:brightness-110 sm:w-auto sm:px-8 sm:py-4"
                     >
                         New Examination
                     </Link>
                 ) : (
-                    <div className="flex w-full cursor-not-allowed items-center justify-center gap-3 rounded-2xl bg-gray-100 px-6 py-3.5 text-sm font-black text-gray-400 opacity-50 sm:w-auto sm:px-8 sm:py-4">
+                    <div className="flex w-full cursor-not-allowed items-center justify-center gap-3 rounded-lg bg-gray-100 px-6 py-3.5 text-sm font-semibold text-gray-400 opacity-50 sm:w-auto sm:px-8 sm:py-4">
                         <Lock size={18} />
                         Creation Locked
                     </div>
                 )}
             </div>
 
-            <div className="mb-8 grid grid-cols-2 gap-2 rounded-3xl border border-gray-200 bg-white p-2 shadow-sm sm:mb-10 sm:flex sm:items-center sm:gap-3 sm:overflow-x-auto sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+            <div className="mb-8 grid grid-cols-2 gap-2 rounded-lg border border-gray-200 bg-white p-2 shadow-sm sm:mb-10 sm:flex sm:items-center sm:gap-3 sm:overflow-x-auto sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
                 <TabItem
                     active={activeTab === 'all'}
                     onClick={() => setActiveTab('all')}
@@ -124,7 +124,7 @@ export default function TeacherExamsPage() {
             ) : loading ? (
                 <CreatorExamsSkeleton />
             ) : filteredExams.length === 0 ? (
-                <div className="rounded-3xl border border-gray-200 bg-white p-12 text-center font-black uppercase tracking-widest text-gray-400 shadow-sm">
+                <div className="rounded-lg border border-gray-200 bg-white p-12 text-center font-semibold uppercase tracking-widest text-gray-400 shadow-sm">
                     No Exams Found
                 </div>
             ) : (
@@ -180,19 +180,19 @@ function ExamSection({
 }) {
     return (
         <section
-            className={`overflow-hidden rounded-3xl border shadow-sm ${linked ? 'border-emerald-200 bg-emerald-50/40' : 'border-gray-200 bg-white'}`}
+            className={`overflow-hidden rounded-lg border shadow-sm ${linked ? 'border-emerald-200 bg-emerald-50/40' : 'border-gray-200 bg-white'}`}
         >
             <div className="flex flex-col justify-between gap-3 border-b border-black/5 px-6 py-5 sm:flex-row sm:items-center sm:px-8">
                 <div>
                     <div className="flex items-center gap-3">
-                        <h2 className="text-lg font-black text-gray-900">{title}</h2>
+                        <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
                         <span
-                            className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-widest ${linked ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}
+                            className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest ${linked ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}
                         >
                             {exams.length}
                         </span>
                     </div>
-                    <p className="mt-1 text-xs font-bold text-gray-500">{description}</p>
+                    <p className="mt-1 text-xs font-medium text-gray-500">{description}</p>
                 </div>
             </div>
 
@@ -208,16 +208,16 @@ function ExamSection({
                     <table className="hidden w-full text-left md:table">
                         <thead>
                             <tr className="border-b border-gray-100 bg-white/60">
-                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                <th className="px-8 py-5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                                     Exam Details
                                 </th>
-                                <th className="px-8 py-5 text-center text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                <th className="px-8 py-5 text-center text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                                     Questions
                                 </th>
-                                <th className="px-8 py-5 text-center text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                <th className="px-8 py-5 text-center text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                                     Status
                                 </th>
-                                <th className="px-8 py-5 text-right text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                <th className="px-8 py-5 text-right text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                                     Actions
                                 </th>
                             </tr>
@@ -299,7 +299,7 @@ function ExamMobileCard({
                 <ExamIdentity exam={exam} linked={linked} />
                 <StatusBadge status={exam.isActive ? 'Published' : 'Draft'} />
             </div>
-            <div className="mt-4 rounded-2xl bg-white/70 p-3">
+            <div className="mt-4 rounded-lg bg-white/70 p-3">
                 <ExamMeta exam={exam} />
             </div>
             <div className="mt-4">
@@ -314,21 +314,21 @@ function ExamIdentity({ exam, linked }: { exam: any; linked: boolean }) {
 
     return (
         <div className="min-w-0">
-            <p className="text-base font-black text-gray-800">{exam.title}</p>
+            <p className="text-base font-semibold text-gray-800">{exam.title}</p>
             <div className="mt-2 flex flex-wrap items-center gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{exam.slug}</span>
+                <span className="text-[10px] font-medium uppercase tracking-widest text-gray-400">{exam.slug}</span>
                 {linked ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-700">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-1 text-[9px] font-semibold uppercase tracking-widest text-emerald-700">
                         <BookOpen size={11} /> Course Linked: {courseTitle}
                     </span>
                 ) : exam.testCode ? (
-                    <span className="inline-flex items-center gap-1 rounded bg-gray-100 px-1.5 py-0.5 text-[9px] font-black text-gray-500">
+                    <span className="inline-flex items-center gap-1 rounded bg-gray-100 px-1.5 py-0.5 text-[9px] font-semibold text-gray-500">
                         <Lock size={10} /> {exam.testCode}
                     </span>
                 ) : null}
                 {exam.examMode && !linked ? (
                     <span
-                        className={`rounded px-1.5 py-0.5 text-[9px] font-black uppercase ${exam.examMode === 'App' ? 'bg-indigo-50 text-indigo-500' : 'bg-blue-50 text-blue-500'}`}
+                        className={`rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase ${exam.examMode === 'App' ? 'bg-indigo-50 text-indigo-500' : 'bg-blue-50 text-blue-500'}`}
                     >
                         {exam.examMode}
                     </span>
@@ -341,13 +341,13 @@ function ExamIdentity({ exam, linked }: { exam: any; linked: boolean }) {
 function ExamMeta({ exam }: { exam: any }) {
     return (
         <div>
-            <div className="text-sm font-black text-gray-700">
+            <div className="text-sm font-semibold text-gray-700">
                 {Array.isArray(exam.questions) ? exam.questions.length : 0} Sections
             </div>
             <div className="mt-0.5 flex items-center justify-center gap-2">
-                <span className="text-[10px] font-bold text-gray-400">{exam.duration ?? '-'} mins</span>
+                <span className="text-[10px] font-medium text-gray-400">{exam.duration ?? '-'} mins</span>
                 {exam.totalMarks ? (
-                    <span className="text-[10px] font-black text-[var(--brand)]">{exam.totalMarks} Marks</span>
+                    <span className="text-[10px] font-semibold text-[var(--brand)]">{exam.totalMarks} Marks</span>
                 ) : null}
             </div>
         </div>
@@ -405,11 +405,11 @@ function TabItem({ active, onClick, label, count }: any) {
     return (
         <button
             onClick={onClick}
-            className={`relative flex cursor-pointer items-center justify-between gap-2 whitespace-nowrap rounded-2xl px-3 py-3 transition-all sm:justify-start sm:border-b-[3px] sm:rounded-none sm:px-0 sm:pb-4 sm:pt-0 sm:gap-3 ${active ? 'bg-[var(--brand-light)] text-gray-900 sm:border-[var(--brand)] sm:bg-transparent' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600 sm:border-transparent sm:hover:bg-transparent'}`}
+            className={`relative flex cursor-pointer items-center justify-between gap-2 whitespace-nowrap rounded-lg px-3 py-3 transition-all sm:justify-start sm:border-b-[3px] sm:rounded-none sm:px-0 sm:pb-4 sm:pt-0 sm:gap-3 ${active ? 'bg-[var(--brand-light)] text-gray-900 sm:border-[var(--brand)] sm:bg-transparent' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600 sm:border-transparent sm:hover:bg-transparent'}`}
         >
-            <span className="text-xs font-black uppercase tracking-widest sm:text-sm">{label}</span>
+            <span className="text-xs font-semibold uppercase tracking-widest sm:text-sm">{label}</span>
             <span
-                className={`rounded-lg px-2 py-0.5 text-[10px] font-black ${active ? 'bg-white text-[var(--brand)] sm:bg-[var(--brand-light)]' : 'bg-gray-50 text-gray-400'}`}
+                className={`rounded-lg px-2 py-0.5 text-[10px] font-semibold ${active ? 'bg-white text-[var(--brand)] sm:bg-[var(--brand-light)]' : 'bg-gray-50 text-gray-400'}`}
             >
                 {count}
             </span>
@@ -424,7 +424,7 @@ function StatusBadge({ status }: { status: string }) {
     };
     return (
         <span
-            className={`rounded-full border px-4 py-1.5 text-[10px] font-black uppercase tracking-widest ${styles[status]}`}
+            className={`rounded-full border px-4 py-1.5 text-[10px] font-semibold uppercase tracking-widest ${styles[status]}`}
         >
             {status}
         </span>
@@ -443,10 +443,10 @@ function ExamAction({ label, icon, active, variant = 'default', onClick }: any) 
         <button
             type="button"
             onClick={onClick}
-            className={`relative flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-black/5 px-3 py-2.5 shadow-sm transition-all sm:w-auto sm:px-4 sm:py-2 ${active ? 'border-transparent bg-[var(--brand)] text-white shadow-lg shadow-[var(--brand)]/20' : variants[variant]}`}
+            className={`relative flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-black/5 px-3 py-2.5 shadow-sm transition-all sm:w-auto sm:px-4 sm:py-2 ${active ? 'border-transparent bg-[var(--brand)] text-white shadow-sm' : variants[variant]}`}
         >
             {icon}
-            <span className="text-[10px] font-black uppercase tracking-widest">{label}</span>
+            <span className="text-[10px] font-semibold uppercase tracking-widest">{label}</span>
         </button>
     );
 }

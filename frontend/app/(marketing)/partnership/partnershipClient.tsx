@@ -111,10 +111,10 @@ function Grid({ items }: { items: typeof partnerBenefits }) {
                     initial={{ opacity: 0, y: 20 }}
                     animate={inView ? { opacity: 1, y: 0 } : {}}
                     transition={{ delay: i * 0.1, duration: 0.5 }}
-                    className="p-8 rounded-3xl border border-gray-100 bg-white hover:border-teal-500/20 hover:shadow-2xl hover:shadow-teal-500/5 transition-all duration-300 group"
+                    className="p-8 rounded-lg border border-gray-100 bg-white hover:border-teal-500/20 hover:shadow-lg transition-all duration-300 group"
                 >
                     <div
-                        className="w-14 h-14 rounded-2xl flex items-center justify-center mb-8 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110"
+                        className="w-14 h-14 rounded-lg flex items-center justify-center mb-8 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110"
                         style={{ backgroundColor: `${item.color}10`, color: item.color }}
                     >
                         <item.icon size={28} />
@@ -159,13 +159,13 @@ function PartnershipHero() {
                         <div className="flex flex-wrap gap-4">
                             <Link
                                 href="/contact?category=Partnership"
-                                className="px-8 py-4 bg-gray-900 text-white rounded-2xl font-bold hover:bg-gray-800 transition-all shadow-xl shadow-gray-900/10 flex items-center gap-2"
+                                className="px-8 py-4 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-all shadow-md flex items-center gap-2"
                             >
                                 Apply to Partner <ArrowRight size={18} />
                             </Link>
                             <Link
                                 href="#perks"
-                                className="px-8 py-4 bg-white text-gray-900 border border-gray-200 rounded-2xl font-bold hover:bg-gray-50 transition-all"
+                                className="px-8 py-4 bg-white text-gray-900 border border-gray-200 rounded-lg font-medium hover:bg-gray-50 transition-all"
                             >
                                 View Benefits
                             </Link>
@@ -186,24 +186,24 @@ function PartnershipHero() {
                                 initial={{ y: 20, rotate: -2 }}
                                 animate={{ y: 0, rotate: -4 }}
                                 transition={{ delay: 0.2 }}
-                                className="absolute inset-0 bg-gray-800/40 backdrop-blur-md border border-white/5 rounded-[2rem] shadow-xl"
+                                className="absolute inset-0 bg-gray-800/40 border border-white/5 rounded-[2rem] shadow-md"
                             />
 
                             <motion.div
                                 initial={{ y: 10, rotate: 0 }}
                                 animate={{ y: -20, rotate: -2 }}
                                 transition={{ delay: 0.1 }}
-                                className="absolute inset-0 bg-gray-900 border border-white/10 rounded-[2rem] shadow-2xl p-6 sm:p-8 flex flex-col justify-end overflow-hidden"
+                                className="absolute inset-0 bg-gray-900 border border-white/10 rounded-[2rem] shadow-lg p-6 sm:p-8 flex flex-col justify-end overflow-hidden"
                             >
                                 <div className="absolute top-0 right-0 p-12 opacity-5">
                                     <TrendingUp size={160} className="text-white" />
                                 </div>
                                 <div className="relative z-10">
-                                    <p className="text-teal-400 text-xs font-bold uppercase tracking-widest mb-2">
+                                    <p className="text-teal-400 text-xs font-medium uppercase tracking-widest mb-2">
                                         Revenue Growth
                                     </p>
                                     <div className="flex items-baseline gap-2">
-                                        <span className="text-white text-3xl font-bold">+124%</span>
+                                        <span className="text-white text-3xl font-medium">+124%</span>
                                         <span className="text-white/40 text-sm">YoY Increase</span>
                                     </div>
                                 </div>
@@ -214,19 +214,19 @@ function PartnershipHero() {
                                 className="absolute inset-0 bg-white rounded-[2rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] p-6 sm:p-10 flex flex-col justify-between border border-gray-100"
                             >
                                 <div className="flex justify-between items-start">
-                                    <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center">
+                                    <div className="w-16 h-16 rounded-lg bg-gray-50 flex items-center justify-center">
                                         <Handshake size={32} className="text-teal-600" />
                                     </div>
                                     <div className="px-4 py-1.5 rounded-full bg-teal-50 border border-teal-100 flex items-center gap-2">
                                         <div className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
-                                        <span className="text-[10px] font-bold text-teal-700 uppercase tracking-wider">
+                                        <span className="text-[10px] font-medium text-teal-700 uppercase tracking-wider">
                                             Verified Program
                                         </span>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Official Reseller</h3>
+                                    <h3 className="text-2xl font-medium text-gray-900 mb-2">Official Reseller</h3>
                                     <p className="text-gray-500 text-sm leading-relaxed mb-6">
                                         You are officially authorized to distribute Mentrily licenses and provide
                                         implementation services.
@@ -245,11 +245,11 @@ function PartnershipHero() {
                                                     />
                                                 </div>
                                             ))}
-                                            <div className="w-8 h-8 rounded-full border-2 border-white bg-teal-500 flex items-center justify-center text-[10px] font-bold text-white">
+                                            <div className="w-8 h-8 rounded-full border-2 border-white bg-teal-500 flex items-center justify-center text-[10px] font-medium text-white">
                                                 +40
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-1 text-teal-600 font-bold text-xs uppercase tracking-wider">
+                                        <div className="flex items-center gap-1 text-teal-600 font-medium text-xs uppercase tracking-wider">
                                             Partner Status <Check size={14} />
                                         </div>
                                     </div>
@@ -334,26 +334,26 @@ export default function PartnershipPage() {
                         className="p-8 rounded-[2.5rem] bg-teal-50 border border-teal-100"
                     >
                         <div className="grid grid-cols-2 gap-8">
-                            <div className="p-6 rounded-2xl bg-white shadow-sm">
-                                <p className="text-[10px] font-bold text-teal-600 uppercase tracking-widest mb-2">
+                            <div className="p-6 rounded-lg bg-white shadow-sm">
+                                <p className="text-[10px] font-medium text-teal-600 uppercase tracking-widest mb-2">
                                     Success Rate
                                 </p>
-                                <p className="text-3xl font-bold text-gray-900">98%</p>
+                                <p className="text-3xl font-medium text-gray-900">98%</p>
                                 <p className="text-xs text-gray-500 mt-1">Client retention</p>
                             </div>
-                            <div className="p-6 rounded-2xl bg-white shadow-sm">
-                                <p className="text-[10px] font-bold text-teal-600 uppercase tracking-widest mb-2">
+                            <div className="p-6 rounded-lg bg-white shadow-sm">
+                                <p className="text-[10px] font-medium text-teal-600 uppercase tracking-widest mb-2">
                                     Onboarding
                                 </p>
-                                <p className="text-3xl font-bold text-gray-900">24h</p>
+                                <p className="text-3xl font-medium text-gray-900">24h</p>
                                 <p className="text-xs text-gray-500 mt-1">Setup time</p>
                             </div>
-                            <div className="col-span-2 p-6 rounded-2xl bg-white shadow-sm flex items-center justify-between">
+                            <div className="col-span-2 p-6 rounded-lg bg-white shadow-sm flex items-center justify-between">
                                 <div>
-                                    <p className="text-[10px] font-bold text-teal-600 uppercase tracking-widest mb-2">
+                                    <p className="text-[10px] font-medium text-teal-600 uppercase tracking-widest mb-2">
                                         Global Support
                                     </p>
-                                    <p className="text-xl font-bold text-gray-900">24/7 Availability</p>
+                                    <p className="text-xl font-medium text-gray-900">24/7 Availability</p>
                                 </div>
                                 <Globe size={32} className="text-teal-500 opacity-20" />
                             </div>

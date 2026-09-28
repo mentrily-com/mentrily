@@ -46,7 +46,7 @@ export default function ModulePageSkeleton() {
                         {[1, 2, 3, 4].map((i) => (
                             <div
                                 key={i}
-                                className="min-w-[220px] max-w-[220px] h-[160px] shrink-0 rounded-[24px] border-2 border-gray-100 bg-white p-5 flex flex-col justify-between sm:min-w-[240px] sm:max-w-[240px] sm:h-[170px] sm:p-6"
+                                className="min-w-[220px] max-w-[220px] h-[160px] shrink-0 rounded-lg border-2 border-gray-100 bg-white p-5 flex flex-col justify-between sm:min-w-[240px] sm:max-w-[240px] sm:h-[170px] sm:p-6"
                             >
                                 <div className="h-8 w-8 animate-pulse rounded-lg bg-gray-100" />
                                 <div className="h-4 w-4/5 animate-pulse rounded-md bg-gray-200" />
@@ -64,7 +64,7 @@ export default function ModulePageSkeleton() {
                         {[1, 2, 3, 4, 5].map((i) => (
                             <div
                                 key={i}
-                                className="px-4 py-4 rounded-[22px] border border-gray-100/80 bg-white flex items-center justify-between sm:px-8 sm:py-5 sm:rounded-[24px]"
+                                className="px-4 py-4 rounded-lg border border-gray-100/80 bg-white flex items-center justify-between sm:px-8 sm:py-5 sm:rounded-lg"
                             >
                                 <div className="flex min-w-0 items-center gap-4 flex-1 sm:gap-10">
                                     <div className="h-6 w-6 shrink-0 animate-pulse rounded bg-gray-100" />

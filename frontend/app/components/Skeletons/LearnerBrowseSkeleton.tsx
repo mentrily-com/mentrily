@@ -19,7 +19,7 @@ export default function LearnerBrowseSkeleton({ count = 6 }: { count?: number })
                         <div className="h-8 w-48 rounded-lg bg-gray-200 animate-pulse" />
                         <div className="h-3.5 w-64 rounded bg-gray-100 animate-pulse" />
                     </div>
-                    <div className="h-11 w-full rounded-2xl bg-gray-200/80 animate-pulse sm:w-72" />
+                    <div className="h-11 w-full rounded-lg bg-gray-200/80 animate-pulse sm:w-72" />
                 </div>
 
                 {/* Disclaimer banner */}
@@ -33,13 +33,13 @@ export default function LearnerBrowseSkeleton({ count = 6 }: { count?: number })
                     {Array.from({ length: count }).map((_, i) => (
                         <div
                             key={i}
-                            className="rounded-3xl border border-gray-100 bg-white p-0 shadow-sm overflow-hidden"
+                            className="rounded-lg border border-gray-100 bg-white p-0 shadow-sm overflow-hidden"
                         >
                             <div className="h-40 w-full bg-gray-100 animate-pulse" />
                             <div className="p-5 space-y-3">
                                 <div className="h-4 w-2/3 bg-gray-200 rounded animate-pulse" />
                                 <div className="h-3 w-full bg-gray-100 rounded animate-pulse" />
-                                <div className="h-9 w-full bg-gray-100 rounded-2xl animate-pulse mt-4" />
+                                <div className="h-9 w-full bg-gray-100 rounded-lg animate-pulse mt-4" />
                             </div>
                         </div>
                     ))}

@@ -32,7 +32,7 @@ export default function StudioRecentActivity({ activities }: StudioRecentActivit
             initial={{ opacity: 0, x: 12 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4, duration: 0.4 }}
-            className="glass-card rounded-2xl p-5 shadow-sm"
+            className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm"
             data-element-id="creator-recent-activity"
         >
             <div className="flex items-start justify-between gap-3">

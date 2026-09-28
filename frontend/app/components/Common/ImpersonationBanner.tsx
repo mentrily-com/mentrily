@@ -59,18 +59,18 @@ export default function ImpersonationBanner() {
             <div className="flex items-center gap-3 min-w-0">
                 <div className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded-lg shrink-0">
                     <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
-                    <span className="text-[9px] font-black uppercase tracking-tighter text-amber-500 hidden xs:inline">
+                    <span className="text-[9px] font-semibold uppercase tracking-tighter text-amber-500 hidden xs:inline">
                         Impersonating
                     </span>
                 </div>
                 <div className="flex items-center gap-2 min-w-0">
                     <UserCircle2 size={14} className="text-gray-500 shrink-0" />
-                    <p className="text-xs font-bold truncate">
+                    <p className="text-xs font-medium truncate">
                         <span className="text-gray-400 font-medium">Viewing:</span>
-                        <span className="text-[var(--brand)] font-black ml-1 uppercase tracking-tight">
+                        <span className="text-[var(--brand)] font-semibold ml-1 uppercase tracking-tight">
                             {impersonation.name}
                         </span>
-                        <span className="ml-1.5 text-[9px] font-black uppercase tracking-widest text-gray-500 bg-white/5 px-2 py-0.5 rounded-md border border-white/5">
+                        <span className="ml-1.5 text-[9px] font-semibold uppercase tracking-widest text-gray-500 bg-white/5 px-2 py-0.5 rounded-md border border-white/5">
                             {impersonation.role}
                         </span>
                     </p>
@@ -79,7 +79,7 @@ export default function ImpersonationBanner() {
 
             <button
                 onClick={handleExit}
-                className="flex items-center gap-2 px-3 py-1 bg-[var(--brand)] hover:scale-105 text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-[var(--brand)]/20 active:scale-95 group shrink-0"
+                className="flex items-center gap-2 px-3 py-1 bg-[var(--brand)] hover:scale-105 text-white rounded-lg text-[10px] font-semibold uppercase tracking-widest transition-all shadow-sm active:scale-95 group shrink-0"
             >
                 <span className="hidden sm:inline">Exit View</span>
                 <span className="sm:hidden">Exit</span>

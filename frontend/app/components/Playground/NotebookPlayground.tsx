@@ -156,7 +156,7 @@ export default function NotebookPlayground() {
         <div className="h-[calc(100%-56px)] overflow-y-auto px-4 py-5 md:px-6 md:py-6 bg-[var(--color-bg-subtle)]">
             <div className="mb-5 flex items-center justify-end">
                 <div
-                    className={`flex items-center gap-2 rounded-xl border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${isWorkerReady ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100 animate-pulse'}`}
+                    className={`flex items-center gap-2 rounded-xl border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest ${isWorkerReady ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100 animate-pulse'}`}
                 >
                     <div className={`h-2 w-2 rounded-full ${isWorkerReady ? 'bg-emerald-500' : 'bg-amber-500'}`} />
                     {isWorkerReady ? 'Python 3.11 Ready' : 'Initializing Kernel'}
@@ -169,19 +169,19 @@ export default function NotebookPlayground() {
                     <div key={cell.id} className="group flex flex-col gap-3">
                         <div className="flex gap-4">
                             {/* Line Number / Prompt */}
-                            <div className="w-10 pt-5 text-right font-mono text-[11px] font-black text-gray-200 select-none">
+                            <div className="w-10 pt-5 text-right font-mono text-[11px] font-semibold text-gray-200 select-none">
                                 {index + 1}
                             </div>
 
                             <div className="flex-1">
                                 <div
-                                    className={`relative bg-white border-2 rounded-2xl transition-all shadow-sm overflow-hidden ${cell.isExecuting ? 'border-amber-400 ring-4 ring-amber-50' : 'border-gray-100 group-hover:border-gray-200 focus-within:border-[var(--brand)] focus-within:ring-4 focus-within:ring-[var(--brand-lighter)]'}`}
+                                    className={`relative bg-white border-2 rounded-lg transition-all shadow-sm overflow-hidden ${cell.isExecuting ? 'border-amber-400 ring-4 ring-amber-50' : 'border-gray-100 group-hover:border-gray-200 focus-within:border-[var(--brand)] focus-within:ring-4 focus-within:ring-[var(--brand-lighter)]'}`}
                                 >
                                     {/* EXECUTE BUTTON - Top Right Floating */}
                                     <button
                                         onClick={() => runCell(cell.id)}
                                         disabled={!isWorkerReady || cell.isExecuting}
-                                        className={`absolute top-4 right-4 z-[90] p-3 rounded-2xl transition-all shadow-md active:scale-95 ${cell.isExecuting ? 'bg-amber-100 text-amber-600' : 'bg-gray-50 text-gray-400 hover:bg-[var(--brand)] hover:text-white'}`}
+                                        className={`absolute top-4 right-4 z-[90] p-3 rounded-lg transition-all shadow-md active:scale-95 ${cell.isExecuting ? 'bg-amber-100 text-amber-600' : 'bg-gray-50 text-gray-400 hover:bg-[var(--brand)] hover:text-white'}`}
                                         title="Run (Ctrl+Enter)"
                                     >
                                         {cell.isExecuting ? (
@@ -205,13 +205,13 @@ export default function NotebookPlayground() {
                                     <div className="absolute bottom-[-1px] left-1/2 -translate-x-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all z-[100] pb-3 translate-y-2 group-hover:translate-y-0">
                                         <button
                                             onClick={() => addCell(index)}
-                                            className="px-4 py-2 bg-white border border-gray-200 rounded-full shadow-xl text-gray-500 hover:text-[var(--brand)] hover:border-[var(--brand)] transition-all flex items-center gap-2 text-[10px] font-black uppercase tracking-widest"
+                                            className="px-4 py-2 bg-white border border-gray-200 rounded-full shadow-md text-gray-500 hover:text-[var(--brand)] hover:border-[var(--brand)] transition-all flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest"
                                         >
                                             <Plus size={14} /> Code
                                         </button>
                                         <button
                                             onClick={() => deleteCell(cell.id)}
-                                            className="p-2.5 bg-white border border-gray-200 rounded-full shadow-xl text-gray-400 hover:text-rose-500 hover:border-rose-500 transition-all"
+                                            className="p-2.5 bg-white border border-gray-200 rounded-full shadow-md text-gray-400 hover:text-rose-500 hover:border-rose-500 transition-all"
                                         >
                                             <Trash2 size={16} />
                                         </button>
@@ -220,7 +220,7 @@ export default function NotebookPlayground() {
 
                                 {/* OUTPUT AREA */}
                                 {cell.outputs.length > 0 && (
-                                    <div className="mt-4 p-8 bg-[#1e1e1e] rounded-2xl border border-gray-800 shadow-2xl space-y-3 animate-in fade-in slide-in-from-top-2">
+                                    <div className="mt-4 p-8 bg-[#1e1e1e] rounded-lg border border-gray-800 shadow-lg space-y-3 animate-in fade-in slide-in-from-top-2">
                                         {cell.outputs.map((out) => (
                                             <div key={out.id} className="font-mono text-[14px] leading-relaxed">
                                                 {out.type === 'stdout' && (
@@ -229,12 +229,12 @@ export default function NotebookPlayground() {
                                                     </div>
                                                 )}
                                                 {out.type === 'stderr' && (
-                                                    <div className="whitespace-pre-wrap text-rose-400 bg-rose-500/10 p-5 rounded-2xl border border-rose-500/20 shadow-inner">
+                                                    <div className="whitespace-pre-wrap text-rose-400 bg-rose-500/10 p-5 rounded-lg border border-rose-500/20 shadow-inner">
                                                         {out.content}
                                                     </div>
                                                 )}
                                                 {out.type === 'image' && (
-                                                    <div className="bg-white p-4 rounded-2xl shadow-lg inline-block my-4">
+                                                    <div className="bg-white p-4 rounded-lg shadow-lg inline-block my-4">
                                                         <img
                                                             src={`data:image/png;base64,${out.content}`}
                                                             className="max-w-full h-auto rounded-lg"
@@ -256,7 +256,7 @@ export default function NotebookPlayground() {
             <div className="flex justify-center pt-20">
                 <button
                     onClick={() => addCell(cells.length - 1)}
-                    className="group relative px-10 py-5 bg-white border-2 border-dashed border-gray-200 rounded-3xl text-gray-400 font-black uppercase tracking-widest text-[11px] hover:border-[var(--brand)] hover:text-[var(--brand)] transition-all flex items-center gap-4 overflow-hidden shadow-sm active:scale-95"
+                    className="group relative px-10 py-5 bg-white border-2 border-dashed border-gray-200 rounded-lg text-gray-400 font-semibold uppercase tracking-widest text-[11px] hover:border-[var(--brand)] hover:text-[var(--brand)] transition-all flex items-center gap-4 overflow-hidden shadow-sm active:scale-95"
                 >
                     <Plus size={22} className="transition-transform group-hover:rotate-90" />
                     <span>Append New Cell</span>

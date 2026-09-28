@@ -441,7 +441,7 @@ export default function SignupPage() {
                 <div className="absolute bottom-10 right-10 h-40 w-40 border border-white/10" />
 
                 <div className="relative z-10 max-w-md px-12 text-white">
-                    <h2 className="text-3xl xl:text-4xl font-bold tracking-tight mb-4 leading-tight">
+                    <h2 className="text-3xl xl:text-4xl font-medium tracking-tight mb-4 leading-tight">
                         Launch your school in minutes.
                     </h2>
                     <p className="text-white/70 text-[15px] leading-relaxed mb-10">
@@ -449,22 +449,22 @@ export default function SignupPage() {
                         workspace.
                     </p>
 
-                    <div className="rounded-2xl border border-white/15 bg-white/10 p-4 shadow-2xl shadow-black/15 backdrop-blur">
+                    <div className="rounded-lg border border-white/15 bg-white/10 p-4 shadow-lg">
                         <div className="mb-4 flex items-center justify-between border-b border-white/10 pb-3">
                             <div>
-                                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/50">
+                                <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-white/50">
                                     Included
                                 </p>
                                 <p className="text-sm font-semibold text-white">Creator workspace</p>
                             </div>
-                            <span className="rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-bold text-white/70">
+                            <span className="rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-medium text-white/70">
                                 Free start
                             </span>
                         </div>
                         <div className="space-y-2">
                             {['Course builder', 'Quiz and exam tools', 'Certificates'].map((item, index) => (
                                 <div key={item} className="flex items-center gap-3 rounded-xl bg-white/10 p-3">
-                                    <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white text-xs font-bold text-[var(--brand)]">
+                                    <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white text-xs font-medium text-[var(--brand)]">
                                         {index + 1}
                                     </span>
                                     <span className="text-sm font-medium text-white/80">{item}</span>
@@ -497,16 +497,16 @@ export default function SignupPage() {
                             orgLogo={orgContext?.logo}
                             defaultLogoClassName="h-12 max-w-[250px] sm:h-14 sm:max-w-[290px]"
                             iconClassName="h-12 w-12"
-                            textClassName="text-2xl font-bold"
+                            textClassName="text-2xl font-medium"
                             href="/"
                             priority
                         />
                     </div>
 
-                    <div className="w-full rounded-3xl border border-white/70 bg-white/90 p-6 shadow-2xl shadow-gray-200/80 backdrop-blur sm:p-8">
+                    <div className="w-full rounded-lg border border-white/70 bg-white p-6 shadow-lg sm:p-8">
                         {/* Heading */}
                         <div className="mb-8">
-                            <h1 className="text-2xl font-bold tracking-tight mb-1.5" style={{ color: '#0F172A' }}>
+                            <h1 className="text-2xl font-medium tracking-tight mb-1.5" style={{ color: '#0F172A' }}>
                                 {pendingVerification
                                     ? 'Verify your email'
                                     : isInvitationFlow

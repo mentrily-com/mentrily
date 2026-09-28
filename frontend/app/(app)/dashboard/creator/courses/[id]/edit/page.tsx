@@ -66,7 +66,7 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
     if (loading) return <CourseEditSkeleton />;
     if (!course)
         return (
-            <div className="p-12 text-center font-black uppercase tracking-widest text-rose-500">Course Not Found</div>
+            <div className="p-12 text-center font-semibold uppercase tracking-widest text-rose-500">Course Not Found</div>
         );
 
     return (

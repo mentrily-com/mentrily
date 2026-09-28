@@ -84,7 +84,7 @@ export default function JobCard({
         <button
             type="button"
             onClick={() => onOpen(effectiveId)}
-            className={`group mt-3 flex w-full max-w-md items-center gap-3 rounded-2xl border bg-white p-3 text-left transition hover:border-[var(--color-border-brand)] ${
+            className={`group mt-3 flex w-full max-w-md items-center gap-3 rounded-lg border bg-white p-3 text-left transition hover:border-[var(--color-border-brand)] ${
                 active ? 'border-[var(--brand)] ring-4 ring-[var(--brand)]/10' : 'border-gray-200'
             }`}
         >

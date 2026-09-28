@@ -149,10 +149,10 @@ export default function ExamResultPage({ params }: { params: Promise<{ sessionId
                         </svg>
                     </button>
                     <div className="min-w-0">
-                        <h1 className="truncate text-base font-black text-gray-800 sm:text-lg">
+                        <h1 className="truncate text-base font-semibold text-gray-800 sm:text-lg">
                             {resultData.details.examTitle}
                         </h1>
-                        <p className="text-xs text-gray-500 font-bold">
+                        <p className="text-xs text-gray-500 font-medium">
                             Submitted: {new Date(resultData.details.submittedAt).toLocaleString()}
                         </p>
                     </div>
@@ -163,14 +163,14 @@ export default function ExamResultPage({ params }: { params: Promise<{ sessionId
                             passed ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
                         }`}
                     >
-                        <div className="text-[10px] font-black uppercase tracking-widest">Verdict</div>
-                        <div className="text-sm font-black">
+                        <div className="text-[10px] font-semibold uppercase tracking-widest">Verdict</div>
+                        <div className="text-sm font-semibold">
                             {passed ? 'Passed' : 'Failed'} at {passingPercentage}%
                         </div>
                     </div>
                     <div className="min-w-[132px] flex-1 text-left sm:flex-none sm:text-right">
-                        <div className="text-xs text-gray-400 font-bold uppercase tracking-wider">Total Score</div>
-                        <div className="text-xl font-black text-[var(--brand)]">
+                        <div className="text-xs text-gray-400 font-medium uppercase tracking-wider">Total Score</div>
+                        <div className="text-xl font-semibold text-[var(--brand)]">
                             {resultData.details.score}{' '}
                             <span className="text-gray-300 text-sm">/ {resultData.details.totalMarks}</span>
                         </div>

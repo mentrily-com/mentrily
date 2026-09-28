@@ -108,11 +108,11 @@ const ExamSidebar = React.memo(function ExamSidebar({
                             return (
                                 <div
                                     key={section.id}
-                                    className={`mb-4 rounded-2xl border bg-gray-50/50 p-2 transition-all relative ${collapsed ? 'px-1' : 'px-2'} ${isLocked || isSubmitted ? 'border-gray-100 opacity-60 grayscale-[0.8] cursor-not-allowed' : 'border-gray-100'}`}
+                                    className={`mb-4 rounded-lg border bg-gray-50/50 p-2 transition-all relative ${collapsed ? 'px-1' : 'px-2'} ${isLocked || isSubmitted ? 'border-gray-100 opacity-60 grayscale-[0.8] cursor-not-allowed' : 'border-gray-100'}`}
                                 >
                                     {/* Lock Overlay for both Locked and Submitted sections */}
                                     {(isLocked || isSubmitted) && (
-                                        <div className="absolute inset-0 z-20 bg-gray-50/20 backdrop-blur-[1px] flex items-center justify-center rounded-2xl">
+                                        <div className="absolute inset-0 z-20 bg-gray-50/20 flex items-center justify-center rounded-lg">
                                             <div className="w-8 h-8 bg-white shadow-lg rounded-full flex items-center justify-center text-gray-400">
                                                 <svg
                                                     width="14"
@@ -135,7 +135,7 @@ const ExamSidebar = React.memo(function ExamSidebar({
                                     >
                                         <div
                                             className={`
-                                            flex items-center justify-center rounded-lg shadow-sm border font-black
+                                            flex items-center justify-center rounded-lg shadow-sm border font-semibold
                                             ${collapsed ? 'w-10 h-10 text-sm' : 'w-7 h-7 text-xs'}
                                             ${isSubmitted || isLocked ? 'bg-gray-200 border-gray-300 text-gray-500' : 'bg-white border-gray-100 text-[var(--brand)]'}
                                         `}
@@ -158,7 +158,7 @@ const ExamSidebar = React.memo(function ExamSidebar({
                                         </div>
 
                                         {!collapsed && (
-                                            <h3 className="text-[11px] font-black text-gray-500 uppercase tracking-widest truncate flex-1 leading-none flex items-center justify-between">
+                                            <h3 className="text-[11px] font-semibold text-gray-500 uppercase tracking-widest truncate flex-1 leading-none flex items-center justify-between">
                                                 <span>{section.title}</span>
                                             </h3>
                                         )}
@@ -182,7 +182,7 @@ const ExamSidebar = React.memo(function ExamSidebar({
                                             // Active State (Override) - Only if not locked
                                             if (isQuestionActive && isCurrentSection && !isLocked) {
                                                 statusColor =
-                                                    'bg-[var(--brand)] border-[var(--brand)] text-white shadow-md shadow-[var(--brand)]/20 scale-110 z-10';
+                                                    'bg-[var(--brand)] border-[var(--brand)] text-white shadow-sm scale-110 z-10';
                                             }
 
                                             return (
@@ -193,7 +193,7 @@ const ExamSidebar = React.memo(function ExamSidebar({
                                                     }
                                                     disabled={isLocked || isSubmitted}
                                                     className={`
-                                                        w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold border transition-all
+                                                        w-8 h-8 rounded-lg flex items-center justify-center text-xs font-medium border transition-all
                                                         ${isLocked || isSubmitted ? 'cursor-not-allowed opacity-60' : 'hover:scale-110 active:scale-95 cursor-pointer'}
                                                         ${statusColor}
                                                     `}
@@ -216,7 +216,7 @@ const ExamSidebar = React.memo(function ExamSidebar({
                     {/* Footer / Legend */}
                     {!collapsed && (
                         <div className="p-4 border-t border-gray-100 bg-white">
-                            <div className="grid grid-cols-2 gap-2 text-[9px] font-black uppercase tracking-tighter text-gray-400">
+                            <div className="grid grid-cols-2 gap-2 text-[9px] font-semibold uppercase tracking-tighter text-gray-400">
                                 <div className="flex items-center gap-1.5">
                                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> Solved
                                 </div>

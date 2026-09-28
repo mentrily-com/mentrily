@@ -36,7 +36,7 @@ export default function BulkImportReportModal({ isOpen, onClose, report }: BulkI
                 <div className="flex justify-end">
                     <button
                         onClick={onClose}
-                        className="w-full px-6 py-3 bg-gray-900 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-gray-800 transition-all shadow-lg shadow-gray-200 sm:w-auto"
+                        className="w-full px-6 py-3 bg-gray-900 text-white text-xs font-semibold uppercase tracking-widest rounded-xl hover:bg-gray-800 transition-all shadow-lg sm:w-auto"
                     >
                         Close Report
                     </button>
@@ -44,24 +44,24 @@ export default function BulkImportReportModal({ isOpen, onClose, report }: BulkI
             }
         >
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                <div className="bg-emerald-50 rounded-2xl p-4 flex items-center gap-4 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.12)]">
+                <div className="bg-emerald-50 rounded-lg p-4 flex items-center gap-4 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.12)]">
                     <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
                         <UserCheck size={24} />
                     </div>
                     <div>
-                        <div className="text-2xl font-black text-emerald-700">{summary.invited ?? summary.created}</div>
-                        <div className="text-xs font-bold uppercase tracking-wider text-emerald-600/70">Invited</div>
+                        <div className="text-2xl font-semibold text-emerald-700">{summary.invited ?? summary.created}</div>
+                        <div className="text-xs font-medium uppercase tracking-wider text-emerald-600/70">Invited</div>
                     </div>
                 </div>
 
                 {summary.emailsSent !== undefined && (
-                    <div className="bg-blue-50 rounded-2xl p-4 flex items-center gap-4 shadow-[inset_0_0_0_1px_rgba(37,99,235,0.12)]">
+                    <div className="bg-blue-50 rounded-lg p-4 flex items-center gap-4 shadow-[inset_0_0_0_1px_rgba(37,99,235,0.12)]">
                         <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
                             <Mail size={24} />
                         </div>
                         <div>
-                            <div className="text-2xl font-black text-blue-700">{summary.emailsSent}</div>
-                            <div className="text-xs font-bold uppercase tracking-wider text-blue-600/70">
+                            <div className="text-2xl font-semibold text-blue-700">{summary.emailsSent}</div>
+                            <div className="text-xs font-medium uppercase tracking-wider text-blue-600/70">
                                 Emails Sent
                             </div>
                         </div>
@@ -69,23 +69,23 @@ export default function BulkImportReportModal({ isOpen, onClose, report }: BulkI
                 )}
 
                 {(summary.failed > 0 || (summary.emailsFailed || 0) > 0) && (
-                    <div className="bg-rose-50 rounded-2xl p-4 flex items-center gap-4 sm:col-span-2 shadow-[inset_0_0_0_1px_rgba(244,63,94,0.12)]">
+                    <div className="bg-rose-50 rounded-lg p-4 flex items-center gap-4 sm:col-span-2 shadow-[inset_0_0_0_1px_rgba(244,63,94,0.12)]">
                         <div className="w-12 h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
                             <AlertTriangle size={24} />
                         </div>
                         <div className="flex flex-wrap gap-5 sm:gap-8">
                             {summary.failed > 0 && (
                                 <div>
-                                    <div className="text-2xl font-black text-rose-700">{summary.failed}</div>
-                                    <div className="text-xs font-bold uppercase tracking-wider text-rose-600/70">
+                                    <div className="text-2xl font-semibold text-rose-700">{summary.failed}</div>
+                                    <div className="text-xs font-medium uppercase tracking-wider text-rose-600/70">
                                         Failed
                                     </div>
                                 </div>
                             )}
                             {(summary.emailsFailed || 0) > 0 && (
                                 <div>
-                                    <div className="text-2xl font-black text-rose-700">{summary.emailsFailed}</div>
-                                    <div className="text-xs font-bold uppercase tracking-wider text-rose-600/70">
+                                    <div className="text-2xl font-semibold text-rose-700">{summary.emailsFailed}</div>
+                                    <div className="text-xs font-medium uppercase tracking-wider text-rose-600/70">
                                         Failed Emails
                                     </div>
                                 </div>
@@ -96,7 +96,7 @@ export default function BulkImportReportModal({ isOpen, onClose, report }: BulkI
             </div>
 
             <div>
-                <h3 className="sticky top-0 z-10 mb-4 bg-[#f4f6f9] py-3 text-xs font-black uppercase tracking-widest text-gray-400">
+                <h3 className="sticky top-0 z-10 mb-4 bg-[#f4f6f9] py-3 text-xs font-semibold uppercase tracking-widest text-gray-400">
                     Detailed Log
                 </h3>
                 <div className="space-y-3">
@@ -111,7 +111,7 @@ export default function BulkImportReportModal({ isOpen, onClose, report }: BulkI
                                 <AlertCircle className="text-rose-500 shrink-0 mt-0.5" size={18} />
                             )}
                             <div className="flex-1 min-w-0">
-                                <div className="font-bold text-gray-700 truncate">
+                                <div className="font-medium text-gray-700 truncate">
                                     {item.user?.email || item.email}
                                 </div>
                                 <div className="text-xs text-gray-500 mt-1">
