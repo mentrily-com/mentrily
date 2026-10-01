@@ -224,9 +224,22 @@ export class TeacherService {
   // below rather than duplicating them -- see that file's header comment.
   async checkAccess(resource: any, user: any) {
     if (!resource) return;
+    if (!user) {
+      throw new ForbiddenException(
+        'Access denied: You do not own this resource',
+      );
+    }
+    if (String(user.role || '').toUpperCase() === 'SUPER_ADMIN') return true;
+
+    // Reject cross-tenant access immediately
+    if (resource.orgId && user.orgId && resource.orgId !== user.orgId) {
+      throw new ForbiddenException(
+        'Access denied: Cross-tenant access is not allowed',
+      );
+    }
+
     if (resource.creatorId === user.id) return true;
     if (user.role === 'ADMIN' && resource.orgId === user.orgId) return true;
-    if (user.role === 'SUPER_ADMIN') return true;
     if (user.role === 'TEACHER') {
       const courseId = String(
         resource.courseId || resource.linkedCourseId || resource.id || '',

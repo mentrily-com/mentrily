@@ -34,21 +34,35 @@ export class TeacherAnnouncementsService {
     announcement: { teacherId: string; orgId: string | null },
     user: any,
   ): void {
-    if (announcement.teacherId === user.id) return;
-    if (user.role === 'SUPER_ADMIN') return;
-    if (
-      user.role === 'ADMIN' &&
-      announcement.orgId &&
-      announcement.orgId === user.orgId
-    ) {
-      return;
+    if (!user) {
+      throw new ForbiddenException('Access denied');
     }
+    if (String(user.role || '').toUpperCase() === 'SUPER_ADMIN') return;
+
+    if (announcement.orgId) {
+      if (announcement.orgId !== user.orgId) {
+        throw new ForbiddenException(
+          'Access denied: cross-tenant access is not allowed',
+        );
+      }
+      if (user.role === 'ADMIN') return;
+      if (announcement.teacherId === user.id) return;
+      throw new ForbiddenException('Access denied');
+    }
+
+    if (announcement.teacherId === user.id) return;
     throw new ForbiddenException('Access denied');
   }
 
-  private assertAttachmentOwnership(attachments: any[] | undefined, user: any): void {
+  private assertAttachmentOwnership(
+    attachments: any[] | undefined,
+    user: any,
+  ): void {
     if (!Array.isArray(attachments) || attachments.length === 0) return;
-    const allowedNamespaces = [user?.orgId, user?.id ? `user-${user.id}` : null];
+    const allowedNamespaces = [
+      user?.orgId,
+      user?.id ? `user-${user.id}` : null,
+    ];
     for (const att of attachments) {
       if (
         att?.url &&
@@ -62,12 +76,26 @@ export class TeacherAnnouncementsService {
   }
 
   async getAnnouncements(user: any) {
-    const cacheKey = `teacher:announcements:${user.id}`;
+    const userOrgId = user?.orgId || 'no-org';
+    const cacheKey = `teacher:announcements:${user?.id}:${userOrgId}`;
     const cached = await this.redis.get(cacheKey);
     if (cached) return JSON.parse(cached);
 
+    const where: any = {};
+    if (String(user?.role || '').toUpperCase() === 'SUPER_ADMIN') {
+      // Super admin can see all
+    } else if (user?.role === 'ADMIN' && user?.orgId) {
+      where.orgId = user.orgId;
+    } else if (user?.orgId) {
+      where.teacherId = user.id;
+      where.orgId = user.orgId;
+    } else {
+      where.teacherId = user?.id;
+      where.orgId = null;
+    }
+
     const response = await this.prisma.announcement.findMany({
-      where: { teacherId: user.id },
+      where,
       include: {
         groups: { select: { id: true, name: true } },
         _count: { select: { reads: true } },
@@ -96,9 +124,13 @@ export class TeacherAnnouncementsService {
 
     this.assertAttachmentOwnership(data.attachments, user);
 
-    // Verify all groups belong to this teacher
+    // Verify all groups belong to this teacher and tenant
+    const groupWhere: any = { id: { in: data.groupIds }, teacherId: user.id };
+    if (user.orgId) {
+      groupWhere.OR = [{ orgId: user.orgId }, { orgId: null }];
+    }
     const groups = await this.prisma.studentGroup.findMany({
-      where: { id: { in: data.groupIds }, teacherId: user.id },
+      where: groupWhere,
       include: { students: { select: { id: true } } },
     });
     if (groups.length !== data.groupIds.length) {

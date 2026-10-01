@@ -750,7 +750,17 @@ export class CertificateService {
     };
   }
 
-  async listCertificates(studentId: string) {
+  async listCertificates(studentId: string, orgId?: string) {
+    if (orgId) {
+      return (this.prisma as any).certificate.findMany({
+        where: {
+          userId: studentId,
+          orgId,
+        },
+        orderBy: { issuedAt: 'desc' },
+      });
+    }
+
     const { data, error } = await (this.supabase.client as any).rpc(
       'list_certificates',
       {
@@ -759,23 +769,37 @@ export class CertificateService {
     );
 
     if (error) {
-      throw new NotFoundException(
-        error.message || 'Failed to list certificates',
-      );
+      return (this.prisma as any).certificate.findMany({
+        where: { userId: studentId },
+        orderBy: { issuedAt: 'desc' },
+      });
     }
 
     return data || [];
   }
 
-  async getCertificateForUser(studentId: string, certificateId: string) {
+  async getCertificateForUser(
+    studentId: string,
+    certificateId: string,
+    orgId?: string,
+  ) {
+    const where: any = {
+      id: certificateId,
+      userId: studentId,
+    };
+    if (orgId) {
+      where.orgId = orgId;
+    }
+
     const certificate = await (this.prisma as any).certificate.findFirst({
-      where: {
-        id: certificateId,
-        userId: studentId,
-      },
+      where,
     });
 
     if (!certificate) {
+      throw new NotFoundException('Certificate not found');
+    }
+
+    if (orgId && certificate.orgId && certificate.orgId !== orgId) {
       throw new NotFoundException('Certificate not found');
     }
 

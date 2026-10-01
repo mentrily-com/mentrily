@@ -194,7 +194,8 @@ export class StudentService {
     let attemptsUsed = 0;
 
     if (preloadedSessions !== undefined) {
-      latestAttempt = preloadedSessions.length > 0 ? preloadedSessions[0] : null;
+      latestAttempt =
+        preloadedSessions.length > 0 ? preloadedSessions[0] : null;
       attemptsUsed = preloadedSessions.length;
     } else {
       try {
@@ -1621,14 +1622,19 @@ export class StudentService {
     };
   }
 
-  async getCertificates(userId: string) {
-    return this.certificateService.listCertificates(userId);
+  async getCertificates(userId: string, orgId?: string) {
+    return this.certificateService.listCertificates(userId, orgId);
   }
 
-  async downloadCertificate(userId: string, certificateId: string) {
+  async downloadCertificate(
+    userId: string,
+    certificateId: string,
+    orgId?: string,
+  ) {
     const certificate = await this.certificateService.getCertificateForUser(
       userId,
       certificateId,
+      orgId,
     );
     return {
       id: certificate.id,

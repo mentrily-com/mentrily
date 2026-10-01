@@ -52,7 +52,11 @@ export class CourseService {
     user: any,
     message = 'Not found or access denied',
   ): void {
-    if (!resource || !user || user.role === 'SUPER_ADMIN') return;
+    if (!resource) return;
+    if (String(user?.role || '').toUpperCase() === 'SUPER_ADMIN') return;
+    if (!user) {
+      throw new NotFoundException(message);
+    }
 
     if (resource.orgId) {
       if (resource.orgId !== user.orgId) {
@@ -85,10 +89,16 @@ export class CourseService {
     user: any,
     message = 'Not found or access denied',
   ): Promise<void> {
-    if (user?.role === 'SUPER_ADMIN') {
+    if (String(user?.role || '').toUpperCase() === 'SUPER_ADMIN') {
       return;
     }
+    if (!user) {
+      throw new NotFoundException(message);
+    }
     if (course.creatorId && user?.id && course.creatorId === user.id) {
+      if (course.orgId && user?.orgId && course.orgId !== user.orgId) {
+        throw new NotFoundException(message);
+      }
       return;
     }
     if (user?.role === 'ADMIN' || user?.role === 'TEACHER') {

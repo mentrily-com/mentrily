@@ -151,14 +151,14 @@ export class StudentController {
   @UseGuards(PlanGuard)
   @RequirePlan('certificates')
   async getCertificates(@User() user: any) {
-    return this.studentService.getCertificates(user.id);
+    return this.studentService.getCertificates(user.id, user.orgId);
   }
 
   @Get('certificates/:id/download')
   @UseGuards(PlanGuard)
   @RequirePlan('certificates')
   async downloadCertificate(@User() user: any, @Param('id') id: string) {
-    return this.studentService.downloadCertificate(user.id, id);
+    return this.studentService.downloadCertificate(user.id, id, user.orgId);
   }
 
   // ─── ANNOUNCEMENTS ─────────────────────────────────────────────────────────
@@ -172,16 +172,24 @@ export class StudentController {
     return this.studentAnnouncementsService.getAnnouncements(user.id, {
       limit,
       offset,
+      orgId: user.orgId,
     });
   }
 
   @Get('announcements/unread-count')
   async getUnreadAnnouncementCount(@User() user: any) {
-    return this.studentAnnouncementsService.getUnreadAnnouncementCount(user.id);
+    return this.studentAnnouncementsService.getUnreadAnnouncementCount(
+      user.id,
+      user.orgId,
+    );
   }
 
   @Post('announcements/:id/read')
   async markAnnouncementRead(@User() user: any, @Param('id') id: string) {
-    return this.studentAnnouncementsService.markAnnouncementRead(user.id, id);
+    return this.studentAnnouncementsService.markAnnouncementRead(
+      user.id,
+      id,
+      user.orgId,
+    );
   }
 }

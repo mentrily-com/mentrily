@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { SupabaseService } from '../../services/supabase/supabase.service';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
@@ -35,26 +35,36 @@ export class StudentAnnouncementsService {
 
   async getAnnouncements(
     userId: string,
-    options?: { limit?: string | number; offset?: string | number },
+    options?: {
+      limit?: string | number;
+      offset?: string | number;
+      orgId?: string;
+    },
   ) {
     const limit = this.parseBoundedNumber(options?.limit, 50, 1, 100);
     const offset = this.parseBoundedNumber(options?.offset, 0, 0, 10000);
+    const orgId = options?.orgId;
     const versionKey = `student:announcements:ver:${userId}`;
     const cacheVersion = (await this.redis.get(versionKey)) || '1';
-    const cacheKey = `student:announcements:${userId}:v:${cacheVersion}:limit:${limit}:offset:${offset}`;
+    const cacheKey = `student:announcements:${userId}:v:${cacheVersion}:limit:${limit}:offset:${offset}:${orgId || 'none'}`;
     const cached = await this.redis.get(cacheKey);
     if (cached) return JSON.parse(cached);
 
-    const announcements = await this.prisma.announcement.findMany({
-      where: {
-        groups: {
-          some: {
-            students: {
-              some: { id: userId },
-            },
+    const where: any = {
+      groups: {
+        some: {
+          students: {
+            some: { id: userId },
           },
         },
       },
+    };
+    if (orgId) {
+      where.orgId = orgId;
+    }
+
+    const announcements = await this.prisma.announcement.findMany({
+      where,
       include: {
         teacher: { select: { name: true, profilePicture: true } },
         groups: { select: { id: true, name: true } },
@@ -68,14 +78,14 @@ export class StudentAnnouncementsService {
       take: limit,
     });
 
-    const response = announcements.map((a) => ({
+    const response = announcements.map((a: any) => ({
       id: a.id,
       title: a.title,
       content: a.content,
       attachments: a.attachments,
       teacherName: a.teacher.name || 'Teacher',
       teacherPicture: a.teacher.profilePicture,
-      groupNames: a.groups.map((g) => g.name),
+      groupNames: a.groups.map((g: any) => g.name),
       isRead: a.reads.length > 0,
       readAt: a.reads[0]?.readAt || null,
       createdAt: a.createdAt,
@@ -85,24 +95,29 @@ export class StudentAnnouncementsService {
     return response;
   }
 
-  async getUnreadAnnouncementCount(userId: string) {
-    const cacheKey = `student:announcements:unread:${userId}`;
+  async getUnreadAnnouncementCount(userId: string, orgId?: string) {
+    const cacheKey = `student:announcements:unread:${userId}:${orgId || 'none'}`;
     const cached = await this.redis.get(cacheKey);
     if (cached) return JSON.parse(cached);
 
-    const count = await this.prisma.announcement.count({
-      where: {
-        groups: {
-          some: {
-            students: {
-              some: { id: userId },
-            },
+    const where: any = {
+      groups: {
+        some: {
+          students: {
+            some: { id: userId },
           },
         },
-        reads: {
-          none: { userId },
-        },
       },
+      reads: {
+        none: { userId },
+      },
+    };
+    if (orgId) {
+      where.orgId = orgId;
+    }
+
+    const count = await this.prisma.announcement.count({
+      where,
     });
 
     const response = { count };
@@ -110,7 +125,24 @@ export class StudentAnnouncementsService {
     return response;
   }
 
-  async markAnnouncementRead(userId: string, announcementId: string) {
+  async markAnnouncementRead(
+    userId: string,
+    announcementId: string,
+    orgId?: string,
+  ) {
+    if (orgId) {
+      const announcement = await this.prisma.announcement.findUnique({
+        where: { id: announcementId },
+        select: { orgId: true },
+      });
+      if (
+        !announcement ||
+        (announcement.orgId && announcement.orgId !== orgId)
+      ) {
+        throw new NotFoundException('Announcement not found');
+      }
+    }
+
     const result = await this.prisma.announcementRead.upsert({
       where: {
         userId_announcementId: { userId, announcementId },
@@ -120,6 +152,9 @@ export class StudentAnnouncementsService {
     });
 
     await this.redis.del(`student:announcements:unread:${userId}`);
+    if (orgId) {
+      await this.redis.del(`student:announcements:unread:${userId}:${orgId}`);
+    }
     await this.redis.incr(`student:announcements:ver:${userId}`);
 
     return result;

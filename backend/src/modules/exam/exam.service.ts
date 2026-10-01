@@ -1166,8 +1166,12 @@ export class ExamService {
     user?: any,
   ): Promise<boolean> {
     if (String(user?.role || '').toUpperCase() === 'SUPER_ADMIN') return true;
-    if (resource.creatorId && user?.id && resource.creatorId === user.id)
+    if (resource.creatorId && user?.id && resource.creatorId === user.id) {
+      if (resource.orgId && user?.orgId && resource.orgId !== user.orgId) {
+        return false;
+      }
       return true;
+    }
     if (!resource.orgId) {
       return this.isPlatformWideOrglessResource(resource);
     }
@@ -1270,7 +1274,11 @@ export class ExamService {
     user: any,
     message = 'Not found or access denied',
   ): void {
-    if (!resource || !user || user.role === 'SUPER_ADMIN') return;
+    if (!resource) return;
+    if (String(user?.role || '').toUpperCase() === 'SUPER_ADMIN') return;
+    if (!user) {
+      throw new NotFoundException(message);
+    }
 
     if (resource.orgId) {
       if (resource.orgId !== user.orgId) {
@@ -1292,6 +1300,10 @@ export class ExamService {
   async assertExamOrgAccess(examId: string, user: any): Promise<void> {
     if (String(user?.role || '').toUpperCase() === 'SUPER_ADMIN') {
       return;
+    }
+
+    if (!user) {
+      throw new ForbiddenException('You do not have access to this exam');
     }
 
     const exam = await this.prisma.exam.findUnique({
