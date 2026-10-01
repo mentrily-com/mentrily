@@ -113,6 +113,10 @@ for i in $(seq 1 "$MAX_ITERATIONS"); do
     exit 0
   fi
 
+  # Push completed story commits to remote
+  echo "Pushing latest iteration commits to origin..."
+  git push origin HEAD 2>&1 || echo "Warning: remote push failed, continuing locally..."
+
   echo "Iteration $i complete. Continuing to next iteration..."
   sleep 2
 done
