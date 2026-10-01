@@ -1,0 +1,25 @@
+# Ralph Progress Log - Mentrily Production Bootstrap V2
+
+Started: 2026-10-01
+Tool: agy (Antigravity CLI)
+Branch: main / ralph/production-redesign-v2
+
+## Codebase Patterns
+- Backend: NestJS on Fastify (port 4000) with global prefix `/api`.
+- Frontend: Next.js 14+ App Router with Clerk authentication and role-based guards.
+- UI Design System: Linear + Maven Hybrid Standard (hairline slate borders, dark slate card surfaces, Inter/Geist type scale, 100% route coverage for pixel-matched loading skeletons).
+- Open-Source ERP: ERPNext (Frappe Framework) bi-directional integration for Students, Courses, Attendance, and Invoices (`mentrily-production/erp-connector`).
+- Developer Platform: Outbound Admin Webhooks (`X-Mentrily-Signature` HMAC-SHA256), delivery logs, test-ping drawer, and scoped API keys (`men_live_...`).
+- Partner Portal: Dedicated `/dashboard/partner` route for referral links, student cohort tracking, and revenue share payouts.
+- Super Admin: Real-time infrastructure telemetry (Judge0, Redis, WebSockets), audited tenant impersonation, and global banner broadcasts.
+- Production Codebase Location: `mentrily-production/` directory housing modern modular frontend, backend, and erp-connector packages.
+
+---
+## V2 Production Architecture & PRD Bootstrap Complete
+- Verified OS, Node, npm, git, Docker, Chrome, and agy CLI environment.
+- Cloned and adapted upstream Ralph workflow to work natively with `agy` CLI (`scripts/ralph/agy-runner.sh`).
+- Verified non-interactive headless execution of `agy` with auto-approved permissions.
+- Upgraded PRD to V2 covering UI redesign, ERPNext integration, Admin Webhooks & APIs, Partner Portal, and Super Admin control plane.
+- Authored ADRs 011 (ERPNext), 012 (Webhooks & Developer API), and 013 (Linear+Maven UI & Skeletons).
+- Generated machine-executable `prd.json` with 25 atomic, dependency-ordered user stories.
+- Created `mentrily-production/` folder structure ready for autonomous implementation.

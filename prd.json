@@ -1,0 +1,444 @@
+{
+  "project": "Mentrily Production V2",
+  "branchName": "ralph/production-redesign-v2",
+  "description": "Mentrily Production V2 - Linear+Maven UI Redesign, ERPNext Integration, Admin Webhooks, Partner Portal, and Super Admin Control Plane",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Expand Prisma schema for Webhooks, API Keys, ERP Sync, and Partner Referrals",
+      "description": "As a platform architect, I need the database schema to support Webhook delivery logs, scoped Admin API keys, ERPNext synchronization mapping, and Partner referral tracking.",
+      "acceptanceCriteria": [
+        "Update `backend/prisma/schema.prisma` with models: `ApiKey`, `WebhookDeliveryLog`, `ErpSyncRecord`, and `PartnerReferral`",
+        "Add enum `Role` support for `PARTNER` role",
+        "Run `npx prisma validate` inside `backend/` with zero errors",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "dependencies": [],
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Enforce strict tenant scoping on all organization-owned entity queries",
+      "description": "As a security engineer, I need all queries retrieving courses, exams, announcements, and certificates to enforce `orgId` filtering.",
+      "acceptanceCriteria": [
+        "Inspect and verify `CourseService`, `ExamService`, `AnnouncementService`, and `CertificateService` queries enforce `orgId` scoping",
+        "Reject requests attempting to access cross-tenant resources with `403 Forbidden` or `404 Not Found`",
+        "Backend unit tests for tenant isolation pass",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "dependencies": [
+        "US-001"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Implement terminal status immutability guard for ExamSession",
+      "description": "As a proctoring engineer, I need completed or terminated exam sessions to be permanently immutable so late submissions cannot overwrite results.",
+      "acceptanceCriteria": [
+        "When an `ExamSession` has status `COMPLETED` or `TERMINATED`, any attempt to save answers or mutate status returns `409 Conflict`",
+        "Verify `SubmissionProcessor` and answer save endpoints abort immediately if the session is already terminated",
+        "Add unit test verifying status transition rejections on terminal sessions",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "dependencies": [
+        "US-001"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Verify fail-closed assessment sanitization on student endpoints",
+      "description": "As a security engineer, I need student exam-taking endpoints to guarantee that solutions, answer keys, and hidden tests are never transmitted to the browser.",
+      "acceptanceCriteria": [
+        "Verify student question fetch endpoints strip `solution`, `answers`, and hidden test cases",
+        "Verify that only instructors and admins receive unsanitized question schemas for authoring",
+        "Add automated test verifying that student payload responses contain zero hidden test cases or answers",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "dependencies": [
+        "US-002"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Enforce production HTTPS transport safety for Judge0 execution strategy",
+      "description": "As a platform engineer, I need the Judge0 execution strategy to mandate HTTPS when running in production to prevent bearer token interception.",
+      "acceptanceCriteria": [
+        "Judge0Strategy validates `JUDGE0_API_URL` and refuses to start in production if plaintext HTTP is used to non-private hosts",
+        "Allow HTTP only for loopback (`127.0.0.1`, `localhost`) and Docker Compose service names (`judge0-server`)",
+        "Unit tests for transport safety pass",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "dependencies": [
+        "US-001"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Establish Linear + Maven hybrid design system tokens and core UI library",
+      "description": "As a frontend architect, I need a unified component library with hairline borders, slate card surfaces, and refined typography.",
+      "acceptanceCriteria": [
+        "Configure Tailwind theme tokens in `frontend/` matching Linear+Maven standards (`border-slate-800`, `bg-slate-900/50`, brand accents)",
+        "Build reusable core components: `Button`, `Badge`, `Card`, `DataTable`, `Modal`, `Tabs`, `StatWidget`",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 6,
+      "passes": false,
+      "dependencies": [],
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Redesign Learner Dashboard with pixel-matched loading skeleton",
+      "description": "As a learner, I want an elegant, high-density dashboard showing my course progress, active streaks, certificates, and upcoming tests with zero layout reflow.",
+      "acceptanceCriteria": [
+        "Redesign `/dashboard/learner` using Linear+Maven card components, bento progress widgets, and continue-learning feed",
+        "Create pixel-matched `LearnerDashboardSkeleton` in `loading.tsx` matching exact card heights and grid geometry",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 7,
+      "passes": false,
+      "dependencies": [
+        "US-006"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Redesign Creator Dashboard & Course Builder with pixel-matched skeleton",
+      "description": "As an instructor, I want an intuitive, polished creator dashboard and modular course builder with split-pane view and instant loading states.",
+      "acceptanceCriteria": [
+        "Redesign `/dashboard/creator` and Course Builder with high-density course cards, module tree, and floating action drawer",
+        "Create pixel-matched `CreatorDashboardSkeleton` and `CourseBuilderSkeleton` in `loading.tsx`",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": false,
+      "dependencies": [
+        "US-006"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Redesign Exam Taking & Code Editor Environment with pixel-matched skeleton",
+      "description": "As a candidate, I want a distraction-free, professional exam room with smooth question transitions, collapsible palette, and responsive code editor.",
+      "acceptanceCriteria": [
+        "Redesign `/exam/[slug]` with sleek Linear aesthetic: hairline question card, persistent timer widget, and collapsible question palette",
+        "Create pixel-matched `ExamTakingSkeleton` in `loading.tsx` mirroring editor and question panes",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 9,
+      "passes": false,
+      "dependencies": [
+        "US-006"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Implement client-side IndexedDB answer persistence for exam taking",
+      "description": "As a learner taking an exam, I want my answers buffered in local browser IndexedDB so my work is never lost if the internet disconnects.",
+      "acceptanceCriteria": [
+        "Create an IndexedDB utility in `frontend/utils/examStorage.ts` to store real-time answer snapshots keyed by `examSlug` and `questionId`",
+        "On answer input change, write to IndexedDB synchronously before dispatching background network sync",
+        "On page refresh, hydrate active answers from IndexedDB if more recent than server state",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 10,
+      "passes": false,
+      "dependencies": [
+        "US-003",
+        "US-009"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Add offline connection indicator and auto-sync banner to exam header",
+      "description": "As a learner taking an exam, I want to see whether my connection is active and whether all answers have synced to the server.",
+      "acceptanceCriteria": [
+        "Display a sync status badge in the exam header: 'Saved', 'Saving...', or 'Offline - Buffered locally'",
+        "Listen to `window.online` and `window.offline` events and trigger automatic sync of buffered answers upon reconnect",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 11,
+      "passes": false,
+      "dependencies": [
+        "US-010"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Build open-source ERPNext / Frappe REST API client in erp-connector",
+      "description": "As a systems engineer, I need a dedicated ERP connector package providing authenticated communication with ERPNext DocTypes.",
+      "acceptanceCriteria": [
+        "Implement `ErpNextClient` in `mentrily-production/erp-connector` handling Frappe API key/secret authentication, retries, and error parsing",
+        "Support CRUD operations on `Student`, `Instructor`, `Course`, `Program Enrollment`, and `Sales Invoice` DocTypes",
+        "Unit tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "dependencies": [
+        "US-001"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Implement bi-directional student & enrollment sync service with ERPNext",
+      "description": "As an organization administrator, I want student course enrollments and progress in Mentrily automatically mirrored in ERPNext Education.",
+      "acceptanceCriteria": [
+        "Create `ErpSyncService` in backend that queues BullMQ sync jobs on student enrollment and course completion",
+        "Map Mentrily `User` to ERPNext `Student` and `CourseProgress` to `Program Enrollment`",
+        "Store ERPNext document IDs in `ErpSyncRecord` table for idempotency",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": false,
+      "dependencies": [
+        "US-012"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Implement inbound ERPNext webhook listener for DocType events",
+      "description": "As a platform engineer, I need Mentrily to listen to real-time ERPNext DocType updates (e.g. fee payment, enrollment approval).",
+      "acceptanceCriteria": [
+        "Endpoint `POST /api/webhooks/erp` validates secret token and processes incoming Frappe webhook events",
+        "When an ERP fee invoice is marked paid, automatically unlock corresponding course or exam access",
+        "Unit tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "dependencies": [
+        "US-013"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Add direct SSO launchpad to Frappe Desk in Organization Admin navigation",
+      "description": "As an organization admin, I want a single-click button in my dashboard topbar to open my institution's ERPNext Desk without re-logging in.",
+      "acceptanceCriteria": [
+        "Generate short-lived encrypted SSO launch tokens for authorized Organization Admins",
+        "Add 'Open ERPNext Desk' menu button with Frappe logo in dashboard topbar",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 15,
+      "passes": false,
+      "dependencies": [
+        "US-006",
+        "US-012"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Implement outbound Admin Webhook dispatcher with HMAC-SHA256 signing",
+      "description": "As a developer integrating with Mentrily, I want real-time webhooks for exam completions and certificates, signed with HMAC-SHA256.",
+      "acceptanceCriteria": [
+        "BullMQ `webhook-dispatch` worker sends events (`exam.completed`, `course.completed`, `certificate.issued`) to registered URLs",
+        "Sign payloads with `X-Mentrily-Signature: t={timestamp},v1={hash}` using HMAC-SHA256",
+        "Log request headers, payload, status code, and latency in `WebhookDeliveryLog`",
+        "Typecheck passes"
+      ],
+      "priority": 16,
+      "passes": false,
+      "dependencies": [
+        "US-001"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Build Admin Webhook management UI and interactive test-ping drawer",
+      "description": "As an organization admin, I want to manage webhook endpoints, view delivery history logs, and send test pings from a modern UI.",
+      "acceptanceCriteria": [
+        "Build `/developer/webhooks` view using Linear design system: endpoint table, event checkboxes, secret reveal modal",
+        "Slide-over delivery log drawer showing timestamp, status badge (200 OK / 500 Error), and full JSON request/response preview",
+        "'Send Test Ping' button dispatches mock event and displays immediate delivery result",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 17,
+      "passes": false,
+      "dependencies": [
+        "US-006",
+        "US-016"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "US-018",
+      "title": "Implement scoped Admin API key generator with Redis token-bucket rate limiter",
+      "description": "As an organization developer, I want to generate scoped API keys (`men_live_...`) to automate course and exam workflows programmatically.",
+      "acceptanceCriteria": [
+        "Endpoint `POST /api/admin/api-keys` generates cryptographically secure API keys hashed with SHA256 in database",
+        "`ApiKeyAuthGuard` authenticates requests and verifies granted permission scopes (`exams:read`, `exams:write`, `students:read`)",
+        "Rate-limit API key requests via Redis token bucket (100 req/min)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 18,
+      "passes": false,
+      "dependencies": [
+        "US-001",
+        "US-006"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "US-019",
+      "title": "Build Partner Portal backend service and referral tracking model",
+      "description": "As a platform architect, I need backend services to track partner referral links, attribute student registrations, and compute commission ledgers.",
+      "acceptanceCriteria": [
+        "Create `PartnerService` tracking UTM referral codes, student attribution cookies, and cohort completion rates",
+        "Compute revenue share commissions on student course purchases or organizational subscriptions",
+        "Endpoints for partner statistics, cohort rosters, and payout history",
+        "Typecheck passes"
+      ],
+      "priority": 19,
+      "passes": false,
+      "dependencies": [
+        "US-001"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "US-020",
+      "title": "Build Partner Dashboard UI with cohort metrics and referral link generator",
+      "description": "As a channel partner, I want a dedicated portal to view student enrollment numbers, completion rates, and revenue share payouts.",
+      "acceptanceCriteria": [
+        "Implement `/dashboard/partner` using Linear+Maven design: referral link generator, active student cohort table, and revenue sparklines",
+        "Add pixel-matched `PartnerDashboardSkeleton` in `loading.tsx`",
+        "Support CSV export of student completion and commission statements",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 20,
+      "passes": false,
+      "dependencies": [
+        "US-006",
+        "US-019"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "US-021",
+      "title": "Build enhanced Super Admin Control Plane with live platform telemetry",
+      "description": "As a Super Admin, I want real-time visibility into Judge0 queue capacity, Redis memory, active WebSocket connections, and tenant metrics.",
+      "acceptanceCriteria": [
+        "Redesign `/dashboard/super-admin` with bento telemetry widgets: live socket count, sandbox queue depth, database pool saturation",
+        "Add pixel-matched `SuperAdminDashboardSkeleton` in `loading.tsx`",
+        "Add instant tenant switcher allowing Super Admin to inspect any organization",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 21,
+      "passes": false,
+      "dependencies": [
+        "US-006"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "US-022",
+      "title": "Implement audited tenant impersonation and global announcement broadcast",
+      "description": "As a Super Admin, I want to assume a tenant admin session for support triage and broadcast platform maintenance banners globally.",
+      "acceptanceCriteria": [
+        "Super Admin can generate temporary impersonation session token, logged immutably in `AuditLog`",
+        "Global broadcast system allows Super Admin to dispatch banner announcements visible across all tenant portals",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 22,
+      "passes": false,
+      "dependencies": [
+        "US-021"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "US-023",
+      "title": "Add automated E2E smoke test for exam submission and grading pipeline",
+      "description": "As a QA engineer, I need an end-to-end integration test validating the entire exam lifecycle from login to final graded score calculation.",
+      "acceptanceCriteria": [
+        "Add E2E test in `backend/test/` creating a mock exam, starting an exam session, submitting MCQ and coding answers, and verifying final score calculation",
+        "Verify session transitions to `COMPLETED` and answers are accurately persisted",
+        "Command `npm run test:e2e --prefix backend` passes",
+        "Typecheck passes"
+      ],
+      "priority": 23,
+      "passes": false,
+      "dependencies": [
+        "US-003",
+        "US-004"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "US-024",
+      "title": "Add Playwright E2E test for distraction-free exam taking environment",
+      "description": "As a QA engineer, I need a Playwright test verifying the exam taking UI, navigation buttons, question palette, and timer display.",
+      "acceptanceCriteria": [
+        "Add Playwright spec in `frontend/e2e/exam-flow.spec.ts` loading exam interface, verifying question navigation, and answering questions",
+        "Verify fullscreen warning, IndexedDB buffering, and timer countdown are rendered",
+        "Playwright test passes cleanly",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 24,
+      "passes": false,
+      "dependencies": [
+        "US-009",
+        "US-010",
+        "US-023"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "US-025",
+      "title": "Add Playwright E2E test for Partner Portal and Admin Webhook Dispatcher",
+      "description": "As a QA engineer, I need a Playwright test validating the Partner Dashboard, referral link generation, and Admin Webhook test-ping flow.",
+      "acceptanceCriteria": [
+        "Add Playwright spec in `frontend/e2e/partner-webhook.spec.ts` verifying Partner Dashboard metrics and referral link generation",
+        "Verify Admin Webhook test-ping triggers delivery log entry with 200 OK badge",
+        "Playwright test passes cleanly",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 25,
+      "passes": false,
+      "dependencies": [
+        "US-017",
+        "US-020"
+      ],
+      "notes": ""
+    }
+  ]
+}
