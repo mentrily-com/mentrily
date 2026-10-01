@@ -23,3 +23,15 @@ Branch: main / ralph/production-redesign-v2
 - Authored ADRs 011 (ERPNext), 012 (Webhooks & Developer API), and 013 (Linear+Maven UI & Skeletons).
 - Generated machine-executable `prd.json` with 25 atomic, dependency-ordered user stories.
 - Created `mentrily-production/` folder structure ready for autonomous implementation.
+
+---
+## US-001: Expand Prisma Schema for Webhooks, API Keys, ERP Sync, and Partner Referrals
+- Added `PARTNER` to enum `Role` in `backend/prisma/schema.prisma`.
+- Created models `ApiKey`, `WebhookDeliveryLog`, `ErpSyncRecord`, and `PartnerReferral` in `backend/prisma/schema.prisma`.
+- Added relations to `User` (`apiKeys`, `partnerReferrals`, `referredBy`), `Organization` (`apiKeys`, `webhookDeliveryLogs`, `erpSyncRecords`, `partnerReferrals`), and `WebhookEndpoint` (`deliveryLogs`).
+- Validated Prisma schema with `npx prisma validate` (passed with 0 errors).
+- Regenerated Prisma client with `npx prisma generate`.
+- Fixed type annotations in `frontend/lib/apollo-client.ts` for strict typing.
+- Verified backend unit tests (`npm test --prefix backend -- --passWithNoTests`, 38/38 test suites passed).
+- Verified backend and frontend typechecks (`npm run typecheck --prefix backend` and `npm run typecheck --prefix frontend` both passed).
+

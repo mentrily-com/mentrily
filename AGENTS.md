@@ -128,3 +128,5 @@ blockscode/
 - **Exam Session Termination**: If a session status is `TERMINATED` or `COMPLETED`, background sweepers and student submissions must never overwrite the status.
 - **Fastify & Next Proxy**: Large video uploads bypass the Next.js API proxy to prevent Vercel 4.5MB request payload errors; they upload directly to `/api/courses/videos` with Bearer auth.
 - **Prisma Composite Indexes**: Use `@@index` annotations matching query filter and order paths to maintain sub-100ms response times.
+- **Prisma Client Generation**: Whenever modifying `backend/prisma/schema.prisma`, execute `npx prisma generate` inside `backend/` to regenerate types for `@prisma/client`.
+- **NPM Peer Dependencies**: When installing dependencies in `backend/` or `frontend/`, use `--legacy-peer-deps` if peer conflicts occur with NestJS / Fastify plugins.

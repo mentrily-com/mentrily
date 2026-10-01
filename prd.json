@@ -14,9 +14,9 @@
         "Typecheck passes"
       ],
       "priority": 1,
-      "passes": false,
+      "passes": true,
       "dependencies": [],
-      "notes": ""
+      "notes": "Prisma schema updated with ApiKey, WebhookDeliveryLog, ErpSyncRecord, PartnerReferral, and Role.PARTNER. npx prisma validate and typechecks passed."
     },
     {
       "id": "US-002",
