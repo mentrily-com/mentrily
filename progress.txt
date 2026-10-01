@@ -32,6 +32,15 @@ Branch: main / ralph/production-redesign-v2
 - Validated Prisma schema with `npx prisma validate` (passed with 0 errors).
 - Regenerated Prisma client with `npx prisma generate`.
 - Fixed type annotations in `frontend/lib/apollo-client.ts` for strict typing.
-- Verified backend unit tests (`npm test --prefix backend -- --passWithNoTests`, 38/38 test suites passed).
-- Verified backend and frontend typechecks (`npm run typecheck --prefix backend` and `npm run typecheck --prefix frontend` both passed).
+---
+## US-002: Enforce Strict Tenant Scoping on All Organization-Owned Entity Queries
+- Updated `CourseService.assertTenantOrOwnerAccess` and `CourseService.assertCourseAccess` to reject null users and prevent creator bypass when active tenant (`user.orgId`) does not match `course.orgId`.
+- Updated `ExamService.assertTenantOrOwnerAccess`, `ExamService.canAccessPublicExamResource`, and `ExamService.assertExamOrgAccess` to enforce org scoping, reject null users, and reject cross-tenant access with `403 Forbidden` / `404 Not Found`.
+- Updated `TeacherAnnouncementsService.assertAnnouncementAccess` and `TeacherAnnouncementsService.getAnnouncements` to enforce strict `orgId` filtering for teachers and admins, and reject cross-tenant mutations with `403 Forbidden`.
+- Updated `StudentAnnouncementsService` (`getAnnouncements`, `getUnreadAnnouncementCount`, `markAnnouncementRead`) and `StudentController` to support tenant-scoped queries and reject cross-tenant read marks with `404 Not Found`.
+- Updated `CertificateService` (`listCertificates`, `getCertificateForUser`, `getTemplate`, `updateTemplate`, `deleteTemplate`, `generateCertificate`) to enforce `orgId` scoping on certificates and templates.
+- Updated `TeacherService.checkAccess` to explicitly reject cross-tenant access when `resource.orgId && user.orgId && resource.orgId !== user.orgId`.
+- Added comprehensive unit tests in `course.service.spec.ts`, `exam.service.spec.ts`, `teacher-announcements.service.spec.ts`, `student-announcements.service.spec.ts`, `teacher.service.spec.ts`, and created `certificate.service.spec.ts` (39/39 test suites passed, 176 tests).
+- Verified full workspace check (`npm run check`) with zero errors.
+
 

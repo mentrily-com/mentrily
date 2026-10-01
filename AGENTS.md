@@ -130,3 +130,5 @@ blockscode/
 - **Prisma Composite Indexes**: Use `@@index` annotations matching query filter and order paths to maintain sub-100ms response times.
 - **Prisma Client Generation**: Whenever modifying `backend/prisma/schema.prisma`, execute `npx prisma generate` inside `backend/` to regenerate types for `@prisma/client`.
 - **NPM Peer Dependencies**: When installing dependencies in `backend/` or `frontend/`, use `--legacy-peer-deps` if peer conflicts occur with NestJS / Fastify plugins.
+- **Tenant Context Checks on Creator Resources**: Even if `resource.creatorId === user.id`, if `resource.orgId` is set and the active `user.orgId` does not match, access MUST be denied to prevent cross-tenant leakage when users switch active organizations.
+

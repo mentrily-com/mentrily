@@ -29,11 +29,11 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "dependencies": [
         "US-001"
       ],
-      "notes": ""
+      "notes": "Verified CourseService, ExamService, TeacherAnnouncementsService, StudentAnnouncementsService, CertificateService, and TeacherService.checkAccess for strict orgId tenant scoping. All 39 test suites with 176 tests passed. npm run check passed cleanly."
     },
     {
       "id": "US-003",
