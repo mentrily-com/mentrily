@@ -37,7 +37,7 @@ export function makeApolloClient(options: ApolloClientOptions = {}) {
     });
 
     const authLink = new ApolloLink((operation, forward) => {
-        return new Observable((observer) => {
+        return new Observable((observer: any) => {
             void (async () => {
                 try {
                     if (!anonKey) {
@@ -58,8 +58,8 @@ export function makeApolloClient(options: ApolloClientOptions = {}) {
                     }));
 
                     const subscription = forward(operation).subscribe({
-                        next: (value) => observer.next(value),
-                        error: (error) => observer.error(error),
+                        next: (value: any) => observer.next(value),
+                        error: (error: any) => observer.error(error),
                         complete: () => observer.complete(),
                     });
 

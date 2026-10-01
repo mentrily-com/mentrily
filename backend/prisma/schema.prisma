@@ -13,6 +13,7 @@ enum Role {
   TEACHER
   ADMIN
   SUPER_ADMIN
+  PARTNER
 
   @@map("Role")
 }
@@ -106,6 +107,9 @@ model User {
   assignedCourses             CourseAssignment[]    @relation("CourseAssignmentTeacher")
   madeAssignments             CourseAssignment[]    @relation("CourseAssignmentAssigner")
   assets                      Asset[]
+  apiKeys                     ApiKey[]
+  partnerReferrals            PartnerReferral[]     @relation("PartnerReferrals")
+  referredBy                  PartnerReferral[]     @relation("ReferredByPartner")
 
   orgId        String?
   organization Organization? @relation(fields: [orgId], references: [id], onDelete: SetNull)
@@ -495,6 +499,10 @@ model Organization {
   certificates         Certificate[]
   certificateTemplates CertificateTemplate[]
   assets               Asset[]
+  apiKeys              ApiKey[]
+  webhookDeliveryLogs  WebhookDeliveryLog[]
+  erpSyncRecords       ErpSyncRecord[]
+  partnerReferrals     PartnerReferral[]
 
   // Groups & Announcements
   studentGroups StudentGroup[]
@@ -611,6 +619,7 @@ model WebhookEndpoint {
   updatedAt DateTime @updatedAt
 
   organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  deliveryLogs WebhookDeliveryLog[]
 
   @@index([orgId])
 }
@@ -950,3 +959,114 @@ model Asset {
   @@index([orgId, userId])
   @@index([orgId, kind])
 }
+
+// ─── Developer Platform, ERP & Partner Subsystems ────────────────────────────
+
+model ApiKey {
+  id         String    @id @default(uuid())
+  name       String
+  keyHash    String    @unique
+  keyPrefix  String    // e.g. "men_live_abc12"
+  scopes     String[]  @default([])
+  orgId      String
+  userId     String?
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([orgId])
+  @@index([keyHash])
+  @@index([orgId, isActive])
+  @@index([userId])
+}
+
+model WebhookDeliveryLog {
+  id              String   @id @default(uuid())
+  endpointId      String
+  orgId           String
+  event           String   // e.g. "exam.completed", "certificate.issued"
+  url             String
+  requestHeaders  Json?
+  payload         Json
+  responseStatus  Int?
+  responseHeaders Json?
+  responseBody    String?
+  errorMessage    String?
+  latencyMs       Int?
+  success         Boolean  @default(false)
+  attempt         Int      @default(1)
+  createdAt       DateTime @default(now())
+
+  endpoint     WebhookEndpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+  organization Organization    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([endpointId])
+  @@index([orgId])
+  @@index([orgId, createdAt(sort: Desc)])
+  @@index([endpointId, createdAt(sort: Desc)])
+  @@index([orgId, success])
+}
+
+model ErpSyncRecord {
+  id            String   @id @default(uuid())
+  orgId         String
+  entityType    String   // User, Course, CourseProgress, FeeInvoice
+  entityId      String   // Mentrily ID
+  erpDocType    String   // Student, Instructor, Course, Program Enrollment, Sales Invoice
+  erpDocId      String   // ERPNext docname
+  status        String   @default("SYNCED") // SYNCED, PENDING, FAILED
+  syncDirection String   @default("OUTBOUND") // OUTBOUND, INBOUND, BI_DIRECTIONAL
+  lastSyncedAt  DateTime @default(now())
+  errorMessage  String?
+  metadata      Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, entityType, entityId])
+  @@unique([orgId, erpDocType, erpDocId])
+  @@index([orgId, status])
+  @@index([entityType, entityId])
+  @@index([erpDocType, erpDocId])
+}
+
+model PartnerReferral {
+  id               String    @id @default(uuid())
+  partnerId        String
+  orgId            String?
+  referralCode     String
+  campaign         String?
+  utmSource        String?
+  utmMedium        String?
+  utmCampaign      String?
+  referredUserId   String?
+  status           String    @default("PENDING") // PENDING, CONVERTED, COMPLETED, REJECTED
+  conversionValue  Float?
+  commissionRate   Float?
+  commissionAmount Float?
+  payoutStatus     String    @default("UNPAID")  // UNPAID, PAID, PROCESSING
+  payoutId         String?
+  paidAt           DateTime?
+  metadata         Json?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  partner      User          @relation("PartnerReferrals", fields: [partnerId], references: [id], onDelete: Cascade)
+  referredUser User?         @relation("ReferredByPartner", fields: [referredUserId], references: [id], onDelete: SetNull)
+  organization Organization? @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId])
+  @@index([referralCode])
+  @@index([referredUserId])
+  @@index([orgId])
+  @@index([status])
+  @@index([payoutStatus])
+  @@index([partnerId, createdAt(sort: Desc)])
+}
+
