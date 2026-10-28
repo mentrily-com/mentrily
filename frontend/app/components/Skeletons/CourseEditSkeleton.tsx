@@ -1,3 +1,4 @@
+import SkeletonRoot from './SkeletonRoot';
 /**
  * Purpose-built skeleton for `/dashboard/creator/courses/[id]/edit`, both
  * while the course record is loading and while the `CourseBuilder` studio
@@ -12,7 +13,7 @@
  */
 export default function CourseEditSkeleton() {
     return (
-        <div className="teacher-theme h-[calc(100vh-var(--topbar-height)-36px)]">
+        <SkeletonRoot className="teacher-theme h-[calc(100vh-var(--topbar-height)-36px)]">
             <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.10)]">
                 {/* Toolbar */}
                 <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-2.5 md:px-5">
@@ -65,6 +66,6 @@ export default function CourseEditSkeleton() {
                     </div>
                 </div>
             </div>
-        </div>
+        </SkeletonRoot>
     );
 }

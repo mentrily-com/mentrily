@@ -19,6 +19,7 @@ import { TeacherCoursesService } from './teacher-courses.service';
 import { normalizeSlug } from '../common/slug.util';
 import {
   collectQuestionTypesFromExamContent,
+  examAccessSelect,
   isUUID,
   legacyExamSelect,
   isMissingExamAttemptFieldError,
@@ -71,8 +72,12 @@ export class TeacherExamsService {
     } else {
       where.creatorId = user.id;
     }
+    // questions is omitted from the row fetch: the list only shows section
+    // counts, so those are computed in SQL instead of shipping every exam's
+    // full questions JSON to Node.
     const rawExams = await this.prisma.exam.findMany({
       where,
+      omit: { questions: true },
       include: {
         linkedCourse: {
           select: {
@@ -85,21 +90,35 @@ export class TeacherExamsService {
       orderBy: { updatedAt: 'desc' },
     });
 
-    const response = rawExams.map((exam: any) => {
-      const lightweightSections = Array.isArray(exam.questions)
-        ? (exam.questions as any[]).map((sec: any) => ({
-            id: sec.id,
-            title: sec.title,
-            questionCount: Array.isArray(sec.questions)
-              ? sec.questions.length
-              : 0,
-          }))
+    const sectionRows: Array<{ id: string; sections: any }> =
+      rawExams.length > 0
+        ? await this.prisma.$queryRaw`
+            SELECT e.id,
+              COALESCE((
+                SELECT jsonb_agg(jsonb_strip_nulls(jsonb_build_object(
+                  'id', s->'id',
+                  'title', s->'title',
+                  'questionCount', CASE WHEN jsonb_typeof(s->'questions') = 'array'
+                    THEN jsonb_array_length(s->'questions') ELSE 0 END
+                )) ORDER BY ord)
+                FROM jsonb_array_elements(
+                  CASE
+                    WHEN jsonb_typeof(e.questions) = 'array' THEN e.questions
+                    WHEN jsonb_typeof(e.questions->'sections') = 'array' THEN e.questions->'sections'
+                    ELSE '[]'::jsonb
+                  END
+                ) WITH ORDINALITY AS t(s, ord)
+              ), '[]'::jsonb) AS sections
+            FROM "Exam" e
+            WHERE e.id IN (${Prisma.join(rawExams.map((e) => e.id))})
+          `
         : [];
-      return {
-        ...exam,
-        questions: lightweightSections,
-      };
-    });
+    const sectionsById = new Map(sectionRows.map((r) => [r.id, r.sections]));
+
+    const response = rawExams.map((exam: any) => ({
+      ...exam,
+      questions: sectionsById.get(exam.id) || [],
+    }));
 
     await this.redis.set(cacheKey, JSON.stringify(response), 'EX', 30);
     return response;
@@ -275,6 +294,7 @@ export class TeacherExamsService {
         : {}),
     };
 
+    await this.assertExamSlugAvailable(examPayload.slug);
     const exam = await this.teacherService.createExamRecordWithRetry(
       examPayload,
       data.title,
@@ -427,6 +447,10 @@ export class TeacherExamsService {
           : undefined,
     };
 
+    if (updateData.slug !== existing.slug) {
+      await this.assertExamSlugAvailable(String(updateData.slug), id);
+    }
+
     let updatedExam: any;
 
     try {
@@ -464,6 +488,29 @@ export class TeacherExamsService {
       await this.invalidateExamCaches(existing.slug);
     }
     await this.teacherService.invalidateTeacherExamListCache(user);
+    // code-execution caches questions (hidden tests) by id and slug.
+    await this.redis.del(
+      `exam:questions:${id}`,
+      `exam:questions:${existing.slug}`,
+      `exam:questions:${updatedExam.slug}`,
+    );
+
+    // session:meta caches durationMins for the flush deadline; drop it for
+    // live attempts so a duration change takes effect immediately.
+    if (
+      updatedExam.duration !== undefined &&
+      updatedExam.duration !== existing.duration
+    ) {
+      const live = await this.prisma.examSession.findMany({
+        where: { examId: id, status: 'IN_PROGRESS' },
+        select: { id: true },
+      });
+      for (let i = 0; i < live.length; i += 500) {
+        await this.redis.del(
+          ...live.slice(i, i + 500).map((s) => `session:meta:${s.id}`),
+        );
+      }
+    }
 
     return updatedExam;
   }
@@ -475,6 +522,23 @@ export class TeacherExamsService {
    * getExamIdBySlug (1hr TTL, backs enterExam's IP-allowlist check),
    * getPublicStatus, and checkExamStatus for the corresponding reads.
    */
+  /**
+   * Exam URLs are /exam/:slug with no org in them, and slug lookups take the
+   * first match, so a custom slug reused by another org would route that
+   * org's students to the wrong exam. The schema only enforces per-org.
+   */
+  private async assertExamSlugAvailable(slug: string, excludeId?: string) {
+    const taken = await this.prisma.exam.findFirst({
+      where: { slug, ...(excludeId ? { id: { not: excludeId } } : {}) },
+      select: { id: true },
+    });
+    if (taken) {
+      throw new BadRequestException(
+        'That exam URL is already taken. Please choose a different one.',
+      );
+    }
+  }
+
   async invalidateExamCaches(slug: string): Promise<void> {
     await Promise.all([
       this.redis.del(`exam:content:${slug}`),
@@ -513,26 +577,73 @@ export class TeacherExamsService {
     }
   }
 
+  /** Monitor polls hit this every 5s per proctor; skip the questions JSON. */
+  private async findExamForAccess(examId: string) {
+    const exam = await this.prisma.exam.findUnique({
+      where: { id: examId },
+      select: examAccessSelect,
+    });
+    if (!exam) throw new Error('Exam not found');
+    return exam;
+  }
+
+  /** Latest violations embedded per monitor row; the full log is paginated. */
+  static readonly MONITOR_RECENT_LOGS = 5;
+  // One rebuild per exam per process, shared by concurrent proctor polls.
+  private readonly monitorBuilds = new Map<string, Promise<string>>();
+
+  private static violationEvent(type: string): string {
+    return type === 'TAB_SWITCH' || type === 'TAB_SWITCH_OUT'
+      ? 'Tab Switch Out'
+      : type === 'TAB_SWITCH_IN'
+        ? 'Tab Switch In'
+        : type === 'VM_DETECTED'
+          ? 'VM Detection'
+          : type;
+  }
+
+  private static toLog(v: {
+    type: string;
+    message: string | null;
+    timestamp: Date | string;
+  }) {
+    return {
+      time: new Date(v.timestamp).toLocaleTimeString(),
+      event: TeacherExamsService.violationEvent(v.type),
+      description: v.message || 'No details',
+    };
+  }
+
   async getMonitoredStudents(examId: string, user: any) {
     // Verify ownership
-    const exam = await this.teacherService.findExamByIdCompat(examId);
-    if (!exam) throw new Error('Exam not found');
+    const exam = await this.findExamForAccess(examId);
     await this.teacherService.checkAccess(exam, user);
 
-    // PERFORMANCE: Cache monitored student status for 4s. During live proctoring,
-    // multiple proctors poll every 3-5 seconds. Caching eliminates redundant
-    // full-table scans and JSON deserialization while keeping live metrics responsive.
+    // Shared 3s cache: every proctor of this exam polls every 5s, so the
+    // result is built once per window and served to the rest.
     const cacheKey = `teacher:monitored:${exam.id}`;
     try {
       const cached = await this.redis.get(cacheKey);
-      if (cached) {
-        return JSON.parse(cached);
-      }
+      if (cached) return JSON.parse(cached);
     } catch {}
 
-    // PERFORMANCE FIX: Fetch sessions and violations with targeted projection.
-    // Instead of transferring full multi-megabyte `answers` JSON (code stubs, testcase outputs),
-    // extract only the lightweight `_internal_metadata` JSON sub-object using Postgres JSON path.
+    let build = this.monitorBuilds.get(exam.id);
+    if (!build) {
+      build = this.buildMonitoredStudents(exam).finally(() =>
+        this.monitorBuilds.delete(exam.id),
+      );
+      this.monitorBuilds.set(exam.id, build);
+    }
+    return JSON.parse(await build);
+  }
+
+  private async buildMonitoredStudents(exam: {
+    id: string;
+    duration: number;
+  }): Promise<string> {
+    // Violation counts are aggregated in SQL and only the latest few rows per
+    // session come back; the full log is served by getSessionViolations.
+    // answers->'_internal_metadata' avoids shipping the full answers JSON.
     const rawSessions: Array<{
       id: string;
       userId: string;
@@ -547,6 +658,16 @@ export class TeacherExamsService {
       user_name: string | null;
       user_email: string;
       user_rollNumber: string | null;
+      total: number;
+      tabOuts: number;
+      tabIns: number;
+      vmCount: number;
+      vmType: string | null;
+      recent: Array<{
+        type: string;
+        message: string | null;
+        timestamp: string;
+      }>;
     }> = await this.prisma.$queryRaw`
       SELECT
         es.id,
@@ -561,55 +682,56 @@ export class TeacherExamsService {
         u.id AS user_id,
         u.name AS user_name,
         u.email AS user_email,
-        u."rollNumber" AS "user_rollNumber"
+        u."rollNumber" AS "user_rollNumber",
+        COALESCE(vc.total, 0)::int AS total,
+        COALESCE(vc."tabOuts", 0)::int AS "tabOuts",
+        COALESCE(vc."tabIns", 0)::int AS "tabIns",
+        COALESCE(vc."vmCount", 0)::int AS "vmCount",
+        vc."vmType",
+        COALESCE(rv.recent, '[]'::json) AS recent
       FROM "ExamSession" es
       JOIN "User" u ON u.id = es."userId"
-      WHERE es."examId" = ${examId}
+      LEFT JOIN (
+        SELECT
+          v."sessionId",
+          COUNT(*) AS total,
+          COUNT(*) FILTER (WHERE v.type IN ('TAB_SWITCH', 'TAB_SWITCH_OUT')) AS "tabOuts",
+          COUNT(*) FILTER (WHERE v.type = 'TAB_SWITCH_IN') AS "tabIns",
+          COUNT(*) FILTER (WHERE v.type = 'VM_DETECTED') AS "vmCount",
+          (ARRAY_AGG(v.message ORDER BY v.timestamp DESC)
+            FILTER (WHERE v.type = 'VM_DETECTED'))[1] AS "vmType"
+        FROM "Violation" v
+        JOIN "ExamSession" s ON s.id = v."sessionId"
+        WHERE s."examId" = ${exam.id}
+        GROUP BY v."sessionId"
+      ) vc ON vc."sessionId" = es.id
+      LEFT JOIN LATERAL (
+        SELECT json_agg(r ORDER BY r.timestamp DESC) AS recent
+        FROM (
+          SELECT v.type, v.message, v.timestamp
+          FROM "Violation" v
+          WHERE v."sessionId" = es.id
+          ORDER BY v.timestamp DESC
+          LIMIT ${TeacherExamsService.MONITOR_RECENT_LOGS}
+        ) r
+      ) rv ON true
+      WHERE es."examId" = ${exam.id}
       ORDER BY es."startTime" DESC
     `;
 
-    const sessionIds = rawSessions.map((s) => s.id);
-    const violations =
-      sessionIds.length > 0
-        ? await this.prisma.violation.findMany({
-            where: { sessionId: { in: sessionIds } },
-            select: {
-              sessionId: true,
-              type: true,
-              message: true,
-              timestamp: true,
-            },
-            orderBy: { timestamp: 'desc' },
-          })
-        : [];
-
-    const violationsBySession = new Map<string, typeof violations>();
-    for (const v of violations) {
-      const list = violationsBySession.get(v.sessionId) || [];
-      list.push(v);
-      violationsBySession.set(v.sessionId, list);
-    }
-
     // Transform to frontend format
     const result = rawSessions.map((session) => {
-      const sessionViolations = violationsBySession.get(session.id) || [];
-      const tabSwitchViolations = sessionViolations.filter(
-        (v: any) =>
-          v.type === 'TAB_SWITCH' ||
-          v.type === 'TAB_SWITCH_OUT' ||
-          v.type === 'TAB_SWITCH_IN',
-      );
-      const vmViolations = sessionViolations.filter(
-        (v: any) => v.type === 'VM_DETECTED',
-      );
-
       const sessionMetadata =
         typeof session.sessionMetadata === 'string'
           ? JSON.parse(session.sessionMetadata || '{}')
           : session.sessionMetadata || {};
+      const tabOuts = Number(session.tabOuts);
+      const tabIns = Number(session.tabIns);
+      const vmCount = Number(session.vmCount);
 
       return {
         id: session.user_id,
+        sessionId: session.id,
         name:
           sessionMetadata.name ||
           session.user_name ||
@@ -629,15 +751,11 @@ export class TeacherExamsService {
               ? 'Terminated'
               : 'In Progress',
         ip: session.ipAddress || 'Unknown',
-        vmDetected: session.vmDetected || vmViolations.length > 0,
-        vmType: vmViolations.length > 0 ? vmViolations[0].message : null,
-        tabOuts: sessionViolations.filter(
-          (v: any) => v.type === 'TAB_SWITCH' || v.type === 'TAB_SWITCH_OUT',
-        ).length,
-        tabIns: sessionViolations.filter(
-          (v: any) => v.type === 'TAB_SWITCH_IN',
-        ).length,
-        isHighRisk: session.vmDetected || tabSwitchViolations.length > 5,
+        vmDetected: session.vmDetected || vmCount > 0,
+        vmType: vmCount > 0 ? session.vmType : null,
+        tabOuts,
+        tabIns,
+        isHighRisk: session.vmDetected || tabOuts + tabIns > 5,
         lastActivity: new Date(session.updatedAt).toLocaleString(),
         startTime: new Date(session.startTime).toLocaleTimeString(),
         endTime: session.endTime
@@ -647,36 +765,76 @@ export class TeacherExamsService {
         loginCount: 1,
         sleepDuration: '0m',
         appVersion: 'Web',
-        logs: sessionViolations.map((v: any) => ({
-          time: new Date(v.timestamp).toLocaleTimeString(),
-          event:
-            v.type === 'TAB_SWITCH' || v.type === 'TAB_SWITCH_OUT'
-              ? 'Tab Switch Out'
-              : v.type === 'TAB_SWITCH_IN'
-                ? 'Tab Switch In'
-                : v.type === 'VM_DETECTED'
-                  ? 'VM Detection'
-                  : v.type,
-          description: v.message || 'No details',
-        })),
+        violationCounts: {
+          total: Number(session.total),
+          tabOuts,
+          tabIns,
+          vmDetected: vmCount,
+        },
+        logs: (session.recent || []).map((v) => TeacherExamsService.toLog(v)),
       };
     });
 
+    const serialized = JSON.stringify(result);
     try {
-      await this.redis.set(cacheKey, JSON.stringify(result), 'EX', 4);
+      await this.redis.set(`teacher:monitored:${exam.id}`, serialized, 'EX', 3);
     } catch {}
+    return serialized;
+  }
 
-    return result;
+  /** Full, paginated violation log for one session (monitor detail view). */
+  async getSessionViolations(
+    examId: string,
+    sessionId: string,
+    user: any,
+    page: number | string = 1,
+    limit: number | string = 100,
+  ) {
+    const exam = await this.findExamForAccess(examId);
+    await this.teacherService.checkAccess(exam, user);
+
+    const boundedLimit = parseBoundedNumber(limit, 100, 1, 500);
+    const boundedPage = parseBoundedNumber(page, 1, 1, 100000);
+    // Scoped by examId so a session id from another exam/tenant can't be read.
+    const where = { sessionId, session: { examId: exam.id } };
+    const [rows, total] = await Promise.all([
+      this.prisma.violation.findMany({
+        where,
+        select: { type: true, message: true, timestamp: true },
+        orderBy: { timestamp: 'desc' },
+        skip: (boundedPage - 1) * boundedLimit,
+        take: boundedLimit,
+      }),
+      this.prisma.violation.count({ where }),
+    ]);
+
+    return {
+      logs: rows.map((v) => TeacherExamsService.toLog(v)),
+      pagination: {
+        total,
+        page: boundedPage,
+        limit: boundedLimit,
+        totalPages: Math.ceil(total / boundedLimit),
+      },
+    };
   }
 
   async getFeedbacks(examId: string, user: any) {
     // Verify ownership
-    const exam = await this.teacherService.findExamByIdCompat(examId);
-    if (!exam) throw new Error('Exam not found');
+    const exam = await this.findExamForAccess(examId);
     await this.teacherService.checkAccess(exam, user);
 
+    // Polled every 5s alongside the monitor view.
+    const cacheKey = `teacher:feedbacks:${exam.id}`;
+    try {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) return JSON.parse(cached);
+    } catch {
+      /* cache is best-effort */
+    }
+
     const feedbacks = await this.prisma.feedback.findMany({
-      where: { examId },
+      where: { examId: exam.id },
       include: {
         user: {
           select: {
@@ -686,9 +844,10 @@ export class TeacherExamsService {
         },
       },
       orderBy: { timestamp: 'desc' },
+      take: 200,
     });
 
-    return feedbacks.map((f: any) => ({
+    const result = feedbacks.map((f: any) => ({
       id: f.id,
       userName: f.user.name || f.user.email || 'Anonymous',
       userEmail: f.user.email,
@@ -697,6 +856,13 @@ export class TeacherExamsService {
       time: new Date(f.timestamp).toLocaleString(),
       isSeen: false, // You can add a field to track this in the schema if needed
     }));
+
+    try {
+      await this.redis.set(cacheKey, JSON.stringify(result), 'EX', 5);
+    } catch {
+      /* cache is best-effort */
+    }
+    return result;
   }
 
   async terminateExamSession(examId: string, studentId: string, user: any) {
@@ -719,33 +885,26 @@ export class TeacherExamsService {
     const realExamId = exam.id;
     const examSlug = exam.slug;
 
-    // Find sessions to invalidate cache
+    // Only live attempts: COMPLETED/TERMINATED rows are final and must never
+    // be overwritten (a graded submission would lose its endTime/status).
     const sessions = await this.prisma.examSession.findMany({
-      where: { examId: realExamId, userId: studentId },
-      select: { id: true, startTime: true },
+      where: { examId: realExamId, userId: studentId, status: 'IN_PROGRESS' },
+      select: { id: true },
     });
 
-    // Update session status in parallel
-    const terminatedAt = new Date();
-    await Promise.all(
-      sessions.map((session: any) => {
-        const computedTimeTakenSec = Math.max(
-          0,
-          Math.floor(
-            (terminatedAt.getTime() - new Date(session.startTime).getTime()) /
-              1000,
-          ),
-        );
-        return this.prisma.examSession.update({
-          where: { id: session.id },
-          data: {
-            status: 'TERMINATED',
-            endTime: terminatedAt,
-            timeTakenSec: computedTimeTakenSec,
-          } as any,
-        });
-      }),
-    );
+    if (sessions.length > 0) {
+      await this.prisma.$executeRaw`
+        UPDATE "ExamSession"
+        SET
+          "status" = 'TERMINATED',
+          "endTime" = (NOW() AT TIME ZONE 'UTC'),
+          "timeTakenSec" = GREATEST(EXTRACT(EPOCH FROM ((NOW() AT TIME ZONE 'UTC') - "startTime"))::INT, 0),
+          "updatedAt" = (NOW() AT TIME ZONE 'UTC')
+        WHERE "examId" = ${realExamId}
+          AND "userId" = ${studentId}
+          AND "status" = 'IN_PROGRESS'
+      `;
+    }
 
     // Invalidate caches
     const sessionCacheKeys = [
@@ -787,28 +946,50 @@ export class TeacherExamsService {
 
     const realExamId = exam.id;
 
-    // Find sessions to invalidate cache
-    const sessions = await this.prisma.examSession.findMany({
-      where: { examId: realExamId, userId: studentId },
+    // Reopen only the latest TERMINATED attempt, never a COMPLETED one, and
+    // only while the student has no other live attempt (guarded in the
+    // UPDATE itself so a concurrent re-entry can't produce two).
+    const target = await this.prisma.examSession.findFirst({
+      where: { examId: realExamId, userId: studentId, status: 'TERMINATED' },
+      orderBy: { startTime: 'desc' },
+      select: { id: true },
     });
-
-    // Update session status back to IN_PROGRESS
-    await this.prisma.examSession.updateMany({
-      where: { examId: realExamId, userId: studentId },
-      data: { status: 'IN_PROGRESS', endTime: null },
-    });
-
-    // Invalidate caches to allow re-entry/re-processing
-    const sessionCacheKeys = [
-      ...sessions.flatMap((session: any) => [
-        `session:status:${session.id}`,
-        `session:meta:${session.id}`,
-      ]),
-      `teacher:monitored:${realExamId}`,
-    ];
-    if (sessionCacheKeys.length > 0) {
-      await this.redis.del(...sessionCacheKeys);
+    if (!target) {
+      throw new BadRequestException('No terminated session to restore');
     }
+
+    const reopened: number = await this.prisma.$executeRaw`
+      UPDATE "ExamSession"
+      SET "status" = 'IN_PROGRESS', "endTime" = NULL,
+          "updatedAt" = (NOW() AT TIME ZONE 'UTC')
+      WHERE "id" = ${target.id}
+        AND "status" = 'TERMINATED'
+        AND NOT EXISTS (
+          SELECT 1 FROM "ExamSession" o
+          WHERE o."examId" = ${realExamId}
+            AND o."userId" = ${studentId}
+            AND o."status" = 'IN_PROGRESS'
+        )
+    `;
+    if (reopened === 0) {
+      throw new BadRequestException(
+        'Student already has an active attempt for this exam',
+      );
+    }
+
+    // Drop the cached TERMINATED status/meta, and reset the tab-switch
+    // counters to 0 rather than deleting them: a missing counter rehydrates
+    // from the Violation table, which would re-terminate on the next switch.
+    await this.redis
+      .multi()
+      .del(
+        `session:status:${target.id}`,
+        `session:meta:${target.id}`,
+        `teacher:monitored:${realExamId}`,
+      )
+      .set(`violation:count:in:${target.id}`, '0', 'EX', 6 * 60 * 60)
+      .set(`violation:count:out:${target.id}`, '0', 'EX', 6 * 60 * 60)
+      .exec();
 
     return { success: true };
   }
@@ -850,24 +1031,57 @@ export class TeacherExamsService {
       };
     }
 
-    // 2. Fetch Paginated Sessions
+    // Escape LIKE wildcards so the search matches literally, like Prisma's
+    // `contains` in the count below.
+    const searchPattern = `%${normalizedSearch.replace(/[\\%_]/g, '\\$&')}%`;
+    const searchSql = normalizedSearch
+      ? Prisma.sql`AND (u.name ILIKE ${searchPattern} OR u.email ILIKE ${searchPattern} OR u."rollNumber" ILIKE ${searchPattern})`
+      : Prisma.empty;
+
+    // 2. Fetch Paginated Sessions. Only metadata and the _submitted_ key
+    // count come back; the full answers JSON is fetched only for rows that
+    // still need a score computed (score IS NULL).
     const [sessions, totalFiltered] = await Promise.all([
-      this.prisma.examSession.findMany({
-        where,
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              rollNumber: true,
-            },
-          },
-        },
-        orderBy: { endTime: 'desc' },
-        skip,
-        take: boundedLimit,
-      }),
+      this.prisma.$queryRaw<
+        Array<{
+          id: string;
+          startTime: Date;
+          endTime: Date | null;
+          score: number | null;
+          status: string;
+          metadata: any;
+          submittedCount: number;
+          answers: any;
+          user_name: string | null;
+          user_email: string;
+          user_rollNumber: string | null;
+        }>
+      >`
+        SELECT
+          es.id,
+          es."startTime",
+          es."endTime",
+          es.score,
+          es.status,
+          es.answers->'_internal_metadata' AS metadata,
+          (
+            SELECT COUNT(*)::int
+            FROM jsonb_object_keys(
+              CASE WHEN jsonb_typeof(es.answers) = 'object' THEN es.answers ELSE '{}'::jsonb END
+            ) AS k
+            WHERE left(k, 11) = '_submitted_'
+          ) AS "submittedCount",
+          CASE WHEN es.score IS NULL THEN es.answers END AS answers,
+          u.name AS user_name,
+          u.email AS user_email,
+          u."rollNumber" AS "user_rollNumber"
+        FROM "ExamSession" es
+        JOIN "User" u ON u.id = es."userId"
+        WHERE es."examId" = ${examId}
+        ${searchSql}
+        ORDER BY es."endTime" DESC
+        LIMIT ${boundedLimit} OFFSET ${skip}
+      `,
       this.prisma.examSession.count({ where }),
     ]);
 
@@ -930,16 +1144,33 @@ export class TeacherExamsService {
     };
 
     const totalMarks = computeTotalMarks(exam.questions);
-    const marksDenominator = totalMarks || Number(exam.totalMarks) || 100;
+    // session.score is a percentage (0-100), so pass/fail and the buckets compare
+    // against percentages, not marks.
+    // findExamByIdCompat's legacy select omits passingPercentage (older DBs
+    // lack the column), so read it on its own and fall back to 40%.
+    const passRow: any = await this.prisma.exam
+      .findUnique({
+        where: { id: exam.id },
+        select: { passingPercentage: true } as any,
+      })
+      .catch(() => null);
+    const passPct =
+      passRow?.passingPercentage != null &&
+      Number.isFinite(Number(passRow.passingPercentage))
+        ? Number(passRow.passingPercentage)
+        : 40;
 
     // Map sessions to frontend format
-    const mappedSessions = sessions.map((session: any) => {
+    const mappedSessions = sessions.map((session) => {
       const answers =
         typeof session.answers === 'string'
           ? JSON.parse(session.answers)
           : session.answers || {};
 
-      const metadata = answers._internal_metadata || {};
+      const metadata =
+        (typeof session.metadata === 'string'
+          ? JSON.parse(session.metadata)
+          : session.metadata) || {};
 
       const score =
         session.score !== null
@@ -948,7 +1179,7 @@ export class TeacherExamsService {
 
       const status =
         totalMarks > 0
-          ? score / totalMarks >= 0.4
+          ? score >= passPct
             ? 'Passed'
             : 'Failed'
           : session.status === 'COMPLETED'
@@ -957,9 +1188,9 @@ export class TeacherExamsService {
 
       return {
         sessionId: session.id,
-        rollNo: metadata.rollNumber || session.user.rollNumber || 'N/A',
-        name: metadata.name || session.user.name || 'Unknown',
-        email: session.user.email,
+        rollNo: metadata.rollNumber || session.user_rollNumber || 'N/A',
+        name: metadata.name || session.user_name || 'Unknown',
+        email: session.user_email,
         section: metadata.section || 'N/A',
         submittedAt: session.endTime
           ? new Date(session.endTime).toLocaleString()
@@ -971,10 +1202,10 @@ export class TeacherExamsService {
                 60000,
             ) + ' min'
           : 'N/A',
-        attempted:
-          Object.keys(answers).filter((k) => k.startsWith('_submitted_'))
-            .length + ' Q',
+        attempted: Number(session.submittedCount) + ' Q',
         score: score,
+        marksObtained:
+          Math.round((((score || 0) * totalMarks) / 100) * 100) / 100,
         totalPossible: totalMarks,
         status: status,
       };
@@ -982,39 +1213,44 @@ export class TeacherExamsService {
 
     // Stats computed DB-side. Was: pull every ExamSession row for this exam and
     // sum/bucket them in a JS loop, which grew unbounded with submissions.
-    // marksDenominator is known here, so the score buckets and pass threshold
-    // become indexed COUNTs and avg/max become an aggregate — only a handful of
+    // Scores are percentages, so the buckets and pass threshold are fixed
+    // percentages and become indexed COUNTs; avg/max are an aggregate — only a handful of
     // numbers cross the wire instead of every session. Semantics preserved:
     // a null score counts as 0 (old code used `Number(row.score) || 0`), so
     // null scores land in the 0-25% bucket and never count as passed — the
     // explicit `score: null` OR below keeps that behavior.
-    const D = marksDenominator;
-    const [scoreAgg, totalCount, passedCount, bucket0, bucket1, bucket2] =
-      await Promise.all([
-        this.prisma.examSession.aggregate({
-          where: { examId },
-          _sum: { score: true },
-          _max: { score: true },
-        }),
-        this.prisma.examSession.count({ where: { examId } }),
-        this.prisma.examSession.count({
-          where: { examId, score: { gte: 0.4 * D } },
-        }),
-        this.prisma.examSession.count({
-          where: { examId, OR: [{ score: { lt: 0.25 * D } }, { score: null }] },
-        }),
-        this.prisma.examSession.count({
-          where: { examId, score: { gte: 0.25 * D, lt: 0.5 * D } },
-        }),
-        this.prisma.examSession.count({
-          where: { examId, score: { gte: 0.5 * D, lt: 0.75 * D } },
-        }),
-      ]);
+    const [agg] = await this.prisma.$queryRaw<
+      Array<{
+        totalScore: number;
+        highScore: number;
+        totalCount: number;
+        passedCount: number;
+        bucket0: number;
+        bucket1: number;
+        bucket2: number;
+      }>
+    >`
+      SELECT
+        COALESCE(SUM(score), 0)::float8 AS "totalScore",
+        COALESCE(MAX(score), 0)::float8 AS "highScore",
+        COUNT(*)::int AS "totalCount",
+        COUNT(*) FILTER (WHERE score >= ${passPct})::int AS "passedCount",
+        COUNT(*) FILTER (WHERE score < 25 OR score IS NULL)::int AS bucket0,
+        COUNT(*) FILTER (WHERE score >= 25 AND score < 50)::int AS bucket1,
+        COUNT(*) FILTER (WHERE score >= 50 AND score < 75)::int AS bucket2
+      FROM "ExamSession"
+      WHERE "examId" = ${examId}
+    `;
 
-    const totalScore = Number(scoreAgg._sum.score || 0);
-    const highScore = Number(scoreAgg._max.score || 0);
+    const totalScore = Number(agg?.totalScore || 0);
+    const highScore = Number(agg?.highScore || 0);
+    const totalCount = Number(agg?.totalCount || 0);
+    const passedCount = Number(agg?.passedCount || 0);
+    const bucket0 = Number(agg?.bucket0 || 0);
+    const bucket1 = Number(agg?.bucket1 || 0);
+    const bucket2 = Number(agg?.bucket2 || 0);
     const failedCount = totalCount - passedCount;
-    // Remaining rows (score >= 0.75*D) — derived to avoid a 4th count query.
+    // Remaining rows (score >= 75%).
     const bucket3 = totalCount - bucket0 - bucket1 - bucket2;
     const distribution = [bucket0, bucket1, bucket2, bucket3];
 
@@ -1055,33 +1291,58 @@ export class TeacherExamsService {
     // Verify ownership via session -> exam
     const session = await this.prisma.examSession.findUnique({
       where: { id: sessionId },
-      include: { exam: true },
+      select: {
+        id: true,
+        exam: {
+          select: { ...examAccessSelect, totalMarks: true, questions: true },
+        },
+      },
     });
 
     if (!session) throw new Error('Session not found');
     await this.teacherService.checkAccess(session.exam, user);
 
-    const totalMarks = Number(session.exam?.totalMarks) || 0;
-    const clampedScore =
+    // The grader sends earned marks; `score` is stored as a percentage
+    // everywhere else (results, certificates, pass checks), so convert using
+    // the same denominator calculateScoreDetails uses.
+    const totalMarks =
+      this.examService.calculateScoreDetails({}, session.exam?.questions)
+        .totalMarks ||
+      Number(session.exam?.totalMarks) ||
+      0;
+    const earnedMarks =
       totalMarks > 0
         ? Math.max(0, Math.min(Number(newScore) || 0, totalMarks))
-        : Math.max(0, Number(newScore) || 0);
+        : 0;
+    const percentage =
+      totalMarks > 0 ? Math.round((earnedMarks / totalMarks) * 10000) / 100 : 0;
 
-    const updateData: any = { score: clampedScore };
-
-    // If internal marks are provided, update the answers JSON
-    if (internalMarks) {
-      const currentAnswers = (session.answers as any) || {};
-      updateData.answers = {
-        ...currentAnswers,
-        _internal_marks: internalMarks,
-      };
+    const internalScore = {
+      earnedMarks: Math.round(earnedMarks * 100) / 100,
+      totalMarks,
+      percentage,
+    };
+    const patch: Record<string, unknown> = { _internal_score: internalScore };
+    if (internalMarks && typeof internalMarks === 'object') {
+      const marks: Record<string, number> = {};
+      for (const [qId, value] of Object.entries(internalMarks)) {
+        const n = Number(value);
+        if (Number.isFinite(n)) marks[qId] = n;
+      }
+      patch._internal_marks = marks;
     }
 
-    return this.prisma.examSession.update({
-      where: { id: sessionId },
-      data: updateData,
-    });
+    // jsonb merge in SQL: a read-modify-write of the whole answers object
+    // could drop answers flushed between the read and this write.
+    await this.prisma.$executeRaw`
+      UPDATE "ExamSession"
+      SET "score" = ${percentage},
+          "answers" = COALESCE("answers", '{}'::jsonb) || ${JSON.stringify(patch)}::jsonb,
+          "updatedAt" = (NOW() AT TIME ZONE 'UTC')
+      WHERE "id" = ${sessionId}
+    `;
+
+    return { id: sessionId, score: percentage, ...internalScore };
   }
 
   async publishResults(examId: string, user: any) {

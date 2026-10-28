@@ -139,6 +139,7 @@ export class StudentProcessor extends WorkerHost {
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
       include: {
+        students: { where: { id: userId }, select: { id: true } },
         modules: {
           include: {
             units: {
@@ -149,7 +150,8 @@ export class StudentProcessor extends WorkerHost {
       },
     });
 
-    if (!course) return;
+    // Progress and certificates are only for learners enrolled in the course.
+    if (!course || course.students.length === 0) return;
 
     const allUnitIds = course.modules.flatMap((m) => m.units.map((u) => u.id));
     const totalUnits = allUnitIds.length;
@@ -232,8 +234,18 @@ export class StudentProcessor extends WorkerHost {
     isCorrect: boolean;
     score?: number;
     sessionId?: string;
+    attemptId?: string; // row already written by the caller (virtual units)
   }): Promise<void> {
-    const { userId, itemId, type, content, isCorrect, score, sessionId } = data;
+    const {
+      userId,
+      itemId,
+      type,
+      content,
+      isCorrect,
+      score,
+      sessionId,
+      attemptId,
+    } = data;
 
     // Idempotency safety net: a queued job can be retried by BullMQ after a
     // transient failure (e.g. the create() below succeeds but the process
@@ -256,20 +268,37 @@ export class StudentProcessor extends WorkerHost {
       }
     }
 
-    await this.prisma.questionAttempt.create({
-      data: {
-        userId,
-        itemId,
-        type,
-        content,
-        isCorrect,
-        score,
-        sessionId,
-      },
-    });
+    // XP is awarded once per question per session (or per unit outside a
+    // session); otherwise flipping an answer back and forth farms XP.
+    const alreadyRewarded =
+      isCorrect &&
+      (await this.prisma.questionAttempt.findFirst({
+        where: {
+          userId,
+          itemId,
+          type,
+          sessionId: sessionId ?? null,
+          isCorrect: true,
+          ...(attemptId ? { id: { not: attemptId } } : {}),
+        },
+        select: { id: true },
+      }));
 
-    // Also update total XP if correct
-    if (isCorrect) {
+    if (!attemptId) {
+      await this.prisma.questionAttempt.create({
+        data: {
+          userId,
+          itemId,
+          type,
+          content,
+          isCorrect,
+          score,
+          sessionId,
+        },
+      });
+    }
+
+    if (isCorrect && !alreadyRewarded) {
       await this.prisma.user.update({
         where: { id: userId },
         data: {

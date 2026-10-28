@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
+import { useAuth } from '@clerk/nextjs';
 import { PLAYGROUND_LANGUAGES } from './Editor/playgroundLanguages';
 import CoursePlayerSkeleton from './Skeletons/CoursePlayerSkeleton';
 
@@ -164,6 +165,10 @@ export default function CodingQuestionRenderer({
 
     // Persistence Logic
     const [mounted, setMounted] = useState(false);
+    // Drafts are keyed per signed-in user: unscoped keys leaked one student's
+    // code to the next person on a shared PC. No user yet -> no local draft.
+    const { userId } = useAuth();
+    const codeKey = (langId: string) => (userId ? `unit_progress:${userId}:${question.id}:${langId}` : null);
 
     // On mount, sync localStorage from currentAnswer if localStorage is empty
     // This handles the case where user opens exam on a new device
@@ -190,13 +195,13 @@ export default function CodingQuestionRenderer({
             }
 
             for (const entry of languageEntries) {
-                const key = `unit_progress_${question.id}_${entry.langId}`;
-                if (!localStorage.getItem(key)) {
+                const key = codeKey(entry.langId);
+                if (key && !localStorage.getItem(key)) {
                     localStorage.setItem(key, entry.code);
                 }
             }
         }
-    }, [question.id]); // Only run once per question
+    }, [question.id, userId]); // Only run once per question/user
 
     // Restore execution results from saved answer (language-specific)
     useEffect(() => {
@@ -211,15 +216,16 @@ export default function CodingQuestionRenderer({
     }, [hasAttemptSelected, attemptAnswer, currentAnswer, activeLangId, question.id, setExecutionResults]);
 
     const getSavedCode = () => {
-        if (typeof window === 'undefined') return null;
-        return localStorage.getItem(`unit_progress_${question.id}_${activeLangId}`);
+        const key = codeKey(activeLangId);
+        if (typeof window === 'undefined' || !key) return null;
+        return localStorage.getItem(key);
     };
 
     const savedAnswer = mounted ? getSavedCode() : null;
 
     const handleAnswerChangeWithSave = (newCode: string) => {
-        if (typeof window !== 'undefined') {
-            const key = `unit_progress_${question.id}_${activeLangId}`;
+        const key = codeKey(activeLangId);
+        if (typeof window !== 'undefined' && key) {
             localStorage.setItem(key, newCode);
         }
         if (onAnswerChange) {
@@ -233,8 +239,8 @@ export default function CodingQuestionRenderer({
     };
 
     const handleReset = () => {
-        if (typeof window !== 'undefined') {
-            const key = `unit_progress_${question.id}_${activeLangId}`;
+        const key = codeKey(activeLangId);
+        if (typeof window !== 'undefined' && key) {
             localStorage.removeItem(key);
         }
         // Force re-render to pick up default

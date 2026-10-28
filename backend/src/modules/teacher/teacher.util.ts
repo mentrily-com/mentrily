@@ -56,6 +56,16 @@ export const legacyExamSelect = {
   updatedAt: true,
 } as const;
 
+/** Just what checkAccess and the monitor/feedback polls read — no questions JSON. */
+export const examAccessSelect = {
+  id: true,
+  slug: true,
+  orgId: true,
+  creatorId: true,
+  linkedCourseId: true,
+  duration: true,
+} as const;
+
 export function isMissingExamAttemptFieldError(error: unknown): boolean {
   if (
     typeof error !== 'object' ||

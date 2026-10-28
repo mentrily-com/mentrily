@@ -16,6 +16,13 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue, QueueEvents } from 'bullmq';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
+import { getClientIp } from '../../common/client-ip';
+import { UNIT_PASS_TTL_SEC, unitPassKey } from '../student/unit-pass.util';
+import { sanitizeQuestionForClient } from '../common/testcase-visibility.util';
+import {
+  CODING_RESULT_PREFIX,
+  recordCodingResult,
+} from '../common/session-answers.util';
 
 // How long a caller waits for one sandbox run before giving up.
 const RUN_WAIT_MS = 30000;
@@ -81,27 +88,7 @@ export class CodeExecutionService {
   }
 
   getClientIp(req: any): string {
-    const headers = req?.headers || {};
-    const cfIp = headers['cf-connecting-ip'] || headers['true-client-ip'];
-    if (typeof cfIp === 'string' && cfIp.trim().length > 0) {
-      return cfIp.split(',')[0].trim();
-    }
-
-    if (req?.ip && typeof req.ip === 'string') {
-      return req.ip;
-    }
-
-    const socketIp = req?.socket?.remoteAddress;
-    if (typeof socketIp === 'string' && socketIp.trim().length > 0) {
-      return socketIp.trim();
-    }
-
-    const forwarded = headers['x-forwarded-for'] || headers['x-real-ip'];
-    if (typeof forwarded === 'string' && forwarded.trim().length > 0) {
-      return forwarded.split(',')[0].trim();
-    }
-
-    return 'unknown';
+    return getClientIp(req) || 'unknown';
   }
 
   private async consumePublicRun(ip: string) {
@@ -329,6 +316,17 @@ export class CodeExecutionService {
     };
   }
 
+  /** Public view: hidden test cases and the solution stay with the creator. */
+  async getPublicQuestionForViewer(slug: string, user?: any) {
+    const record = await this.getPublicQuestion(slug);
+    if (user?.id && record.creatorUserId === user.id) return record;
+    const { creatorUserId: _creator, ...rest } = record;
+    return {
+      ...rest,
+      question: sanitizeQuestionForClient(record.question, false),
+    };
+  }
+
   async getPublicQuestion(slug: string) {
     const normalizedSlug = String(slug || '').trim();
     if (!normalizedSlug) {
@@ -342,6 +340,7 @@ export class CodeExecutionService {
         question: true,
         expiresAt: true,
         createdAt: true,
+        creatorUserId: true,
       },
     });
 
@@ -395,6 +394,11 @@ export class CodeExecutionService {
     this.validateExecutionPayload(language, code, '');
 
     let testCases: any[] = [];
+    // The caller's own in-progress session (ownership is in the query);
+    // graded runs are recorded against it as the only source of coding marks.
+    let activeSession: { id: string } | null = null;
+    // Set only when grading a real course unit's own test cases.
+    let courseUnitGraded = false;
 
     if (examId) {
       // Scope check: fetch exam metadata to verify ownership/tenancy
@@ -411,7 +415,7 @@ export class CodeExecutionService {
         (examOrg.creatorId && examOrg.creatorId === user?.id) ||
         (user?.role === 'ADMIN' && user?.orgId && examOrg.orgId === user.orgId);
 
-      if (!isExamOwnerOrAdmin && user?.id && this.prisma?.examSession) {
+      if (user?.id && this.prisma?.examSession) {
         // Authorization is the active session, not org equality: exams in a
         // public/personal org are open to any signed-in student, so comparing
         // the exam's org to the student's home org rejected legitimate
@@ -419,7 +423,7 @@ export class CodeExecutionService {
         // Run/Submit, while the rest of the exam worked). A session only
         // exists if the entry flow already granted access.
         // Candidates must possess an active in-progress exam session to submit code
-        const activeSession = await this.prisma.examSession.findFirst({
+        activeSession = await this.prisma.examSession.findFirst({
           where: {
             examId: examOrg.id,
             userId: user.id,
@@ -427,7 +431,7 @@ export class CodeExecutionService {
           },
           select: { id: true },
         });
-        if (!activeSession) {
+        if (!activeSession && !isExamOwnerOrAdmin) {
           throw new ForbiddenException(
             'Active exam session required to run code submissions',
           );
@@ -505,6 +509,7 @@ export class CodeExecutionService {
       });
 
       if (unit) {
+        courseUnitGraded = true;
         const course = unit.module?.course;
         const unitOrgId = course?.orgId;
         const isCourseOwnerOrAdmin =
@@ -646,11 +651,53 @@ export class CodeExecutionService {
     // 3. Determine final status
     const allPassed = passedCount === testCases.length;
 
+    // submitUnit only accepts COMPLETED for a Coding unit with this marker.
+    if (courseUnitGraded && allPassed && user?.id) {
+      await this.redis.set(
+        unitPassKey(user.id, unitId),
+        '1',
+        'EX',
+        UNIT_PASS_TTL_SEC,
+      );
+    }
+
+    if (activeSession) {
+      await this.recordExamCodingResult(activeSession.id, unitId, {
+        passed: passedCount,
+        total: testCases.length,
+        at: Date.now(),
+      });
+    }
+
     return {
       status: allPassed ? 'Accepted' : 'Wrong Answer',
       passedTests: passedCount,
       totalTests: testCases.length,
       results: results,
     };
+  }
+
+  /**
+   * Latest graded run per exam question, in Redis (read by submit) and in
+   * the session row (read by flush/regrade). Server-only key: clients can't
+   * write `_internal_coding:*` (answerPatchError / filterStagedAnswers).
+   */
+  private async recordExamCodingResult(
+    sessionId: string,
+    questionId: string,
+    result: { passed: number; total: number; at: number },
+  ) {
+    await recordCodingResult(this.redis, sessionId, questionId, result);
+    await this.prisma.$executeRaw`
+      UPDATE "ExamSession"
+      SET "answers" = jsonb_set(
+            COALESCE("answers", '{}'::jsonb),
+            ARRAY[${CODING_RESULT_PREFIX + questionId}]::text[],
+            ${JSON.stringify(result)}::jsonb
+          ),
+          "updatedAt" = (NOW() AT TIME ZONE 'UTC')
+      WHERE "id" = ${sessionId}
+        AND "status" = 'IN_PROGRESS'
+    `;
   }
 }

@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'backend/**'
+      - 'go-connector/**'
       - '.github/workflows/backend-deploy.yml'
   workflow_dispatch:
 
@@ -51,6 +52,19 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Build and Push go-connector Image (linux/arm64)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./go-connector
+          file: ./go-connector/Dockerfile
+          platforms: linux/arm64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ github.repository }}/go-connector:latest
+            ${{ env.REGISTRY }}/${{ github.repository }}/go-connector:${{ github.sha }}
+          cache-from: type=gha,scope=go-connector
+          cache-to: type=gha,mode=max,scope=go-connector
+
   deploy:
     name: Deploy to OCI VM & Prune Old Builds
     needs: build-and-push
@@ -70,11 +84,11 @@ jobs:
             echo "=== 1. Logging into GHCR on VM ==="
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-            echo "=== 2. Pulling latest backend image ==="
-            docker compose pull backend
+            echo "=== 2. Pulling latest backend and go-connector images ==="
+            docker compose pull backend go-connector
 
-            echo "=== 3. Restarting backend service ==="
-            docker compose up -d --no-deps backend
+            echo "=== 3. Restarting backend and go-connector ==="
+            docker compose up -d --no-deps backend go-connector
 
             echo "=== 4. Removing old dangling & unreferenced images (Zero-Storage-Leak) ==="
             docker image prune -af

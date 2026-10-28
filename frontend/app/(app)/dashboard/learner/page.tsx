@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { StudentService, StudentModule } from '@/services/api/StudentService';
 import { useRequireAuth } from '@/hooks/requireAuthClient';
 import LearnerDashboardSkeleton from '@/app/components/Skeletons/LearnerDashboardSkeleton';
+import LoadErrorCard from '@/app/components/Skeletons/LoadErrorCard';
 import OnboardingTour from '@/app/components/Common/OnboardingTour';
 import EmptyState from '@/app/components/Common/EmptyState';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -75,7 +76,12 @@ export default function DashboardPage() {
     };
 
     // Optimized Data Fetching with Cache
-    const { data: dashboardData, isLoading: loading } = useQuery({
+    const {
+        data: dashboardData,
+        isLoading: loading,
+        isError: loadFailed,
+        refetch: refetchDashboard,
+    } = useQuery({
         queryKey: ['student-dashboard', session?.orgId || 'personal'],
         queryFn: async () => {
             const [stats, courses] = await Promise.all([StudentService.getStats(), StudentService.getCourses()]);
@@ -143,6 +149,9 @@ export default function DashboardPage() {
     // Show loading only if no data at all (first load)
     if (loading && !stats) {
         return <LearnerDashboardSkeleton />;
+    }
+    if (loadFailed && !dashboardData) {
+        return <LoadErrorCard title="We couldn't load your dashboard" onRetry={() => void refetchDashboard()} />;
     }
 
     return (

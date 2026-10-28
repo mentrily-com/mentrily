@@ -1,3 +1,4 @@
+import SkeletonRoot from './SkeletonRoot';
 /**
  * Purpose-built skeleton for the learner test-attempts page
  * (`/dashboard/learner/test`). Previously this used the generic
@@ -10,7 +11,7 @@
  */
 export default function LearnerTestAttemptsSkeleton() {
     return (
-        <div className="min-h-screen bg-white font-sans">
+        <SkeletonRoot className="min-h-screen bg-white font-sans">
             {/* TAB STRIP */}
             <div className="border-b border-slate-100">
                 <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12">
@@ -45,6 +46,6 @@ export default function LearnerTestAttemptsSkeleton() {
                     <div className="h-8 w-24 animate-pulse rounded-lg bg-slate-100" />
                 </div>
             </main>
-        </div>
+        </SkeletonRoot>
     );
 }

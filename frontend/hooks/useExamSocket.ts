@@ -2,21 +2,14 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useToast } from '../app/components/Common/Toast';
 import { getClerkToken } from '../lib/clerk-token';
-
-// Trailing slash (NEXT_PUBLIC_WS_URL is configured with one in production)
-// must be stripped before appending the namespace below — "host.com//ns"
-// parses as a different, invalid namespace than "host.com/ns" and the
-// server rejects the connection outright.
-const SOCKET_URL = (
-    process.env.NEXT_PUBLIC_WS_URL ||
-    process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') ||
-    'http://localhost:4000'
-).replace(/\/+$/, '');
+import { PROCTORING_SOCKET_URL, proctoringSocketOptions } from '../lib/proctoring-socket';
 const HEARTBEAT_INTERVAL = 30000; // 30 s
 const MAX_MISSED_HEARTBEATS = 3;
 const MAX_RECONNECT_ATTEMPTS = 8; // total retries before giving up
 const BASE_RECONNECT_DELAY = 2000; // 2 s base, doubles each attempt (capped)
 const MAX_RECONNECT_DELAY = 30000; // 30 s cap
+const SAVE_ACK_TIMEOUT = 5000;
+const MAX_AUTH_RETRIES = 3; // fresh-token retries for go-connector's connect_error 'AUTH_FAILED'
 
 function getBrowserCookie(name: string): string {
     if (typeof document === 'undefined') return '';
@@ -58,7 +51,19 @@ export const useExamSocket = (
     // tab switch during that window is still recorded instead of vanishing.
     const pendingViolations = useRef<Record<string, unknown>[]>([]);
     const MAX_PENDING_VIOLATIONS = 200;
+    // Answers saved while the socket is down, latest value per key. Emitting
+    // only when connected used to drop them silently (e.g. a click before
+    // the first connect, or during a reconnect).
+    const pendingAnswers = useRef<Record<string, unknown>>({});
     const hasEverConnected = useRef(false); // tracks if socket confirmed connected at least once
+    const connectedSessionId = useRef(''); // session that hasEverConnected refers to
+    // Bumped on every initSocket/cleanup so a socket created after an awaited
+    // token fetch can tell it has been superseded (orphan-socket race).
+    const socketGeneration = useRef(0);
+    const authRetries = useRef(0);
+    const warnedRejections = useRef(new Set<string>());
+    // serverTimeMs - Date.now(), refreshed from each heartbeat_ack; null until the first one.
+    const serverOffsetRef = useRef<number | null>(null);
     const lastHeartbeatAck = useRef<number>(Date.now());
     const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
     const reconnectTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -176,6 +181,62 @@ export const useExamSocket = (
     );
 
     // ─────────────────────────────────────────────────────────────────────────
+    // save_answer with ack: timeouts/errors requeue, validation rejections don't
+    // ─────────────────────────────────────────────────────────────────────────
+    const latestSent = useRef<Record<string, unknown>>({});
+    const saveRetryTimer = useRef<NodeJS.Timeout | null>(null);
+    const emitSave = useCallback(
+        (socket: Socket, answer: Record<string, unknown>, isBatch: boolean) => {
+            const sid = sessionIdRef.current;
+            if (!sid) {
+                Object.assign(pendingAnswers.current, answer);
+                return;
+            }
+            Object.assign(latestSent.current, answer);
+            const onAck = (err: Error | null, res?: { status?: string; reason?: string }) => {
+                if (isKicked.current || (!err && res?.status === 'saved')) return;
+
+                if (err || res?.status !== 'rejected') {
+                    // No ack: requeue, but never over a newer value queued or sent since.
+                    for (const [k, v] of Object.entries(answer)) {
+                        if (!(k in pendingAnswers.current) && latestSent.current[k] === v)
+                            pendingAnswers.current[k] = v;
+                    }
+                    // Still connected (slow server): retry shortly; otherwise the
+                    // connect handler flushes the queue.
+                    if (!saveRetryTimer.current) {
+                        saveRetryTimer.current = setTimeout(() => {
+                            saveRetryTimer.current = null;
+                            const live = socketRef.current;
+                            const retry = pendingAnswers.current;
+                            if (!live?.connected || Object.keys(retry).length === 0) return;
+                            pendingAnswers.current = {};
+                            emitSave(live, retry, true);
+                        }, 2000);
+                    }
+                    return;
+                }
+
+                // Rejected: resending the same payload can't succeed. A batch that
+                // is too big as a whole is split into per-key saves instead.
+                const reason = res.reason || 'UNKNOWN';
+                const keys = Object.keys(answer);
+                if (isBatch && keys.length > 1 && (reason === 'TOO_MANY_ANSWERS' || reason === 'ANSWER_TOO_LARGE')) {
+                    keys.forEach((k) => emitSave(socket, { [k]: answer[k] }, false));
+                    return;
+                }
+                console.error(`[Socket] save_answer rejected (${reason})`, keys);
+                if (!warnedRejections.current.has(reason)) {
+                    warnedRejections.current.add(reason);
+                    toastError(`An answer could not be saved (${reason}).`, 'Save Failed');
+                }
+            };
+            socket.timeout(SAVE_ACK_TIMEOUT).emit('save_answer', { sessionId: sid, answer }, onAck);
+        },
+        [toastError],
+    );
+
+    // ─────────────────────────────────────────────────────────────────────────
     // Socket factory — creates a brand-new socket and wires all events
     // ─────────────────────────────────────────────────────────────────────────
     const initSocket = useCallback(async () => {
@@ -204,12 +265,7 @@ export const useExamSocket = (
             }
         }
 
-        // Tear down any existing socket first
-        if (socketRef.current) {
-            socketRef.current.removeAllListeners();
-            socketRef.current.disconnect();
-            socketRef.current = null;
-        }
+        const generation = ++socketGeneration.current;
         if (reconnectTimerRef.current) {
             clearTimeout(reconnectTimerRef.current);
             reconnectTimerRef.current = null;
@@ -224,24 +280,24 @@ export const useExamSocket = (
         // lib/clerk-token.ts); do the same here so the gateway's
         // extractToken() has something to verify.
         const token = await getClerkToken();
-        if (isKicked.current) return; // state may have changed during the await
+        // A newer initSocket or the effect cleanup ran during the await.
+        if (isKicked.current || generation !== socketGeneration.current) return;
 
-        const socket = io(`${SOCKET_URL}/proctoring`, {
-            // Production traffic goes through an AWS API Gateway HTTP API in
-            // front of the backend (not a WebSocket API) — it proxies plain
-            // HTTP fine but cannot perform a raw WS protocol upgrade at all
-            // (verified directly: the upgrade closes immediately with code
-            // 1006, while the Engine.IO polling handshake succeeds). Listing
-            // 'websocket' first meant every connection attempt tried the one
-            // transport that can never succeed here before ever falling back,
-            // so force long-polling and never attempt the upgrade.
-            transports: ['polling'],
-            upgrade: false,
+        // Tear down the previous socket only now, so nothing can slip in between.
+        if (socketRef.current) {
+            socketRef.current.removeAllListeners();
+            socketRef.current.disconnect();
+            socketRef.current = null;
+        }
+
+        const socket = io(`${PROCTORING_SOCKET_URL}/proctoring`, {
+            // Transport choice (polling behind API Gateway, websocket behind
+            // go-connector's endpoint) lives in lib/proctoring-socket.ts.
+            ...proctoringSocketOptions,
             // Disable socket.io's built-in reconnection entirely — we manage it
             // ourselves so we can create a FRESH socket (required after
             // 'io server disconnect' which permanently sets skipReconnect).
             reconnection: false,
-            withCredentials: true,
             auth: token ? { token } : undefined,
         });
 
@@ -252,7 +308,9 @@ export const useExamSocket = (
         socket.on('connect', () => {
             console.log(`[Socket] Connected (${socket.id})`);
             reconnectAttempts.current = 0; // reset on successful connect
+            authRetries.current = 0;
             hasEverConnected.current = true; // mark that we've confirmed a live connection
+            connectedSessionId.current = sessionIdRef.current;
             setIsConnected(true);
             setConnectionStatus('connected');
             lastHeartbeatAck.current = Date.now();
@@ -273,6 +331,12 @@ export const useExamSocket = (
             // Restart heartbeat bound to this fresh socket
             if (sessionIdRef.current) startHeartbeat(socket);
 
+            if (Object.keys(pendingAnswers.current).length > 0 && sessionIdRef.current) {
+                const answer = pendingAnswers.current;
+                pendingAnswers.current = {};
+                emitSave(socket, answer, true);
+            }
+
             // Send anything captured while the socket was down, keeping the
             // time each one actually happened.
             if (pendingViolations.current.length > 0 && sessionIdRef.current) {
@@ -290,7 +354,8 @@ export const useExamSocket = (
         });
 
         // ── heartbeat ack ───────────────────────────────────────────────────
-        socket.on('heartbeat_ack', () => {
+        socket.on('heartbeat_ack', (data?: { serverTimeMs?: number }) => {
+            if (typeof data?.serverTimeMs === 'number') serverOffsetRef.current = data.serverTimeMs - Date.now();
             lastHeartbeatAck.current = Date.now();
             missedHeartbeatsRef.current = 0;
             setMissedHeartbeats(0);
@@ -382,12 +447,26 @@ export const useExamSocket = (
         // ── connect_error ───────────────────────────────────────────────────
         socket.on('connect_error', (err) => {
             console.error('[Socket] connect_error:', err.message);
+            // go-connector reports a rejected token here rather than via 'auth_error'.
+            // Tokens live ~60s, so retry a few times with a fresh one before giving up.
+            if (err.message === 'AUTH_FAILED') {
+                authRetries.current += 1;
+                if (authRetries.current > MAX_AUTH_RETRIES) {
+                    isKicked.current = true;
+                    stopHeartbeat();
+                    redirectToLogin('auth_error');
+                    return;
+                }
+                setConnectionStatus('connecting');
+                initSocket(); // fetches a fresh token
+                return;
+            }
             setIsConnected(false);
             setConnectionStatus('connecting');
             scheduleReconnect();
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [identity, startHeartbeat, stopHeartbeat, toastError, redirectToLogin]);
+    }, [identity, startHeartbeat, stopHeartbeat, toastError, redirectToLogin, emitSave]);
 
     // ─────────────────────────────────────────────────────────────────────────
     // Reconnect scheduler — exponential backoff, fresh socket each time
@@ -433,15 +512,20 @@ export const useExamSocket = (
             return;
         }
 
-        // Reset all counters on clean init (e.g. userId just arrived after page load)
+        // Reset all counters on clean init (e.g. userId just arrived after page load).
+        // hasEverConnected survives for the same session so the full-page
+        // skeleton can't come back mid-exam.
         reconnectAttempts.current = 0;
-        hasEverConnected.current = false;
+        if (connectedSessionId.current !== sessionId) hasEverConnected.current = false;
         setConnectionStatus('connecting');
         initSocket();
 
         return () => {
             // Component unmount — clean up without triggering reconnect
+            socketGeneration.current += 1; // invalidates an initSocket still awaiting its token
             stopHeartbeat();
+            if (saveRetryTimer.current) clearTimeout(saveRetryTimer.current);
+            saveRetryTimer.current = null;
             if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
             if (socketRef.current) {
                 socketRef.current.removeAllListeners();
@@ -467,14 +551,21 @@ export const useExamSocket = (
     // ─────────────────────────────────────────────────────────────────────────
     // Public API
     // ─────────────────────────────────────────────────────────────────────────
-    const saveAnswer = useCallback((questionId: string, answer: any) => {
-        if (!isKicked.current && socketRef.current?.connected && sessionIdRef.current) {
-            socketRef.current.emit('save_answer', {
-                sessionId: sessionIdRef.current,
-                answer: { [questionId]: answer },
-            });
-        }
-    }, []);
+    const queueAnswer = useCallback(
+        (key: string, value: unknown) => {
+            if (isKicked.current) return;
+            // A newer value supersedes any older one still waiting to be resent.
+            delete pendingAnswers.current[key];
+            if (socketRef.current?.connected && sessionIdRef.current) {
+                emitSave(socketRef.current, { [key]: value }, false);
+                return;
+            }
+            pendingAnswers.current[key] = value; // flushed on (re)connect
+        },
+        [emitSave],
+    );
+
+    const saveAnswer = useCallback((questionId: string, answer: any) => queueAnswer(questionId, answer), [queueAnswer]);
 
     const logViolation = useCallback((type: string, message: string, details?: any) => {
         if (isKicked.current) return;
@@ -501,14 +592,10 @@ export const useExamSocket = (
         }
     }, []);
 
-    const saveReviewStatus = useCallback((questionId: string, isReviewed: boolean) => {
-        if (!isKicked.current && socketRef.current?.connected && sessionIdRef.current) {
-            socketRef.current.emit('save_answer', {
-                sessionId: sessionIdRef.current,
-                answer: { [`_rev_${questionId}`]: isReviewed },
-            });
-        }
-    }, []);
+    const saveReviewStatus = useCallback(
+        (questionId: string, isReviewed: boolean) => queueAnswer(`_rev_${questionId}`, isReviewed),
+        [queueAnswer],
+    );
 
     const disconnect = useCallback(() => {
         isKicked.current = true; // prevent auto-reconnect on manual disconnect
@@ -539,6 +626,9 @@ export const useExamSocket = (
         retryConnection,
         isConnected,
         connectionStatus,
+        // Re-read every render; the 'connected' state update that sets it re-renders.
+        hasConnected: hasEverConnected.current,
         missedHeartbeats,
+        serverOffsetRef,
     };
 };

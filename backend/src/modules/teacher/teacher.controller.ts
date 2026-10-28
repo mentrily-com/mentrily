@@ -288,6 +288,23 @@ export class TeacherController {
     return this.teacherExamsService.getMonitoredStudents(examId, user);
   }
 
+  @Get('exams/:examId/monitor/sessions/:sessionId/violations')
+  async getSessionViolations(
+    @Param('examId') examId: string,
+    @Param('sessionId') sessionId: string,
+    @User() user: any,
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '100',
+  ) {
+    return this.teacherExamsService.getSessionViolations(
+      examId,
+      sessionId,
+      user,
+      page,
+      limit,
+    );
+  }
+
   @Get('exams/:examId/results')
   async getExamResults(
     @Param('examId') examId: string,

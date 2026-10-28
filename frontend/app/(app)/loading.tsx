@@ -11,7 +11,7 @@ import BrandedPageLoader from '@/app/components/Common/BrandedPageLoader';
 // flashed right before the page's own skeleton, reading as a double load.
 //
 // The only routes that keep a full takeover are ones where the app chrome
-// itself must never flash: unauthenticated auth screens, and exam entry
+// itself must never flash: unauthenticated auth screens, logout, /chat, and exam entry
 // (no navigation should be visible mid-exam).
 export default function Loading() {
     const pathname = usePathname();
@@ -23,6 +23,9 @@ export default function Loading() {
         pathname === '/login' ||
         pathname === '/signup' ||
         pathname === '/forgot-password' ||
+        pathname === '/logout' ||
+        // /chat's own auth/session gate renders this same loader, so match it instead of a blank frame.
+        pathname === '/chat' ||
         pathname.startsWith('/sign-in') ||
         pathname.startsWith('/sign-up');
 

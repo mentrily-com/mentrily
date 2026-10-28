@@ -1,3 +1,4 @@
+import SkeletonRoot from './SkeletonRoot';
 /**
  * Purpose-built skeleton for the learner dashboard (`/dashboard/learner`) --
  * the first thing every student sees after logging in. The previous
@@ -14,7 +15,7 @@
  */
 export default function LearnerDashboardSkeleton() {
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans animate-fade-in">
+        <SkeletonRoot className="min-h-screen bg-slate-50 text-slate-900 font-sans animate-fade-in">
             <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-10">
                 <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
                     {/* LEFT: module list */}
@@ -81,6 +82,6 @@ export default function LearnerDashboardSkeleton() {
                     </aside>
                 </div>
             </main>
-        </div>
+        </SkeletonRoot>
     );
 }

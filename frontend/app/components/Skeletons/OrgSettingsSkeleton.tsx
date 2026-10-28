@@ -1,3 +1,4 @@
+import SkeletonRoot from './SkeletonRoot';
 /**
  * Purpose-built skeleton for the super-admin organization settings page
  * (`/dashboard/super-admin/organizations/[id]/settings`), which renders
@@ -12,7 +13,7 @@
  */
 export default function OrgSettingsSkeleton() {
     return (
-        <div className="animate-fade-in font-sans pb-10">
+        <SkeletonRoot className="animate-fade-in font-sans pb-10">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-12">
                 <div className="space-y-2">
                     <div className="h-6 w-64 animate-pulse rounded-md bg-slate-200" />
@@ -66,6 +67,6 @@ export default function OrgSettingsSkeleton() {
                     </div>
                 </div>
             </div>
-        </div>
+        </SkeletonRoot>
     );
 }

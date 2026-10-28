@@ -246,6 +246,31 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
         }
     };
 
+    // Overwrite every cached copy of the session with the verified post-switch
+    // one. Without this, the still-mounted page's useSession() re-renders with
+    // the previous persona and writes it back into bc-session-snapshot, which
+    // the next /dashboard load trusts for 60s.
+    const primeVerifiedSession = (newSession: any) => {
+        if (!newSession) return;
+        queryClient.setQueriesData({ queryKey: ['session'] }, newSession);
+        if (clerkUserId) queryClient.setQueryData(['session', clerkUserId], newSession);
+        if (newSession.id) queryClient.setQueryData(['session', newSession.id], newSession);
+        if (sessionUser?.id) queryClient.setQueryData(['session', sessionUser.id], newSession);
+        queryClient.setQueryData(['session', 'anonymous'], newSession);
+
+        if (typeof window !== 'undefined') {
+            try {
+                window.localStorage.setItem(
+                    'bc-session-snapshot',
+                    JSON.stringify({
+                        ...newSession,
+                        cachedAt: Date.now(),
+                    }),
+                );
+            } catch {}
+        }
+    };
+
     const handleSwitch = async (membership: WorkspaceMembership) => {
         const isAlreadyActive =
             membership.orgId === activeMembership?.orgId && membership.role === activeMembership?.role;
@@ -320,25 +345,7 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
             if (switchGenerationRef.current !== myGeneration) return;
 
             // 3. Prime React Query session cache with the verified session
-            if (newSession) {
-                queryClient.setQueriesData({ queryKey: ['session'] }, newSession);
-                if (clerkUserId) queryClient.setQueryData(['session', clerkUserId], newSession);
-                if (newSession.id) queryClient.setQueryData(['session', newSession.id], newSession);
-                if (sessionUser?.id) queryClient.setQueryData(['session', sessionUser.id], newSession);
-                queryClient.setQueryData(['session', 'anonymous'], newSession);
-
-                if (typeof window !== 'undefined') {
-                    try {
-                        window.localStorage.setItem(
-                            'bc-session-snapshot',
-                            JSON.stringify({
-                                ...newSession,
-                                cachedAt: Date.now(),
-                            }),
-                        );
-                    } catch {}
-                }
-            }
+            primeVerifiedSession(newSession);
 
             // Invalidate workspace memberships query so membership list stays fresh
             queryClient.invalidateQueries({ queryKey: ['workspace-memberships'] });
@@ -382,9 +389,18 @@ export default function WorkspaceSwitcher({ sessionUser }: { sessionUser?: any }
 
         try {
             const persona = await AuthService.becomeCreator();
-            await AuthService.switchOrg(persona.orgId);
+            const newSession = await AuthService.switchOrg(persona.orgId);
+            primeVerifiedSession(newSession);
+            if (typeof window !== 'undefined') {
+                window.localStorage.setItem('user-role', 'teacher');
+                window.localStorage.setItem(
+                    'pending-dashboard-role',
+                    JSON.stringify({ role: 'TEACHER', destination: '/dashboard/creator', expiresAt: Date.now() + 20_000 }),
+                );
+            }
             const root = getRootDomain();
-            const targetUrl = root === 'localhost' ? 'http://localhost:3000/dashboard' : `https://${root}/dashboard`;
+            const targetUrl =
+                root === 'localhost' ? 'http://localhost:3000/dashboard/creator' : `https://${root}/dashboard/creator`;
             // Hard navigate to force a full remount of dashboard/page.tsx.
             window.location.href = targetUrl;
         } catch (err) {

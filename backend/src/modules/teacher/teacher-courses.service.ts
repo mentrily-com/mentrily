@@ -394,10 +394,15 @@ export class TeacherCoursesService {
           });
         }
 
+        // Only ids already owned by this course may be updated; anything else
+        // (incl. another course's ids) is created fresh so rows are never re-parented.
+        const existingUnitIds = new Set(
+          existingModules.flatMap((m: any) => m.units.map((u: any) => u.id)),
+        );
+
         const moduleUpsertPromises = incomingSections.map((sec: any, i: number) => {
-          const isNewModule = !isUUID(sec.id);
-          if (!isNewModule) {
-            const existingMod = existingModules.find((em) => em.id === sec.id);
+          const existingMod = existingModules.find((em) => em.id === sec.id);
+          if (existingMod) {
             if (
               existingMod &&
               existingMod.title === sec.title &&
@@ -405,10 +410,9 @@ export class TeacherCoursesService {
             ) {
               return Promise.resolve(existingMod);
             }
-            return tx.courseModule.upsert({
+            return tx.courseModule.update({
               where: { id: sec.id },
-              update: { title: sec.title, order: i },
-              create: { id: sec.id, title: sec.title, order: i, courseId: id },
+              data: { title: sec.title, order: i },
             });
           } else {
             return tx.courseModule.create({
@@ -443,7 +447,7 @@ export class TeacherCoursesService {
           }
 
           const unitUpserts = sec.questions.map((q: any, j: number) => {
-            const hasUUID = isUUID(q.id);
+            const hasUUID = isUUID(q.id) && existingUnitIds.has(q.id);
             const unitData = {
               title: q.title,
               type: q.type,
@@ -510,8 +514,7 @@ export class TeacherCoursesService {
       }
 
       const testUpserts = data.tests.map(async (test: any) => {
-        const hasUUID = isUUID(test.id);
-        const existingTest = hasUUID
+        const existingTest = isUUID(test.id)
           ? existingTests.find((et: any) => et.id === test.id)
           : null;
 
@@ -548,11 +551,10 @@ export class TeacherCoursesService {
           orgId: existing.orgId || null,
         };
 
-        if (hasUUID) {
-          return this.prisma.courseTest.upsert({
+        if (existingTest) {
+          return this.prisma.courseTest.update({
             where: { id: test.id },
-            update: testData,
-            create: { ...testData, id: test.id },
+            data: testData,
           });
         } else {
           return this.prisma.courseTest.create({ data: testData });

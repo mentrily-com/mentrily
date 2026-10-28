@@ -11,41 +11,12 @@ export class UserAwareThrottlerGuard extends ThrottlerGuard {
   }
 
   protected async getTracker(req: Record<string, any>): Promise<string> {
-    let tracker = req.ips?.length ? req.ips[0] : req.ip;
-
-    // 1. If user is already authenticated by an earlier guard
+    // This guard runs before auth, so bearer tokens, cookies and device ids are
+    // unverified and attacker-chosen; only a verified user or the client IP may key a bucket.
     if (req.user?.id) {
-      tracker = `user:${req.user.id}`;
-    } else {
-      // 2. Fastify lowercases headers: req.headers['authorization']
-      const authHeader = req.headers?.authorization;
-      if (typeof authHeader === 'string' && authHeader.toLowerCase().startsWith('bearer ')) {
-        const token = authHeader.slice(7).trim();
-        if (token) {
-          tracker = `token:${token.slice(-40)}`;
-        }
-      } else {
-        // 3. Check Clerk session cookie from req.cookies or raw cookie header
-        const sessionCookie =
-          req.cookies?.__session ||
-          (typeof req.headers?.cookie === 'string'
-            ? req.headers.cookie.match(/__session=([^;]+)/)?.[1]
-            : undefined);
-
-        if (sessionCookie && typeof sessionCookie === 'string' && sessionCookie.trim()) {
-          tracker = `cookie:${sessionCookie.trim().slice(-40)}`;
-        } else {
-          const rawIp = req.ips?.length ? req.ips[0] : req.ip || 'unknown-ip';
-          const deviceId = req.body?.deviceId || req.headers?.['x-device-id'];
-          if (deviceId) {
-            tracker = `ip-device:${rawIp}:${deviceId}`;
-          } else {
-            tracker = `ip:${rawIp}`;
-          }
-        }
-      }
+      return `user:${req.user.id}`;
     }
-
-    return tracker;
+    // Fastify's req.ip already honours trustProxy; req.ips[0] is the nearest hop, not the client.
+    return `ip:${req.ip || 'unknown-ip'}`;
   }
 }

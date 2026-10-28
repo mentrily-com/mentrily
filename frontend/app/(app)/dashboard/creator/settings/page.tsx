@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import AdminSettingsSkeleton from '@/app/components/Skeletons/AdminSettingsSkeleton';
+import LoadErrorCard from '@/app/components/Skeletons/LoadErrorCard';
 import AdminSettingsView from '@/app/components/Features/Admin/AdminSettingsView';
 import { AdminService } from '@/services/api/AdminService';
 import { useToast } from '@/app/components/Common/Toast';
@@ -13,6 +14,8 @@ export default function CreatorSettingsPage() {
     const { plan, role, loading } = usePlan();
     const [settingsLoading, setSettingsLoading] = React.useState(true);
     const [settingsData, setSettingsData] = React.useState<any>(null);
+    const [settingsLoadError, setSettingsLoadError] = React.useState(false);
+    const [reloadKey, setReloadKey] = React.useState(0);
 
     React.useEffect(() => {
         if (loading || role !== 'ADMIN' || plan !== 'ENTERPRISE') {
@@ -22,6 +25,7 @@ export default function CreatorSettingsPage() {
         let mounted = true;
         const load = async () => {
             setSettingsLoading(true);
+            setSettingsLoadError(false);
             try {
                 const data = await AdminService.getSettings();
 
@@ -40,6 +44,7 @@ export default function CreatorSettingsPage() {
                 });
             } catch (err: any) {
                 if (!mounted) return;
+                setSettingsLoadError(true);
                 error(err?.message || 'Failed to load settings', 'Settings Error');
             } finally {
                 if (mounted) setSettingsLoading(false);
@@ -51,7 +56,7 @@ export default function CreatorSettingsPage() {
         return () => {
             mounted = false;
         };
-    }, [error, loading, plan, role]);
+    }, [error, loading, plan, role, reloadKey]);
 
     const handleSave = async (updatedData: any) => {
         try {
@@ -124,6 +129,15 @@ export default function CreatorSettingsPage() {
 
     if (settingsLoading) {
         return <AdminSettingsSkeleton />;
+    }
+
+    if (settingsLoadError) {
+        return (
+            <LoadErrorCard
+                title="We couldn't load organization settings"
+                onRetry={() => setReloadKey((key) => key + 1)}
+            />
+        );
     }
 
     return <AdminSettingsView initialData={settingsData} onSave={handleSave} />;

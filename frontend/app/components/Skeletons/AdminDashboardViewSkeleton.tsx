@@ -1,3 +1,4 @@
+import SkeletonRoot from './SkeletonRoot';
 /**
  * Purpose-built skeleton for the org admin dashboard (`AdminDashboardView.tsx`,
  * mounted under `/dashboard/creator`). It previously fell back to the generic
@@ -11,7 +12,7 @@
  */
 export default function AdminDashboardViewSkeleton() {
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+        <SkeletonRoot className="min-h-screen bg-slate-50 text-slate-900 font-sans">
             <main className="max-w-[1440px] mx-auto px-6 lg:px-12 py-10">
                 <div className="flex items-center justify-between mb-12">
                     <div className="space-y-2">
@@ -111,6 +112,6 @@ export default function AdminDashboardViewSkeleton() {
                     </div>
                 </div>
             </main>
-        </div>
+        </SkeletonRoot>
     );
 }

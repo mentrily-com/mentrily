@@ -5,14 +5,29 @@ import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import { WebhookService } from '../webhook/webhook.service';
+import { randomBytes } from 'crypto';
 import { ExamService } from '../exam/exam.service';
+import { SubmissionService } from './submission.service';
+import { OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import {
   clearFlushedSessionAnswerFields,
   clearStashedSessionAnswers,
-  readStashedSessionAnswers,
+  FLUSH_DUE_KEY,
+  popDueSessionFlushes,
+  readStashedForFlush,
+  scheduleSessionFlush,
   stashSessionAnswers,
 } from '../common/session-answers.util';
+
+// Each flush holds a DB connection for a read + a write; keep the default
+// well under the pool size. SUBMISSION_PROCESSOR_CONCURRENCY overrides.
+const FLUSH_CONCURRENCY = Number(
+  process.env.SUBMISSION_PROCESSOR_CONCURRENCY || 4,
+);
+
+const RELEASE_LOCK = `
+if redis.call('GET', KEYS[1]) == ARGV[1] then return redis.call('DEL', KEYS[1]) end
+return 0`;
 
 @Processor('submission_queue', {
   // Optimize for serverless Redis (reduce command usage)
@@ -21,21 +36,101 @@ import {
   lockDuration: 60000, // 60s
   // Flush jobs are IO-bound (1 read + 1 write); with coalescing there is at
   // most one job per active session. Tune concurrency to avoid exhausting DB connection pool.
-  concurrency: Number(process.env.SUBMISSION_PROCESSOR_CONCURRENCY || 10),
+  concurrency: FLUSH_CONCURRENCY,
 })
-export class SubmissionProcessor extends WorkerHost {
+export class SubmissionProcessor
+  extends WorkerHost
+  implements OnModuleInit, OnModuleDestroy
+{
   constructor(
     private readonly supabase: SupabaseService,
     @InjectRedis() private readonly redis: Redis,
     @InjectQueue('student-analytics') private studentAnalyticsQueue: Queue,
     private examService: ExamService,
-    private webhookService: WebhookService,
+    private submissionService: SubmissionService,
   ) {
     super();
   }
 
   private get prisma() {
     return this.supabase.legacyPrisma;
+  }
+
+  private static readonly FLUSH_TICK_MS = 250;
+  private static readonly FLUSH_BATCH = 200;
+  private static readonly FLUSH_MAX_ATTEMPTS = 5;
+  private readonly flushConcurrency = FLUSH_CONCURRENCY;
+  private flushTimer?: NodeJS.Timeout;
+  private flushing = false;
+
+  onModuleInit() {
+    this.flushTimer = setInterval(
+      () => void this.drainDueFlushes(),
+      SubmissionProcessor.FLUSH_TICK_MS,
+    );
+  }
+
+  onModuleDestroy() {
+    clearInterval(this.flushTimer);
+  }
+
+  /**
+   * Drains FLUSH_DUE_KEY (filled by queueAnswer and go-connector). Replaces
+   * one delayed BullMQ job per session: a ZADD is one cheap command where a
+   * BullMQ add was a multi-key Lua script plus job hashes, on every save.
+   */
+  private async drainDueFlushes(): Promise<void> {
+    if (this.flushing) return;
+    this.flushing = true;
+    try {
+      const due = await popDueSessionFlushes(
+        this.redis,
+        SubmissionProcessor.FLUSH_BATCH,
+      );
+      for (let i = 0; i < due.length; i += this.flushConcurrency) {
+        // allSettled: one failure must not abandon the rest of the popped batch.
+        await Promise.allSettled(
+          due
+            .slice(i, i + this.flushConcurrency)
+            .map((sessionId) => this.flushWithRetry(sessionId)),
+        );
+      }
+    } catch (error) {
+      console.error('[SubmissionProcessor] Flush drain failed:', error);
+    } finally {
+      this.flushing = false;
+    }
+  }
+
+  private async flushWithRetry(sessionId: string): Promise<void> {
+    const attemptsKey = `submission:flush:attempts:${sessionId}`;
+    try {
+      await this.handleFlushAnswers(sessionId);
+      await this.redis.del(attemptsKey);
+    } catch {
+      // Staged answers stay in Redis either way; submit still reads them.
+      try {
+        const attempts = await this.redis.incr(attemptsKey);
+        await this.redis.expire(attemptsKey, 3600);
+        if (attempts < SubmissionProcessor.FLUSH_MAX_ATTEMPTS) {
+          await scheduleSessionFlush(
+            this.redis,
+            sessionId,
+            1000 * 2 ** attempts,
+          );
+        }
+      } catch (error) {
+        // Bookkeeping failed too: still re-queue, or the session is never
+        // flushed again (it was already popped from the due set).
+        await this.redis
+          .zadd(FLUSH_DUE_KEY, 'NX', Date.now() + 30_000, sessionId)
+          .catch(() => undefined);
+        console.error(
+          `[SubmissionProcessor] Flush retry bookkeeping failed for ${sessionId}:`,
+          error,
+        );
+      }
+    }
   }
 
   async process(job: Job<any, any, string>): Promise<any> {
@@ -61,9 +156,9 @@ export class SubmissionProcessor extends WorkerHost {
    * of the exam so repeated flushes cost zero extra DB reads.
    */
   private async getSessionMeta(sessionId: string): Promise<{
+    examId: string;
     userId: string | null;
     status: string | null;
-    questions: any;
     linkedCourseId: string | null;
     startTimeMs: number | null;
     durationMins: number | null;
@@ -73,17 +168,18 @@ export class SubmissionProcessor extends WorkerHost {
     if (cached) {
       try {
         const meta = JSON.parse(cached);
-        if (
-          typeof meta.linkedCourseId !== 'undefined' &&
-          typeof meta.startTimeMs !== 'undefined'
-        ) {
+        // v2 = questions no longer embedded; older entries are rebuilt below.
+        if (meta.v === 2 && meta.examId) {
+          // Duration comes from the 60s exam memo, not this 3h cache, so a
+          // teacher extending the exam mid-way takes effect within a minute.
+          const exam = await this.examService.getExamGradingData(meta.examId);
           return {
+            examId: meta.examId,
             userId: meta.userId || null,
             status: meta.status || null,
-            questions: meta.questions,
             linkedCourseId: meta.linkedCourseId || null,
             startTimeMs: meta.startTimeMs ?? null,
-            durationMins: meta.durationMins ?? null,
+            durationMins: exam ? exam.duration : (meta.durationMins ?? null),
           };
         }
       } catch {
@@ -98,8 +194,9 @@ export class SubmissionProcessor extends WorkerHost {
         userId: true,
         status: true,
         startTime: true,
+        examId: true,
         exam: {
-          select: { questions: true, linkedCourseId: true, duration: true },
+          select: { linkedCourseId: true, duration: true },
         },
       },
     });
@@ -107,9 +204,9 @@ export class SubmissionProcessor extends WorkerHost {
     if (!session) return null;
 
     const meta = {
+      examId: session.examId,
       userId: session.userId,
       status: session.status,
-      questions: session.exam?.questions ?? null,
       linkedCourseId: session.exam?.linkedCourseId || null,
       startTimeMs: session.startTime
         ? new Date(session.startTime).getTime()
@@ -120,9 +217,9 @@ export class SubmissionProcessor extends WorkerHost {
     await this.redis.set(
       sessionCacheKey,
       JSON.stringify({
-        examId: session.id,
+        v: 2,
+        examId: session.examId,
         userId: meta.userId,
-        questions: meta.questions,
         status: meta.status,
         linkedCourseId: meta.linkedCourseId,
         startTimeMs: meta.startTimeMs,
@@ -162,14 +259,57 @@ export class SubmissionProcessor extends WorkerHost {
    * FLUSH_DELAY_MS per session regardless of typing speed.
    */
   private async handleFlushAnswers(sessionId: string) {
+    // Two instances (or a retry racing the next tick) must not flush the same
+    // session at once: both would grade and write, and analytics double-count.
+    const lockKey = `flush:lock:${sessionId}`;
+    const token = randomBytes(8).toString('hex');
+    if ((await this.redis.set(lockKey, token, 'PX', 30_000, 'NX')) !== 'OK') {
+      await scheduleSessionFlush(this.redis, sessionId, 1000);
+      return;
+    }
     try {
-      const staged = await readStashedSessionAnswers(this.redis, sessionId);
-      if (Object.keys(staged).length === 0) {
+      return await this.flushLocked(sessionId);
+    } finally {
+      await this.redis
+        .eval(RELEASE_LOCK, 1, lockKey, token)
+        .catch(() => undefined);
+    }
+  }
+
+  private async flushLocked(sessionId: string) {
+    try {
+      const { answers: stagedRaw, raw } = await readStashedForFlush(
+        this.redis,
+        sessionId,
+      );
+      if (Object.keys(stagedRaw).length === 0) {
         return;
       }
 
       const meta = await this.getSessionMeta(sessionId);
       if (!meta) return;
+
+      const currentSession = await this.prisma.examSession.findUnique({
+        where: { id: sessionId },
+        select: { answers: true },
+      });
+      const storedAnswers = (currentSession?.answers as any) || {};
+
+      // Unknown keys and writes into already-submitted sections never reach
+      // Postgres. Only accepted fields are cleared from the stash: a field
+      // dropped here (e.g. against a stale question list) stays in Redis,
+      // where final submit filters it again.
+      const { accepted: staged, exam } =
+        await this.examService.filterAnswersForExam(
+          meta.examId,
+          stagedRaw,
+          storedAnswers,
+        );
+      const questions = exam?.questions;
+      const flushedRaw: Record<string, string> = {};
+      for (const key of Object.keys(staged)) {
+        if (key in raw) flushedRaw[key] = raw[key];
+      }
 
       // Ignore late writes for finished sessions
       if (meta.status === 'TERMINATED' || meta.status === 'COMPLETED') {
@@ -203,23 +343,15 @@ export class SubmissionProcessor extends WorkerHost {
         await clearFlushedSessionAnswerFields(
           this.redis,
           sessionId,
-          Object.keys(staged),
+          flushedRaw,
         );
-      } else if (meta.questions) {
-        // Live-graded exams: read once, grade the merged view, write once.
-        const currentSession = await this.prisma.examSession.findUnique({
-          where: { id: sessionId },
-          select: { answers: true },
-        });
-
-        const mergedAnswers = {
-          ...((currentSession?.answers as any) || {}),
-          ...staged,
-        };
+      } else if (questions) {
+        // Live-graded exams: grade the merged view, write once.
+        const mergedAnswers = { ...storedAnswers, ...staged };
 
         const scoreDetails = this.examService.calculateScoreDetails(
           mergedAnswers,
-          meta.questions,
+          questions,
         );
 
         await this.prisma.$executeRaw`
@@ -242,7 +374,7 @@ export class SubmissionProcessor extends WorkerHost {
         await clearFlushedSessionAnswerFields(
           this.redis,
           sessionId,
-          Object.keys(staged),
+          flushedRaw,
         );
 
         // Question-attempt analytics, one entry per question per flush
@@ -259,7 +391,7 @@ export class SubmissionProcessor extends WorkerHost {
         // increment with no dedup of its own, so skip anything unchanged
         // from what was already persisted before this flush.
         if (meta.userId) {
-          const previousAnswers = (currentSession?.answers as any) || {};
+          const previousAnswers = storedAnswers;
           const jobs = Object.entries(staged)
             .filter(([qId]) => !qId.startsWith('_'))
             .filter(
@@ -295,7 +427,7 @@ export class SubmissionProcessor extends WorkerHost {
         await clearFlushedSessionAnswerFields(
           this.redis,
           sessionId,
-          Object.keys(staged),
+          flushedRaw,
         );
       }
     } catch (error) {
@@ -308,19 +440,20 @@ export class SubmissionProcessor extends WorkerHost {
     const { sessionId } = job.data;
     console.log(`Auto-submitting session: ${sessionId}`);
 
-    // Ensure score is calculated (in case of race conditions or missing updates)
-    const session = await this.prisma.examSession.findUnique({
-      where: { id: sessionId },
-      select: {
-        answers: true,
-        score: true,
-        status: true,
-        userId: true,
-        startTime: true,
-        examId: true,
-        exam: { select: { questions: true, orgId: true } },
-      },
-    });
+    // Same merge + validation as manual submit (stash read before the row).
+    const { session, answers, exam } =
+      await this.submissionService.collectFinalAnswers(sessionId, () =>
+        this.prisma.examSession.findUnique({
+          where: { id: sessionId },
+          select: {
+            answers: true,
+            status: true,
+            userId: true,
+            startTime: true,
+            examId: true,
+          },
+        }),
+      );
 
     // Idempotency: only IN_PROGRESS sessions can be auto-submitted.
     // TERMINATED sessions (e.g. cheating disqualification) must never be completed.
@@ -328,13 +461,9 @@ export class SubmissionProcessor extends WorkerHost {
       return;
     }
 
-    const dbAnswers = (session.answers as any) || {};
-    const staged = await readStashedSessionAnswers(this.redis, sessionId);
-    const answers = { ...dbAnswers, ...staged };
-
     const scoreDetails = this.examService.calculateScoreDetails(
       answers,
-      session.exam?.questions,
+      exam?.questions,
     );
     const finalScore = scoreDetails.percentage;
 
@@ -374,45 +503,12 @@ export class SubmissionProcessor extends WorkerHost {
 
     await clearStashedSessionAnswers(this.redis, sessionId);
 
-    // Trigger analytics updates
-    await this.studentAnalyticsQueue.add('update-streak', {
+    await this.submissionService.runCompletionSideEffects({
+      sessionId,
+      examId: session.examId,
       userId: session.userId,
+      orgId: exam?.orgId ?? null,
+      score: finalScore,
     });
-
-    try {
-      const orgId = session.exam?.orgId || null;
-      if (orgId) {
-        await this.webhookService.dispatch(orgId, 'exam.completed', {
-          sessionId,
-          examId: session.examId,
-          studentId: session.userId,
-          score: Number(finalScore || 0),
-        });
-
-        const threshold = Number(process.env.WEBHOOK_SCORE_THRESHOLD || 40);
-        if (Number(finalScore || 0) < threshold) {
-          await this.webhookService.dispatch(orgId, 'score.below_threshold', {
-            sessionId,
-            examId: session.examId,
-            studentId: session.userId,
-            score: Number(finalScore || 0),
-            threshold,
-          });
-        }
-      }
-    } catch (error) {
-      console.warn(
-        `[SubmissionProcessor] Failed to dispatch webhook events for session ${sessionId}`,
-        error,
-      );
-    }
-
-    try {
-      await this.examService.handleExamCompletion(sessionId);
-    } catch (error: any) {
-      console.warn(
-        `[SubmissionProcessor] Exam completion post-processing skipped for session ${sessionId}: ${error?.message || 'unknown_error'}`,
-      );
-    }
   }
 }

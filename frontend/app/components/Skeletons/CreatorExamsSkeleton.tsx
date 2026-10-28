@@ -1,3 +1,4 @@
+import SkeletonRoot from './SkeletonRoot';
 /**
  * Purpose-built skeleton for the creator exam management page
  * (`/dashboard/creator/exams`). The previous fallback wrapped the generic
@@ -11,7 +12,7 @@
  */
 export default function CreatorExamsSkeleton() {
     return (
-        <div className="pb-10 font-sans">
+        <SkeletonRoot className="pb-10 font-sans">
             <div className="mb-8 flex flex-col justify-between gap-4 md:mb-12 md:flex-row md:items-center">
                 <div>
                     <div className="h-8 w-56 animate-pulse rounded-md bg-slate-200" />
@@ -54,6 +55,6 @@ export default function CreatorExamsSkeleton() {
                     </div>
                 ))}
             </div>
-        </div>
+        </SkeletonRoot>
     );
 }

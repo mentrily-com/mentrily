@@ -591,26 +591,19 @@ export class BillingService {
     newPlan?: PlanKey | null;
     metadata?: unknown;
   }): Promise<void> {
-    try {
-      await this.prisma.subscriptionEvent.create({
-        data: {
-          stripeEventId: params.stripeEventId,
-          eventType: params.eventType,
-          orgId: params.orgId,
-          previousPlan: params.previousPlan || null,
-          newPlan: params.newPlan || null,
-          metadata: (params.metadata as any) || null,
-        },
-      });
-    } catch (err: any) {
-      if (err?.code === 'P2002') {
-        this.logger.log(
-          `Subscription event ${params.stripeEventId} already recorded (idempotent duplicate)`,
-        );
-        return;
-      }
-      throw err;
-    }
+    const data = {
+      eventType: params.eventType,
+      orgId: params.orgId,
+      previousPlan: params.previousPlan || null,
+      newPlan: params.newPlan || null,
+      metadata: (params.metadata as any) || null,
+    };
+    // The row usually already exists as the webhook's idempotency claim; fill in the outcome.
+    await this.prisma.subscriptionEvent.upsert({
+      where: { stripeEventId: params.stripeEventId },
+      update: data,
+      create: { stripeEventId: params.stripeEventId, ...data },
+    });
   }
 
   private async invalidateSessionCacheByClerkIds(
@@ -816,19 +809,71 @@ export class BillingService {
       throw new BadRequestException('Invalid Stripe signature');
     }
 
-    const existing = await this.prisma.subscriptionEvent.findUnique({
-      where: { stripeEventId: event.id },
-      select: { id: true },
-    });
+    // Claim the event atomically before acting on it: the unique stripeEventId
+    // insert is the idempotency lock, so concurrent/retried deliveries no-op.
+    const eventCustomer = event.data?.object?.customer;
+    const eventCustomerId =
+      typeof eventCustomer === 'string' ? eventCustomer : eventCustomer?.id;
+    const eventOrg = eventCustomerId
+      ? await this.prisma.organization.findFirst({
+          where: { stripeCustomerId: eventCustomerId },
+          select: { id: true, plan: true, stripeSubscriptionId: true },
+        })
+      : null;
 
-    if (existing) {
-      return {
-        received: true,
-        deduplicated: true,
-        eventType: event.type,
-      };
+    if (eventOrg) {
+      try {
+        await this.prisma.subscriptionEvent.create({
+          data: {
+            stripeEventId: event.id,
+            eventType: event.type,
+            orgId: eventOrg.id,
+            previousPlan: (eventOrg.plan as PlanKey) || null,
+          },
+        });
+      } catch (err: any) {
+        if (err?.code === 'P2002') {
+          return { received: true, deduplicated: true, eventType: event.type };
+        }
+        throw err;
+      }
+    } else if (
+      await this.prisma.subscriptionEvent.findUnique({
+        where: { stripeEventId: event.id },
+        select: { id: true },
+      })
+    ) {
+      return { received: true, deduplicated: true, eventType: event.type };
     }
 
+    try {
+      await this.applyWebhookEvent(stripe, event, eventOrg);
+    } catch (err) {
+      // Release the claim so Stripe's retry can process the event again.
+      if (eventOrg) {
+        await this.prisma.subscriptionEvent
+          .deleteMany({ where: { stripeEventId: event.id } })
+          .catch(() => {});
+      }
+      throw err;
+    }
+
+    return {
+      received: true,
+      deduplicated: false,
+      eventType: event.type,
+    };
+  }
+
+  private async applyWebhookEvent(
+    stripe: any,
+    event: any,
+    eventOrg: {
+      id: string;
+      plan: unknown;
+      stripeSubscriptionId: string | null;
+    } | null,
+  ): Promise<void> {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
@@ -849,7 +894,32 @@ export class BillingService {
       }
 
       case 'customer.subscription.updated': {
-        const subscription = event.data.object;
+        // Never trust the event snapshot: a late/retried 'updated' delivered
+        // after 'deleted' would otherwise re-activate the paid plan.
+        const subscription = await stripe.subscriptions.retrieve(
+          event.data.object.id,
+        );
+        const isStale =
+          subscription.status === 'canceled' ||
+          (!!eventOrg?.stripeSubscriptionId &&
+            eventOrg.stripeSubscriptionId !== subscription.id);
+        if (isStale) {
+          if (eventOrg) {
+            await this.createSubscriptionEventRecord({
+              stripeEventId: event.id,
+              eventType: event.type,
+              orgId: eventOrg.id,
+              previousPlan: eventOrg.plan as PlanKey,
+              newPlan: eventOrg.plan as PlanKey,
+              metadata: {
+                ignored: true,
+                subscriptionId: subscription.id,
+                status: subscription.status,
+              },
+            });
+          }
+          break;
+        }
         await this.syncPlanFromSubscription(subscription, event.id, event.type);
         break;
       }
@@ -1032,12 +1102,6 @@ export class BillingService {
         }
       }
     }
-
-    return {
-      received: true,
-      deduplicated: false,
-      eventType: event.type,
-    };
   }
 
   async getUsage(input: { orgId?: string | null; userId?: string | null }) {

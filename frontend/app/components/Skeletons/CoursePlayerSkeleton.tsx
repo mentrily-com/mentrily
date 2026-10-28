@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import SkeletonRoot from './SkeletonRoot';
 
 interface CoursePlayerSkeletonProps {
     isExamMode?: boolean;
@@ -18,7 +19,7 @@ export default function CoursePlayerSkeleton({
     const sidebarWidth = sidebarCollapsed ? 'w-16' : 'w-[300px]';
 
     return (
-        <div className={`${rootHeight} bg-white flex flex-col overflow-hidden font-sans`}>
+        <SkeletonRoot className={`${rootHeight} bg-white flex flex-col overflow-hidden font-sans`}>
             {/* Top Full-Width Navbar for Exam Mode */}
             {isExamMode && (
                 <div className="h-16 border-b border-slate-100 bg-white flex items-center justify-between px-6 shrink-0 z-10">
@@ -146,6 +147,6 @@ export default function CoursePlayerSkeleton({
                     </div>
                 </div>
             </div>
-        </div>
+        </SkeletonRoot>
     );
 }

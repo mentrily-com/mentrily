@@ -10,6 +10,7 @@ import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { CertificateService } from '../certificate/certificate.service';
+import { unitPassKey } from './unit-pass.util';
 
 @Injectable()
 export class StudentService {
@@ -411,14 +412,20 @@ export class StudentService {
     const exams = await this.prisma.exam.findMany({
       where: {
         isActive: true,
-        orgId: user.orgId || undefined,
+        // null (not undefined) so org-less learners don't see every org's exams
+        orgId: user.orgId || null,
       } as any, // Bypass stale type definition
-      include: {
+      select: {
+        title: true,
+        slug: true,
+        questions: true, // server-side only, for the section count below
         submissions: {
           where: { userId: user.id },
           select: { status: true, score: true },
         },
       },
+      orderBy: { createdAt: 'desc' },
+      take: 100,
     });
 
     return exams.map((exam: any) => {
@@ -1420,17 +1427,46 @@ export class StudentService {
   }
 
   async submitUnit(
-    userId: string,
+    user: { id: string; orgId?: string | null; role?: string },
     unitId: string,
     data: { status: string; content: any; score?: number },
   ) {
+    const userId = user.id;
     // Check if this unitId maps to a real Unit record (FK constraint)
     const unitExists = await this.prisma.unit.findUnique({
       where: { id: unitId },
-      select: { id: true, type: true, content: true },
+      select: {
+        id: true,
+        type: true,
+        content: true,
+        module: {
+          select: {
+            course: { select: { id: true, orgId: true, creatorId: true } },
+          },
+        },
+      },
     });
 
     if (unitExists) {
+      // Same access rule as code-execution submitCode: COMPLETED rows feed
+      // course progress and auto-issued certificates.
+      const course = unitExists.module?.course;
+      const isOwner =
+        user.role === 'SUPER_ADMIN' ||
+        (!!course?.creatorId && course.creatorId === userId);
+      if (!isOwner) {
+        if (course?.orgId && user.orgId && course.orgId !== user.orgId) {
+          throw new ForbiddenException('You do not have access to this unit');
+        }
+        const enrolled = await this.prisma.course.findFirst({
+          where: { id: course?.id, students: { some: { id: userId } } },
+          select: { id: true },
+        });
+        if (!enrolled) {
+          throw new ForbiddenException('You are not enrolled in this course');
+        }
+      }
+
       const authoritative = this.recomputeMcqCorrectness(
         unitExists.type,
         unitExists.content,
@@ -1442,10 +1478,17 @@ export class StudentService {
           status: authoritative.status,
           score: authoritative.score,
         };
+      } else if (unitExists.type === 'Coding' && data.status === 'COMPLETED') {
+        // Coding completion needs a server-recorded all-tests-passed run.
+        const passed = await this.redis.get(unitPassKey(userId, unitId));
+        if (!passed) {
+          data = { ...data, status: 'IN_PROGRESS', score: 0 };
+        }
       }
     }
 
     let submission: any;
+    let virtualAttemptId: string | undefined;
 
     if (unitExists) {
       const latestSubmission = await this.prisma.unitSubmission.findFirst({
@@ -1493,6 +1536,7 @@ export class StudentService {
           score: data.score,
         },
       });
+      virtualAttemptId = attempt.id;
       // Shape to UnitSubmission-compatible response
       submission = {
         id: attempt.id,
@@ -1515,6 +1559,7 @@ export class StudentService {
       content: data.content,
       isCorrect: data.status === 'COMPLETED',
       score: data.score,
+      attemptId: virtualAttemptId,
     });
 
     // Invalidate cache

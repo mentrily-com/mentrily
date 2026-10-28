@@ -41,11 +41,10 @@ export async function GET(req: NextRequest) {
 
     try {
         const res = await fetch(url, { redirect: 'error' });
-        if (!res.ok) {
+        if (!res.ok || !res.body) {
             return NextResponse.json({ error: 'Failed to fetch file' }, { status: 502 });
         }
 
-        const blob = await res.blob();
         const headers = new Headers();
         headers.set('Content-Type', res.headers.get('content-type') || 'application/octet-stream');
         headers.set('Content-Disposition', `attachment; filename="${encodeURIComponent(name)}"`);
@@ -53,7 +52,8 @@ export async function GET(req: NextRequest) {
             headers.set('Content-Length', res.headers.get('content-length')!);
         }
 
-        return new NextResponse(blob, { status: 200, headers });
+        // Stream instead of res.blob(): files can be up to 500MB.
+        return new NextResponse(res.body, { status: 200, headers });
     } catch {
         return NextResponse.json({ error: 'Download failed' }, { status: 500 });
     }

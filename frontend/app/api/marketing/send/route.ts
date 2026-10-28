@@ -3,29 +3,66 @@ import { LRUCache } from 'lru-cache';
 import { Resend } from 'resend';
 import { siteConfig } from '../../../config/site';
 
-// Rate limiting: 5 requests per IP per hour
+// Rate limiting: 3 requests per IP per hour, 1 email per recipient per day.
+// shortcut: in-memory per instance and IP comes from x-forwarded-for, so this
+// only slows abuse; add a captcha + shared (Redis) limiter if it gets abused.
 const rateLimit = new LRUCache<string, number>({
     max: 500,
     ttl: 1000 * 60 * 60, // 1 hour
 });
+const recipientLimit = new LRUCache<string, true>({
+    max: 5000,
+    ttl: 1000 * 60 * 60 * 24, // 1 day
+});
+
+// Browsers always send Origin on cross-site POSTs; require it to be this app,
+// so other sites can't use this endpoint to mail arbitrary addresses.
+function isSameOrigin(request: Request): boolean {
+    const origin = request.headers.get('origin');
+    if (!origin) return false;
+    try {
+        const host = new URL(origin).host.toLowerCase();
+        const domain = siteConfig.domain.toLowerCase();
+        return (
+            host === (request.headers.get('host') || '').toLowerCase() || host === domain || host.endsWith(`.${domain}`)
+        );
+    } catch {
+        return false;
+    }
+}
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 
 export async function POST(request: Request) {
     try {
+        if (!isSameOrigin(request)) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
         const rawIp = request.headers.get('x-forwarded-for') || request.headers.get('cf-connecting-ip') || 'unknown';
         const ip = rawIp.split(',')[0].trim();
         const currentUsage = rateLimit.get(ip) || 0;
-        if (currentUsage >= 5) {
+        if (currentUsage >= 3) {
             return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
         }
         rateLimit.set(ip, currentUsage + 1);
 
-        const { email } = await request.json();
+        const { email, website } = await request.json();
+
+        // Honeypot: a hidden "website" field real users never fill. Pretend success for bots.
+        if (website) {
+            return NextResponse.json({ success: true });
+        }
 
         if (!email || !/^\S+@\S+\.\S+$/.test(String(email).trim())) {
             return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
         }
+
+        const recipient = String(email).trim().toLowerCase();
+        if (recipientLimit.has(recipient)) {
+            return NextResponse.json({ success: true }); // don't reveal or re-send
+        }
+        recipientLimit.set(recipient, true);
 
         // Use the smaller square logo as requested
         const LOGO_URL = new URL('/android-chrome-512x512.png', siteConfig.url).toString();
@@ -37,7 +74,7 @@ export async function POST(request: Request) {
 
         const result = await resend.emails.send({
             from: fromEmail,
-            to: email,
+            to: recipient,
             subject: 'Launch your branded school today with Mentrily',
             html: `
 <!DOCTYPE html>
@@ -126,10 +163,11 @@ export async function POST(request: Request) {
         });
 
         if (result.error) {
-            return NextResponse.json({ error: result.error.message }, { status: 500 });
+            console.error('Marketing send failed:', result.error);
+            return NextResponse.json({ error: 'Failed to send email' }, { status: 500 });
         }
 
-        return NextResponse.json({ success: true, data: result.data });
+        return NextResponse.json({ success: true });
     } catch (error: any) {
         console.error('Marketing API error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

@@ -15,6 +15,7 @@ import {
   getAllowedWebOrigins,
   isAllowedSubdomainOrigin,
 } from './config/app-brand';
+import { resolveTrustProxy } from './common/client-ip';
 
 process.env.TZ = process.env.TZ || 'Asia/Kathmandu';
 
@@ -65,7 +66,8 @@ async function bootstrap() {
     new FastifyAdapter({
       logger: !isProduction,
       bodyLimit: 10 * 1024 * 1024,
-      trustProxy: true,
+      // Only the configured proxy hops are trusted for req.ip (see client-ip.ts).
+      trustProxy: resolveTrustProxy(),
     }),
     {
       rawBody: true,
@@ -76,12 +78,6 @@ async function bootstrap() {
   app.useGlobalFilters(new SentryExceptionFilter(sentryEnabled, httpAdapter));
 
   const fastifyInstance = app.getHttpAdapter().getInstance();
-  fastifyInstance.addHook('onRequest', async (req: FastifyRequest) => {
-    const cfConnectingIp = req.headers['cf-connecting-ip'];
-    if (typeof cfConnectingIp === 'string' && cfConnectingIp.trim()) {
-      req.headers['x-forwarded-for'] = cfConnectingIp.trim();
-    }
-  });
 
   // Register plugin to allow Authorization header for CORS
   await app.register(require('./fastify-cors-auth-header.plugin').default);

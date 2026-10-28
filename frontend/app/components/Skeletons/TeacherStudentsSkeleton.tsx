@@ -1,3 +1,4 @@
+import SkeletonRoot from './SkeletonRoot';
 /**
  * Purpose-built skeleton for the teacher students/roster page
  * (`dashboard/creator/_components/TeacherStudentsPage.tsx`). It previously
@@ -12,7 +13,7 @@
  */
 export default function TeacherStudentsSkeleton() {
     return (
-        <div className="font-sans">
+        <SkeletonRoot className="font-sans">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
                 <div className="space-y-2">
                     <div className="h-7 w-52 animate-pulse rounded-lg bg-slate-200" />
@@ -78,6 +79,6 @@ export default function TeacherStudentsSkeleton() {
                     ))}
                 </div>
             </div>
-        </div>
+        </SkeletonRoot>
     );
 }

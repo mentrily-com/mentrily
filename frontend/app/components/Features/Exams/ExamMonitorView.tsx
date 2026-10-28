@@ -7,8 +7,11 @@ import AppModal from '@/app/components/Common/AppModal';
 import AlertModal from '@/app/components/Common/AlertModal';
 import { io, Socket } from 'socket.io-client';
 import { getClerkToken } from '@/lib/clerk-token';
+import { PROCTORING_SOCKET_URL, proctoringSocketOptions } from '@/lib/proctoring-socket';
 
 // PeerJS dynamic import usage in useEffect
+
+const MAX_LIVE_VIOLATIONS = 200;
 
 interface Feedback {
     id: string;
@@ -30,10 +33,26 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
     const { success, error, warning, info } = useToast();
     const socketRef = React.useRef<Socket | null>(null);
     const peerRef = React.useRef<any>(null); // Peer instance
+    // Students we've asked for a stream; any other incoming call is refused.
+    const requestedStreamsRef = React.useRef(new Set<string>());
     const [violations, setViolations] = useState<any[]>([]);
     const [activeStream, setActiveStream] = useState<{ studentId: string; stream: MediaStream } | null>(null);
     const videoRef = React.useRef<HTMLVideoElement>(null);
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+    // The monitor poll carries only each student's latest few logs; the detail modal loads the full log.
+    const [fullLogs, setFullLogs] = useState<any[] | null>(null);
+    const selectedSessionId = selectedStudent?.sessionId;
+    useEffect(() => {
+        setFullLogs(null);
+        if (!selectedSessionId) return;
+        let cancelled = false;
+        TeacherService.getSessionViolations(examId, selectedSessionId)
+            .then((res) => !cancelled && setFullLogs(res.logs))
+            .catch(() => {});
+        return () => {
+            cancelled = true;
+        };
+    }, [examId, selectedSessionId]);
     const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
     const [students, setStudents] = useState<Student[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -46,22 +65,37 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
     }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
 
     useEffect(() => {
+        let active = true; // false once examId changes/unmounts: ignore late responses
+        let inFlight = false;
         const loadData = async () => {
-            // ... existing data loading ...
+            if (inFlight || (typeof document !== 'undefined' && document.hidden)) return;
+            inFlight = true;
             try {
-                const studentData = await TeacherService.getMonitoredStudents(examId);
+                const [studentData, feedbackData] = await Promise.all([
+                    TeacherService.getMonitoredStudents(examId),
+                    TeacherService.getFeedbacks(examId),
+                ]);
+                if (!active) return;
                 setStudents(studentData);
-                const feedbackData = await TeacherService.getFeedbacks(examId);
                 setFeedbacks(feedbackData);
             } catch (e) {
                 console.error('Failed to load monitor data', e);
             } finally {
-                setIsLoading(false);
+                inFlight = false;
+                if (active) setIsLoading(false);
             }
         };
         loadData();
-        const interval = setInterval(loadData, 5000); // 5s poll
-        return () => clearInterval(interval);
+        const interval = setInterval(loadData, 5000); // 5s poll, skipped while the tab is hidden
+        const onVisible = () => {
+            if (!document.hidden) loadData();
+        };
+        document.addEventListener('visibilitychange', onVisible);
+        return () => {
+            active = false;
+            clearInterval(interval);
+            document.removeEventListener('visibilitychange', onVisible);
+        };
     }, [examId]);
 
     // --- AI PROCTORING LOGIC ---
@@ -70,33 +104,31 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
 
         let cancelled = false;
         let socket: Socket | null = null;
+        const requestedStreams = requestedStreamsRef.current;
 
         const setup = async () => {
-            // 1. Socket Init
-            // Trailing slash must be stripped before appending the namespace
-            // below — "host.com//ns" is a different, invalid namespace to the
-            // server than "host.com/ns" (see useExamSocket.ts).
-            const SOCKET_URL = (
-                process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000'
-            ).replace(/\/+$/, '');
+            // 1. Socket Init (same endpoint/transport as the student side)
             // The socket connects to a different origin than the app in
             // production (an AWS API Gateway domain, not www.mentrily.com),
             // so cookie-based auth can never reach it — attach a bearer
             // token explicitly, same as REST calls (see lib/clerk-token.ts).
-            const token = await getClerkToken();
-            if (cancelled) return;
-
-            socket = io(`${SOCKET_URL}/proctoring`, {
-                // See useExamSocket.ts: production's API Gateway can't perform a
-                // WS upgrade at all, so 'websocket'-only meant this could never
-                // connect in production. Force long-polling instead.
-                transports: ['polling'],
-                upgrade: false,
+            // The callback runs on every (re)connect, so a reconnect after the
+            // ~60s Clerk token expiry gets a fresh one instead of failing.
+            socket = io(`${PROCTORING_SOCKET_URL}/proctoring`, {
+                ...proctoringSocketOptions,
                 reconnection: true,
-                withCredentials: true,
-                auth: token ? { token } : undefined,
+                auth: (cb) => {
+                    getClerkToken().then(
+                        (token) => cb(token ? { token } : {}),
+                        () => cb({}),
+                    );
+                },
             });
             socketRef.current = socket;
+
+            socket.on('connect_error', (err) => {
+                console.error('[Monitor] connect_error:', err.message);
+            });
 
             socket.on('connect', () => {
                 console.log('[Monitor] Connected to socket');
@@ -112,6 +144,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                 if (peerRef.current) return;
                 try {
                     const { Peer } = await import('peerjs');
+                    if (cancelled) return;
                     const peer = new Peer();
 
                     peer.on('open', (id: string) => {
@@ -120,13 +153,17 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                     });
 
                     peer.on('call', (call: any) => {
-                        console.log('[Monitor] Incoming Call');
-                        call.answer(); // Answer automatically
+                        // Peer IDs are public, so only accept a call from a student
+                        // we asked (the caller must send metadata: { studentId }).
+                        const studentId = call.metadata?.studentId;
+                        if (!studentId || !requestedStreamsRef.current.delete(studentId)) {
+                            console.warn('[Monitor] Rejected unrequested call', call.peer);
+                            call.close();
+                            return;
+                        }
+                        call.answer();
                         call.on('stream', (remoteStream: MediaStream) => {
-                            console.log('[Monitor] Stream received');
-                            // Find who is calling?
-                            // Simplified: Just show the stream
-                            setActiveStream({ studentId: 'Unknown', stream: remoteStream });
+                            setActiveStream({ studentId, stream: remoteStream });
                         });
                     });
                 } catch (e) {
@@ -146,7 +183,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
             // MonitoringGateway) rather than a string would crash `.startsWith`
             // outright and break this listener for the rest of the session.
             socket.on('live_violation', (data: any) => {
-                setViolations((prev) => [data, ...prev]);
+                setViolations((prev) => [data, ...prev].slice(0, MAX_LIVE_VIOLATIONS));
                 warning(`Violation: ${data.userId} - ${data.type}`);
             });
         };
@@ -155,6 +192,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
 
         return () => {
             cancelled = true;
+            requestedStreams.clear();
             socket?.disconnect();
             if (peerRef.current) peerRef.current.destroy();
             peerRef.current = null;
@@ -174,6 +212,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
             return;
         }
         info(`Requesting stream from ${studentId}...`);
+        requestedStreamsRef.current.add(studentId);
         socketRef.current.emit('request_stream', {
             targetUserId: studentId,
             examId,
@@ -851,7 +890,7 @@ export default function ExamMonitorView({ examId, userRole = 'teacher' }: ExamMo
                             <div className="h-[1px] flex-1 bg-slate-100"></div>
                         </div>
                         <div className="space-y-4">
-                            {selectedStudent.logs.map((log, idx) => (
+                            {(fullLogs ?? selectedStudent.logs).map((log, idx) => (
                                 <div
                                     key={idx}
                                     className="flex flex-col gap-3 p-4 rounded-[20px] border border-slate-50 bg-white hover:border-slate-100 hover:shadow-sm transition-all group sm:flex-row sm:items-start sm:gap-6 sm:p-5 sm:rounded-[24px]"

@@ -1,3 +1,4 @@
+import SkeletonRoot from './SkeletonRoot';
 /**
  * Purpose-built skeleton for the creator "Manage Users" page
  * (`/dashboard/creator/manage-users`), shown while the caller's role is
@@ -11,7 +12,7 @@
  */
 export default function ManageUsersSkeleton() {
     return (
-        <div className="font-sans">
+        <SkeletonRoot className="font-sans">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div className="space-y-2">
                     <div className="h-6 w-48 animate-pulse rounded-md bg-slate-200" />
@@ -56,6 +57,6 @@ export default function ManageUsersSkeleton() {
                     ))}
                 </div>
             </div>
-        </div>
+        </SkeletonRoot>
     );
 }

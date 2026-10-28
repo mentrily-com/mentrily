@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useMemo, useEffect } from 'react';
-import CoursePlayerSkeleton from '@/app/components/Skeletons/CoursePlayerSkeleton';
+import SubmissionPreviewSkeleton from '@/app/components/Skeletons/SubmissionPreviewSkeleton';
 import UnitRenderer from '@/app/components/UnitRenderer';
 import ExamSidebar from '@/app/components/ExamSidebar';
 import { useToast } from '@/app/components/Common/Toast';
@@ -217,7 +217,7 @@ export default function SubmissionPreviewPage({ params }: { params: Promise<{ id
         setMarksWithRef((prev) => ({ ...prev, [questionId]: String(clamped) }));
     };
 
-    if (loading) return <CoursePlayerSkeleton hasSidebar={true} isExamMode={false} />;
+    if (loading) return <SubmissionPreviewSkeleton />;
 
     if (!submissionData) {
         return (

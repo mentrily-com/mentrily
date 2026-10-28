@@ -1,3 +1,4 @@
+import SkeletonRoot from './SkeletonRoot';
 /**
  * Purpose-built skeleton for the admin "Examinations & Content" view
  * (`AdminExamsView.tsx`). It previously reused the generic
@@ -12,7 +13,7 @@
  */
 export default function AdminExamsViewSkeleton() {
     return (
-        <div className="pb-10">
+        <SkeletonRoot className="pb-10">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-12">
                 <div className="space-y-2">
                     <div className="h-7 w-64 animate-pulse rounded-lg bg-slate-200" />
@@ -74,6 +75,6 @@ export default function AdminExamsViewSkeleton() {
                     ))}
                 </div>
             </div>
-        </div>
+        </SkeletonRoot>
     );
 }

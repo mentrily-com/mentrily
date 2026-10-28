@@ -1,3 +1,4 @@
+import SkeletonRoot from './SkeletonRoot';
 /**
  * Purpose-built skeleton for the super-admin global user index
  * (`/dashboard/super-admin/users`). Previously this route used the generic
@@ -10,7 +11,7 @@
  */
 export default function GlobalUsersSkeleton() {
     return (
-        <div className="max-w-[1440px] mx-auto animate-fade-in">
+        <SkeletonRoot className="max-w-[1440px] mx-auto animate-fade-in">
             <div className="px-6 lg:px-12 py-10">
                 <div className="flex items-center justify-between mb-12">
                     <div className="space-y-3">
@@ -69,6 +70,6 @@ export default function GlobalUsersSkeleton() {
                     </div>
                 </div>
             </div>
-        </div>
+        </SkeletonRoot>
     );
 }

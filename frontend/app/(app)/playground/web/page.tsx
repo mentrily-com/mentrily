@@ -7,7 +7,7 @@ import PublicPlaygroundShell from '@/app/components/Playground/PublicPlaygroundS
 
 const WebEditor = dynamic(() => import('@/app/components/WebEditor/WebEditor'), {
     ssr: false,
-    loading: () => <PlaygroundSkeleton />,
+    loading: () => <PlaygroundSkeleton fillHeight />,
 });
 
 export default function WebPlaygroundPage({ embeddedShell = true }: { embeddedShell?: boolean }) {

@@ -13,6 +13,7 @@ const CodingQuestionRenderer = dynamic(() => import('@/app/components/CodingQues
 
 import ProblemStatement from '@/app/components/ProblemStatement';
 import PublicPlaygroundShell from '@/app/components/Playground/PublicPlaygroundShell';
+import SharedQuestionSkeleton from '@/app/components/Skeletons/SharedQuestionSkeleton';
 import { CodeExecutionService } from '@/services/api/CodeExecutionService';
 
 export default function SharedCodingQuestionPage() {
@@ -53,13 +54,7 @@ export default function SharedCodingQuestionPage() {
     }, [slug]);
 
     if (loading) {
-        return (
-            <PublicPlaygroundShell>
-                <div className="flex h-[640px] items-center justify-center rounded-2xl border border-slate-100 bg-white text-sm font-bold text-slate-500">
-                    Loading question...
-                </div>
-            </PublicPlaygroundShell>
-        );
+        return <SharedQuestionSkeleton />;
     }
 
     if (error || !record?.question) {

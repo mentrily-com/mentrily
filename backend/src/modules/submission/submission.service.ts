@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -9,14 +10,18 @@ import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
 import { SupabaseService } from '../../services/supabase/supabase.service';
 import { ExamService } from '../exam/exam.service';
+import { WebhookService } from '../webhook/webhook.service';
 import {
+  answerPatchError,
   clearStashedSessionAnswers,
+  isServerOnlyAnswerKey,
+  readCodingResults,
   readStashedSessionAnswers,
   stashSessionAnswers,
 } from '../common/session-answers.util';
 
-/** How long to coalesce answer saves before flushing to Postgres. */
-const FLUSH_DELAY_MS = 2500;
+/** Final submit carries every answer at once; per-save cap is 500 keys. */
+const MAX_FINAL_ANSWER_KEYS = 5000;
 
 /**
  * A session counts as "live monitored" only if the proctoring SOCKET touched it
@@ -34,9 +39,11 @@ const PRESENCE_TTL_S = 21_600; // 6h
 export class SubmissionService {
   constructor(
     @InjectQueue('submission_queue') private submissionQueue: Queue,
+    @InjectQueue('student-analytics') private studentAnalyticsQueue: Queue,
     @InjectRedis() private readonly redis: Redis,
     private readonly supabase: SupabaseService,
     private readonly examService: ExamService,
+    private readonly webhookService: WebhookService,
   ) {}
 
   private get prisma() {
@@ -136,78 +143,96 @@ export class SubmissionService {
    *
    * Previously every save enqueued its own job, each costing multiple
    * Postgres reads/writes — with N students saving on a 1s debounce the
-   * queue received N jobs/sec and the DB did ~4N queries/sec. Now the queue
-   * holds at most ONE delayed flush job per session (deduplicated by jobId),
+   * queue received N jobs/sec and the DB did ~4N queries/sec. Now the due-set
+   * holds at most ONE pending flush per session (ZADD NX on FLUSH_DUE_KEY),
    * and each flush writes the whole accumulated batch in one statement.
    */
   async queueAnswer(sessionId: string, answer: any) {
+    const invalid = answerPatchError(answer || {});
+    if (invalid) throw new BadRequestException(invalid);
+    // Stages the answer and schedules one coalesced flush (see FLUSH_DUE_KEY).
     await stashSessionAnswers(this.redis, sessionId, answer || {});
-
-    try {
-      await this.submissionQueue.add(
-        'flush_answers',
-        { sessionId },
-        {
-          jobId: `flush-${sessionId}`,
-          delay: FLUSH_DELAY_MS,
-          removeOnComplete: true,
-          removeOnFail: true, // Must be true so failed jobs do not block future flush scheduling
-          attempts: 3,
-          backoff: {
-            type: 'exponential',
-            delay: 1000,
-          },
-        },
-      );
-    } catch (err: any) {
-      // If BullMQ indicates job already exists or is active, staged answers remain in Redis
-      // and will be drained by the next scheduled flush.
-      if (!err?.message?.includes('already exists')) {
-        console.warn(`[SubmissionService] queueAnswer add error:`, err?.message);
-      }
-    }
   }
 
   async scheduleAutoSubmit(sessionId: string, delay: number) {
     await this.submissionQueue.add('auto_submit', { sessionId }, { delay });
   }
 
+  /**
+   * Merge everything a session has into the answers to grade/persist, under
+   * the same rules as the flush: unknown keys and writes into submitted
+   * sections are dropped. The Redis stash is read BEFORE the DB row: a flush
+   * landing in between commits a field and clears it from Redis, so reading
+   * the row first could miss it entirely.
+   */
+  async collectFinalAnswers<T extends { answers: any; examId: string }>(
+    sessionId: string,
+    readSession: () => Promise<T | null>,
+    finalAnswers?: Record<string, any>,
+  ) {
+    const [redisAnswers, codingResults] = await Promise.all([
+      readStashedSessionAnswers(this.redis, sessionId),
+      readCodingResults(this.redis, sessionId),
+    ]);
+    const session = await readSession();
+    if (!session) return { session, answers: {}, exam: null };
+    const raw = session.answers;
+    const dbAnswers: Record<string, any> =
+      typeof raw === 'string' ? JSON.parse(raw || '{}') : raw || {};
+    const { accepted, exam } = await this.examService.filterAnswersForExam(
+      session.examId,
+      { ...redisAnswers, ...(finalAnswers || {}) },
+      dbAnswers,
+    );
+    const answers: Record<string, any> = {
+      ...dbAnswers,
+      ...accepted,
+      ...codingResults,
+    };
+    delete answers._final_sync;
+    return { session, answers, exam };
+  }
+
   async submitExamNow(sessionId: string, finalAnswers?: Record<string, any>) {
-    const session = await this.prisma.examSession.findUnique({
-      where: { id: sessionId },
-      select: {
-        id: true,
-        answers: true,
-        status: true,
-        userId: true,
-        startTime: true,
-        exam: {
+    // Resumed clients echo back server keys they were sent (_internal_marks,
+    // _internal_metadata, ...): drop those rather than reject the submit,
+    // then apply the normal patch validation to the rest.
+    const clientAnswers = Object.fromEntries(
+      Object.entries(finalAnswers || {}).filter(
+        ([key]) => !isServerOnlyAnswerKey(key),
+      ),
+    );
+    const invalid = answerPatchError(clientAnswers, MAX_FINAL_ANSWER_KEYS);
+    if (invalid) throw new BadRequestException(invalid);
+
+    const {
+      session,
+      answers: mergedAnswers,
+      exam,
+    } = await this.collectFinalAnswers(
+      sessionId,
+      () =>
+        this.prisma.examSession.findUnique({
+          where: { id: sessionId },
           select: {
-            questions: true,
+            answers: true,
+            status: true,
+            userId: true,
+            startTime: true,
+            examId: true,
           },
-        },
-      },
-    });
+        }),
+      clientAnswers,
+    );
 
     if (!session) {
-      throw new Error('Session not found');
+      throw new NotFoundException('Session not found');
     }
-
-    const dbAnswers =
-      typeof session.answers === 'string'
-        ? JSON.parse(session.answers || '{}')
-        : session.answers || {};
 
     // Idempotency: a double-click or an auto-submit racing a manual submit
     // must not re-run scoring, webhooks, or certificate issuance.
     if (session.status === 'COMPLETED') {
-      const existingScore = dbAnswers?._internal_score || {};
-      return {
-        status: 'submitted',
-        score: Number(existingScore.percentage ?? 0),
-        earnedMarks: Number(existingScore.earnedMarks ?? 0),
-        totalMarks: Number(existingScore.totalMarks ?? 0),
-      };
+      return this.persistedResult(sessionId);
     }
 
     if (session.status === 'TERMINATED') {
@@ -222,18 +247,9 @@ export class SubmissionService {
       );
     }
 
-    const redisAnswers = await readStashedSessionAnswers(this.redis, sessionId);
-
-    const mergedAnswers = {
-      ...dbAnswers,
-      ...redisAnswers,
-      ...(finalAnswers || {}),
-    };
-    delete mergedAnswers._final_sync;
-
     const scoreDetails = this.examService.calculateScoreDetails(
       mergedAnswers,
-      session.exam?.questions,
+      exam?.questions,
     );
     const completedAt = new Date();
     const timeTakenSec = session.startTime
@@ -277,31 +293,18 @@ export class SubmissionService {
       // Redis stash untouched -- the winner did its own read/clear at its
       // own point in time, so clearing here could delete an answer staged
       // after that winner already finished.
-      const finalSession = await this.prisma.examSession.findUnique({
-        where: { id: sessionId },
-        select: { answers: true },
-      });
-      const rawFinalAnswers = finalSession?.answers;
-      const finalAnswers: any =
-        typeof rawFinalAnswers === 'string'
-          ? JSON.parse(rawFinalAnswers || '{}')
-          : rawFinalAnswers || {};
-      const finalScore = finalAnswers?._internal_score || {};
-      return {
-        status: 'submitted',
-        score: Number(finalScore.percentage ?? 0),
-        earnedMarks: Number(finalScore.earnedMarks ?? 0),
-        totalMarks: Number(finalScore.totalMarks ?? 0),
-      };
+      return this.persistedResult(sessionId);
     }
 
     await clearStashedSessionAnswers(this.redis, sessionId);
 
-    // Run certificate issuance & notifications in background without blocking the submission HTTP response
-    void this.examService.handleExamCompletion(sessionId).catch((error: any) => {
-      console.warn(
-        `[SubmissionService] Exam completion post-processing failed for session ${sessionId}: ${error?.message || 'unknown_error'}`,
-      );
+    // Side effects run in the background so they don't hold up the response.
+    void this.runCompletionSideEffects({
+      sessionId,
+      examId: session.examId,
+      userId: session.userId,
+      orgId: exam?.orgId ?? null,
+      score: scoreDetails.percentage,
     });
 
     return {
@@ -310,5 +313,81 @@ export class SubmissionService {
       earnedMarks: scoreDetails.earnedMarks,
       totalMarks: scoreDetails.totalMarks,
     };
+  }
+
+  private async persistedResult(sessionId: string) {
+    const row = await this.prisma.examSession.findUnique({
+      where: { id: sessionId },
+      select: { answers: true },
+    });
+    const raw: any = row?.answers;
+    const answers: any =
+      typeof raw === 'string' ? JSON.parse(raw || '{}') : raw || {};
+    const score = answers?._internal_score || {};
+    return {
+      status: 'submitted',
+      score: Number(score.percentage ?? 0),
+      earnedMarks: Number(score.earnedMarks ?? 0),
+      totalMarks: Number(score.totalMarks ?? 0),
+    };
+  }
+
+  /**
+   * Everything that follows a session becoming COMPLETED, shared by manual
+   * submit and the deadline auto-submit (manual submit used to skip the
+   * streak update and webhooks). Never throws.
+   */
+  async runCompletionSideEffects(params: {
+    sessionId: string;
+    examId: string;
+    userId: string | null;
+    orgId: string | null;
+    score: number | null;
+  }): Promise<void> {
+    const { sessionId, examId, userId, orgId } = params;
+    const score = Number(params.score || 0);
+    try {
+      await this.studentAnalyticsQueue.add('update-streak', { userId });
+    } catch (error) {
+      console.warn(
+        `[SubmissionService] update-streak enqueue failed for session ${sessionId}`,
+        error,
+      );
+    }
+
+    try {
+      if (orgId) {
+        await this.webhookService.dispatch(orgId, 'exam.completed', {
+          sessionId,
+          examId,
+          studentId: userId,
+          score,
+        });
+
+        const threshold = Number(process.env.WEBHOOK_SCORE_THRESHOLD || 40);
+        if (score < threshold) {
+          await this.webhookService.dispatch(orgId, 'score.below_threshold', {
+            sessionId,
+            examId,
+            studentId: userId,
+            score,
+            threshold,
+          });
+        }
+      }
+    } catch (error) {
+      console.warn(
+        `[SubmissionService] Failed to dispatch webhook events for session ${sessionId}`,
+        error,
+      );
+    }
+
+    try {
+      await this.examService.handleExamCompletion(sessionId);
+    } catch (error: any) {
+      console.warn(
+        `[SubmissionService] Exam completion post-processing failed for session ${sessionId}: ${error?.message || 'unknown_error'}`,
+      );
+    }
   }
 }

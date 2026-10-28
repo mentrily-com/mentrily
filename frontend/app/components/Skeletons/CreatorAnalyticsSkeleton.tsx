@@ -1,3 +1,4 @@
+import SkeletonRoot from './SkeletonRoot';
 /**
  * Purpose-built skeleton for the creator/admin analytics page
  * (`/dashboard/creator/analytics`). The previous fallback, the generic
@@ -12,7 +13,7 @@
  */
 export default function CreatorAnalyticsSkeleton() {
     return (
-        <div className="font-sans pb-10">
+        <SkeletonRoot className="font-sans pb-10">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between mb-8">
                 <div>
                     <div className="h-8 w-32 animate-pulse rounded-md bg-slate-200" />
@@ -90,6 +91,6 @@ export default function CreatorAnalyticsSkeleton() {
                 <div className="h-4 w-40 animate-pulse rounded-md bg-slate-200 mb-4" />
                 <div className="h-[260px] w-full animate-pulse rounded-xl bg-slate-50" />
             </div>
-        </div>
+        </SkeletonRoot>
     );
 }

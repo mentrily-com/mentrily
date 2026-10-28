@@ -1,3 +1,9 @@
+'use client';
+import { useSyncExternalStore } from 'react';
+import AdminBillingSkeleton from './AdminBillingSkeleton';
+import TeacherBillingSkeleton from './TeacherBillingSkeleton';
+import SkeletonRoot from './SkeletonRoot';
+
 /**
  * Purpose-built skeleton for `/dashboard/creator/billing`, shown while the
  * viewer's role is resolving (before it routes to `TeacherBillingPage` or
@@ -8,9 +14,26 @@
  * and a row of plan-comparison cards below. This mirrors that vertical
  * stack of sections rather than either view's exact copy or numbers.
  */
+const noopSubscribe = () => () => {};
+
+function readStoredRole(): string | null {
+    try {
+        return window.localStorage.getItem('user-role');
+    } catch {
+        return null;
+    }
+}
+
 export default function CreatorBillingSkeleton() {
+    // On client navigation the last-known role is already in storage, so render the
+    // final view's skeleton up front instead of this generic one followed by a second
+    // swap. Server/hydration (null) keeps the generic shape to avoid a mismatch.
+    const storedRole = useSyncExternalStore(noopSubscribe, readStoredRole, () => null);
+    if (storedRole === 'admin') return <AdminBillingSkeleton />;
+    if (storedRole === 'teacher') return <TeacherBillingSkeleton />;
+
     return (
-        <div className="animate-fade-in space-y-6 pb-10 font-sans">
+        <SkeletonRoot className="animate-fade-in space-y-6 pb-10 font-sans">
             {/* Header + interval toggle */}
             <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
                 <div className="space-y-2">
@@ -73,6 +96,6 @@ export default function CreatorBillingSkeleton() {
                     ))}
                 </div>
             </div>
-        </div>
+        </SkeletonRoot>
     );
 }

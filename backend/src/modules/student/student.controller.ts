@@ -129,7 +129,7 @@ export class StudentController {
     @Param('unitId') unitId: string,
     @Body() data: SubmitUnitDto,
   ) {
-    return this.studentService.submitUnit(user.id, unitId, data);
+    return this.studentService.submitUnit(user, unitId, data);
   }
 
   @Get('course/:slug/progress')

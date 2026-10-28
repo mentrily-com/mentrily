@@ -1,3 +1,4 @@
+import SkeletonRoot from './SkeletonRoot';
 /**
  * Purpose-built skeleton for `/dashboard/creator/settings`, which renders
  * `AdminSettingsView` once the organization's settings finish loading. The
@@ -11,7 +12,7 @@
  */
 export default function AdminSettingsSkeleton() {
     return (
-        <div className="animate-fade-in pb-10 font-sans">
+        <SkeletonRoot className="animate-fade-in pb-10 font-sans">
             <div className="mb-12 flex flex-col justify-between gap-4 md:flex-row md:items-center">
                 <div className="space-y-2">
                     <div className="h-6 w-64 animate-pulse rounded-md bg-slate-200" />
@@ -58,6 +59,6 @@ export default function AdminSettingsSkeleton() {
                     <div className="h-32 animate-pulse rounded-2xl bg-slate-100" />
                 </div>
             </div>
-        </div>
+        </SkeletonRoot>
     );
 }

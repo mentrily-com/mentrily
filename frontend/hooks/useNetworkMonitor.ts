@@ -30,20 +30,30 @@ export function useNetworkMonitor() {
         // only way to reflect the connection students are actually depending
         // on, so it's now the primary source and runs continuously, not just
         // as a fallback for when the native API is missing.
+        //
+        // Load: that fetch ran every 10s for every student (300 req/s at 3000
+        // students). Where the browser exposes navigator.connection.rtt we use
+        // it instead (only latency feeds the bars anyway), poll every 60s, and
+        // skip while the tab is hidden.
         const measureRealSpeed = async () => {
             if (typeof window === 'undefined' || typeof navigator === 'undefined' || !navigator.onLine) return;
+            if (document.hidden) return;
 
             try {
-                const startedAt = performance.now();
-                const res = await apiFetch(`${API_BASE_URL}/exam/app-config?ts=${Date.now()}`, {
-                    method: 'GET',
-                    cache: 'no-store',
-                });
-                const text = await res.text();
-                const endedAt = performance.now();
+                const nativeRtt = Number((navigator as any).connection?.rtt);
+                let durationSec: number;
+                if (nativeRtt > 0) {
+                    durationSec = Math.max(nativeRtt / 1000, 0.05);
+                } else {
+                    const startedAt = performance.now();
+                    const res = await apiFetch(`${API_BASE_URL}/exam/app-config?ts=${Date.now()}`, {
+                        method: 'GET',
+                        cache: 'no-store',
+                    });
+                    await res.text();
+                    durationSec = Math.max((performance.now() - startedAt) / 1000, 0.05);
+                }
                 if (cancelled) return;
-
-                const durationSec = Math.max((endedAt - startedAt) / 1000, 0.05);
 
                 // Estimate a simulated "Mbps" purely based on latency (RTT)
                 // since the app-config payload is too small to measure true bandwidth.
@@ -108,12 +118,14 @@ export function useNetworkMonitor() {
 
         // Re-measure regularly so the displayed speed tracks real, current
         // conditions instead of a one-time reading from page load.
-        intervalId = setInterval(measureRealSpeed, 10000);
+        intervalId = setInterval(measureRealSpeed, 60000);
+        document.addEventListener('visibilitychange', measureRealSpeed);
 
         return () => {
             cancelled = true;
             window.removeEventListener('online', updateOnlineState);
             window.removeEventListener('offline', updateOnlineState);
+            document.removeEventListener('visibilitychange', measureRealSpeed);
             if (intervalId) {
                 clearInterval(intervalId);
             }

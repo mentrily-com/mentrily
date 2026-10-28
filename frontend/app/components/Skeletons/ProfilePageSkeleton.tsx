@@ -1,3 +1,4 @@
+import SkeletonRoot from './SkeletonRoot';
 /**
  * Purpose-built skeleton for the unified profile page
  * (`components/Features/Profile/UnifiedProfilePage.tsx`). The previous
@@ -11,7 +12,7 @@
  */
 export default function ProfilePageSkeleton() {
     return (
-        <div className="font-sans">
+        <SkeletonRoot className="font-sans">
             {/* Avatar + name header */}
             <div className="bg-white rounded-xl border border-slate-100 p-6 md:p-8 mb-6 shadow-sm flex flex-col md:flex-row items-center gap-6">
                 <div className="h-20 w-20 md:h-24 md:w-24 shrink-0 animate-pulse rounded-2xl bg-slate-200" />
@@ -45,6 +46,6 @@ export default function ProfilePageSkeleton() {
                     </div>
                 </div>
             </div>
-        </div>
+        </SkeletonRoot>
     );
 }

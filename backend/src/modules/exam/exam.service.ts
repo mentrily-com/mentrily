@@ -10,7 +10,14 @@ import { randomBytes } from 'crypto';
 import { Redis } from 'ioredis';
 import { SupabaseService } from '../../services/supabase/supabase.service';
 import { shouldSanitizeSensitiveContent } from '../common/testcase-visibility.util';
-import { readStashedSessionAnswers } from '../common/session-answers.util';
+import {
+  CODING_RESULT_PREFIX,
+  filterStagedAnswers,
+  indexExamQuestions,
+  isServerOnlyAnswerKey,
+  looksLikeQuestionKey,
+  readStashedSessionAnswers,
+} from '../common/session-answers.util';
 import { CertificateService } from '../certificate/certificate.service';
 import { NotificationGateway } from '../notification/notification.gateway';
 import { MembershipService } from '../organization/membership.service';
@@ -21,7 +28,16 @@ import {
   transformExam as transformExamUtil,
   transformCourseTest as transformCourseTestUtil,
   transformCourse as transformCourseUtil,
+  examEntryGrantKey,
 } from './exam.util';
+
+export type ExamGradingData = {
+  questions: any;
+  duration: number | null;
+  orgId: string | null;
+  linkedCourseId: string | null;
+  index: Map<string, string | null>;
+};
 
 @Injectable()
 export class ExamService {
@@ -273,6 +289,9 @@ export class ExamService {
         linkedCourseId: true,
         maxAttempts: true,
         attemptBufferMins: true,
+        testCode: true,
+        startTime: true,
+        endTime: true,
       } as const;
 
       // Lightweight lookup for Start Session
@@ -283,7 +302,12 @@ export class ExamService {
       });
 
       if (exam) {
-        foundData = { ...exam, type: 'exam' };
+        const { testCode, ...rest } = exam;
+        foundData = {
+          ...rest,
+          requiresTestCode: Boolean(testCode),
+          type: 'exam',
+        };
       } else {
         // 2. Course Test
         const test = await this.prisma.courseTest.findFirst({
@@ -358,6 +382,80 @@ export class ExamService {
     throw new NotFoundException('Exam not found');
   }
 
+  /** Cache-miss loads for getExamBySlug; concurrent misses share one query set. */
+  private readonly examContentInFlight = new Map<string, Promise<any[]>>();
+
+  private loadExamContent(slug: string): Promise<any[]> {
+    let pending = this.examContentInFlight.get(slug);
+    if (!pending) {
+      pending = Promise.all([
+        this.prisma.exam.findFirst({
+          where: { slug, isActive: true },
+        }),
+        this.prisma.courseTest.findFirst({
+          where: { slug },
+          include: { course: true },
+        }),
+        // Only what canAccessPublicExamResource + transformCourse read.
+        this.prisma.course.findFirst({
+          where: { slug },
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            orgId: true,
+            creatorId: true,
+            isVisible: true,
+            modules: {
+              select: {
+                id: true,
+                title: true,
+                units: {
+                  select: { id: true, title: true, type: true, content: true },
+                },
+              },
+              orderBy: { order: 'asc' },
+            },
+          },
+        }),
+      ]).finally(() => this.examContentInFlight.delete(slug));
+      this.examContentInFlight.set(slug, pending);
+    }
+    return pending;
+  }
+
+  /**
+   * Candidates only get questions once they could actually sit the exam: an
+   * in-progress session, or the window has opened and the test code was
+   * accepted (or none is required). Before that they get metadata only, so
+   * the paper can't be read ahead of time by anyone who can see the exam.
+   */
+  private async gateExamQuestions(raw: any, transformed: any, user?: any) {
+    if (raw?.courseId !== undefined) return transformed; // course test row
+    if (!shouldSanitizeSensitiveContent(user, raw)) return transformed;
+    const started =
+      !raw?.startTime || new Date(raw.startTime).getTime() <= Date.now();
+    if (user?.id) {
+      if (
+        started &&
+        (!raw?.testCode ||
+          (await this.redis.exists(examEntryGrantKey(raw.id, user.id))))
+      ) {
+        return transformed;
+      }
+      const active = await this.prisma.examSession.count({
+        where: { userId: user.id, examId: raw.id, status: 'IN_PROGRESS' },
+      });
+      if (active > 0) return transformed;
+    }
+    return {
+      ...transformed,
+      questions: {},
+      sections: [],
+      questionsLocked: true,
+    };
+  }
+
   async getExamBySlug(slug: string, user?: any, requestOrgId?: string) {
     // Cache the raw entity by slug alone; access decision runs fresh below.
     const cacheKey = `exam:content:${slug}`;
@@ -374,7 +472,13 @@ export class ExamService {
       const includeSensitive = !shouldSanitizeSensitiveContent(user, entity);
       const transformedCacheKey = `exam:content:transformed:${slug}:${includeSensitive ? `sensitive:${user?.id}` : 'public'}`;
       const cachedTransformed = await this.redis.get(transformedCacheKey);
-      if (cachedTransformed) return JSON.parse(cachedTransformed);
+      if (cachedTransformed) {
+        return this.gateExamQuestions(
+          entity,
+          JSON.parse(cachedTransformed),
+          user,
+        );
+      }
       const transformed = this.transformExam(entity, includeSensitive);
       await this.redis.set(
         transformedCacheKey,
@@ -382,28 +486,10 @@ export class ExamService {
         'EX',
         3600,
       );
-      return transformed;
+      return this.gateExamQuestions(entity, transformed, user);
     }
 
-    // 1. Try finding all at once using Promise.all to reduce latency
-    const [exam, courseTest, course] = await Promise.all([
-      this.prisma.exam.findFirst({
-        where: { slug, isActive: true },
-      }),
-      this.prisma.courseTest.findFirst({
-        where: { slug },
-        include: { course: true },
-      }),
-      this.prisma.course.findFirst({
-        where: { slug },
-        include: {
-          modules: {
-            include: { units: true },
-            orderBy: { order: 'asc' },
-          },
-        },
-      }),
-    ]);
+    const [exam, courseTest, course] = await this.loadExamContent(slug);
 
     if (exam) {
       // Cache before check
@@ -415,7 +501,13 @@ export class ExamService {
       const includeSensitive = !shouldSanitizeSensitiveContent(user, exam);
       const transformedCacheKey = `exam:content:transformed:${slug}:${includeSensitive ? `sensitive:${user?.id}` : 'public'}`;
       const cachedTransformed = await this.redis.get(transformedCacheKey);
-      if (cachedTransformed) return JSON.parse(cachedTransformed);
+      if (cachedTransformed) {
+        return this.gateExamQuestions(
+          exam,
+          JSON.parse(cachedTransformed),
+          user,
+        );
+      }
       const transformed = this.transformExam(exam, includeSensitive);
       await this.redis.set(
         transformedCacheKey,
@@ -423,7 +515,7 @@ export class ExamService {
         'EX',
         3600,
       );
-      return transformed;
+      return this.gateExamQuestions(exam, transformed, user);
     }
 
     if (courseTest) {
@@ -767,6 +859,32 @@ export class ExamService {
     }
   }
 
+  /**
+   * Merge login metadata into the live row in one statement. Writing back
+   * the answers read at the start of the request overwrote anything a flush
+   * committed in between.
+   */
+  private async mergeSessionMetadata(sessionId: string, metadata: any) {
+    if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) {
+      return;
+    }
+    // Client-supplied; a NUL char would make Postgres reject the update.
+    if (JSON.stringify(metadata).includes('\\u0000')) return;
+    await this.prisma.$executeRaw`
+      UPDATE "ExamSession"
+      SET "answers" = jsonb_set(
+            COALESCE("answers", '{}'::jsonb),
+            '{_internal_metadata}',
+            (CASE WHEN jsonb_typeof("answers"->'_internal_metadata') = 'object'
+                  THEN "answers"->'_internal_metadata'
+                  ELSE '{}'::jsonb END) || ${JSON.stringify(metadata)}::jsonb
+          ),
+          "updatedAt" = (NOW() AT TIME ZONE 'UTC')
+      WHERE "id" = ${sessionId}
+        AND "status" = 'IN_PROGRESS'
+    `;
+  }
+
   private async startSessionUnlocked(
     userId: string,
     examId: string,
@@ -818,23 +936,7 @@ export class ExamService {
       if (linkedCourseId) {
         if (latestSession?.status === 'IN_PROGRESS') {
           if (metadata) {
-            const currentAnswers =
-              typeof latestSession.answers === 'string'
-                ? JSON.parse(latestSession.answers)
-                : latestSession.answers || {};
-
-            const updatedAnswers = {
-              ...currentAnswers,
-              _internal_metadata: {
-                ...(currentAnswers._internal_metadata || {}),
-                ...metadata,
-              },
-            };
-
-            await this.prisma.examSession.update({
-              where: { id: latestSession.id },
-              data: { answers: updatedAnswers },
-            });
+            await this.mergeSessionMetadata(latestSession.id, metadata);
           }
 
           try {
@@ -944,23 +1046,7 @@ export class ExamService {
         // If metadata changed, we could update it. But typically it stays same for the session.
         // We'll update it if provided to ensure the latest "Name/Roll No" from login is preserved.
         if (metadata) {
-          const currentAnswers =
-            typeof existing.answers === 'string'
-              ? JSON.parse(existing.answers)
-              : existing.answers || {};
-
-          const updatedAnswers = {
-            ...currentAnswers,
-            _internal_metadata: {
-              ...(currentAnswers._internal_metadata || {}),
-              ...metadata,
-            },
-          };
-
-          await this.prisma.examSession.update({
-            where: { id: existing.id },
-            data: { answers: updatedAnswers },
-          });
+          await this.mergeSessionMetadata(existing.id, metadata);
         }
 
         // Merge Redis-staged answers with DB answers for fast restore
@@ -1205,6 +1291,86 @@ export class ExamService {
    * resolved specifically against THAT org (not whichever org/persona
    * happens to be active for the request) to be STUDENT or ADMIN.
    */
+  /**
+   * The test code is only checked by exam-login; without this, anyone who
+   * knows the slug could POST /enter directly and skip it. Resuming an
+   * in-progress session needs no fresh grant, so a code rotation mid-exam
+   * doesn't lock students out.
+   */
+  async assertTestCodeGrant(
+    lookup: {
+      id: string;
+      creatorId?: string | null;
+      requiresTestCode?: boolean;
+    },
+    user: any,
+  ): Promise<void> {
+    // Lookups cached before this field existed: check the row, don't fail open.
+    const requiresTestCode =
+      lookup.requiresTestCode ??
+      Boolean(
+        (
+          await this.prisma.exam.findUnique({
+            where: { id: lookup.id },
+            select: { testCode: true },
+          })
+        )?.testCode,
+      );
+    if (!requiresTestCode) return;
+    if (String(user?.role || '').toUpperCase() === 'SUPER_ADMIN') return;
+    if (lookup.creatorId && lookup.creatorId === user?.id) return;
+    if (await this.redis.exists(examEntryGrantKey(lookup.id, user.id))) return;
+    const active = await this.prisma.examSession.count({
+      where: { userId: user.id, examId: lookup.id, status: 'IN_PROGRESS' },
+    });
+    if (active > 0) return;
+    throw new ForbiddenException('TEST_CODE_REQUIRED');
+  }
+
+  /**
+   * Entry is only allowed inside the exam's [startTime, endTime] window.
+   * An in-progress session can always be resumed after endTime (the
+   * deadline sweeper closes it), and a standalone exam's finished attempt
+   * still opens its result screen. Owners/admins may preview any time.
+   */
+  async assertExamWindowOpen(
+    lookup: {
+      id: string;
+      orgId?: string | null;
+      creatorId?: string | null;
+      linkedCourseId?: string | null;
+      startTime?: string | Date | null;
+      endTime?: string | Date | null;
+    },
+    user: any,
+  ): Promise<void> {
+    if (!shouldSanitizeSensitiveContent(user, lookup)) return;
+    let { startTime, endTime } = lookup;
+    if (startTime === undefined) {
+      // Lookup cached before these fields were selected.
+      const row = await this.prisma.exam.findUnique({
+        where: { id: lookup.id },
+        select: { startTime: true, endTime: true },
+      });
+      startTime = row?.startTime ?? null;
+      endTime = row?.endTime ?? null;
+    }
+    const now = Date.now();
+    if (startTime && new Date(startTime).getTime() > now) {
+      throw new ForbiddenException('EXAM_NOT_STARTED');
+    }
+    if (endTime && new Date(endTime).getTime() <= now) {
+      const resumable = await this.prisma.examSession.count({
+        where: {
+          userId: user.id,
+          examId: lookup.id,
+          ...(lookup.linkedCourseId ? { status: 'IN_PROGRESS' } : {}),
+        },
+      });
+      if (resumable === 0) throw new ForbiddenException('EXAM_ENDED');
+    }
+  }
+
   async assertCanEnterExam(
     exam: {
       orgId?: string | null;
@@ -1433,6 +1599,91 @@ export class ExamService {
     });
   }
 
+  /**
+   * Grading data per exam, memoized in-process (shared by the flush
+   * processor and final submit) so hot paths don't re-read the questions
+   * JSON; concurrent misses share one query.
+   */
+  private readonly gradingMemo = new Map<
+    string,
+    { data: ExamGradingData | null; fetchedAt: number }
+  >();
+  private readonly gradingInFlight = new Map<
+    string,
+    Promise<ExamGradingData | null>
+  >();
+  private static readonly GRADING_MEMO_TTL_MS = 60_000;
+
+  async getExamGradingData(
+    examId: string,
+    maxAgeMs = ExamService.GRADING_MEMO_TTL_MS,
+  ): Promise<ExamGradingData | null> {
+    const hit = this.gradingMemo.get(examId);
+    if (hit && Date.now() - hit.fetchedAt < maxAgeMs) return hit.data;
+    let pending = this.gradingInFlight.get(examId);
+    if (!pending) {
+      pending = this.prisma.exam
+        .findUnique({
+          where: { id: examId },
+          select: {
+            questions: true,
+            duration: true,
+            orgId: true,
+            linkedCourseId: true,
+          },
+        })
+        .then((exam: any) => {
+          const data: ExamGradingData | null = exam
+            ? { ...exam, index: indexExamQuestions(exam.questions) }
+            : null;
+          if (this.gradingMemo.size > 2000) this.gradingMemo.clear();
+          this.gradingMemo.set(examId, { data, fetchedAt: Date.now() });
+          return data;
+        })
+        .finally(() => this.gradingInFlight.delete(examId));
+      this.gradingInFlight.set(examId, pending);
+    }
+    return pending;
+  }
+
+  /**
+   * filterStagedAnswers against the exam's questions. If something that
+   * looks like an answer would be dropped, the memo may predate a question
+   * added mid-exam, so re-read once (at most every 5s) before dropping it.
+   */
+  async filterAnswersForExam(
+    examId: string,
+    staged: Record<string, unknown>,
+    stored: Record<string, unknown>,
+  ): Promise<{
+    accepted: Record<string, unknown>;
+    dropped: string[];
+    exam: ExamGradingData | null;
+  }> {
+    let exam = await this.getExamGradingData(examId);
+    if (!exam?.questions) {
+      const accepted = Object.fromEntries(
+        Object.entries(staged).filter(([k]) => !isServerOnlyAnswerKey(k)),
+      );
+      return { accepted, dropped: [], exam };
+    }
+    let result = filterStagedAnswers(staged, exam.index, stored);
+    if (result.dropped.some(looksLikeQuestionKey)) {
+      const fresh = await this.getExamGradingData(examId, 5_000);
+      if (fresh && fresh !== exam) {
+        exam = fresh;
+        result = filterStagedAnswers(staged, fresh.index, stored);
+      }
+    }
+    return { ...result, exam };
+  }
+
+  /**
+   * CODING marks come only from the server's own record of the latest graded
+   * run (`_internal_coding:{qid}`, written by code-execution with hidden
+   * tests included). Client-supplied testResults are ignored: they were
+   * forgeable, e.g. [{passed:true}] scored full marks.
+   */
   public calculateScoreDetails(answers: any, questionsData: any) {
     if (!answers || !questionsData) {
       return {
@@ -1467,13 +1718,16 @@ export class ExamService {
       questions.forEach((q: any) => {
         const questionMarks = Number(q.marks ?? q.points ?? 1) || 1;
         totalMarks += questionMarks;
+        const qType = (q.type || '').toUpperCase();
         const studentAnswer = answers[q.id];
-        if (studentAnswer === undefined || studentAnswer === null) {
+        if (
+          qType !== 'CODING' &&
+          (studentAnswer === undefined || studentAnswer === null)
+        ) {
           marksByQuestion[q.id] = 0;
           return;
         }
 
-        const qType = (q.type || '').toUpperCase();
         let questionScore = 0;
 
         if (qType === 'MCQ' || qType === 'MULTISELECT') {
@@ -1499,15 +1753,11 @@ export class ExamService {
             questionScore = questionMarks;
           }
         } else if (qType === 'CODING') {
-          // Logic for coding score based on test cases passed
-          const testResults =
-            studentAnswer.testResults || studentAnswer.results;
-          if (testResults && Array.isArray(testResults)) {
-            const passed = testResults.filter((r: any) => r.passed).length;
-            const total = testResults.length;
-            if (total > 0) {
-              questionScore = (passed / total) * questionMarks;
-            }
+          const record = answers[`${CODING_RESULT_PREFIX}${q.id}`];
+          const passed = Number(record?.passed);
+          const total = Number(record?.total);
+          if (total > 0 && passed >= 0 && passed <= total) {
+            questionScore = (passed / total) * questionMarks;
           }
         }
 

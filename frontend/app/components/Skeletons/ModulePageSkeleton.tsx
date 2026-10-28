@@ -1,3 +1,4 @@
+import SkeletonRoot from './SkeletonRoot';
 /**
  * Purpose-built skeleton for the learner module page (`/dashboard/learner/module/[slug]`),
  * shown while the course, progress, and exam-status requests are in flight.
@@ -12,7 +13,7 @@
  */
 export default function ModulePageSkeleton() {
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+        <SkeletonRoot className="min-h-screen bg-slate-50 text-slate-900 font-sans">
             {/* STICKY SUB-HEADER -- sticks to the top of this page's own
                 scroll container; must match the real page's offset (see
                 module/[slug]/page.tsx) or the skeleton and real content
@@ -79,6 +80,6 @@ export default function ModulePageSkeleton() {
                     </div>
                 </div>
             </main>
-        </div>
+        </SkeletonRoot>
     );
 }

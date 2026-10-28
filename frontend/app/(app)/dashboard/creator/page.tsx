@@ -5,6 +5,7 @@ import Link from 'next/link';
 import posthog from 'posthog-js';
 import { motion } from 'framer-motion';
 import CreatorDashboardSkeleton from '@/app/components/Skeletons/CreatorDashboardSkeleton';
+import LoadErrorCard from '@/app/components/Skeletons/LoadErrorCard';
 import OnboardingTour from '@/app/components/Common/OnboardingTour';
 import AppModal from '@/app/components/Common/AppModal';
 import StudioRecentActivity from './_components/StudioRecentActivity';
@@ -62,8 +63,18 @@ type StudioModule = {
 };
 
 export default function TeacherDashboardPage() {
-    const { filteredModules, recentActivity, searchQuery, setSearchQuery, setTab, stats, tab, loading } =
-        useStudioDashboard();
+    const {
+        filteredModules,
+        recentActivity,
+        searchQuery,
+        setSearchQuery,
+        setTab,
+        stats,
+        tab,
+        loading,
+        loadError,
+        retry,
+    } = useStudioDashboard();
     const { limits, usage, plan, role } = usePlan();
     const { data: session } = useSession();
     const [showUpgradeBanner, setShowUpgradeBanner] = React.useState(true);
@@ -71,6 +82,7 @@ export default function TeacherDashboardPage() {
     const hasOrg = Boolean(String(session?.orgId || '').trim());
 
     if (loading && !stats) return <CreatorDashboardSkeleton />;
+    if (loadError) return <LoadErrorCard title="We couldn't load your dashboard" onRetry={retry} />;
 
     const usageRecord = (usage ?? {}) as Record<string, number | string | undefined>;
     const limitsRecord = (limits ?? {}) as Record<string, number | string | undefined>;

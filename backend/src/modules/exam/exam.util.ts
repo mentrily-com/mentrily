@@ -13,6 +13,11 @@
 import { sanitizeQuestionForClient } from '../common/testcase-visibility.util';
 import { toStudentExamResponseDto } from './dto/exam-response.dto';
 
+/** Set by exam-login once the test code checks out; required by /enter. */
+export const examEntryGrantKey = (examId: string, userId: string) =>
+  `exam:entry-grant:${examId}:${userId}`;
+export const EXAM_ENTRY_GRANT_TTL_SEC = 12 * 60 * 60;
+
 export function isMissingExamAttemptFieldError(error: unknown): boolean {
   return (
     typeof error === 'object' &&

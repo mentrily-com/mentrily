@@ -50,10 +50,7 @@ export async function POST(request: Request) {
         } catch (contactError: any) {
             console.error('Error managing contact:', contactError);
             return NextResponse.json(
-                {
-                    error: 'Failed to manage contact. Check API key permissions.',
-                    details: contactError.message,
-                },
+                { error: 'Could not subscribe right now. Please try again later.' },
                 { status: 500 },
             );
         }
@@ -149,10 +146,14 @@ export async function POST(request: Request) {
         });
 
         if (result.error) {
-            return NextResponse.json({ error: result.error.message }, { status: 500 });
+            console.error('Newsletter email failed:', result.error);
+            return NextResponse.json(
+                { error: 'Could not subscribe right now. Please try again later.' },
+                { status: 500 },
+            );
         }
 
-        return NextResponse.json({ success: true, data: result.data });
+        return NextResponse.json({ success: true });
     } catch (error: any) {
         console.error('Newsletter API error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

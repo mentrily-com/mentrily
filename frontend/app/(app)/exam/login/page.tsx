@@ -185,6 +185,10 @@ export default function ExamLoginPage() {
             setError(
                 'Access Denied: Only Student accounts can access exams. Please log in with a student account or use an incognito window.',
             );
+        } else if (errorType === 'not_started') {
+            setError('This exam has not started yet. Please come back at the scheduled start time.');
+        } else if (errorType === 'ended') {
+            setError('This exam has ended and is no longer accepting attempts.');
         } else if (errorType === 'account_not_found') {
             setError('Account does not exist for exam access. Ask your teacher to add you first.');
         }

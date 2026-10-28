@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useClerk } from '@clerk/nextjs';
 import { useQueryClient } from '@tanstack/react-query';
-import Loading from '../loading';
+import BrandedPageLoader from '@/app/components/Common/BrandedPageLoader';
 import { AuthService } from '@/services/api/AuthService';
 
 export default function LogoutPage() {
@@ -27,5 +27,5 @@ export default function LogoutPage() {
         void doLogout();
     }, [router, signOut, queryClient]);
 
-    return <Loading />;
+    return <BrandedPageLoader />;
 }

@@ -92,7 +92,8 @@ export class PublicCodingQuestionController {
   }
 
   @Get(':slug')
-  async get(@Param('slug') slug: string) {
-    return this.codeExecutionService.getPublicQuestion(slug);
+  @UseGuards(OptionalJwtAuthGuard)
+  async get(@Param('slug') slug: string, @User() user?: any) {
+    return this.codeExecutionService.getPublicQuestionForViewer(slug, user);
   }
 }

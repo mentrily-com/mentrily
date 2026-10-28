@@ -1,8 +1,9 @@
 'use client';
-import React from 'react';
+import React, { useSyncExternalStore } from 'react';
 import LearnerDashboardSkeleton from './LearnerDashboardSkeleton';
 import CreatorDashboardSkeleton from './CreatorDashboardSkeleton';
 import SuperAdminDashboardSkeleton from './SuperAdminDashboardSkeleton';
+import SkeletonRoot from './SkeletonRoot';
 
 interface DashboardSkeletonProps {
     type?: 'main' | 'list' | 'form';
@@ -10,7 +11,7 @@ interface DashboardSkeletonProps {
     noNavbar?: boolean;
 }
 
-function resolveEffectiveRole(userRole?: string): 'student' | 'teacher' | 'admin' | 'super-admin' {
+function resolveEffectiveRole(userRole?: string): 'student' | 'teacher' | 'admin' | 'super-admin' | null {
     if (userRole) {
         return userRole as 'student' | 'teacher' | 'admin' | 'super-admin';
     }
@@ -32,12 +33,29 @@ function resolveEffectiveRole(userRole?: string): 'student' | 'teacher' | 'admin
         if (stored === 'admin') return 'admin';
         if (stored === 'teacher') return 'teacher';
     }
-    return 'teacher';
+    // Unknown role: a neutral backdrop beats guessing the creator layout for a learner.
+    return null;
 }
 
+const noopSubscribe = () => () => {};
+
 export default function DashboardSkeleton({ type = 'main', userRole, noNavbar = false }: DashboardSkeletonProps) {
+    // The stored role only exists in the browser. Reading it during the
+    // server render defaulted to the creator skeleton, so a learner's
+    // hydration mismatched, React regenerated the tree, and both skeletons
+    // were briefly mounted. Server + hydration render a neutral backdrop;
+    // the role skeleton appears on the first client render.
+    const clientRole = useSyncExternalStore(
+        noopSubscribe,
+        () => resolveEffectiveRole(userRole),
+        () => userRole ?? null,
+    );
+
     if (type === 'main') {
-        const effective = resolveEffectiveRole(userRole);
+        if (!clientRole) {
+            return <SkeletonRoot className="min-h-screen bg-slate-50" />;
+        }
+        const effective = clientRole;
         if (effective === 'student') {
             return <LearnerDashboardSkeleton />;
         }
@@ -48,7 +66,7 @@ export default function DashboardSkeleton({ type = 'main', userRole, noNavbar = 
     }
 
     return (
-        <div className="h-screen overflow-hidden bg-slate-50 text-slate-900 font-sans">
+        <SkeletonRoot className="h-screen overflow-hidden bg-slate-50 text-slate-900 font-sans">
             <main className="max-w-[1440px] mx-auto px-6 lg:px-12 py-10 overflow-hidden h-screen">
                 {!noNavbar && (
                     <div className="flex items-center justify-between mb-10">
@@ -112,6 +130,6 @@ export default function DashboardSkeleton({ type = 'main', userRole, noNavbar = 
                     </div>
                 )}
             </main>
-        </div>
+        </SkeletonRoot>
     );
 }

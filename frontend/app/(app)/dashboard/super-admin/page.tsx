@@ -20,6 +20,7 @@ import {
 import { SuperAdminService } from '@/services/api/SuperAdminService';
 import { useRequireAuth } from '@/hooks/requireAuthClient';
 import SuperAdminDashboardSkeleton from '@/app/components/Skeletons/SuperAdminDashboardSkeleton';
+import LoadErrorCard from '@/app/components/Skeletons/LoadErrorCard';
 import EmptyState from '@/app/components/Common/EmptyState';
 import { sanitizeProse } from '@/lib/sanitize';
 import { useToast } from '@/app/components/Common/Toast';
@@ -35,6 +36,8 @@ export default function SuperAdminDashboardPage() {
     const [selectedImage, setSelectedImage] = useState<{ url: string; name?: string } | null>(null);
     const [loadingBugs, setLoadingBugs] = useState(true);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState(false);
+    const [reloadKey, setReloadKey] = useState(0);
     const [authChecked, setAuthChecked] = useState(false);
     const [confirmConfig, setConfirmConfig] = useState<{
         isOpen: boolean;
@@ -48,18 +51,21 @@ export default function SuperAdminDashboardPage() {
         if (!isSignedIn) return;
         setAuthChecked(true);
         async function load() {
+            setLoading(true);
+            setLoadError(false);
             try {
                 const [s, o] = await Promise.all([SuperAdminService.getStats(), SuperAdminService.getOrganizations()]);
                 setStatsData(s);
                 setOrganizations(o);
             } catch (e) {
                 console.error(e);
+                setLoadError(true);
             } finally {
                 setLoading(false);
             }
         }
         load();
-    }, [isSignedIn]);
+    }, [isSignedIn, reloadKey]);
 
     useEffect(() => {
         if (!authChecked) return;
@@ -116,6 +122,14 @@ export default function SuperAdminDashboardPage() {
     const showHealthAlert = Number(statsData?.failedPayments30d || 0) > 0 || anyCriticalOrg;
 
     if (!authChecked || loading) return <SuperAdminDashboardSkeleton />;
+    if (loadError) {
+        return (
+            <LoadErrorCard
+                title="We couldn't load platform stats"
+                onRetry={() => setReloadKey((key) => key + 1)}
+            />
+        );
+    }
 
     return (
         <div className="space-y-6 text-slate-900 selection:bg-[var(--brand-light)] selection:text-[var(--brand-dark)] animate-fade-in">

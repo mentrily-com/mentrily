@@ -264,4 +264,43 @@ describe('AdminService invite flow', () => {
       }),
     );
   });
+
+  describe('updateOrganizationSettings feature whitelist', () => {
+    beforeEach(() => {
+      prisma.organization.findUnique.mockResolvedValue({
+        id: 'org_1',
+        features: { apiAccess: false, crispChat: false },
+        domain: null,
+      });
+      prisma.organization.update = jest.fn(async ({ data }) => data);
+    });
+
+    it('drops entitlement keys sent by an org ADMIN', async () => {
+      await service.updateOrganizationSettings(
+        { role: 'ADMIN', orgId: 'org_1' },
+        {
+          features: {
+            crispChat: true,
+            apiAccess: true,
+            certificates: true,
+            limitsOverrides: { courses: -1 },
+          },
+        },
+      );
+      expect(prisma.organization.update.mock.calls[0][0].data.features).toEqual(
+        { apiAccess: false, crispChat: true },
+      );
+    });
+
+    it('lets SUPER_ADMIN set entitlement keys', async () => {
+      await service.updateOrganizationSettings(
+        { role: 'SUPER_ADMIN' },
+        { features: { apiAccess: true } },
+        'org_1',
+      );
+      expect(
+        prisma.organization.update.mock.calls[0][0].data.features.apiAccess,
+      ).toBe(true);
+    });
+  });
 });

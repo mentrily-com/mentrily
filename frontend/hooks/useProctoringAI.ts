@@ -132,10 +132,11 @@ export function useProctoringAI({ onViolation, active }: ProctoringConfig) {
         if (!active || !isModelLoaded || !videoRef.current) return;
 
         let stream: MediaStream | null = null;
+        let cancelled = false;
 
         async function enableCam() {
             try {
-                stream = await navigator.mediaDevices.getUserMedia({
+                const granted = await navigator.mediaDevices.getUserMedia({
                     video: {
                         width: 640,
                         height: 480,
@@ -143,6 +144,12 @@ export function useProctoringAI({ onViolation, active }: ProctoringConfig) {
                     },
                     audio: false,
                 });
+                // Cleanup already ran while the permission prompt was open: release the camera.
+                if (cancelled) {
+                    granted.getTracks().forEach((track) => track.stop());
+                    return;
+                }
+                stream = granted;
 
                 const videoEl = videoRef.current;
                 if (videoEl) {
@@ -158,6 +165,7 @@ export function useProctoringAI({ onViolation, active }: ProctoringConfig) {
         enableCam();
 
         return () => {
+            cancelled = true;
             if (stream) {
                 stream.getTracks().forEach((track) => track.stop());
             }

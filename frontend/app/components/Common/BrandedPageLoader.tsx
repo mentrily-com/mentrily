@@ -7,7 +7,13 @@ export default function BrandedPageLoader() {
     const { organization } = useOrganization();
 
     return (
-        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white">
+        <div
+            role="status"
+            aria-busy="true"
+            aria-live="polite"
+            className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white motion-reduce:[&_*]:animate-none"
+        >
+            <span className="sr-only">Loading…</span>
             <div className="relative flex items-center justify-center">
                 <div className="w-20 h-20 border-4 border-slate-100 rounded-full"></div>
                 <div className="absolute w-20 h-20 border-4 border-t-[var(--brand)] border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>

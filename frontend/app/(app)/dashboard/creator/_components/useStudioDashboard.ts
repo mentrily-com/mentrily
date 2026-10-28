@@ -19,7 +19,7 @@ export function useStudioDashboard() {
     const isSignedIn = useRequireAuth('/login');
     const { session, isLoading: isSessionLoading } = useSession();
 
-    const { data, isLoading } = useQuery({
+    const { data, isPending, isError, refetch } = useQuery({
         queryKey: ['teacher-dashboard', session?.orgId || 'no-org'],
         enabled: !!isSignedIn && !isSessionLoading,
         staleTime: 30_000,
@@ -149,7 +149,10 @@ export function useStudioDashboard() {
     );
 
     const hasData = Boolean(data);
-    const loading = !hasData && (isLoading || isSessionLoading);
+    // isPending, not isLoading: the query sits disabled until Clerk + session
+    // resolve, and a disabled query reports isLoading=false -- which rendered
+    // the empty page first, then the skeleton, then the data.
+    const loading = !hasData && (isPending || isSessionLoading);
 
     return {
         searchQuery,
@@ -165,5 +168,8 @@ export function useStudioDashboard() {
         recentActivity: recentParams,
         stats,
         loading,
+        // First load failed with nothing cached: the page shows a retry card instead of zeros.
+        loadError: isError && !hasData,
+        retry: () => void refetch(),
     };
 }

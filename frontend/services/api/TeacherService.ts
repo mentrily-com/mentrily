@@ -67,6 +67,7 @@ export interface Student {
     sleepDuration?: string;
     startTime?: string;
     endTime?: string;
+    sessionId?: string;
     logs: any[];
 }
 
@@ -586,6 +587,12 @@ export const TeacherService = {
             console.error('[TeacherService] Error', error);
             throw error;
         }
+    },
+
+    async getSessionViolations(examId: string, sessionId: string, limit = 500) {
+        const res = await authFetch(`/teacher/exams/${examId}/monitor/sessions/${sessionId}/violations?limit=${limit}`);
+        if (!res.ok) throw new Error('Failed to fetch violation log');
+        return (await res.json()) as { logs: any[]; pagination: { total: number } };
     },
 
     async getFeedbacks(examId: string) {

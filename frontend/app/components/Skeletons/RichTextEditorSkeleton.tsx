@@ -1,3 +1,4 @@
+import SkeletonRoot from './SkeletonRoot';
 /**
  * Purpose-built loading placeholder for the dynamically-imported
  * `RichTextEditor` (`app/components/Authoring/RichTextEditor.tsx`), used as
@@ -14,7 +15,7 @@
  */
 export default function RichTextEditorSkeleton() {
     return (
-        <div className="border border-slate-200 rounded-[32px] overflow-hidden">
+        <SkeletonRoot className="border border-slate-200 rounded-[32px] overflow-hidden">
             <div className="flex flex-wrap items-center gap-1 p-3 border-b border-slate-200 bg-slate-50">
                 {[1, 2, 3, 4, 5, 6, 7].map((i) => (
                     <div key={i} className="flex gap-0.5 rounded-xl bg-white/10 p-0.5">
@@ -29,6 +30,6 @@ export default function RichTextEditorSkeleton() {
                 <div className="h-4 w-5/6 animate-pulse rounded bg-slate-100" />
                 <div className="h-4 w-2/3 animate-pulse rounded bg-slate-100" />
             </div>
-        </div>
+        </SkeletonRoot>
     );
 }

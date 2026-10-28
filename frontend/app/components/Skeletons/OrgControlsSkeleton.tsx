@@ -1,3 +1,4 @@
+import SkeletonRoot from './SkeletonRoot';
 /**
  * Purpose-built skeleton for the super-admin single-organization dashboard
  * (`/dashboard/super-admin/organizations/[id]/dashboard`). Previously this
@@ -13,7 +14,7 @@
  */
 export default function OrgControlsSkeleton() {
     return (
-        <div className="space-y-6">
+        <SkeletonRoot className="space-y-6">
             <section className="max-w-[1440px] mx-auto px-6 lg:px-12 pt-8">
                 <div className="bg-white rounded-[32px] border border-slate-100 p-6 shadow-sm">
                     <div className="flex items-center justify-between mb-6">
@@ -53,6 +54,6 @@ export default function OrgControlsSkeleton() {
                     </div>
                 </div>
             </section>
-        </div>
+        </SkeletonRoot>
     );
 }

@@ -89,13 +89,21 @@ export class AuthController {
     return this.authService.examLogin(req.user.id, data.testCode, data.slug, {
       userAgent: req?.headers?.['user-agent'],
       clientPlatform: req?.headers?.['x-client-platform'],
+      ip: req?.ip,
     });
   }
 
   @Post('exam-login/verify-code')
   @Throttle({ default: { limit: 20, ttl: 60000 } })
-  async verifyExamCode(@Body() data: { testCode: string; slug?: string }) {
-    return this.authService.verifyExamTestCode(data.testCode, data.slug);
+  async verifyExamCode(
+    @Body() data: { testCode: string; slug?: string },
+    @Req() req: any,
+  ) {
+    return this.authService.verifyExamTestCode(
+      data.testCode,
+      data.slug,
+      req?.ip,
+    );
   }
 
   @UseGuards(JwtAuthGuard)

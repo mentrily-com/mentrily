@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect, useMemo } from 'react';
 import { StudentService } from '@/services/api/StudentService';
-import CoursePlayerSkeleton from '@/app/components/Skeletons/CoursePlayerSkeleton';
+import ExamResultReviewSkeleton from '@/app/components/Skeletons/ExamResultReviewSkeleton';
 import UnitRenderer from '@/app/components/UnitRenderer';
 import ExamSidebar from '@/app/components/ExamSidebar';
 
@@ -84,13 +84,7 @@ export default function ExamResultPage({ params }: { params: Promise<{ sessionId
     };
 
     if (loading) {
-        return (
-            <div className="h-full flex flex-col bg-white overflow-hidden">
-                <div className="flex-1 overflow-hidden">
-                    <CoursePlayerSkeleton hasSidebar={true} isExamMode={false} />
-                </div>
-            </div>
-        );
+        return <ExamResultReviewSkeleton />;
     }
     if (!resultData)
         return <div className="p-10 text-center text-slate-500">Result not found or not published yet.</div>;

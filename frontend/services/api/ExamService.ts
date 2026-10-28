@@ -48,8 +48,8 @@ export const ExamService = {
             }
             const data = await res.json();
 
-            // Store in cache
-            examCache.set(slug, data);
+            // Locked responses (window not open / no test-code grant yet) must be refetched once access is granted.
+            if (!data?.questionsLocked) examCache.set(slug, data);
 
             return data;
         } catch (error) {

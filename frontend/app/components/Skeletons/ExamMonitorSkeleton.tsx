@@ -1,3 +1,4 @@
+import SkeletonRoot from './SkeletonRoot';
 /**
  * Purpose-built skeleton for `ExamMonitorView`, the live student-activity
  * monitor teachers/admins see while proctoring an exam. The previous
@@ -10,7 +11,7 @@
  */
 export default function ExamMonitorSkeleton() {
     return (
-        <div className="animate-fade-in pb-10">
+        <SkeletonRoot className="animate-fade-in pb-10">
             <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div className="space-y-2">
                     <div className="flex items-center gap-3">
@@ -27,7 +28,7 @@ export default function ExamMonitorSkeleton() {
             </div>
 
             {/* KPI Grid */}
-            <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-5">
+            <div className="mb-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
                 {[1, 2, 3, 4, 5].map((i) => (
                     <div key={i} className="rounded-2xl border border-slate-100 bg-white p-5">
                         <div className="mb-2 h-2.5 w-16 animate-pulse rounded bg-slate-100" />
@@ -61,6 +62,6 @@ export default function ExamMonitorSkeleton() {
                     ))}
                 </div>
             </div>
-        </div>
+        </SkeletonRoot>
     );
 }

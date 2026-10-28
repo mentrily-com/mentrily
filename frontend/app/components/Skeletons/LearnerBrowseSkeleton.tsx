@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import SkeletonRoot from './SkeletonRoot';
 
 /**
  * Exact DOM structure matching app/(app)/dashboard/learner/browse/page.tsx:
@@ -11,7 +12,7 @@ import React from 'react';
  */
 export default function LearnerBrowseSkeleton({ count = 6 }: { count?: number }) {
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+        <SkeletonRoot className="min-h-screen bg-slate-50 text-slate-900 font-sans">
             <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-10">
                 {/* Header & Search Bar */}
                 <div className="flex flex-col gap-4 mb-6 sm:mb-10 sm:flex-row sm:items-center sm:justify-between">
@@ -45,6 +46,6 @@ export default function LearnerBrowseSkeleton({ count = 6 }: { count?: number })
                     ))}
                 </div>
             </main>
-        </div>
+        </SkeletonRoot>
     );
 }

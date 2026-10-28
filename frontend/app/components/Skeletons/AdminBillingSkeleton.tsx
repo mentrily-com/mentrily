@@ -1,3 +1,4 @@
+import SkeletonRoot from './SkeletonRoot';
 /**
  * Purpose-built skeleton for the organization admin billing page
  * (`dashboard/creator/_components/AdminBillingPage.tsx`). It previously fell
@@ -12,7 +13,7 @@
  */
 export default function AdminBillingSkeleton() {
     return (
-        <div className="font-sans pb-10">
+        <SkeletonRoot className="font-sans pb-10">
             {/* Header + interval toggle */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
                 <div className="space-y-2">
@@ -87,6 +88,6 @@ export default function AdminBillingSkeleton() {
                     ))}
                 </div>
             </section>
-        </div>
+        </SkeletonRoot>
     );
 }

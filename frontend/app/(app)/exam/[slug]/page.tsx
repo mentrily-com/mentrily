@@ -87,20 +87,42 @@ type ExamBlockState = {
     actionHref?: string;
 };
 
+// Removes this exam's coding drafts: legacy unscoped `unit_progress_<qid>_<lang>`
+// keys, plus per-user `unit_progress:<user>:<qid>:<lang>` ones when includeScoped.
+function clearCodeDrafts(questionIds: string[], includeScoped: boolean) {
+    if (typeof window === 'undefined' || questionIds.length === 0) return;
+    const ids = new Set(questionIds.map(String));
+    try {
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+            const key = localStorage.key(i);
+            if (!key?.startsWith('unit_progress')) continue;
+            const scopedHit = includeScoped && key.startsWith('unit_progress:') && ids.has(key.split(':')[2]);
+            const legacyHit = questionIds.some((id) => key.startsWith(`unit_progress_${id}_`));
+            if (scopedHit || legacyHit) localStorage.removeItem(key);
+        }
+    } catch {
+        // storage unavailable (private mode) -- nothing to clear
+    }
+}
+
 interface ExamCountdownTimerProps {
-    initialSeconds: number | null;
+    deadlineMs: number | null;
+    getServerNow: () => number;
     isPaused: boolean;
+    statusLabel?: string | null;
     onTimeUp: () => void;
     onWarning: (message: string, title: string, duration: number) => void;
 }
 
 const ExamCountdownTimer = React.memo(function ExamCountdownTimer({
-    initialSeconds,
+    deadlineMs,
+    getServerNow,
     isPaused,
+    statusLabel,
     onTimeUp,
     onWarning,
 }: ExamCountdownTimerProps) {
-    const [secondsLeft, setSecondsLeft] = useState<number | null>(initialSeconds);
+    const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
     const fiveMinWarningShownRef = useRef(false);
     const onTimeUpRef = useRef(onTimeUp);
     const onWarningRef = useRef(onWarning);
@@ -110,27 +132,15 @@ const ExamCountdownTimer = React.memo(function ExamCountdownTimer({
         onWarningRef.current = onWarning;
     });
 
+    // Recomputed from the server-corrected clock every tick (not decremented),
+    // so a skewed client clock, sleep or background-tab throttling can't drift it.
     useEffect(() => {
-        if (initialSeconds !== null) {
-            setSecondsLeft(initialSeconds);
-        }
-    }, [initialSeconds]);
-
-    useEffect(() => {
-        if (secondsLeft === null || isPaused) return;
-
-        const timer = setInterval(() => {
-            setSecondsLeft((prev) => {
-                if (prev === null || prev <= 0) {
-                    clearInterval(timer);
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-
+        if (deadlineMs === null || isPaused) return;
+        const tick = () => setSecondsLeft(Math.max(0, Math.ceil((deadlineMs - getServerNow()) / 1000)));
+        tick();
+        const timer = setInterval(tick, 1000);
         return () => clearInterval(timer);
-    }, [secondsLeft === null, isPaused]);
+    }, [deadlineMs, getServerNow, isPaused]);
 
     useEffect(() => {
         if (secondsLeft === null || isPaused) return;
@@ -141,7 +151,7 @@ const ExamCountdownTimer = React.memo(function ExamCountdownTimer({
             return;
         }
 
-        if (secondsLeft === 300 && !fiveMinWarningShownRef.current) {
+        if (secondsLeft <= 300 && !fiveMinWarningShownRef.current) {
             fiveMinWarningShownRef.current = true;
             onWarningRef.current?.(
                 'Only 5 minutes remaining! Please review and submit your answers.',
@@ -176,6 +186,7 @@ const ExamCountdownTimer = React.memo(function ExamCountdownTimer({
                 <polyline points="12 6 12 12 16 14" />
             </svg>
             {secondsLeft !== null ? formatTime(secondsLeft) : 'Loading...'}
+            {statusLabel && <span className="text-[10px] font-bold uppercase tracking-tight">{statusLabel}</span>}
         </div>
     );
 });
@@ -233,6 +244,8 @@ export default function PublicExamPage() {
 
     const [sections, setSections] = useState<any[]>([]);
     const [questionsMap, setQuestionsMap] = useState<Record<string, UnitQuestion>>({});
+    const questionsMapRef = useRef(questionsMap);
+    questionsMapRef.current = questionsMap;
     const [currentSectionId, setCurrentSectionId] = useState('s1');
     const [currentQuestionId, setCurrentQuestionId] = useState<string | number>('q1-1');
     // Defaults to collapsed on narrow viewports -- the sidebar's expanded
@@ -257,7 +270,13 @@ export default function PublicExamPage() {
     const [isFeedbackMode, setIsFeedbackMode] = useState(false);
     const [isSuccessMode, setIsSuccessMode] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [timeLeft, setTimeLeft] = useState<number | null>(null);
+    const [deadlineMs, setDeadlineMs] = useState<number | null>(null);
+    // serverNow - Date.now() from REST responses; heartbeat_ack refines it via the socket hook.
+    const restServerOffsetRef = useRef(0);
+    const [autoSubmitStatus, setAutoSubmitStatus] = useState<'submitting' | 'retrying' | null>(null);
+    const autoSubmitStatusRef = useRef<'submitting' | 'retrying' | null>(null);
+    const autoSubmitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const examSubmittedRef = useRef(false);
     const [tabSwitchLimit, setTabSwitchLimit] = useState<number | null>(null);
     const [canShowFullscreenWarning, setCanShowFullscreenWarning] = useState(false);
     const [isElectronRuntime, setIsElectronRuntime] = useState(false);
@@ -296,6 +315,10 @@ export default function PublicExamPage() {
     const fullscreenToastIdRef = useRef<string | null>(null);
     const hasInteractedRef = useRef(false);
     const debouncedSaveRef = useRef<any>(null);
+    // The answer the debounce above is holding back; flushed before anything
+    // that could otherwise drop it (submit, typing into another question).
+    const pendingSaveRef = useRef<{ key: string; value: any } | null>(null);
+    const positionSaveRef = useRef<any>(null);
     const electronStrictModeRef = useRef<boolean | null>(null);
 
     const getDraftKey = useCallback(
@@ -321,24 +344,55 @@ export default function PublicExamPage() {
         [getDraftKey],
     );
 
+    const pendingDraftRef = useRef<{
+        key: string;
+        answers: Record<string, any>;
+        timer: ReturnType<typeof setTimeout>;
+    } | null>(null);
+
+    const flushLocalDraft = useCallback(() => {
+        const pending = pendingDraftRef.current;
+        if (!pending) return;
+        clearTimeout(pending.timer);
+        pendingDraftRef.current = null;
+        try {
+            localStorage.setItem(pending.key, JSON.stringify(pending.answers));
+        } catch (error) {
+            console.warn('[ExamPage] Failed to persist local exam draft', error);
+        }
+    }, []);
+
+    // Trailing 500ms debounce: serialising every answer on each keystroke janked typing.
     const writeLocalDraft = useCallback(
         (activeSessionId: string | null | undefined, nextAnswers: Record<string, any>) => {
             if (typeof window === 'undefined') return;
             const draftKey = getDraftKey(activeSessionId);
             if (!draftKey) return;
-            try {
-                localStorage.setItem(draftKey, JSON.stringify(nextAnswers));
-            } catch (error) {
-                console.warn('[ExamPage] Failed to persist local exam draft', error);
-            }
+            if (pendingDraftRef.current && pendingDraftRef.current.key !== draftKey) flushLocalDraft();
+            if (pendingDraftRef.current) clearTimeout(pendingDraftRef.current.timer);
+            pendingDraftRef.current = { key: draftKey, answers: nextAnswers, timer: setTimeout(flushLocalDraft, 500) };
         },
-        [getDraftKey],
+        [getDraftKey, flushLocalDraft],
     );
+
+    useEffect(() => {
+        window.addEventListener('pagehide', flushLocalDraft);
+        window.addEventListener('beforeunload', flushLocalDraft);
+        return () => {
+            window.removeEventListener('pagehide', flushLocalDraft);
+            window.removeEventListener('beforeunload', flushLocalDraft);
+            flushLocalDraft();
+        };
+    }, [flushLocalDraft]);
 
     const clearLocalDraft = useCallback(
         (activeSessionId?: string | null) => {
             if (typeof window === 'undefined') return;
             const draftKey = getDraftKey(activeSessionId);
+            if (pendingDraftRef.current?.key === draftKey) {
+                clearTimeout(pendingDraftRef.current.timer);
+                pendingDraftRef.current = null;
+            }
             if (draftKey) localStorage.removeItem(draftKey);
         },
         [getDraftKey],
@@ -367,7 +421,9 @@ export default function PublicExamPage() {
         retryConnection,
         isConnected,
         connectionStatus,
+        hasConnected,
         missedHeartbeats,
+        serverOffsetRef: socketServerOffsetRef,
     } = useExamSocket(examId, socketUserId, sessionId || '', isNotFound, {
         requiresExamAuth: isCourseLinkResolved ? !isCourseLinkedExam : false,
         authRedirectHref: isCourseLinkedExam ? `/login?redirect=${encodeURIComponent(`/exam/${slug}`)}` : undefined,
@@ -401,7 +457,12 @@ export default function PublicExamPage() {
         return () => clearTimeout(timer);
     }, [isElectronRuntime]);
 
-    const { logEvent } = useElectronMonitoring(slug || '', user?.rollNumber || '2211981482', socketLogViolation);
+    const getServerNow = useCallback(
+        () => Date.now() + (socketServerOffsetRef.current ?? restServerOffsetRef.current),
+        [socketServerOffsetRef],
+    );
+
+    const { logEvent } = useElectronMonitoring(slug || '', user?.rollNumber || user?.id || '', socketLogViolation);
 
     const setElectronStrictMode = useCallback((enabled: boolean, reason?: string) => {
         if (typeof window === 'undefined') return;
@@ -540,6 +601,9 @@ export default function PublicExamPage() {
                     const publicStatus = publicStatusResult.value;
                     resolvedPublicStatus = publicStatus;
                     setPublicExamStatus(publicStatus);
+                    if (typeof publicStatus?.serverTimeMs === 'number') {
+                        restServerOffsetRef.current = publicStatus.serverTimeMs - Date.now();
+                    }
                     const startTime = new Date(publicStatus.startTime).getTime();
 
                     if (Date.now() < startTime) {
@@ -733,6 +797,10 @@ export default function PublicExamPage() {
                 let restoredAllAnswers: Record<string, any> = {};
                 let sectionsToProcess = data.sections || []; // Define it here so it's available in scope
 
+                if (typeof session?.serverTimeMs === 'number') {
+                    restServerOffsetRef.current = session.serverTimeMs - Date.now();
+                }
+
                 if (session && session.id) {
                     setSessionId(session.id);
                     localStorage.setItem('currentExamSessionId', session.id);
@@ -797,14 +865,16 @@ export default function PublicExamPage() {
                         });
                     }
                     if (data.questions) setQuestionsMap(data.questions);
+                    // CodingQuestionRenderer keys code drafts per user and falls back to the
+                    // server answer itself; drop old unscoped keys so leaked code can't show.
+                    clearCodeDrafts(Object.keys(data.questions || {}), false);
 
                     // Adjust timer based on ACTUAL session start time
                     if (data.duration) {
-                        const sessStart = new Date(session.startTime || Date.now()).getTime();
-                        const now = Date.now();
-                        const elapsedSeconds = Math.floor((now - sessStart) / 1000);
-                        const remaining = data.duration * 60 - Math.max(0, elapsedSeconds);
-                        setTimeLeft(remaining);
+                        const sessStart = session.startTime
+                            ? new Date(session.startTime).getTime()
+                            : Date.now() + restServerOffsetRef.current;
+                        setDeadlineMs(sessStart + data.duration * 60 * 1000);
                     }
 
                     // Restore persistent tab switch counts
@@ -839,45 +909,6 @@ export default function PublicExamPage() {
                     // Standardize internal markers (flatten if they came from _internal_position)
                     if (restoredAllAnswers['_internal_position']) {
                         restoredAllAnswers = { ...restoredAllAnswers, ...restoredAllAnswers['_internal_position'] };
-                    }
-
-                    // Sync coding answers to localStorage so CodingQuestionRenderer picks them up
-                    // This handles: refresh on same device AND resume on new device
-                    for (const [qId, ans] of Object.entries(restoredAllAnswers)) {
-                        if (qId.startsWith('_')) continue; // Skip internal markers
-                        if (ans && typeof ans === 'object') {
-                            const languageEntries: Array<{ langId: string; code: string }> = [];
-
-                            if ((ans as any).code && typeof (ans as any).code === 'string') {
-                                languageEntries.push({
-                                    langId: (ans as any).languageId || 'default',
-                                    code: (ans as any).code,
-                                });
-                            }
-
-                            const languageSubmissions = (ans as any).languageSubmissions;
-                            if (languageSubmissions && typeof languageSubmissions === 'object') {
-                                for (const [langId, langAnswer] of Object.entries(
-                                    languageSubmissions as Record<string, any>,
-                                )) {
-                                    if (
-                                        langAnswer &&
-                                        typeof langAnswer === 'object' &&
-                                        typeof (langAnswer as any).code === 'string'
-                                    ) {
-                                        languageEntries.push({ langId, code: (langAnswer as any).code });
-                                    }
-                                }
-                            }
-
-                            for (const entry of languageEntries) {
-                                const key = `unit_progress_${qId}_${entry.langId}`;
-                                // Only populate if localStorage doesn't already have a more recent value
-                                if (!localStorage.getItem(key)) {
-                                    localStorage.setItem(key, entry.code);
-                                }
-                            }
-                        }
                     }
 
                     setUserAnswers(restoredAllAnswers);
@@ -1080,6 +1111,21 @@ export default function PublicExamPage() {
                     window.location.href = `/exam/login?slug=${slug}&error=app_required`;
                     return;
                 }
+                if (error.message?.includes('EXAM_NOT_STARTED') || error.message?.includes('EXAM_ENDED')) {
+                    const reason = error.message.includes('EXAM_ENDED') ? 'ended' : 'not_started';
+                    if (isCourseLinkedExamRef.current) {
+                        toastError(reason === 'ended' ? 'This exam has ended.' : 'This exam has not started yet.');
+                        setIsLoading(false);
+                        return;
+                    }
+                    window.location.href = `/exam/login?slug=${slug}&error=${reason}`;
+                    return;
+                }
+                if (error.message?.includes('TEST_CODE_REQUIRED')) {
+                    sessionStorage.removeItem(`exam_${slug}_auth`);
+                    window.location.href = `/exam/login?slug=${slug}`;
+                    return;
+                }
                 if (error.message?.includes('EXAM_ALREADY_ACTIVE')) {
                     if (isCourseLinkedExamRef.current) {
                         toastError('This exam is already active in another tab or session.');
@@ -1121,10 +1167,11 @@ export default function PublicExamPage() {
         loadExamData();
     }, [slug, setElectronStrictMode, router, getCourseReturnHref, readLocalDraft]);
 
-    const submitFullExam = useCallback(async () => {
-        if (isFinalSubmitting) return;
+    const submitFullExam = useCallback(async (): Promise<boolean> => {
+        if (isFinalSubmitting) return false;
         logEvent('exam_submission', 'User exam submitted (Manual or Auto)');
         setIsFinalSubmitting(true);
+        flushLocalDraft();
         try {
             const activeSessionId = (sessionId ||
                 localStorage.getItem('currentExamSessionId') ||
@@ -1134,7 +1181,9 @@ export default function PublicExamPage() {
             saveAnswer('_final_sync', finalAnswers);
 
             const submitResult = await ExamService.submitExam(activeSessionId, finalAnswers);
+            examSubmittedRef.current = true;
             clearLocalDraft(activeSessionId);
+            clearCodeDrafts(Object.keys(questionsMapRef.current), true);
             if (isCourseLinkedExamRef.current && typeof submitResult?.score === 'number') {
                 const passingPercentage = examVerdict?.passingPercentage ?? 70;
                 setExamVerdict({
@@ -1176,15 +1225,20 @@ export default function PublicExamPage() {
                 slug,
                 submissionMode: 'success',
             });
+            return true;
         } catch (e) {
             console.error('Full submission failed', e);
-            warning(
-                'Final submission could not be confirmed. Your answers are still saved here; please check your connection and submit again.',
-            );
+            // The time-up retry loop shows its own status instead of a toast per attempt.
+            if (!autoSubmitTimerRef.current && autoSubmitStatusRef.current === null) {
+                warning(
+                    'Final submission could not be confirmed. Your answers are still saved here; please check your connection and submit again.',
+                );
+            }
             posthog.capture('exam_completed', {
                 slug,
                 submissionMode: 'failed',
             });
+            return false;
         } finally {
             setIsFinalSubmitting(false);
         }
@@ -1197,9 +1251,44 @@ export default function PublicExamPage() {
         disconnect,
         setElectronStrictMode,
         clearLocalDraft,
+        flushLocalDraft,
         examVerdict,
         isFinalSubmitting,
     ]);
+
+    // Time-up auto-submit retries with backoff (2s, 4s, 8s ... capped at 30s)
+    // until it lands; one failed request used to leave the exam unsubmitted.
+    const submitFullExamRef = useRef(submitFullExam);
+    useEffect(() => {
+        submitFullExamRef.current = submitFullExam;
+    }, [submitFullExam]);
+    const handleTimeUp = useCallback(() => {
+        if (autoSubmitStatusRef.current !== null || examSubmittedRef.current) return;
+        let attempt = 0;
+        const run = async () => {
+            autoSubmitTimerRef.current = null;
+            if (examSubmittedRef.current) return;
+            autoSubmitStatusRef.current = 'submitting';
+            setAutoSubmitStatus('submitting');
+            if (await submitFullExamRef.current()) {
+                autoSubmitStatusRef.current = null;
+                setAutoSubmitStatus(null);
+                return;
+            }
+            const delay = Math.min(2000 * 2 ** attempt, 30000);
+            attempt += 1;
+            autoSubmitStatusRef.current = 'retrying';
+            setAutoSubmitStatus('retrying');
+            autoSubmitTimerRef.current = setTimeout(run, delay);
+        };
+        void run();
+    }, []);
+    useEffect(
+        () => () => {
+            if (autoSubmitTimerRef.current) clearTimeout(autoSubmitTimerRef.current);
+        },
+        [],
+    );
 
     const handleFeedbackSubmit = useCallback(
         async (rating: number, comment: string) => {
@@ -1284,8 +1373,8 @@ export default function PublicExamPage() {
                 return next;
             });
 
-            if (debouncedSaveRef.current) clearTimeout(debouncedSaveRef.current);
-            debouncedSaveRef.current = setTimeout(() => {
+            if (positionSaveRef.current) clearTimeout(positionSaveRef.current);
+            positionSaveRef.current = setTimeout(() => {
                 saveAnswer('_internal_position', positionMarkers);
             }, 2000); // slightly longer debounce for navigation
         },
@@ -1330,8 +1419,19 @@ export default function PublicExamPage() {
         }
     }, [sections, currentSectionId, currentQuestionId, handleQuestionSelect]);
 
+    const flushPendingSave = useCallback(() => {
+        if (debouncedSaveRef.current) clearTimeout(debouncedSaveRef.current);
+        debouncedSaveRef.current = null;
+        const pending = pendingSaveRef.current;
+        pendingSaveRef.current = null;
+        if (pending) saveAnswer(pending.key, pending.value);
+    }, [saveAnswer]);
+
     const handleSubmitNext = useCallback(
         (answer: any) => {
+            // An option picked <1s ago is still in the debounce; the
+            // "unchanged" check below would otherwise skip it entirely.
+            flushPendingSave();
             const previousAnswer = userAnswersRef.current[currentQuestionId as string];
             const answerUnchanged = answersEqual(previousAnswer, answer);
 
@@ -1380,7 +1480,16 @@ export default function PublicExamPage() {
             // 4. Otherwise go to next question
             handleNext();
         },
-        [currentQuestionId, sessionId, writeLocalDraft, saveAnswer, sections, currentSectionId, handleNext],
+        [
+            currentQuestionId,
+            sessionId,
+            writeLocalDraft,
+            saveAnswer,
+            flushPendingSave,
+            sections,
+            currentSectionId,
+            handleNext,
+        ],
     );
 
     const handleAnswerChange = useCallback(
@@ -1399,13 +1508,14 @@ export default function PublicExamPage() {
             setUserAnswers(nextAnswers);
             writeLocalDraft(sessionId || localStorage.getItem('currentExamSessionId'), nextAnswers);
 
-            // Debounce Save (1s)
+            // Debounce Save (1s). A pending save for another question is sent
+            // now rather than replaced.
+            if (pendingSaveRef.current && pendingSaveRef.current.key !== currentQuestionId) flushPendingSave();
             if (debouncedSaveRef.current) clearTimeout(debouncedSaveRef.current);
-            debouncedSaveRef.current = setTimeout(() => {
-                saveAnswer(currentQuestionId as string, answer);
-            }, 1000);
+            pendingSaveRef.current = { key: currentQuestionId as string, value: answer };
+            debouncedSaveRef.current = setTimeout(flushPendingSave, 1000);
         },
-        [currentQuestionId, saveAnswer, sessionId, writeLocalDraft],
+        [currentQuestionId, flushPendingSave, sessionId, writeLocalDraft],
     );
 
     // ... (useEffect hooks for focus monitoring could remain here or be moved to useElectronMonitoring if refactored further)
@@ -1919,7 +2029,7 @@ export default function PublicExamPage() {
 
     const examConfig: ExamConfig = useMemo(
         () => ({
-            rollNumber: user?.rollNumber || '2211981482',
+            rollNumber: user?.rollNumber || user?.id || '',
             userName: user?.name || 'Student',
             profilePicture: user?.profilePicture || user?.imageUrl || examMetadata?.profilePicture,
             hideBrandSuffix: true,
@@ -2014,9 +2124,17 @@ export default function PublicExamPage() {
             rightContent: (
                 <div className="flex shrink-0 items-center gap-2 sm:gap-4">
                     <ExamCountdownTimer
-                        initialSeconds={timeLeft}
+                        deadlineMs={deadlineMs}
+                        getServerNow={getServerNow}
                         isPaused={isFeedbackMode || isSuccessMode}
-                        onTimeUp={submitFullExam}
+                        statusLabel={
+                            autoSubmitStatus === 'submitting'
+                                ? 'Submitting…'
+                                : autoSubmitStatus === 'retrying'
+                                  ? 'Retrying submit…'
+                                  : null
+                        }
+                        onTimeUp={handleTimeUp}
                         onWarning={warning}
                     />
 
@@ -2085,6 +2203,7 @@ export default function PublicExamPage() {
         }),
         [
             user?.rollNumber,
+            user?.id,
             user?.name,
             user?.profilePicture,
             user?.imageUrl,
@@ -2094,7 +2213,10 @@ export default function PublicExamPage() {
             isSubmitModalOpen,
             isCurrentSectionSubmitted,
             areAllSectionsSubmitted,
-            timeLeft,
+            deadlineMs,
+            getServerNow,
+            autoSubmitStatus,
+            handleTimeUp,
             isFeedbackMode,
             isSuccessMode,
             submitFullExam,
@@ -2197,10 +2319,12 @@ export default function PublicExamPage() {
         );
     }
 
-    // Block the exam UI if the socket has not yet connected.
+    // Block the exam UI until the socket first connects. A later drop keeps the
+    // exam on screen (answers queue and flush on reconnect).
     // Feedback / success routes don't need the live socket so they bypass this.
     const socketPending =
         connectionStatus === 'connecting' &&
+        !hasConnected &&
         Boolean(sessionId && socketUserId) &&
         isOnline &&
         !isFeedbackMode &&

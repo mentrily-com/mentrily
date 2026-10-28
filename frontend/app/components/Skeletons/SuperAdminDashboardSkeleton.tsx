@@ -1,3 +1,4 @@
+import SkeletonRoot from './SkeletonRoot';
 /**
  * Purpose-built skeleton for the super-admin dashboard (`/dashboard/super-admin`).
  * Previously this route fell back to the generic `DashboardSkeleton type="main"`,
@@ -8,7 +9,7 @@
  */
 export default function SuperAdminDashboardSkeleton() {
     return (
-        <div className="space-y-6 animate-fade-in">
+        <SkeletonRoot className="space-y-6 animate-fade-in">
             {/* HERO: stats + plan distribution panel */}
             <div className="rounded-[30px] border border-slate-200 bg-white px-6 py-7 lg:px-8">
                 <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
@@ -116,6 +117,6 @@ export default function SuperAdminDashboardSkeleton() {
                     ))}
                 </div>
             </div>
-        </div>
+        </SkeletonRoot>
     );
 }

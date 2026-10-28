@@ -1024,6 +1024,7 @@ export class ClerkAuthGuard implements CanActivate {
     let payload: any;
     if (
       process.env.NODE_ENV !== 'production' &&
+      process.env.ALLOW_LOAD_TEST_TOKENS === 'true' &&
       typeof token === 'string' &&
       token.startsWith('test-load-token-')
     ) {
@@ -1077,27 +1078,7 @@ export class ClerkAuthGuard implements CanActivate {
             strictVerifyOptions.audience = audienceValue;
           }
 
-          try {
-            payload = await verifyToken(token, strictVerifyOptions);
-          } catch (strictError: any) {
-            const relaxedVerifyOptions: {
-              secretKey: string;
-              audience?: string;
-              clockSkewInMs: number;
-            } = {
-              secretKey,
-              clockSkewInMs: 60_000,
-            };
-
-            if (audienceValue) {
-              relaxedVerifyOptions.audience = audienceValue;
-            }
-
-            payload = await verifyToken(token, relaxedVerifyOptions);
-            this.logger.warn(
-              `[AUTH_VERIFY_RELAXED] strict verification failed, relaxed verification accepted token: ${strictError?.reason || strictError?.message || 'unknown'}`,
-            );
-          }
+          payload = await verifyToken(token, strictVerifyOptions);
 
           if (payload?.sub) {
             const nowSec = Math.floor(Date.now() / 1000);
@@ -1229,13 +1210,15 @@ export class ClerkAuthGuard implements CanActivate {
     this.inFlightSessions.set(cacheKey, inFlightPromise);
 
     try {
-    const effectivePayload = await this.enrichPayloadFromClerk(
-      clerkId,
-      payload,
-      secretKey,
-    );
-
     let user: any = await this.findSessionUser({ clerkId });
+
+    // Default Clerk session tokens carry no email, so enrichment costs a Clerk
+    // API round trip. A user found by clerkId already has their email on the
+    // row — only unknown clerkIds (email fallback / provisioning) need Clerk.
+    const effectivePayload =
+      user?.email && !this.normalizePrimaryEmail(payload)
+        ? { ...payload, email: user.email, email_address: user.email }
+        : await this.enrichPayloadFromClerk(clerkId, payload, secretKey);
 
     const payloadEmail = this.normalizePrimaryEmail(effectivePayload);
 

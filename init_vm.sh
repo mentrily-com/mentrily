@@ -81,6 +81,15 @@ api.mentrily.com {
     }
 }
 
+# go-connector serves the /proctoring Socket.IO namespace. It gets its own host
+# because every namespace shares the /socket.io/ path, so path routing on
+# api.mentrily.com would also capture Nest's notification sockets.
+ws.mentrily.com {
+    reverse_proxy go-connector:4300 {
+        header_up X-Real-IP {remote_host}
+    }
+}
+
 judge.mentrily.com {
     reverse_proxy judge0-server:2358 {
         header_up X-Forwarded-Proto https
@@ -92,10 +101,17 @@ CADDY
 # 9. Setup Judge0 configuration
 cd /opt/blockscode/judge0
 wget -qO judge0.conf https://github.com/judge0/judge0/releases/download/v1.13.1/judge0.conf || true
-sed -i 's/^AUTHN_TOKEN=.*/AUTHN_TOKEN="cdf65ebb8d5bc27865f532c4589cc039ce0eea19a5c542c1ee0b4718c7085a50"/' judge0.conf || true
+# Secrets are generated on the VM at provision time and never committed.
+# They live in /opt/blockscode/.env (read by docker compose) and judge0.conf.
+JUDGE0_AUTH_TOKEN=$(openssl rand -hex 32)
+JUDGE0_REDIS_PASSWORD=$(openssl rand -hex 24)
+JUDGE0_POSTGRES_PASSWORD=$(openssl rand -hex 24)
+printf 'JUDGE0_AUTH_TOKEN=%s\n' "$JUDGE0_AUTH_TOKEN" > /opt/blockscode/.env
+chmod 600 /opt/blockscode/.env
+sed -i "s/^AUTHN_TOKEN=.*/AUTHN_TOKEN=\"$JUDGE0_AUTH_TOKEN\"/" judge0.conf || true
 sed -i 's/^AUTHN_HEADER=.*/AUTHN_HEADER="X-Auth-Token"/' judge0.conf || true
-echo 'REDIS_PASSWORD=1a8a356c14d1028cfcca4cc2730331bda5969508d0f4972f' >> judge0.conf
-echo 'POSTGRES_PASSWORD=3863b5c8faae93910312b426cb495ebbbd5eb9b2eab9f9ed' >> judge0.conf
+echo "REDIS_PASSWORD=$JUDGE0_REDIS_PASSWORD" >> judge0.conf
+echo "POSTGRES_PASSWORD=$JUDGE0_POSTGRES_PASSWORD" >> judge0.conf
 
 # 10. Setup master docker-compose.yml
 cat << 'COMPOSE' > /opt/blockscode/docker-compose.yml
@@ -129,10 +145,28 @@ services:
       - REDIS_PORT=6379
       - CODE_EXECUTION_ENGINE=judge0
       - JUDGE0_API_URL=http://judge0-server:2358
-      - JUDGE0_AUTH_TOKEN=cdf65ebb8d5bc27865f532c4589cc039ce0eea19a5c542c1ee0b4718c7085a50
+      - JUDGE0_AUTH_TOKEN=${JUDGE0_AUTH_TOKEN}
     depends_on:
       - redis
       - judge0-server
+    networks:
+      - app_network
+
+  go-connector:
+    image: ghcr.io/mentrily-com/mentrily/go-connector:latest
+    container_name: go_connector
+    restart: always
+    env_file:
+      - ./backend.env
+    environment:
+      - NODE_ENV=production
+      - PORT=4300
+      - FEATURES=proctoring
+      # Same Redis vars as backend: both prefer REDIS_URL from backend.env, else redis:6379.
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
     networks:
       - app_network
 

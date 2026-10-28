@@ -1,3 +1,4 @@
+import SkeletonRoot from './SkeletonRoot';
 /**
  * Purpose-built skeleton for the creator/admin studio dashboard
  * (`/dashboard/creator`) -- the first thing every teacher or admin sees
@@ -13,7 +14,7 @@
  */
 export default function CreatorDashboardSkeleton() {
     return (
-        <div className="space-y-5 animate-fade-in">
+        <SkeletonRoot className="space-y-5 animate-fade-in">
             {/* HERO */}
             <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6 lg:rounded-3xl lg:p-8">
                 <div className="space-y-5">
@@ -31,7 +32,7 @@ export default function CreatorDashboardSkeleton() {
             </div>
 
             {/* STAT CARDS */}
-            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
                         <div className="flex items-center justify-between">
@@ -89,6 +90,6 @@ export default function CreatorDashboardSkeleton() {
                     </div>
                 </div>
             </div>
-        </div>
+        </SkeletonRoot>
     );
 }

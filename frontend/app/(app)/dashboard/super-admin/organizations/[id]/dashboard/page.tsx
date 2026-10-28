@@ -4,6 +4,7 @@ import AdminDashboardView from '@/app/components/Features/Admin/AdminDashboardVi
 import { SuperAdminService } from '@/services/api/SuperAdminService';
 import { AdminService } from '@/services/api/AdminService';
 import OrgControlsSkeleton from '@/app/components/Skeletons/OrgControlsSkeleton';
+import AdminDashboardViewSkeleton from '@/app/components/Skeletons/AdminDashboardViewSkeleton';
 import { useToast } from '@/app/components/Common/Toast';
 
 type PlanType = 'FREE' | 'STARTER' | 'PRO' | 'ENTERPRISE';
@@ -134,7 +135,13 @@ export default function SuperAdminOrganizationDashboard({ params }: { params: Pr
     };
 
     if (loading) {
-        return <OrgControlsSkeleton />;
+        // Same shape as loading.tsx so the route skeleton hands off without a collapse/expand.
+        return (
+            <div className="space-y-6">
+                <OrgControlsSkeleton />
+                <AdminDashboardViewSkeleton />
+            </div>
+        );
     }
 
     return (

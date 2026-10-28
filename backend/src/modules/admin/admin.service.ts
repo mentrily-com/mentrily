@@ -40,6 +40,20 @@ type InviteResult = {
   clerkInvitationId?: string | null;
 };
 
+// Toggles exposed in the org settings UI (AdminSettingsView); none are plan entitlements.
+const ADMIN_EDITABLE_FEATURE_KEYS = new Set([
+  'canCreateExams',
+  'allowAppExams',
+  'allowAIProctoring',
+  'canCreateCourses',
+  'allowCourseTests',
+  'canManageUsers',
+  'teacherSelfBilling',
+  'openEnrollment',
+  'resendInvites',
+  'crispChat',
+]);
+
 @Injectable()
 export class AdminService {
   private readonly logger = new Logger(AdminService.name);
@@ -395,12 +409,22 @@ export class AdminService {
         ? (org.features as Record<string, unknown>)
         : {};
 
-    const incomingFeatures =
+    const rawIncomingFeatures =
       data?.features &&
       typeof data.features === 'object' &&
       !Array.isArray(data.features)
         ? data.features
         : {};
+    // Org admins may only flip operational toggles; plan entitlements and
+    // limitsOverrides in Organization.features are SUPER_ADMIN-only.
+    const incomingFeatures =
+      user?.role === 'SUPER_ADMIN'
+        ? rawIncomingFeatures
+        : Object.fromEntries(
+            Object.entries(rawIncomingFeatures).filter(([key]) =>
+              ADMIN_EDITABLE_FEATURE_KEYS.has(key),
+            ),
+          );
 
     const nextFeatures = {
       ...currentFeatures,

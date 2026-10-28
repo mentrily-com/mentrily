@@ -38,28 +38,27 @@ export const useNotificationSocket = (onNewAnnouncement?: (announcement: Announc
     useEffect(() => {
         let cancelled = false;
 
-        const connect = async () => {
-            // The socket connects to a different origin than the app in
-            // production (an AWS API Gateway domain, not www.mentrily.com),
-            // so withCredentials alone can never authenticate it — a cookie
-            // scoped to mentrily.com is never sent to a request targeting a
-            // different domain. Attach a bearer token explicitly, same as
-            // REST calls (see lib/clerk-token.ts).
-            const token = await getClerkToken();
+        const connect = () => {
             if (cancelled) return;
-
             const socket = io(`${SOCKET_URL}/notifications`, {
-                // See useExamSocket.ts: the production API Gateway (HTTP API,
-                // not a WebSocket API) can't perform a WS upgrade at all, so
-                // 'websocket'-only here meant this socket could never connect
-                // in production. Force long-polling instead.
+                // websocket first; tryAllTransports falls back to long-polling
+                // where the API Gateway (HTTP API) can't upgrade. Without it a
+                // failed websocket never tried polling at all.
                 transports: ['websocket', 'polling'],
-                upgrade: true,
+                tryAllTransports: true,
                 reconnection: true,
                 reconnectionAttempts: 10,
                 reconnectionDelay: 3000,
                 withCredentials: true,
-                auth: token ? { token } : undefined,
+                // Cross-origin in production, so cookies never reach it; send a
+                // bearer token (see lib/clerk-token.ts). A callback, not a fixed
+                // value, so each reconnect gets a fresh ~60s Clerk token.
+                auth: (cb) => {
+                    getClerkToken().then(
+                        (token) => cb(token ? { token } : {}),
+                        () => cb({}),
+                    );
+                },
             });
 
             socketRef.current = socket;
@@ -80,7 +79,7 @@ export const useNotificationSocket = (onNewAnnouncement?: (announcement: Announc
             });
         };
 
-        void connect();
+        connect();
 
         return () => {
             cancelled = true;

@@ -27,7 +27,8 @@ interface Result {
     submittedAt: string;
     timeTaken: string;
     attempted: string;
-    score: number;
+    score: number; // percentage (0-100)
+    marksObtained?: number;
     totalPossible: number;
     status: 'Passed' | 'Failed' | string;
 }
@@ -107,27 +108,19 @@ export default function ExamResultsView({
         const passedCount = results.filter((r) => r.status === 'Passed').length;
         const failedCount = results.filter((r) => r.status === 'Failed').length;
 
-        const totalScorePct = results.reduce((acc, curr) => acc + curr.score / (curr.totalPossible || 1), 0);
-        const avgScore = (totalScorePct / results.length) * 100;
+        const avgScore = results.reduce((acc, curr) => acc + curr.score, 0) / results.length;
 
         const totalTime = results.reduce((acc, curr) => acc + (parseInt(curr.timeTaken) || 0), 0);
         const avgTime = totalTime / results.length;
 
-        const highScore = Math.max(...results.map((r) => (r.score / (r.totalPossible || 1)) * 100));
+        const highScore = Math.max(...results.map((r) => r.score));
 
+        const inRange = (lo: number, hi: number) => results.filter((r) => r.score >= lo && r.score < hi).length;
         const distribution = [
-            { score: '0-25%', count: results.filter((r) => r.score / r.totalPossible < 0.25).length },
-            {
-                score: '25-50%',
-                count: results.filter((r) => r.score / r.totalPossible >= 0.25 && r.score / r.totalPossible < 0.5)
-                    .length,
-            },
-            {
-                score: '50-75%',
-                count: results.filter((r) => r.score / r.totalPossible >= 0.5 && r.score / r.totalPossible < 0.75)
-                    .length,
-            },
-            { score: '75-100%', count: results.filter((r) => r.score / r.totalPossible >= 0.75).length },
+            { score: '0-25%', count: inRange(-Infinity, 25) },
+            { score: '25-50%', count: inRange(25, 50) },
+            { score: '50-75%', count: inRange(50, 75) },
+            { score: '75-100%', count: inRange(75, Infinity) },
         ];
 
         return { avgScore, avgTime, passedCount, failedCount, distribution, highScore };
@@ -176,25 +169,6 @@ export default function ExamResultsView({
             });
         } finally {
             setIsPublishing(false);
-        }
-    };
-
-    const updateScore = async (sessionId: string, newScore: string) => {
-        const scoreVal = parseFloat(newScore) || 0;
-        setResults((prev) =>
-            prev.map((r) => {
-                if (r.sessionId === sessionId) {
-                    const status = scoreVal / r.totalPossible >= 0.4 ? 'Passed' : 'Failed';
-                    return { ...r, score: scoreVal, status };
-                }
-                return r;
-            }),
-        );
-
-        try {
-            await TeacherService.updateSubmissionScore(examId, sessionId, scoreVal);
-        } catch (error) {
-            console.error('Failed to update score on server', error);
         }
     };
 
@@ -459,7 +433,7 @@ export default function ExamResultsView({
                                     <td className="px-4 py-5 text-center">
                                         <div className="flex items-center justify-center gap-1.5">
                                             <span className="text-[11px] font-black" style={{ color: brandColor }}>
-                                                {r.score}
+                                                {r.marksObtained ?? Math.round((r.score * r.totalPossible) / 100)}
                                             </span>
                                             <span className="text-[10px] font-bold text-slate-300">
                                                 / {r.totalPossible}

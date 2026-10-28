@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import SkeletonRoot from './SkeletonRoot';
 
 /**
  * Purpose-built skeleton matching ExamResultsView.tsx:
@@ -9,7 +10,7 @@ import React from 'react';
  */
 export default function ExamResultsSkeleton() {
     return (
-        <div className="animate-fade-in pb-10 font-sans">
+        <SkeletonRoot className="animate-fade-in pb-10 font-sans">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div className="space-y-2">
@@ -87,6 +88,6 @@ export default function ExamResultsSkeleton() {
                     ))}
                 </div>
             </div>
-        </div>
+        </SkeletonRoot>
     );
 }

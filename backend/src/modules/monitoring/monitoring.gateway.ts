@@ -18,7 +18,7 @@ import {
   closeSocketRedisAdapter,
   ensureSocketRedisAdapter,
 } from '../common/socket-redis-adapter';
-import { OnModuleDestroy } from '@nestjs/common';
+import { BadRequestException, OnModuleDestroy } from '@nestjs/common';
 import {
   getAllowedWebOrigins,
   isAllowedSubdomainOrigin,
@@ -124,11 +124,31 @@ export class MonitoringGateway
     { userId: string; examId: string }
   >(); // socketId -> Metadata
 
-  private static readonly PRIVILEGED_ROLES = new Set([
-    'TEACHER',
-    'ADMIN',
-    'SUPER_ADMIN',
-  ]);
+  /**
+   * Per-socket events per minute. One student flooding log_violation wrote
+   * ~1.6k Violation rows/s and pushed every other candidate's acks from ~5ms
+   * to ~250ms. Budgets sit well above the real client (2 heartbeats/min, a
+   * 200-entry offline violation queue flushed on reconnect).
+   */
+  private static readonly EVENT_BUDGET_PER_MIN: Record<string, number> = {
+    save_answer: 600,
+    log_violation: 300,
+    heartbeat: 60,
+  };
+
+  private overBudget(client: Socket, event: string): boolean {
+    const now = Date.now();
+    const data = client.data as {
+      eventWindow?: { start: number; counts: Record<string, number> };
+    };
+    const window = (data.eventWindow ??= { start: now, counts: {} });
+    if (now - window.start >= 60_000) {
+      window.start = now;
+      window.counts = {};
+    }
+    window.counts[event] = (window.counts[event] || 0) + 1;
+    return window.counts[event] > MonitoringGateway.EVENT_BUDGET_PER_MIN[event];
+  }
 
   /**
    * Server-side identity for socket handlers. The Clerk token only proves
@@ -175,12 +195,6 @@ export class MonitoringGateway
     return identity;
   }
 
-  private isPrivileged(role: string | undefined | null): boolean {
-    return MonitoringGateway.PRIVILEGED_ROLES.has(
-      String(role || '').toUpperCase(),
-    );
-  }
-
   /**
    * A globally-privileged role is not enough: it says "this person is a
    * teacher/admin SOMEWHERE," not "for THIS exam." Any account can become a
@@ -195,7 +209,8 @@ export class MonitoringGateway
     socketUser: { id: string; role: string },
     examId: string,
   ): Promise<boolean> {
-    if (!this.isPrivileged(socketUser.role)) return false;
+    // No global-role gate: a workspace Teacher (OrgMembership) or the exam's
+    // creator can hold a global STUDENT role. The checks below decide.
     if (socketUser.role === 'SUPER_ADMIN') return true;
 
     const exam = await this.prisma.exam.findUnique({
@@ -227,6 +242,51 @@ export class MonitoringGateway
       membership.status === 'ACTIVE' &&
       (membership.role === 'TEACHER' || membership.role === 'ADMIN'),
     );
+  }
+
+  /**
+   * Session ownership never changes, so once verified it is remembered on
+   * the socket: heartbeat/save_answer/log_violation then skip the Redis
+   * owner lookup on every event.
+   */
+  private async ownsSession(
+    client: Socket,
+    socketUser: { id: string },
+    sessionId: string,
+  ): Promise<boolean> {
+    if (!sessionId) return false;
+    const data = client.data as { ownedSessions?: Set<string> };
+    const owned = (data.ownedSessions ??= new Set<string>());
+    if (owned.has(sessionId)) return true;
+    const ownerId = await this.submissionService.getSessionOwner(sessionId);
+    if (!ownerId || ownerId !== socketUser.id) return false;
+    owned.add(sessionId);
+    return true;
+  }
+
+  /**
+   * Record presence and return the gap since the previous contact in one
+   * round trip (SET ... GET). Key/TTL mirror SubmissionService.recordPresence.
+   * Falls back to GET-then-SET if the server rejects SET ... GET (< 6.2).
+   */
+  private async touchPresence(sessionId: string): Promise<number | null> {
+    const now = Date.now();
+    let previous: string | null;
+    try {
+      previous = await this.redis.set(
+        `session:lastseen:${sessionId}`,
+        String(now),
+        'EX',
+        21_600,
+        'GET',
+      );
+    } catch {
+      const gap = await this.submissionService.getPresenceGapMs(sessionId);
+      await this.submissionService.recordPresence(sessionId);
+      return gap;
+    }
+    const last = Number(previous);
+    return previous && Number.isFinite(last) ? now - last : null;
   }
 
   /** Client-reported time, trusted only inside a sane window. */
@@ -460,14 +520,8 @@ export class MonitoringGateway
       // Establish live presence on join only if ownership is verified.
       // Check presence gap before recording to prevent erasing offline gaps.
       if (data.sessionId) {
-        const ownerId = await this.submissionService.getSessionOwner(
-          data.sessionId,
-        );
-        if (ownerId === socketUser.id) {
-          const gapMs = await this.submissionService.getPresenceGapMs(
-            data.sessionId,
-          );
-          await this.submissionService.recordPresence(data.sessionId);
+        if (await this.ownsSession(client, socketUser, data.sessionId)) {
+          const gapMs = await this.touchPresence(data.sessionId);
 
           if (gapMs !== null && gapMs > 75_000) {
             const seconds = Math.round(gapMs / 1000);
@@ -525,15 +579,15 @@ export class MonitoringGateway
     @MessageBody() data: { sessionId: string; answer: any },
     @ConnectedSocket() client: Socket,
   ) {
+    if (this.overBudget(client, 'save_answer')) {
+      return { status: 'rejected', reason: 'RATE_LIMITED' };
+    }
     // Exam integrity: only the session's owner may write answers into it.
     const socketUser = await this.getSocketUser(client);
     if (!socketUser) {
       return { status: 'rejected', reason: 'UNAUTHENTICATED' };
     }
-    const ownerId = await this.submissionService.getSessionOwner(
-      data.sessionId,
-    );
-    if (!ownerId || ownerId !== socketUser.id) {
+    if (!(await this.ownsSession(client, socketUser, data.sessionId))) {
       console.warn(
         `[SaveAnswer] Blocked: user ${socketUser.id} attempted to write session ${data.sessionId}`,
       );
@@ -543,7 +597,14 @@ export class MonitoringGateway
     // Stages the answer in a per-question Redis hash (atomic — no lost
     // updates between tabs) and schedules one coalesced DB flush for the
     // session. See SubmissionService.queueAnswer.
-    await this.submissionService.queueAnswer(data.sessionId, data.answer);
+    try {
+      await this.submissionService.queueAnswer(data.sessionId, data.answer);
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        return { status: 'rejected', reason: error.message };
+      }
+      throw error;
+    }
     // Socket activity counts as live presence for the submit guard.
     await this.submissionService.recordPresence(data.sessionId);
     return { status: 'saved' };
@@ -562,17 +623,17 @@ export class MonitoringGateway
     // heartbeat balloons), or briefly dropped the socket — all recorded as a
     // soft violation for the proctor to review (network blips look the same).
     const HEARTBEAT_GAP_MS = 75_000;
+    if (this.overBudget(client, 'heartbeat')) {
+      return { status: 'rejected', reason: 'RATE_LIMITED' };
+    }
     if (data?.sessionId) {
       const socketUser = await this.getSocketUser(client);
-      const ownerId = socketUser
-        ? await this.submissionService.getSessionOwner(data.sessionId)
-        : null;
 
-      if (socketUser && ownerId === socketUser.id) {
-        const gapMs = await this.submissionService.getPresenceGapMs(
-          data.sessionId,
-        );
-        await this.submissionService.recordPresence(data.sessionId);
+      if (
+        socketUser &&
+        (await this.ownsSession(client, socketUser, data.sessionId))
+      ) {
+        const gapMs = await this.touchPresence(data.sessionId);
 
         if (gapMs !== null && gapMs > HEARTBEAT_GAP_MS) {
           const examId = this.activeConnections.get(client.id)?.examId;
@@ -630,6 +691,9 @@ export class MonitoringGateway
     },
     @ConnectedSocket() client: Socket,
   ) {
+    if (this.overBudget(client, 'log_violation')) {
+      return { status: 'rejected', reason: 'RATE_LIMITED' };
+    }
     // Exam integrity: violations may only be logged by the session's owner.
     // Otherwise anyone could spam TAB_SWITCH events with a victim's session
     // id until their exam auto-terminates.
@@ -637,10 +701,7 @@ export class MonitoringGateway
     if (!socketUser) {
       return { status: 'rejected', reason: 'UNAUTHENTICATED' };
     }
-    const ownerId = await this.submissionService.getSessionOwner(
-      data.sessionId,
-    );
-    if (!ownerId || ownerId !== socketUser.id) {
+    if (!(await this.ownsSession(client, socketUser, data.sessionId))) {
       console.warn(
         `[LogViolation] Blocked: user ${socketUser.id} attempted to log against session ${data.sessionId}`,
       );

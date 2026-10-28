@@ -3,7 +3,7 @@ import AdminDashboardViewSkeleton from '@/app/components/Skeletons/AdminDashboar
 
 export default function Loading() {
     return (
-        <div className="space-y-8">
+        <div className="space-y-6">
             <OrgControlsSkeleton />
             <AdminDashboardViewSkeleton />
         </div>

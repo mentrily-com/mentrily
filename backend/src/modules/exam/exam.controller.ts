@@ -26,6 +26,7 @@ import { shouldSanitizeSensitiveContent } from '../common/testcase-visibility.ut
 import { EnterExamDto } from './dto/enter-exam.dto';
 import { CreateExamDto } from './dto/create-exam.dto';
 import { SaveFeedbackDto } from './dto/save-feedback.dto';
+import { getClientIp } from '../../common/client-ip';
 
 @Controller('exam')
 export class ExamController {
@@ -61,26 +62,7 @@ export class ExamController {
   }
 
   private getClientIp(req: any): string {
-    const cfIp = req?.headers?.['cf-connecting-ip'] || req?.headers?.['true-client-ip'];
-    if (typeof cfIp === 'string' && cfIp.trim().length > 0) {
-      return cfIp.split(',')[0].trim();
-    }
-
-    if (req?.ip && typeof req.ip === 'string') {
-      return req.ip;
-    }
-
-    const forwardedFor = req?.headers?.['x-forwarded-for'];
-    if (typeof forwardedFor === 'string' && forwardedFor.trim().length > 0) {
-      return forwardedFor.split(',')[0].trim();
-    }
-
-    const realIp = req?.headers?.['x-real-ip'];
-    if (typeof realIp === 'string' && realIp.trim().length > 0) {
-      return realIp.trim();
-    }
-
-    return '';
+    return getClientIp(req);
   }
 
   @Get('app-config')
@@ -206,6 +188,8 @@ export class ExamController {
     // currently active workspace/persona wasn't literally Student even on
     // exams open to everyone.
     await this.examService.assertCanEnterExam(lookup, user);
+    await this.examService.assertTestCodeGrant(lookup, user);
+    await this.examService.assertExamWindowOpen(lookup, user);
 
     if (lookup.examMode === 'App' && !this.isAppClient(req)) {
       throw new UnauthorizedException('APP_REQUIRED');

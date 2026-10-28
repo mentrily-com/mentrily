@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import SkeletonRoot from './SkeletonRoot';
 
 /**
  * Mirrors the real certificate grid in
@@ -11,7 +12,7 @@ import React from 'react';
  */
 export default function LearnerCertificatesSkeleton({ count = 4 }: { count?: number }) {
     return (
-        <section className="mt-6 grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+        <SkeletonRoot className="mt-6 grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
             {Array.from({ length: count }).map((_, i) => (
                 <article
                     key={i}
@@ -49,6 +50,6 @@ export default function LearnerCertificatesSkeleton({ count = 4 }: { count?: num
                     <div className="mt-6 h-11 w-full animate-pulse rounded-xl bg-slate-200" />
                 </article>
             ))}
-        </section>
+        </SkeletonRoot>
     );
 }

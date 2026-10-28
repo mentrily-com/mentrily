@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useMemo, useEffect } from 'react';
-import CoursePlayerSkeleton from '@/app/components/Skeletons/CoursePlayerSkeleton';
+import SubmissionPreviewSkeleton from '@/app/components/Skeletons/SubmissionPreviewSkeleton';
 import UnitRenderer from '@/app/components/UnitRenderer';
 import ExamSidebar from '@/app/components/ExamSidebar';
 
@@ -162,7 +162,7 @@ export default function SuperAdminSubmissionPreviewPage({
         setMarks((prev) => ({ ...prev, [currentQuestion.id]: val }));
     };
 
-    if (loading) return <CoursePlayerSkeleton hasSidebar={true} isExamMode={false} />;
+    if (loading) return <SubmissionPreviewSkeleton />;
 
     if (!submissionData) {
         return (

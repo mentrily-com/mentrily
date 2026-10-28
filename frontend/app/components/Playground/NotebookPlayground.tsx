@@ -2,10 +2,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { LanguageConfig } from '../Editor/types';
-import CoursePlayerSkeleton from '../Skeletons/CoursePlayerSkeleton';
+import { NotebookCellSkeleton } from '../Skeletons/NotebookSkeleton';
 
 const CodeEditor = dynamic(() => import('../Editor/CodeEditor'), {
-    loading: () => <CoursePlayerSkeleton isExamMode hasSidebar={false} />,
+    loading: () => <NotebookCellSkeleton />,
     ssr: false,
 });
 import { python } from '@codemirror/lang-python';

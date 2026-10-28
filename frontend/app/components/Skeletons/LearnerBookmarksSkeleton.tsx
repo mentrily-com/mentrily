@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import SkeletonRoot from './SkeletonRoot';
 
 /**
  * Mirrors the bookmarks list in
@@ -10,7 +11,7 @@ import React from 'react';
  */
 export default function LearnerBookmarksSkeleton({ rows = 5 }: { rows?: number }) {
     return (
-        <div className="overflow-hidden bg-white border border-slate-100 rounded-xl shadow-sm">
+        <SkeletonRoot className="overflow-hidden bg-white border border-slate-100 rounded-xl shadow-sm">
             {/* desktop: table */}
             <table className="hidden w-full text-left border-collapse md:table">
                 <thead>
@@ -60,6 +61,6 @@ export default function LearnerBookmarksSkeleton({ rows = 5 }: { rows?: number }
                     </div>
                 ))}
             </div>
-        </div>
+        </SkeletonRoot>
     );
 }

@@ -4,6 +4,8 @@ import {
   ConflictException,
   BadRequestException,
   ForbiddenException,
+  HttpException,
+  HttpStatus,
   Logger,
 } from '@nestjs/common';
 import { InjectRedis } from '@nestjs-modules/ioredis';
@@ -15,6 +17,11 @@ import { StorageService } from '../../services/storage/storage.service';
 import { QuotaService } from '../billing/quota.service';
 import { OrgProvisioningService } from '../organization/org-provisioning.service';
 import { MembershipService } from '../organization/membership.service';
+import { examEntryGrantKey, EXAM_ENTRY_GRANT_TTL_SEC } from '../exam/exam.util';
+
+const EXAM_CODE_WINDOW_SEC = 15 * 60;
+const EXAM_CODE_MAX_FAILS_PER_IP = 10;
+const EXAM_CODE_MAX_FAILS_PER_SLUG = 100;
 
 @Injectable()
 export class AuthService {
@@ -423,17 +430,25 @@ export class AuthService {
     userId: string,
     testCode: string,
     slug?: string,
-    clientCtx?: { userAgent?: string; clientPlatform?: string },
+    clientCtx?: { userAgent?: string; clientPlatform?: string; ip?: string },
   ) {
     const whereClause: any = { testCode };
     if (slug) {
       whereClause.slug = slug;
     }
+    // Slug-less logins search every exam, so they share one lockout bucket.
+    const lockSlug = slug || '*';
+    const ip = clientCtx?.ip || 'unknown-ip';
+    await this.assertExamCodeNotLocked(lockSlug, ip);
 
     const exam = await this.db.exam.findFirst({
       where: whereClause,
     });
-    if (!exam) throw new UnauthorizedException('Invalid test code');
+    if (!exam) {
+      await this.recordExamCodeFailure(lockSlug, ip);
+      throw new UnauthorizedException('Invalid test code');
+    }
+    await this.redis.del(this.examCodeFailKeys(lockSlug, ip)[0]);
 
     if (exam.examMode === 'App' && !this.isAppClient(clientCtx)) {
       throw new UnauthorizedException('APP_REQUIRED');
@@ -521,6 +536,13 @@ export class AuthService {
       }
     }
 
+    await this.redis.set(
+      examEntryGrantKey(exam.id, user.id),
+      '1',
+      'EX',
+      EXAM_ENTRY_GRANT_TTL_SEC,
+    );
+
     const orgSlug = this.getOrgSlug(user.organization?.domain);
     const postLoginUrl = this.buildOrgUrl(orgSlug);
 
@@ -556,7 +578,38 @@ export class AuthService {
     };
   }
 
-  async verifyExamTestCode(testCode: string, slug?: string) {
+  private examCodeFailKeys(slug: string, ip: string) {
+    return [`exam-code-fail:ip:${slug}:${ip}`, `exam-code-fail:slug:${slug}`];
+  }
+
+  private async assertExamCodeNotLocked(slug: string, ip: string) {
+    const [ipFails, slugFails] = await this.redis.mget(
+      ...this.examCodeFailKeys(slug, ip),
+    );
+    if (
+      Number(ipFails) >= EXAM_CODE_MAX_FAILS_PER_IP ||
+      Number(slugFails) >= EXAM_CODE_MAX_FAILS_PER_SLUG
+    ) {
+      throw new HttpException(
+        {
+          code: 'TOO_MANY_ATTEMPTS',
+          message: 'Too many invalid test codes. Try again later.',
+        },
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+  }
+
+  private async recordExamCodeFailure(slug: string, ip: string) {
+    const multi = this.redis.multi();
+    for (const key of this.examCodeFailKeys(slug, ip)) {
+      // SET NX starts a fixed window (INCR keeps the TTL); avoids Redis 7-only EXPIRE NX.
+      multi.set(key, 0, 'EX', EXAM_CODE_WINDOW_SEC, 'NX').incr(key);
+    }
+    await multi.exec();
+  }
+
+  async verifyExamTestCode(testCode: string, slug?: string, ip = 'unknown-ip') {
     const normalizedCode = String(testCode || '').trim();
     const normalizedSlug = String(slug || '').trim();
 
@@ -568,6 +621,8 @@ export class AuthService {
       throw new BadRequestException('Exam slug is required');
     }
 
+    await this.assertExamCodeNotLocked(normalizedSlug, ip);
+
     const exam = await this.db.exam.findFirst({
       where: {
         testCode: normalizedCode,
@@ -577,8 +632,10 @@ export class AuthService {
     });
 
     if (!exam) {
+      await this.recordExamCodeFailure(normalizedSlug, ip);
       throw new UnauthorizedException('Invalid test code');
     }
+    await this.redis.del(this.examCodeFailKeys(normalizedSlug, ip)[0]);
 
     if (!exam.isActive) {
       throw new UnauthorizedException('Exam is not active');

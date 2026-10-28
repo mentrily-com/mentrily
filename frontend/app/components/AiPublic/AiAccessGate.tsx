@@ -100,6 +100,8 @@ function LearnerGate({ prompt }: { prompt?: GatePrompt }) {
         try {
             const persona = await AuthService.becomeCreator();
             await AuthService.switchOrg(persona.orgId);
+            // Skeletons/nav read this before the session loads; it still said 'student'.
+            window.localStorage.setItem('user-role', 'teacher');
             window.location.href = STUDIO_RESUME_PATH;
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Could not set up your creator workspace');

@@ -98,6 +98,14 @@ export function useRoleGuard(allowedRoles: string[]) {
             return;
         }
 
+        // A pending role for ANOTHER dashboard means a workspace switch / role
+        // selection is already navigating there; redirecting too fired a
+        // second, duplicate route fetch + render. Expires after 20s, so a
+        // stalled transition still falls through to the redirect below.
+        if (pendingRole) {
+            return;
+        }
+
         // Never redirect based on placeholder data — wait for the real session.
         if (!isSessionResolved) {
             return;
@@ -109,7 +117,7 @@ export function useRoleGuard(allowedRoles: string[]) {
             else if (role === 'SUPER_ADMIN') router.replace('/dashboard/super-admin');
             return;
         }
-    }, [allowedRoles, router, isLoaded, isSignedIn, isSessionResolved, role, isPendingAuthorized]);
+    }, [allowedRoles, router, isLoaded, isSignedIn, isSessionResolved, role, isPendingAuthorized, pendingRole]);
 
     return { isAuthorized, isReady, isPendingAuthorized, shouldBlockRender };
 }

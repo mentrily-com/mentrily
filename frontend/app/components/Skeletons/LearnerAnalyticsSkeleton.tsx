@@ -1,3 +1,4 @@
+import SkeletonRoot from './SkeletonRoot';
 /**
  * Purpose-built skeleton for the learner (and teacher-viewing-a-learner)
  * analytics page (`/dashboard/learner/analytics`). Previously this used the
@@ -12,7 +13,7 @@
  */
 export default function LearnerAnalyticsSkeleton() {
     return (
-        <div className="min-h-screen bg-slate-50 font-sans">
+        <SkeletonRoot className="min-h-screen bg-slate-50 font-sans">
             {/* STICKY SUB-HEADER -- sticks to the top of this page's own
                 scroll container; must match the real page's offset (see
                 analytics/page.tsx) or the skeleton and real content jump
@@ -101,6 +102,6 @@ export default function LearnerAnalyticsSkeleton() {
                     ))}
                 </div>
             </div>
-        </div>
+        </SkeletonRoot>
     );
 }

@@ -1,3 +1,4 @@
+import SkeletonRoot from './SkeletonRoot';
 /**
  * Purpose-built skeleton for the creator courses/studio page
  * (`/dashboard/creator/courses`). The previous fallback, the generic
@@ -11,7 +12,7 @@
  */
 export default function CreatorCoursesSkeleton() {
     return (
-        <div className="font-sans">
+        <SkeletonRoot className="font-sans">
             <div className="mb-6">
                 <div className="h-8 w-32 animate-pulse rounded-md bg-slate-200" />
                 <div className="mt-1 h-5 w-96 max-w-full animate-pulse rounded bg-slate-100" />
@@ -81,6 +82,6 @@ export default function CreatorCoursesSkeleton() {
                     </div>
                 </aside>
             </div>
-        </div>
+        </SkeletonRoot>
     );
 }

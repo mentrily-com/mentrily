@@ -2,11 +2,17 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { StudentService } from '@/services/api/StudentService';
+import { useSession } from '@/hooks/useSession';
 
 export const ANNOUNCEMENTS_QUERY_KEY = ['student-announcements'];
 
 export function useAnnouncements(enabled: boolean = true) {
     const queryClient = useQueryClient();
+    // Student-only endpoints. A workspace switch away from the learner
+    // persona drops this query while the learner page is still mounted;
+    // without this gate it immediately refetched under the new role and 403'd.
+    const { data: session } = useSession();
+    const isStudentSession = String(session?.role || '').toUpperCase() === 'STUDENT';
 
     const query = useQuery({
         queryKey: ANNOUNCEMENTS_QUERY_KEY,
@@ -20,7 +26,7 @@ export function useAnnouncements(enabled: boolean = true) {
                 unreadCount: Number(countData?.count || 0),
             };
         },
-        enabled,
+        enabled: enabled && isStudentSession,
         staleTime: 60_000,
         gcTime: 5 * 60_000,
         refetchOnWindowFocus: false,

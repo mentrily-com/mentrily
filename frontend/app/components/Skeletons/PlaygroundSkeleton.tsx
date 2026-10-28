@@ -1,9 +1,11 @@
 'use client';
 import React from 'react';
+import SkeletonRoot from './SkeletonRoot';
 
-export default function PlaygroundSkeleton() {
+// fillHeight: fill an embedded parent (PublicPlaygroundShell embedded, lab cards) instead of the viewport.
+export default function PlaygroundSkeleton({ fillHeight = false }: { fillHeight?: boolean }) {
     return (
-        <div className="h-screen flex flex-col bg-white overflow-hidden font-sans">
+        <SkeletonRoot className={`${fillHeight ? 'h-full min-h-0' : 'h-screen'} flex flex-col bg-white overflow-hidden font-sans`}>
             <div className="flex-1 flex overflow-hidden">
                 <div className="flex-1 flex flex-col overflow-hidden relative">
                     {/* Tab Bar Skeleton */}
@@ -52,6 +54,6 @@ export default function PlaygroundSkeleton() {
                     </div>
                 </div>
             </div>
-        </div>
+        </SkeletonRoot>
     );
 }
